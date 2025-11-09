@@ -1,6 +1,8 @@
 use crate::interpolation::interpolation_trait::InterpolationTrait;
 use crate::prelude::*;
 
+/// This stuct implements simple linear interpolation between y = f(x)
+
 #[derive(Debug)]
 pub struct LinearInterpolator<'a>{
     jsav : usize,
@@ -41,6 +43,8 @@ impl<'a> InterpolationTrait<'a> for LinearInterpolator<'a>{
     fn set_dj(&mut self, x : usize){
         self.dj = x
     }
+
+    /// This is the logic of the linear interpolator
     fn raw_interpolate(&mut self, jlo : usize, x : RealNumber) -> Result<RealNumber,ErrorsJSL> {
         
         let x_values = self.get_x_values();
@@ -58,6 +62,7 @@ impl<'a> InterpolationTrait<'a> for LinearInterpolator<'a>{
 }
 
 impl<'a> LinearInterpolator<'a>{
+    /// Initialize with y_values = f(x_values)
     pub fn new(x_values : VR1D<'a>,   y_values : VR1D<'a>) -> Result<Self,ErrorsJSL>{
         let mut result = LinearInterpolator{
             jsav:0,
@@ -82,10 +87,16 @@ mod test{
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
         let mut dut = LinearInterpolator::new(x.view(), y.view())?;
-        let y_interp = dut.interpolat_at(0.5)?;
+        let y_interp = dut.interpolate_at(0.5)?;
         assert_eq!(y_interp,1.5);
-        let y_interp = dut.interpolat_at(1.5)?;
+        let y_interp = dut.interpolate_at(1.5)?;
         assert_eq!(y_interp,1.0);
+        let y_interp = dut.interpolate_at(2.5)?;
+        assert_eq!(y_interp,-0.5);
+        let y_interp = dut.interpolate_at(3.5)?;
+        assert_eq!(y_interp,-1.5);
+        let y_interp = dut.interpolate_at(-1.0)?;
+        assert_eq!(y_interp,0.0);        
         Ok(())
     }
 }

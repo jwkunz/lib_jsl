@@ -129,7 +129,7 @@ pub trait InterpolationTrait<'a> : Sized{
     fn raw_interpolate(&mut self, jlo : usize, x : RealNumber) -> Result<RealNumber,ErrorsJSL>;
 
     /// Top level wrapper for evaluation
-    fn interpolat_at(&mut self, x : RealNumber) -> Result<RealNumber,ErrorsJSL>{
+    fn interpolate_at(&mut self, x : RealNumber) -> Result<RealNumber,ErrorsJSL>{
         let jlo = if self.get_cached_correlation(){
             self.hunt(x)?
         }else{

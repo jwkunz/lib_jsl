@@ -76,9 +76,9 @@ impl<'a> PolynomialInterpolator<'a> {
         let mut result = PolynomialInterpolator {
             x_values,
             y_values,
-            coeficients: Vec::new(),
+            coeficients: Vec::with_capacity(x_values.len()),
         };
-        result.verify_sizes()?;
+        result.verify_sizes(2)?;
         result.init_newton_divided_differences();
         Ok(result)
     }
@@ -94,6 +94,18 @@ mod test {
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
         let mut dut = PolynomialInterpolator::new(x.view(), y.view())?;
+        
+        // Exact hits
+        let y_interp = dut.interpolate_at(0.0)?;
+        assert!((y_interp-1.0).abs() < 1E-9);
+        let y_interp = dut.interpolate_at(1.0)?;
+        assert!((y_interp-2.0).abs() < 1E-9);
+        let y_interp = dut.interpolate_at(2.0)?;
+        assert!((y_interp-0.0).abs() < 1E-9);
+        let y_interp = dut.interpolate_at(3.0)?;
+        assert!((y_interp+1.0).abs() < 1E-9);
+
+        // Interpolations
         let y_interp = dut.interpolate_at(0.5)?;
         assert_eq!(y_interp, 2.125);
         let y_interp = dut.interpolate_at(1.5)?;

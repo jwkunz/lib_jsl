@@ -17,10 +17,10 @@ pub trait InterpolationTrait<'a> : Sized{
     }
 
     /// Thie function checks to make sure x and y are the same length and greater than 2
-    fn verify_sizes(&mut self) -> Result<(),ErrorsJSL>{
+    fn verify_sizes(&mut self, limit : usize) -> Result<(),ErrorsJSL>{
         let n = self.get_x_values().len();
         let mm = self.get_y_values().len();
-        if (n != mm) || n < 2{
+        if (n != mm) || n < limit{
             return Err(ErrorsJSL::IncompatibleArraySizes((n,mm)));
         }
         return Ok(())

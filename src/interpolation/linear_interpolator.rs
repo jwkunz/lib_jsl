@@ -1,7 +1,7 @@
 use crate::interpolation::interpolation_trait::InterpolationTrait;
 use crate::prelude::*;
 
-/// This stuct implements simple linear interpolation between y = f(x)
+/// This stuct implements simple linear interpolation for y = f(x)
 
 #[derive(Debug)]
 pub struct LinearInterpolator<'a>{
@@ -55,7 +55,7 @@ impl<'a> LinearInterpolator<'a>{
             y_values,
             location : None
         };
-        result.verify_sizes()?;
+        result.verify_sizes(2)?;
         Ok(result)
     }
 }
@@ -71,6 +71,18 @@ mod test{
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
         let mut dut = LinearInterpolator::new(x.view(), y.view())?;
+
+        // Exact hits
+        let y_interp = dut.interpolate_at(0.0)?;
+        assert!((y_interp-1.0).abs() < 1E-9);
+        let y_interp = dut.interpolate_at(1.0)?;
+        assert!((y_interp-2.0).abs() < 1E-9);
+        let y_interp = dut.interpolate_at(2.0)?;
+        assert!((y_interp-0.0).abs() < 1E-9);
+        let y_interp = dut.interpolate_at(3.0)?;
+        assert!((y_interp+1.0).abs() < 1E-9);
+
+        // Interpolations
         let y_interp = dut.interpolate_at(0.5)?;
         assert_eq!(y_interp,1.5);
         let y_interp = dut.interpolate_at(1.5)?;

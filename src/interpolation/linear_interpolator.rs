@@ -5,9 +5,7 @@ use crate::prelude::*;
 
 #[derive(Debug)]
 pub struct LinearInterpolator<'a>{
-    jsav : usize,
-    cor : bool,
-    dj : usize,
+    location : Option<usize>,
     x_values : VR1D<'a>,
     y_values : VR1D<'a>
 }
@@ -25,23 +23,11 @@ impl<'a> InterpolationTrait<'a> for LinearInterpolator<'a>{
     fn set_y_values(&mut self,y : VR1D<'a>){
         self.y_values = y;
     }
-    fn get_cached_correlation(&self) -> bool{
-        self.cor
+    fn get_cached_location(&self) -> Option<usize>{
+        self.location
     }
-    fn set_cached_correlation(&mut self,x : bool){
-        self.cor = x
-    }
-    fn get_jsav(&self) -> usize{
-        self.jsav
-    }
-    fn set_jsav(&mut self,x : usize){
-        self.jsav = x
-    }
-    fn get_dj(&self) -> usize{
-        self.dj
-    }
-    fn set_dj(&mut self, x : usize){
-        self.dj = x
+    fn set_cached_location(&mut self,x : usize){
+        self.location = Some(x)
     }
 
     /// This is the logic of the linear interpolator
@@ -65,13 +51,11 @@ impl<'a> LinearInterpolator<'a>{
     /// Initialize with y_values = f(x_values)
     pub fn new(x_values : VR1D<'a>,   y_values : VR1D<'a>) -> Result<Self,ErrorsJSL>{
         let mut result = LinearInterpolator{
-            jsav:0,
-            cor:false,
-            dj: 0,
             x_values,
-            y_values
+            y_values,
+            location : None
         };
-        result.configure()?;
+        result.verify_sizes()?;
         Ok(result)
     }
 }

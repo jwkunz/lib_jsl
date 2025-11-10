@@ -19,5 +19,6 @@ pub type ComplexNumber = num::Complex<f64>;
 #[derive(Debug)]
 pub enum ErrorsJSL{
     NotImplementedYet,
-    IncompatibleArraySizes((usize,usize))
+    IncompatibleArraySizes((usize,usize)), 
+    MalformedInputRange,
 }

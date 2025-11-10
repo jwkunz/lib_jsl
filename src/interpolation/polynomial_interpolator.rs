@@ -2,7 +2,7 @@ use crate::interpolation::interpolation_trait::InterpolationTrait;
 use crate::prelude::*;
 
 /// This stuct implements polynomial interpolation between y = f(x)
-/// This uses Neville's algorithm for efficient computation
+/// This uses Newtons divided differences for efficient computation
 
 #[derive(Debug)]
 pub struct PolynomialInterpolator<'a> {

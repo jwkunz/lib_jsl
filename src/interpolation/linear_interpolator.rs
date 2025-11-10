@@ -64,6 +64,11 @@ impl<'a> LinearInterpolator<'a>{
 mod test{
     use super::*;
 
+    // Helper for comparing floats
+    fn approx_eq(a: f64, b: f64, epsilon: f64) -> bool {
+    (a - b).abs() < epsilon
+    }
+
     #[test]
     fn tb_linear_interpolator() -> Result<(),ErrorsJSL>{
 
@@ -74,25 +79,26 @@ mod test{
 
         // Exact hits
         let y_interp = dut.interpolate_at(0.0)?;
-        assert!((y_interp-1.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,1.0,1E-9));
         let y_interp = dut.interpolate_at(1.0)?;
-        assert!((y_interp-2.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,2.0,1E-9));
         let y_interp = dut.interpolate_at(2.0)?;
-        assert!((y_interp-0.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,0.0,1E-9));
         let y_interp = dut.interpolate_at(3.0)?;
-        assert!((y_interp+1.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,-1.0,1E-9));
 
         // Interpolations
         let y_interp = dut.interpolate_at(0.5)?;
-        assert_eq!(y_interp,1.5);
+        assert!(approx_eq(y_interp,1.5,1E-9));
         let y_interp = dut.interpolate_at(1.5)?;
-        assert_eq!(y_interp,1.0);
+        assert!(approx_eq(y_interp,1.0,1E-9));
         let y_interp = dut.interpolate_at(2.5)?;
-        assert_eq!(y_interp,-0.5);
+        assert!(approx_eq(y_interp,-0.5,1E-9));
         let y_interp = dut.interpolate_at(3.5)?;
-        assert_eq!(y_interp,-1.5);
+        assert!(approx_eq(y_interp,-1.5,1E-9));
         let y_interp = dut.interpolate_at(-1.0)?;
-        assert_eq!(y_interp,0.0);        
+        assert!(approx_eq(y_interp,0.0,1E-9));
+            
         Ok(())
     }
 }

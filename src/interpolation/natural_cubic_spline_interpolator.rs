@@ -122,34 +122,39 @@ impl<'a> NaturalCubicSplineInterpolator<'a> {
 mod test {
     use super::*;
 
+    // Helper for comparing floats
+    fn approx_eq(a: f64, b: f64, epsilon: f64) -> bool {
+    (a - b).abs() < epsilon
+    }
+
     #[test]
     fn tb_linear_interpolator() -> Result<(), ErrorsJSL> {
         let x = R1D::from_vec(vec![0.0, 1.0, 2.0, 3.0]);
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
         let mut dut = NaturalCubicSplineInterpolator::new(x.view(), y.view())?;
-        
+
         // Exact hits
         let y_interp = dut.interpolate_at(0.0)?;
-        assert!((y_interp-1.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,1.0,1E-9));
         let y_interp = dut.interpolate_at(1.0)?;
-        assert!((y_interp-2.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,2.0,1E-9));
         let y_interp = dut.interpolate_at(2.0)?;
-        assert!((y_interp-0.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,0.0,1E-9));
         let y_interp = dut.interpolate_at(3.0)?;
-        assert!((y_interp+1.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,-1.0,1E-9));
 
         // Interpolations
         let y_interp = dut.interpolate_at(0.5)?;
-        assert_eq!(y_interp,1.825);
+        assert!(approx_eq(y_interp,1.825,1E-9));
         let y_interp = dut.interpolate_at(1.5)?;
-        assert_eq!(y_interp,1.15);
+        assert!(approx_eq(y_interp,1.15,1E-9));
         let y_interp = dut.interpolate_at(2.5)?;
-        assert_eq!(y_interp,-0.6749999999999999);
+        assert!(approx_eq(y_interp,-0.675,1E-9));
         let y_interp = dut.interpolate_at(3.5)?;
-        assert_eq!(y_interp, -1.3249999999999993);
+        assert!(approx_eq(y_interp,-1.325,1E-9));
         let y_interp = dut.interpolate_at(-1.0)?;
-        assert_eq!(y_interp, 0.0);
+        assert!(approx_eq(y_interp,0.0,1E-9));
         Ok(())
     }
 }

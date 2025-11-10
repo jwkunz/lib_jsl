@@ -1,7 +1,7 @@
 use crate::interpolation::interpolation_trait::InterpolationTrait;
 use crate::prelude::*;
 
-/// This stuct implements polynomial interpolation between y = f(x)
+/// This stuct implements polynomial interpolation for y = f(x)
 /// This uses Newtons divided differences for efficient computation
 
 #[derive(Debug)]
@@ -88,34 +88,40 @@ impl<'a> PolynomialInterpolator<'a> {
 mod test {
     use super::*;
 
+    // Helper for comparing floats
+    fn approx_eq(a: f64, b: f64, epsilon: f64) -> bool {
+    (a - b).abs() < epsilon
+    }
+
     #[test]
     fn tb_linear_interpolator() -> Result<(), ErrorsJSL> {
         let x = R1D::from_vec(vec![0.0, 1.0, 2.0, 3.0]);
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
         let mut dut = PolynomialInterpolator::new(x.view(), y.view())?;
-        
+
         // Exact hits
         let y_interp = dut.interpolate_at(0.0)?;
-        assert!((y_interp-1.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,1.0,1E-9));
         let y_interp = dut.interpolate_at(1.0)?;
-        assert!((y_interp-2.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,2.0,1E-9));
         let y_interp = dut.interpolate_at(2.0)?;
-        assert!((y_interp-0.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,0.0,1E-9));
         let y_interp = dut.interpolate_at(3.0)?;
-        assert!((y_interp+1.0).abs() < 1E-9);
+        assert!(approx_eq(y_interp,-1.0,1E-9));
 
         // Interpolations
         let y_interp = dut.interpolate_at(0.5)?;
-        assert_eq!(y_interp, 2.125);
+        assert!(approx_eq(y_interp,2.125,1E-9));
         let y_interp = dut.interpolate_at(1.5)?;
-        assert_eq!(y_interp, 1.125);
+        assert!(approx_eq(y_interp,1.125,1E-9));
         let y_interp = dut.interpolate_at(2.5)?;
-        assert_eq!(y_interp, -0.875);
+        assert!(approx_eq(y_interp,-0.875,1E-9));
         let y_interp = dut.interpolate_at(3.5)?;
-        assert_eq!(y_interp, 0.125);
+        assert!(approx_eq(y_interp,0.125,1E-9));
         let y_interp = dut.interpolate_at(-1.0)?;
-        assert_eq!(y_interp, -7.0);
+        assert!(approx_eq(y_interp,-7.0,1E-9));
+
         Ok(())
     }
 }

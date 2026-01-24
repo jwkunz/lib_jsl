@@ -8,7 +8,7 @@ use crate::prelude::*;
 pub struct PolynomialInterpolator<'a> {
     x_values: VR1D<'a>,
     y_values: VR1D<'a>,
-    coeficients: Vec<RealNumber>,
+    coeficients: Vec<f64>,
 }
 
 impl<'a> InterpolationTrait<'a> for PolynomialInterpolator<'a> {
@@ -32,14 +32,14 @@ impl<'a> InterpolationTrait<'a> for PolynomialInterpolator<'a> {
     }
 
     /// This is the logic of the linear interpolator
-    fn raw_interpolate(&mut self, _: usize, _: RealNumber) -> Result<RealNumber, ErrorsJSL> {
+    fn raw_interpolate(&mut self, _: usize, _: f64) -> Result<f64, ErrorsJSL> {
         Err(ErrorsJSL::NotImplementedYet) // Not needed
     }
 
     /// Evaluate the Newton interpolating polynomial at a given x.
     ///
     /// Uses Horner’s method for efficiency.
-    fn interpolate_at(&mut self, x: RealNumber) -> Result<RealNumber, ErrorsJSL> {
+    fn interpolate_at(&mut self, x: f64) -> Result<f64, ErrorsJSL> {
         let last_index = self.coeficients.len()-1;
         let mut result = self.coeficients[last_index];
         for i in (0..last_index).rev() {

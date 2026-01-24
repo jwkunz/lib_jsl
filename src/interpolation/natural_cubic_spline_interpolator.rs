@@ -35,7 +35,7 @@ impl<'a> InterpolationTrait<'a> for NaturalCubicSplineInterpolator<'a> {
     }
 
     /// This is the logic of the linear interpolator
-    fn raw_interpolate(&mut self, jlo: usize, x: RealNumber) -> Result<RealNumber, ErrorsJSL> {
+    fn raw_interpolate(&mut self, jlo: usize, x: f64) -> Result<f64, ErrorsJSL> {
         let dx = x - self.x_values[jlo];
         let dx2 = dx*dx;
         let dx3 = dx2*dx;

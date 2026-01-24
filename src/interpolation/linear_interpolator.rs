@@ -31,7 +31,7 @@ impl<'a> InterpolationTrait<'a> for LinearInterpolator<'a>{
     }
 
     /// This is the logic of the linear interpolator
-    fn raw_interpolate(&mut self, jlo : usize, x : RealNumber) -> Result<RealNumber,ErrorsJSL> {
+    fn raw_interpolate(&mut self, jlo : usize, x : f64) -> Result<f64,ErrorsJSL> {
         
         let x_values = self.get_x_values();
         let y_values = self.get_y_values();

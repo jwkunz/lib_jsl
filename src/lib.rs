@@ -8,4 +8,7 @@ pub mod interpolation{
 pub mod number_theory{
     pub mod greatest_common_divisor;
     pub mod multiplicative_inverse_modulo;
+    pub mod base_exponent_in_modulus;
+    pub mod integer_square_root;
+    pub mod text_coded_integer;
 }

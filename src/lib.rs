@@ -12,3 +12,9 @@ pub mod number_theory{
     pub mod integer_square_root;
     pub mod text_coded_integer;
 }
+pub mod integration{
+    pub mod can_integrate;
+    pub mod midpoint_integration_engine;
+    pub mod trapezoidal_integration_engine;
+    pub mod calculate_midpoints;
+}

@@ -32,9 +32,9 @@ use crate::{number_theory::greatest_common_divisor::extended_gcd, prelude::Error
 /// This function assumes the existence of an `extended_gcd` function with
 /// the following signature:
 ///
-/// ```rust
+///
 /// fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64);
-/// ```
+///
 ///
 /// which returns `(g, x, y)` such that:
 ///

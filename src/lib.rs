@@ -16,5 +16,6 @@ pub mod integration{
     pub mod can_integrate;
     pub mod midpoint_integration_engine;
     pub mod trapezoidal_integration_engine;
+    pub mod simpsons_1_3_integration_engine;
     pub mod calculate_midpoints;
 }

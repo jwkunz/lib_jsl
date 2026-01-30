@@ -80,6 +80,7 @@ mod test{
     use super::*;
     #[test]
     fn test_midpoint_integration(){
+        let error_limit = 1E-3;
         let upper_bound = 0.0;
         let lower_bound = PI/2.0;
         let number_of_points = 10000;
@@ -87,7 +88,7 @@ mod test{
         let result = dut.integrate(|x| x.sin()).unwrap();
         let error = -1.0-result;
         dbg!(&error);
-        assert!(error.abs() < 1E-3);
+        assert!(error.abs() < error_limit);
 
         let upper_bound = PI/2.0;
         let lower_bound = -PI/2.0;
@@ -96,6 +97,6 @@ mod test{
         let result = dut.integrate(|x| x.sin()).unwrap();
         let error = 0.0-result;
         dbg!(&error);
-        assert!(error.abs() < 1E-3);
+        assert!(error.abs() < error_limit);
     }
 }

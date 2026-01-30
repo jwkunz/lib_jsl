@@ -1,6 +1,5 @@
 use num::{
-    Integer,
-    traits::{CheckedAdd, CheckedDiv, CheckedMul, CheckedSub, Num, One, PrimInt, Signed, Zero},
+    traits::{CheckedAdd, CheckedDiv, CheckedMul, CheckedSub, Num, One, Signed, Zero},
 };
 use std::ops::{Add, Div, Mul, Sub};
 use std::{
@@ -135,24 +134,6 @@ impl TextCodedInteger {
         }
         a >= b // safe now because lengths are equal
     }
-
-    /// Multiply a numeric string by a single digit (0-9)
-    fn mul_string_digit(s: &str, d: u8) -> String {
-        if d == 0 { return "0".to_string(); }
-        let mut carry = 0;
-        let mut result = String::new();
-        for c in s.bytes().rev() {
-            let prod = (c - b'0') as u16 * d as u16 + carry;
-            carry = prod / 10;
-            result.push(((prod % 10) as u8 + b'0') as char);
-        }
-        if carry > 0 {
-            result.push_str(&carry.to_string().chars().rev().collect::<String>());
-        }
-        result.chars().rev().collect()
-    }
-
-
 }
 
 // Display trait
@@ -300,7 +281,7 @@ impl TextCodedInteger {
         let neg_quotient = dividend.is_negative() ^ divisor.is_negative();
         let neg_remainder = dividend.is_negative();
 
-        let mut dividend_abs = dividend.digits().to_string();
+        let dividend_abs = dividend.digits().to_string();
         let divisor_abs = divisor.digits();
 
         if !Self::numeric_ge(&dividend_abs, divisor_abs) {

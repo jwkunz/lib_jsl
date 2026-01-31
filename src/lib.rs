@@ -14,6 +14,7 @@ pub mod number_theory {
 }
 pub mod integration {
     pub mod adaptive_trapezoid_integration_engine;
+    pub mod adaptive_gl7k15_integration_engine;
     pub mod calculate_midpoints;
     pub mod can_integrate;
     pub mod midpoint_integration_engine;

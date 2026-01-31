@@ -1,7 +1,4 @@
-use crate::{
-    integration::{calculate_midpoints::calculate_midpoints, can_integrate::CanIntegrate1D},
-    prelude::ErrorsJSL,
-};
+use crate::{integration::can_integrate::CanIntegrate1D, prelude::ErrorsJSL};
 
 // An struct the integrates a 1D real function f(x) using the trapezoidal rule
 // Note: This is pedagogical and does not converge quickly
@@ -37,23 +34,8 @@ impl CanIntegrate1D for AdaptiveTrapezoidIntegrationEngine {
         let f_a = f(a);
         let b = self.upper_bound;
         let f_b = f(b);
-        // Evaluate the midpoint
-        let c = 0.5 * (a + b);
-        let f_c = f(c);
-        // Endpoint trapezoidal rule
-        let trap2 = (f_a + f_b) * 0.5 * (b - a);
-        // Include the middle trapezoidal rule
-        let left = (f_a + f_c) * 0.5 * (c - a);
-        let right = (f_c + f_b) * 0.5 * (b - c);
-        let trap3 = left + right;
-        let difference = (trap3 - trap2).abs();
-        if difference < self.tolerance {
-            return Ok(trap3);
-        } else {
-            let left = recurse(a, f_a, c, f_c, &f, self.tolerance);
-            let right = recurse(c, f_c, b, f_b, &f, self.tolerance);
-            Ok(left + right)
-        }
+        // Recursion
+        Ok(recurse(a, f_a, b, f_b, &f, self.tolerance))
     }
 
     // Dynamically sets the lower bound.  Will update cache if configured.
@@ -92,11 +74,12 @@ mod test {
 
     use super::*;
     #[test]
-    fn test_adaptive_integration() {
+    fn test_trapezoid_adaptive_integration() {
         let error_limit = 1E-6;
         let upper_bound = 0.0;
         let lower_bound = PI / 2.0;
-        let dut = AdaptiveTrapezoidIntegrationEngine::new(error_limit*0.001, lower_bound, upper_bound);
+        let dut =
+            AdaptiveTrapezoidIntegrationEngine::new(error_limit * 0.001, lower_bound, upper_bound);
         let result = dut.integrate(|x| x.sin()).unwrap();
         let error = -1.0 - result;
         dbg!(&error);
@@ -104,7 +87,8 @@ mod test {
 
         let upper_bound = PI / 2.0;
         let lower_bound = -PI / 2.0;
-        let dut = AdaptiveTrapezoidIntegrationEngine::new(error_limit*0.001, lower_bound, upper_bound);
+        let dut =
+            AdaptiveTrapezoidIntegrationEngine::new(error_limit * 0.001, lower_bound, upper_bound);
         let result = dut.integrate(|x| x.sin()).unwrap();
         let error = 0.0 - result;
         dbg!(&error);

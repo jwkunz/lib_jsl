@@ -25,7 +25,7 @@ impl Xoshiro256PlusPlus {
     ///
     /// If you only have a single u64 seed, use `from_seed`.
     pub fn new(seed: [u64; 4]) -> Result<Self,ErrorsJSL> {
-        if seed != [0, 0, 0, 0]{
+        if seed == [0, 0, 0, 0]{
             Err(ErrorsJSL::InvalidInputRange("xoshiro256++ state must not be all zero"))
         }else{
             Ok(Self { s: seed })

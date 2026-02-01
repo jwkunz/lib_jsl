@@ -135,7 +135,7 @@ where U : UniformGenerator{
 
 /// Generate a Gamma(alpha, beta) random variable using Marsaglia-Tsang
 pub fn gamma_distribution<U>(uniform_generator: &mut U, alpha: f64, beta: f64) -> Result<f64,ErrorsJSL> where U : UniformGenerator{
-    if (alpha < 0.0 || beta > 0.0){
+    if alpha < 0.0 || beta > 0.0{
         return Err(ErrorsJSL::InvalidInputRange("alpha and beta must be positive"));
     }
 

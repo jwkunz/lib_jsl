@@ -3,7 +3,7 @@ use std::{
     ops::{Mul, Neg},
 };
 
-use crate::{random::uniform_generator::UniformGenerator};
+use crate::{prelude::ErrorsJSL, random::uniform_generator::UniformGenerator};
 
 /// This file contains transformation functions that transform uniform floating point distributions [0,1) into the desired distribution
 /// e.g)  let sample = distribution(rng.generate_f64(), other args...)
@@ -130,4 +130,41 @@ where U : UniformGenerator{
     let first = guassian_samples.first().expect("checked above");
     let chi_square: f64 = guassian_samples.iter().skip(1).map(|x| x*x).sum();
     first / (chi_square / k as f64).sqrt()
+}
+
+
+/// Generate a Gamma(alpha, beta) random variable using Marsaglia-Tsang
+pub fn gamma_distribution<U>(uniform_generator: &mut U, alpha: f64, beta: f64) -> Result<f64,ErrorsJSL> where U : UniformGenerator{
+    if (alpha < 0.0 || beta > 0.0){
+        return Err(ErrorsJSL::InvalidInputRange("alpha and beta must be positive"));
+    }
+
+    if alpha < 1.0 {
+        // Boosting identity for alpha < 1
+        let u = uniform_generator.next_f64();
+        return Ok(gamma_distribution(uniform_generator,alpha + 1.0, 1.0).expect("Already sanitized") * u.powf(1.0 / alpha) * beta);
+    }
+
+    let d = alpha - 1.0 / 3.0;
+    let c = 1.0 / (9.0 * d).sqrt();
+
+    loop {
+        let z = guassian_distribution_box_muller(uniform_generator, 0.0, 1.0).0;
+        let v = 1.0 + c * z;
+        if v <= 0.0 {
+            continue; // Reject
+        }
+        let v_cubed = v * v * v;
+        let u = uniform_generator.next_f64();
+        if u.ln() < 0.5 * z * z + d - d * v_cubed + d * v_cubed.ln() {
+            return Ok(d * v_cubed * beta);
+        }
+    }
+}
+
+/// Generate a Beta(alpha, beta) random variable
+pub fn beta_distribution<U>(uniform_generator: &mut U, alpha: f64, beta: f64) -> Result<f64,ErrorsJSL> where U : UniformGenerator{
+    let x = gamma_distribution(uniform_generator, alpha, 1.0)?;
+    let y = gamma_distribution(uniform_generator, beta, 1.0)?;
+    Ok(x / (x+y))
 }

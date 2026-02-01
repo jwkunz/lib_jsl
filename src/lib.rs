@@ -24,3 +24,7 @@ pub mod integration {
     pub mod simpsons_1_3_integration_engine;
     pub mod trapezoidal_integration_engine;
 }
+pub mod random{
+    pub mod split_mix_64;
+    pub mod xoshiro256plusplus;
+}

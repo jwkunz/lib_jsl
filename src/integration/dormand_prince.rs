@@ -34,7 +34,7 @@ where
     F: Fn(f64) -> f64,
 {
     let k1 = h * f(t);
-    let k2 = h * f(t + h * 1.0 / 5.0);
+    //let k2 = h * f(t + h * 1.0 / 5.0);
     let k3 = h * f(t + h * 3.0 / 10.0);
     let k4 = h * f(t + h * 4.0 / 5.0);
     let k5 = h * f(t + h * 8.0 / 9.0);

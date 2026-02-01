@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 ndarray = "0"
 num = "0"
+rand = "0"
+rand_distr = "0.5"

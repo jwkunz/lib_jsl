@@ -1,4 +1,5 @@
 /// SplitMix64 — used only for seeding.
+/// Prevents zero seeds
 pub struct SplitMix64 {
     state: u64,
 }
@@ -16,6 +17,11 @@ impl SplitMix64 {
 
         z = (z ^ (z >> 30)).wrapping_mul(0xBF58476D1CE4E5B9);
         z = (z ^ (z >> 27)).wrapping_mul(0x94D049BB133111EB);
-        z ^ (z >> 31)
+        let result = z ^ (z >> 31);
+        if result == 0{
+            self.next_u64()
+        }else{
+            result
+        }
     }
 }

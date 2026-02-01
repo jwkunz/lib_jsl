@@ -1,4 +1,4 @@
-use crate::random::split_mix_64::*;
+use crate::{prelude::ErrorsJSL, random::split_mix_64::*};
 /// xoshiro256++
 ///
 /// High-quality, fast pseudorandom number generator suitable for
@@ -24,12 +24,12 @@ impl Xoshiro256PlusPlus {
     /// Create a new generator from a non-zero seed.
     ///
     /// If you only have a single u64 seed, use `from_seed`.
-    pub fn new(seed: [u64; 4]) -> Self {
-        assert!(
-            seed != [0, 0, 0, 0],
-            "xoshiro256++ state must not be all zero"
-        );
-        Self { s: seed }
+    pub fn new(seed: [u64; 4]) -> Result<Self,ErrorsJSL> {
+        if seed != [0, 0, 0, 0]{
+            Err(ErrorsJSL::InvalidInputRange("xoshiro256++ state must not be all zero"))
+        }else{
+            Ok(Self { s: seed })
+        }
     }
 
     /// Seed using SplitMix64 (recommended).
@@ -40,7 +40,7 @@ impl Xoshiro256PlusPlus {
             sm64.next_u64(),
             sm64.next_u64(),
             sm64.next_u64(),
-        ])
+        ]).expect("SplitMix64 prevents zero seeds")
     }
 
     /// Generate next random u64.

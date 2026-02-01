@@ -27,4 +27,6 @@ pub mod integration {
 pub mod random{
     pub mod split_mix_64;
     pub mod xoshiro256plusplus;
+    pub mod distributions;
+    pub mod uniform_generator;
 }

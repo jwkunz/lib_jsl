@@ -1,4 +1,4 @@
-use crate::{prelude::ErrorsJSL, random::split_mix_64::*};
+use crate::{prelude::ErrorsJSL, random::{split_mix_64::*, uniform_generator::UniformGenerator}};
 /// xoshiro256++
 ///
 /// High-quality, fast pseudorandom number generator suitable for
@@ -43,33 +43,6 @@ impl Xoshiro256PlusPlus {
         ]).expect("SplitMix64 prevents zero seeds")
     }
 
-    /// Generate next random u64.
-    #[inline]
-    pub fn next_u64(&mut self) -> u64 {
-        let result = Self::rotl(self.s[0].wrapping_add(self.s[3]), 23)
-            .wrapping_add(self.s[0]);
-
-        let t = self.s[1] << 17;
-
-        self.s[2] ^= self.s[0];
-        self.s[3] ^= self.s[1];
-        self.s[1] ^= self.s[2];
-        self.s[0] ^= self.s[3];
-
-        self.s[2] ^= t;
-        self.s[3] = Self::rotl(self.s[3], 45);
-
-        result
-    }
-
-    /// Generate a floating-point value in [0, 1).
-    ///
-    /// Uses the high 53 bits for correct uniformity.
-    pub fn next_f64(&mut self) -> f64 {
-        const SCALE: f64 = 1.0 / (1u64 << 53) as f64;
-        ((self.next_u64() >> 11) as f64) * SCALE
-    }
-
     /// Jump ahead 2^128 steps (for parallel streams).
     pub fn jump(&mut self) {
         const JUMP: [u64; 4] = [
@@ -97,6 +70,34 @@ impl Xoshiro256PlusPlus {
         }
 
         self.s = [s0, s1, s2, s3];
+    }
+}
+
+impl UniformGenerator for Xoshiro256PlusPlus{
+    /// Generate next random u64.
+    fn next_u64(&mut self) -> u64 {
+        let result = Self::rotl(self.s[0].wrapping_add(self.s[3]), 23)
+            .wrapping_add(self.s[0]);
+
+        let t = self.s[1] << 17;
+
+        self.s[2] ^= self.s[0];
+        self.s[3] ^= self.s[1];
+        self.s[1] ^= self.s[2];
+        self.s[0] ^= self.s[3];
+
+        self.s[2] ^= t;
+        self.s[3] = Self::rotl(self.s[3], 45);
+
+        result
+    }
+
+    /// Generate a floating-point value in [0, 1).
+    ///
+    /// Uses the high 53 bits for correct uniformity.
+    fn next_f64(&mut self) -> f64 {
+        const SCALE: f64 = 1.0 / (1u64 << 53) as f64;
+        ((self.next_u64() >> 11) as f64) * SCALE
     }
 }
 

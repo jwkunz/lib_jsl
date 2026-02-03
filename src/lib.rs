@@ -30,3 +30,6 @@ pub mod random{
     pub mod distributions;
     pub mod uniform_generator;
 }
+pub mod filters{
+    pub mod linear_filter;
+}

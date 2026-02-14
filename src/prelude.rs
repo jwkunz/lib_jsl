@@ -17,4 +17,7 @@ pub enum ErrorsJSL{
     IncompatibleArraySizes((usize,usize)), 
     InvalidInputRange(&'static str),
     RuntimeError(&'static str),
+    MissingDependency(&'static str),
+    Other(&'static str),
+    Misconfiguration(&'static str)
 }

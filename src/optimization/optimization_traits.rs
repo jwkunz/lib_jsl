@@ -23,15 +23,8 @@ pub struct OptimizationResult {
     pub iterations: usize,
     pub converged: bool,
 }
-
-/// - `MinimizationEngine`: A trait for optimization algorithms that can minimize an objective function. It has a method `minimize` that takes an objective function and an initial guess for the parameters, and returns the parameters that minimize the objective function. It also has methods for setting optional parameters such as maximum iterations, tolerance for convergence, and bounds for the optimization.
-pub trait MinimizationEngine {
-    /// The main method of the optimization engine. It takes an objective function and an initial guess for the parameters, and returns the parameters that minimize the objective function.
-    fn minimize(
-        &self,
-        objective_function: &dyn ObjectiveFunction,
-        initial_parameters: Vec<f64>,
-    ) -> Result<OptimizationResult, ErrorsJSL>;
+/// - 'MinimizationControls': A trait that defines methods for setting and getting the convergence criteria for optimization algorithms, including maximum iterations, tolerance, and optional bounds for the optimization.
+pub trait MinimizationControls {
     /// These traits use options to allow for algorithms to set and get the convergence criteria.
     /// If the algorithm does not have a maximum number of iterations, this can be set to None.
     fn set_max_iterations(&mut self, max_iterations: Option<usize>);
@@ -44,3 +37,24 @@ pub trait MinimizationEngine {
     fn set_bounds(&mut self, bounds: Option<Vec<(f64, f64)>>);
     fn get_bounds(&self) -> Option<Vec<(f64, f64)>>;
 }
+
+/// Gradient Free Minimization Engine trait that extends the MinimizationControls trait and has a method `gradient_free_minimize` that takes an objective function and an initial guess for the parameters, and returns the parameters that minimize the objective function.
+pub trait GradientFreeMinimizationEngine: MinimizationControls {
+    fn gradient_free_minimize(
+        &self,
+        objective_function: &dyn ObjectiveFunction,
+        initial_parameters: Vec<f64>,
+    ) -> Result<OptimizationResult, ErrorsJSL>;
+}       
+
+/// Gradient Based Minimization Engine trait that extends the MinimizationControls trait and has a method `gradient_based_minimize` that takes an objective function, an initial guess for the parameters, and returns the parameters that minimize the objective function.  
+/// This trait is intended for optimization algorithms that require the use of gradients, such as gradient descent or Newton's method.
+/// The method takes an additional argument for the gradient function, which is used to compute the gradient of the objective function at the current parameters.  The optimization algorithm can then use this gradient information to update the parameters in the direction of steepest descent, or to compute a search direction for more advanced optimization methods.    
+pub trait GradientBasedMinimizationEngine: MinimizationControls {
+    fn gradient_based_minimize(
+        &self,
+        objective_function: &dyn ObjectiveFunction,
+        gradient_function: &dyn GradientFunction,
+        initial_parameters: Vec<f64>,
+    ) -> Result<OptimizationResult, ErrorsJSL>;
+}   

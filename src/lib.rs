@@ -39,6 +39,6 @@ pub mod optimization {
     pub mod golden_section_search;
     pub mod gradient_descent;
     pub mod newton_raphson_method;
-    //pub mod simulated_annealing;
+    pub mod simulated_annealing;
     //pub mod nelder_mead_method;
 }

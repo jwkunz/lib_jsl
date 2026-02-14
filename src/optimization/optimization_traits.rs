@@ -12,6 +12,11 @@ pub trait GradientFunction {
     fn evaluate(&self, parameters: &Vec<f64>) -> Vec<f64>;
 }
 
+/// - 'HessianFunction': A trait for Hessian functions that can be used in optimization algorithms. It has a method `evaluate` that takes a vector of parameters and returns a matrix (represented as a vector of vectors) representing the Hessian of the objective function at those parameters.  This is a placeholder for the Hessian function. In a real implementation, you would need to define a separate trait for the Hessian and implement it for the objective function. --- IGNORE ---
+ pub trait HessianFunction {
+     fn evaluate(&self, parameters: &Vec<f64>) -> Vec<Vec<f64>>;
+}
+
 /// - `ObjectiveFunctionWithGradient`: A trait for objective functions that also have a gradient. It is a marker trait that indicates that the objective function implements both `ObjectiveFunction` and `GradientFunction`.
 pub trait ObjectiveFunctionWithGradient: ObjectiveFunction + GradientFunction {}
 
@@ -58,3 +63,16 @@ pub trait GradientBasedMinimizationEngine: MinimizationControls {
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL>;
 }   
+
+/// Hessian Based Minimization Engine trait that extends the MinimizationControls trait and has a method `hessian_based_minimize` that takes an objective function, an initial guess for the parameters, and returns the parameters that minimize the objective function.
+/// This trait is intended for optimization algorithms that require the use of second-order information, such as Newton's method or quasi-Newton methods. The method takes additional arguments for the gradient function and the
+/// Hessian function, which are used to compute the gradient and Hessian of the objective function at the current parameters. The optimization algorithm can then use this information to update the parameters in a more informed way, potentially leading to faster convergence to the minimum.
+pub trait HessianBasedMinimizationEngine: MinimizationControls {
+    fn hessian_based_minimize(
+        &self,
+        objective_function: &dyn ObjectiveFunction,
+        gradient_function: &dyn GradientFunction,
+        hessian_function: &dyn HessianFunction, 
+        initial_parameters: Vec<f64>,
+    ) -> Result<OptimizationResult, ErrorsJSL>;
+}

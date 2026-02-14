@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ndarray = "0"
-num = "0"
-rand = "0"
-rand_distr = "0.5"
+num = "*"
+rand = "*"
+rand_distr = "*" 
+ndarray = { version = "*", features = ["blas"] }
+ndarray-linalg = { version = "*", features = ["intel-mkl-static"] }   

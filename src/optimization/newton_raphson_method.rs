@@ -53,10 +53,17 @@ impl HessianBasedMinimizationEngine for NewtonRaphsonMethod {
             converged: false,
         };
         let bounds = self.get_bounds();
-        if bounds.is_none() {
-            return Err(ErrorsJSL::Misconfiguration(
-                "Newton-Raphson method requires bounds to be set.  Please set bounds using the set_bounds method before calling minimize.",
-            ));
+        if let Some(bounds) = bounds.as_ref() {
+            if bounds.len() != initial_parameters.len() {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Bounds length must match the number of parameters.",
+                ));
+            }            
+            if bounds.iter().any(|(lower, upper)| lower > upper) {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Lower bound must be less than or equal to upper bound.",
+                ));
+            }
         }
         // The main loop of the Newton-Raphson method. It continues until the desired level of precision is achieved or the maximum number of iterations is reached.
         while result.iterations < self.get_max_iterations().unwrap_or(usize::MAX) {

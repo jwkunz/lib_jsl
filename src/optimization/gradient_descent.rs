@@ -51,6 +51,24 @@ impl GradientBasedMinimizationEngine for GradientDescent {
             gradient_function: &dyn GradientFunction,
             initial_parameters: Vec<f64>,
         ) -> Result<OptimizationResult, ErrorsJSL> {
+        if initial_parameters.is_empty() {
+            return Err(ErrorsJSL::Misconfiguration("Initial parameters must be a non-empty vector."));
+        }
+
+        let bounds = self.get_bounds();
+        if let Some(bounds) = bounds.as_ref() {
+            if bounds.len() != initial_parameters.len() {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Bounds length must match the number of parameters.",
+                ));
+            }            
+            if bounds.iter().any(|(lower, upper)| lower > upper) {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Lower bound must be less than or equal to upper bound.",
+                ));
+            }
+        }
+
         // Here is the implementation of the gradient descent algorithm. It assumes that the objective function is differentiable and that the initial parameters are a valid starting point for the optimization.
         let mut result = OptimizationResult {
             parameters: initial_parameters.clone(),
@@ -58,16 +76,17 @@ impl GradientBasedMinimizationEngine for GradientDescent {
             iterations: 0,
             converged: false,
         };
-        if initial_parameters.len() == 0 {
-            return Err(ErrorsJSL::Misconfiguration("Initial parameters must be a non-empty vector."));
-        }
-        let bounds = self.get_bounds();
         let max_iterations = self.max_iterations.unwrap_or(1000);
         let tolerance = self.tolerance.unwrap_or(1e-5);
         // The main loop of the gradient descent algorithm. It continues until the desired level of precision is achieved or the maximum number of iterations is reached.
         while result.iterations < max_iterations {
             // The gradient of the objective function at the current parameters is evaluated, and the parameters are updated by taking a step in the direction of the negative gradient, scaled by the learning rate. If bounds are set, the updated parameters are projected back into the feasible region defined by the bounds.
             let gradient = gradient_function.evaluate(&result.parameters);
+            if gradient.len() != result.parameters.len() {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Gradient length must match the number of parameters.",
+                ));
+            }
             let mut new_parameters: Vec<f64> = result.parameters.iter().zip(gradient.iter()).map(|(p, g)| p - self.learning_rate * g).collect();
             if let Some(bounds) = bounds.as_ref() {
                 new_parameters = new_parameters.iter().enumerate().map(|(i, p)| {
@@ -77,6 +96,7 @@ impl GradientBasedMinimizationEngine for GradientDescent {
             }
             // The objective value at the new parameters is evaluated, and the convergence status is determined based on whether the change in objective value is smaller than the specified tolerance.
             let new_objective_value = objective_function.evaluate(&new_parameters);
+            result.iterations += 1;
             if (result.objective_value - new_objective_value).abs() < tolerance {
                 result.converged = true;
                 result.parameters = new_parameters;
@@ -85,7 +105,6 @@ impl GradientBasedMinimizationEngine for GradientDescent {
             }
             result.parameters = new_parameters;
             result.objective_value = new_objective_value;
-            result.iterations += 1;
         }
         Ok(result)
     }
@@ -123,5 +142,66 @@ mod tests {
         assert!(result.converged);
         assert!((result.parameters[0] - 2.0).abs() < 1e-1);
         assert!((result.objective_value - 1.0).abs() < 1e-1);
+    }
+
+    #[test]
+    fn test_gradient_descent_rejects_empty_initial_parameters() {
+        struct PanickingObjective;
+        impl ObjectiveFunction for PanickingObjective {
+            fn evaluate(&self, _: &Vec<f64>) -> f64 {
+                panic!("objective should not be evaluated when initial parameters are empty");
+            }
+        }
+        impl GradientFunction for PanickingObjective {
+            fn evaluate(&self, _: &Vec<f64>) -> Vec<f64> {
+                vec![]
+            }
+        }
+        impl ObjectiveFunctionWithGradient for PanickingObjective {}
+
+        let optimizer = GradientDescent::new(1e-2);
+        let result = optimizer.gradient_based_minimize(&PanickingObjective, &PanickingObjective, vec![]);
+        assert!(matches!(result, Err(ErrorsJSL::Misconfiguration(_))));
+    }
+
+    #[test]
+    fn test_gradient_descent_rejects_bounds_dimension_mismatch() {
+        struct Objective;
+        impl ObjectiveFunction for Objective {
+            fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+                parameters.iter().map(|x| x * x).sum()
+            }
+        }
+        impl GradientFunction for Objective {
+            fn evaluate(&self, parameters: &Vec<f64>) -> Vec<f64> {
+                parameters.iter().map(|x| 2.0 * x).collect()
+            }
+        }
+        impl ObjectiveFunctionWithGradient for Objective {}
+
+        let mut optimizer = GradientDescent::new(1e-2);
+        optimizer.set_bounds(Some(vec![(-1.0, 1.0)]));
+        let result = optimizer.gradient_based_minimize(&Objective, &Objective, vec![1.0, 2.0]);
+        assert!(matches!(result, Err(ErrorsJSL::Misconfiguration(_))));
+    }
+
+    #[test]
+    fn test_gradient_descent_rejects_gradient_dimension_mismatch() {
+        struct Objective;
+        impl ObjectiveFunction for Objective {
+            fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+                parameters.iter().map(|x| x * x).sum()
+            }
+        }
+        struct BadGradient;
+        impl GradientFunction for BadGradient {
+            fn evaluate(&self, _: &Vec<f64>) -> Vec<f64> {
+                vec![1.0]
+            }
+        }
+
+        let optimizer = GradientDescent::new(1e-2);
+        let result = optimizer.gradient_based_minimize(&Objective, &BadGradient, vec![1.0, 2.0]);
+        assert!(matches!(result, Err(ErrorsJSL::Misconfiguration(_))));
     }
 }   

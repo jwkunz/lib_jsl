@@ -117,6 +117,19 @@ impl GradientFreeMinimizationEngine for SimulatedAnnealing {
         let minimum_temperature = self.get_minimum_temperature().unwrap_or(1e-5);
         let maximum_steps = self.get_max_iterations().unwrap_or(usize::MAX);
         let iterations_per_temperature = self.get_iterations_per_temperature().unwrap_or(100);
+        let bounds = self.get_bounds();
+        if let Some(bounds) = bounds.as_ref() {
+            if bounds.len() != initial_parameters.len() {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Bounds length must match the number of parameters.",
+                ));
+            }            
+            if bounds.iter().any(|(lower, upper)| lower > upper) {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Lower bound must be less than or equal to upper bound.",
+                ));
+            }
+        }
         let mut rng = rand::rng();
         let mut current_parameters = initial_parameters.clone();
         let mut current_objective_value = objective_function.evaluate(&current_parameters);
@@ -140,8 +153,8 @@ impl GradientFreeMinimizationEngine for SimulatedAnnealing {
                 // Evaluate the objective function at the new candidate solution and compare it to the current solution. If the new solution has a lower objective function value, it is accepted as the new current solution. If the new solution has a higher objective function value, it is accepted with a probability that depends on the difference in objective function values and the current temperature. This allows the algorithm to occasionally accept worse solutions, which can help it escape local minima and explore the search space more effectively.
                 // Update the temperature according to the cooling schedule defined by the cooling coefficient. This typically involves multiplying the current temperature by the cooling coefficient, which reduces the temperature over time and allows the algorithm to converge to a minimum.
                 let mut candidate_parameters = generate_candidate_solution(&current_parameters, current_temperature, &mut rng);
-                if let Some(bounds) = self.get_bounds() {
-                    candidate_parameters = project_to_bounds(&candidate_parameters, &bounds); 
+                if let Some(b) = bounds.as_ref() {
+                    candidate_parameters = project_to_bounds(&candidate_parameters, &b); 
                 }
                 let candidate_objective_value = objective_function.evaluate(&candidate_parameters);
                 // Always keep track of the best solution found so far, even if it is not accepted as the current solution. This allows the algorithm to return the best solution found at the end of the optimization process, rather than just the last solution that was accepted.

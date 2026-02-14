@@ -62,8 +62,17 @@ impl GradientFreeMinimizationEngine for GoldenSectionSearch {
             return Err(ErrorsJSL::Misconfiguration("Golden section search only supports one-dimensional optimization.  That is, the initial parameters must be a single value."));
         }
         let bounds = self.get_bounds();
-        if bounds.is_none(){
-            return Err(ErrorsJSL::Misconfiguration("Golden section search requires bounds to be set.  Please set bounds using the set_bounds method before calling minimize."));
+        if let Some(bounds) = bounds.as_ref() {
+            if bounds.len() != initial_parameters.len() {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Bounds length must match the number of parameters.",
+                ));
+            }            
+            if bounds.iter().any(|(lower, upper)| lower > upper) {
+                return Err(ErrorsJSL::Misconfiguration(
+                    "Lower bound must be less than or equal to upper bound.",
+                ));
+            }
         }
         // We will use the bounds as the initial bracket for the golden section search.  The initial parameters are ignored in this implementation, but they could be used to set the initial bracket if desired.
         let mut a = bounds.as_ref().unwrap()[0].0;

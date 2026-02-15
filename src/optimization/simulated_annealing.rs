@@ -106,10 +106,11 @@ fn project_to_bounds(parameters: &Vec<f64>, bounds: &Vec<(f64, f64)>) -> Vec<f64
         .collect()
 }
 
-impl GradientFreeMinimizationEngine for SimulatedAnnealing {
+impl<T> GradientFreeMinimizationEngine<T> for SimulatedAnnealing 
+where T: ObjectiveFunction {
     fn gradient_free_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
+        objective_function: &T,
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL> {
         let mut current_temperature = self.get_maximum_temperature().unwrap_or(1.0);

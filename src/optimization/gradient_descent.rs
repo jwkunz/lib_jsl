@@ -44,11 +44,12 @@ impl MinimizationControls for GradientDescent {
     }
 }
 
-impl GradientBasedMinimizationEngine for GradientDescent {
+impl<T, U> GradientBasedMinimizationEngine<T, U> for GradientDescent 
+where T: ObjectiveFunction, U: GradientFunction {
     fn gradient_based_minimize(
             &self,
-            objective_function: &dyn ObjectiveFunction,
-            gradient_function: &dyn GradientFunction,
+            objective_function: &T,
+            gradient_function: &U,
             initial_parameters: Vec<f64>,
         ) -> Result<OptimizationResult, ErrorsJSL> {
         if initial_parameters.is_empty() {

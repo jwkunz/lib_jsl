@@ -45,10 +45,11 @@ impl MinimizationControls for NelderMeadMethod {
     }
 }
 
-impl GradientFreeMinimizationEngine for NelderMeadMethod {
+impl<T> GradientFreeMinimizationEngine<T> for NelderMeadMethod 
+where T: ObjectiveFunction {
     fn gradient_free_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
+        objective_function: &T,
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL> {
         if initial_parameters.is_empty() {

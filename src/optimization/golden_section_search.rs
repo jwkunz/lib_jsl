@@ -45,10 +45,11 @@ impl MinimizationControls for GoldenSectionSearch {
     }
 }
 
-impl GradientFreeMinimizationEngine for GoldenSectionSearch {
+impl<T> GradientFreeMinimizationEngine<T> for GoldenSectionSearch 
+where T: ObjectiveFunction {
     fn gradient_free_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
+        objective_function: &T,
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL> {
         // Here is the implementation of the golden section search algorithm. It assumes that the objective function is unimodal and that the initial parameters are a bracket of three points (a, b, c) such that f(a) > f(b) < f(c).

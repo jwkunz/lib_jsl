@@ -44,35 +44,44 @@ pub trait MinimizationControls {
 }
 
 /// Gradient Free Minimization Engine trait that extends the MinimizationControls trait and has a method `gradient_free_minimize` that takes an objective function and an initial guess for the parameters, and returns the parameters that minimize the objective function.
-pub trait GradientFreeMinimizationEngine: MinimizationControls {
+pub trait GradientFreeMinimizationEngine<T>: MinimizationControls {
     fn gradient_free_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
+        objective_function: &T,
         initial_parameters: Vec<f64>,
-    ) -> Result<OptimizationResult, ErrorsJSL>;
+    ) -> Result<OptimizationResult, ErrorsJSL>
+    where
+        T: ObjectiveFunction;
 }       
 
 /// Gradient Based Minimization Engine trait that extends the MinimizationControls trait and has a method `gradient_based_minimize` that takes an objective function, an initial guess for the parameters, and returns the parameters that minimize the objective function.  
 /// This trait is intended for optimization algorithms that require the use of gradients, such as gradient descent or Newton's method.
 /// The method takes an additional argument for the gradient function, which is used to compute the gradient of the objective function at the current parameters.  The optimization algorithm can then use this gradient information to update the parameters in the direction of steepest descent, or to compute a search direction for more advanced optimization methods.    
-pub trait GradientBasedMinimizationEngine: MinimizationControls {
+pub trait GradientBasedMinimizationEngine<T,U>: MinimizationControls {
     fn gradient_based_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
-        gradient_function: &dyn GradientFunction,
+        objective_function: &T ,
+        gradient_function: &U,
         initial_parameters: Vec<f64>,
-    ) -> Result<OptimizationResult, ErrorsJSL>;
+    ) -> Result<OptimizationResult, ErrorsJSL>
+    where
+        T: ObjectiveFunction,
+        U: GradientFunction;
 }   
 
 /// Hessian Based Minimization Engine trait that extends the MinimizationControls trait and has a method `hessian_based_minimize` that takes an objective function, an initial guess for the parameters, and returns the parameters that minimize the objective function.
 /// This trait is intended for optimization algorithms that require the use of second-order information, such as Newton's method or quasi-Newton methods. The method takes additional arguments for the gradient function and the
 /// Hessian function, which are used to compute the gradient and Hessian of the objective function at the current parameters. The optimization algorithm can then use this information to update the parameters in a more informed way, potentially leading to faster convergence to the minimum.
-pub trait HessianBasedMinimizationEngine: MinimizationControls {
+pub trait HessianBasedMinimizationEngine<T,U,V>: MinimizationControls {
     fn hessian_based_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
-        gradient_function: &dyn GradientFunction,
-        hessian_function: &dyn HessianFunction, 
+        objective_function: &T,
+        gradient_function: &U,
+        hessian_function: &V, 
         initial_parameters: Vec<f64>,
-    ) -> Result<OptimizationResult, ErrorsJSL>;
+    ) -> Result<OptimizationResult, ErrorsJSL>
+    where
+        T: ObjectiveFunction,
+        U: GradientFunction,
+        V: HessianFunction;
 }

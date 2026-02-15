@@ -37,12 +37,13 @@ impl MinimizationControls for NewtonRaphsonMethod {
     }
 }
 
-impl HessianBasedMinimizationEngine for NewtonRaphsonMethod {
+impl<T, U, V> HessianBasedMinimizationEngine<T, U, V> for NewtonRaphsonMethod 
+where T: ObjectiveFunction, U: GradientFunction, V: HessianFunction {
     fn hessian_based_minimize(
         &self,
-        objective_function: &dyn ObjectiveFunction,
-        gradient_function: &dyn GradientFunction,
-        hessian_function: &dyn HessianFunction,
+        objective_function: &T,
+        gradient_function: &U,
+        hessian_function: &V,
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL> {
         // Here is the implementation of the Newton-Raphson method. It assumes that the objective function is twice differentiable and that the initial parameters are a valid starting point for the optimization.

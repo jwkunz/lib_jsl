@@ -4,7 +4,7 @@ use crate::prelude::ErrorsJSL;
 /// This function compute the simple 2 point derivative of a scalar valued function at a given point. The step size can be optionally provided, and if not provided, it defaults to the machine epsilon. The function uses central differences to compute the derivative, which provides a good balance between accuracy and computational efficiency.
 pub fn derivative_2_point<T>(f: &T, x: f64, step_size: Option<f64>) -> Result<f64, ErrorsJSL> 
 where T: Fn(f64) -> f64 {
-    let step = step_size.unwrap_or(10.0*f64::EPSILON);
+    let step = step_size.unwrap_or(1E-6);
     Ok((f(x + step) - f(x - step)) / (2.0 * step))
 }   
 
@@ -22,7 +22,7 @@ pub fn derivative_stencil<T>(
     order: DerivativeStencilOrder
 ) -> Result<Vec<f64>, ErrorsJSL> 
 where T: Fn(f64) -> f64 {
-    let step = step_size.unwrap_or(10.0*f64::EPSILON);
+    let step = step_size.unwrap_or(1E-6);
     match order {
         DerivativeStencilOrder::FirstOrder => Ok(vec![
             (-f(x + 2.0 * step) + 8.0 * f(x + step) - 8.0 * f(x - step) + f(x - 2.0 * step)) / (12.0 * step)

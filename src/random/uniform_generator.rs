@@ -5,4 +5,4 @@ pub trait UniformGenerator{
     fn next_f64(&mut self) -> f64;
 }
 
-pub type DefaultUniformRNG = Xoshiro256PlusPlus;
+pub type UniformRNG = Xoshiro256PlusPlus;

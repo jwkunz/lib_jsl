@@ -1,4 +1,4 @@
-use crate::{optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL, random::{distributions::guassian_distribution_box_muller_vec, uniform_generator::{DefaultUniformRNG, UniformGenerator}}};
+use crate::{optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL, random::{distributions::guassian_distribution_box_muller_vec, uniform_generator::{UniformRNG, UniformGenerator}}};
 
 /// This file implements simulated annealing for optimization. Simulated annealing is a probabilistic optimization algorithm that is inspired by the process of annealing in metallurgy, where a material is heated and then slowly cooled to allow it to reach a state of minimum energy. In optimization, simulated annealing is used to find the minimum of an objective function by allowing for occasional uphill moves, which can help the algorithm escape local minima and explore the search space more effectively. The algorithm works by starting with an initial solution and then iteratively generating new candidate solutions by making small random changes to the current solution. The new solution is accepted with a probability that depends on the difference in objective function values between the current and new solutions, as well as a temperature parameter that controls the likelihood of accepting worse solutions. As the algorithm progresses, the temperature is gradually decreased, which reduces the probability of accepting worse solutions and allows the algorithm to converge to a minimum. Simulated annealing can be effective for optimizing complex, non-convex functions, but it can also be computationally expensive and may require careful tuning of the temperature schedule and other hyperparameters to achieve good performance.    
 
@@ -130,7 +130,7 @@ impl GradientFreeMinimizationEngine for SimulatedAnnealing {
                 ));
             }
         }
-        let mut rng = DefaultUniformRNG::from_seed(0);
+        let mut rng = UniformRNG::from_seed(0);
         let mut current_parameters = initial_parameters.clone();
         let mut current_objective_value = objective_function.evaluate(&current_parameters);
         let mut iteration_counter = 0;

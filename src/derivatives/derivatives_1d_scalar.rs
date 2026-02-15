@@ -41,19 +41,21 @@ where T: Fn(f64) -> f64 {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::EPSILON;
+
     use super::*;
 
     #[test]
     fn test_derivative_2_point() {
         let f = |x| x * x;
-        let result = derivative_2_point(&f, 2.0, None).unwrap();
+        let result = derivative_2_point(&f, 2.0, Some(EPSILON*10.0)).unwrap();
         assert_eq!(result, 4.0);
     }
 
     #[test]
     fn test_derivative_stencil_first_order() {
         let f = |x| x * x;
-        let result = derivative_stencil(&f, 2.0, None, DerivativeStencilOrder::FirstOrder).unwrap();
+        let result = derivative_stencil(&f, 2.0, Some(EPSILON*10.0), DerivativeStencilOrder::FirstOrder).unwrap();
         assert_eq!(result[0], 4.0);
     }
 }

@@ -126,6 +126,9 @@ mod tests {
         let f = |x: &Vec<f64>| vec![x[0] * x[0], x[1] * x[1]]; // [x^2, y^2]
         let x = vec![2.0, 3.0];
         let result = jacobian_2_point(&f, &x, Some(1E-4)).unwrap();
-        assert_eq!(result, vec![vec![4.0, 0.0], vec![0.0, 6.0]]);// [[2x, 0], [0, 2y]]
+        assert!((result[0][0] - 4.0).abs() < 1E-4); // df1/dx = 2x = 4
+        assert!((result[0][1]).abs() < 1E-4); // df1/dy = 0
+        assert!((result[1][0]).abs() < 1E-4); // df2/dx = 0
+        assert!((result[1][1] - 6.0).abs() < 1E-4); // df2/dy = 2y = 6
     }
 }

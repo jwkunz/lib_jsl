@@ -5,7 +5,5 @@ edition = "2024"
 
 [dependencies]
 num = "*"
-rand = "*"
-rand_distr = "*" 
 ndarray = { version = "*", features = ["blas"] }
 ndarray-linalg = { version = "*", features = ["intel-mkl-static"] }   

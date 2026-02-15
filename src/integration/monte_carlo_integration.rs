@@ -1,7 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::prelude::ErrorsJSL;
-use rand::distr::{Distribution, Uniform};
+use crate::{prelude::ErrorsJSL, random::uniform_generator::{DefaultUniformRNG, UniformGenerator}};
 
 // Integration of a function f(x0,x1,...) via random sampling
 // f is a function pointer of a slice (real multi-variate input) -> real scalar
@@ -17,11 +16,7 @@ pub fn monte_carlo_integration<F>(
 where
     F: Fn(&[f64]) -> f64,
 {
-    let mut rng = rand::rng();
-    let uniform_generators: Vec<Uniform<f64>> = bounds
-        .iter()
-        .map(|(low, high)| Uniform::new(low, high).expect(""))
-        .collect();
+    let mut rng = DefaultUniformRNG::from_seed(0);
     let scale: f64 = bounds.iter().map(|(low, high)| high - low).product();
     let convergence_window = convergence_tuple.1;
     let convergence_threshold = convergence_tuple.0;
@@ -33,9 +28,8 @@ where
     let mut sample_count: usize = 0;
     let expected_scale = 1.0 / convergence_window as f64;
     loop {
-        let sample_x = uniform_generators
-            .iter()
-            .map(|&generator| generator.sample(&mut rng))
+        let sample_x = bounds.iter()
+            .map(|(low, high)| rng.next_f64() * (high - low) + low)
             .collect::<Vec<f64>>();
         sample_count += 1;
 

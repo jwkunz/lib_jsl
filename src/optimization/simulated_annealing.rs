@@ -1,6 +1,4 @@
-use rand_distr::{Distribution, Uniform};
-
-use crate::{optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL};
+use crate::{optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL, random::{distributions::guassian_distribution_box_muller_vec, uniform_generator::{DefaultUniformRNG, UniformGenerator}}};
 
 /// This file implements simulated annealing for optimization. Simulated annealing is a probabilistic optimization algorithm that is inspired by the process of annealing in metallurgy, where a material is heated and then slowly cooled to allow it to reach a state of minimum energy. In optimization, simulated annealing is used to find the minimum of an objective function by allowing for occasional uphill moves, which can help the algorithm escape local minima and explore the search space more effectively. The algorithm works by starting with an initial solution and then iteratively generating new candidate solutions by making small random changes to the current solution. The new solution is accepted with a probability that depends on the difference in objective function values between the current and new solutions, as well as a temperature parameter that controls the likelihood of accepting worse solutions. As the algorithm progresses, the temperature is gradually decreased, which reduces the probability of accepting worse solutions and allows the algorithm to converge to a minimum. Simulated annealing can be effective for optimizing complex, non-convex functions, but it can also be computationally expensive and may require careful tuning of the temperature schedule and other hyperparameters to achieve good performance.    
 
@@ -80,11 +78,13 @@ impl MinimizationControls for SimulatedAnnealing {
     }
 }
 
-fn generate_candidate_solution(current_parameters: &Vec<f64>, current_temperature: f64, rng: &mut rand::rngs::ThreadRng) -> Vec<f64> {
+fn generate_candidate_solution<T>(current_parameters: &Vec<f64>, current_temperature: f64, rng: &mut T) -> Vec<f64> 
+where T: UniformGenerator{
+    let perterbations = guassian_distribution_box_muller_vec(current_parameters.len(), rng, 0.0, current_temperature);
     current_parameters
         .iter()
-        .map(|&param| {
-            let perturbation = rand_distr::Normal::new(0.0, current_temperature).unwrap().sample(rng);
+        .zip(perterbations.iter())
+        .map(|(&param, &perturbation)| {
             param + perturbation
         })
         .collect()
@@ -130,7 +130,7 @@ impl GradientFreeMinimizationEngine for SimulatedAnnealing {
                 ));
             }
         }
-        let mut rng = rand::rng();
+        let mut rng = DefaultUniformRNG::from_seed(0);
         let mut current_parameters = initial_parameters.clone();
         let mut current_objective_value = objective_function.evaluate(&current_parameters);
         let mut iteration_counter = 0;
@@ -169,7 +169,7 @@ impl GradientFreeMinimizationEngine for SimulatedAnnealing {
                 } else {
                     let delta = candidate_objective_value - current_objective_value;
                     let acceptance_probability = (-delta / current_temperature).exp();
-                    let sample = Uniform::new(0.0, 1.0).unwrap().sample(&mut rng);
+                    let sample = rng.next_f64();
                     if sample < acceptance_probability {
                         current_parameters = candidate_parameters;
                         current_objective_value = candidate_objective_value;

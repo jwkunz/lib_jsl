@@ -21,10 +21,8 @@ impl Xoshiro256PlusPlus {
         (x << k) | (x >> (64 - k))
     }
 
-    /// Create a new generator from a non-zero seed.
-    ///
-    /// If you only have a single u64 seed, use `from_seed`.
-    pub fn new(seed: [u64; 4]) -> Result<Self,ErrorsJSL> {
+    /// Create a new generator from a 256-bit seed (4 u64 values).
+    pub fn from_array_seed(seed: [u64; 4]) -> Result<Self,ErrorsJSL> {
         if seed == [0, 0, 0, 0]{
             Err(ErrorsJSL::InvalidInputRange("xoshiro256++ state must not be all zero"))
         }else{
@@ -35,12 +33,19 @@ impl Xoshiro256PlusPlus {
     /// Seed using SplitMix64 (recommended).
     pub fn from_seed(seed: u64) -> Self {
         let mut sm64 = SplitMix64::new(seed);
-        Self::new([
+        Self::from_array_seed([
             sm64.next_u64(),
             sm64.next_u64(),
             sm64.next_u64(),
             sm64.next_u64(),
         ]).expect("SplitMix64 prevents zero seeds")
+    }
+
+    /// Seed using the current system time (not recommended for reproducibility).
+    pub fn from_random_seed() -> Self {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let seed = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_nanos() as u64;
+        Self::from_seed(seed)
     }
 
     /// Jump ahead 2^128 steps (for parallel streams).

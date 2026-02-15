@@ -42,3 +42,6 @@ pub mod optimization {
     pub mod simulated_annealing;
     pub mod nelder_mead_method;
 }
+pub mod derivatives{
+    pub mod derivatives_1d_scalar;
+}

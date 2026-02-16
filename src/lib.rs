@@ -50,6 +50,7 @@ pub mod dsp{
         pub mod non_linearity_transformers;
     }
     pub mod resampling{
+        pub mod polyphase_arbitrary_resampling;
         pub mod polyphase_integer_resampling;
     }
 }

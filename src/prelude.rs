@@ -71,6 +71,14 @@ pub trait IsAnalytic: IsLinearOperatable {
     fn f_abs(&self) -> f64;
     fn f_arg(&self) -> f64;
     fn f_abs2(&self) -> f64;
+    fn to_complex(&self) -> Complex<f64>;
+    fn from_complex(value: Complex<f64>) -> Self where Self: Sized;
+}
+
+/// Trait for reconstructing a value from a `Complex<f64>` representation.
+/// This complements `IsAnalytic::to_complex()` for generic FFT-based routines.
+pub trait FromComplex64: Sized {
+    fn from_complex(value: Complex<f64>) -> Self;
 }
 
 impl IsAnalytic for f64 {
@@ -102,6 +110,19 @@ impl IsAnalytic for f64 {
             std::f64::consts::PI
         }   
     }
+    fn to_complex(&self) -> Complex<f64> {
+        Complex::new(*self, 0.0)
+    }
+    fn from_complex(value: Complex<f64>) -> Self where Self: Sized {
+        // This is a lossy conversion, but we take the real part for real types. The user should ensure that the imaginary part is negligible when using this conversion for real types.
+        value.re
+    }
+}
+
+impl FromComplex64 for f64 {
+    fn from_complex(value: Complex<f64>) -> Self {
+        value.re
+    }
 }
 
 impl IsAnalytic for Complex<f64> {
@@ -128,5 +149,17 @@ impl IsAnalytic for Complex<f64> {
     }
     fn f_abs2(&self) -> f64 {
         self.norm_sqr()
+    }
+    fn to_complex(&self) -> Complex<f64> {
+        *self
+    }
+    fn from_complex(value: Complex<f64>) -> Self where Self: Sized {
+        value
+    }
+}
+
+impl FromComplex64 for Complex<f64> {
+    fn from_complex(value: Complex<f64>) -> Self {
+        value
     }
 }

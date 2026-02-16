@@ -35,6 +35,7 @@ pub mod dsp{
     pub mod stream_operator;
     pub mod windows;
     pub mod sinc;
+    pub mod convolve;
     pub mod filters {
         pub mod discrete_linear_filter;
         pub mod firwin;

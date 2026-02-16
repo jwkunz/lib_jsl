@@ -46,6 +46,7 @@ pub mod dsp{
         pub mod boxcar_integrator;
     }
     pub mod transformations{
+        pub mod channel_impairment;
         pub mod frequency_mixer;
         pub mod non_linearity_transformers;
     }

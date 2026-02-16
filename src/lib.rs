@@ -38,6 +38,7 @@ pub mod dsp{
     pub mod filters {
         pub mod discrete_linear_filter;
         pub mod firwin;
+        pub mod firwin2;
     }
 }
 

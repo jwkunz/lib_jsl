@@ -41,6 +41,7 @@ pub mod dsp{
         pub mod discrete_linear_filter;
         pub mod firwin;
         pub mod firwin2;
+        pub mod overlap_and_add_fir;
     }
 }
 

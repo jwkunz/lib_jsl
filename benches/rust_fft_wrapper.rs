@@ -1,12 +1,9 @@
 use std::sync::Arc;
 
+use lib_jsl::ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use lib_jsl::prelude::ErrorsJSL;
 use num::Complex;
 use rustfft::{Fft, FftPlanner};
-
-use crate::{
-    prelude::ErrorsJSL,
-    ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
-};
 
 pub struct RustFftWrapper {
     size: usize,
@@ -120,86 +117,5 @@ impl FfftEngine1D for RustFftWrapper {
 
     fn get_ordering(&self) -> FftOrdering {
         self.ordering
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::time::Instant;
-
-    use super::*;
-    use crate::ffts::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
-
-    fn assert_complex_close(actual: Complex<f64>, expected: Complex<f64>, tol: f64) {
-        assert!(
-            (actual.re - expected.re).abs() < tol && (actual.im - expected.im).abs() < tol,
-            "actual={actual:?}, expected={expected:?}, tol={tol}"
-        );
-    }
-
-    fn bit_reverse_index(mut n: usize, bits: usize) -> usize {
-        let mut reversed = 0;
-        for _ in 0..bits {
-            reversed <<= 1;
-            reversed |= n & 1;
-            n >>= 1;
-        }
-        reversed
-    }
-
-    #[test]
-    fn test_rust_fft_wrapper_standard_ordering() {
-        let input = fft_gaussian_32768_input();
-        let expected = fft_gaussian_32768_golden();
-
-        let mut fft = RustFftWrapper::new();
-        fft.plan(
-            input.len(),
-            FftScaleFactor::None,
-            FftDirection::Forward,
-            FftOrdering::Standard,
-        )
-        .unwrap();
-
-        let start = Instant::now();
-        let output = fft.execute(&input).unwrap();
-        let elapsed = start.elapsed();
-        dbg!("rust_fft_wrapper::standard execute elapsed", elapsed);
-
-        assert_eq!(output.len(), expected.len());
-        for (actual, expected) in output.iter().zip(expected.iter()) {
-            assert_complex_close(*actual, *expected, 1e-9);
-        }
-    }
-
-    #[test]
-    fn test_rust_fft_wrapper_bit_reversed_ordering() {
-        let input = fft_gaussian_32768_input();
-        let expected = fft_gaussian_32768_golden();
-
-        let bits = input.len().trailing_zeros() as usize;
-        let mut bit_reversed_input = vec![Complex::new(0.0, 0.0); input.len()];
-        for (i, value) in input.iter().enumerate() {
-            bit_reversed_input[bit_reverse_index(i, bits)] = *value;
-        }
-
-        let mut fft = RustFftWrapper::new();
-        fft.plan(
-            input.len(),
-            FftScaleFactor::None,
-            FftDirection::Forward,
-            FftOrdering::BitReversed,
-        )
-        .unwrap();
-
-        let start = Instant::now();
-        let output = fft.execute(&bit_reversed_input).unwrap();
-        let elapsed = start.elapsed();
-        dbg!("rust_fft_wrapper::bit_reversed execute elapsed", elapsed);
-
-        assert_eq!(output.len(), expected.len());
-        for (actual, expected) in output.iter().zip(expected.iter()) {
-            assert_complex_close(*actual, *expected, 1e-9);
-        }
     }
 }

@@ -1,14 +1,15 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+mod rust_fft_wrapper;
 use lib_jsl::ffts::{
     best_fft::BestFft,
     simd_fft::SimdFft,
     fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     optimized_radix2::OptimizedRadix2FFT,
     optimized_split_radix::OptimizedSplitRadixFFT,
-    rust_fft_wrapper::RustFftWrapper,
     simple_cooley_tukey::SimpleCooleyTukeyFFT,
 };
 use num::Complex;
+use rust_fft_wrapper::RustFftWrapper;
 
 fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
     assert!(bytes.len() % 16 == 0, "binary complex data must be 16-byte aligned");

@@ -52,7 +52,6 @@ pub mod ffts {
     pub mod optimized_split_radix;
     pub mod simd_fft;
     pub mod best_fft;
-    pub mod rust_fft_wrapper;
     pub mod fft_enginer_trait;
     #[cfg(test)]
     pub mod test_bench_data;

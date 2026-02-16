@@ -54,6 +54,8 @@ impl StreamOperatorManagement for FrequencyMixer {
     }
 }
 
+/// This is a real-valued mixer that produces a real-valued output by multiplying the input signal with the cosine of the current phase.
+/// This type of mixer is commonly used for applications such as amplitude modulation (AM) or for down-converting a signal to baseband in a receiver.
 impl StreamOperator<f64, f64> for FrequencyMixer {
     fn process(&mut self, input: &[f64]) -> Result<Option<Vec<f64>>, ErrorsJSL> {
         if input.is_empty() {
@@ -71,6 +73,8 @@ impl StreamOperator<f64, f64> for FrequencyMixer {
     }
 }
 
+/// This is a complex-valued mixer that produces a complex-valued output by multiplying the input signal with a complex exponential based on the current phase.
+/// This type of mixer is commonly used for applications such as quadrature amplitude modulation (QAM) or for up-converting a baseband signal to a higher frequency in a transmitter.   
 impl StreamOperator<f64, Complex<f64>> for FrequencyMixer {
     fn process(&mut self, input: &[f64]) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
         if input.is_empty() {
@@ -88,6 +92,9 @@ impl StreamOperator<f64, Complex<f64>> for FrequencyMixer {
     }
 }
 
+/// This is a complex-valued mixer that takes a complex-valued input signal and produces a complex-valued output by multiplying the input signal with a complex exponential based on the current phase.
+/// This type of mixer is commonly used for applications such as quadrature amplitude modulation (QAM) or for up-converting a baseband signal to a higher frequency in a transmitter, as well as for down-converting a signal to baseband in a receiver. 
+/// It can also be used for frequency translation in spectral processing applications, such as shifting the frequency of a signal for analysis or filtering purposes
 impl StreamOperator<Complex<f64>, Complex<f64>> for FrequencyMixer {
     fn process(&mut self, input: &[Complex<f64>]) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
         if input.is_empty() {

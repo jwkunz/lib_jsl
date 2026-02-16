@@ -46,7 +46,7 @@ pub mod derivatives{
     pub mod derivatives_1d_scalar;
     pub mod derivatives_vectors;
 }
-pub mod spectral {
+pub mod ffts {
     pub mod simple_cooley_tukey;
     pub mod optimized_radix2;
     pub mod optimized_split_radix;

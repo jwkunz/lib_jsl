@@ -2,7 +2,7 @@ use num::Complex;
 
 use crate::{
     prelude::ErrorsJSL,
-    spectral::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
 /// Learning-oriented aggressive FFT variant.
@@ -324,7 +324,7 @@ mod tests {
     use std::time::Instant;
 
     use super::*;
-    use crate::spectral::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
+    use crate::ffts::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
 
     fn max_abs_error(a: &[Complex<f64>], b: &[Complex<f64>]) -> f64 {
         a.iter()

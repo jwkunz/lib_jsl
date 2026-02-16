@@ -2,20 +2,10 @@ use num::Complex;
 
 use crate::{
     prelude::ErrorsJSL,
-    spectral::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[path = "simd_fft_x86.rs"]
-mod simd_fft_x86;
-#[cfg(any(target_arch = "aarch64", target_arch = "arm"))]
-#[path = "simd_fft_arm.rs"]
-mod simd_fft_arm;
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-#[path = "simd_fft_riscv.rs"]
-mod simd_fft_riscv;
-
-pub struct SimdFft {
+pub struct OptimizedRadix2FFT {
     size: usize,
     direction: FftDirection,
     scale: FftScaleFactor,
@@ -25,7 +15,7 @@ pub struct SimdFft {
     bit_reverse_map: Vec<usize>,
 }
 
-impl SimdFft {
+impl OptimizedRadix2FFT {
     pub fn new() -> Self {
         Self {
             size: 0,
@@ -50,14 +40,19 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
 }
 
 #[inline]
-fn radix2_pass_scalar(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size: usize, m: usize) {
+fn radix2_pass_unrolled(
+    buffer: &mut [Complex<f64>],
+    twiddles: &[Complex<f64>],
+    size: usize,
+    m: usize,
+) {
     let half = m / 2;
     for k in (0..size).step_by(m) {
         let mut j = 0usize;
         while j + 4 <= half {
             // SAFETY:
-            // - k in [0, size), j..j+3 < half and half <= m/2 ensure all indexes are valid.
-            // - k steps by m and m <= size, so k + m - 1 < size.
+            // - k in [0, size) and j..j+3 < half ensure all indexed values are in-bounds.
+            // - m <= size and k steps by m, so k + (m - 1) < size.
             unsafe {
                 let w0 = *twiddles.get_unchecked(j);
                 let w1 = *twiddles.get_unchecked(j + 1);
@@ -94,8 +89,9 @@ fn radix2_pass_scalar(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], si
             }
             j += 4;
         }
+
         while j < half {
-            // SAFETY: same bounds reasoning as the unrolled loop.
+            // SAFETY: same bounds reasoning as above, for scalar tail loop.
             unsafe {
                 let w = *twiddles.get_unchecked(j);
                 let a = k + j;
@@ -110,28 +106,7 @@ fn radix2_pass_scalar(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], si
     }
 }
 
-#[inline]
-fn radix2_pass_arch(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size: usize, m: usize) {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    {
-        simd_fft_x86::radix2_pass(buffer, twiddles, size, m);
-        return;
-    }
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm"))]
-    {
-        simd_fft_arm::radix2_pass(buffer, twiddles, size, m);
-        return;
-    }
-    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-    {
-        simd_fft_riscv::radix2_pass(buffer, twiddles, size, m);
-        return;
-    }
-    #[allow(unreachable_code)]
-    radix2_pass_scalar(buffer, twiddles, size, m);
-}
-
-impl FfftEngine1D for SimdFft {
+impl FfftEngine1D for OptimizedRadix2FFT {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(
@@ -140,7 +115,9 @@ impl FfftEngine1D for SimdFft {
         }
 
         let mut buffer = vec![Complex::new(0.0, 0.0); self.size];
+
         if matches!(self.ordering, FftOrdering::Standard) {
+            // Copy input into bit-reversed layout once up front.
             for (i, &value) in input.iter().enumerate() {
                 buffer[self.bit_reverse_map[i]] = value;
             }
@@ -149,12 +126,15 @@ impl FfftEngine1D for SimdFft {
         }
 
         let log2n = self.size.trailing_zeros() as usize;
-        for stage in 1..=log2n {
+        let mut stage = 1usize;
+
+        while stage <= log2n {
             let m = 1usize << stage;
             let start = self.stage_offsets[stage - 1];
             let end = self.stage_offsets[stage];
             let tw = &self.stage_twiddles[start..end];
-            radix2_pass_arch(&mut buffer, tw, self.size, m);
+            radix2_pass_unrolled(&mut buffer, tw, self.size, m);
+            stage += 1;
         }
 
         Ok(match self.scale {
@@ -190,16 +170,19 @@ impl FfftEngine1D for SimdFft {
             FftDirection::Forward => -1.0_f64,
             FftDirection::Inverse => 1.0_f64,
         };
+
         self.stage_offsets.clear();
-        self.stage_offsets.reserve(log2n + 1);
+        self.stage_offsets.reserve(log2n + 2);
         self.stage_twiddles.clear();
         self.stage_offsets.push(0);
+
         for stage in 1..=log2n {
             let m = 1usize << stage;
             let half = m / 2;
             for j in 0..half {
                 let theta = sign * 2.0 * std::f64::consts::PI * j as f64 / m as f64;
-                self.stage_twiddles.push(Complex::new(theta.cos(), theta.sin()));
+                self.stage_twiddles
+                    .push(Complex::new(theta.cos(), theta.sin()));
             }
             self.stage_offsets.push(self.stage_twiddles.len());
         }
@@ -229,7 +212,7 @@ mod tests {
     use std::time::Instant;
 
     use super::*;
-    use crate::spectral::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
+    use crate::ffts::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
 
     fn assert_complex_close(actual: Complex<f64>, expected: Complex<f64>, tol: f64) {
         assert!(
@@ -249,10 +232,11 @@ mod tests {
     }
 
     #[test]
-    fn test_simd_fft_standard_ordering() {
+    fn test_better_fft_standard_ordering() {
         let input = fft_gaussian_32768_input();
         let expected = fft_gaussian_32768_golden();
-        let mut fft = SimdFft::new();
+
+        let mut fft = OptimizedRadix2FFT::new();
         fft.plan(
             input.len(),
             FftScaleFactor::None,
@@ -260,10 +244,12 @@ mod tests {
             FftOrdering::Standard,
         )
         .unwrap();
+
         let start = Instant::now();
         let output = fft.execute(&input).unwrap();
         let elapsed = start.elapsed();
-        dbg!("simd_fft::standard execute elapsed", elapsed);
+        dbg!("better_fft::standard execute elapsed", elapsed);
+
         assert_eq!(output.len(), expected.len());
         for (actual, expected) in output.iter().zip(expected.iter()) {
             assert_complex_close(*actual, *expected, 1e-9);
@@ -271,15 +257,17 @@ mod tests {
     }
 
     #[test]
-    fn test_simd_fft_bit_reversed_ordering() {
+    fn test_better_fft_bit_reversed_ordering() {
         let input = fft_gaussian_32768_input();
         let expected = fft_gaussian_32768_golden();
+
         let bits = input.len().trailing_zeros() as usize;
         let mut bit_reversed_input = vec![Complex::new(0.0, 0.0); input.len()];
         for (i, value) in input.iter().enumerate() {
             bit_reversed_input[bit_reverse_index(i, bits)] = *value;
         }
-        let mut fft = SimdFft::new();
+
+        let mut fft = OptimizedRadix2FFT::new();
         fft.plan(
             input.len(),
             FftScaleFactor::None,
@@ -287,10 +275,12 @@ mod tests {
             FftOrdering::BitReversed,
         )
         .unwrap();
+
         let start = Instant::now();
         let output = fft.execute(&bit_reversed_input).unwrap();
         let elapsed = start.elapsed();
-        dbg!("simd_fft::bit_reversed execute elapsed", elapsed);
+        dbg!("better_fft::bit_reversed execute elapsed", elapsed);
+
         assert_eq!(output.len(), expected.len());
         for (actual, expected) in output.iter().zip(expected.iter()) {
             assert_complex_close(*actual, *expected, 1e-9);

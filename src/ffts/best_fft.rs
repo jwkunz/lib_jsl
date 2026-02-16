@@ -2,7 +2,7 @@ use num::Complex;
 
 use crate::{
     prelude::ErrorsJSL,
-    spectral::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
 pub struct BestFft {
@@ -278,7 +278,7 @@ mod tests {
     use std::time::Instant;
 
     use super::*;
-    use crate::spectral::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
+    use crate::ffts::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
 
     fn assert_complex_close(actual: Complex<f64>, expected: Complex<f64>, tol: f64) {
         assert!(

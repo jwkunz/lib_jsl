@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use lib_jsl::spectral::{
+use lib_jsl::ffts::{
     best_fft::BestFft,
     simd_fft::SimdFft,
     fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
@@ -25,7 +25,7 @@ fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
 }
 
 fn fft_gaussian_32768_input() -> Vec<Complex<f64>> {
-    parse_complex_bin(include_bytes!("../src/spectral/test_data/fft_gaussian_32768_input.bin"))
+    parse_complex_bin(include_bytes!("../src/ffts/test_data/fft_gaussian_32768_input.bin"))
 }
 
 fn bit_reverse_index(mut n: usize, bits: usize) -> usize {

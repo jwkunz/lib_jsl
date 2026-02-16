@@ -31,31 +31,35 @@ pub mod random {
     pub mod uniform_generator;
     pub mod xoshiro256plusplus;
 }
-pub mod dsp{
-    pub mod stream_operator;
-    pub mod windows;
-    pub mod sinc;
+pub mod dsp {
     pub mod convolve;
     pub mod cross_correlation;
+    pub mod sinc;
+    pub mod stream_operator;
+    pub mod windows;
     pub mod filters {
+        pub mod boxcar_integrator;
+        pub mod derivative_filter;
         pub mod discrete_linear_filter;
         pub mod firwin;
         pub mod firwin2;
         pub mod overlap_and_add_fir;
         pub mod remez;
-        pub mod derivative_filter;
-        pub mod boxcar_integrator;
     }
-    pub mod transformations{
+    pub mod transformations {
         pub mod channel_impairment;
         pub mod channel_receiver;
         pub mod channel_transmitter;
         pub mod frequency_mixer;
         pub mod non_linearity_transformers;
     }
-    pub mod resampling{
+    pub mod resampling {
         pub mod polyphase_arbitrary_resampling;
         pub mod polyphase_integer_resampling;
+    }
+    pub mod spectral {
+        pub mod critically_sampled_polyphase_filter_bank;
+        pub mod oversampled_polyphase_filter_bank;
     }
 }
 
@@ -81,8 +85,4 @@ pub mod ffts {
     pub mod simple_cooley_tukey;
     #[cfg(test)]
     pub mod test_bench_data;
-}
-pub mod spectral {
-    pub mod critically_sampled_polyphase_filter_bank;
-    pub mod oversampled_polyphase_filter_bank;
 }

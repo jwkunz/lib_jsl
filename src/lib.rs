@@ -47,6 +47,7 @@ pub mod dsp{
     }
     pub mod transformations{
         pub mod channel_impairment;
+        pub mod channel_receiver;
         pub mod frequency_mixer;
         pub mod non_linearity_transformers;
     }

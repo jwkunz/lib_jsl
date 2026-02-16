@@ -3,6 +3,8 @@
 /// The module includes implementations of standard window functions such as Hanning, Hamming, Blackman, and Kaiser windows, as well as more general functions that allow for custom parameters and shapes.
 use std::f64::consts::PI;
 
+use crate::dsp::sinc::sinc;
+
 
 /// These are helper functions used in the implementation of the window functions. They handle special cases for small window sizes, extend the window size for symmetric windows, and truncate the window back to the desired size if necessary.
 fn len_guard(m: usize) -> Option<Vec<f64>> {
@@ -40,14 +42,7 @@ fn linspace(start: f64, stop: f64, n: usize) -> Vec<f64> {
     (0..n).map(|i| start + i as f64 * step).collect()
 }
 
-/// These are mathematical helper functions used in the implementation of certain window functions, such as the sinc function for the Lanczos window and the modified Bessel function of the first kind for the Kaiser window. They provide the necessary mathematical computations to generate the correct window coefficients based on the specified parameters.
-fn sinc(x: f64) -> f64 {
-    if x.abs() < 1e-15 {
-        1.0
-    } else {
-        (PI * x).sin() / (PI * x)
-    }
-}
+
 
 /// The modified Bessel function of the first kind, order 0, is used in the computation of the Kaiser window coefficients. It is defined as an infinite series and can be computed using a numerical approximation for practical purposes.
 fn i0(x: f64) -> f64 {
@@ -76,6 +71,63 @@ fn i0(x: f64) -> f64 {
     }
 }
 
+/// The `WindowType` enum defines the various types of window functions that can be generated. Each variant corresponds to a specific window function, and some variants include parameters that control the shape and spectral properties of the window. 
+/// This enum is used as an input to the `generate_window` function to specify which type of window to create based on the desired application and characteristics.
+pub enum WindowType {
+    Boxcar,
+    Triang,
+    Parzen,
+    Bohman,
+    Blackman,
+    Nuttall,
+    BlackmanHarris,
+    Flattop,
+    Bartlett,
+    Barthann,
+    Hamming,
+    Hann,
+    Kaiser { beta: f64 },
+    KaiserBesselDerived { beta: f64 },
+    Gaussian { std: f64 },
+    GeneralGaussian { p: f64, sig: f64 },
+    Chebwin { at: f64 },
+    Cosine,
+    Exponential { center: Option<f64>, tau: f64 },
+    Tukey { alpha: f64 },
+    Taylor { nbar: usize, sll: f64, norm: bool },
+    Dpss { nw: f64 },
+    Lanczos,
+}
+
+/// The following functions implement specific window types by calling the general cosine function with appropriate coefficients, or by directly computing the window coefficients based on their mathematical definitions. Each function takes the desired window length `m` and a boolean `sym` indicating whether the window should be symmetric or periodic, and returns a vector of window coefficients that can be applied to a signal for spectral analysis or other processing tasks.
+pub fn generate_window(window_type: WindowType, m: usize, sym: bool) -> Vec<f64> {
+    match window_type {
+        WindowType::Boxcar => boxcar(m, sym),
+        WindowType::Triang => triang(m, sym),
+        WindowType::Parzen => parzen(m, sym),
+        WindowType::Bohman => bohman(m, sym),
+        WindowType::Blackman => blackman(m, sym),
+        WindowType::Nuttall => nuttall(m, sym),
+        WindowType::BlackmanHarris => blackmanharris(m, sym),
+        WindowType::Flattop => flattop(m, sym),
+        WindowType::Bartlett => bartlett(m, sym),
+        WindowType::Barthann => barthann(m, sym),
+        WindowType::Hamming => hamming(m, sym),
+        WindowType::Hann => hann(m, sym),
+        WindowType::Kaiser { beta } => kaiser(m, beta, sym),
+        WindowType::KaiserBesselDerived { beta } => kaiser_bessel_derived(m, beta, sym),
+        WindowType::Gaussian { std } => gaussian(m, std, sym),
+        WindowType::GeneralGaussian { p, sig } => general_gaussian(m, p, sig, sym),
+        WindowType::Chebwin { at } => chebwin(m, at, sym),
+        WindowType::Cosine => cosine(m, sym),
+        WindowType::Exponential { center, tau } => exponential(m, center, tau, sym),
+        WindowType::Tukey { alpha } => tukey(m, alpha, sym),
+        WindowType::Taylor { nbar, sll, norm } => taylor(m, nbar, sll, norm, sym),
+        WindowType::Dpss { nw } => dpss(m, nw, sym),
+        WindowType::Lanczos => lanczos(m, sym),
+    }
+}
+
 /// This function generates a general cosine window based on the specified coefficients `a` and symmetry. It is used as a building block for more specific window functions like the Blackman and Nuttall windows, which can be defined as special cases of the general cosine window with specific coefficient values.
 pub fn general_cosine(m: usize, a: &[f64], sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
@@ -92,7 +144,8 @@ pub fn general_cosine(m: usize, a: &[f64], sym: bool) -> Vec<f64> {
     truncate(w, needs_trunc)
 }
 
-/// The following functions implement specific window types by calling the general cosine function with appropriate coefficients, or by directly computing the window coefficients based on their mathematical definitions. Each function takes the desired window length `m` and a boolean `sym` indicating whether the window should be symmetric or periodic, and returns a vector of window coefficients that can be applied to a signal for spectral analysis or other processing tasks.
+
+/// The boxcar window, also known as the rectangular window, is defined by a constant value of 1 across the entire window. It does not taper the edges and is equivalent to applying no window at all, which can lead to significant spectral leakage in Fourier analysis.
 pub fn boxcar(m: usize, _sym: bool) -> Vec<f64> {
     vec![1.0; m]
 }
@@ -220,7 +273,10 @@ pub fn hann(m: usize, sym: bool) -> Vec<f64> {
     general_hamming(m, 0.5, sym)
 }
 
+
+
 /// The Kaiser window is defined by a specific mathematical formula that involves the modified Bessel function of the first kind. The coefficients are computed based on the position within the window, the total length, and the beta parameter, which controls the shape of the window and its spectral properties.
+
 pub fn kaiser(m: usize, beta: f64, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;
@@ -264,6 +320,23 @@ pub fn kaiser_bessel_derived(m: usize, beta: f64, sym: bool) -> Vec<f64> {
     w.extend(half);
     w.truncate(m);
     w
+}
+
+
+/// This function is used to compute the beta parameter for the Kaiser window based on the desired attenuation in decibels. The beta parameter controls the shape of the window and its spectral properties, with higher values leading to a narrower main lobe and lower side lobes in the frequency response.
+pub fn kaiser_beta(a: f64) -> f64 {
+    if a > 50.0 {
+        0.1102 * (a - 8.7)
+    } else if a > 21.0 {
+        0.5842 * (a - 21.0).powf(0.4) + 0.07886 * (a - 21.0)
+    } else {
+        0.0
+    }
+}
+
+/// This function is used to compute the attenuation in decibels for the Kaiser window based on the desired beta parameter. The attenuation in decibels is a measure of how much the side lobes of the window are suppressed compared to the main lobe, with higher values indicating better suppression of side lobes.
+pub fn kaiser_atten(numtaps: usize, width: f64) -> f64 {
+    2.285 * (numtaps as f64 - 1.0) * std::f64::consts::PI * width + 7.95
 }
 
 /// The Gaussian window is defined by a specific mathematical formula that involves an exponential function based on the distance from the center of the window. The coefficients are computed based on the position within the window, the total length, and the standard deviation parameter, which controls the shape of the window and its spectral properties.

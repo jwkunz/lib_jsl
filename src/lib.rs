@@ -34,8 +34,10 @@ pub mod random {
 pub mod dsp{
     pub mod stream_operator;
     pub mod windows;
+    pub mod sinc;
     pub mod filters {
         pub mod discrete_linear_filter;
+        pub mod firwin;
     }
 }
 

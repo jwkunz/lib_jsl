@@ -46,3 +46,9 @@ pub mod derivatives{
     pub mod derivatives_1d_scalar;
     pub mod derivatives_vectors;
 }
+pub mod spectral {
+    pub mod simple_cooley_tukey;
+    pub mod fft_enginer_trait;
+    #[cfg(test)]
+    pub mod test_bench_data;
+}

@@ -6,4 +6,4 @@ edition = "2024"
 [dependencies]
 num = "*"
 ndarray = { version = "*", features = ["blas"] }
-ndarray-linalg = { version = "*", features = ["intel-mkl-static"] }   
+ndarray-linalg = { version = "*", features = ["openblas-system"] }   

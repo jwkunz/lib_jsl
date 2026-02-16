@@ -38,6 +38,7 @@ pub mod dsp {
     pub mod stream_operator;
     pub mod windows;
     pub mod filters {
+        pub mod biquad;
         pub mod boxcar_integrator;
         pub mod derivative_filter;
         pub mod discrete_linear_filter;
@@ -56,6 +57,9 @@ pub mod dsp {
     pub mod resampling {
         pub mod polyphase_arbitrary_resampling;
         pub mod polyphase_integer_resampling;
+    }
+    pub mod controls {
+        pub mod pid;
     }
     pub mod spectral {
         pub mod critically_sampled_polyphase_filter_bank;

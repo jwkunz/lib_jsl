@@ -31,9 +31,13 @@ pub mod random {
     pub mod uniform_generator;
     pub mod xoshiro256plusplus;
 }
-pub mod filters {
-    pub mod linear_filter;
+pub mod dsp{
+    pub mod stream_operator;
+    pub mod filters {
+        pub mod linear_filter;
+    }
 }
+
 pub mod optimization {
     pub mod golden_section_search;
     pub mod gradient_descent;

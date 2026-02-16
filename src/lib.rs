@@ -51,6 +51,7 @@ pub mod spectral {
     pub mod optimized_radix2;
     pub mod optimized_split_radix;
     pub mod best_fft;
+    pub mod rust_fft_wrapper;
     pub mod fft_enginer_trait;
     #[cfg(test)]
     pub mod test_bench_data;

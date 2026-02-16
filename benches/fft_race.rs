@@ -126,7 +126,6 @@ fn fft_race(c: &mut Criterion) {
         &input,
         FftOrdering::Standard,
     );
-
     bench_engine_execute(
         c,
         "fft_execute_bit_reversed_32768",

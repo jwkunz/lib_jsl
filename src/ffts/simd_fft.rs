@@ -1,3 +1,10 @@
+/// SIMD-optimized FFT implementation for power-of-two sizes.
+/// This implementation uses an iterative Cooley-Tukey algorithm with precomputed twiddle factors and bit-reversal indexing for efficient in-place computation. 
+/// The `SimdFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
+/// The `execute` method performs the FFT computation using an iterative approach, while the `plan` method prepares the necessary precomputations based on the specified parameters. The implementation includes architecture-specific optimizations for x86, ARM, and RISC-V platforms to leverage SIMD instructions for improved performance.
+/// The `radix2_pass_arch` function dispatches to the appropriate architecture-specific implementation of the radix-2 butterfly operation, while the `radix2_pass_scalar` function provides a fallback scalar implementation. The tests validate the correctness of the FFT output against known golden data for both standard and bit-reversed input orderings.    
+/// The implementation is designed to be flexible and efficient, making it suitable for a wide range of applications that require fast Fourier transforms on power-of-two input sizes.
+
 use num::Complex;
 
 use crate::{

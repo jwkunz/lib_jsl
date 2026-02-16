@@ -1,7 +1,18 @@
+/// Benchmarking code to compare the performance of different FFT implementations on the same input data.
+/// This code uses the Criterion crate for benchmarking, and includes a variety of FFT implementations, including the simple Cooley-Tukey algorithm, an optimized radix-2 implementation, an optimized split-radix implementation, a SIMD-optimized implementation, and the RustFFT library. 
+/// The benchmarks are designed to compare the execution time of each FFT implementation on the same input data, allowing us to evaluate the performance of each implementation and identify any differences in speed or efficiency. 
+/// The results of these benchmarks can be used to inform decisions about which FFT implementation to use for different applications, based on factors such as input size, performance requirements, and numerical accuracy.
+/// The benchmark data is loaded from binary files containing precomputed input data, and the benchmarks are organized into groups based on the input size and ordering (standard vs. bit-reversed). 
+/// The results of the benchmarks can be analyzed to identify trends and performance characteristics of each FFT implementation, providing valuable insights for optimizing FFT computations in various applications.
+/// The benchmarking code is structured to be easily extensible, allowing for additional FFT implementations to be added in the future for comparison. 
+/// The use of Criterion provides a robust framework for conducting and analyzing benchmarks, making it easier to draw meaningful conclusions from the results.
+/// Overall, this benchmarking code serves as a valuable tool for evaluating the performance of different FFT implementations and guiding decisions about which implementation to use in different contexts.
+
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 mod rust_fft_wrapper;
 use lib_jsl::ffts::{
     best_fft::BestFft,
+    bluestein_fft::BluesteinFft,
     simd_fft::SimdFft,
     fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     optimized_radix2::OptimizedRadix2FFT,
@@ -27,6 +38,10 @@ fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
 
 fn fft_gaussian_32768_input() -> Vec<Complex<f64>> {
     parse_complex_bin(include_bytes!("../src/ffts/test_data/fft_gaussian_32768_input.bin"))
+}
+
+fn fft_gaussian_63_input() -> Vec<Complex<f64>> {
+    parse_complex_bin(include_bytes!("../src/ffts/test_data/fft_gaussian_63_input.bin"))
 }
 
 fn bit_reverse_index(mut n: usize, bits: usize) -> usize {
@@ -78,6 +93,7 @@ fn bench_engine_execute<E: FfftEngine1D>(
 fn fft_race(c: &mut Criterion) {
     let input = fft_gaussian_32768_input();
     let bit_reversed_input = make_bit_reversed_input(&input);
+    let input63 = fft_gaussian_63_input();
 
     bench_engine_execute(
         c,
@@ -174,6 +190,23 @@ fn fft_race(c: &mut Criterion) {
         RustFftWrapper::new(),
         &bit_reversed_input,
         FftOrdering::BitReversed,
+    );
+
+    bench_engine_execute(
+        c,
+        "fft_execute_standard_63",
+        "bluestein_fft",
+        BluesteinFft::new(),
+        &input63,
+        FftOrdering::Standard,
+    );
+    bench_engine_execute(
+        c,
+        "fft_execute_standard_63",
+        "rustfft_wrapper",
+        RustFftWrapper::new(),
+        &input63,
+        FftOrdering::Standard,
     );
 }
 

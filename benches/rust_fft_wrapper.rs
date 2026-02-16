@@ -1,3 +1,15 @@
+/// A wrapper around the RustFFT library to conform to our FfftEngine1D trait, allowing us to benchmark RustFFT against our own implementations.
+/// This wrapper provides a way to use the RustFFT library within our benchmarking framework, allowing us to compare its performance against our own FFT implementations. The `RustFftWrapper` struct maintains the
+/// necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, and the FFT plan and scratch space required by RustFFT. 
+/// The `execute` method performs the FFT computation using RustFFT, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
+/// This wrapper allows us to evaluate the performance of RustFFT in a consistent manner alongside our own implementations, providing valuable insights into the trade-offs between different FFT algorithms and optimizations.
+/// The implementation includes error handling to ensure that the input size matches the planned size and that the FFT plan is properly initialized before execution. 
+/// It also handles different input orderings (standard vs. bit-reversed) and applies the appropriate scaling factor to the output based on the specified parameters.
+/// Overall, this wrapper serves as a bridge between the RustFFT library and our benchmarking framework, enabling us to conduct comprehensive performance comparisons across multiple FFT implementations.
+/// The `RustFftWrapper` is designed to be flexible and efficient, making it a valuable tool for evaluating the performance of RustFFT in various contexts and guiding decisions about which FFT implementation to use for different applications.
+/// By integrating RustFFT into our benchmarking suite, we can gain a deeper understanding of the performance characteristics of different FFT implementations and make informed choices about which one to use based on our specific requirements and constraints.
+/// The use of RustFFT in our benchmarks allows us to leverage a well-established and optimized FFT library, providing a strong baseline for comparison against our own implementations and helping us identify areas for potential optimization in our codebase.
+/// In summary, the `RustFftWrapper` provides a seamless integration of the RustFFT library into our benchmarking framework, enabling us to evaluate its performance alongside our own FFT implementations and make informed decisions about which implementation to use in different contexts.
 use std::sync::Arc;
 
 use lib_jsl::ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
@@ -55,6 +67,11 @@ impl FfftEngine1D for RustFftWrapper {
         match self.ordering {
             FftOrdering::Standard => buffer.copy_from_slice(input),
             FftOrdering::BitReversed => {
+                if self.bit_reverse_map.is_empty() {
+                    return Err(ErrorsJSL::InvalidInputRange(
+                        "BitReversed ordering requires a power-of-two transform size",
+                    ));
+                }
                 // RustFFT expects natural-order input, so convert bit-reversed input back.
                 for i in 0..self.size {
                     buffer[i] = input[self.bit_reverse_map[i]];
@@ -81,8 +98,8 @@ impl FfftEngine1D for RustFftWrapper {
         direction: FftDirection,
         ordering: FftOrdering,
     ) -> Result<(), ErrorsJSL> {
-        if !size.is_power_of_two() {
-            return Err(ErrorsJSL::InvalidInputRange("Size must be a power of 2"));
+        if size == 0 {
+            return Err(ErrorsJSL::InvalidInputRange("Size must be greater than 0"));
         }
 
         self.size = size;
@@ -97,8 +114,12 @@ impl FfftEngine1D for RustFftWrapper {
         };
 
         self.scratch = vec![Complex::new(0.0, 0.0); plan.get_inplace_scratch_len()];
-        let bits = size.trailing_zeros() as usize;
-        self.bit_reverse_map = (0..size).map(|i| bit_reverse(i, bits)).collect();
+        if size.is_power_of_two() {
+            let bits = size.trailing_zeros() as usize;
+            self.bit_reverse_map = (0..size).map(|i| bit_reverse(i, bits)).collect();
+        } else {
+            self.bit_reverse_map.clear();
+        }
         self.plan = Some(plan);
         Ok(())
     }

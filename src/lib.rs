@@ -26,33 +26,34 @@ pub mod integration {
 }
 pub mod random {
     pub mod distributions;
+    pub mod histogram;
     pub mod split_mix_64;
     pub mod uniform_generator;
     pub mod xoshiro256plusplus;
-    pub mod histogram;
 }
 pub mod filters {
     pub mod linear_filter;
 }
 pub mod optimization {
-    pub mod optimization_traits;
     pub mod golden_section_search;
     pub mod gradient_descent;
-    pub mod newton_raphson_method;
-    pub mod simulated_annealing;
     pub mod nelder_mead_method;
+    pub mod newton_raphson_method;
+    pub mod optimization_traits;
+    pub mod simulated_annealing;
 }
-pub mod derivatives{
+pub mod derivatives {
     pub mod derivatives_1d_scalar;
     pub mod derivatives_vectors;
 }
 pub mod ffts {
-    pub mod simple_cooley_tukey;
+    pub mod best_fft;
+    pub mod bluestein_fft;
+    pub mod fft_enginer_trait;
     pub mod optimized_radix2;
     pub mod optimized_split_radix;
     pub mod simd_fft;
-    pub mod best_fft;
-    pub mod fft_enginer_trait;
+    pub mod simple_cooley_tukey;
     #[cfg(test)]
     pub mod test_bench_data;
 }

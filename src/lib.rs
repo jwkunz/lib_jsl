@@ -43,6 +43,7 @@ pub mod dsp{
         pub mod firwin2;
         pub mod overlap_and_add_fir;
         pub mod derivative_filter;
+        pub mod boxcar_integrator;
     }
 }
 

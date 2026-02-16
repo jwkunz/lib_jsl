@@ -119,6 +119,9 @@ impl StreamOperatorManagement for DiscreteLinearFilter<Complex<f64>> {
 
 impl StreamOperator<Complex<f64>, Complex<f64>> for DiscreteLinearFilter<Complex<f64>> {
     fn process(&mut self, samples: &[Complex<f64>]) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
+        if samples.is_empty() {
+            return Ok(None);
+        }
         Ok(Some(samples.iter().map(|x| self.step(x)).collect()))
     }
     fn flush(&mut self) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {

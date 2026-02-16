@@ -324,7 +324,7 @@ mod tests {
     use std::time::Instant;
 
     use super::*;
-    use crate::spectral::test_bench_data::{fft_gaussian_1024_golden, fft_gaussian_1024_input};
+    use crate::spectral::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
 
     fn max_abs_error(a: &[Complex<f64>], b: &[Complex<f64>]) -> f64 {
         a.iter()
@@ -345,8 +345,8 @@ mod tests {
 
     #[test]
     fn test_optimized_split_radix_standard() {
-        let input = fft_gaussian_1024_input();
-        let expected = fft_gaussian_1024_golden();
+        let input = fft_gaussian_32768_input();
+        let expected = fft_gaussian_32768_golden();
 
         let mut fft = OptimizedSplitRadixFFT::new();
         fft.plan(
@@ -370,8 +370,8 @@ mod tests {
 
     #[test]
     fn test_optimized_split_radix_bit_reversed() {
-        let input = fft_gaussian_1024_input();
-        let expected = fft_gaussian_1024_golden();
+        let input = fft_gaussian_32768_input();
+        let expected = fft_gaussian_32768_golden();
 
         let bits = input.len().trailing_zeros() as usize;
         let mut bit_reversed_input = vec![Complex::new(0.0, 0.0); input.len()];

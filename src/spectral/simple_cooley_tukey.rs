@@ -119,7 +119,7 @@ mod tests {
     use std::time::Instant;
 
     use super::*;
-    use crate::spectral::test_bench_data::{fft_gaussian_1024_golden, fft_gaussian_1024_input};
+    use crate::spectral::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
 
     fn assert_complex_close(actual: Complex<f64>, expected: Complex<f64>, tol: f64) {
         assert!(
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     fn test_cooley_tukey_fft() {
-        let input = fft_gaussian_1024_input();
+        let input = fft_gaussian_32768_input();
         let mut fft = SimpleCooleyTukeyFFT::new();
         fft.plan(input.len(), FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard).unwrap();
 
@@ -149,7 +149,7 @@ mod tests {
         let elapsed = start.elapsed();
         dbg!("simple_cooley_tukey::standard execute elapsed", elapsed);
 
-        let expected = fft_gaussian_1024_golden();
+        let expected = fft_gaussian_32768_golden();
 
         assert_eq!(output.len(), expected.len());
         for (actual, expected) in output.iter().zip(expected.iter()) {
@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn test_cooley_tukey_fft_bit_reversed_ordering() {
-        let input = fft_gaussian_1024_input();
+        let input = fft_gaussian_32768_input();
 
         let bits = input.len().trailing_zeros() as usize;
         let mut bit_reversed_input = vec![Complex::new(0.0, 0.0); input.len()];
@@ -181,7 +181,7 @@ mod tests {
         let elapsed = start.elapsed();
         dbg!("simple_cooley_tukey::bit_reversed execute elapsed", elapsed);
 
-        let expected = fft_gaussian_1024_golden();
+        let expected = fft_gaussian_32768_golden();
 
         assert_eq!(output.len(), expected.len());
         for (actual, expected) in output.iter().zip(expected.iter()) {

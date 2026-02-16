@@ -1,24 +1,24 @@
 use num::Complex;
 
-fn parse_complex_csv(csv: &str) -> Vec<Complex<f64>> {
-    csv.lines()
-        .filter(|line| !line.is_empty())
-        .map(|line| {
-            let (re, im) = line
-                .split_once(',')
-                .expect("each row must be formatted as `re,im`");
-            Complex::new(
-                re.parse::<f64>().expect("real part must parse as f64"),
-                im.parse::<f64>().expect("imag part must parse as f64"),
-            )
+fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
+    assert!(bytes.len() % 16 == 0, "binary complex data must be 16-byte aligned");
+
+    bytes
+        .chunks_exact(16)
+        .map(|chunk| {
+            let mut re = [0_u8; 8];
+            let mut im = [0_u8; 8];
+            re.copy_from_slice(&chunk[0..8]);
+            im.copy_from_slice(&chunk[8..16]);
+            Complex::new(f64::from_le_bytes(re), f64::from_le_bytes(im))
         })
         .collect()
 }
 
-pub(crate) fn fft_gaussian_1024_input() -> Vec<Complex<f64>> {
-    parse_complex_csv(include_str!("test_data/fft_gaussian_1024_input.csv"))
+pub(crate) fn fft_gaussian_32768_input() -> Vec<Complex<f64>> {
+    parse_complex_bin(include_bytes!("test_data/fft_gaussian_32768_input.bin"))
 }
 
-pub(crate) fn fft_gaussian_1024_golden() -> Vec<Complex<f64>> {
-    parse_complex_csv(include_str!("test_data/fft_gaussian_1024_golden.csv"))
+pub(crate) fn fft_gaussian_32768_golden() -> Vec<Complex<f64>> {
+    parse_complex_bin(include_bytes!("test_data/fft_gaussian_32768_golden.bin"))
 }

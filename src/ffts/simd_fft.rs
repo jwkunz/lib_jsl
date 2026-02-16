@@ -9,7 +9,7 @@ use num::Complex;
 
 use crate::{
     prelude::ErrorsJSL,
-    ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    ffts::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

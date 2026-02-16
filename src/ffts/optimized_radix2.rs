@@ -6,7 +6,7 @@ use num::Complex;
 
 use crate::{
     prelude::ErrorsJSL,
-    ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    ffts::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
 pub struct OptimizedRadix2FFT {

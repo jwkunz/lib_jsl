@@ -36,6 +36,7 @@ pub mod dsp{
     pub mod windows;
     pub mod sinc;
     pub mod convolve;
+    pub mod cross_correlation;
     pub mod filters {
         pub mod discrete_linear_filter;
         pub mod firwin;
@@ -58,7 +59,7 @@ pub mod derivatives {
 pub mod ffts {
     pub mod best_fft;
     pub mod bluestein_fft;
-    pub mod fft_enginer_trait;
+    pub mod fft_engine_trait;
     pub mod optimized_radix2;
     pub mod optimized_split_radix;
     pub mod simd_fft;

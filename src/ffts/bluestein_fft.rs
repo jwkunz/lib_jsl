@@ -9,7 +9,7 @@ use num::Complex;
 use crate::{
     ffts::{
         best_fft::BestFft,
-        fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::ErrorsJSL,
 };

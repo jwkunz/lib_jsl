@@ -14,7 +14,7 @@ use lib_jsl::ffts::{
     best_fft::BestFft,
     bluestein_fft::BluesteinFft,
     simd_fft::SimdFft,
-    fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     optimized_radix2::OptimizedRadix2FFT,
     optimized_split_radix::OptimizedSplitRadixFFT,
     simple_cooley_tukey::SimpleCooleyTukeyFFT,

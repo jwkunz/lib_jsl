@@ -5,7 +5,7 @@
 
 use num::Complex;
 
-use crate::{prelude::ErrorsJSL, ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftScaleFactor, FftOrdering}};
+use crate::{prelude::ErrorsJSL, ffts::fft_engine_trait::{FfftEngine1D, FftDirection, FftScaleFactor, FftOrdering}};
  pub struct SimpleCooleyTukeyFFT {
     size: usize,
     direction: FftDirection,
@@ -111,7 +111,7 @@ impl FfftEngine1D for SimpleCooleyTukeyFFT {
     fn get_size(&self) -> usize {
         self.size
     }
-    fn get_ordering(&self) -> super::fft_enginer_trait::FftOrdering {
+    fn get_ordering(&self) -> super::fft_engine_trait::FftOrdering {
         self.ordering
     }
 }

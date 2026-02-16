@@ -12,7 +12,7 @@
 /// In summary, the `RustFftWrapper` provides a seamless integration of the RustFFT library into our benchmarking framework, enabling us to evaluate its performance alongside our own FFT implementations and make informed decisions about which implementation to use in different contexts.
 use std::sync::Arc;
 
-use lib_jsl::ffts::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use lib_jsl::ffts::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
 use lib_jsl::prelude::ErrorsJSL;
 use num::Complex;
 use rustfft::{Fft, FftPlanner};

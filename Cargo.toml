@@ -7,10 +7,10 @@ edition = "2024"
 num = "*"
 ndarray = { version = "*", features = ["blas"] }
 ndarray-linalg = { version = "*", features = ["openblas-system"] }   
-rustfft = "6"
+rustfft = "*"
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "*"
 
 [[bench]]
 name = "fft_race"

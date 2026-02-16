@@ -50,6 +50,7 @@ pub mod spectral {
     pub mod simple_cooley_tukey;
     pub mod optimized_radix2;
     pub mod optimized_split_radix;
+    pub mod simd_fft;
     pub mod best_fft;
     pub mod rust_fft_wrapper;
     pub mod fft_enginer_trait;

@@ -5,24 +5,16 @@ use crate::{
     spectral::fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[path = "best_fft_x86.rs"]
-mod best_fft_x86;
-#[cfg(any(target_arch = "aarch64", target_arch = "arm"))]
-#[path = "best_fft_arm.rs"]
-mod best_fft_arm;
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-#[path = "best_fft_riscv.rs"]
-mod best_fft_riscv;
-
 pub struct BestFft {
     size: usize,
     direction: FftDirection,
     scale: FftScaleFactor,
     ordering: FftOrdering,
-    stage_twiddles: Vec<Complex<f64>>,
-    stage_offsets: Vec<usize>,
     bit_reverse_map: Vec<usize>,
+    stage_offsets: Vec<usize>,
+    twiddle_re: Vec<f64>,
+    twiddle_im: Vec<f64>,
+    work: Vec<Complex<f64>>,
 }
 
 impl BestFft {
@@ -32,9 +24,11 @@ impl BestFft {
             direction: FftDirection::Forward,
             scale: FftScaleFactor::None,
             ordering: FftOrdering::Standard,
-            stage_twiddles: Vec::new(),
-            stage_offsets: Vec::new(),
             bit_reverse_map: Vec::new(),
+            stage_offsets: Vec::new(),
+            twiddle_re: Vec::new(),
+            twiddle_im: Vec::new(),
+            work: Vec::new(),
         }
     }
 }
@@ -50,85 +44,106 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
 }
 
 #[inline]
-fn radix2_pass_scalar(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size: usize, m: usize) {
-    let half = m / 2;
-    for k in (0..size).step_by(m) {
-        let mut j = 0usize;
-        while j + 4 <= half {
-            // SAFETY:
-            // - k in [0, size), j..j+3 < half and half <= m/2 ensure all indexes are valid.
-            // - k steps by m and m <= size, so k + m - 1 < size.
-            unsafe {
-                let w0 = *twiddles.get_unchecked(j);
-                let w1 = *twiddles.get_unchecked(j + 1);
-                let w2 = *twiddles.get_unchecked(j + 2);
-                let w3 = *twiddles.get_unchecked(j + 3);
-
-                let a0 = k + j;
-                let a1 = k + j + 1;
-                let a2 = k + j + 2;
-                let a3 = k + j + 3;
-                let b0 = a0 + half;
-                let b1 = a1 + half;
-                let b2 = a2 + half;
-                let b3 = a3 + half;
-
-                let u0 = *buffer.get_unchecked(a0);
-                let u1 = *buffer.get_unchecked(a1);
-                let u2 = *buffer.get_unchecked(a2);
-                let u3 = *buffer.get_unchecked(a3);
-
-                let t0 = w0 * *buffer.get_unchecked(b0);
-                let t1 = w1 * *buffer.get_unchecked(b1);
-                let t2 = w2 * *buffer.get_unchecked(b2);
-                let t3 = w3 * *buffer.get_unchecked(b3);
-
-                *buffer.get_unchecked_mut(a0) = u0 + t0;
-                *buffer.get_unchecked_mut(b0) = u0 - t0;
-                *buffer.get_unchecked_mut(a1) = u1 + t1;
-                *buffer.get_unchecked_mut(b1) = u1 - t1;
-                *buffer.get_unchecked_mut(a2) = u2 + t2;
-                *buffer.get_unchecked_mut(b2) = u2 - t2;
-                *buffer.get_unchecked_mut(a3) = u3 + t3;
-                *buffer.get_unchecked_mut(b3) = u3 - t3;
-            }
-            j += 4;
-        }
-        while j < half {
-            // SAFETY: same bounds reasoning as the unrolled loop.
-            unsafe {
-                let w = *twiddles.get_unchecked(j);
-                let a = k + j;
-                let b = a + half;
-                let u = *buffer.get_unchecked(a);
-                let t = w * *buffer.get_unchecked(b);
-                *buffer.get_unchecked_mut(a) = u + t;
-                *buffer.get_unchecked_mut(b) = u - t;
-            }
-            j += 1;
-        }
+fn pass_m2(work: &mut [Complex<f64>]) {
+    for k in (0..work.len()).step_by(2) {
+        let x0 = work[k];
+        let x1 = work[k + 1];
+        work[k] = x0 + x1;
+        work[k + 1] = x0 - x1;
     }
 }
 
 #[inline]
-fn radix2_pass_arch(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size: usize, m: usize) {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    {
-        best_fft_x86::radix2_pass(buffer, twiddles, size, m);
-        return;
+fn pass_m4(work: &mut [Complex<f64>], direction: FftDirection) {
+    let w = match direction {
+        FftDirection::Forward => Complex::new(0.0, -1.0),
+        FftDirection::Inverse => Complex::new(0.0, 1.0),
+    };
+    for k in (0..work.len()).step_by(4) {
+        let a0 = work[k];
+        let b0 = work[k + 2];
+        work[k] = a0 + b0;
+        work[k + 2] = a0 - b0;
+
+        let a1 = work[k + 1];
+        let b1 = work[k + 3] * w;
+        work[k + 1] = a1 + b1;
+        work[k + 3] = a1 - b1;
     }
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm"))]
-    {
-        best_fft_arm::radix2_pass(buffer, twiddles, size, m);
-        return;
+}
+
+#[inline]
+fn pass_generic_unrolled(
+    work: &mut [Complex<f64>],
+    tw_re: &[f64],
+    tw_im: &[f64],
+    size: usize,
+    m: usize,
+) {
+    let half = m >> 1;
+    for k in (0..size).step_by(m) {
+        let mut j = 0usize;
+        while j + 4 <= half {
+            // SAFETY:
+            // - j..j+3 within [0, half), so twiddle reads are in range.
+            // - a/b indexes remain within [k, k+m), and k+m <= size.
+            unsafe {
+                let wr0 = *tw_re.get_unchecked(j);
+                let wi0 = *tw_im.get_unchecked(j);
+                let wr1 = *tw_re.get_unchecked(j + 1);
+                let wi1 = *tw_im.get_unchecked(j + 1);
+                let wr2 = *tw_re.get_unchecked(j + 2);
+                let wi2 = *tw_im.get_unchecked(j + 2);
+                let wr3 = *tw_re.get_unchecked(j + 3);
+                let wi3 = *tw_im.get_unchecked(j + 3);
+
+                let a0 = k + j;
+                let a1 = a0 + 1;
+                let a2 = a0 + 2;
+                let a3 = a0 + 3;
+                let b0 = a0 + half;
+                let b1 = b0 + 1;
+                let b2 = b0 + 2;
+                let b3 = b0 + 3;
+
+                let u0 = *work.get_unchecked(a0);
+                let u1 = *work.get_unchecked(a1);
+                let u2 = *work.get_unchecked(a2);
+                let u3 = *work.get_unchecked(a3);
+                let v0 = *work.get_unchecked(b0);
+                let v1 = *work.get_unchecked(b1);
+                let v2 = *work.get_unchecked(b2);
+                let v3 = *work.get_unchecked(b3);
+
+                let t0 = Complex::new(v0.re * wr0 - v0.im * wi0, v0.re * wi0 + v0.im * wr0);
+                let t1 = Complex::new(v1.re * wr1 - v1.im * wi1, v1.re * wi1 + v1.im * wr1);
+                let t2 = Complex::new(v2.re * wr2 - v2.im * wi2, v2.re * wi2 + v2.im * wr2);
+                let t3 = Complex::new(v3.re * wr3 - v3.im * wi3, v3.re * wi3 + v3.im * wr3);
+
+                *work.get_unchecked_mut(a0) = u0 + t0;
+                *work.get_unchecked_mut(b0) = u0 - t0;
+                *work.get_unchecked_mut(a1) = u1 + t1;
+                *work.get_unchecked_mut(b1) = u1 - t1;
+                *work.get_unchecked_mut(a2) = u2 + t2;
+                *work.get_unchecked_mut(b2) = u2 - t2;
+                *work.get_unchecked_mut(a3) = u3 + t3;
+                *work.get_unchecked_mut(b3) = u3 - t3;
+            }
+            j += 4;
+        }
+        while j < half {
+            let a = k + j;
+            let b = a + half;
+            let u = work[a];
+            let v = work[b];
+            let wr = tw_re[j];
+            let wi = tw_im[j];
+            let t = Complex::new(v.re * wr - v.im * wi, v.re * wi + v.im * wr);
+            work[a] = u + t;
+            work[b] = u - t;
+            j += 1;
+        }
     }
-    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
-    {
-        best_fft_riscv::radix2_pass(buffer, twiddles, size, m);
-        return;
-    }
-    #[allow(unreachable_code)]
-    radix2_pass_scalar(buffer, twiddles, size, m);
 }
 
 impl FfftEngine1D for BestFft {
@@ -139,32 +154,62 @@ impl FfftEngine1D for BestFft {
             ));
         }
 
-        let mut buffer = vec![Complex::new(0.0, 0.0); self.size];
-        if matches!(self.ordering, FftOrdering::Standard) {
-            for (i, &value) in input.iter().enumerate() {
-                buffer[self.bit_reverse_map[i]] = value;
+        if self.work.len() != self.size {
+            self.work.resize(self.size, Complex::new(0.0, 0.0));
+        }
+
+        match self.ordering {
+            FftOrdering::Standard => {
+                for (i, &value) in input.iter().enumerate() {
+                    self.work[self.bit_reverse_map[i]] = value;
+                }
             }
-        } else {
-            buffer.copy_from_slice(input);
+            FftOrdering::BitReversed => self.work.copy_from_slice(input),
         }
 
         let log2n = self.size.trailing_zeros() as usize;
-        for stage in 1..=log2n {
+        let mut stage = 1usize;
+        if stage <= log2n {
+            pass_m2(&mut self.work);
+            stage += 1;
+        }
+        if stage <= log2n {
+            pass_m4(&mut self.work, self.direction);
+            stage += 1;
+        }
+        while stage <= log2n {
             let m = 1usize << stage;
             let start = self.stage_offsets[stage - 1];
             let end = self.stage_offsets[stage];
-            let tw = &self.stage_twiddles[start..end];
-            radix2_pass_arch(&mut buffer, tw, self.size, m);
+            pass_generic_unrolled(
+                &mut self.work,
+                &self.twiddle_re[start..end],
+                &self.twiddle_im[start..end],
+                self.size,
+                m,
+            );
+            stage += 1;
         }
 
-        Ok(match self.scale {
-            FftScaleFactor::None => buffer,
-            FftScaleFactor::SqrtN => buffer
-                .into_iter()
-                .map(|x| x / (self.size as f64).sqrt())
-                .collect(),
-            FftScaleFactor::N => buffer.into_iter().map(|x| x / self.size as f64).collect(),
-        })
+        let mut out = self.work.clone();
+        match self.scale {
+            FftScaleFactor::None => {}
+            FftScaleFactor::SqrtN => {
+                let s = 1.0 / (self.size as f64).sqrt();
+                for v in &mut out {
+                    v.re *= s;
+                    v.im *= s;
+                }
+            }
+            FftScaleFactor::N => {
+                let s = 1.0 / self.size as f64;
+                for v in &mut out {
+                    v.re *= s;
+                    v.im *= s;
+                }
+            }
+        }
+        Ok(out)
     }
 
     fn plan(
@@ -186,24 +231,28 @@ impl FfftEngine1D for BestFft {
         let log2n = size.trailing_zeros() as usize;
         self.bit_reverse_map = (0..size).map(|i| bit_reverse(i, log2n)).collect();
 
+        self.stage_offsets.clear();
+        self.stage_offsets.reserve(log2n + 1);
+        self.stage_offsets.push(0);
+        self.twiddle_re.clear();
+        self.twiddle_im.clear();
+
         let sign = match direction {
             FftDirection::Forward => -1.0_f64,
             FftDirection::Inverse => 1.0_f64,
         };
-        self.stage_offsets.clear();
-        self.stage_offsets.reserve(log2n + 1);
-        self.stage_twiddles.clear();
-        self.stage_offsets.push(0);
         for stage in 1..=log2n {
             let m = 1usize << stage;
-            let half = m / 2;
+            let half = m >> 1;
             for j in 0..half {
                 let theta = sign * 2.0 * std::f64::consts::PI * j as f64 / m as f64;
-                self.stage_twiddles.push(Complex::new(theta.cos(), theta.sin()));
+                self.twiddle_re.push(theta.cos());
+                self.twiddle_im.push(theta.sin());
             }
-            self.stage_offsets.push(self.stage_twiddles.len());
+            self.stage_offsets.push(self.twiddle_re.len());
         }
 
+        self.work.resize(size, Complex::new(0.0, 0.0));
         Ok(())
     }
 
@@ -260,10 +309,11 @@ mod tests {
             FftOrdering::Standard,
         )
         .unwrap();
+
         let start = Instant::now();
         let output = fft.execute(&input).unwrap();
-        let elapsed = start.elapsed();
-        dbg!("best_fft::standard execute elapsed", elapsed);
+        dbg!("best_fft::standard execute elapsed", start.elapsed());
+
         assert_eq!(output.len(), expected.len());
         for (actual, expected) in output.iter().zip(expected.iter()) {
             assert_complex_close(*actual, *expected, 1e-9);
@@ -287,10 +337,11 @@ mod tests {
             FftOrdering::BitReversed,
         )
         .unwrap();
+
         let start = Instant::now();
         let output = fft.execute(&bit_reversed_input).unwrap();
-        let elapsed = start.elapsed();
-        dbg!("best_fft::bit_reversed execute elapsed", elapsed);
+        dbg!("best_fft::bit_reversed execute elapsed", start.elapsed());
+
         assert_eq!(output.len(), expected.len());
         for (actual, expected) in output.iter().zip(expected.iter()) {
             assert_complex_close(*actual, *expected, 1e-9);

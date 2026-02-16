@@ -1,6 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use lib_jsl::spectral::{
     best_fft::BestFft,
+    simd_fft::SimdFft,
     fft_enginer_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     optimized_radix2::OptimizedRadix2FFT,
     optimized_split_radix::OptimizedSplitRadixFFT,
@@ -104,6 +105,14 @@ fn fft_race(c: &mut Criterion) {
     bench_engine_execute(
         c,
         "fft_execute_standard_32768",
+        "simd_fft",
+        SimdFft::new(),
+        &input,
+        FftOrdering::Standard,
+    );
+    bench_engine_execute(
+        c,
+        "fft_execute_standard_32768",
         "best_fft",
         BestFft::new(),
         &input,
@@ -139,6 +148,14 @@ fn fft_race(c: &mut Criterion) {
         "fft_execute_bit_reversed_32768",
         "optimized_split_radix",
         OptimizedSplitRadixFFT::new(),
+        &bit_reversed_input,
+        FftOrdering::BitReversed,
+    );
+    bench_engine_execute(
+        c,
+        "fft_execute_bit_reversed_32768",
+        "simd_fft",
+        SimdFft::new(),
         &bit_reversed_input,
         FftOrdering::BitReversed,
     );

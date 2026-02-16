@@ -45,6 +45,9 @@ pub mod dsp{
         pub mod derivative_filter;
         pub mod boxcar_integrator;
     }
+    pub mod transformations{
+        pub mod frequency_mixer;
+    }
 }
 
 pub mod optimization {

@@ -4,16 +4,16 @@ use num::Complex;
 
 
 use crate::{prelude::ErrorsJSL, spectral::fft_enginer_trait::{FfftEngine1D, FftDirection, FftScaleFactor, FftOrdering}};
- pub struct CooleyTukeyFFT {
+ pub struct SimpleCooleyTukeyFFT {
     size: usize,
     direction: FftDirection,
     scale: FftScaleFactor,
     ordering: FftOrdering,
 }
 
-impl CooleyTukeyFFT {
+impl SimpleCooleyTukeyFFT {
     pub fn new() -> Self {
-        CooleyTukeyFFT {
+        SimpleCooleyTukeyFFT {
             size: 0,
             direction: FftDirection::Forward,
             scale: FftScaleFactor::None,
@@ -32,7 +32,7 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
     reversed
 }   
 
-impl FfftEngine1D for CooleyTukeyFFT {
+impl FfftEngine1D for SimpleCooleyTukeyFFT {
     fn plan(&mut self, size: usize, scale: FftScaleFactor, direction: FftDirection, ordering: FftOrdering) -> Result<(), ErrorsJSL> {
         if !size.is_power_of_two() {
             return Err(ErrorsJSL::InvalidInputRange("Size must be a power of 2"));
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn test_cooley_tukey_fft() {
         let input = fft_gaussian_1024_input();
-        let mut fft = CooleyTukeyFFT::new();
+        let mut fft = SimpleCooleyTukeyFFT::new();
         fft.plan(input.len(), FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard).unwrap();
 
         let start = Instant::now();
@@ -167,7 +167,7 @@ mod tests {
             bit_reversed_input[bit_reverse_index(i, bits)] = *value;
         }
 
-        let mut fft = CooleyTukeyFFT::new();
+        let mut fft = SimpleCooleyTukeyFFT::new();
         fft.plan(
             bit_reversed_input.len(),
             FftScaleFactor::None,

@@ -48,6 +48,8 @@ pub mod derivatives{
 }
 pub mod spectral {
     pub mod simple_cooley_tukey;
+    pub mod optimized_radix2;
+    pub mod optimized_split_radix;
     pub mod fft_enginer_trait;
     #[cfg(test)]
     pub mod test_bench_data;

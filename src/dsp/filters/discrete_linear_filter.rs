@@ -10,7 +10,7 @@ use crate::{
     prelude::{ErrorsJSL, IsLinearOperatable},
 };
 
-pub struct LinearFilter<T : IsLinearOperatable> {
+pub struct DiscreteLinearFilter<T : IsLinearOperatable> {
     /// Feed-forward (numerator) coefficients
     b: Vec<T>,
 
@@ -21,7 +21,7 @@ pub struct LinearFilter<T : IsLinearOperatable> {
     delay: VecDeque<T>,
 }
 
-impl<T : IsLinearOperatable> LinearFilter<T> {
+impl<T : IsLinearOperatable> DiscreteLinearFilter<T> {
     /// Create a new IIR DF2 filter from b[] and a[] taps.
     /// a[0] must equal 1.0.
     pub fn new(b: &[T], a: &[T]) -> Self {
@@ -83,7 +83,7 @@ impl<T : IsLinearOperatable> LinearFilter<T> {
 
 /// For real-valued filters, we can use the same implementation but with f64 as the type parameter. This allows us to reuse the same code for both real and complex filters, while still providing the necessary functionality for each type.
 
-impl StreamOperatorManagement for LinearFilter<f64> {
+impl StreamOperatorManagement for DiscreteLinearFilter<f64> {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
         self.clear_buffer();
         Ok(())
@@ -94,7 +94,7 @@ impl StreamOperatorManagement for LinearFilter<f64> {
     }
 }
 
-impl StreamOperator<f64, f64> for LinearFilter<f64> {
+impl StreamOperator<f64, f64> for DiscreteLinearFilter<f64> {
     fn process(&mut self, samples: &[f64]) -> Result<Option<Vec<f64>>, ErrorsJSL> {
         Ok(Some(samples.iter().map(|x| self.step(x)).collect()))
     }
@@ -106,7 +106,7 @@ impl StreamOperator<f64, f64> for LinearFilter<f64> {
 
 /// For complex-valued filters, we can use Complex<f64> as the type parameter. This allows us to handle complex input and output samples, which is common in many DSP applications such as modulation, demodulation, and spectral processing.
 
-impl StreamOperatorManagement for LinearFilter<Complex<f64>> {
+impl StreamOperatorManagement for DiscreteLinearFilter<Complex<f64>> {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
         self.clear_buffer();
         Ok(())
@@ -117,7 +117,7 @@ impl StreamOperatorManagement for LinearFilter<Complex<f64>> {
     }
 }
 
-impl StreamOperator<Complex<f64>, Complex<f64>> for LinearFilter<Complex<f64>> {
+impl StreamOperator<Complex<f64>, Complex<f64>> for DiscreteLinearFilter<Complex<f64>> {
     fn process(&mut self, samples: &[Complex<f64>]) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
         Ok(Some(samples.iter().map(|x| self.step(x)).collect()))
     }
@@ -140,7 +140,7 @@ mod tests {
             -0.3,
         ];
 
-        let mut iir = LinearFilter::new(&b, &a);
+        let mut iir = DiscreteLinearFilter::new(&b, &a);
 
         let input = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
 

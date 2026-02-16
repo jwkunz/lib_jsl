@@ -71,6 +71,7 @@ pub trait IsAnalytic: IsLinearOperatable {
     fn f_abs(&self) -> f64;
     fn f_arg(&self) -> f64;
     fn f_abs2(&self) -> f64;
+    fn f_scale(&self, factor: f64) -> Self;
     fn to_complex(&self) -> Complex<f64>;
     fn from_complex(value: Complex<f64>) -> Self where Self: Sized;
 }
@@ -109,6 +110,9 @@ impl IsAnalytic for f64 {
         } else {
             std::f64::consts::PI
         }   
+    }
+    fn f_scale(&self, factor: f64) -> Self {
+        self * factor
     }
     fn to_complex(&self) -> Complex<f64> {
         Complex::new(*self, 0.0)
@@ -149,6 +153,9 @@ impl IsAnalytic for Complex<f64> {
     }
     fn f_abs2(&self) -> f64 {
         self.norm_sqr()
+    }
+    fn f_scale(&self, factor: f64) -> Self {
+        self * factor
     }
     fn to_complex(&self) -> Complex<f64> {
         *self

@@ -49,6 +49,9 @@ pub mod dsp{
         pub mod frequency_mixer;
         pub mod non_linearity_transformers;
     }
+    pub mod resampling{
+        pub mod polyphase_integer_resampling;
+    }
 }
 
 pub mod optimization {

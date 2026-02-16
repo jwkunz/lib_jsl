@@ -339,6 +339,11 @@ pub fn kaiser_atten(numtaps: usize, width: f64) -> f64 {
     2.285 * (numtaps as f64 - 1.0) * std::f64::consts::PI * width + 7.95
 }
 
+/// This is a method to estimate the number of taps needed for a Kaiser window based on the desired attenuation in decibels and the width of the main lobe. The number of taps determines the length of the window and its spectral properties, with more taps leading to a narrower main lobe and better suppression of side lobes.
+pub fn kaiser_estimate_numtaps(at: f64, width: f64) -> usize {
+    ((at - 7.95) / (2.285 * std::f64::consts::PI * width)).ceil() as usize + 1
+}
+
 /// The Gaussian window is defined by a specific mathematical formula that involves an exponential function based on the distance from the center of the window. The coefficients are computed based on the position within the window, the total length, and the standard deviation parameter, which controls the shape of the window and its spectral properties.
 pub fn gaussian(m: usize, std: f64, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {

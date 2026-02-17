@@ -13,7 +13,7 @@ use crate::dsp::stream_operator::{StreamOperator, StreamOperatorManagement};
 
 pub struct FrequencyMixer {
     phase: f64,
-    frequency_increment : f64,
+    phase_increment : f64,
 }
 
 impl FrequencyMixer {
@@ -23,14 +23,14 @@ impl FrequencyMixer {
     pub fn new(frequency_hz: f64, sample_rate_hz: f64, initial_phase: Option<f64>) -> Self {
         Self { 
             phase: initial_phase.unwrap_or(0.0),
-            frequency_increment: 2.0*PI*frequency_hz / sample_rate_hz,
+            phase_increment: 2.0*PI*frequency_hz / sample_rate_hz,
         }
     }
 
     // Increment the phase with wrapping to keep it in the range [0, 2*PI) for positive frequencies or (-2*PI, 0] for negative frequencies. This ensures that the phase remains bounded and prevents numerical issues that can arise from unbounded phase growth.
-    fn increment_phase(&mut self) {
-        self.phase += self.frequency_increment;
-        if self.frequency_increment > 0.0 {
+    pub fn increment_phase(&mut self) {
+        self.phase += self.phase_increment;
+        if self.phase_increment > 0.0 {
             if self.phase > 2.0*PI {
                 self.phase -= 2.0*PI; // Wrap around to keep phase in [0, 2*PI)
             }
@@ -39,7 +39,20 @@ impl FrequencyMixer {
                 self.phase += 2.0*PI; // Wrap around to keep phase in [0, 2*PI)
             }
         }
+    }
 
+    /// Setters and getters for manual control
+    pub fn set_phase(&mut self, x : f64){
+        self.phase = x;
+    }
+    pub fn get_phase(&mut self) -> f64{
+        self.phase
+    }
+    pub fn set_phase_increment(&mut self, x : f64){
+        self.phase_increment = x;
+    }
+    pub fn get_phase_increment(&mut self) -> f64{
+        self.phase_increment
     }
 }
 
@@ -124,7 +137,7 @@ mod tests {
         let input = vec![1.0; 8];
         let output = dut.process(&input).unwrap().unwrap();
         let expected = input.iter().enumerate().map(|(n, &x)| {
-            let phase = dut.frequency_increment * (n) as f64;
+            let phase = dut.phase_increment * (n) as f64;
             x * Complex::from_polar(1.0, phase)
         }).collect::<Vec<Complex<f64>>>();
         for (o, e) in output.iter().zip(expected.iter()) {

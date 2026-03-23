@@ -59,6 +59,7 @@ pub mod dsp {
         pub mod polyphase_integer_resampling;
     }
     pub mod controls {
+        pub mod kalman;
         pub mod pid;
     }
     pub mod spectral {

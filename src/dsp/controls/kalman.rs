@@ -64,6 +64,7 @@ pub struct KalmanResult {
 pub struct KalmanFilter {
     state_transition: C2D,
     observation_model: C2D,
+    observation_model_h: C2D,
     process_noise: C2D,
     measurement_noise: C2D,
     estimate_covariance: C2D,
@@ -160,9 +161,12 @@ impl KalmanFilter {
             ));
         }
 
+        let observation_model_h = Self::conjugate_transpose(&observation_model);
+
         Ok(Self {
             state_transition,
             observation_model,
+            observation_model_h,
             process_noise,
             measurement_noise,
             estimate_covariance: estimate_covariance.clone(),
@@ -190,6 +194,33 @@ impl KalmanFilter {
     /// in the corresponding state components.
     pub fn estimate_covariance(&self) -> &C2D {
         &self.estimate_covariance
+    }
+
+    /// Updates the observation matrix `H` used during the measurement update.
+    ///
+    /// The matrix must preserve the existing state dimension and measurement
+    /// dimension. The cached conjugate-transpose `H^H` is refreshed whenever
+    /// this matrix is changed.
+    pub fn set_observation_model(&mut self, observation_model: C2D) -> Result<(), ErrorsJSL> {
+        let expected_state_dim = self.state_estimate.len();
+        let expected_measurement_dim = self.measurement_noise.nrows();
+
+        if observation_model.ncols() != expected_state_dim {
+            return Err(ErrorsJSL::IncompatibleArraySizes((
+                observation_model.ncols(),
+                expected_state_dim,
+            )));
+        }
+        if observation_model.nrows() != expected_measurement_dim {
+            return Err(ErrorsJSL::IncompatibleArraySizes((
+                observation_model.nrows(),
+                expected_measurement_dim,
+            )));
+        }
+
+        self.observation_model_h = Self::conjugate_transpose(&observation_model);
+        self.observation_model = observation_model;
+        Ok(())
     }
 
     /// Updates the control-input vector used during the prediction step.
@@ -277,14 +308,13 @@ impl KalmanFilter {
             )));
         }
 
-        let h_h = Self::conjugate_transpose(&self.observation_model);
         let innovation = measurement - &self.observation_model.dot(&self.state_estimate);
         let innovation_covariance = self
             .observation_model
             .dot(&self.estimate_covariance)
-            .dot(&h_h)
+            .dot(&self.observation_model_h)
             + &self.measurement_noise;
-        let gain_rhs = self.estimate_covariance.dot(&h_h);
+        let gain_rhs = self.estimate_covariance.dot(&self.observation_model_h);
         let gain_rhs_t = gain_rhs.t().to_owned();
         let mut kalman_gain_t = C2D::zeros(gain_rhs_t.raw_dim());
         for (column_idx, rhs_column) in gain_rhs_t.columns().into_iter().enumerate() {

@@ -85,6 +85,7 @@ pub mod derivatives {
 pub mod ffts {
     pub mod best_fft;
     pub mod bluestein_fft;
+    pub mod fractional_fft;
     pub mod fft_engine_trait;
     pub mod optimized_radix2;
     pub mod optimized_split_radix;

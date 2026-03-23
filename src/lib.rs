@@ -64,6 +64,7 @@ pub mod dsp {
     }
     pub mod spectral {
         pub mod critically_sampled_polyphase_filter_bank;
+        pub mod freqz;
         pub mod oversampled_polyphase_filter_bank;
     }
 }

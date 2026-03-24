@@ -15,8 +15,8 @@ impl Histogram{
     pub fn new(bin_min : f64, bin_max : f64, n_bins : usize)->Self{
         let span = bin_max-bin_min;
         let bin_width = span / (n_bins) as f64;
-        let bin_labels = (0..n_bins).into_iter().map(|x| x as f64*bin_width).collect();
-        let bin_counts = (0..n_bins).into_iter().map(|_| 0).collect();
+        let bin_labels = (0..n_bins).map(|x| x as f64*bin_width).collect();
+        let bin_counts = (0..n_bins).map(|_| 0).collect();
         let total = 0;
         Histogram { bin_labels, bin_counts, total, bin_width}
     }

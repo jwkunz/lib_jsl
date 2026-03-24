@@ -55,10 +55,10 @@ where
                 return Ok(expected);
             }
 
-            if let Some(max) = max_samples {
-                if sample_count > max {
-                    return Ok(expected);
-                }
+            if let Some(max) = max_samples
+                && sample_count > max
+            {
+                return Ok(expected);
             }
         }
     }
@@ -78,7 +78,7 @@ mod test {
         let lower_bound = 0.0;
         let upper_bound = PI;
         let result = monte_carlo_integration(
-            &test_function,
+            test_function,
             &[(lower_bound, upper_bound),(lower_bound,upper_bound),(lower_bound,upper_bound)],
             (error_limit*1E-3, 1000),
             None,

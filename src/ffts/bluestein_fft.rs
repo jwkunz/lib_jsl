@@ -1,9 +1,8 @@
-/// Bluestein's algorithm (chirp-z transform) implementation for 1D FFTs of arbitrary size. 
-/// This algorithm allows us to compute the DFT of sequences whose length is not a power of two by transforming the problem into a convolution, which can be efficiently computed using FFTs. 
-/// The implementation includes planning and execution methods, and supports different scaling factors and input orderings.   
-/// The `BluesteinFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, convolution size, precomputed chirp factors, and the FFT engines used for the convolution step. 
-/// The `execute` method performs the FFT computation using Bluestein's algorithm, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
-
+//! Bluestein's algorithm (chirp-z transform) implementation for 1D FFTs of arbitrary size. 
+//! This algorithm allows us to compute the DFT of sequences whose length is not a power of two by transforming the problem into a convolution, which can be efficiently computed using FFTs. 
+//! The implementation includes planning and execution methods, and supports different scaling factors and input orderings.   
+//! The `BluesteinFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, convolution size, precomputed chirp factors, and the FFT engines used for the convolution step. 
+//! The `execute` method performs the FFT computation using Bluestein's algorithm, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
 use num::Complex;
 
 use crate::{
@@ -41,6 +40,12 @@ impl BluesteinFft {
             ifft_engine: BestFft::new(),
             bit_reverse_map: Vec::new(),
         }
+    }
+}
+
+impl Default for BluesteinFft {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

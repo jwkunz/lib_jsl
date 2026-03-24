@@ -49,7 +49,7 @@ pub fn firwin(
 
     let pass_zero_b = matches!(pass_zero, FirwinPassZero::True);
     let pass_nyquist = (c.len() % 2 == 1) ^ pass_zero_b;
-    if pass_nyquist && numtaps % 2 == 0 {
+    if pass_nyquist && numtaps.is_multiple_of(2) {
         return Err(ErrorsJSL::InvalidInputRange(
             "Even numtaps cannot include Nyquist in a passband",
         ));

@@ -1,6 +1,6 @@
-/// This module implements 1D convolution, similar to scipy.signal.convolve.
-/// It supports three modes: 'full', 'same', and 'valid', and can use direct
-/// or FFT-based convolution for analytic scalar types.
+//! This module implements 1D convolution, similar to scipy.signal.convolve.
+//! It supports three modes: 'full', 'same', and 'valid', and can use direct
+//! or FFT-based convolution for analytic scalar types.
 
 use crate::{
     ffts::{

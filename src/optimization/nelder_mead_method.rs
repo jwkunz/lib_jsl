@@ -1,12 +1,12 @@
+//! This file implments the Nelder-Mead method for optimization. 
+//! The Nelder-Mead method is a gradient-free optimization algorithm that is used to find the minimum of a function. 
+//! The algorithm works by maintaining a simplex of n+1 points in n-dimensional space, where each point represents a candidate solution to the optimization problem. 
+//! The algorithm iteratively updates the simplex by performing operations such as reflection, expansion, contraction, and shrinkage, based on the function values at the vertices of the simplex. 
+//! The algorithm continues until it reaches a point where the function values at the vertices of the simplex are sufficiently close to each other, indicating that it has found a local minimum. 
+//! The Nelder-Mead method can be effective for optimizing non-convex functions and functions with noisy gradients, but it can also be computationally expensive and may require careful tuning of the algorithm's parameters to achieve good performance.  
+
 use crate::optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult};
 use crate::prelude::ErrorsJSL;
-
-/// This file implments the Nelder-Mead method for optimization. 
-/// The Nelder-Mead method is a gradient-free optimization algorithm that is used to find the minimum of a function. 
-/// The algorithm works by maintaining a simplex of n+1 points in n-dimensional space, where each point represents a candidate solution to the optimization problem. 
-/// The algorithm iteratively updates the simplex by performing operations such as reflection, expansion, contraction, and shrinkage, based on the function values at the vertices of the simplex. 
-/// The algorithm continues until it reaches a point where the function values at the vertices of the simplex are sufficiently close to each other, indicating that it has found a local minimum. 
-/// The Nelder-Mead method can be effective for optimizing non-convex functions and functions with noisy gradients, but it can also be computationally expensive and may require careful tuning of the algorithm's parameters to achieve good performance.  
 
 pub struct NelderMeadMethod {
     max_iterations: Option<usize>,
@@ -21,6 +21,12 @@ impl NelderMeadMethod {
             tolerance: None,
             bounds: None,
         }
+    }
+}
+
+impl Default for NelderMeadMethod {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -82,7 +88,7 @@ where T: ObjectiveFunction {
         let sigma = 0.5;
 
         let mut simplex: Vec<Vec<f64>> = Vec::with_capacity(dimension + 1);
-        simplex.push(project_to_bounds(&initial_parameters, bounds.as_ref()));
+        simplex.push(project_to_bounds(&initial_parameters, bounds.as_deref()));
         for i in 0..dimension {
             let mut vertex = initial_parameters.clone();
             let step = if initial_parameters[i].abs() > 1e-12 {
@@ -91,7 +97,7 @@ where T: ObjectiveFunction {
                 2.5e-4
             };
             vertex[i] += step;
-            simplex.push(project_to_bounds(&vertex, bounds.as_ref()));
+            simplex.push(project_to_bounds(&vertex, bounds.as_deref()));
         }
 
         let mut values: Vec<f64> = simplex.iter().map(|x| objective_function.evaluate(x)).collect();
@@ -121,12 +127,12 @@ where T: ObjectiveFunction {
             let worst_value = values[dimension];
 
             let reflected = combine(&centroid, worst, 1.0 + alpha, -alpha);
-            let reflected = project_to_bounds(&reflected, bounds.as_ref());
+            let reflected = project_to_bounds(&reflected, bounds.as_deref());
             let reflected_value = objective_function.evaluate(&reflected);
 
             if reflected_value < values[0] {
                 let expanded = combine(&centroid, &reflected, 1.0 - gamma, gamma);
-                let expanded = project_to_bounds(&expanded, bounds.as_ref());
+                let expanded = project_to_bounds(&expanded, bounds.as_deref());
                 let expanded_value = objective_function.evaluate(&expanded);
                 if expanded_value < reflected_value {
                     simplex[dimension] = expanded;
@@ -146,7 +152,7 @@ where T: ObjectiveFunction {
 
             if reflected_value < worst_value {
                 let outside_contracted = combine(&centroid, &reflected, 1.0 - rho, rho);
-                let outside_contracted = project_to_bounds(&outside_contracted, bounds.as_ref());
+                let outside_contracted = project_to_bounds(&outside_contracted, bounds.as_deref());
                 let outside_contracted_value = objective_function.evaluate(&outside_contracted);
                 if outside_contracted_value <= reflected_value {
                     simplex[dimension] = outside_contracted;
@@ -155,7 +161,7 @@ where T: ObjectiveFunction {
                 }
             } else {
                 let inside_contracted = combine(&centroid, worst, 1.0 - rho, rho);
-                let inside_contracted = project_to_bounds(&inside_contracted, bounds.as_ref());
+                let inside_contracted = project_to_bounds(&inside_contracted, bounds.as_deref());
                 let inside_contracted_value = objective_function.evaluate(&inside_contracted);
                 if inside_contracted_value < worst_value {
                     simplex[dimension] = inside_contracted;
@@ -167,7 +173,7 @@ where T: ObjectiveFunction {
             let best = simplex[0].clone();
             for i in 1..=dimension {
                 simplex[i] = combine(&best, &simplex[i], 1.0 - sigma, sigma);
-                simplex[i] = project_to_bounds(&simplex[i], bounds.as_ref());
+                simplex[i] = project_to_bounds(&simplex[i], bounds.as_deref());
                 values[i] = objective_function.evaluate(&simplex[i]);
             }
         }
@@ -180,7 +186,7 @@ where T: ObjectiveFunction {
     }
 }
 
-fn project_to_bounds(parameters: &Vec<f64>, bounds: Option<&Vec<(f64, f64)>>) -> Vec<f64> {
+fn project_to_bounds(parameters: &[f64], bounds: Option<&[(f64, f64)]>) -> Vec<f64> {
     if let Some(bounds) = bounds {
         parameters
             .iter()
@@ -196,18 +202,18 @@ fn project_to_bounds(parameters: &Vec<f64>, bounds: Option<&Vec<(f64, f64)>>) ->
             })
             .collect()
     } else {
-        parameters.clone()
+        parameters.to_owned()
     }
 }
 
-fn combine(a: &Vec<f64>, b: &Vec<f64>, wa: f64, wb: f64) -> Vec<f64> {
+fn combine(a: &[f64], b: &[f64], wa: f64, wb: f64) -> Vec<f64> {
     a.iter()
         .zip(b.iter())
         .map(|(&x, &y)| wa * x + wb * y)
         .collect()
 }
 
-fn centroid_excluding_worst(simplex: &Vec<Vec<f64>>) -> Vec<f64> {
+fn centroid_excluding_worst(simplex: &[Vec<f64>]) -> Vec<f64> {
     let dimension = simplex[0].len();
     let count = simplex.len() - 1;
     let mut centroid = vec![0.0; dimension];
@@ -222,7 +228,7 @@ fn centroid_excluding_worst(simplex: &Vec<Vec<f64>>) -> Vec<f64> {
     centroid
 }
 
-fn function_value_stddev(values: &Vec<f64>) -> f64 {
+fn function_value_stddev(values: &[f64]) -> f64 {
     let mean = values.iter().sum::<f64>() / values.len() as f64;
     let variance = values
         .iter()
@@ -251,7 +257,7 @@ mod tests {
     struct TestObjectiveFunction;
 
     impl ObjectiveFunction for TestObjectiveFunction {
-        fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+        fn evaluate(&self, parameters: &[f64]) -> f64 {
             let x = parameters[0];
             let y = parameters[1];
             (x - 2.0).powi(2) + (y + 1.0).powi(2) + 3.0

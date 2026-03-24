@@ -3,10 +3,7 @@ use std::f64::consts::PI;
 use num::Complex;
 
 use crate::{
-    dsp::{
-        continuous::filter::bilinear::BilinearResult,
-        discrete::spectral::freqz::{freqz, FreqzWorN},
-    },
+    dsp::continuous::filter::bilinear::BilinearResult,
     prelude::ErrorsJSL,
 };
 
@@ -77,6 +74,7 @@ pub fn iirpeak(w0: f64, q: f64, fs: Option<f64>) -> Result<BilinearResult, Error
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::dsp::discrete::spectral::freqz::{freqz, FreqzWorN};
 
     fn response_mag(result: &BilinearResult, w: f64, fs: f64) -> f64 {
         let fr = freqz(

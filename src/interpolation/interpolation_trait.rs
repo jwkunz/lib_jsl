@@ -23,7 +23,7 @@ pub trait InterpolationTrait<'a> : Sized{
         if (n != mm) || n < limit{
             return Err(ErrorsJSL::IncompatibleArraySizes((n,mm)));
         }
-        return Ok(())
+        Ok(())
     }
 
     /// Finds the index immidiately before x, optionally relying on the cache of the previous value
@@ -50,7 +50,7 @@ pub trait InterpolationTrait<'a> : Sized{
         // No cache hit, proceed with bisection
         while ju-jl > 1{ 
             // Get the midpoint
-            jm = ju+jl >> 1; 
+            jm = (ju + jl) >> 1; 
             // Compare point with bounds
             if x >= x_values[jm]{
                 jl = jm; // Replace the lower limit
@@ -60,7 +60,7 @@ pub trait InterpolationTrait<'a> : Sized{
         }
         // Cache the hunt or locate decision for next time (speed up optimization)
         self.set_cached_location(jl);
-        return Ok(std::cmp::min(jl,x_values.len()-1))
+        Ok(std::cmp::min(jl,x_values.len()-1))
     }
 
 

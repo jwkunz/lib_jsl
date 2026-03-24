@@ -54,12 +54,12 @@ impl TextCodedInteger {
 
         while i >= 0 || j >= 0 || carry > 0 {
             let digit_a = if i >= 0 {
-                (a_bytes[i as usize] - b'0') as u8
+                a_bytes[i as usize] - b'0'
             } else {
                 0
             };
             let digit_b = if j >= 0 {
-                (b_bytes[j as usize] - b'0') as u8
+                b_bytes[j as usize] - b'0'
             } else {
                 0
             };
@@ -183,13 +183,13 @@ impl Add for TextCodedInteger {
 impl Sub for TextCodedInteger {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self::Output {
-        self + Self {
+        self.add(Self {
             text: if rhs.is_negative() {
                 rhs.digits().to_string()
             } else {
                 format!("-{}", rhs.text)
             },
-        }
+        })
     }
 }
 

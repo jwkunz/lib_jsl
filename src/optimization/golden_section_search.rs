@@ -24,6 +24,12 @@ impl GoldenSectionSearch {
     }
 }
 
+impl Default for GoldenSectionSearch {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MinimizationControls for GoldenSectionSearch {
     fn set_max_iterations(&mut self, max_iterations: Option<usize>) {
         self.max_iterations = max_iterations;
@@ -88,8 +94,8 @@ where T: ObjectiveFunction {
             let c = b - (b - a) / phi;
             let d = a + (b - a) / phi;
             //  The function values at the new points are evaluated, and the bracket is updated based on the function values.  If f(c) < f(d), then the minimum is in the interval [a, d], so we update b to d.  Otherwise, the minimum is in the interval [c, b], so we update a to c.
-            let fc = objective_function.evaluate(&vec![c]);
-            let fd = objective_function.evaluate(&vec![d]);
+            let fc = objective_function.evaluate(&[c]);
+            let fd = objective_function.evaluate(&[d]);
             if fc < fd {
                 b = d;
             } else {
@@ -113,7 +119,7 @@ mod test {
     use super::*;
     struct TestObjectiveFunction;
     impl ObjectiveFunction for TestObjectiveFunction {
-        fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+        fn evaluate(&self, parameters: &[f64]) -> f64 {
             let x = parameters[0];
             // This is a simple quadratic function with a minimum at x = 2.0 and a minimum value of 1.0.  It is unimodal, so it is suitable for testing the golden section search algorithm.
             (x - 2.0).powi(2) + 1.0

@@ -155,6 +155,7 @@ fn find_extrema_indices(err: &[f64], needed: usize) -> Vec<usize> {
 ///
 /// This currently implements the real, odd-length, linear-phase (Type I) path,
 /// which corresponds to the common SciPy `type="bandpass"` use.
+#[allow(clippy::too_many_arguments)]
 pub fn remez(
     numtaps: usize,
     bands: &[f64],
@@ -168,7 +169,7 @@ pub fn remez(
     if numtaps < 3 {
         return Err(ErrorsJSL::InvalidInputRange("numtaps must be >= 3"));
     }
-    if numtaps % 2 == 0 {
+    if numtaps.is_multiple_of(2) {
         return Err(ErrorsJSL::InvalidInputRange(
             "current remez implementation supports odd numtaps only",
         ));
@@ -176,7 +177,7 @@ pub fn remez(
     if !fs.is_finite() || fs <= 0.0 {
         return Err(ErrorsJSL::InvalidInputRange("fs must be finite and > 0"));
     }
-    if bands.len() < 2 || bands.len() % 2 != 0 {
+    if bands.len() < 2 || !bands.len().is_multiple_of(2) {
         return Err(ErrorsJSL::InvalidInputRange(
             "bands must contain an even number of edge values",
         ));

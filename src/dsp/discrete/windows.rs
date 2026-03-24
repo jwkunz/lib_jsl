@@ -156,8 +156,8 @@ pub fn triang(m: usize, sym: bool) -> Vec<f64> {
         return w;
     }
     let (m2, needs_trunc) = extend(m, sym);
-    let n: Vec<f64> = (1..=((m2 + 1) / 2)).map(|x| x as f64).collect();
-    let mut w = if m2 % 2 == 0 {
+    let n: Vec<f64> = (1..=m2.div_ceil(2)).map(|x| x as f64).collect();
+    let mut w = if m2.is_multiple_of(2) {
         n.iter().map(|x| (2.0 * x - 1.0) / m2 as f64).collect::<Vec<_>>()
     } else {
         n.iter().map(|x| 2.0 * x / (m2 as f64 + 1.0)).collect::<Vec<_>>()
@@ -276,7 +276,6 @@ pub fn hann(m: usize, sym: bool) -> Vec<f64> {
 
 
 /// The Kaiser window is defined by a specific mathematical formula that involves the modified Bessel function of the first kind. The coefficients are computed based on the position within the window, the total length, and the beta parameter, which controls the shape of the window and its spectral properties.
-
 pub fn kaiser(m: usize, beta: f64, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;
@@ -303,7 +302,7 @@ pub fn kaiser_bessel_derived(m: usize, beta: f64, sym: bool) -> Vec<f64> {
     }
     // SciPy requires even M; for compatibility with fixed test length we
     // compute on the nearest even support and truncate.
-    let me = if m % 2 == 0 { m } else { m + 1 };
+    let me = if m.is_multiple_of(2) { m } else { m + 1 };
     let kw = kaiser(me / 2 + 1, beta, true);
     let mut csum = vec![0.0; kw.len()];
     let mut acc = 0.0;
@@ -312,8 +311,8 @@ pub fn kaiser_bessel_derived(m: usize, beta: f64, sym: bool) -> Vec<f64> {
         csum[i] = acc;
     }
     let mut half = vec![0.0; kw.len() - 1];
-    for i in 0..half.len() {
-        half[i] = (csum[i] / csum[csum.len() - 1]).sqrt();
+    for (i, half_i) in half.iter_mut().enumerate() {
+        *half_i = (csum[i] / csum[csum.len() - 1]).sqrt();
     }
     let mut w = half.clone();
     half.reverse();
@@ -489,11 +488,11 @@ pub fn taylor(m: usize, nbar: usize, sll: f64, norm: bool, sym: bool) -> Vec<f64
             numer *= 1.0 - mval2 / s2 / (a * a + (ma_i - 0.5).powi(2));
         }
         let mut denom = 2.0;
-        for mj in 0..mi {
-            denom *= 1.0 - mval2 / m2v[mj];
+        for &m2vj in m2v.iter().take(mi) {
+            denom *= 1.0 - mval2 / m2vj;
         }
-        for mj in (mi + 1)..ma.len() {
-            denom *= 1.0 - mval2 / m2v[mj];
+        for &m2vj in m2v.iter().skip(mi + 1) {
+            denom *= 1.0 - mval2 / m2vj;
         }
         fm[mi] = numer / denom;
     }
@@ -533,8 +532,8 @@ pub fn dpss(m: usize, nw: f64, sym: bool) -> Vec<f64> {
     let c = (2.0 * PI * wband).cos();
     let mut d = vec![0.0; m2];
     let mut e = vec![0.0; m2 - 1];
-    for n in 0..m2 {
-        d[n] = (((m2 as f64 - 1.0 - 2.0 * n as f64) / 2.0).powi(2)) * c;
+    for (n, dn) in d.iter_mut().enumerate() {
+        *dn = (((m2 as f64 - 1.0 - 2.0 * n as f64) / 2.0).powi(2)) * c;
     }
     for n in 1..m2 {
         e[n - 1] = (n as f64) * (m2 as f64 - n as f64) / 2.0;

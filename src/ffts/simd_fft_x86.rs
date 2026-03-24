@@ -114,11 +114,11 @@ unsafe fn radix2_pass_sse3(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>
 fn radix2_pass_scalar(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size: usize, m: usize) {
     let half = m / 2;
     for k in (0..size).step_by(m) {
-        for j in 0..half {
+        for (j, twiddle) in twiddles.iter().enumerate().take(half) {
             let a = k + j;
             let b = a + half;
             let u = buffer[a];
-            let t = twiddles[j] * buffer[b];
+            let t = *twiddle * buffer[b];
             buffer[a] = u + t;
             buffer[b] = u - t;
         }

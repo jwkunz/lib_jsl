@@ -127,19 +127,19 @@ mod tests {
         // This is a simple test case for the Newton-Raphson method. It uses a simple quadratic function with a minimum at x = 2.0 and a minimum value of 1.0. The algorithm should be able to find the minimum within a reasonable number of iterations.
         struct TestObjectiveFunction;
         impl ObjectiveFunction for TestObjectiveFunction {
-            fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+            fn evaluate(&self, parameters: &[f64]) -> f64 {
                 let x = parameters[0];
                 (x - 2.0).powi(2) + 1.0
             }
         }
         impl GradientFunction for TestObjectiveFunction {
-            fn evaluate(&self, parameters: &Vec<f64>) -> Vec<f64> {
+            fn evaluate(&self, parameters: &[f64]) -> Vec<f64> {
                 let x = parameters[0];
                 vec![2.0 * (x - 2.0)]
             }
         }
         impl HessianFunction for TestObjectiveFunction {
-            fn evaluate(&self, _: &Vec<f64>) -> Vec<Vec<f64>> {
+            fn evaluate(&self, _: &[f64]) -> Vec<Vec<f64>> {
                 vec![vec![2.0]]
             }
         }

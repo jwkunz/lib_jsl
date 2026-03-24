@@ -1,7 +1,7 @@
-/// This file contains the implementation of the gradient descent algorithm for optimization.
-/// Gradient descent is an iterative optimization algorithm used to find the minimum of a function.
-/// The algorithm works by taking steps proportional to the negative of the gradient of the function at the current point. The size of the steps is determined by a learning rate, which is a hyperparameter that controls how quickly the algorithm converges to the minimum. 
-/// The algorithm continues until it reaches a point where the gradient is close to zero, indicating that it has found a local minimum. 
+//! This file contains the implementation of the gradient descent algorithm for optimization.
+//! Gradient descent is an iterative optimization algorithm used to find the minimum of a function.
+//! The algorithm works by taking steps proportional to the negative of the gradient of the function at the current point. The size of the steps is determined by a learning rate, which is a hyperparameter that controls how quickly the algorithm converges to the minimum. 
+//! The algorithm continues until it reaches a point where the gradient is close to zero, indicating that it has found a local minimum. 
 
 use crate::{optimization::optimization_traits::{GradientBasedMinimizationEngine, GradientFunction, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL};
 
@@ -121,13 +121,13 @@ mod tests {
         // This is a simple test case for the gradient descent algorithm. It uses a simple quadratic function with a minimum at x = 2.0 and a minimum value of 1.0. The algorithm should be able to find the minimum within a reasonable number of iterations.
         struct TestObjectiveFunction;
         impl ObjectiveFunction for TestObjectiveFunction {
-            fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+            fn evaluate(&self, parameters: &[f64]) -> f64 {
                 let x = parameters[0];
                 (x - 2.0).powi(2) + 1.0
             }
         }
         impl GradientFunction for TestObjectiveFunction {
-            fn evaluate(&self, parameters: &Vec<f64>) -> Vec<f64> {
+            fn evaluate(&self, parameters: &[f64]) -> Vec<f64> {
                 let x = parameters[0];
                 vec![2.0 * (x - 2.0)]
             }
@@ -149,12 +149,12 @@ mod tests {
     fn test_gradient_descent_rejects_empty_initial_parameters() {
         struct PanickingObjective;
         impl ObjectiveFunction for PanickingObjective {
-            fn evaluate(&self, _: &Vec<f64>) -> f64 {
+            fn evaluate(&self, _: &[f64]) -> f64 {
                 panic!("objective should not be evaluated when initial parameters are empty");
             }
         }
         impl GradientFunction for PanickingObjective {
-            fn evaluate(&self, _: &Vec<f64>) -> Vec<f64> {
+            fn evaluate(&self, _: &[f64]) -> Vec<f64> {
                 vec![]
             }
         }
@@ -169,12 +169,12 @@ mod tests {
     fn test_gradient_descent_rejects_bounds_dimension_mismatch() {
         struct Objective;
         impl ObjectiveFunction for Objective {
-            fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+            fn evaluate(&self, parameters: &[f64]) -> f64 {
                 parameters.iter().map(|x| x * x).sum()
             }
         }
         impl GradientFunction for Objective {
-            fn evaluate(&self, parameters: &Vec<f64>) -> Vec<f64> {
+            fn evaluate(&self, parameters: &[f64]) -> Vec<f64> {
                 parameters.iter().map(|x| 2.0 * x).collect()
             }
         }
@@ -190,13 +190,13 @@ mod tests {
     fn test_gradient_descent_rejects_gradient_dimension_mismatch() {
         struct Objective;
         impl ObjectiveFunction for Objective {
-            fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+            fn evaluate(&self, parameters: &[f64]) -> f64 {
                 parameters.iter().map(|x| x * x).sum()
             }
         }
         struct BadGradient;
         impl GradientFunction for BadGradient {
-            fn evaluate(&self, _: &Vec<f64>) -> Vec<f64> {
+            fn evaluate(&self, _: &[f64]) -> Vec<f64> {
                 vec![1.0]
             }
         }

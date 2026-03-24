@@ -1,13 +1,12 @@
+//! A frequency mixer is used to frequency shift a signal by multiplying it with a complex exponential. 
+//! This operation is commonly used in applications such as modulation, demodulation, and frequency translation in communication systems. 
+//! The `FrequencyMixer` struct maintains the current phase of the complex exponential and the normalized frequency increment, which determines how much the phase is advanced for each sample processed.
+//! The `process` method takes an input signal (either real or complex) and multiplies each sample by the corresponding value of the complex exponential based on the current phase. 
+//! The phase is then incremented for the next sample, ensuring that the frequency shift is applied consistently across the entire signal.
+
 use std::f64::consts::PI;
 
 use num::Complex;
-
-/// A frequency mixer is used to frequency shift a signal by multiplying it with a complex exponential. 
-/// This operation is commonly used in applications such as modulation, demodulation, and frequency translation in communication systems. 
-/// The `FrequencyMixer` struct maintains the current phase of the complex exponential and the normalized frequency increment, which determines how much the phase is advanced for each sample processed.
-/// The `process` method takes an input signal (either real or complex) and multiplies each sample by the corresponding value of the complex exponential based on the current phase. 
-/// The phase is then incremented for the next sample, ensuring that the frequency shift is applied consistently across the entire signal.
-
 use crate::prelude::{ErrorsJSL};
 use crate::dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 
@@ -34,10 +33,8 @@ impl FrequencyMixer {
             if self.phase > 2.0*PI {
                 self.phase -= 2.0*PI; // Wrap around to keep phase in [0, 2*PI)
             }
-        }else{
-            if self.phase < 0.0 {
-                self.phase += 2.0*PI; // Wrap around to keep phase in [0, 2*PI)
-            }
+        } else if self.phase < 0.0 {
+            self.phase += 2.0*PI; // Wrap around to keep phase in [0, 2*PI)
         }
     }
 

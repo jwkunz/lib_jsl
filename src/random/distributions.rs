@@ -7,7 +7,7 @@ use crate::{prelude::ErrorsJSL, random::uniform_generator::UniformGenerator};
 
 /// This file contains transformation functions that transform uniform floating point distributions [0,1) into the desired distribution
 /// e.g)  let sample = distribution(rng.generate_f64(), other args...)
-
+///
 /// Uniform distribution
 pub fn uniform_distribution<U>(uniform_generator: &mut U, lower_bound: f64, upper_bound: f64) -> f64
 where

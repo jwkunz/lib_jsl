@@ -82,7 +82,6 @@ impl<T : IsLinearOperatable> DiscreteLinearFilter<T> {
 }
 
 /// For real-valued filters, we can use the same implementation but with f64 as the type parameter. This allows us to reuse the same code for both real and complex filters, while still providing the necessary functionality for each type.
-
 impl StreamOperatorManagement for DiscreteLinearFilter<f64> {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
         self.clear_buffer();
@@ -105,7 +104,6 @@ impl StreamOperator<f64, f64> for DiscreteLinearFilter<f64> {
 }
 
 /// For complex-valued filters, we can use Complex<f64> as the type parameter. This allows us to handle complex input and output samples, which is common in many DSP applications such as modulation, demodulation, and spectral processing.
-
 impl StreamOperatorManagement for DiscreteLinearFilter<Complex<f64>> {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
         self.clear_buffer();

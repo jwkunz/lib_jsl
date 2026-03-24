@@ -4,7 +4,7 @@
 use num::Complex;
 
 fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
-    assert!(bytes.len() % 16 == 0, "binary complex data must be 16-byte aligned");
+    assert!(bytes.len().is_multiple_of(16), "binary complex data must be 16-byte aligned");
 
     bytes
         .chunks_exact(16)

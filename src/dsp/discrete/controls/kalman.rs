@@ -94,6 +94,7 @@ impl KalmanFilter {
     /// Returns an error when any dimensions are incompatible, when the state
     /// matrix is not square, or when a control input is supplied without a
     /// matching control model.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         state_transition: C2D,
         observation_model: C2D,

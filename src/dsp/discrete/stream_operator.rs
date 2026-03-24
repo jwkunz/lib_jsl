@@ -4,8 +4,6 @@ use crate::prelude::ErrorsJSL;
 /// The trait typically includes methods for initializing the operator, processing input data, and producing output data. 
 /// By defining a common interface, the stream operator trait enables flexibility and modularity in the design of streaming applications, allowing developers to easily swap out different operators or add new ones without affecting the overall structure of the pipeline. 
 /// This promotes code reuse and makes it easier to maintain and extend streaming applications over time.
-
-
 pub trait StreamOperatorManagement{
     /// Resets the internal state of the operator, preparing it for a new stream of data. This method is typically called at the beginning of a new stream or when the operator needs to be reinitialized.
     fn reset(&mut self) -> Result<(), ErrorsJSL>;

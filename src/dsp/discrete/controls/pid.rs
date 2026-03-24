@@ -64,12 +64,12 @@ impl PidController {
         if !dt.is_finite() || dt <= 0.0 {
             return Err(ErrorsJSL::InvalidInputRange("dt must be finite and > 0"));
         }
-        if let Some((lo, hi)) = output_limits {
-            if !lo.is_finite() || !hi.is_finite() || lo > hi {
-                return Err(ErrorsJSL::InvalidInputRange(
-                    "output_limits must be finite and satisfy min <= max",
-                ));
-            }
+        if let Some((lo, hi)) = output_limits
+            && (!lo.is_finite() || !hi.is_finite() || lo > hi)
+        {
+            return Err(ErrorsJSL::InvalidInputRange(
+                "output_limits must be finite and satisfy min <= max",
+            ));
         }
         Ok(Self {
             setpoint: setpoint.unwrap_or(0.0),

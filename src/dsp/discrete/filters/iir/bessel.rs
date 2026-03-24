@@ -1,7 +1,5 @@
 use std::f64::consts::PI;
 
-use num::Complex;
-
 use crate::{
     dsp::{
         continuous::filter::{
@@ -164,6 +162,7 @@ mod tests {
         dsp::discrete::spectral::freqz::{freqz, FreqzWorN},
         prelude::C1D,
     };
+    use num::Complex;
 
     fn response_mag_db(result: &BilinearResult, w: f64, fs: f64) -> f64 {
         let fr = freqz(

@@ -1,7 +1,5 @@
 use std::f64::consts::PI;
 
-use num::Complex;
-
 use crate::{
     dsp::{
         continuous::filter::{
@@ -12,7 +10,6 @@ use crate::{
                 Zpk,
             },
         },
-        discrete::spectral::freqz::{freqz, FreqzWorN},
     },
     prelude::ErrorsJSL,
 };
@@ -322,6 +319,8 @@ pub fn buttord(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::dsp::discrete::spectral::freqz::{freqz, FreqzWorN};
+    use num::Complex;
 
     fn response_mag_db(result: &BilinearResult, w: f64, fs: f64) -> f64 {
         let fr = freqz(

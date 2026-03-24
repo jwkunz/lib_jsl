@@ -121,8 +121,8 @@ impl<T: IsAnalytic> StreamOperator<T, T> for OverlapAddFir<T> {
             let block: Vec<T> = self.pending.drain(..self.block_len).collect();
             let mut y = self.convolve_block_time_domain(&block)?;
 
-            for i in 0..self.overlap.len() {
-                y[i] += self.overlap[i];
+            for (yi, overlap_i) in y.iter_mut().zip(self.overlap.iter()) {
+                *yi += *overlap_i;
             }
 
             out.extend(y[..self.block_len].iter().copied().map(T::from_complex));
@@ -157,8 +157,8 @@ impl<T: IsAnalytic> StreamOperator<T, T> for OverlapAddFir<T> {
             }
 
             let mut y = self.convolve_block_time_domain(&block)?;
-            for i in 0..self.overlap.len() {
-                y[i] += self.overlap[i];
+            for (yi, overlap_i) in y.iter_mut().zip(self.overlap.iter()) {
+                *yi += *overlap_i;
             }
 
             let final_len = remainder_len + self.taps_len - 1;

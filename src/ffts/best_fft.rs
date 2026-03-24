@@ -1,8 +1,7 @@
-/// BestFft: A high-performance FFT implementation optimized for power-of-two sizes.
-/// This implementation uses an iterative Cooley-Tukey algorithm with precomputed twiddle factors and bit-reversal indexing for efficient in-place computation. 
-/// The `BestFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
-/// The `execute` method performs the FFT computation using an iterative approach, while the `plan` method prepares the necessary precomputations based on the specified parameters.    
-
+//! BestFft: A high-performance FFT implementation optimized for power-of-two sizes.
+//! This implementation uses an iterative Cooley-Tukey algorithm with precomputed twiddle factors and bit-reversal indexing for efficient in-place computation. 
+//! The `BestFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
+//! The `execute` method performs the FFT computation using an iterative approach, while the `plan` method prepares the necessary precomputations based on the specified parameters.    
 use num::Complex;
 
 use crate::{
@@ -35,6 +34,12 @@ impl BestFft {
             twiddle_im: Vec::new(),
             work: Vec::new(),
         }
+    }
+}
+
+impl Default for BestFft {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

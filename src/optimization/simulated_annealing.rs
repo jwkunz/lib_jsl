@@ -1,6 +1,24 @@
-use crate::{optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL, random::{distributions::guassian_distribution_box_muller_vec, uniform_generator::{UniformRNG, UniformGenerator}}};
+//! This file implements simulated annealing for optimization. Simulated
+//! annealing is a probabilistic optimization algorithm that is inspired by the
+//! process of annealing in metallurgy, where a material is heated and then
+//! slowly cooled to allow it to reach a state of minimum energy. In
+//! optimization, simulated annealing is used to find the minimum of an
+//! objective function by allowing for occasional uphill moves, which can help
+//! the algorithm escape local minima and explore the search space more
+//! effectively. The algorithm works by starting with an initial solution and
+//! then iteratively generating new candidate solutions by making small random
+//! changes to the current solution. The new solution is accepted with a
+//! probability that depends on the difference in objective function values
+//! between the current and new solutions, as well as a temperature parameter
+//! that controls the likelihood of accepting worse solutions. As the algorithm
+//! progresses, the temperature is gradually decreased, which reduces the
+//! probability of accepting worse solutions and allows the algorithm to
+//! converge to a minimum. Simulated annealing can be effective for optimizing
+//! complex, non-convex functions, but it can also be computationally expensive
+//! and may require careful tuning of the temperature schedule and other
+//! hyperparameters to achieve good performance.
 
-/// This file implements simulated annealing for optimization. Simulated annealing is a probabilistic optimization algorithm that is inspired by the process of annealing in metallurgy, where a material is heated and then slowly cooled to allow it to reach a state of minimum energy. In optimization, simulated annealing is used to find the minimum of an objective function by allowing for occasional uphill moves, which can help the algorithm escape local minima and explore the search space more effectively. The algorithm works by starting with an initial solution and then iteratively generating new candidate solutions by making small random changes to the current solution. The new solution is accepted with a probability that depends on the difference in objective function values between the current and new solutions, as well as a temperature parameter that controls the likelihood of accepting worse solutions. As the algorithm progresses, the temperature is gradually decreased, which reduces the probability of accepting worse solutions and allows the algorithm to converge to a minimum. Simulated annealing can be effective for optimizing complex, non-convex functions, but it can also be computationally expensive and may require careful tuning of the temperature schedule and other hyperparameters to achieve good performance.    
+use crate::{optimization::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult}, prelude::ErrorsJSL, random::{distributions::guassian_distribution_box_muller_vec, uniform_generator::{UniformRNG, UniformGenerator}}};
 
 pub struct SimulatedAnnealing {
     max_iterations: Option<usize>,
@@ -57,6 +75,12 @@ impl SimulatedAnnealing {
     }
 }
 
+impl Default for SimulatedAnnealing {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MinimizationControls for SimulatedAnnealing {
     fn set_max_iterations(&mut self, max_iterations: Option<usize>) {
         self.max_iterations = max_iterations;
@@ -78,7 +102,7 @@ impl MinimizationControls for SimulatedAnnealing {
     }
 }
 
-fn generate_candidate_solution<T>(current_parameters: &Vec<f64>, current_temperature: f64, rng: &mut T) -> Vec<f64> 
+fn generate_candidate_solution<T>(current_parameters: &[f64], current_temperature: f64, rng: &mut T) -> Vec<f64> 
 where T: UniformGenerator{
     let perterbations = guassian_distribution_box_muller_vec(current_parameters.len(), rng, 0.0, current_temperature);
     current_parameters
@@ -90,7 +114,7 @@ where T: UniformGenerator{
         .collect()
 }
 
-fn project_to_bounds(parameters: &Vec<f64>, bounds: &Vec<(f64, f64)>) -> Vec<f64> {
+fn project_to_bounds(parameters: &[f64], bounds: &[(f64, f64)]) -> Vec<f64> {
     parameters
         .iter()
         .zip(bounds.iter())
@@ -141,7 +165,7 @@ where T: ObjectiveFunction {
             iterations: iteration_counter,
             converged: false,
         };
-        if initial_parameters.len() == 0 {
+        if initial_parameters.is_empty() {
             return Err(ErrorsJSL::Misconfiguration("Initial parameters must be a non-empty vector."));
         }
         while current_temperature > minimum_temperature && iteration_counter < maximum_steps {
@@ -155,7 +179,7 @@ where T: ObjectiveFunction {
                 // Update the temperature according to the cooling schedule defined by the cooling coefficient. This typically involves multiplying the current temperature by the cooling coefficient, which reduces the temperature over time and allows the algorithm to converge to a minimum.
                 let mut candidate_parameters = generate_candidate_solution(&current_parameters, current_temperature, &mut rng);
                 if let Some(b) = bounds.as_ref() {
-                    candidate_parameters = project_to_bounds(&candidate_parameters, &b); 
+                    candidate_parameters = project_to_bounds(&candidate_parameters, b); 
                 }
                 let candidate_objective_value = objective_function.evaluate(&candidate_parameters);
                 // Always keep track of the best solution found so far, even if it is not accepted as the current solution. This allows the algorithm to return the best solution found at the end of the optimization process, rather than just the last solution that was accepted.
@@ -191,7 +215,7 @@ mod tests {
     use super::*;
     struct TestObjectiveFunction;
     impl ObjectiveFunction for TestObjectiveFunction {
-        fn evaluate(&self, parameters: &Vec<f64>) -> f64 {
+        fn evaluate(&self, parameters: &[f64]) -> f64 {
             // This is a simple test objective function that has a minimum at (2.0, 3.0) with a value of 1.0. It is defined as f(x, y) = (x - 2)^2 + (y - 3)^2 + 1.
             let x = parameters[0];
             let y = parameters[1];

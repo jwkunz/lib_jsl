@@ -1,11 +1,15 @@
 use std::collections::VecDeque;
 
-/// A boxcar intergrator takes the sum of the last n values.  This has an efficient streaming implementation that only requires one multiplication and two additions per output value, regardless of the number of taps.
-/// The `numtaps` parameter specifies the number of taps in the boxcar integrator, which determines how many past values are summed to produce each output value. 
-/// A larger number of taps will result in a smoother output but may also introduce more latency and reduce the responsiveness of the filter to changes in the input signal. 
-/// The `scale` parameter allows you to control the overall gain of the boxcar integrator.  
-
 use crate::{dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement}, prelude::{ErrorsJSL, IsLinearOperatable}};
+/// A boxcar intergrator takes the sum of the last `n` values. This has an
+/// efficient streaming implementation that only requires one multiplication and
+/// two additions per output value, regardless of the number of taps.
+///
+/// The `numtaps` parameter specifies how many past values are accumulated to
+/// produce each output value. A larger number of taps will result in a smoother
+/// output but may also introduce more latency and reduce the responsiveness of
+/// the filter to changes in the input signal. The `scale` parameter allows you
+/// to control the overall gain of the boxcar integrator.
 pub struct BoxcarIntegrator<T: IsLinearOperatable> {
     numtaps: usize,
     scale: T,
@@ -28,11 +32,11 @@ impl<T: IsLinearOperatable> BoxcarIntegrator<T>{
 
     pub fn step(&mut self, input: &T) -> T {
         // Subtract the oldest value from the sum
-        self.sum = self.sum - *self.buffer.front().unwrap();
+        self.sum -= *self.buffer.front().unwrap();
         // Update the buffer with the new input value
         self.buffer.pop_front();
         // Add the new input value to the sum
-        self.sum = self.sum + *input;
+        self.sum += *input;
         self.buffer.push_back(*input);
         // Return the scaled sum
         self.sum * self.scale 

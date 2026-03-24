@@ -110,8 +110,8 @@ pub fn extended_gcd(a: i128, b: i128) -> (i128, i128, i128) {
     }
 
     // Convert to signed integers for coefficient arithmetic
-    let mut old_r: i128 = a as i128;
-    let mut r: i128 = b as i128;
+    let mut old_r: i128 = a;
+    let mut r: i128 = b;
 
     let mut old_s: i128 = 1;
     let mut s: i128 = 0;
@@ -138,7 +138,7 @@ pub fn extended_gcd(a: i128, b: i128) -> (i128, i128, i128) {
     // At this point:
     // old_r is the GCD
     // old_s and old_t are the Bézout coefficients
-    (old_r as i128, old_s, old_t)
+    (old_r, old_s, old_t)
 }
 
 #[cfg(test)]
@@ -157,4 +157,3 @@ mod test{
         assert_eq!(y,-1);
     }
 }
-

@@ -64,7 +64,7 @@ impl OversampledPolyphaseAnalysisFilterBank {
         if oversampling_factor == 0
             || !oversampling_factor.is_power_of_two()
             || oversampling_factor > channels
-            || channels % oversampling_factor != 0
+            || !channels.is_multiple_of(oversampling_factor)
         {
             return Err(ErrorsJSL::InvalidInputRange(
                 "oversampling_factor must be a power of two and divide channels",
@@ -216,7 +216,7 @@ impl OversampledPolyphaseSynthesisFilterBank {
         if oversampling_factor == 0
             || !oversampling_factor.is_power_of_two()
             || oversampling_factor > channels
-            || channels % oversampling_factor != 0
+            || !channels.is_multiple_of(oversampling_factor)
         {
             return Err(ErrorsJSL::InvalidInputRange(
                 "oversampling_factor must be a power of two and divide channels",
@@ -308,8 +308,8 @@ impl StreamOperator<C1D, Complex<f64>> for OversampledPolyphaseSynthesisFilterBa
                 *bn = y / self.oversampling_factor as f64;
             }
 
-            for i in 0..self.overlap.len() {
-                block[i] += self.overlap[i];
+            for (block_i, overlap_i) in block.iter_mut().zip(self.overlap.iter()) {
+                *block_i += *overlap_i;
             }
             out.extend(block[..self.hop].iter().copied());
             self.overlap.copy_from_slice(&block[self.hop..]);

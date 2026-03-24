@@ -1,8 +1,8 @@
-/// This function generates the taps for a derivative filter by convolving a derivative kernel (e.g. [-0.5,0,0.5]) with a low-pass filter designed using `firwin`. 
-/// The `ftype` parameter controls the type of derivative filter (0 for first derivative, 1 for second derivative, etc.). The resulting taps are returned as a vector of f64 values.
-/// The `cutoff` parameter allows you to control the frequency response of the generated derivative filter, which can be useful for designing filters that are tailored to specific applications or signal characteristics. 
-/// The `numtaps` parameter specifies the number of taps in the resulting filter, which can affect the filter's performance and computational complexity. 
-/// A larger number of taps can provide better frequency response but may also increase the computational cost of applying the filter to a signal. 
+//! This function generates the taps for a derivative filter by convolving a derivative kernel (e.g. [-0.5,0,0.5]) with a low-pass filter designed using `firwin`. 
+//! The `ftype` parameter controls the type of derivative filter (0 for first derivative, 1 for second derivative, etc.). The resulting taps are returned as a vector of f64 values.
+//! The `cutoff` parameter allows you to control the frequency response of the generated derivative filter, which can be useful for designing filters that are tailored to specific applications or signal characteristics. 
+//! The `numtaps` parameter specifies the number of taps in the resulting filter, which can affect the filter's performance and computational complexity. 
+//! A larger number of taps can provide better frequency response but may also increase the computational cost of applying the filter to a signal. 
 
 use crate::{
     dsp::discrete::{convolve::{ConvolveMethod, ConvolveMode, convolve}, sinc::generate_centered_sinc},

@@ -391,7 +391,7 @@ pub fn cheb1ap(order: usize, rp: f64) -> Result<Zpk, ErrorsJSL> {
     let mut gain = poles
         .iter()
         .fold(Complex::new(1.0, 0.0), |acc, &p| acc * (-p));
-    if order % 2 == 0 {
+    if order.is_multiple_of(2) {
         gain /= (1.0 + epsilon * epsilon).sqrt();
     }
 
@@ -596,7 +596,7 @@ pub fn ellipap(order: usize, rp: f64, rs: f64) -> Result<Zpk, ErrorsJSL> {
         .fold(Complex::new(1.0, 0.0), |acc, &p| acc * (-p));
     // Normalize the prototype to the same DC-gain convention SciPy uses.
     let mut gain = pole_prod / zero_prod;
-    if order % 2 == 0 {
+    if order.is_multiple_of(2) {
         gain /= (1.0 + eps_sq).sqrt();
     }
 

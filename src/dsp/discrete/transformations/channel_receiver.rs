@@ -1,5 +1,4 @@
-/// Receiver front-end that mixes a channel to baseband and then resamples.
-
+//! Receiver front-end that mixes a channel to baseband and then resamples.
 use num::Complex;
 
 use crate::{

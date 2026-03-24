@@ -41,6 +41,12 @@ impl RustFftWrapper {
     }
 }
 
+impl Default for RustFftWrapper {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[inline]
 fn bit_reverse(mut n: usize, bits: usize) -> usize {
     let mut reversed = 0usize;

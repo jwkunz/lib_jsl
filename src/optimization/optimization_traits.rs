@@ -1,20 +1,21 @@
+//! Here are traits that are used in optimization algorithms. They are defined
+//! here to avoid circular dependencies between the optimization algorithms and
+//! the traits they use.
 use crate::prelude::ErrorsJSL;
-
-/// Here are traits that are used in optimization algorithms. They are defined here to avoid circular dependencies between the optimization algorithms and the traits they use.
 
 /// - `ObjectiveFunction`: A trait for objective functions that can be optimized. It has a method `evaluate` that takes a vector of parameters and returns a single scalar value of the objective function at those parameters.
 pub trait ObjectiveFunction {
-    fn evaluate(&self, parameters: &Vec<f64>) -> f64;
+    fn evaluate(&self, parameters: &[f64]) -> f64;
 }
 
 /// - `GradientFunction`: A trait for gradient functions that can be used in optimization algorithms. It has a method `evaluate` that takes a vector of parameters and returns a vector of the same length representing the gradient of the objective function at those parameters.
 pub trait GradientFunction {
-    fn evaluate(&self, parameters: &Vec<f64>) -> Vec<f64>;
+    fn evaluate(&self, parameters: &[f64]) -> Vec<f64>;
 }
 
 /// - 'HessianFunction': A trait for Hessian functions that can be used in optimization algorithms. It has a method `evaluate` that takes a vector of parameters and returns a matrix (represented as a vector of vectors) representing the Hessian of the objective function at those parameters.  This is a placeholder for the Hessian function. In a real implementation, you would need to define a separate trait for the Hessian and implement it for the objective function. --- IGNORE ---
  pub trait HessianFunction {
-     fn evaluate(&self, parameters: &Vec<f64>) -> Vec<Vec<f64>>;
+     fn evaluate(&self, parameters: &[f64]) -> Vec<Vec<f64>>;
 }
 
 /// - `ObjectiveFunctionWithGradient`: A trait for objective functions that also have a gradient. It is a marker trait that indicates that the objective function implements both `ObjectiveFunction` and `GradientFunction`.

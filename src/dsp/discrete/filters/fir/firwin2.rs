@@ -87,8 +87,8 @@ pub fn firwin2(
     }
 
     let ftype = if antisymmetric {
-        if numtaps % 2 == 0 { 4 } else { 3 }
-    } else if numtaps % 2 == 0 {
+        if numtaps.is_multiple_of(2) { 4 } else { 3 }
+    } else if numtaps.is_multiple_of(2) {
         2
     } else {
         1
@@ -148,9 +148,7 @@ pub fn firwin2(
 
     let nfft = 2 * (nf - 1);
     let mut spec = vec![Complex::new(0.0, 0.0); nfft];
-    for i in 0..nf {
-        spec[i] = fx2[i];
-    }
+    spec[..nf].copy_from_slice(&fx2[..nf]);
     for k in 1..(nf - 1) {
         spec[nfft - k] = fx2[k].conj();
     }

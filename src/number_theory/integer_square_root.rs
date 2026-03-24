@@ -12,7 +12,6 @@
 /// - Does not use floating-point arithmetic
 /// - Avoids overflow by using division-based comparisons
 /// - Runs in `O(log n)` time using binary search
-
 pub fn integer_square_root_binary_search(n: u128) -> u128 {
     // Handle trivial cases explicitly.
     if n < 2 {
@@ -56,7 +55,6 @@ pub fn integer_square_root_binary_search(n: u128) -> u128 {
 ///   x_{k+1} = (x_k + n / x_k) / 2
 /// - Avoids overflow by computing `n / x_k`
 /// - Converges very quickly in `O(log log n)` iterations
-
 pub fn integer_square_root_newton(n: u128) -> u128 {
     if n < 2 {
         return n;

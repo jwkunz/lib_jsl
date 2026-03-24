@@ -154,7 +154,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_polyphase_integer_resampler() {
-        let mut resampler = PolyphaseIntegerResampler::new(3, 9, Some(&vec![1.0])).unwrap();
+        let mut resampler = PolyphaseIntegerResampler::new(3, 9, Some(&[1.0])).unwrap();
         let input = (0..10).map(|x| x as f64).collect::<Vec<f64>>();
         let output = resampler.process(&input).unwrap().unwrap();
         assert_eq!(output, vec![0.0, 3.0, 6.0]);

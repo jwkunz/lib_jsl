@@ -35,7 +35,6 @@ use crate::prelude::ErrorsJSL;
 /// * The base is normalized modulo `modulus` before computation.
 /// * Although `i128` provides a wide range, extremely large values may still
 ///   overflow if the modulus itself is near `i128::MAX`.
-
 pub fn base_exponent_in_modulus(base: i128, exponent: i128, modulus: i128) -> Result<i128,ErrorsJSL> {
     if ! modulus > 0{
         return Err(ErrorsJSL::InvalidInputRange("modulus must be greater than zero"))

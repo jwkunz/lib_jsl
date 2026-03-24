@@ -203,6 +203,12 @@ impl FractionalFft {
     }
 }
 
+impl Default for FractionalFft {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Convenience wrapper for one-shot FRFT evaluation.
 pub fn frft<T: IsAnalytic>(input: &[T], alpha: f64) -> Result<C1D, ErrorsJSL> {
     let mut frft_engine = FractionalFft::new();

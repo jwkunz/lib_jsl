@@ -46,12 +46,12 @@ impl ChannelImpairment {
         // Optional non-linear function to apply to the signal after Doppler shift and before noise. If None, no non-linearity is applied.
         non_linear_function: Option<NonLinearityTransformer<Complex<f64>>>,
     ) -> Result<Self, ErrorsJSL> {
-        if let Some(fs) = sample_rate_hz {
-            if !fs.is_finite() || fs <= 0.0 {
-                return Err(ErrorsJSL::InvalidInputRange(
-                    "sample_rate must be finite and > 0",
-                ));
-            }
+        if let Some(fs) = sample_rate_hz
+            && (!fs.is_finite() || fs <= 0.0)
+        {
+            return Err(ErrorsJSL::InvalidInputRange(
+                "sample_rate must be finite and > 0",
+            ));
         }
         if let Some(db) = noise_power_db_watts_per_hz {
             if !db.is_finite() {

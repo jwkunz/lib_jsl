@@ -2,7 +2,6 @@
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasMeasure, HasVertices,
-    UsesTable,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::three_d::IsPlane;
@@ -30,7 +29,7 @@ pub trait HasOrientation {
 /// A triangle primitive backed by a point table.
 pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>:
     GeometricPrimitive
-    + UsesTable<'a, Item = T>
+    + HasVertices<'a, Item = T>
     + CanTranslate<Point = T>
     + CanRotate<Point = T>
     + CanShear<Point = T>
@@ -71,7 +70,6 @@ pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>:
 /// A polygon primitive defined by an ordered point table.
 pub trait IsPolygon<'a, T: IsPoint, N: IsUnitVector>:
     GeometricPrimitive
-    + UsesTable<'a, Item = T>
     + HasVertices<'a, Item = T>
     + CanTranslate<Point = T>
     + CanRotate<Point = T>

@@ -1,5 +1,6 @@
 //! Shared foundational traits used by all geometry primitives.
 
+use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
@@ -109,8 +110,100 @@ pub trait UsesTable<'a>: Sized {
     fn set_table(&mut self, table: &'a mut Self::Table);
 }
 
-/// Marker trait for primitives whose point data is exposed as vertices.
-pub trait HasVertices<'a>: UsesTable<'a> {}
+/// Provides vertex-oriented access for primitives backed by point tables.
+pub trait HasVertices<'a>: UsesTable<'a>
+where
+    Self::Item: IsPoint,
+{
+    /// Returns the number of vertices stored by the primitive.
+    fn vertex_count(&self) -> usize {
+        self.table().size()
+    }
+
+    /// Returns a vertex by index.
+    fn vertex(&self, index: usize) -> Option<Self::Item> {
+        self.table().read(index)
+    }
+
+    /// Replaces the vertex at `index`.
+    fn set_vertex(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+        self.table_mut().write(index, value)
+    }
+
+    /// Removes the vertex at `index`.
+    fn remove_vertex(&mut self, index: usize) -> Result<(), String> {
+        self.table_mut().delete(index)
+    }
+}
+
+/// Provides line-oriented access for primitives backed by line tables.
+pub trait HasLines<'a>: UsesTable<'a> {
+    /// Returns the number of stored lines.
+    fn line_count(&self) -> usize {
+        self.table().size()
+    }
+
+    /// Returns a line by index.
+    fn line(&self, index: usize) -> Option<Self::Item> {
+        self.table().read(index)
+    }
+
+    /// Replaces the line at `index`.
+    fn set_line(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+        self.table_mut().write(index, value)
+    }
+
+    /// Removes the line at `index`.
+    fn remove_line(&mut self, index: usize) -> Result<(), String> {
+        self.table_mut().delete(index)
+    }
+}
+
+/// Provides triangle-oriented access for primitives backed by triangle tables.
+pub trait HasTriangles<'a>: UsesTable<'a> {
+    /// Returns the number of stored triangles.
+    fn triangle_count(&self) -> usize {
+        self.table().size()
+    }
+
+    /// Returns a triangle by index.
+    fn triangle(&self, index: usize) -> Option<Self::Item> {
+        self.table().read(index)
+    }
+
+    /// Replaces the triangle at `index`.
+    fn set_triangle(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+        self.table_mut().write(index, value)
+    }
+
+    /// Removes the triangle at `index`.
+    fn remove_triangle(&mut self, index: usize) -> Result<(), String> {
+        self.table_mut().delete(index)
+    }
+}
+
+/// Provides face-oriented access for primitives backed by face tables.
+pub trait HasFaces<'a>: UsesTable<'a> {
+    /// Returns the number of stored faces.
+    fn face_count(&self) -> usize {
+        self.table().size()
+    }
+
+    /// Returns a face by index.
+    fn face(&self, index: usize) -> Option<Self::Item> {
+        self.table().read(index)
+    }
+
+    /// Replaces the face at `index`.
+    fn set_face(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+        self.table_mut().write(index, value)
+    }
+
+    /// Removes the face at `index`.
+    fn remove_face(&mut self, index: usize) -> Result<(), String> {
+        self.table_mut().delete(index)
+    }
+}
 
 /// Provides indexed access to a shape's edges.
 pub trait HasEdges {

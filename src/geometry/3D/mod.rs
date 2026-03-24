@@ -1,7 +1,7 @@
 //! Three-dimensional geometry traits.
 
 use crate::geometry::common::{
-    GeometricPrimitive, GeometryMeasure, HasCenter, HasVertices, IsUnitVector, UsesTable,
+    GeometricPrimitive, GeometryMeasure, HasCenter, HasVertices, IsUnitVector,
 };
 use crate::geometry::zero_d::IsPoint;
 
@@ -38,7 +38,7 @@ pub trait IsSphere<T: IsPoint>:
 
 /// A mesh primitive backed by a vertex table and face accessors.
 pub trait IsMesh<'a, T: IsPoint, F>:
-    GeometricPrimitive + UsesTable<'a, Item = T> + HasVertices<'a, Item = T>
+    GeometricPrimitive + HasVertices<'a, Item = T>
 {
     /// Face type returned by the mesh.
     type Face;

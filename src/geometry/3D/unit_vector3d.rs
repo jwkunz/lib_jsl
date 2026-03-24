@@ -7,7 +7,7 @@ use crate::geometry::common::{
     CanNormalize, CoordinatePrimitive, CrossProduct, DotProduct, GeometricPrimitive,
     GeometricPrimitive3D, GeometryMeasure, HasDimension, HasNorm, IsUnitVector, Normalize,
 };
-use crate::geometry::zero_d::Point3D;
+use crate::geometry::three_d::Point3D;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};

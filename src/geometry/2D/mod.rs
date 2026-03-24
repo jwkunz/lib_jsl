@@ -1,9 +1,21 @@
 //! Two-dimensional shape traits and orientation helpers.
 
-/// Concrete polygon face implementation over three-dimensional points.
-pub mod polygon_face3d;
-/// Concrete triangle implementation over three-dimensional points.
-pub mod triangle3d;
+/// Concrete two-dimensional line implementation.
+pub mod line2d;
+/// Concrete two-dimensional mesh implementation.
+pub mod mesh2d;
+/// Concrete two-dimensional point implementation.
+pub mod point2d;
+/// Concrete two-dimensional plane implementation.
+pub mod plane2d;
+/// Concrete two-dimensional polygon face implementation.
+pub mod polygon_face2d;
+/// Internal helpers shared by 2D concrete implementations.
+pub(crate) mod transform_support;
+/// Concrete two-dimensional triangle implementation.
+pub mod triangle2d;
+/// Concrete two-dimensional unit vector implementation.
+pub mod unit_vector2d;
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasEdges, HasMeasure,
@@ -13,8 +25,13 @@ use crate::geometry::three_d::IsPlane;
 use crate::geometry::common::IsUnitVector;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::zero_d::IsPoint;
-pub use polygon_face3d::PolygonFace3D;
-pub use triangle3d::Triangle3D;
+pub use line2d::Line2D;
+pub use mesh2d::Mesh2D;
+pub use plane2d::Plane2D;
+pub use point2d::Point2D;
+pub use polygon_face2d::PolygonFace2D;
+pub use triangle2d::Triangle2D;
+pub use unit_vector2d::UnitVector2D;
 
 /// Relative winding/orientation classification for planar geometry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

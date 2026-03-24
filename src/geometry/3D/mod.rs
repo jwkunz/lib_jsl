@@ -1,9 +1,17 @@
 //! Three-dimensional geometry traits.
 
+/// Concrete three-dimensional line implementation.
+pub mod line3d;
 /// Concrete three-dimensional mesh implementation.
 pub mod mesh3d;
 /// Concrete three-dimensional plane implementation.
 pub mod plane3d;
+/// Concrete three-dimensional point implementation.
+pub mod point3d;
+/// Concrete three-dimensional polygon face implementation.
+pub mod polygon_face3d;
+/// Concrete three-dimensional triangle implementation.
+pub mod triangle3d;
 pub(crate) mod transform_support;
 /// Concrete three-dimensional unit vector implementation.
 pub mod unit_vector3d;
@@ -15,8 +23,12 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::IsPolygon;
 use crate::geometry::zero_d::IsPoint;
+pub use line3d::Line3D;
 pub use mesh3d::Mesh3D;
 pub use plane3d::Plane3D;
+pub use point3d::Point3D;
+pub use polygon_face3d::PolygonFace3D;
+pub use triangle3d::Triangle3D;
 pub use unit_vector3d::UnitVector3D;
 
 /// A plane primitive represented by a point and a unit normal.

@@ -1,8 +1,7 @@
 //! Internal 3D transformation helpers shared by concrete primitives.
 
 use crate::geometry::common::{GeometryMeasure, IsUnitVector};
-use crate::geometry::three_d::UnitVector3D;
-use crate::geometry::zero_d::Point3D;
+use crate::geometry::three_d::{Point3D, UnitVector3D};
 
 /// Rotates a point around an axis using Rodrigues' rotation formula.
 pub(crate) fn rotate_point_around_axis(

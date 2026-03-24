@@ -8,8 +8,7 @@ use crate::geometry::common::{
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::three_d::UnitVector3D;
-use crate::geometry::zero_d::Point3D;
+use crate::geometry::three_d::{Point3D, UnitVector3D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};

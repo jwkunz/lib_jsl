@@ -1,42 +1,39 @@
-//! Concrete triangle type built from three-dimensional points.
-//!
-//! [`Triangle3D`] is the concrete triangle specialization in the public API. It stores exactly
-//! three point ids into a shared point table and derives polygonal behavior from that backing
-//! graph.
+//! Concrete triangle type built from two-dimensional points.
 
 use crate::geometry::common::{
-    GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid, HasEdges, HasMeasure,
+    GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasCentroid, HasEdges, HasMeasure,
     HasVertices, PointId,
 };
-use crate::geometry::one_d::Line3D;
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::three_d::{IsPlane, Plane3D, UnitVector3D};
+use crate::geometry::three_d::IsPlane;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
-use crate::geometry::two_d::{HasOrientation, IsPolygon, IsTriangle, Orientation2D, PolygonFace3D};
-use crate::geometry::zero_d::Point3D;
+use crate::geometry::two_d::{
+    HasOrientation, IsPolygon, IsTriangle, Line2D, Plane2D, Point2D, PolygonFace2D, UnitVector2D,
+    Orientation2D,
+};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
-/// Concrete 3D triangle implementation backed by three point ids.
+/// Concrete 2D triangle implementation backed by three point ids.
 #[derive(Debug, Clone, Serialize)]
-pub struct Triangle3D {
+pub struct Triangle2D {
     a_id: PointId,
     b_id: PointId,
     c_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, Point2D>,
 }
 
-impl PartialEq for Triangle3D {
+impl PartialEq for Triangle2D {
     fn eq(&self, other: &Self) -> bool {
         self.a_id == other.a_id && self.b_id == other.b_id && self.c_id == other.c_id
     }
 }
 
-impl Eq for Triangle3D {}
+impl Eq for Triangle2D {}
 
-impl Hash for Triangle3D {
+impl Hash for Triangle2D {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.a_id.hash(state);
         self.b_id.hash(state);
@@ -44,15 +41,13 @@ impl Hash for Triangle3D {
     }
 }
 
-impl Triangle3D {
+impl Triangle2D {
     /// Creates a triangle from three point ids and a shared point table.
-    ///
-    /// The ids are interpreted in order as vertices `a`, `b`, and `c`.
     pub fn new(
         a_id: PointId,
         b_id: PointId,
         c_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point3D>,
+        vertex_table: SharedGeometryTable<PointId, Point2D>,
     ) -> Self {
         Self {
             a_id,
@@ -63,18 +58,18 @@ impl Triangle3D {
     }
 }
 
-impl Display for Triangle3D {
+impl Display for Triangle2D {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Triangle3D({:?}, {:?}, {:?})", self.a_id, self.b_id, self.c_id)
+        write!(f, "Triangle2D({:?}, {:?}, {:?})", self.a_id, self.b_id, self.c_id)
     }
 }
 
-impl GeometricPrimitive for Triangle3D {}
-impl GeometricPrimitive3D for Triangle3D {}
+impl GeometricPrimitive for Triangle2D {}
+impl GeometricPrimitive2D for Triangle2D {}
 
-impl<'a> HasVertices<'a> for Triangle3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+impl<'a> HasVertices<'a> for Triangle2D {
+    type Vertex = Point2D;
+    type VertexTable = SharedGeometryTable<PointId, Point2D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -89,8 +84,8 @@ impl<'a> HasVertices<'a> for Triangle3D {
     }
 }
 
-impl HasEdges for Triangle3D {
-    type Edge = Line3D;
+impl HasEdges for Triangle2D {
+    type Edge = Line2D;
 
     fn edge_count(&self) -> usize {
         3
@@ -103,28 +98,28 @@ impl HasEdges for Triangle3D {
             2 => (self.c_id, self.a_id),
             _ => return None,
         };
-        Some(Line3D::new(head, tail, self.vertex_table.clone()))
+        Some(Line2D::new(head, tail, self.vertex_table.clone()))
     }
 }
 
-impl HasCentroid for Triangle3D {
-    type Point = Point3D;
+impl HasCentroid for Triangle2D {
+    type Point = Point2D;
 
     fn centroid(&self) -> Self::Point {
-        let a = self.a().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let b = self.b().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let c = self.c().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        Point3D::new((a[0] + b[0] + c[0]) / 3.0, (a[1] + b[1] + c[1]) / 3.0, (a[2] + b[2] + c[2]) / 3.0)
+        let a = self.a().unwrap_or(Point2D::new(0.0, 0.0));
+        let b = self.b().unwrap_or(Point2D::new(0.0, 0.0));
+        let c = self.c().unwrap_or(Point2D::new(0.0, 0.0));
+        Point2D::new((a[0] + b[0] + c[0]) / 3.0, (a[1] + b[1] + c[1]) / 3.0)
     }
 }
 
-impl HasMeasure for Triangle3D {
+impl HasMeasure for Triangle2D {
     fn measure(&self) -> GeometryMeasure {
         self.area()
     }
 }
 
-impl HasOrientation for Triangle3D {
+impl HasOrientation for Triangle2D {
     fn orientation(&self) -> Orientation2D {
         match (self.a(), self.b(), self.c()) {
             (Some(a), Some(b), Some(c)) => {
@@ -142,56 +137,56 @@ impl HasOrientation for Triangle3D {
     }
 }
 
-impl CanTranslate for Triangle3D {
-    type Point = Point3D;
+impl CanTranslate for Triangle2D {
+    type Point = Point2D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
         L: crate::geometry::one_d::IsLine<'a, Self::Point>,
     {
-        let mut polygon = PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
+        let mut polygon = PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
         polygon.translate(translation_vector);
     }
 }
 
-impl CanRotate for Triangle3D {
-    type Point = Point3D;
+impl CanRotate for Triangle2D {
+    type Point = Point2D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
         L: crate::geometry::one_d::IsLine<'a, Self::Point>,
     {
-        let mut polygon = PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
+        let mut polygon = PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
         polygon.rotate(axis, angle_radians);
     }
 }
 
-impl CanShear for Triangle3D {
-    type Point = Point3D;
+impl CanShear for Triangle2D {
+    type Point = Point2D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
         L: crate::geometry::one_d::IsLine<'a, Self::Point>,
     {
-        let mut polygon = PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
+        let mut polygon = PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
         polygon.shear(shear_line);
     }
 }
 
-impl CanMirror for Triangle3D {
-    type Point = Point3D;
-    type Normal = UnitVector3D;
+impl CanMirror for Triangle2D {
+    type Point = Point2D;
+    type Normal = UnitVector2D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
     where
         P: IsPlane<Point = Self::Point, Normal = Self::Normal>,
     {
-        let mut polygon = PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
+        let mut polygon = PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone());
         polygon.mirror(mirror_plane);
     }
 }
 
-impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for Triangle3D {
+impl<'a> IsPolygon<'a, Point2D, UnitVector2D> for Triangle2D {
     fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_> {
         Box::new([self.a_id, self.b_id, self.c_id].into_iter())
     }
@@ -206,24 +201,24 @@ impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for Triangle3D {
         Ok(())
     }
 
-    fn normal(&self) -> UnitVector3D {
-        PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).normal()
+    fn normal(&self) -> UnitVector2D {
+        PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).normal()
     }
 
     fn perimeter(&self) -> GeometryMeasure {
-        PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).perimeter()
+        PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).perimeter()
     }
 
     fn area(&self) -> GeometryMeasure {
-        PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).area()
+        PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).area()
     }
 
-    fn plane(&self) -> impl IsPlane<Point = Point3D, Normal = UnitVector3D> {
-        Plane3D::new(self.centroid(), self.normal())
+    fn plane(&self) -> impl IsPlane<Point = Point2D, Normal = UnitVector2D> {
+        Plane2D::new(self.centroid(), self.normal())
     }
 }
 
-impl<'a> IsTriangle<'a, Point3D, UnitVector3D> for Triangle3D {
+impl<'a> IsTriangle<'a, Point2D, UnitVector2D> for Triangle2D {
     fn a_id(&self) -> PointId {
         self.a_id
     }

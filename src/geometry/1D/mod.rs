@@ -1,13 +1,22 @@
 //! One-dimensional line- and path-oriented geometry traits.
 
-/// Concrete three-dimensional line implementation.
-pub mod line3d;
+/// Concrete one-dimensional line implementation.
+pub mod line1d;
+/// Concrete one-dimensional mirror plane implementation.
+pub mod plane1d;
+/// Concrete one-dimensional point implementation.
+pub mod point1d;
+/// Concrete one-dimensional unit vector implementation.
+pub mod unit_vector1d;
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector, PointId,
 };
 use crate::geometry::zero_d::IsPoint;
-pub use line3d::Line3D;
+pub use line1d::Line1D;
+pub use plane1d::Plane1D;
+pub use point1d::Point1D;
+pub use unit_vector1d::UnitVector1D;
 
 /// A line primitive that resolves its endpoints through point identifiers.
 pub trait IsLine<'a, T: IsPoint>:

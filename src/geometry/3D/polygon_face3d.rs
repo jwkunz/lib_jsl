@@ -8,13 +8,12 @@ use crate::geometry::common::{
     GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid, HasEdges,
     HasMeasure, HasVertices, PointId,
 };
-use crate::geometry::one_d::{IsLine, Line3D};
+use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{IsPlane, Plane3D, UnitVector3D};
+use crate::geometry::three_d::{IsPlane, Line3D, Plane3D, Point3D, UnitVector3D};
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{HasOrientation, IsPolygon, Orientation2D};
-use crate::geometry::zero_d::Point3D;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt::{self, Display, Formatter};

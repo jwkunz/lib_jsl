@@ -12,9 +12,7 @@ use crate::geometry::common::{
     FaceId, IsGeometryTableBase, LineId, PointId, TriangleId,
 };
 use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
-use crate::geometry::three_d::UnitVector3D;
-use crate::geometry::two_d::{PolygonFace3D, Triangle3D};
-use crate::geometry::{one_d::Line3D, zero_d::Point3D};
+use crate::geometry::three_d::{Line3D, Point3D, PolygonFace3D, Triangle3D, UnitVector3D};
 use std::cell::RefCell;
 use std::rc::Rc;
 

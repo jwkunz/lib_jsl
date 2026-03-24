@@ -6,11 +6,13 @@
 /// `        (a[0] (jw)^N + a[1] (jw)^(N-1) + ... + a[N])`
 ///
 /// Plotting support from SciPy is intentionally omitted here.
-use ndarray::{Array1, Array2};
-use ndarray_linalg::Eig;
+use ndarray::Array1;
 use num::Complex;
 
-use crate::prelude::{C1D, ErrorsJSL, IsAnalytic, R1D};
+use crate::{
+    number_theory::polynomial::{polynomial_eval, polynomial_roots},
+    prelude::{C1D, ErrorsJSL, IsAnalytic, R1D},
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct FreqsResult {
@@ -42,41 +44,6 @@ fn validate_coefficients<T: IsAnalytic>(b: &[T], a: &[T]) -> Result<(), ErrorsJS
     Ok(())
 }
 
-fn polyval<T: IsAnalytic>(coeffs: &[T], x: Complex<f64>) -> Complex<f64> {
-    let mut acc = Complex::new(0.0, 0.0);
-    for coeff in coeffs {
-        acc = acc * x + coeff.to_complex();
-    }
-    acc
-}
-
-fn polynomial_roots<T: IsAnalytic>(coeffs: &[T]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
-    if coeffs.len() <= 1 {
-        return Ok(vec![]);
-    }
-
-    let lead = coeffs[0].to_complex();
-    if lead.norm_sqr() <= 1e-24 {
-        return Err(ErrorsJSL::InvalidInputRange(
-            "leading polynomial coefficient must be non-zero",
-        ));
-    }
-
-    let order = coeffs.len() - 1;
-    let mut companion = Array2::from_elem((order, order), Complex::new(0.0, 0.0));
-    for row in 1..order {
-        companion[[row, row - 1]] = Complex::new(1.0, 0.0);
-    }
-    for row in 0..order {
-        companion[[row, order - 1]] = -coeffs[order - row].to_complex() / lead;
-    }
-
-    let (evals, _) = companion
-        .eig()
-        .map_err(|_| ErrorsJSL::RuntimeError("failed to compute polynomial roots"))?;
-    Ok(evals.to_vec())
-}
-
 fn logspace(start_exp: f64, stop_exp: f64, n: usize) -> Vec<f64> {
     if n == 0 {
         return vec![];
@@ -98,7 +65,7 @@ fn auto_frequency_grid<T: IsAnalytic>(b: &[T], a: &[T], n: usize) -> Result<R1D,
     }
 
     let mut scales = Vec::new();
-    for root in polynomial_roots(b)?.into_iter().chain(polynomial_roots(a)?.into_iter()) {
+    for root in polynomial_roots(b)?.iter().copied().chain(polynomial_roots(a)?.iter().copied()) {
         let mag = root.norm();
         if mag.is_finite() && mag > 0.0 {
             scales.push(mag);
@@ -165,8 +132,8 @@ pub fn freqs<T: IsAnalytic>(
     let mut h = Vec::with_capacity(w.len());
     for &omega in &w {
         let s = Complex::new(0.0, omega);
-        let numerator = polyval(b, s);
-        let denominator = polyval(a, s);
+        let numerator = polynomial_eval(b, s);
+        let denominator = polynomial_eval(a, s);
         if denominator.norm_sqr() <= 1e-24 {
             return Err(ErrorsJSL::RuntimeError(
                 "frequency response undefined because denominator is zero",

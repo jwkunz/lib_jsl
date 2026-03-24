@@ -1,4 +1,12 @@
-//! Concrete root registry for the current core geometry tables.
+//! Concrete root registry for the public geometry table graph.
+//!
+//! [`GeometryTableRegistry`] is the main starting point for users of the concrete API. It owns the
+//! current core keyed tables for points, lines, polygon faces, and triangles, and exposes them
+//! through the [`IsGeometryTableBase`](crate::geometry::common::IsGeometryTableBase) contract.
+//!
+//! Each concrete primitive borrows one or more of these tables through shared handles. This lets
+//! higher-level objects such as lines, polygon faces, triangles, and meshes resolve their child
+//! geometry by stable IDs while still sharing a single point table.
 
 use crate::geometry::common::{
     FaceId, IsGeometryTableBase, LineId, PointId, TriangleId,
@@ -11,6 +19,9 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 /// Root registry holding the current concrete point, line, face, and triangle tables.
+///
+/// This type is intentionally small and explicit so it can serve as the top-level integration
+/// object for applications building a geometry graph on top of the trait system.
 #[derive(Debug, Clone)]
 pub struct GeometryTableRegistry {
     point_table: SharedGeometryTable<PointId, Point3D>,
@@ -20,7 +31,9 @@ pub struct GeometryTableRegistry {
 }
 
 impl GeometryTableRegistry {
-    /// Creates an empty registry with all core tables initialized.
+    /// Creates an empty registry with all currently supported core tables initialized.
+    ///
+    /// The returned registry is ready to hand out shared table handles to concrete primitives.
     pub fn new() -> Self {
         Self {
             point_table: Rc::new(RefCell::new(HashGeometryTable::new())),

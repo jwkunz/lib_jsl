@@ -1,4 +1,7 @@
-//! Concrete three-dimensional line type.
+//! Concrete three-dimensional line type for the public geometry API.
+//!
+//! [`Line3D`] stores stable point identifiers plus a shared point table handle, allowing it to
+//! resolve endpoints lazily from the shared geometry graph instead of embedding point values.
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasVertices, PointId,
@@ -37,6 +40,9 @@ impl Hash for Line3D {
 
 impl Line3D {
     /// Creates a line from two point ids and a shared point table.
+    ///
+    /// The ids are interpreted against `vertex_table` whenever the line resolves its endpoints,
+    /// length, midpoint, or direction.
     pub fn new(
         head_id: PointId,
         tail_id: PointId,

@@ -1,4 +1,7 @@
-//! Concrete three-dimensional unit vector type.
+//! Concrete three-dimensional unit vector type for the public geometry API.
+//!
+//! [`UnitVector3D`] is used anywhere the concrete API needs a guaranteed direction, such as plane
+//! normals or line directions returned from geometric queries.
 
 use crate::geometry::common::{
     CanNormalize, CoordinatePrimitive, CrossProduct, DotProduct, GeometricPrimitive,
@@ -28,6 +31,8 @@ impl Hash for UnitVector3D {
 
 impl UnitVector3D {
     /// Creates and normalizes a vector from the supplied coordinates.
+    ///
+    /// A zero-length input falls back to the positive x-axis.
     pub fn new(x: GeometryMeasure, y: GeometryMeasure, z: GeometryMeasure) -> Self {
         Self::from_point(Point3D::new(x, y, z))
     }

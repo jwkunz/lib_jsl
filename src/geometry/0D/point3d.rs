@@ -1,4 +1,8 @@
-//! Concrete three-dimensional point type.
+//! Concrete three-dimensional point type for the public geometry API.
+//!
+//! [`Point3D`] is the foundational coordinate-bearing concrete primitive used by the current
+//! concrete graph model. Higher-dimensional objects in this crate ultimately resolve back to point
+//! entries stored in a keyed point table.
 
 use crate::geometry::common::{
     CanScale, CanScaleNonUniform, CoordinatePrimitive, GeometricPrimitive, GeometricPrimitive3D,
@@ -15,6 +19,10 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 /// Concrete 3D point implementation backed by `[x, y, z]` coordinates.
+///
+/// The type implements both the lightweight geometry traits and the coordinate-oriented numeric
+/// traits, making it suitable for direct arithmetic as well as participation in table-backed
+/// higher-level primitives.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
 pub struct Point3D {
     coords: [GeometryMeasure; 3],

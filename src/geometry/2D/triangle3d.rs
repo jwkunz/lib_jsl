@@ -1,4 +1,8 @@
 //! Concrete triangle type built from three-dimensional points.
+//!
+//! [`Triangle3D`] is the concrete triangle specialization in the public API. It stores exactly
+//! three point ids into a shared point table and derives polygonal behavior from that backing
+//! graph.
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid, HasEdges, HasMeasure,
@@ -42,6 +46,8 @@ impl Hash for Triangle3D {
 
 impl Triangle3D {
     /// Creates a triangle from three point ids and a shared point table.
+    ///
+    /// The ids are interpreted in order as vertices `a`, `b`, and `c`.
     pub fn new(
         a_id: PointId,
         b_id: PointId,

@@ -1,4 +1,4 @@
-//! Concrete three-dimensional plane type.
+//! Concrete three-dimensional plane type for the public geometry API.
 
 use crate::geometry::common::{GeometricPrimitive, GeometricPrimitive3D};
 use crate::geometry::three_d::{IsPlane, UnitVector3D};
@@ -15,6 +15,8 @@ pub struct Plane3D {
 
 impl Plane3D {
     /// Creates a plane from a point and a unit normal.
+    ///
+    /// The point anchors the plane in space and the normal controls orientation.
     pub fn new(point: Point3D, normal: UnitVector3D) -> Self {
         Self { point, normal }
     }

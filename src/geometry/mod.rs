@@ -1,4 +1,15 @@
-//! Geometry primitives, traits, and coordinate-system abstractions.
+//! Geometry primitives, concrete implementations, and coordinate-system abstractions.
+//!
+//! The module tree is split into two main layers:
+//!
+//! - trait modules such as [`zero_d`], [`one_d`], [`two_d`], and [`three_d`]
+//! - concrete implementations and storage helpers such as [`concrete`], [`tables`], and
+//!   [`registry`]
+//!
+//! For most users, the quickest entry points are:
+//!
+//! - [`crate::geometry::concrete`] for concrete types like `Point3D`, `Line3D`, and `Mesh3D`
+//! - [`crate::geometry::geometric_traits`] for the broad trait surface
 
 /// Shared foundational traits used across all geometry dimensions.
 pub mod common;

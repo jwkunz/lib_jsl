@@ -1,4 +1,8 @@
 //! Concrete polygon face type built from three-dimensional points.
+//!
+//! [`PolygonFace3D`] represents an ordered polygon boundary by storing point ids into a shared
+//! point table. It is modeled as a face even though the underlying coordinates are three
+//! dimensional.
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid, HasEdges,
@@ -40,6 +44,8 @@ impl Hash for PolygonFace3D {
 
 impl PolygonFace3D {
     /// Creates a polygon face from ordered point ids and a shared point table.
+    ///
+    /// The vertex order determines the derived edge sequence, orientation, and normal direction.
     pub fn new(vertex_ids: Vec<PointId>, vertex_table: SharedGeometryTable<PointId, Point3D>) -> Self {
         Self {
             vertex_ids,

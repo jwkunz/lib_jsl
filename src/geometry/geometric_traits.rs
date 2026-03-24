@@ -1,4 +1,7 @@
-//! Compatibility re-exports for the public geometry trait surface.
+//! Compatibility re-exports for the public geometry API surface.
+//!
+//! This module is intended as a convenience import for users who want a broad view of the
+//! geometry system without pulling items from each dimension-specific module by hand.
 
 pub use crate::geometry::common::*;
 pub use crate::geometry::concrete::*;

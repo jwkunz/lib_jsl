@@ -1,4 +1,8 @@
 //! Concrete mesh type built from three-dimensional polygon faces.
+//!
+//! [`Mesh3D`] is the current top-level concrete aggregate primitive. It stores face ids into a
+//! shared face table and resolves those faces against the same point table used by the rest of the
+//! geometry graph.
 
 use crate::geometry::common::{
     FaceId, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasEdges, HasFaces,
@@ -40,6 +44,9 @@ impl Hash for Mesh3D {
 
 impl Mesh3D {
     /// Creates a mesh from ordered face ids and shared point and face tables.
+    ///
+    /// Faces are resolved lazily through `face_table`, and each face in turn resolves its vertices
+    /// through `vertex_table`.
     pub fn new(
         face_ids: Vec<FaceId>,
         vertex_table: SharedGeometryTable<PointId, Point3D>,

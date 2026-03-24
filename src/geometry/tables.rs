@@ -1,4 +1,9 @@
-//! Concrete keyed geometry tables shared by the concrete primitive implementations.
+//! Concrete keyed geometry table implementations used by the public API.
+//!
+//! These types are the storage backbone for the concrete geometry graph. They provide a
+//! hash-backed implementation of [`IsGeometryTable`](crate::geometry::common::IsGeometryTable)
+//! along with a shared-handle wrapper for cases where multiple primitives need to borrow the same
+//! table.
 
 use crate::geometry::common::{GeometricPrimitive, IsGeometryKey, IsGeometryTable};
 use serde::Serialize;
@@ -8,9 +13,14 @@ use std::path::Path;
 use std::rc::Rc;
 
 /// Shared interior-mutable handle to a hash-backed geometry table.
+///
+/// This alias is used throughout the concrete API so multiple primitives can reference the same
+/// logical table without taking ownership of it.
 pub type SharedGeometryTable<K, V> = Rc<RefCell<HashGeometryTable<K, V>>>;
 
 /// Hash-backed keyed geometry table implementation.
+///
+/// This is the default concrete table type used by [`GeometryTableRegistry`](crate::geometry::registry::GeometryTableRegistry).
 #[derive(Debug, Clone, Serialize)]
 pub struct HashGeometryTable<K, V> {
     entries: HashMap<K, V>,
@@ -25,7 +35,7 @@ impl<K, V> Default for HashGeometryTable<K, V> {
 }
 
 impl<K, V> HashGeometryTable<K, V> {
-    /// Creates an empty geometry table.
+    /// Creates an empty hash-backed geometry table.
     pub fn new() -> Self {
         Self::default()
     }

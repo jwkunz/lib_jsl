@@ -250,7 +250,7 @@ impl HasOrientation for PolygonFace2D {
             .enumerate()
             .map(|(i, a)| {
                 let b = points[(i + 1) % points.len()];
-                a[0] * b[1] - b[0] * a[1]
+                a.x() * b.y() - b.x() * a.y()
             })
             .sum::<GeometryMeasure>();
         if signed_area > 0.0 {
@@ -312,7 +312,11 @@ impl CanShear for PolygonFace2D {
         let factor = shear_line.length();
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
-                point[0] += factor * point[1];
+                let coords = point.cartesian_components();
+                point = Point2D::from_cartesian_components(
+                    [coords[0] + factor * coords[1], coords[1]],
+                    point.coordinate_system(),
+                );
                 let _ = self.insert_vertex(point_id, point);
             }
         }
@@ -377,7 +381,7 @@ impl<'a> IsPolygon<'a, Point2D, UnitVector2D> for PolygonFace2D {
             .enumerate()
             .map(|(i, a)| {
                 let b = points[(i + 1) % points.len()];
-                a[0] * b[1] - b[0] * a[1]
+                a.x() * b.y() - b.x() * a.y()
             })
             .sum::<GeometryMeasure>()
             .abs()

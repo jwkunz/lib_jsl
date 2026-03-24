@@ -149,9 +149,9 @@ impl PolygonFace3D {
         let desired_normal = triangles[0].normal();
         let candidate = Self::new(ordered.clone(), vertex_table.clone());
         let candidate_normal = candidate.normal();
-        let dot = candidate_normal[0] * desired_normal[0]
-            + candidate_normal[1] * desired_normal[1]
-            + candidate_normal[2] * desired_normal[2];
+        let dot = candidate_normal.x() * desired_normal.x()
+            + candidate_normal.y() * desired_normal.y()
+            + candidate_normal.z() * desired_normal.z();
         if dot < 0.0 {
             let mut reversed = vec![ordered[0]];
             reversed.extend(ordered[1..].iter().rev().copied());
@@ -259,7 +259,7 @@ impl HasOrientation for PolygonFace3D {
         for i in 0..points.len() {
             let a = points[i];
             let b = points[(i + 1) % points.len()];
-            signed_area += a[0] * b[1] - b[0] * a[1];
+            signed_area += a.x() * b.y() - b.x() * a.y();
         }
         if signed_area > 0.0 {
             Orientation2D::CounterClockwise
@@ -321,7 +321,11 @@ impl CanShear for PolygonFace3D {
         let factor = shear_line.length();
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
-                point[0] += factor * point[1];
+                let coords = point.cartesian_components();
+                point = Point3D::from_cartesian_components(
+                    [coords[0] + factor * coords[1], coords[1], coords[2]],
+                    point.coordinate_system(),
+                );
                 let _ = self.insert_vertex(point_id, point);
             }
         }
@@ -369,8 +373,8 @@ impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for PolygonFace3D {
         let a = points[0];
         let b = points[1];
         let c = points[2];
-        let ab = b - a;
-        let ac = c - a;
+        let ab = [b.x() - a.x(), b.y() - a.y(), b.z() - a.z()];
+        let ac = [c.x() - a.x(), c.y() - a.y(), c.z() - a.z()];
         UnitVector3D::from_point(Point3D::new(
             ab[1] * ac[2] - ab[2] * ac[1],
             ab[2] * ac[0] - ab[0] * ac[2],
@@ -395,13 +399,21 @@ impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for PolygonFace3D {
         let origin = points[0];
         let mut area = 0.0;
         for i in 1..points.len() - 1 {
-            let a = points[i] - origin;
-            let b = points[i + 1] - origin;
-            let cross = Point3D::new(
+            let a = [
+                points[i].x() - origin.x(),
+                points[i].y() - origin.y(),
+                points[i].z() - origin.z(),
+            ];
+            let b = [
+                points[i + 1].x() - origin.x(),
+                points[i + 1].y() - origin.y(),
+                points[i + 1].z() - origin.z(),
+            ];
+            let cross = [
                 a[1] * b[2] - a[2] * b[1],
                 a[2] * b[0] - a[0] * b[2],
                 a[0] * b[1] - a[1] * b[0],
-            );
+            ];
             area += ((cross[0] * cross[0]) + (cross[1] * cross[1]) + (cross[2] * cross[2])).sqrt() / 2.0;
         }
         area

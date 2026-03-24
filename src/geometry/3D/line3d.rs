@@ -103,7 +103,10 @@ impl<'a> IsLine<'a, Point3D> for Line3D {
     fn length(&self) -> GeometryMeasure {
         match (self.head(), self.tail()) {
             (Some(head), Some(tail)) => {
-                ((tail[0] - head[0]).powi(2) + (tail[1] - head[1]).powi(2) + (tail[2] - head[2]).powi(2)).sqrt()
+                ((tail.x() - head.x()).powi(2)
+                    + (tail.y() - head.y()).powi(2)
+                    + (tail.z() - head.z()).powi(2))
+                    .sqrt()
             }
             _ => 0.0,
         }
@@ -112,9 +115,9 @@ impl<'a> IsLine<'a, Point3D> for Line3D {
     fn midpoint(&self) -> Option<Point3D> {
         match (self.head(), self.tail()) {
             (Some(head), Some(tail)) => Some(Point3D::new(
-                (head[0] + tail[0]) / 2.0,
-                (head[1] + tail[1]) / 2.0,
-                (head[2] + tail[2]) / 2.0,
+                (head.x() + tail.x()) / 2.0,
+                (head.y() + tail.y()) / 2.0,
+                (head.z() + tail.z()) / 2.0,
             )),
             _ => None,
         }
@@ -123,7 +126,7 @@ impl<'a> IsLine<'a, Point3D> for Line3D {
     fn direction(&self) -> impl crate::geometry::common::IsUnitVector {
         match (self.head(), self.tail()) {
             (Some(head), Some(tail)) => {
-                UnitVector3D::new(tail[0] - head[0], tail[1] - head[1], tail[2] - head[2])
+                UnitVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z())
             }
             _ => UnitVector3D::new(1.0, 0.0, 0.0),
         }

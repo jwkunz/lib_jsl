@@ -52,6 +52,8 @@ mod tests {
         FaceId, HasEdges, IsGeometryTable, IsGeometryTableBase, IsValid, PointId, TetrahedronId,
         TriangleId,
     };
+    use crate::geometry::coordinate_systems::{CoordinateSystem2D, CoordinateSystem3D};
+    use crate::geometry::one_d::IsLine;
     use crate::geometry::three_d::{IsMesh, IsTetrahedron};
     use crate::geometry::two_d::IsPolygon;
 
@@ -253,6 +255,53 @@ mod tests {
 
         assert_eq!(registry.tetrahedron_table().size(), 1);
         assert_eq!(registry.tetrahedron_table().get(&TetrahedronId(1)), Some(tetrahedron));
+    }
+
+    #[test]
+    fn point2d_coordinate_system_setter_converts_and_preserves_basis_on_math() {
+        let mut point = Point2D::new(1.0, 1.0);
+        point.set_coordinate_system(CoordinateSystem2D::Polar);
+
+        let translated = point + Point2D::new(1.0, 0.0);
+
+        assert_eq!(point.coordinate_system(), CoordinateSystem2D::Polar);
+        assert_eq!(translated.coordinate_system(), CoordinateSystem2D::Polar);
+        assert!((point.x() - 1.0).abs() < 1e-5);
+        assert!((point.y() - 1.0).abs() < 1e-5);
+        assert!((translated.x() - 2.0).abs() < 1e-5);
+        assert!((translated.y() - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn point3d_coordinate_system_setter_converts_and_preserves_basis_on_math() {
+        let mut point = Point3D::new(1.0, 0.0, 1.0);
+        point.set_coordinate_system(CoordinateSystem3D::Spherical);
+
+        let translated = point + Point3D::new(0.0, 1.0, 0.0);
+
+        assert_eq!(point.coordinate_system(), CoordinateSystem3D::Spherical);
+        assert_eq!(translated.coordinate_system(), CoordinateSystem3D::Spherical);
+        assert!((point.x() - 1.0).abs() < 1e-5);
+        assert!((point.y() - 0.0).abs() < 1e-5);
+        assert!((point.z() - 1.0).abs() < 1e-5);
+        assert!((translated.x() - 1.0).abs() < 1e-5);
+        assert!((translated.y() - 1.0).abs() < 1e-5);
+        assert!((translated.z() - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn line_length_uses_cartesian_coordinates_after_basis_change() {
+        let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
+        let mut a = Point2D::new(0.0, 0.0);
+        let mut b = Point2D::new(3.0, 4.0);
+        a.set_coordinate_system(CoordinateSystem2D::Polar);
+        b.set_coordinate_system(CoordinateSystem2D::Polar);
+
+        point_table.borrow_mut().insert(PointId(1), a).unwrap();
+        point_table.borrow_mut().insert(PointId(2), b).unwrap();
+
+        let line = Line2D::new(PointId(1), PointId(2), point_table);
+        assert!((line.length() - 5.0).abs() < 1e-5);
     }
 
     #[test]

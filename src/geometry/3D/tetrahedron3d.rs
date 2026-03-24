@@ -132,15 +132,15 @@ impl Tetrahedron3D {
         let (Some(a), Some(b), Some(c), Some(d)) = (self.a(), self.b(), self.c(), self.d()) else {
             return 0.0;
         };
-        let ab = b - a;
-        let ac = c - a;
-        let ad = d - a;
+        let ab = [b.x() - a.x(), b.y() - a.y(), b.z() - a.z()];
+        let ac = [c.x() - a.x(), c.y() - a.y(), c.z() - a.z()];
+        let ad = [d.x() - a.x(), d.y() - a.y(), d.z() - a.z()];
         let cross = Point3D::new(
             ab[1] * ac[2] - ab[2] * ac[1],
             ab[2] * ac[0] - ab[0] * ac[2],
             ab[0] * ac[1] - ab[1] * ac[0],
         );
-        (cross * ad) / 6.0
+        (cross.x() * ad[0] + cross.y() * ad[1] + cross.z() * ad[2]) / 6.0
     }
 
     /// Returns the absolute tetrahedron volume.
@@ -217,9 +217,9 @@ impl HasCentroid for Tetrahedron3D {
         let c = self.c().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
         let d = self.d().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
         Point3D::new(
-            (a[0] + b[0] + c[0] + d[0]) / 4.0,
-            (a[1] + b[1] + c[1] + d[1]) / 4.0,
-            (a[2] + b[2] + c[2] + d[2]) / 4.0,
+            (a.x() + b.x() + c.x() + d.x()) / 4.0,
+            (a.y() + b.y() + c.y() + d.y()) / 4.0,
+            (a.z() + b.z() + c.z() + d.z()) / 4.0,
         )
     }
 }
@@ -367,7 +367,11 @@ impl CanShear for Tetrahedron3D {
         let factor = shear_line.length();
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
-                point[0] += factor * point[1];
+                let coords = point.cartesian_components();
+                point = Point3D::from_cartesian_components(
+                    [coords[0] + factor * coords[1], coords[1], coords[2]],
+                    point.coordinate_system(),
+                );
                 let _ = self.insert_vertex(point_id, point);
             }
         }

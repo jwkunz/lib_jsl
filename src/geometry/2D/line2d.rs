@@ -96,7 +96,7 @@ impl<'a> IsLine<'a, Point2D> for Line2D {
 
     fn length(&self) -> GeometryMeasure {
         match (self.head(), self.tail()) {
-            (Some(head), Some(tail)) => ((tail[0] - head[0]).powi(2) + (tail[1] - head[1]).powi(2)).sqrt(),
+            (Some(head), Some(tail)) => ((tail.x() - head.x()).powi(2) + (tail.y() - head.y()).powi(2)).sqrt(),
             _ => 0.0,
         }
     }
@@ -104,8 +104,8 @@ impl<'a> IsLine<'a, Point2D> for Line2D {
     fn midpoint(&self) -> Option<Point2D> {
         match (self.head(), self.tail()) {
             (Some(head), Some(tail)) => Some(Point2D::new(
-                (head[0] + tail[0]) / 2.0,
-                (head[1] + tail[1]) / 2.0,
+                (head.x() + tail.x()) / 2.0,
+                (head.y() + tail.y()) / 2.0,
             )),
             _ => None,
         }
@@ -113,7 +113,7 @@ impl<'a> IsLine<'a, Point2D> for Line2D {
 
     fn direction(&self) -> impl crate::geometry::common::IsUnitVector {
         match (self.head(), self.tail()) {
-            (Some(head), Some(tail)) => UnitVector2D::new(tail[0] - head[0], tail[1] - head[1]),
+            (Some(head), Some(tail)) => UnitVector2D::new(tail.x() - head.x(), tail.y() - head.y()),
             _ => UnitVector2D::new(1.0, 0.0),
         }
     }

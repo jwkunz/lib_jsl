@@ -10,6 +10,7 @@ pub(crate) fn rotate_point_around_anchor_2d(
     angle: GeometryMeasure,
 ) -> Point2D {
     let translated = point - origin;
+    let translated = translated.cartesian_components();
     let cos_theta = angle.cos();
     let sin_theta = angle.sin();
     let rotated = Point2D::new(
@@ -26,6 +27,7 @@ pub(crate) fn reflect_point_across_plane_2d(
     normal: UnitVector2D,
 ) -> Point2D {
     let offset = point - plane_point;
-    let distance = offset[0] * normal[0] + offset[1] * normal[1];
-    point - Point2D::new(normal[0], normal[1]) * (2.0 * distance)
+    let offset = offset.cartesian_components();
+    let distance = offset[0] * normal.x() + offset[1] * normal.y();
+    point - Point2D::new(normal.x(), normal.y()) * (2.0 * distance)
 }

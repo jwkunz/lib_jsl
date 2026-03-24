@@ -12,14 +12,19 @@ pub(crate) fn rotate_point_around_axis(
 ) -> Point3D {
     let axis = Point3D::new(axis[0], axis[1], axis[2]);
     let translated = point - origin;
+    let translated = translated.cartesian_components();
+    let translated = Point3D::new(translated[0], translated[1], translated[2]);
+    let axis_components = axis.cartesian_components();
     let cos_theta = angle.cos();
     let sin_theta = angle.sin();
     let cross = Point3D::new(
-        axis[1] * translated[2] - axis[2] * translated[1],
-        axis[2] * translated[0] - axis[0] * translated[2],
-        axis[0] * translated[1] - axis[1] * translated[0],
+        axis_components[1] * translated.z() - axis_components[2] * translated.y(),
+        axis_components[2] * translated.x() - axis_components[0] * translated.z(),
+        axis_components[0] * translated.y() - axis_components[1] * translated.x(),
     );
-    let dot = axis * translated;
+    let dot = axis_components[0] * translated.x()
+        + axis_components[1] * translated.y()
+        + axis_components[2] * translated.z();
     let rotated = translated * cos_theta + cross * sin_theta + axis * (dot * (1.0 - cos_theta));
     origin + rotated
 }

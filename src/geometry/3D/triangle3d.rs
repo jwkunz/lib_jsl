@@ -112,7 +112,11 @@ impl HasCentroid for Triangle3D {
         let a = self.a().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
         let b = self.b().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
         let c = self.c().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        Point3D::new((a[0] + b[0] + c[0]) / 3.0, (a[1] + b[1] + c[1]) / 3.0, (a[2] + b[2] + c[2]) / 3.0)
+        Point3D::new(
+            (a.x() + b.x() + c.x()) / 3.0,
+            (a.y() + b.y() + c.y()) / 3.0,
+            (a.z() + b.z() + c.z()) / 3.0,
+        )
     }
 }
 
@@ -126,7 +130,7 @@ impl HasOrientation for Triangle3D {
     fn orientation(&self) -> Orientation2D {
         match (self.a(), self.b(), self.c()) {
             (Some(a), Some(b), Some(c)) => {
-                let cross = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+                let cross = (b.x() - a.x()) * (c.y() - a.y()) - (b.y() - a.y()) * (c.x() - a.x());
                 if cross > 0.0 {
                     Orientation2D::CounterClockwise
                 } else if cross < 0.0 {

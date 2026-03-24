@@ -2,6 +2,8 @@
 
 /// Concrete three-dimensional line implementation.
 pub mod line3d;
+/// Coordinate-system conversion helpers for 3D concrete coordinate vectors.
+pub(crate) mod coordinate_conversions;
 /// Concrete three-dimensional surface mesh implementation.
 pub mod surface_mesh3d;
 /// Concrete three-dimensional plane implementation.

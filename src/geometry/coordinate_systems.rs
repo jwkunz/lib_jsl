@@ -1,9 +1,10 @@
 //! Coordinate-system enums, markers, and conversion traits.
 
+use serde::{Deserialize, Serialize};
 use crate::geometry::common::CoordinatePrimitive;
 
 /// Supported coordinate systems for 2D primitives.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CoordinateSystem2D {
     /// Standard x/y Cartesian coordinates.
     Cartesian,
@@ -12,7 +13,7 @@ pub enum CoordinateSystem2D {
 }
 
 /// Supported coordinate systems for 3D primitives.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CoordinateSystem3D {
     /// Standard x/y/z Cartesian coordinates.
     Cartesian,

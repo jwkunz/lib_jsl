@@ -2,6 +2,8 @@
 
 /// Concrete two-dimensional line implementation.
 pub mod line2d;
+/// Coordinate-system conversion helpers for 2D concrete coordinate vectors.
+pub(crate) mod coordinate_conversions;
 /// Concrete two-dimensional mesh implementation.
 pub mod mesh2d;
 /// Concrete two-dimensional point implementation.

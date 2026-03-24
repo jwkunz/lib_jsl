@@ -425,7 +425,11 @@ impl CanShear for VolumeMesh3D {
         let factor = shear_line.length();
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
-                point[0] += factor * point[1];
+                let coords = point.cartesian_components();
+                point = Point3D::from_cartesian_components(
+                    [coords[0] + factor * coords[1], coords[1], coords[2]],
+                    point.coordinate_system(),
+                );
                 let _ = self.insert_vertex(point_id, point);
             }
         }

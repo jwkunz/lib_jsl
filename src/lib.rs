@@ -92,6 +92,7 @@ pub mod dsp {
         pub mod controls {
             pub mod kalman;
             pub mod pid;
+            pub mod state_space;
         }
         pub mod spectral {
             pub mod chirpz;

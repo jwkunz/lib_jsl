@@ -325,7 +325,7 @@ mod tests {
             1.0,
         )
         .unwrap();
-        let golden = parse_csv(include_str!("../test_data/remez_lowpass_numtaps17.csv"));
+        let golden = parse_csv(include_str!("../../test_data/remez_lowpass_numtaps17.csv"));
         assert_eq!(taps.len(), golden.len());
         for (a, g) in taps.iter().zip(golden.iter()) {
             assert!((a - g).abs() < 1e-8, "actual={a}, golden={g}");
@@ -345,7 +345,7 @@ mod tests {
             1.0,
         )
         .unwrap();
-        let golden = parse_csv(include_str!("../test_data/remez_highpass_numtaps21_weighted.csv"));
+        let golden = parse_csv(include_str!("../../test_data/remez_highpass_numtaps21_weighted.csv"));
         assert_eq!(taps.len(), golden.len());
         for (a, g) in taps.iter().zip(golden.iter()) {
             assert!((a - g).abs() < 1e-8, "actual={a}, golden={g}");

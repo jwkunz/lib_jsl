@@ -133,7 +133,7 @@ mod tests {
         )
         .unwrap();
 
-        let golden = parse_csv(include_str!("../test_data/firwin_lowpass_numtaps3_cutoff0p1.csv"));
+        let golden = parse_csv(include_str!("../../test_data/firwin_lowpass_numtaps3_cutoff0p1.csv"));
         assert_eq!(h.len(), golden.len());
         for (a, g) in h.iter().zip(golden.iter()) {
             assert!((a - g).abs() < 1e-8, "actual={a}, golden={g}");

@@ -39,14 +39,27 @@ pub mod dsp {
         pub mod stream_operator;
         pub mod windows;
         pub mod filters {
-            pub mod biquad;
-            pub mod boxcar_integrator;
-            pub mod derivative_filter;
-            pub mod discrete_linear_filter;
-            pub mod firwin;
-            pub mod firwin2;
-            pub mod overlap_and_add_fir;
-            pub mod remez;
+            pub mod fir {
+                pub mod boxcar_integrator;
+                pub mod derivative_filter;
+                pub mod firwin;
+                pub mod firwin2;
+                pub mod overlap_and_add_fir;
+                pub mod remez;
+            }
+            pub mod iir {
+                pub mod biquad;
+                pub mod discrete_linear_filter;
+            }
+
+            pub use fir::boxcar_integrator;
+            pub use fir::derivative_filter;
+            pub use fir::firwin;
+            pub use fir::firwin2;
+            pub use fir::overlap_and_add_fir;
+            pub use fir::remez;
+            pub use iir::biquad;
+            pub use iir::discrete_linear_filter;
         }
         pub mod transformations {
             pub mod channel_impairment;

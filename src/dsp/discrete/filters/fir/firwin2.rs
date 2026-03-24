@@ -205,7 +205,7 @@ mod tests {
         )
         .unwrap();
 
-        let golden = parse_csv(include_str!("../test_data/firwin2_doc_example_taps72_77.csv"));
+        let golden = parse_csv(include_str!("../../test_data/firwin2_doc_example_taps72_77.csv"));
         assert_eq!(golden.len(), 6);
         for (a, g) in taps[72..78].iter().zip(golden.iter()) {
             assert!((a - g).abs() < 1e-7, "actual={a}, golden={g}");

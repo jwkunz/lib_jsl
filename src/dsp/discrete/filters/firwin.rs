@@ -1,5 +1,5 @@
 use crate::{
-    dsp::{sinc::sinc, windows::{self, WindowType, kaiser_atten}},
+    dsp::discrete::{sinc::sinc, windows::{self, WindowType, kaiser_atten}},
     prelude::ErrorsJSL,
 };
 

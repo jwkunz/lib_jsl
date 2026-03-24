@@ -1,5 +1,5 @@
 use crate::{
-    dsp::{
+    dsp::discrete::{
         filters::biquad::BiquadFilter,
         stream_operator::{StreamOperator, StreamOperatorManagement},
     },

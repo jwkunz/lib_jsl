@@ -9,7 +9,7 @@ use num::Complex;
 /// The phase is then incremented for the next sample, ensuring that the frequency shift is applied consistently across the entire signal.
 
 use crate::prelude::{ErrorsJSL};
-use crate::dsp::stream_operator::{StreamOperator, StreamOperatorManagement};
+use crate::dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 
 pub struct FrequencyMixer {
     phase: f64,

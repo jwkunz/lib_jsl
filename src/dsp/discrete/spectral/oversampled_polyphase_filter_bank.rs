@@ -4,7 +4,7 @@ use ndarray::Array1;
 use num::Complex;
 
 use crate::{
-    dsp::{
+    dsp::discrete::{
         filters::firwin::{FirwinPassZero, firwin},
         stream_operator::{StreamOperator, StreamOperatorManagement},
         windows::{WindowType, kaiser_beta, kaiser_estimate_numtaps},

@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use num::Complex;
 
 use crate::{
-    dsp::{
+    dsp::discrete::{
         stream_operator::{StreamOperator, StreamOperatorManagement},
     },
     ffts::{
@@ -186,7 +186,7 @@ impl<T: IsAnalytic> StreamOperator<T, T> for OverlapAddFir<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dsp::convolve::{convolve, ConvolveMethod, ConvolveMode};
+    use crate::dsp::discrete::convolve::{convolve, ConvolveMethod, ConvolveMode};
 
     fn close_vec(a: &[f64], b: &[f64], tol: f64) {
         assert_eq!(a.len(), b.len());

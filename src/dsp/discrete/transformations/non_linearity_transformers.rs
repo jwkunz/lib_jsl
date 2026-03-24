@@ -1,6 +1,6 @@
 use num::Complex;
 
-use crate::dsp::stream_operator::{StreamOperator, StreamOperatorManagement};
+use crate::dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 /// This transformation applies a non-linear function to the input signal, which can be used for various purposes such as distortion effects in audio processing, or for implementing activation functions in neural networks. 
 /// The non-linearity is applied element-wise to the input signal, and the output is of the same length as the input. 
 /// The specific non-linear function can be defined by the user, allowing for flexibility in how the transformation is applied to the signal.

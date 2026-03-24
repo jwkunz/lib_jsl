@@ -3,7 +3,7 @@
 /// The module includes implementations of standard window functions such as Hanning, Hamming, Blackman, and Kaiser windows, as well as more general functions that allow for custom parameters and shapes.
 use std::f64::consts::PI;
 
-use crate::dsp::sinc::sinc;
+use crate::dsp::discrete::sinc::sinc;
 
 
 /// These are helper functions used in the implementation of the window functions. They handle special cases for small window sizes, extend the window size for symmetric windows, and truncate the window back to the desired size if necessary.

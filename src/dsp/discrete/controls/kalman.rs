@@ -3,7 +3,7 @@ use ndarray_linalg::Solve;
 use num::Complex;
 
 use crate::{
-    dsp::stream_operator::{StreamOperator, StreamOperatorManagement},
+    dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement},
     prelude::{C1D, C2D, ErrorsJSL},
 };
 
@@ -400,7 +400,7 @@ impl StreamOperator<C1D, KalmanResult> for KalmanFilter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dsp::stream_operator::{StreamOperator, StreamOperatorManagement};
+    use crate::dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 
     fn c(re: f64) -> Complex<f64> {
         Complex::new(re, 0.0)

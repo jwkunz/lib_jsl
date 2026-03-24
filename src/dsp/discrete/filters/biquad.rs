@@ -2,8 +2,8 @@
 /// This is a simple implementation for demonstration and may not be the most efficient or numerically stable for all use cases. For more complex filters or higher performance requirements, consider using a dedicated DSP library or implementing in a lower-level language with SIMD support.
 /// Example usage:
 /// ```
-/// use lib_jsl::dsp::filters::biquad::BiquadFilter;
-/// use lib_jsl::dsp::stream_operator::StreamOperator;
+/// use lib_jsl::dsp::discrete::filters::biquad::BiquadFilter;
+/// use lib_jsl::dsp::discrete::stream_operator::StreamOperator;
 ///
 /// let mut biquad = BiquadFilter::lowpass(0.1).unwrap();
 /// let input = vec![1.0; 256];
@@ -13,7 +13,7 @@
 use std::f64::consts::PI;
 
 use crate::{
-    dsp::stream_operator::{StreamOperator, StreamOperatorManagement},
+    dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement},
     prelude::ErrorsJSL,
 };
 

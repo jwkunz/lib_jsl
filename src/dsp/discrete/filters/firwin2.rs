@@ -1,5 +1,5 @@
 use crate::{
-    dsp::windows::{self, WindowType},
+    dsp::discrete::windows::{self, WindowType},
     ffts::{
         best_fft::BestFft,
         fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},

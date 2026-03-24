@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 use num::Complex;
 
 use crate::{
-    dsp::stream_operator::{StreamOperator, StreamOperatorManagement},
+    dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement},
     prelude::{ErrorsJSL, IsLinearOperatable},
 };
 

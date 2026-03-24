@@ -1,5 +1,5 @@
 use crate::{
-    dsp::convolve::{convolve, ConvolveMethod, ConvolveMode},
+    dsp::discrete::convolve::{convolve, ConvolveMethod, ConvolveMode},
     prelude::{ErrorsJSL, IsAnalytic},
 };
 

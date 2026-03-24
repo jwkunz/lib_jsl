@@ -1,7 +1,7 @@
 use num::Complex;
 
 use crate::{
-    dsp::{
+    dsp::discrete::{
         filters::overlap_and_add_fir::OverlapAddFir,
         stream_operator::{StreamOperator, StreamOperatorManagement},
         transformations::{
@@ -207,7 +207,7 @@ impl StreamOperator<Complex<f64>, Complex<f64>> for ChannelImpairment {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dsp::{
+    use crate::dsp::discrete::{
         convolve::{convolve, ConvolveMethod, ConvolveMode},
         transformations::non_linearity_transformers::hard_clip_complex,
     };

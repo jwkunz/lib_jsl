@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 /// A larger number of taps will result in a smoother output but may also introduce more latency and reduce the responsiveness of the filter to changes in the input signal. 
 /// The `scale` parameter allows you to control the overall gain of the boxcar integrator.  
 
-use crate::{dsp::stream_operator::{StreamOperator, StreamOperatorManagement}, prelude::{ErrorsJSL, IsLinearOperatable}};
+use crate::{dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement}, prelude::{ErrorsJSL, IsLinearOperatable}};
 pub struct BoxcarIntegrator<T: IsLinearOperatable> {
     numtaps: usize,
     scale: T,

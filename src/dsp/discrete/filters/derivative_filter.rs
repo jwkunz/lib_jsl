@@ -5,7 +5,7 @@
 /// A larger number of taps can provide better frequency response but may also increase the computational cost of applying the filter to a signal. 
 
 use crate::{
-    dsp::{convolve::{ConvolveMethod, ConvolveMode, convolve}, sinc::generate_centered_sinc},
+    dsp::discrete::{convolve::{ConvolveMethod, ConvolveMode, convolve}, sinc::generate_centered_sinc},
     prelude::{ErrorsJSL, IsAnalytic},
 };
 

@@ -2,6 +2,7 @@
 
 use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::{IsPolygon, IsTriangle};
+use crate::geometry::three_d::IsTetrahedron;
 use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;
 use std::fmt::{Debug, Display};
@@ -159,7 +160,10 @@ pub trait IsGeometryTable {
 }
 
 /// Root registry that owns or exposes the current core geometry tables.
-pub trait IsGeometryTableBase<'a> {
+pub trait IsGeometryTableBase<'a>
+where
+    <Self::Tetrahedron as HasEdges>::Edge: IsLine<'a, Self::Point>,
+{
     /// Point primitive stored in the point table.
     type Point: IsPoint;
     /// Unit normal type used by polygonal faces and triangles.
@@ -171,7 +175,7 @@ pub trait IsGeometryTableBase<'a> {
     /// Triangle primitive stored in the triangle table.
     type Triangle: IsTriangle<'a, Self::Point, Self::Normal>;
     /// Tetrahedron primitive stored in the tetrahedron table.
-    type Tetrahedron: GeometricPrimitive;
+    type Tetrahedron: IsTetrahedron<'a, Self::Point, Self::Normal>;
 
     /// Concrete point table type.
     type PointTable: IsGeometryTable<Key = PointId, Item = Self::Point> + ?Sized + 'a;
@@ -333,13 +337,55 @@ pub trait HasTriangles<'a>: Sized {
 }
 
 /// Provides access to a borrowed tetrahedron table.
-pub trait HasTetrahedra<'a>: Sized {
+///
+/// ```compile_fail
+/// use lib_jsl::geometry::common::{HasTetrahedra, IsGeometryTable, PointId, TetrahedronId};
+/// use lib_jsl::geometry::two_d::{Point2D, UnitVector2D};
+///
+/// #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+/// struct FakeTable;
+///
+/// impl IsGeometryTable for FakeTable {
+///     type Key = TetrahedronId;
+///     type Item = Point2D;
+///
+///     fn get(&self, _: &Self::Key) -> Option<Self::Item> { None }
+///     fn insert(&mut self, _: Self::Key, _: Self::Item) -> Result<(), String> { Ok(()) }
+///     fn remove(&mut self, _: &Self::Key) -> Option<Self::Item> { None }
+///     fn contains_key(&self, _: &Self::Key) -> bool { false }
+///     fn size(&self) -> usize { 0 }
+///     fn union(&self, _: &Self) -> Self where Self: Sized { FakeTable }
+///     fn intersection(&self, _: &Self) -> Self where Self: Sized { FakeTable }
+///     fn iter(&self) -> Box<dyn Iterator<Item = (Self::Key, Self::Item)> + '_> { Box::new(std::iter::empty()) }
+///     fn to_file(&self, _: &str) -> Result<(), String> { Ok(()) }
+///     fn from_file(_: &str) -> Result<Self, String> where Self: Sized { Ok(FakeTable) }
+/// }
+///
+/// struct BadCells<'a> {
+///     table: &'a mut FakeTable,
+/// }
+///
+/// impl<'a> HasTetrahedra<'a> for BadCells<'a> {
+///     type Point = Point2D;
+///     type Normal = UnitVector2D;
+///     type Tetrahedron = Point2D;
+///     type TetrahedronTable = FakeTable;
+///
+///     fn tetrahedron_table(&self) -> &Self::TetrahedronTable { self.table }
+///     fn tetrahedron_table_mut(&mut self) -> &mut Self::TetrahedronTable { self.table }
+///     fn set_tetrahedron_table(&mut self, table: &'a mut Self::TetrahedronTable) { self.table = table; }
+/// }
+/// ```
+pub trait HasTetrahedra<'a>: Sized
+where
+    <Self::Tetrahedron as HasEdges>::Edge: IsLine<'a, Self::Point>,
+{
     /// Point primitive referenced by the stored tetrahedra.
     type Point: IsPoint;
     /// Unit normal type used by the stored tetrahedra.
     type Normal: IsUnitVector;
     /// Tetrahedron primitive stored in the tetrahedron table.
-    type Tetrahedron: GeometricPrimitive;
+    type Tetrahedron: IsTetrahedron<'a, Self::Point, Self::Normal>;
     /// Borrowed tetrahedron-table type.
     type TetrahedronTable: IsGeometryTable<Key = TetrahedronId, Item = Self::Tetrahedron> + ?Sized + 'a;
 

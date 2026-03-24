@@ -2,7 +2,9 @@
 //!
 //! [`VolumeMesh3D`] models a tetrahedral volume mesh in the same keyed-table style as the rest of
 //! the concrete geometry graph. The mesh stores ordered tetrahedron ids into a shared tetrahedron
-//! table, and each tetrahedron ultimately resolves back to the shared point table.
+//! table, and each tetrahedron ultimately resolves back to the shared point table. Boundary
+//! surfaces are materialized into caller-provided face tables so the resulting surface meshes stay
+//! connected to the broader geometry graph.
 
 use crate::geometry::common::{
     Canonicalize, FaceId, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid,
@@ -161,18 +163,27 @@ impl VolumeMesh3D {
             .collect()
     }
 
-    /// Creates a boundary surface mesh from the exposed boundary faces.
-    pub fn surface_mesh(&self) -> SurfaceMesh3D {
-        let face_table = Rc::new(RefCell::new(HashGeometryTable::new()));
+    /// Materializes the boundary surface into a shared face table and returns a connected surface mesh.
+    pub fn surface_mesh(
+        &self,
+        face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
+    ) -> Result<SurfaceMesh3D, String> {
         let mut face_ids = Vec::new();
+        let next_face_id = face_table
+            .borrow()
+            .iter()
+            .map(|(face_id, _)| face_id.0)
+            .max()
+            .unwrap_or(0)
+            + 1;
 
         for (index, face) in self.boundary_faces().into_iter().enumerate() {
-            let face_id = FaceId(index as u64 + 1);
-            let _ = face_table.borrow_mut().insert(face_id, face);
+            let face_id = FaceId(next_face_id + index as u64);
+            face_table.borrow_mut().insert(face_id, face)?;
             face_ids.push(face_id);
         }
 
-        SurfaceMesh3D::new(face_ids, self.vertex_table.clone(), face_table)
+        Ok(SurfaceMesh3D::new(face_ids, self.vertex_table.clone(), face_table))
     }
 
     fn unique_vertex_ids(&self) -> Vec<PointId> {

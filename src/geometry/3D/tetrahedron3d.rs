@@ -10,7 +10,7 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{Line3D, Point3D, Triangle3D, UnitVector3D};
+use crate::geometry::three_d::{IsTetrahedron, Line3D, Point3D, Triangle3D, UnitVector3D};
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::IsPolygon;
 use serde::Serialize;
@@ -227,6 +227,64 @@ impl HasCentroid for Tetrahedron3D {
 impl HasMeasure for Tetrahedron3D {
     fn measure(&self) -> GeometryMeasure {
         self.volume()
+    }
+}
+
+impl<'a> IsTetrahedron<'a, Point3D, UnitVector3D> for Tetrahedron3D {
+    fn a_id(&self) -> PointId {
+        self.a_id
+    }
+
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String> {
+        self.a_id = point_id;
+        Ok(())
+    }
+
+    fn b_id(&self) -> PointId {
+        self.b_id
+    }
+
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String> {
+        self.b_id = point_id;
+        Ok(())
+    }
+
+    fn c_id(&self) -> PointId {
+        self.c_id
+    }
+
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String> {
+        self.c_id = point_id;
+        Ok(())
+    }
+
+    fn d_id(&self) -> PointId {
+        self.d_id
+    }
+
+    fn set_d_id(&mut self, point_id: PointId) -> Result<(), String> {
+        self.d_id = point_id;
+        Ok(())
+    }
+
+    fn faces(&self) -> [Triangle3D; 4] {
+        Tetrahedron3D::faces(self)
+    }
+
+    fn face_count(&self) -> usize {
+        Tetrahedron3D::face_count(self)
+    }
+
+    fn surface_area(&self) -> GeometryMeasure {
+        Tetrahedron3D::surface_area(self)
+    }
+
+    fn signed_volume(&self) -> GeometryMeasure {
+        Tetrahedron3D::signed_volume(self)
+    }
+
+    fn volume(&self) -> GeometryMeasure {
+        Tetrahedron3D::volume(self)
     }
 }
 

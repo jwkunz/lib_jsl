@@ -49,9 +49,10 @@ pub use crate::geometry::three_d::{
 mod tests {
     use super::*;
     use crate::geometry::common::{
-        FaceId, HasEdges, IsGeometryTable, IsGeometryTableBase, IsValid, PointId, TriangleId,
+        FaceId, HasEdges, IsGeometryTable, IsGeometryTableBase, IsValid, PointId, TetrahedronId,
+        TriangleId,
     };
-    use crate::geometry::three_d::IsMesh;
+    use crate::geometry::three_d::{IsMesh, IsTetrahedron};
     use crate::geometry::two_d::IsPolygon;
 
     #[test]
@@ -149,6 +150,52 @@ mod tests {
 
     #[test]
     fn concrete_volume_mesh3d_smoke_test() {
+        let mut registry = GeometryTableRegistry::new();
+        registry
+            .point_table_mut()
+            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .unwrap();
+        registry
+            .point_table_mut()
+            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .unwrap();
+        registry
+            .point_table_mut()
+            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .unwrap();
+        registry
+            .point_table_mut()
+            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .unwrap();
+
+        let tetrahedron = Tetrahedron3D::new(
+            PointId(1),
+            PointId(2),
+            PointId(3),
+            PointId(4),
+            registry.point_table().clone(),
+        );
+        let volume_mesh = VolumeMesh3D::from_tetrahedra(vec![tetrahedron]).unwrap();
+        let surface_mesh = volume_mesh.surface_mesh(registry.face_table().clone()).unwrap();
+
+        assert_eq!(volume_mesh.tetrahedron_count(), 1);
+        assert_eq!(volume_mesh.boundary_triangles().len(), 4);
+        assert_eq!(volume_mesh.boundary_faces().len(), 4);
+        assert_eq!(surface_mesh.face_count(), 4);
+        assert_eq!(registry.face_table().size(), 4);
+        assert!((volume_mesh.volume() - (1.0 / 6.0)).abs() < 1e-5);
+        assert!(volume_mesh.is_valid());
+    }
+
+    #[test]
+    fn tetrahedron_trait_contract_smoke_test() {
+        fn assert_is_tetrahedron<'a, T>(_value: &T)
+        where
+            T: IsTetrahedron<'a, Point3D, UnitVector3D>,
+            <T as HasEdges>::Edge: crate::geometry::one_d::IsLine<'a, Point3D>,
+        {
+        }
+
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
         point_table
             .borrow_mut()
@@ -168,15 +215,44 @@ mod tests {
             .unwrap();
 
         let tetrahedron =
-            Tetrahedron3D::new(PointId(1), PointId(2), PointId(3), PointId(4), point_table.clone());
-        let volume_mesh = VolumeMesh3D::from_tetrahedra(vec![tetrahedron]).unwrap();
+            Tetrahedron3D::new(PointId(1), PointId(2), PointId(3), PointId(4), point_table);
+        assert_is_tetrahedron(&tetrahedron);
+    }
 
-        assert_eq!(volume_mesh.tetrahedron_count(), 1);
-        assert_eq!(volume_mesh.boundary_triangles().len(), 4);
-        assert_eq!(volume_mesh.boundary_faces().len(), 4);
-        assert_eq!(volume_mesh.surface_mesh().face_count(), 4);
-        assert!((volume_mesh.volume() - (1.0 / 6.0)).abs() < 1e-5);
-        assert!(volume_mesh.is_valid());
+    #[test]
+    fn registry_exposes_tetrahedron_table() {
+        let mut registry = GeometryTableRegistry::new();
+        registry
+            .point_table_mut()
+            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .unwrap();
+        registry
+            .point_table_mut()
+            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .unwrap();
+        registry
+            .point_table_mut()
+            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .unwrap();
+        registry
+            .point_table_mut()
+            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .unwrap();
+
+        let tetrahedron = Tetrahedron3D::new(
+            PointId(1),
+            PointId(2),
+            PointId(3),
+            PointId(4),
+            registry.point_table().clone(),
+        );
+        registry
+            .tetrahedron_table_mut()
+            .insert(TetrahedronId(1), tetrahedron.clone())
+            .unwrap();
+
+        assert_eq!(registry.tetrahedron_table().size(), 1);
+        assert_eq!(registry.tetrahedron_table().get(&TetrahedronId(1)), Some(tetrahedron));
     }
 
     #[test]

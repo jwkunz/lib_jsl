@@ -5,7 +5,7 @@ use crate::geometry::common::{
     HasDimension, IsPlane, ScalarOperable, SelfAddition, SelfProductInner,
 };
 use crate::geometry::one_d::UnitVector1D;
-use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanTranslate};
+use crate::geometry::transformation_traits::{CanMirror, CanTranslate};
 use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
@@ -13,6 +13,15 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 /// Concrete 1D point implementation backed by a single coordinate.
+///
+/// ```compile_fail
+/// use lib_jsl::geometry::one_d::Point1D;
+/// use lib_jsl::geometry::zero_d::TransformablePoint;
+///
+/// fn requires_transformable<T: TransformablePoint>() {}
+///
+/// requires_transformable::<Point1D>();
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
 pub struct Point1D {
     coord: GeometryMeasure,
@@ -167,16 +176,6 @@ impl CanTranslate for Point1D {
             return;
         };
         self.coord += tail.coord - head.coord;
-    }
-}
-
-impl CanRotate for Point1D {
-    type Point = Point1D;
-
-    fn rotate<'a, L>(&mut self, _axis: &L, _angle_radians: GeometryMeasure)
-    where
-        L: crate::geometry::one_d::IsLine<'a, Self::Point>,
-    {
     }
 }
 

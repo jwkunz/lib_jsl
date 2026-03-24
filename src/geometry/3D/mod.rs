@@ -21,8 +21,8 @@ pub(crate) mod transform_support;
 pub mod unit_vector3d;
 
 use crate::geometry::common::{
-    FaceId, GeometricPrimitive, GeometryMeasure, HasCenter, HasEdges, HasFaces, HasTetrahedra,
-    HasVertices, IsUnitVector, TetrahedronId,
+    FaceId, GeometricPrimitive, GeometryMeasure, HasCenter, HasCentroid, HasEdges, HasFaces,
+    HasTetrahedra, HasVertices, IsUnitVector, PointId, TetrahedronId,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::IsPolygon;
@@ -51,12 +51,67 @@ pub trait IsSphere<T: IsPoint>:
     fn volume(&self) -> GeometryMeasure;
 }
 
+/// A tetrahedron primitive backed by four vertices and derived triangular faces.
+pub trait IsTetrahedron<'a, T: IsPoint, N: IsUnitVector>:
+    GeometricPrimitive + HasVertices<'a, Vertex = T> + HasEdges + HasCentroid<Point = T> + crate::geometry::common::HasMeasure
+where
+    <Self as HasEdges>::Edge: IsLine<'a, T>,
+{
+    /// Returns the point-table id of the first vertex.
+    fn a_id(&self) -> PointId;
+    /// Sets the point-table id of the first vertex.
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String>;
+    /// Returns the point-table id of the second vertex.
+    fn b_id(&self) -> PointId;
+    /// Sets the point-table id of the second vertex.
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String>;
+    /// Returns the point-table id of the third vertex.
+    fn c_id(&self) -> PointId;
+    /// Sets the point-table id of the third vertex.
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String>;
+    /// Returns the point-table id of the fourth vertex.
+    fn d_id(&self) -> PointId;
+    /// Sets the point-table id of the fourth vertex.
+    fn set_d_id(&mut self, point_id: PointId) -> Result<(), String>;
+
+    /// Resolves and returns the first vertex from the point table.
+    fn a(&self) -> Option<T> {
+        self.get_vertex(&self.a_id())
+    }
+
+    /// Resolves and returns the second vertex from the point table.
+    fn b(&self) -> Option<T> {
+        self.get_vertex(&self.b_id())
+    }
+
+    /// Resolves and returns the third vertex from the point table.
+    fn c(&self) -> Option<T> {
+        self.get_vertex(&self.c_id())
+    }
+
+    /// Resolves and returns the fourth vertex from the point table.
+    fn d(&self) -> Option<T> {
+        self.get_vertex(&self.d_id())
+    }
+
+    /// Returns the four derived triangular faces of the tetrahedron.
+    fn faces(&self) -> [Triangle3D; 4];
+    /// Returns the number of triangular faces.
+    fn face_count(&self) -> usize;
+    /// Returns the total surface area of the tetrahedron.
+    fn surface_area(&self) -> GeometryMeasure;
+    /// Returns the signed volume of the tetrahedron.
+    fn signed_volume(&self) -> GeometryMeasure;
+    /// Returns the absolute tetrahedron volume.
+    fn volume(&self) -> GeometryMeasure;
+}
+
 /// A surface mesh primitive with stored vertices and polygonal boundary faces.
 ///
 /// This trait is explicitly for surface meshes rather than volumetric cell meshes. The current
 /// surface-mesh model assumes vertices are the primary stored table. Faces and edges may be backed
 /// by separate structures internally, but they are exposed through semantic mesh accessors rather
-/// than through [`UsesTable`](crate::geometry::common::UsesTable).
+/// than through the older generic single-table pattern.
 pub trait IsMesh<'a, T: IsPoint, N: IsUnitVector>:
     GeometricPrimitive
     + HasVertices<'a, Vertex = T>

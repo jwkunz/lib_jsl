@@ -1,8 +1,9 @@
 //! Concrete root registry for the public geometry table graph.
 //!
 //! [`GeometryTableRegistry`] is the main starting point for users of the concrete API. It owns the
-//! current core keyed tables for points, lines, polygon faces, and triangles, and exposes them
-//! through the [`IsGeometryTableBase`](crate::geometry::common::IsGeometryTableBase) contract.
+//! current core keyed tables for points, lines, polygon faces, triangles, and tetrahedra, and
+//! exposes them through the [`IsGeometryTableBase`](crate::geometry::common::IsGeometryTableBase)
+//! contract.
 //!
 //! Each concrete primitive borrows one or more of these tables through shared handles. This lets
 //! higher-level objects such as lines, polygon faces, triangles, and meshes resolve their child

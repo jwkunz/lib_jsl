@@ -1,0 +1,16 @@
+[package]
+name = "lib_jsl_number_theory"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Number theory and polynomial utilities for the lib_jsl workspace."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }
+ndarray.workspace = true
+ndarray-linalg.workspace = true
+num.workspace = true

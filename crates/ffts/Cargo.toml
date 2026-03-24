@@ -1,0 +1,22 @@
+[package]
+name = "lib_jsl_ffts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Fast Fourier transform engines and related spectral transforms."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }
+num.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+rustfft.workspace = true
+
+[[bench]]
+name = "fft_race"
+harness = false

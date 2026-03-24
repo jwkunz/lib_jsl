@@ -1,19 +1,52 @@
-[package]
-name = "lib_jsl"
+[workspace]
+members = [
+    "crates/core",
+    "crates/geometry",
+    "crates/dsp",
+    "crates/ffts",
+    "crates/integration",
+    "crates/interpolation",
+    "crates/number_theory",
+    "crates/optimization",
+    "crates/random",
+    "crates/derivatives",
+]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+readme = "README.md"
 
-[dependencies]
+[workspace.dependencies]
 num = "*"
 ndarray = { version = "*", features = ["blas"] }
-ndarray-linalg = { version = "*", features = ["openblas-system"] }   
+ndarray-linalg = { version = "*", features = ["openblas-system"] }
 serde = { version = "*", features = ["derive"] }
 serde_json = "*"
-
-[dev-dependencies]
 criterion = "*"
 rustfft = "*"
 
-[[bench]]
-name = "fft_race"
-harness = false
+[package]
+name = "lib_jsl"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme.workspace = true
+description = "Umbrella facade crate for the lib_jsl scientific computing workspace."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "crates/core" }
+lib_jsl_geometry = { path = "crates/geometry" }
+lib_jsl_dsp = { path = "crates/dsp" }
+lib_jsl_ffts = { path = "crates/ffts" }
+lib_jsl_integration = { path = "crates/integration" }
+lib_jsl_interpolation = { path = "crates/interpolation" }
+lib_jsl_number_theory = { path = "crates/number_theory" }
+lib_jsl_optimization = { path = "crates/optimization" }
+lib_jsl_random = { path = "crates/random" }
+lib_jsl_derivatives = { path = "crates/derivatives" }

@@ -1,0 +1,14 @@
+[package]
+name = "lib_jsl_core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Shared foundation types, aliases, and traits for the lib_jsl workspace."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+ndarray.workspace = true
+num.workspace = true

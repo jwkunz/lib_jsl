@@ -1,0 +1,13 @@
+[package]
+name = "lib_jsl_derivatives"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Numerical differentiation routines for scalar and vector-valued functions."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }

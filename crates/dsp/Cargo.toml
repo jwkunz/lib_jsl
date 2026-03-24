@@ -1,0 +1,22 @@
+[package]
+name = "lib_jsl_dsp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Digital signal processing routines including filters, transforms, resampling, and controls."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }
+lib_jsl_ffts = { path = "../ffts" }
+lib_jsl_number_theory = { path = "../number_theory" }
+lib_jsl_random = { path = "../random" }
+num.workspace = true
+ndarray.workspace = true
+ndarray-linalg.workspace = true
+
+[dev-dependencies]
+serde.workspace = true

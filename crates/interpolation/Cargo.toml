@@ -1,0 +1,13 @@
+[package]
+name = "lib_jsl_interpolation"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Interpolation routines including linear, spline, and polynomial interpolators."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }

@@ -550,13 +550,106 @@ checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 name = "lib_jsl"
 version = "0.1.0"
 dependencies = [
- "criterion",
+ "lib_jsl_core",
+ "lib_jsl_derivatives",
+ "lib_jsl_dsp",
+ "lib_jsl_ffts",
+ "lib_jsl_geometry",
+ "lib_jsl_integration",
+ "lib_jsl_interpolation",
+ "lib_jsl_number_theory",
+ "lib_jsl_optimization",
+ "lib_jsl_random",
+]
+
+[[package]]
+name = "lib_jsl_core"
+version = "0.1.0"
+dependencies = [
+ "ndarray",
+ "num",
+]
+
+[[package]]
+name = "lib_jsl_derivatives"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+]
+
+[[package]]
+name = "lib_jsl_dsp"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+ "lib_jsl_ffts",
+ "lib_jsl_number_theory",
+ "lib_jsl_random",
  "ndarray",
  "ndarray-linalg",
  "num",
+ "serde",
+]
+
+[[package]]
+name = "lib_jsl_ffts"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "lib_jsl_core",
+ "num",
  "rustfft",
+]
+
+[[package]]
+name = "lib_jsl_geometry"
+version = "0.1.0"
+dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "lib_jsl_integration"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+ "lib_jsl_random",
+]
+
+[[package]]
+name = "lib_jsl_interpolation"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+]
+
+[[package]]
+name = "lib_jsl_number_theory"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+ "ndarray",
+ "ndarray-linalg",
+ "num",
+]
+
+[[package]]
+name = "lib_jsl_optimization"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+ "lib_jsl_random",
+ "ndarray",
+ "ndarray-linalg",
+]
+
+[[package]]
+name = "lib_jsl_random"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+ "num",
 ]
 
 [[package]]

@@ -1,5 +1,10 @@
 //! Two-dimensional shape traits and orientation helpers.
 
+/// Concrete polygon face implementation over three-dimensional points.
+pub mod polygon_face3d;
+/// Concrete triangle implementation over three-dimensional points.
+pub mod triangle3d;
+
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasEdges, HasMeasure,
     HasVertices, PointId,
@@ -8,6 +13,8 @@ use crate::geometry::three_d::IsPlane;
 use crate::geometry::common::IsUnitVector;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::zero_d::IsPoint;
+pub use polygon_face3d::PolygonFace3D;
+pub use triangle3d::Triangle3D;
 
 /// Relative winding/orientation classification for planar geometry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

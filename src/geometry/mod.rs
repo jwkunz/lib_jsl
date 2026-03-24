@@ -4,6 +4,12 @@
 pub mod common;
 /// Coordinate-system enums and conversion traits.
 pub mod coordinate_systems;
+/// Compatibility re-exports for the concrete geometry implementation surface.
+pub mod concrete;
+/// Concrete root registry for geometry tables.
+pub mod registry;
+/// Concrete keyed geometry table implementations.
+pub mod tables;
 /// Traits for geometric transformations such as translation and rotation.
 pub mod transformation_traits;
 #[path = "0D/mod.rs"]

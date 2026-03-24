@@ -1,5 +1,13 @@
 //! Three-dimensional geometry traits.
 
+/// Concrete three-dimensional mesh implementation.
+pub mod mesh3d;
+/// Concrete three-dimensional plane implementation.
+pub mod plane3d;
+pub(crate) mod transform_support;
+/// Concrete three-dimensional unit vector implementation.
+pub mod unit_vector3d;
+
 use crate::geometry::common::{
     FaceId, GeometricPrimitive, GeometryMeasure, HasCenter, HasEdges, HasFaces, HasVertices,
     IsUnitVector,
@@ -7,6 +15,9 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::IsPolygon;
 use crate::geometry::zero_d::IsPoint;
+pub use mesh3d::Mesh3D;
+pub use plane3d::Plane3D;
+pub use unit_vector3d::UnitVector3D;
 
 /// A plane primitive represented by a point and a unit normal.
 pub trait IsPlane: GeometricPrimitive {

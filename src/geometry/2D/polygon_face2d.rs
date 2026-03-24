@@ -9,7 +9,7 @@ use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::transform_support::{reflect_point_across_plane_2d, rotate_point_around_anchor_2d};
 use crate::geometry::two_d::{
-    GeometryVector2D, HasOrientation, IsPolygon, Line2D, Plane2D, Point2D, Triangle2D,
+    FreeVector2D, HasOrientation, IsPolygon, Line2D, Plane2D, CoordinateVector2D, Triangle2D,
     UnitVector2D, Orientation2D,
 };
 use serde::Serialize;
@@ -22,7 +22,7 @@ use std::hash::{Hash, Hasher};
 pub struct PolygonFace2D {
     vertex_ids: Vec<PointId>,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point2D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
 }
 
 impl PartialEq for PolygonFace2D {
@@ -41,7 +41,7 @@ impl Hash for PolygonFace2D {
 
 impl PolygonFace2D {
     /// Creates a polygon face from ordered point ids and a shared point table.
-    pub fn new(vertex_ids: Vec<PointId>, vertex_table: SharedGeometryTable<PointId, Point2D>) -> Self {
+    pub fn new(vertex_ids: Vec<PointId>, vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>) -> Self {
         Self {
             vertex_ids,
             vertex_table,
@@ -155,7 +155,7 @@ impl PolygonFace2D {
         Ok(Self::new(ordered, vertex_table))
     }
 
-    fn resolved_points(&self) -> Option<Vec<Point2D>> {
+    fn resolved_points(&self) -> Option<Vec<CoordinateVector2D>> {
         self.vertex_ids
             .iter()
             .map(|id| self.get_vertex(id))
@@ -178,8 +178,8 @@ impl GeometricPrimitive for PolygonFace2D {}
 impl GeometricPrimitive2D for PolygonFace2D {}
 
 impl<'a> HasVertices<'a> for PolygonFace2D {
-    type Vertex = Point2D;
-    type VertexTable = SharedGeometryTable<PointId, Point2D>;
+    type Vertex = CoordinateVector2D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector2D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -216,17 +216,17 @@ impl HasEdges for PolygonFace2D {
 }
 
 impl HasCentroid for PolygonFace2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn centroid(&self) -> Self::Point {
         if let Some(points) = self.resolved_points() {
             let count = points.len() as GeometryMeasure;
             let sum = points
                 .into_iter()
-                .fold(Point2D::new(0.0, 0.0), |acc, point| acc + point);
+                .fold(CoordinateVector2D::new(0.0, 0.0), |acc, point| acc + point);
             sum / count
         } else {
-            Point2D::new(0.0, 0.0)
+            CoordinateVector2D::new(0.0, 0.0)
         }
     }
 }
@@ -264,7 +264,7 @@ impl HasOrientation for PolygonFace2D {
 }
 
 impl CanTranslate for PolygonFace2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -273,7 +273,7 @@ impl CanTranslate for PolygonFace2D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = GeometryVector2D::new(tail.x() - head.x(), tail.y() - head.y());
+        let delta = FreeVector2D::new(tail.x() - head.x(), tail.y() - head.y());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;
@@ -284,7 +284,7 @@ impl CanTranslate for PolygonFace2D {
 }
 
 impl CanRotate for PolygonFace2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
@@ -303,7 +303,7 @@ impl CanRotate for PolygonFace2D {
 }
 
 impl CanShear for PolygonFace2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
@@ -313,7 +313,7 @@ impl CanShear for PolygonFace2D {
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 let coords = point.cartesian_components();
-                point = Point2D::from_cartesian_components(
+                point = CoordinateVector2D::from_cartesian_components(
                     [coords[0] + factor * coords[1], coords[1]],
                     point.coordinate_system(),
                 );
@@ -324,7 +324,7 @@ impl CanShear for PolygonFace2D {
 }
 
 impl CanMirror for PolygonFace2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
     type Normal = UnitVector2D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
@@ -340,7 +340,7 @@ impl CanMirror for PolygonFace2D {
     }
 }
 
-impl<'a> IsPolygon<'a, Point2D, UnitVector2D> for PolygonFace2D {
+impl<'a> IsPolygon<'a, CoordinateVector2D, UnitVector2D> for PolygonFace2D {
     fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_> {
         Box::new(self.vertex_ids.iter().copied())
     }
@@ -388,7 +388,7 @@ impl<'a> IsPolygon<'a, Point2D, UnitVector2D> for PolygonFace2D {
             / 2.0
     }
 
-    fn plane(&self) -> impl IsPlane<Point = Point2D, Normal = UnitVector2D> {
+    fn plane(&self) -> impl IsPlane<Point = CoordinateVector2D, Normal = UnitVector2D> {
         Plane2D::new(self.centroid(), self.normal())
     }
 }

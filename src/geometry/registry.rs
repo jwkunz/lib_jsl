@@ -14,7 +14,7 @@ use crate::geometry::common::{
 };
 use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 use crate::geometry::three_d::{
-    Line3D, Point3D, PolygonFace3D, Tetrahedron3D, Triangle3D, UnitVector3D,
+    Line3D, CoordinateVector3D, PolygonFace3D, Tetrahedron3D, Triangle3D, UnitVector3D,
 };
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -25,7 +25,7 @@ use std::rc::Rc;
 /// object for applications building a geometry graph on top of the trait system.
 #[derive(Debug, Clone)]
 pub struct GeometryTableRegistry {
-    point_table: SharedGeometryTable<PointId, Point3D>,
+    point_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     line_table: SharedGeometryTable<LineId, Line3D>,
     face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
     triangle_table: SharedGeometryTable<TriangleId, Triangle3D>,
@@ -54,13 +54,13 @@ impl Default for GeometryTableRegistry {
 }
 
 impl<'a> IsGeometryTableBase<'a> for GeometryTableRegistry {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
     type Line = Line3D;
     type Face = PolygonFace3D;
     type Triangle = Triangle3D;
     type Tetrahedron = Tetrahedron3D;
-    type PointTable = SharedGeometryTable<PointId, Point3D>;
+    type PointTable = SharedGeometryTable<PointId, CoordinateVector3D>;
     type LineTable = SharedGeometryTable<LineId, Line3D>;
     type FaceTable = SharedGeometryTable<FaceId, PolygonFace3D>;
     type TriangleTable = SharedGeometryTable<TriangleId, Triangle3D>;

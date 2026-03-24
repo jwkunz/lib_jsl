@@ -11,7 +11,7 @@ use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
 use crate::geometry::three_d::{
-    GeometryVector3D, IsTetrahedron, Line3D, Point3D, Triangle3D, UnitVector3D,
+    FreeVector3D, IsTetrahedron, Line3D, CoordinateVector3D, Triangle3D, UnitVector3D,
 };
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::IsPolygon;
@@ -28,7 +28,7 @@ pub struct Tetrahedron3D {
     c_id: PointId,
     d_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 
 impl PartialEq for Tetrahedron3D {
@@ -58,7 +58,7 @@ impl Tetrahedron3D {
         b_id: PointId,
         c_id: PointId,
         d_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point3D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     ) -> Self {
         Self {
             a_id,
@@ -90,22 +90,22 @@ impl Tetrahedron3D {
     }
 
     /// Resolves the first vertex from the shared point table.
-    pub fn a(&self) -> Option<Point3D> {
+    pub fn a(&self) -> Option<CoordinateVector3D> {
         self.get_vertex(&self.a_id)
     }
 
     /// Resolves the second vertex from the shared point table.
-    pub fn b(&self) -> Option<Point3D> {
+    pub fn b(&self) -> Option<CoordinateVector3D> {
         self.get_vertex(&self.b_id)
     }
 
     /// Resolves the third vertex from the shared point table.
-    pub fn c(&self) -> Option<Point3D> {
+    pub fn c(&self) -> Option<CoordinateVector3D> {
         self.get_vertex(&self.c_id)
     }
 
     /// Resolves the fourth vertex from the shared point table.
-    pub fn d(&self) -> Option<Point3D> {
+    pub fn d(&self) -> Option<CoordinateVector3D> {
         self.get_vertex(&self.d_id)
     }
 
@@ -137,7 +137,7 @@ impl Tetrahedron3D {
         let ab = [b.x() - a.x(), b.y() - a.y(), b.z() - a.z()];
         let ac = [c.x() - a.x(), c.y() - a.y(), c.z() - a.z()];
         let ad = [d.x() - a.x(), d.y() - a.y(), d.z() - a.z()];
-        let cross = GeometryVector3D::new(
+        let cross = FreeVector3D::new(
             ab[1] * ac[2] - ab[2] * ac[1],
             ab[2] * ac[0] - ab[0] * ac[2],
             ab[0] * ac[1] - ab[1] * ac[0],
@@ -173,8 +173,8 @@ impl GeometricPrimitive for Tetrahedron3D {}
 impl GeometricPrimitive3D for Tetrahedron3D {}
 
 impl<'a> HasVertices<'a> for Tetrahedron3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+    type Vertex = CoordinateVector3D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector3D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -211,14 +211,14 @@ impl HasEdges for Tetrahedron3D {
 }
 
 impl HasCentroid for Tetrahedron3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn centroid(&self) -> Self::Point {
-        let a = self.a().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let b = self.b().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let c = self.c().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let d = self.d().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        Point3D::new(
+        let a = self.a().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        let b = self.b().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        let c = self.c().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        let d = self.d().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        CoordinateVector3D::new(
             (a.x() + b.x() + c.x() + d.x()) / 4.0,
             (a.y() + b.y() + c.y() + d.y()) / 4.0,
             (a.z() + b.z() + c.z() + d.z()) / 4.0,
@@ -232,7 +232,7 @@ impl HasMeasure for Tetrahedron3D {
     }
 }
 
-impl<'a> IsTetrahedron<'a, Point3D, UnitVector3D> for Tetrahedron3D {
+impl<'a> IsTetrahedron<'a, CoordinateVector3D, UnitVector3D> for Tetrahedron3D {
     fn a_id(&self) -> PointId {
         self.a_id
     }
@@ -320,7 +320,7 @@ impl Canonicalize for Tetrahedron3D {
 }
 
 impl CanTranslate for Tetrahedron3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -329,7 +329,7 @@ impl CanTranslate for Tetrahedron3D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = GeometryVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
+        let delta = FreeVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;
@@ -340,7 +340,7 @@ impl CanTranslate for Tetrahedron3D {
 }
 
 impl CanRotate for Tetrahedron3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
@@ -360,7 +360,7 @@ impl CanRotate for Tetrahedron3D {
 }
 
 impl CanShear for Tetrahedron3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
@@ -370,7 +370,7 @@ impl CanShear for Tetrahedron3D {
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 let coords = point.cartesian_components();
-                point = Point3D::from_cartesian_components(
+                point = CoordinateVector3D::from_cartesian_components(
                     [coords[0] + factor * coords[1], coords[1], coords[2]],
                     point.coordinate_system(),
                 );
@@ -381,7 +381,7 @@ impl CanShear for Tetrahedron3D {
 }
 
 impl CanMirror for Tetrahedron3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)

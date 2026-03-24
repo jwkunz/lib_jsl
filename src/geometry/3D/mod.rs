@@ -3,15 +3,15 @@
 /// Concrete three-dimensional line implementation.
 pub mod line3d;
 /// Concrete three-dimensional free-vector implementation.
-pub mod geometry_vector3d;
+pub mod free_vector3d;
 /// Coordinate-system conversion helpers for 3D concrete coordinate vectors.
 pub(crate) mod coordinate_conversions;
 /// Concrete three-dimensional surface mesh implementation.
 pub mod surface_mesh3d;
 /// Concrete three-dimensional plane implementation.
 pub mod plane3d;
-/// Concrete three-dimensional point implementation.
-pub mod point3d;
+/// Concrete three-dimensional coordinate-vector implementation.
+pub mod coordinate_vector3d;
 /// Concrete three-dimensional polygon face implementation.
 pub mod polygon_face3d;
 /// Concrete three-dimensional triangle implementation.
@@ -32,10 +32,10 @@ use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::IsPolygon;
 use crate::geometry::zero_d::IsPoint;
 pub use line3d::Line3D;
-pub use geometry_vector3d::GeometryVector3D;
+pub use free_vector3d::FreeVector3D;
 pub use surface_mesh3d::SurfaceMesh3D;
 pub use plane3d::Plane3D;
-pub use point3d::Point3D;
+pub use coordinate_vector3d::CoordinateVector3D;
 pub use polygon_face3d::PolygonFace3D;
 pub use tetrahedron3d::Tetrahedron3D;
 pub use triangle3d::Triangle3D;

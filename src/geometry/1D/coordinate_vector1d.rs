@@ -1,4 +1,4 @@
-//! Concrete one-dimensional point type.
+//! Concrete one-dimensional coordinate-vector type.
 
 use crate::geometry::common::{
     CanScale, CanScaleNonUniform, CoordinatePrimitive, GeometricPrimitive, GeometryMeasure,
@@ -12,86 +12,86 @@ use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
-/// Concrete 1D point implementation backed by a single coordinate.
+/// Concrete 1D coordinate-vector implementation backed by a single coordinate.
 ///
 /// ```compile_fail
-/// use lib_jsl::geometry::one_d::Point1D;
+/// use lib_jsl::geometry::one_d::CoordinateVector1D;
 /// use lib_jsl::geometry::zero_d::TransformablePoint;
 ///
 /// fn requires_transformable<T: TransformablePoint>() {}
 ///
-/// requires_transformable::<Point1D>();
+/// requires_transformable::<CoordinateVector1D>();
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
-pub struct Point1D {
+pub struct CoordinateVector1D {
     coord: GeometryMeasure,
 }
 
-impl Eq for Point1D {}
+impl Eq for CoordinateVector1D {}
 
-impl Hash for Point1D {
+impl Hash for CoordinateVector1D {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.coord.to_bits().hash(state);
     }
 }
 
-impl Point1D {
-    /// Creates a point from a single coordinate.
+impl CoordinateVector1D {
+    /// Creates a coordinate vector from a single coordinate.
     pub fn new(x: GeometryMeasure) -> Self {
         Self { coord: x }
     }
 
-    /// Returns the point coordinate.
+    /// Returns the coordinate value.
     pub fn x(&self) -> GeometryMeasure {
         self.coord
     }
 }
 
-impl Display for Point1D {
+impl Display for CoordinateVector1D {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Point1D({})", self.coord)
+        write!(f, "CoordinateVector1D({})", self.coord)
     }
 }
 
-impl GeometricPrimitive for Point1D {}
-impl CoordinatePrimitive for Point1D {}
-impl HasDimension for Point1D {
+impl GeometricPrimitive for CoordinateVector1D {}
+impl CoordinatePrimitive for CoordinateVector1D {}
+impl HasDimension for CoordinateVector1D {
     const DIM: usize = 1;
 }
 
-impl AsRef<GeometryMeasure> for Point1D {
+impl AsRef<GeometryMeasure> for CoordinateVector1D {
     fn as_ref(&self) -> &GeometryMeasure {
         &self.coord
     }
 }
 
-impl AsMut<GeometryMeasure> for Point1D {
+impl AsMut<GeometryMeasure> for CoordinateVector1D {
     fn as_mut(&mut self) -> &mut GeometryMeasure {
         &mut self.coord
     }
 }
 
-impl Index<usize> for Point1D {
+impl Index<usize> for CoordinateVector1D {
     type Output = GeometryMeasure;
 
     fn index(&self, index: usize) -> &Self::Output {
         match index {
             0 => &self.coord,
-            _ => panic!("Point1D index out of bounds: {}", index),
+            _ => panic!("CoordinateVector1D index out of bounds: {}", index),
         }
     }
 }
 
-impl IndexMut<usize> for Point1D {
+impl IndexMut<usize> for CoordinateVector1D {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         match index {
             0 => &mut self.coord,
-            _ => panic!("Point1D index out of bounds: {}", index),
+            _ => panic!("CoordinateVector1D index out of bounds: {}", index),
         }
     }
 }
 
-impl Add<GeometryMeasure> for Point1D {
+impl Add<GeometryMeasure> for CoordinateVector1D {
     type Output = Self;
 
     fn add(self, rhs: GeometryMeasure) -> Self::Output {
@@ -99,7 +99,7 @@ impl Add<GeometryMeasure> for Point1D {
     }
 }
 
-impl Sub<GeometryMeasure> for Point1D {
+impl Sub<GeometryMeasure> for CoordinateVector1D {
     type Output = Self;
 
     fn sub(self, rhs: GeometryMeasure) -> Self::Output {
@@ -107,7 +107,7 @@ impl Sub<GeometryMeasure> for Point1D {
     }
 }
 
-impl Mul<GeometryMeasure> for Point1D {
+impl Mul<GeometryMeasure> for CoordinateVector1D {
     type Output = Self;
 
     fn mul(self, rhs: GeometryMeasure) -> Self::Output {
@@ -115,7 +115,7 @@ impl Mul<GeometryMeasure> for Point1D {
     }
 }
 
-impl Div<GeometryMeasure> for Point1D {
+impl Div<GeometryMeasure> for CoordinateVector1D {
     type Output = Self;
 
     fn div(self, rhs: GeometryMeasure) -> Self::Output {
@@ -123,7 +123,7 @@ impl Div<GeometryMeasure> for Point1D {
     }
 }
 
-impl Add for Point1D {
+impl Add for CoordinateVector1D {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -131,7 +131,7 @@ impl Add for Point1D {
     }
 }
 
-impl Sub for Point1D {
+impl Sub for CoordinateVector1D {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -139,34 +139,34 @@ impl Sub for Point1D {
     }
 }
 
-impl Mul<Point1D> for Point1D {
+impl Mul<CoordinateVector1D> for CoordinateVector1D {
     type Output = GeometryMeasure;
 
-    fn mul(self, rhs: Point1D) -> Self::Output {
+    fn mul(self, rhs: CoordinateVector1D) -> Self::Output {
         self.coord * rhs.coord
     }
 }
 
-impl ScalarOperable for Point1D {}
-impl SelfAddition for Point1D {}
-impl SelfProductInner for Point1D {}
+impl ScalarOperable for CoordinateVector1D {}
+impl SelfAddition for CoordinateVector1D {}
+impl SelfProductInner for CoordinateVector1D {}
 
-impl CanScale for Point1D {
+impl CanScale for CoordinateVector1D {
     fn scale(&mut self, factor: GeometryMeasure) {
         self.coord *= factor;
     }
 }
 
-impl CanScaleNonUniform for Point1D {
-    type ScaleVector = Point1D;
+impl CanScaleNonUniform for CoordinateVector1D {
+    type ScaleVector = CoordinateVector1D;
 
     fn scale_non_uniform(&mut self, factors: &Self::ScaleVector) {
         self.coord *= factors.coord;
     }
 }
 
-impl CanTranslate for Point1D {
-    type Point = Point1D;
+impl CanTranslate for CoordinateVector1D {
+    type Point = CoordinateVector1D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -179,8 +179,8 @@ impl CanTranslate for Point1D {
     }
 }
 
-impl CanMirror for Point1D {
-    type Point = Point1D;
+impl CanMirror for CoordinateVector1D {
+    type Point = CoordinateVector1D;
     type Normal = UnitVector1D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
@@ -192,4 +192,4 @@ impl CanMirror for Point1D {
     }
 }
 
-impl IsPoint for Point1D {}
+impl IsPoint for CoordinateVector1D {}

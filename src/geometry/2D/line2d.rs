@@ -5,7 +5,7 @@ use crate::geometry::common::{
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::two_d::{Point2D, UnitVector2D};
+use crate::geometry::two_d::{CoordinateVector2D, UnitVector2D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
@@ -16,7 +16,7 @@ pub struct Line2D {
     head_id: PointId,
     tail_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point2D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
 }
 
 impl PartialEq for Line2D {
@@ -39,7 +39,7 @@ impl Line2D {
     pub fn new(
         head_id: PointId,
         tail_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point2D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
     ) -> Self {
         Self {
             head_id,
@@ -59,8 +59,8 @@ impl GeometricPrimitive for Line2D {}
 impl GeometricPrimitive2D for Line2D {}
 
 impl<'a> HasVertices<'a> for Line2D {
-    type Vertex = Point2D;
-    type VertexTable = SharedGeometryTable<PointId, Point2D>;
+    type Vertex = CoordinateVector2D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector2D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -75,7 +75,7 @@ impl<'a> HasVertices<'a> for Line2D {
     }
 }
 
-impl<'a> IsLine<'a, Point2D> for Line2D {
+impl<'a> IsLine<'a, CoordinateVector2D> for Line2D {
     fn head_id(&self) -> PointId {
         self.head_id
     }
@@ -101,9 +101,9 @@ impl<'a> IsLine<'a, Point2D> for Line2D {
         }
     }
 
-    fn midpoint(&self) -> Option<Point2D> {
+    fn midpoint(&self) -> Option<CoordinateVector2D> {
         match (self.head(), self.tail()) {
-            (Some(head), Some(tail)) => Some(Point2D::new(
+            (Some(head), Some(tail)) => Some(CoordinateVector2D::new(
                 (head.x() + tail.x()) / 2.0,
                 (head.y() + tail.y()) / 2.0,
             )),

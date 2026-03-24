@@ -8,7 +8,7 @@ use crate::geometry::common::{
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::three_d::{Point3D, UnitVector3D};
+use crate::geometry::three_d::{CoordinateVector3D, UnitVector3D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
@@ -19,7 +19,7 @@ pub struct Line3D {
     head_id: PointId,
     tail_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 
 impl PartialEq for Line3D {
@@ -45,7 +45,7 @@ impl Line3D {
     pub fn new(
         head_id: PointId,
         tail_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point3D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     ) -> Self {
         Self {
             head_id,
@@ -65,8 +65,8 @@ impl GeometricPrimitive for Line3D {}
 impl GeometricPrimitive3D for Line3D {}
 
 impl<'a> HasVertices<'a> for Line3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+    type Vertex = CoordinateVector3D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector3D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -81,7 +81,7 @@ impl<'a> HasVertices<'a> for Line3D {
     }
 }
 
-impl<'a> IsLine<'a, Point3D> for Line3D {
+impl<'a> IsLine<'a, CoordinateVector3D> for Line3D {
     fn head_id(&self) -> PointId {
         self.head_id
     }
@@ -112,9 +112,9 @@ impl<'a> IsLine<'a, Point3D> for Line3D {
         }
     }
 
-    fn midpoint(&self) -> Option<Point3D> {
+    fn midpoint(&self) -> Option<CoordinateVector3D> {
         match (self.head(), self.tail()) {
-            (Some(head), Some(tail)) => Some(Point3D::new(
+            (Some(head), Some(tail)) => Some(CoordinateVector3D::new(
                 (head.x() + tail.x()) / 2.0,
                 (head.y() + tail.y()) / 2.0,
                 (head.z() + tail.z()) / 2.0,

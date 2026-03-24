@@ -340,14 +340,14 @@ pub trait HasTriangles<'a>: Sized {
 ///
 /// ```compile_fail
 /// use lib_jsl::geometry::common::{HasTetrahedra, IsGeometryTable, PointId, TetrahedronId};
-/// use lib_jsl::geometry::two_d::{Point2D, UnitVector2D};
+/// use lib_jsl::geometry::two_d::{CoordinateVector2D, UnitVector2D};
 ///
 /// #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
 /// struct FakeTable;
 ///
 /// impl IsGeometryTable for FakeTable {
 ///     type Key = TetrahedronId;
-///     type Item = Point2D;
+///     type Item = CoordinateVector2D;
 ///
 ///     fn get(&self, _: &Self::Key) -> Option<Self::Item> { None }
 ///     fn insert(&mut self, _: Self::Key, _: Self::Item) -> Result<(), String> { Ok(()) }
@@ -366,9 +366,9 @@ pub trait HasTriangles<'a>: Sized {
 /// }
 ///
 /// impl<'a> HasTetrahedra<'a> for BadCells<'a> {
-///     type Point = Point2D;
+///     type Point = CoordinateVector2D;
 ///     type Normal = UnitVector2D;
-///     type Tetrahedron = Point2D;
+///     type Tetrahedron = CoordinateVector2D;
 ///     type TetrahedronTable = FakeTable;
 ///
 ///     fn tetrahedron_table(&self) -> &Self::TetrahedronTable { self.table }

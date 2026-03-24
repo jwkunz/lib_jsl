@@ -1,7 +1,7 @@
 //! Concrete planar mirror/reference line abstraction for two-dimensional geometry.
 
 use crate::geometry::common::{GeometricPrimitive, GeometricPrimitive2D, IsPlane};
-use crate::geometry::two_d::{Point2D, UnitVector2D};
+use crate::geometry::two_d::{CoordinateVector2D, UnitVector2D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 
@@ -12,13 +12,13 @@ use std::fmt::{self, Display, Formatter};
 /// in point-normal form.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]
 pub struct Plane2D {
-    point: Point2D,
+    point: CoordinateVector2D,
     normal: UnitVector2D,
 }
 
 impl Plane2D {
     /// Creates a new point-normal mirror/reference line.
-    pub fn new(point: Point2D, normal: UnitVector2D) -> Self {
+    pub fn new(point: CoordinateVector2D, normal: UnitVector2D) -> Self {
         Self { point, normal }
     }
 }
@@ -33,7 +33,7 @@ impl GeometricPrimitive for Plane2D {}
 impl GeometricPrimitive2D for Plane2D {}
 
 impl IsPlane for Plane2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
     type Normal = UnitVector2D;
 
     fn point(&self) -> Self::Point {

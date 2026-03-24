@@ -1,20 +1,20 @@
 //! Concrete one-dimensional mirror plane abstraction.
 
 use crate::geometry::common::{GeometricPrimitive, IsPlane};
-use crate::geometry::one_d::{Point1D, UnitVector1D};
+use crate::geometry::one_d::{CoordinateVector1D, UnitVector1D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 
 /// Concrete 1D mirror reference represented by a point and unit normal.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]
 pub struct Plane1D {
-    point: Point1D,
+    point: CoordinateVector1D,
     normal: UnitVector1D,
 }
 
 impl Plane1D {
     /// Creates a new 1D mirror reference.
-    pub fn new(point: Point1D, normal: UnitVector1D) -> Self {
+    pub fn new(point: CoordinateVector1D, normal: UnitVector1D) -> Self {
         Self { point, normal }
     }
 }
@@ -28,7 +28,7 @@ impl Display for Plane1D {
 impl GeometricPrimitive for Plane1D {}
 
 impl IsPlane for Plane1D {
-    type Point = Point1D;
+    type Point = CoordinateVector1D;
     type Normal = UnitVector1D;
 
     fn point(&self) -> Self::Point {

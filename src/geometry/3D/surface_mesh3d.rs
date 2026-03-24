@@ -11,7 +11,7 @@ use crate::geometry::common::{
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::three_d::{IsMesh, Line3D, Point3D, PolygonFace3D, UnitVector3D};
+use crate::geometry::three_d::{IsMesh, Line3D, CoordinateVector3D, PolygonFace3D, UnitVector3D};
 use crate::geometry::two_d::IsPolygon;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -23,7 +23,7 @@ use std::hash::{Hash, Hasher};
 pub struct SurfaceMesh3D {
     face_ids: Vec<FaceId>,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     #[serde(skip_serializing)]
     face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
 }
@@ -49,7 +49,7 @@ impl SurfaceMesh3D {
     /// through `vertex_table`. This concrete type assumes the faces describe the boundary surface.
     pub fn new(
         face_ids: Vec<FaceId>,
-        vertex_table: SharedGeometryTable<PointId, Point3D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
         face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
     ) -> Self {
         Self {
@@ -89,8 +89,8 @@ impl GeometricPrimitive for SurfaceMesh3D {}
 impl GeometricPrimitive3D for SurfaceMesh3D {}
 
 impl<'a> HasVertices<'a> for SurfaceMesh3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+    type Vertex = CoordinateVector3D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector3D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -106,7 +106,7 @@ impl<'a> HasVertices<'a> for SurfaceMesh3D {
 }
 
 impl<'a> HasFaces<'a> for SurfaceMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
     type Face = PolygonFace3D;
     type FaceTable = SharedGeometryTable<FaceId, PolygonFace3D>;
@@ -136,7 +136,7 @@ impl HasEdges for SurfaceMesh3D {
     }
 }
 
-impl<'a> IsMesh<'a, Point3D, UnitVector3D> for SurfaceMesh3D {
+impl<'a> IsMesh<'a, CoordinateVector3D, UnitVector3D> for SurfaceMesh3D {
     fn face_ids(&self) -> Box<dyn Iterator<Item = FaceId> + '_> {
         Box::new(self.face_ids.iter().copied())
     }

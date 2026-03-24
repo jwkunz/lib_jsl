@@ -12,7 +12,7 @@ use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
 use crate::geometry::three_d::{
-    GeometryVector3D, Line3D, Plane3D, Point3D, Triangle3D, UnitVector3D,
+    FreeVector3D, Line3D, Plane3D, CoordinateVector3D, Triangle3D, UnitVector3D,
 };
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{HasOrientation, IsPolygon, Orientation2D};
@@ -26,7 +26,7 @@ use std::hash::{Hash, Hasher};
 pub struct PolygonFace3D {
     vertex_ids: Vec<PointId>,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 
 impl PartialEq for PolygonFace3D {
@@ -47,7 +47,7 @@ impl PolygonFace3D {
     /// Creates a polygon face from ordered point ids and a shared point table.
     ///
     /// The vertex order determines the derived edge sequence, orientation, and normal direction.
-    pub fn new(vertex_ids: Vec<PointId>, vertex_table: SharedGeometryTable<PointId, Point3D>) -> Self {
+    pub fn new(vertex_ids: Vec<PointId>, vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>) -> Self {
         Self {
             vertex_ids,
             vertex_table,
@@ -163,7 +163,7 @@ impl PolygonFace3D {
         Ok(Self::new(ordered, vertex_table))
     }
 
-    fn resolved_points(&self) -> Option<Vec<Point3D>> {
+    fn resolved_points(&self) -> Option<Vec<CoordinateVector3D>> {
         self.vertex_ids
             .iter()
             .map(|id| self.get_vertex(id))
@@ -190,8 +190,8 @@ impl GeometricPrimitive for PolygonFace3D {}
 impl GeometricPrimitive3D for PolygonFace3D {}
 
 impl<'a> HasVertices<'a> for PolygonFace3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+    type Vertex = CoordinateVector3D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector3D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -228,17 +228,17 @@ impl HasEdges for PolygonFace3D {
 }
 
 impl HasCentroid for PolygonFace3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn centroid(&self) -> Self::Point {
         if let Some(points) = self.resolved_points() {
             let count = points.len() as GeometryMeasure;
             let sum = points
                 .into_iter()
-                .fold(Point3D::new(0.0, 0.0, 0.0), |acc, point| acc + point);
+                .fold(CoordinateVector3D::new(0.0, 0.0, 0.0), |acc, point| acc + point);
             sum / count
         } else {
-            Point3D::new(0.0, 0.0, 0.0)
+            CoordinateVector3D::new(0.0, 0.0, 0.0)
         }
     }
 }
@@ -274,7 +274,7 @@ impl HasOrientation for PolygonFace3D {
 }
 
 impl CanTranslate for PolygonFace3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -283,7 +283,7 @@ impl CanTranslate for PolygonFace3D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = GeometryVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
+        let delta = FreeVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;
@@ -294,7 +294,7 @@ impl CanTranslate for PolygonFace3D {
 }
 
 impl CanRotate for PolygonFace3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
@@ -314,7 +314,7 @@ impl CanRotate for PolygonFace3D {
 }
 
 impl CanShear for PolygonFace3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
@@ -324,7 +324,7 @@ impl CanShear for PolygonFace3D {
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 let coords = point.cartesian_components();
-                point = Point3D::from_cartesian_components(
+                point = CoordinateVector3D::from_cartesian_components(
                     [coords[0] + factor * coords[1], coords[1], coords[2]],
                     point.coordinate_system(),
                 );
@@ -335,7 +335,7 @@ impl CanShear for PolygonFace3D {
 }
 
 impl CanMirror for PolygonFace3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
@@ -351,7 +351,7 @@ impl CanMirror for PolygonFace3D {
     }
 }
 
-impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for PolygonFace3D {
+impl<'a> IsPolygon<'a, CoordinateVector3D, UnitVector3D> for PolygonFace3D {
     fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_> {
         Box::new(self.vertex_ids.iter().copied())
     }
@@ -377,7 +377,7 @@ impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for PolygonFace3D {
         let c = points[2];
         let ab = [b.x() - a.x(), b.y() - a.y(), b.z() - a.z()];
         let ac = [c.x() - a.x(), c.y() - a.y(), c.z() - a.z()];
-        UnitVector3D::from_vector(GeometryVector3D::new(
+        UnitVector3D::from_vector(FreeVector3D::new(
             ab[1] * ac[2] - ab[2] * ac[1],
             ab[2] * ac[0] - ab[0] * ac[2],
             ab[0] * ac[1] - ab[1] * ac[0],
@@ -421,7 +421,7 @@ impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for PolygonFace3D {
         area
     }
 
-    fn plane(&self) -> impl IsPlane<Point = Point3D, Normal = UnitVector3D> {
+    fn plane(&self) -> impl IsPlane<Point = CoordinateVector3D, Normal = UnitVector3D> {
         Plane3D::new(self.centroid(), self.normal())
     }
 }

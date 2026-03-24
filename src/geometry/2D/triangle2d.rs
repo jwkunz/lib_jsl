@@ -7,7 +7,7 @@ use crate::geometry::common::{
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{
-    HasOrientation, IsPolygon, IsTriangle, Line2D, Plane2D, Point2D, PolygonFace2D, UnitVector2D,
+    HasOrientation, IsPolygon, IsTriangle, Line2D, Plane2D, CoordinateVector2D, PolygonFace2D, UnitVector2D,
     Orientation2D,
 };
 use serde::Serialize;
@@ -21,7 +21,7 @@ pub struct Triangle2D {
     b_id: PointId,
     c_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point2D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
 }
 
 impl PartialEq for Triangle2D {
@@ -46,7 +46,7 @@ impl Triangle2D {
         a_id: PointId,
         b_id: PointId,
         c_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point2D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
     ) -> Self {
         Self {
             a_id,
@@ -67,8 +67,8 @@ impl GeometricPrimitive for Triangle2D {}
 impl GeometricPrimitive2D for Triangle2D {}
 
 impl<'a> HasVertices<'a> for Triangle2D {
-    type Vertex = Point2D;
-    type VertexTable = SharedGeometryTable<PointId, Point2D>;
+    type Vertex = CoordinateVector2D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector2D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -102,13 +102,13 @@ impl HasEdges for Triangle2D {
 }
 
 impl HasCentroid for Triangle2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn centroid(&self) -> Self::Point {
-        let a = self.a().unwrap_or(Point2D::new(0.0, 0.0));
-        let b = self.b().unwrap_or(Point2D::new(0.0, 0.0));
-        let c = self.c().unwrap_or(Point2D::new(0.0, 0.0));
-        Point2D::new((a.x() + b.x() + c.x()) / 3.0, (a.y() + b.y() + c.y()) / 3.0)
+        let a = self.a().unwrap_or(CoordinateVector2D::new(0.0, 0.0));
+        let b = self.b().unwrap_or(CoordinateVector2D::new(0.0, 0.0));
+        let c = self.c().unwrap_or(CoordinateVector2D::new(0.0, 0.0));
+        CoordinateVector2D::new((a.x() + b.x() + c.x()) / 3.0, (a.y() + b.y() + c.y()) / 3.0)
     }
 }
 
@@ -137,7 +137,7 @@ impl HasOrientation for Triangle2D {
 }
 
 impl CanTranslate for Triangle2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -149,7 +149,7 @@ impl CanTranslate for Triangle2D {
 }
 
 impl CanRotate for Triangle2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
@@ -161,7 +161,7 @@ impl CanRotate for Triangle2D {
 }
 
 impl CanShear for Triangle2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
@@ -173,7 +173,7 @@ impl CanShear for Triangle2D {
 }
 
 impl CanMirror for Triangle2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
     type Normal = UnitVector2D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
@@ -185,7 +185,7 @@ impl CanMirror for Triangle2D {
     }
 }
 
-impl<'a> IsPolygon<'a, Point2D, UnitVector2D> for Triangle2D {
+impl<'a> IsPolygon<'a, CoordinateVector2D, UnitVector2D> for Triangle2D {
     fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_> {
         Box::new([self.a_id, self.b_id, self.c_id].into_iter())
     }
@@ -212,12 +212,12 @@ impl<'a> IsPolygon<'a, Point2D, UnitVector2D> for Triangle2D {
         PolygonFace2D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).area()
     }
 
-    fn plane(&self) -> impl IsPlane<Point = Point2D, Normal = UnitVector2D> {
+    fn plane(&self) -> impl IsPlane<Point = CoordinateVector2D, Normal = UnitVector2D> {
         Plane2D::new(self.centroid(), self.normal())
     }
 }
 
-impl<'a> IsTriangle<'a, Point2D, UnitVector2D> for Triangle2D {
+impl<'a> IsTriangle<'a, CoordinateVector2D, UnitVector2D> for Triangle2D {
     fn a_id(&self) -> PointId {
         self.a_id
     }

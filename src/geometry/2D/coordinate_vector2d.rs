@@ -1,31 +1,31 @@
-//! Concrete two-dimensional free-vector type for the public geometry API.
-//!
-//! [`GeometryVector2D`] represents displacement, scale factors, and other non-point coordinate
-//! vectors. Its stored coordinates may be Cartesian or polar, and all math is performed in
-//! Cartesian space before converting the result back to the vector's declared coordinate system.
+//! Concrete two-dimensional coordinate-vector type for the public geometry API.
 
 use crate::geometry::common::{
-    CanNormalize, CanScale, CanScaleNonUniform, CoordinatePrimitive, DotProduct,
-    GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasDimension, HasNorm, Normalize,
-    ScalarOperable, SelfAddition, SelfProductInner,
+    CanScale, CanScaleNonUniform, CoordinatePrimitive, GeometricPrimitive, GeometricPrimitive2D,
+    GeometryMeasure, HasDimension, ScalarOperable, SelfAddition, SelfProductInner,
 };
 use crate::geometry::coordinate_systems::{CoordinateSystem2D, ToCartesian, ToPolar};
+use crate::geometry::one_d::IsLine;
+use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanTranslate};
 use crate::geometry::two_d::coordinate_conversions;
+use crate::geometry::two_d::transform_support::{reflect_point_across_plane_2d, rotate_point_around_anchor_2d};
+use crate::geometry::two_d::{FreeVector2D, IsPlane, UnitVector2D};
+use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
-/// Concrete 2D geometry-vector implementation whose stored coordinates may be Cartesian or polar.
+/// Concrete 2D coordinate-vector implementation whose stored coordinates may be Cartesian or polar.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
-pub struct GeometryVector2D {
+pub struct CoordinateVector2D {
     coords: [GeometryMeasure; 2],
     coordinate_system: CoordinateSystem2D,
 }
 
-impl Eq for GeometryVector2D {}
+impl Eq for CoordinateVector2D {}
 
-impl Hash for GeometryVector2D {
+impl Hash for CoordinateVector2D {
     fn hash<H: Hasher>(&self, state: &mut H) {
         for value in self.coords {
             value.to_bits().hash(state);
@@ -34,8 +34,8 @@ impl Hash for GeometryVector2D {
     }
 }
 
-impl GeometryVector2D {
-    /// Creates a vector from Cartesian `x` and `y` components.
+impl CoordinateVector2D {
+    /// Creates a coordinate vector from Cartesian `x` and `y` coordinates.
     pub fn new(x: GeometryMeasure, y: GeometryMeasure) -> Self {
         Self {
             coords: [x, y],
@@ -43,7 +43,7 @@ impl GeometryVector2D {
         }
     }
 
-    /// Creates a vector from raw coordinates in the specified system.
+    /// Creates a coordinate vector from raw coordinates in the specified system.
     pub fn new_in_system(
         first: GeometryMeasure,
         second: GeometryMeasure,
@@ -80,7 +80,7 @@ impl GeometryVector2D {
         self.coords
     }
 
-    /// Returns the Cartesian `[x, y]` representation of this vector.
+    /// Returns the Cartesian `[x, y]` representation of this coordinate vector.
     pub fn cartesian_components(&self) -> [GeometryMeasure; 2] {
         coordinate_conversions::to_cartesian(self.coords, self.coordinate_system)
     }
@@ -106,47 +106,47 @@ impl GeometryVector2D {
         converted
     }
 
-    /// Returns the Cartesian x-component.
+    /// Returns the Cartesian x-coordinate.
     pub fn x(&self) -> GeometryMeasure {
         self.cartesian_components()[0]
     }
 
-    /// Returns the Cartesian y-component.
+    /// Returns the Cartesian y-coordinate.
     pub fn y(&self) -> GeometryMeasure {
         self.cartesian_components()[1]
     }
 }
 
-impl Display for GeometryVector2D {
+impl Display for CoordinateVector2D {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "GeometryVector2D({:?}, {}, {})",
+            "CoordinateVector2D({:?}, {}, {})",
             self.coordinate_system, self.coords[0], self.coords[1]
         )
     }
 }
 
-impl GeometricPrimitive for GeometryVector2D {}
-impl GeometricPrimitive2D for GeometryVector2D {}
-impl CoordinatePrimitive for GeometryVector2D {}
-impl HasDimension for GeometryVector2D {
+impl GeometricPrimitive for CoordinateVector2D {}
+impl GeometricPrimitive2D for CoordinateVector2D {}
+impl CoordinatePrimitive for CoordinateVector2D {}
+impl HasDimension for CoordinateVector2D {
     const DIM: usize = 2;
 }
 
-impl AsRef<GeometryMeasure> for GeometryVector2D {
+impl AsRef<GeometryMeasure> for CoordinateVector2D {
     fn as_ref(&self) -> &GeometryMeasure {
         &self.coords[0]
     }
 }
 
-impl AsMut<GeometryMeasure> for GeometryVector2D {
+impl AsMut<GeometryMeasure> for CoordinateVector2D {
     fn as_mut(&mut self) -> &mut GeometryMeasure {
         &mut self.coords[0]
     }
 }
 
-impl Index<usize> for GeometryVector2D {
+impl Index<usize> for CoordinateVector2D {
     type Output = GeometryMeasure;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -154,13 +154,13 @@ impl Index<usize> for GeometryVector2D {
     }
 }
 
-impl IndexMut<usize> for GeometryVector2D {
+impl IndexMut<usize> for CoordinateVector2D {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.coords[index]
     }
 }
 
-impl Add<GeometryMeasure> for GeometryVector2D {
+impl Add<GeometryMeasure> for CoordinateVector2D {
     type Output = Self;
 
     fn add(self, rhs: GeometryMeasure) -> Self::Output {
@@ -169,7 +169,7 @@ impl Add<GeometryMeasure> for GeometryVector2D {
     }
 }
 
-impl Sub<GeometryMeasure> for GeometryVector2D {
+impl Sub<GeometryMeasure> for CoordinateVector2D {
     type Output = Self;
 
     fn sub(self, rhs: GeometryMeasure) -> Self::Output {
@@ -178,7 +178,7 @@ impl Sub<GeometryMeasure> for GeometryVector2D {
     }
 }
 
-impl Mul<GeometryMeasure> for GeometryVector2D {
+impl Mul<GeometryMeasure> for CoordinateVector2D {
     type Output = Self;
 
     fn mul(self, rhs: GeometryMeasure) -> Self::Output {
@@ -187,7 +187,7 @@ impl Mul<GeometryMeasure> for GeometryVector2D {
     }
 }
 
-impl Div<GeometryMeasure> for GeometryVector2D {
+impl Div<GeometryMeasure> for CoordinateVector2D {
     type Output = Self;
 
     fn div(self, rhs: GeometryMeasure) -> Self::Output {
@@ -196,7 +196,7 @@ impl Div<GeometryMeasure> for GeometryVector2D {
     }
 }
 
-impl Add for GeometryVector2D {
+impl Add for CoordinateVector2D {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -206,7 +206,17 @@ impl Add for GeometryVector2D {
     }
 }
 
-impl Sub for GeometryVector2D {
+impl Add<FreeVector2D> for CoordinateVector2D {
+    type Output = Self;
+
+    fn add(self, rhs: FreeVector2D) -> Self::Output {
+        let lhs = self.cartesian_components();
+        let rhs = rhs.cartesian_components();
+        Self::from_cartesian_components([lhs[0] + rhs[0], lhs[1] + rhs[1]], self.coordinate_system)
+    }
+}
+
+impl Sub for CoordinateVector2D {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -216,28 +226,38 @@ impl Sub for GeometryVector2D {
     }
 }
 
-impl Mul<GeometryVector2D> for GeometryVector2D {
+impl Sub<FreeVector2D> for CoordinateVector2D {
+    type Output = Self;
+
+    fn sub(self, rhs: FreeVector2D) -> Self::Output {
+        let lhs = self.cartesian_components();
+        let rhs = rhs.cartesian_components();
+        Self::from_cartesian_components([lhs[0] - rhs[0], lhs[1] - rhs[1]], self.coordinate_system)
+    }
+}
+
+impl Mul<CoordinateVector2D> for CoordinateVector2D {
     type Output = GeometryMeasure;
 
-    fn mul(self, rhs: GeometryVector2D) -> Self::Output {
+    fn mul(self, rhs: CoordinateVector2D) -> Self::Output {
         let lhs = self.cartesian_components();
         let rhs = rhs.cartesian_components();
         lhs[0] * rhs[0] + lhs[1] * rhs[1]
     }
 }
 
-impl ScalarOperable for GeometryVector2D {}
-impl SelfAddition for GeometryVector2D {}
-impl SelfProductInner for GeometryVector2D {}
+impl ScalarOperable for CoordinateVector2D {}
+impl SelfAddition for CoordinateVector2D {}
+impl SelfProductInner for CoordinateVector2D {}
 
-impl CanScale for GeometryVector2D {
+impl CanScale for CoordinateVector2D {
     fn scale(&mut self, factor: GeometryMeasure) {
         *self = *self * factor;
     }
 }
 
-impl CanScaleNonUniform for GeometryVector2D {
-    type ScaleVector = GeometryVector2D;
+impl CanScaleNonUniform for CoordinateVector2D {
+    type ScaleVector = FreeVector2D;
 
     fn scale_non_uniform(&mut self, factors: &Self::ScaleVector) {
         let coords = self.cartesian_components();
@@ -249,55 +269,66 @@ impl CanScaleNonUniform for GeometryVector2D {
     }
 }
 
-impl DotProduct for GeometryVector2D {
-    type Output = GeometryMeasure;
+impl CanTranslate for CoordinateVector2D {
+    type Point = CoordinateVector2D;
 
-    fn dot(&self, rhs: &Self) -> <Self as DotProduct>::Output {
-        let lhs = self.cartesian_components();
-        let rhs = rhs.cartesian_components();
-        lhs[0] * rhs[0] + lhs[1] * rhs[1]
+    fn translate<'a, L>(&mut self, translation_vector: &L)
+    where
+        L: IsLine<'a, Self::Point>,
+    {
+        let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
+            return;
+        };
+        let delta = FreeVector2D::from_cartesian_components(
+            [tail.x() - head.x(), tail.y() - head.y()],
+            self.coordinate_system,
+        );
+        *self = *self + delta;
     }
 }
 
-impl HasNorm for GeometryVector2D {
-    fn norm(&self) -> GeometryMeasure {
-        let coords = self.cartesian_components();
-        (coords[0] * coords[0] + coords[1] * coords[1]).sqrt()
+impl CanRotate for CoordinateVector2D {
+    type Point = CoordinateVector2D;
+
+    fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
+    where
+        L: IsLine<'a, Self::Point>,
+    {
+        let Some(origin) = axis.head() else {
+            return;
+        };
+        let rotated = rotate_point_around_anchor_2d(*self, origin, angle_radians);
+        *self = Self::from_cartesian_components(rotated.cartesian_components(), self.coordinate_system);
     }
 }
 
-impl Normalize for GeometryVector2D {
-    fn normalized(&self) -> Self {
-        let norm = self.norm();
-        if norm == 0.0 {
-            Self::new(0.0, 0.0)
-        } else {
-            Self::from_cartesian_components(
-                [self.x() / norm, self.y() / norm],
-                self.coordinate_system,
-            )
-        }
+impl CanMirror for CoordinateVector2D {
+    type Point = CoordinateVector2D;
+    type Normal = UnitVector2D;
+
+    fn mirror<P>(&mut self, mirror_plane: &P)
+    where
+        P: IsPlane<Point = Self::Point, Normal = Self::Normal>,
+    {
+        let reflected = reflect_point_across_plane_2d(*self, mirror_plane.point(), mirror_plane.normal());
+        *self = Self::from_cartesian_components(reflected.cartesian_components(), self.coordinate_system);
     }
 }
 
-impl CanNormalize for GeometryVector2D {
-    fn normalize(&mut self) {
-        *self = self.normalized();
-    }
-}
-
-impl ToCartesian for GeometryVector2D {
-    type Cartesian = GeometryVector2D;
+impl ToCartesian for CoordinateVector2D {
+    type Cartesian = CoordinateVector2D;
 
     fn to_cartesian(&self) -> Self::Cartesian {
         Self::from_cartesian_components(self.cartesian_components(), CoordinateSystem2D::Cartesian)
     }
 }
 
-impl ToPolar for GeometryVector2D {
-    type Polar = GeometryVector2D;
+impl ToPolar for CoordinateVector2D {
+    type Polar = CoordinateVector2D;
 
     fn to_polar(&self) -> Self::Polar {
         Self::from_cartesian_components(self.cartesian_components(), CoordinateSystem2D::Polar)
     }
 }
+
+impl IsPoint for CoordinateVector2D {}

@@ -14,7 +14,7 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 use crate::geometry::three_d::{
-    GeometryVector3D, IsVolumeMesh, Line3D, Point3D, PolygonFace3D, SurfaceMesh3D,
+    FreeVector3D, IsVolumeMesh, Line3D, CoordinateVector3D, PolygonFace3D, SurfaceMesh3D,
     Tetrahedron3D, Triangle3D, UnitVector3D,
 };
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
@@ -31,7 +31,7 @@ use std::rc::Rc;
 pub struct VolumeMesh3D {
     tetrahedron_ids: Vec<TetrahedronId>,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     #[serde(skip_serializing)]
     tetrahedron_table: SharedGeometryTable<TetrahedronId, Tetrahedron3D>,
 }
@@ -57,7 +57,7 @@ impl VolumeMesh3D {
     /// table in turn resolve their vertices through `vertex_table`.
     pub fn new(
         tetrahedron_ids: Vec<TetrahedronId>,
-        vertex_table: SharedGeometryTable<PointId, Point3D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
         tetrahedron_table: SharedGeometryTable<TetrahedronId, Tetrahedron3D>,
     ) -> Self {
         Self {
@@ -232,8 +232,8 @@ impl GeometricPrimitive for VolumeMesh3D {}
 impl GeometricPrimitive3D for VolumeMesh3D {}
 
 impl<'a> HasVertices<'a> for VolumeMesh3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+    type Vertex = CoordinateVector3D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector3D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -256,7 +256,7 @@ impl<'a> HasVertices<'a> for VolumeMesh3D {
 }
 
 impl<'a> HasTetrahedra<'a> for VolumeMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
     type Tetrahedron = Tetrahedron3D;
     type TetrahedronTable = SharedGeometryTable<TetrahedronId, Tetrahedron3D>;
@@ -287,16 +287,16 @@ impl HasEdges for VolumeMesh3D {
 }
 
 impl HasCentroid for VolumeMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn centroid(&self) -> Self::Point {
         let total_volume = self.volume();
         if total_volume <= 1e-6 {
-            return Point3D::new(0.0, 0.0, 0.0);
+            return CoordinateVector3D::new(0.0, 0.0, 0.0);
         }
 
         let weighted_sum = self.tetrahedra().into_iter().fold(
-            Point3D::new(0.0, 0.0, 0.0),
+            CoordinateVector3D::new(0.0, 0.0, 0.0),
             |acc, tetrahedron| acc + tetrahedron.centroid() * tetrahedron.volume(),
         );
 
@@ -371,7 +371,7 @@ impl Canonicalize for VolumeMesh3D {
 }
 
 impl CanTranslate for VolumeMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -380,7 +380,7 @@ impl CanTranslate for VolumeMesh3D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = GeometryVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
+        let delta = FreeVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;
@@ -391,7 +391,7 @@ impl CanTranslate for VolumeMesh3D {
 }
 
 impl CanRotate for VolumeMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
@@ -416,7 +416,7 @@ impl CanRotate for VolumeMesh3D {
 }
 
 impl CanShear for VolumeMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
@@ -426,7 +426,7 @@ impl CanShear for VolumeMesh3D {
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 let coords = point.cartesian_components();
-                point = Point3D::from_cartesian_components(
+                point = CoordinateVector3D::from_cartesian_components(
                     [coords[0] + factor * coords[1], coords[1], coords[2]],
                     point.coordinate_system(),
                 );
@@ -437,7 +437,7 @@ impl CanShear for VolumeMesh3D {
 }
 
 impl CanMirror for VolumeMesh3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
@@ -457,7 +457,7 @@ impl CanMirror for VolumeMesh3D {
     }
 }
 
-impl<'a> IsVolumeMesh<'a, Point3D, UnitVector3D> for VolumeMesh3D {
+impl<'a> IsVolumeMesh<'a, CoordinateVector3D, UnitVector3D> for VolumeMesh3D {
     fn tetrahedron_ids(&self) -> Box<dyn Iterator<Item = TetrahedronId> + '_> {
         Box::new(self.tetrahedron_ids.iter().copied())
     }

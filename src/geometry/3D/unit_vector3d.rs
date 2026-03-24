@@ -11,7 +11,7 @@ use crate::geometry::coordinate_systems::{
     CoordinateSystem3D, ToCartesian, ToCylindrical, ToSpherical,
 };
 use crate::geometry::three_d::coordinate_conversions;
-use crate::geometry::three_d::GeometryVector3D;
+use crate::geometry::three_d::FreeVector3D;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
@@ -53,7 +53,7 @@ impl UnitVector3D {
     }
 
     /// Creates a unit vector by normalizing a free geometry vector.
-    pub fn from_vector(vector: GeometryVector3D) -> Self {
+    pub fn from_vector(vector: FreeVector3D) -> Self {
         Self::from_cartesian_components(vector.cartesian_components(), vector.coordinate_system())
     }
 
@@ -74,8 +74,8 @@ impl UnitVector3D {
     }
 
     /// Returns this unit vector as a free geometry vector with the same components.
-    pub fn as_vector(self) -> GeometryVector3D {
-        GeometryVector3D::from_cartesian_components(self.cartesian_components(), self.coordinate_system)
+    pub fn as_vector(self) -> FreeVector3D {
+        FreeVector3D::from_cartesian_components(self.cartesian_components(), self.coordinate_system)
     }
 
     /// Returns the raw stored coordinates in the current coordinate system.
@@ -180,12 +180,12 @@ impl DotProduct for UnitVector3D {
 }
 
 impl CrossProduct for UnitVector3D {
-    type Output = GeometryVector3D;
+    type Output = FreeVector3D;
 
     fn cross(&self, rhs: &Self) -> <Self as CrossProduct>::Output {
         let lhs = self.cartesian_components();
         let rhs = rhs.cartesian_components();
-        GeometryVector3D::from_cartesian_components(
+        FreeVector3D::from_cartesian_components(
             [
                 lhs[1] * rhs[2] - lhs[2] * rhs[1],
                 lhs[2] * rhs[0] - lhs[0] * rhs[2],

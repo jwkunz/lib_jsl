@@ -7,7 +7,7 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::IsMesh;
-use crate::geometry::two_d::{IsPolygon, Line2D, Point2D, PolygonFace2D, UnitVector2D};
+use crate::geometry::two_d::{IsPolygon, Line2D, CoordinateVector2D, PolygonFace2D, UnitVector2D};
 use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt::{self, Display, Formatter};
@@ -18,7 +18,7 @@ use std::hash::{Hash, Hasher};
 pub struct Mesh2D {
     face_ids: Vec<FaceId>,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point2D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
     #[serde(skip_serializing)]
     face_table: SharedGeometryTable<FaceId, PolygonFace2D>,
 }
@@ -41,7 +41,7 @@ impl Mesh2D {
     /// Creates a mesh from ordered face ids and shared point and face tables.
     pub fn new(
         face_ids: Vec<FaceId>,
-        vertex_table: SharedGeometryTable<PointId, Point2D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
         face_table: SharedGeometryTable<FaceId, PolygonFace2D>,
     ) -> Self {
         Self {
@@ -81,8 +81,8 @@ impl GeometricPrimitive for Mesh2D {}
 impl GeometricPrimitive2D for Mesh2D {}
 
 impl<'a> HasVertices<'a> for Mesh2D {
-    type Vertex = Point2D;
-    type VertexTable = SharedGeometryTable<PointId, Point2D>;
+    type Vertex = CoordinateVector2D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector2D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -98,7 +98,7 @@ impl<'a> HasVertices<'a> for Mesh2D {
 }
 
 impl<'a> HasFaces<'a> for Mesh2D {
-    type Point = Point2D;
+    type Point = CoordinateVector2D;
     type Normal = UnitVector2D;
     type Face = PolygonFace2D;
     type FaceTable = SharedGeometryTable<FaceId, PolygonFace2D>;
@@ -128,7 +128,7 @@ impl HasEdges for Mesh2D {
     }
 }
 
-impl<'a> IsMesh<'a, Point2D, UnitVector2D> for Mesh2D {
+impl<'a> IsMesh<'a, CoordinateVector2D, UnitVector2D> for Mesh2D {
     fn face_ids(&self) -> Box<dyn Iterator<Item = FaceId> + '_> {
         Box::new(self.face_ids.iter().copied())
     }

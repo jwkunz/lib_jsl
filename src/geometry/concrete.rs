@@ -4,7 +4,7 @@
 //! a compact import surface while still benefiting from the more focused on-disk organization.
 //!
 //! The underlying implementations live in dimension-specific modules such as
-//! [`crate::geometry::two_d::point2d`], [`crate::geometry::three_d::point3d`],
+//! [`crate::geometry::two_d::coordinate_vector2d`], [`crate::geometry::three_d::coordinate_vector3d`],
 //! [`crate::geometry::two_d::triangle2d`], and [`crate::geometry::three_d::surface_mesh3d`].
 //!
 //! Typical usage starts with a [`GeometryTableRegistry`], which provides the shared keyed tables
@@ -12,30 +12,30 @@
 //!
 //! ```rust
 //! use lib_jsl::geometry::common::{IsGeometryTable, IsGeometryTableBase, PointId};
-//! use lib_jsl::geometry::concrete::{GeometryTableRegistry, GeometryVector3D, Line3D, Point3D};
+//! use lib_jsl::geometry::concrete::{GeometryTableRegistry, FreeVector3D, Line3D, CoordinateVector3D};
 //! use lib_jsl::geometry::one_d::IsLine;
 //!
 //! let mut registry = GeometryTableRegistry::new();
 //! registry
 //!     .point_table_mut()
-//!     .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+//!     .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
 //!     .unwrap();
 //! registry
 //!     .point_table_mut()
-//!     .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+//!     .insert(PointId(2), CoordinateVector3D::new(1.0, 0.0, 0.0))
 //!     .unwrap();
 //!
 //! let line = Line3D::new(PointId(1), PointId(2), registry.point_table().clone());
 //! assert!((line.length() - 1.0).abs() < 1e-5);
-//! let shifted = Point3D::new(0.0, 0.0, 0.0) + GeometryVector3D::new(1.0, 2.0, 3.0);
-//! assert_eq!(shifted, Point3D::new(1.0, 2.0, 3.0));
+//! let shifted = CoordinateVector3D::new(0.0, 0.0, 0.0) + FreeVector3D::new(1.0, 2.0, 3.0);
+//! assert_eq!(shifted, CoordinateVector3D::new(1.0, 2.0, 3.0));
 //! ```
 
 /// Re-exported one-dimensional concrete geometry types.
-pub use crate::geometry::one_d::{Line1D, Plane1D, Point1D, UnitVector1D};
+pub use crate::geometry::one_d::{Line1D, Plane1D, CoordinateVector1D, UnitVector1D};
 /// Re-exported two-dimensional concrete geometry types.
 pub use crate::geometry::two_d::{
-    GeometryVector2D, Line2D, Mesh2D, Plane2D, Point2D, PolygonFace2D, Triangle2D, UnitVector2D,
+    FreeVector2D, Line2D, Mesh2D, Plane2D, CoordinateVector2D, PolygonFace2D, Triangle2D, UnitVector2D,
 };
 /// Re-exported concrete geometry registry that owns the core shared tables.
 pub use crate::geometry::registry::GeometryTableRegistry;
@@ -43,7 +43,7 @@ pub use crate::geometry::registry::GeometryTableRegistry;
 pub use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 /// Re-exported three-dimensional concrete geometry types.
 pub use crate::geometry::three_d::{
-    GeometryVector3D, Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D,
+    FreeVector3D, Line3D, Plane3D, CoordinateVector3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D,
     Triangle3D, UnitVector3D, VolumeMesh3D,
 };
 
@@ -65,15 +65,15 @@ mod tests {
 
         registry
             .point_table_mut()
-            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .insert(PointId(2), CoordinateVector3D::new(1.0, 0.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .insert(PointId(3), CoordinateVector3D::new(0.0, 1.0, 0.0))
             .unwrap();
 
         let triangle = Triangle3D::new(PointId(1), PointId(2), PointId(3), registry.point_table().clone());
@@ -97,15 +97,15 @@ mod tests {
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
         point_table
             .borrow_mut()
-            .insert(PointId(1), Point2D::new(0.0, 0.0))
+            .insert(PointId(1), CoordinateVector2D::new(0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(2), Point2D::new(1.0, 0.0))
+            .insert(PointId(2), CoordinateVector2D::new(1.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(3), Point2D::new(0.0, 1.0))
+            .insert(PointId(3), CoordinateVector2D::new(0.0, 1.0))
             .unwrap();
 
         let face_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
@@ -127,19 +127,19 @@ mod tests {
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
         point_table
             .borrow_mut()
-            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .insert(PointId(2), CoordinateVector3D::new(1.0, 0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .insert(PointId(3), CoordinateVector3D::new(0.0, 1.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .insert(PointId(4), CoordinateVector3D::new(0.0, 0.0, 1.0))
             .unwrap();
 
         let tetrahedron =
@@ -157,19 +157,19 @@ mod tests {
         let mut registry = GeometryTableRegistry::new();
         registry
             .point_table_mut()
-            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .insert(PointId(2), CoordinateVector3D::new(1.0, 0.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .insert(PointId(3), CoordinateVector3D::new(0.0, 1.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .insert(PointId(4), CoordinateVector3D::new(0.0, 0.0, 1.0))
             .unwrap();
 
         let tetrahedron = Tetrahedron3D::new(
@@ -195,27 +195,27 @@ mod tests {
     fn tetrahedron_trait_contract_smoke_test() {
         fn assert_is_tetrahedron<'a, T>(_value: &T)
         where
-            T: IsTetrahedron<'a, Point3D, UnitVector3D>,
-            <T as HasEdges>::Edge: crate::geometry::one_d::IsLine<'a, Point3D>,
+            T: IsTetrahedron<'a, CoordinateVector3D, UnitVector3D>,
+            <T as HasEdges>::Edge: crate::geometry::one_d::IsLine<'a, CoordinateVector3D>,
         {
         }
 
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
         point_table
             .borrow_mut()
-            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .insert(PointId(2), CoordinateVector3D::new(1.0, 0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .insert(PointId(3), CoordinateVector3D::new(0.0, 1.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .insert(PointId(4), CoordinateVector3D::new(0.0, 0.0, 1.0))
             .unwrap();
 
         let tetrahedron =
@@ -228,19 +228,19 @@ mod tests {
         let mut registry = GeometryTableRegistry::new();
         registry
             .point_table_mut()
-            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .insert(PointId(2), CoordinateVector3D::new(1.0, 0.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .insert(PointId(3), CoordinateVector3D::new(0.0, 1.0, 0.0))
             .unwrap();
         registry
             .point_table_mut()
-            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .insert(PointId(4), CoordinateVector3D::new(0.0, 0.0, 1.0))
             .unwrap();
 
         let tetrahedron = Tetrahedron3D::new(
@@ -260,32 +260,32 @@ mod tests {
     }
 
     #[test]
-    fn point2d_coordinate_system_setter_converts_and_preserves_basis_on_math() {
-        let mut point = Point2D::new(1.0, 1.0);
-        point.set_coordinate_system(CoordinateSystem2D::Polar);
+    fn coordinate_vector2d_coordinate_system_setter_converts_and_preserves_basis_on_math() {
+        let mut coordinate_vector = CoordinateVector2D::new(1.0, 1.0);
+        coordinate_vector.set_coordinate_system(CoordinateSystem2D::Polar);
 
-        let translated = point + GeometryVector2D::new(1.0, 0.0);
+        let translated = coordinate_vector + FreeVector2D::new(1.0, 0.0);
 
-        assert_eq!(point.coordinate_system(), CoordinateSystem2D::Polar);
+        assert_eq!(coordinate_vector.coordinate_system(), CoordinateSystem2D::Polar);
         assert_eq!(translated.coordinate_system(), CoordinateSystem2D::Polar);
-        assert!((point.x() - 1.0).abs() < 1e-5);
-        assert!((point.y() - 1.0).abs() < 1e-5);
+        assert!((coordinate_vector.x() - 1.0).abs() < 1e-5);
+        assert!((coordinate_vector.y() - 1.0).abs() < 1e-5);
         assert!((translated.x() - 2.0).abs() < 1e-5);
         assert!((translated.y() - 1.0).abs() < 1e-5);
     }
 
     #[test]
-    fn point3d_coordinate_system_setter_converts_and_preserves_basis_on_math() {
-        let mut point = Point3D::new(1.0, 0.0, 1.0);
-        point.set_coordinate_system(CoordinateSystem3D::Spherical);
+    fn coordinate_vector3d_coordinate_system_setter_converts_and_preserves_basis_on_math() {
+        let mut coordinate_vector = CoordinateVector3D::new(1.0, 0.0, 1.0);
+        coordinate_vector.set_coordinate_system(CoordinateSystem3D::Spherical);
 
-        let translated = point + GeometryVector3D::new(0.0, 1.0, 0.0);
+        let translated = coordinate_vector + FreeVector3D::new(0.0, 1.0, 0.0);
 
-        assert_eq!(point.coordinate_system(), CoordinateSystem3D::Spherical);
+        assert_eq!(coordinate_vector.coordinate_system(), CoordinateSystem3D::Spherical);
         assert_eq!(translated.coordinate_system(), CoordinateSystem3D::Spherical);
-        assert!((point.x() - 1.0).abs() < 1e-5);
-        assert!((point.y() - 0.0).abs() < 1e-5);
-        assert!((point.z() - 1.0).abs() < 1e-5);
+        assert!((coordinate_vector.x() - 1.0).abs() < 1e-5);
+        assert!((coordinate_vector.y() - 0.0).abs() < 1e-5);
+        assert!((coordinate_vector.z() - 1.0).abs() < 1e-5);
         assert!((translated.x() - 1.0).abs() < 1e-5);
         assert!((translated.y() - 1.0).abs() < 1e-5);
         assert!((translated.z() - 1.0).abs() < 1e-5);
@@ -294,8 +294,8 @@ mod tests {
     #[test]
     fn line_length_uses_cartesian_coordinates_after_basis_change() {
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
-        let mut a = Point2D::new(0.0, 0.0);
-        let mut b = Point2D::new(3.0, 4.0);
+        let mut a = CoordinateVector2D::new(0.0, 0.0);
+        let mut b = CoordinateVector2D::new(3.0, 4.0);
         a.set_coordinate_system(CoordinateSystem2D::Polar);
         b.set_coordinate_system(CoordinateSystem2D::Polar);
 
@@ -311,19 +311,19 @@ mod tests {
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
         point_table
             .borrow_mut()
-            .insert(PointId(1), Point2D::new(0.0, 0.0))
+            .insert(PointId(1), CoordinateVector2D::new(0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(2), Point2D::new(2.0, 0.0))
+            .insert(PointId(2), CoordinateVector2D::new(2.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(3), Point2D::new(2.0, 1.0))
+            .insert(PointId(3), CoordinateVector2D::new(2.0, 1.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(4), Point2D::new(0.0, 1.0))
+            .insert(PointId(4), CoordinateVector2D::new(0.0, 1.0))
             .unwrap();
 
         let polygon = PolygonFace2D::new(
@@ -343,19 +343,19 @@ mod tests {
         let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
         point_table
             .borrow_mut()
-            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .insert(PointId(1), CoordinateVector3D::new(0.0, 0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(2), Point3D::new(2.0, 0.0, 0.0))
+            .insert(PointId(2), CoordinateVector3D::new(2.0, 0.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(3), Point3D::new(2.0, 1.0, 0.0))
+            .insert(PointId(3), CoordinateVector3D::new(2.0, 1.0, 0.0))
             .unwrap();
         point_table
             .borrow_mut()
-            .insert(PointId(4), Point3D::new(0.0, 1.0, 0.0))
+            .insert(PointId(4), CoordinateVector3D::new(0.0, 1.0, 0.0))
             .unwrap();
 
         let polygon = PolygonFace3D::new(

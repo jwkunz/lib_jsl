@@ -1,7 +1,7 @@
 //! Concrete one-dimensional line type.
 
 use crate::geometry::common::{GeometricPrimitive, GeometryMeasure, HasVertices, PointId};
-use crate::geometry::one_d::{IsLine, Point1D, UnitVector1D};
+use crate::geometry::one_d::{IsLine, CoordinateVector1D, UnitVector1D};
 use crate::geometry::tables::SharedGeometryTable;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
@@ -13,7 +13,7 @@ pub struct Line1D {
     head_id: PointId,
     tail_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point1D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector1D>,
 }
 
 impl PartialEq for Line1D {
@@ -36,7 +36,7 @@ impl Line1D {
     pub fn new(
         head_id: PointId,
         tail_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point1D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector1D>,
     ) -> Self {
         Self {
             head_id,
@@ -55,8 +55,8 @@ impl Display for Line1D {
 impl GeometricPrimitive for Line1D {}
 
 impl<'a> HasVertices<'a> for Line1D {
-    type Vertex = Point1D;
-    type VertexTable = SharedGeometryTable<PointId, Point1D>;
+    type Vertex = CoordinateVector1D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector1D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -71,7 +71,7 @@ impl<'a> HasVertices<'a> for Line1D {
     }
 }
 
-impl<'a> IsLine<'a, Point1D> for Line1D {
+impl<'a> IsLine<'a, CoordinateVector1D> for Line1D {
     fn head_id(&self) -> PointId {
         self.head_id
     }
@@ -97,9 +97,9 @@ impl<'a> IsLine<'a, Point1D> for Line1D {
         }
     }
 
-    fn midpoint(&self) -> Option<Point1D> {
+    fn midpoint(&self) -> Option<CoordinateVector1D> {
         match (self.head(), self.tail()) {
-            (Some(head), Some(tail)) => Some(Point1D::new((head[0] + tail[0]) / 2.0)),
+            (Some(head), Some(tail)) => Some(CoordinateVector1D::new((head[0] + tail[0]) / 2.0)),
             _ => None,
         }
     }

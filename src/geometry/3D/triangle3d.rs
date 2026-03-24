@@ -9,7 +9,7 @@ use crate::geometry::common::{
     HasVertices, IsPlane, PointId,
 };
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::three_d::{Line3D, Plane3D, Point3D, PolygonFace3D, UnitVector3D};
+use crate::geometry::three_d::{Line3D, Plane3D, CoordinateVector3D, PolygonFace3D, UnitVector3D};
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{HasOrientation, IsPolygon, IsTriangle, Orientation2D};
 use serde::Serialize;
@@ -23,7 +23,7 @@ pub struct Triangle3D {
     b_id: PointId,
     c_id: PointId,
     #[serde(skip_serializing)]
-    vertex_table: SharedGeometryTable<PointId, Point3D>,
+    vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 
 impl PartialEq for Triangle3D {
@@ -50,7 +50,7 @@ impl Triangle3D {
         a_id: PointId,
         b_id: PointId,
         c_id: PointId,
-        vertex_table: SharedGeometryTable<PointId, Point3D>,
+        vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     ) -> Self {
         Self {
             a_id,
@@ -71,8 +71,8 @@ impl GeometricPrimitive for Triangle3D {}
 impl GeometricPrimitive3D for Triangle3D {}
 
 impl<'a> HasVertices<'a> for Triangle3D {
-    type Vertex = Point3D;
-    type VertexTable = SharedGeometryTable<PointId, Point3D>;
+    type Vertex = CoordinateVector3D;
+    type VertexTable = SharedGeometryTable<PointId, CoordinateVector3D>;
 
     fn vertex_table(&self) -> &Self::VertexTable {
         &self.vertex_table
@@ -106,13 +106,13 @@ impl HasEdges for Triangle3D {
 }
 
 impl HasCentroid for Triangle3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn centroid(&self) -> Self::Point {
-        let a = self.a().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let b = self.b().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        let c = self.c().unwrap_or(Point3D::new(0.0, 0.0, 0.0));
-        Point3D::new(
+        let a = self.a().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        let b = self.b().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        let c = self.c().unwrap_or(CoordinateVector3D::new(0.0, 0.0, 0.0));
+        CoordinateVector3D::new(
             (a.x() + b.x() + c.x()) / 3.0,
             (a.y() + b.y() + c.y()) / 3.0,
             (a.z() + b.z() + c.z()) / 3.0,
@@ -145,7 +145,7 @@ impl HasOrientation for Triangle3D {
 }
 
 impl CanTranslate for Triangle3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn translate<'a, L>(&mut self, translation_vector: &L)
     where
@@ -157,7 +157,7 @@ impl CanTranslate for Triangle3D {
 }
 
 impl CanRotate for Triangle3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
     where
@@ -169,7 +169,7 @@ impl CanRotate for Triangle3D {
 }
 
 impl CanShear for Triangle3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
 
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
@@ -181,7 +181,7 @@ impl CanShear for Triangle3D {
 }
 
 impl CanMirror for Triangle3D {
-    type Point = Point3D;
+    type Point = CoordinateVector3D;
     type Normal = UnitVector3D;
 
     fn mirror<P>(&mut self, mirror_plane: &P)
@@ -193,7 +193,7 @@ impl CanMirror for Triangle3D {
     }
 }
 
-impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for Triangle3D {
+impl<'a> IsPolygon<'a, CoordinateVector3D, UnitVector3D> for Triangle3D {
     fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_> {
         Box::new([self.a_id, self.b_id, self.c_id].into_iter())
     }
@@ -220,12 +220,12 @@ impl<'a> IsPolygon<'a, Point3D, UnitVector3D> for Triangle3D {
         PolygonFace3D::new(vec![self.a_id, self.b_id, self.c_id], self.vertex_table.clone()).area()
     }
 
-    fn plane(&self) -> impl IsPlane<Point = Point3D, Normal = UnitVector3D> {
+    fn plane(&self) -> impl IsPlane<Point = CoordinateVector3D, Normal = UnitVector3D> {
         Plane3D::new(self.centroid(), self.normal())
     }
 }
 
-impl<'a> IsTriangle<'a, Point3D, UnitVector3D> for Triangle3D {
+impl<'a> IsTriangle<'a, CoordinateVector3D, UnitVector3D> for Triangle3D {
     fn a_id(&self) -> PointId {
         self.a_id
     }

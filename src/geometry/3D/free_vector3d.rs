@@ -1,37 +1,34 @@
-//! Concrete three-dimensional point type for the public geometry API.
+//! Concrete three-dimensional free-vector type for the public geometry API.
 //!
-//! [`Point3D`] is the foundational coordinate-bearing concrete primitive used by the current
-//! concrete graph model. Higher-dimensional objects in this crate ultimately resolve back to point
-//! entries stored in a keyed point table.
+//! [`FreeVector3D`] represents displacement, scale-factor, and direction-with-magnitude data.
+//! Its stored coordinates may be Cartesian, spherical, or cylindrical, but arithmetic is carried
+//! out in Cartesian space and then converted back to the vector's declared coordinate system.
 
 use crate::geometry::common::{
-    CanScale, CanScaleNonUniform, CoordinatePrimitive, GeometricPrimitive, GeometricPrimitive3D,
-    GeometryMeasure, HasDimension, IsPlane, ScalarOperable, SelfAddition, SelfProductInner,
+    CanNormalize, CanScale, CanScaleNonUniform, CoordinatePrimitive, CrossProduct, DotProduct,
+    GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasDimension, HasNorm, Normalize,
+    ScalarOperable, SelfAddition, SelfProductInner,
 };
 use crate::geometry::coordinate_systems::{
     CoordinateSystem3D, ToCartesian, ToCylindrical, ToSpherical,
 };
-use crate::geometry::one_d::IsLine;
 use crate::geometry::three_d::coordinate_conversions;
-use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{GeometryVector3D, UnitVector3D};
-use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanTranslate};
-use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
-/// Concrete 3D point implementation whose stored coordinates may be Cartesian, spherical, or cylindrical.
+/// Concrete 3D geometry-vector implementation whose stored coordinates may be Cartesian,
+/// spherical, or cylindrical.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
-pub struct Point3D {
+pub struct FreeVector3D {
     coords: [GeometryMeasure; 3],
     coordinate_system: CoordinateSystem3D,
 }
 
-impl Eq for Point3D {}
+impl Eq for FreeVector3D {}
 
-impl Hash for Point3D {
+impl Hash for FreeVector3D {
     fn hash<H: Hasher>(&self, state: &mut H) {
         for value in self.coords {
             value.to_bits().hash(state);
@@ -40,8 +37,8 @@ impl Hash for Point3D {
     }
 }
 
-impl Point3D {
-    /// Creates a point from Cartesian `x`, `y`, and `z` coordinates.
+impl FreeVector3D {
+    /// Creates a vector from Cartesian `x`, `y`, and `z` components.
     pub fn new(x: GeometryMeasure, y: GeometryMeasure, z: GeometryMeasure) -> Self {
         Self {
             coords: [x, y, z],
@@ -49,7 +46,7 @@ impl Point3D {
         }
     }
 
-    /// Creates a point from raw coordinates in the specified system.
+    /// Creates a vector from raw coordinates in the specified system.
     pub fn new_in_system(
         first: GeometryMeasure,
         second: GeometryMeasure,
@@ -87,7 +84,7 @@ impl Point3D {
         self.coords
     }
 
-    /// Returns the Cartesian `[x, y, z]` representation of this point.
+    /// Returns the Cartesian `[x, y, z]` representation of this vector.
     pub fn cartesian_components(&self) -> [GeometryMeasure; 3] {
         coordinate_conversions::to_cartesian(self.coords, self.coordinate_system)
     }
@@ -113,52 +110,52 @@ impl Point3D {
         converted
     }
 
-    /// Returns the Cartesian x-coordinate.
+    /// Returns the Cartesian x-component.
     pub fn x(&self) -> GeometryMeasure {
         self.cartesian_components()[0]
     }
 
-    /// Returns the Cartesian y-coordinate.
+    /// Returns the Cartesian y-component.
     pub fn y(&self) -> GeometryMeasure {
         self.cartesian_components()[1]
     }
 
-    /// Returns the Cartesian z-coordinate.
+    /// Returns the Cartesian z-component.
     pub fn z(&self) -> GeometryMeasure {
         self.cartesian_components()[2]
     }
 }
 
-impl Display for Point3D {
+impl Display for FreeVector3D {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Point3D({:?}, {}, {}, {})",
+            "FreeVector3D({:?}, {}, {}, {})",
             self.coordinate_system, self.coords[0], self.coords[1], self.coords[2]
         )
     }
 }
 
-impl GeometricPrimitive for Point3D {}
-impl GeometricPrimitive3D for Point3D {}
-impl CoordinatePrimitive for Point3D {}
-impl HasDimension for Point3D {
+impl GeometricPrimitive for FreeVector3D {}
+impl GeometricPrimitive3D for FreeVector3D {}
+impl CoordinatePrimitive for FreeVector3D {}
+impl HasDimension for FreeVector3D {
     const DIM: usize = 3;
 }
 
-impl AsRef<GeometryMeasure> for Point3D {
+impl AsRef<GeometryMeasure> for FreeVector3D {
     fn as_ref(&self) -> &GeometryMeasure {
         &self.coords[0]
     }
 }
 
-impl AsMut<GeometryMeasure> for Point3D {
+impl AsMut<GeometryMeasure> for FreeVector3D {
     fn as_mut(&mut self) -> &mut GeometryMeasure {
         &mut self.coords[0]
     }
 }
 
-impl Index<usize> for Point3D {
+impl Index<usize> for FreeVector3D {
     type Output = GeometryMeasure;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -166,13 +163,13 @@ impl Index<usize> for Point3D {
     }
 }
 
-impl IndexMut<usize> for Point3D {
+impl IndexMut<usize> for FreeVector3D {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.coords[index]
     }
 }
 
-impl Add<GeometryMeasure> for Point3D {
+impl Add<GeometryMeasure> for FreeVector3D {
     type Output = Self;
 
     fn add(self, rhs: GeometryMeasure) -> Self::Output {
@@ -184,7 +181,7 @@ impl Add<GeometryMeasure> for Point3D {
     }
 }
 
-impl Sub<GeometryMeasure> for Point3D {
+impl Sub<GeometryMeasure> for FreeVector3D {
     type Output = Self;
 
     fn sub(self, rhs: GeometryMeasure) -> Self::Output {
@@ -196,7 +193,7 @@ impl Sub<GeometryMeasure> for Point3D {
     }
 }
 
-impl Mul<GeometryMeasure> for Point3D {
+impl Mul<GeometryMeasure> for FreeVector3D {
     type Output = Self;
 
     fn mul(self, rhs: GeometryMeasure) -> Self::Output {
@@ -208,7 +205,7 @@ impl Mul<GeometryMeasure> for Point3D {
     }
 }
 
-impl Div<GeometryMeasure> for Point3D {
+impl Div<GeometryMeasure> for FreeVector3D {
     type Output = Self;
 
     fn div(self, rhs: GeometryMeasure) -> Self::Output {
@@ -220,7 +217,7 @@ impl Div<GeometryMeasure> for Point3D {
     }
 }
 
-impl Add for Point3D {
+impl Add for FreeVector3D {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -233,20 +230,7 @@ impl Add for Point3D {
     }
 }
 
-impl Add<GeometryVector3D> for Point3D {
-    type Output = Self;
-
-    fn add(self, rhs: GeometryVector3D) -> Self::Output {
-        let lhs = self.cartesian_components();
-        let rhs = rhs.cartesian_components();
-        Self::from_cartesian_components(
-            [lhs[0] + rhs[0], lhs[1] + rhs[1], lhs[2] + rhs[2]],
-            self.coordinate_system,
-        )
-    }
-}
-
-impl Sub for Point3D {
+impl Sub for FreeVector3D {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -259,41 +243,28 @@ impl Sub for Point3D {
     }
 }
 
-impl Sub<GeometryVector3D> for Point3D {
-    type Output = Self;
-
-    fn sub(self, rhs: GeometryVector3D) -> Self::Output {
-        let lhs = self.cartesian_components();
-        let rhs = rhs.cartesian_components();
-        Self::from_cartesian_components(
-            [lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2]],
-            self.coordinate_system,
-        )
-    }
-}
-
-impl Mul<Point3D> for Point3D {
+impl Mul<FreeVector3D> for FreeVector3D {
     type Output = GeometryMeasure;
 
-    fn mul(self, rhs: Point3D) -> Self::Output {
+    fn mul(self, rhs: FreeVector3D) -> Self::Output {
         let lhs = self.cartesian_components();
         let rhs = rhs.cartesian_components();
         lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2]
     }
 }
 
-impl ScalarOperable for Point3D {}
-impl SelfAddition for Point3D {}
-impl SelfProductInner for Point3D {}
+impl ScalarOperable for FreeVector3D {}
+impl SelfAddition for FreeVector3D {}
+impl SelfProductInner for FreeVector3D {}
 
-impl CanScale for Point3D {
+impl CanScale for FreeVector3D {
     fn scale(&mut self, factor: GeometryMeasure) {
         *self = *self * factor;
     }
 }
 
-impl CanScaleNonUniform for Point3D {
-    type ScaleVector = GeometryVector3D;
+impl CanScaleNonUniform for FreeVector3D {
+    type ScaleVector = FreeVector3D;
 
     fn scale_non_uniform(&mut self, factors: &Self::ScaleVector) {
         let coords = self.cartesian_components();
@@ -309,75 +280,80 @@ impl CanScaleNonUniform for Point3D {
     }
 }
 
-impl CanTranslate for Point3D {
-    type Point = Point3D;
+impl DotProduct for FreeVector3D {
+    type Output = GeometryMeasure;
 
-    fn translate<'a, L>(&mut self, translation_vector: &L)
-    where
-        L: IsLine<'a, Self::Point>,
-    {
-        let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
-            return;
-        };
-        let delta = GeometryVector3D::from_cartesian_components(
-            [tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z()],
+    fn dot(&self, rhs: &Self) -> <Self as DotProduct>::Output {
+        let lhs = self.cartesian_components();
+        let rhs = rhs.cartesian_components();
+        lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2]
+    }
+}
+
+impl CrossProduct for FreeVector3D {
+    type Output = FreeVector3D;
+
+    fn cross(&self, rhs: &Self) -> <Self as CrossProduct>::Output {
+        let lhs = self.cartesian_components();
+        let rhs = rhs.cartesian_components();
+        Self::from_cartesian_components(
+            [
+                lhs[1] * rhs[2] - lhs[2] * rhs[1],
+                lhs[2] * rhs[0] - lhs[0] * rhs[2],
+                lhs[0] * rhs[1] - lhs[1] * rhs[0],
+            ],
             self.coordinate_system,
-        );
-        *self = *self + delta;
+        )
     }
 }
 
-impl CanRotate for Point3D {
-    type Point = Point3D;
-
-    fn rotate<'a, L>(&mut self, axis: &L, angle_radians: GeometryMeasure)
-    where
-        L: IsLine<'a, Self::Point>,
-    {
-        let Some(origin) = axis.head() else {
-            return;
-        };
-        let direction = axis.direction();
-        let rotated = rotate_point_around_axis(*self, origin, &direction, angle_radians);
-        *self = Self::from_cartesian_components(rotated.cartesian_components(), self.coordinate_system);
+impl HasNorm for FreeVector3D {
+    fn norm(&self) -> GeometryMeasure {
+        let coords = self.cartesian_components();
+        (coords[0] * coords[0] + coords[1] * coords[1] + coords[2] * coords[2]).sqrt()
     }
 }
 
-impl CanMirror for Point3D {
-    type Point = Point3D;
-    type Normal = UnitVector3D;
-
-    fn mirror<P>(&mut self, mirror_plane: &P)
-    where
-        P: IsPlane<Point = Self::Point, Normal = Self::Normal>,
-    {
-        let reflected = reflect_point_across_plane(*self, mirror_plane.point(), mirror_plane.normal());
-        *self = Self::from_cartesian_components(reflected.cartesian_components(), self.coordinate_system);
+impl Normalize for FreeVector3D {
+    fn normalized(&self) -> Self {
+        let norm = self.norm();
+        if norm == 0.0 {
+            Self::new(0.0, 0.0, 0.0)
+        } else {
+            Self::from_cartesian_components(
+                [self.x() / norm, self.y() / norm, self.z() / norm],
+                self.coordinate_system,
+            )
+        }
     }
 }
 
-impl ToCartesian for Point3D {
-    type Cartesian = Point3D;
+impl CanNormalize for FreeVector3D {
+    fn normalize(&mut self) {
+        *self = self.normalized();
+    }
+}
+
+impl ToCartesian for FreeVector3D {
+    type Cartesian = FreeVector3D;
 
     fn to_cartesian(&self) -> Self::Cartesian {
         Self::from_cartesian_components(self.cartesian_components(), CoordinateSystem3D::Cartesian)
     }
 }
 
-impl ToSpherical for Point3D {
-    type Spherical = Point3D;
+impl ToSpherical for FreeVector3D {
+    type Spherical = FreeVector3D;
 
     fn to_spherical(&self) -> Self::Spherical {
         Self::from_cartesian_components(self.cartesian_components(), CoordinateSystem3D::Spherical)
     }
 }
 
-impl ToCylindrical for Point3D {
-    type Cylindrical = Point3D;
+impl ToCylindrical for FreeVector3D {
+    type Cylindrical = FreeVector3D;
 
     fn to_cylindrical(&self) -> Self::Cylindrical {
         Self::from_cartesian_components(self.cartesian_components(), CoordinateSystem3D::Cylindrical)
     }
 }
-
-impl IsPoint for Point3D {}

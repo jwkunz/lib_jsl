@@ -3,13 +3,13 @@
 /// Concrete two-dimensional line implementation.
 pub mod line2d;
 /// Concrete two-dimensional free-vector implementation.
-pub mod geometry_vector2d;
+pub mod free_vector2d;
 /// Coordinate-system conversion helpers for 2D concrete coordinate vectors.
 pub(crate) mod coordinate_conversions;
 /// Concrete two-dimensional mesh implementation.
 pub mod mesh2d;
-/// Concrete two-dimensional point implementation.
-pub mod point2d;
+/// Concrete two-dimensional coordinate-vector implementation.
+pub mod coordinate_vector2d;
 /// Concrete two-dimensional plane implementation.
 pub mod plane2d;
 /// Concrete two-dimensional polygon face implementation.
@@ -29,10 +29,10 @@ use crate::geometry::common::IsUnitVector;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::zero_d::IsPoint;
 pub use line2d::Line2D;
-pub use geometry_vector2d::GeometryVector2D;
+pub use free_vector2d::FreeVector2D;
 pub use mesh2d::Mesh2D;
 pub use plane2d::Plane2D;
-pub use point2d::Point2D;
+pub use coordinate_vector2d::CoordinateVector2D;
 pub use polygon_face2d::PolygonFace2D;
 pub use triangle2d::Triangle2D;
 pub use unit_vector2d::UnitVector2D;

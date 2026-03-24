@@ -7,6 +7,7 @@ edition = "2024"
 num = "*"
 ndarray = { version = "*", features = ["blas"] }
 ndarray-linalg = { version = "*", features = ["openblas-system"] }   
+serde = { version = "*", features = ["derive"] }
 
 [dev-dependencies]
 criterion = "*"

@@ -128,3 +128,4 @@ pub mod ffts {
     #[cfg(test)]
     pub mod test_bench_data;
 }
+pub mod geometry;

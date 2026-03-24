@@ -555,6 +555,7 @@ dependencies = [
  "ndarray-linalg",
  "num",
  "rustfft",
+ "serde",
 ]
 
 [[package]]

@@ -8,7 +8,7 @@
 //!
 //! For most users, the quickest entry points are:
 //!
-//! - [`crate::geometry::concrete`] for concrete types like `Point3D`, `Line3D`, and `Mesh3D`
+//! - [`crate::geometry::concrete`] for concrete types like `Point3D`, `Line3D`, and `SurfaceMesh3D`
 //! - [`crate::geometry::geometric_traits`] for the broad trait surface
 
 /// Shared foundational traits used across all geometry dimensions.

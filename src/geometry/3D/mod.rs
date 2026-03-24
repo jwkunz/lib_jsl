@@ -2,8 +2,8 @@
 
 /// Concrete three-dimensional line implementation.
 pub mod line3d;
-/// Concrete three-dimensional mesh implementation.
-pub mod mesh3d;
+/// Concrete three-dimensional surface mesh implementation.
+pub mod surface_mesh3d;
 /// Concrete three-dimensional plane implementation.
 pub mod plane3d;
 /// Concrete three-dimensional point implementation.
@@ -24,7 +24,7 @@ use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::IsPolygon;
 use crate::geometry::zero_d::IsPoint;
 pub use line3d::Line3D;
-pub use mesh3d::Mesh3D;
+pub use surface_mesh3d::SurfaceMesh3D;
 pub use plane3d::Plane3D;
 pub use point3d::Point3D;
 pub use polygon_face3d::PolygonFace3D;

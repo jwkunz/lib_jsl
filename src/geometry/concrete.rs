@@ -5,7 +5,7 @@
 //!
 //! The underlying implementations live in dimension-specific modules such as
 //! [`crate::geometry::two_d::point2d`], [`crate::geometry::three_d::point3d`],
-//! [`crate::geometry::two_d::triangle2d`], and [`crate::geometry::three_d::mesh3d`].
+//! [`crate::geometry::two_d::triangle2d`], and [`crate::geometry::three_d::surface_mesh3d`].
 //!
 //! Typical usage starts with a [`GeometryTableRegistry`], which provides the shared keyed tables
 //! used by the graph of concrete primitives.
@@ -40,7 +40,9 @@ pub use crate::geometry::registry::GeometryTableRegistry;
 /// Re-exported keyed table implementations used by the concrete geometry graph.
 pub use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 /// Re-exported three-dimensional concrete geometry types.
-pub use crate::geometry::three_d::{Line3D, Mesh3D, Plane3D, Point3D, PolygonFace3D, Triangle3D, UnitVector3D};
+pub use crate::geometry::three_d::{
+    Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Triangle3D, UnitVector3D,
+};
 
 #[cfg(test)]
 mod tests {
@@ -75,7 +77,7 @@ mod tests {
         let face = PolygonFace3D::new(vec![PointId(1), PointId(2), PointId(3)], registry.point_table().clone());
         registry.face_table_mut().insert(FaceId(1), face).unwrap();
 
-        let mesh = Mesh3D::new(vec![FaceId(1)], registry.point_table().clone(), registry.face_table().clone());
+        let mesh = SurfaceMesh3D::new(vec![FaceId(1)], registry.point_table().clone(), registry.face_table().clone());
 
         assert!((triangle.area() - 0.5).abs() < 1e-5);
         assert_eq!(mesh.face_count(), 1);

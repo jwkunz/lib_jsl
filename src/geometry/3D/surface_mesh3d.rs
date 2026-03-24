@@ -1,6 +1,7 @@
-//! Concrete mesh type built from three-dimensional polygon faces.
+//! Concrete surface mesh type built from three-dimensional polygon faces.
 //!
-//! [`Mesh3D`] is the current top-level concrete aggregate primitive. It stores face ids into a
+//! [`SurfaceMesh3D`] is the current top-level three-dimensional concrete aggregate primitive. It
+//! models a polygonal surface mesh, not a volumetric cell complex. The type stores face ids into a
 //! shared face table and resolves those faces against the same point table used by the rest of the
 //! geometry graph.
 
@@ -17,9 +18,9 @@ use std::collections::HashSet;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
-/// Concrete 3D mesh implementation referencing polygon faces through ids.
+/// Concrete 3D surface mesh implementation referencing polygon faces through ids.
 #[derive(Debug, Clone, Serialize)]
-pub struct Mesh3D {
+pub struct SurfaceMesh3D {
     face_ids: Vec<FaceId>,
     #[serde(skip_serializing)]
     vertex_table: SharedGeometryTable<PointId, Point3D>,
@@ -27,25 +28,25 @@ pub struct Mesh3D {
     face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
 }
 
-impl PartialEq for Mesh3D {
+impl PartialEq for SurfaceMesh3D {
     fn eq(&self, other: &Self) -> bool {
         self.face_ids == other.face_ids
     }
 }
 
-impl Eq for Mesh3D {}
+impl Eq for SurfaceMesh3D {}
 
-impl Hash for Mesh3D {
+impl Hash for SurfaceMesh3D {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.face_ids.hash(state);
     }
 }
 
-impl Mesh3D {
-    /// Creates a mesh from ordered face ids and shared point and face tables.
+impl SurfaceMesh3D {
+    /// Creates a surface mesh from ordered face ids and shared point and face tables.
     ///
     /// Faces are resolved lazily through `face_table`, and each face in turn resolves its vertices
-    /// through `vertex_table`.
+    /// through `vertex_table`. This concrete type assumes the faces describe the boundary surface.
     pub fn new(
         face_ids: Vec<FaceId>,
         vertex_table: SharedGeometryTable<PointId, Point3D>,
@@ -78,16 +79,16 @@ impl Mesh3D {
     }
 }
 
-impl Display for Mesh3D {
+impl Display for SurfaceMesh3D {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Mesh3D(faces={:?})", self.face_ids)
+        write!(f, "SurfaceMesh3D(faces={:?})", self.face_ids)
     }
 }
 
-impl GeometricPrimitive for Mesh3D {}
-impl GeometricPrimitive3D for Mesh3D {}
+impl GeometricPrimitive for SurfaceMesh3D {}
+impl GeometricPrimitive3D for SurfaceMesh3D {}
 
-impl<'a> HasVertices<'a> for Mesh3D {
+impl<'a> HasVertices<'a> for SurfaceMesh3D {
     type Vertex = Point3D;
     type VertexTable = SharedGeometryTable<PointId, Point3D>;
 
@@ -104,7 +105,7 @@ impl<'a> HasVertices<'a> for Mesh3D {
     }
 }
 
-impl<'a> HasFaces<'a> for Mesh3D {
+impl<'a> HasFaces<'a> for SurfaceMesh3D {
     type Point = Point3D;
     type Normal = UnitVector3D;
     type Face = PolygonFace3D;
@@ -123,7 +124,7 @@ impl<'a> HasFaces<'a> for Mesh3D {
     }
 }
 
-impl HasEdges for Mesh3D {
+impl HasEdges for SurfaceMesh3D {
     type Edge = Line3D;
 
     fn edge_count(&self) -> usize {
@@ -135,7 +136,7 @@ impl HasEdges for Mesh3D {
     }
 }
 
-impl<'a> IsMesh<'a, Point3D, UnitVector3D> for Mesh3D {
+impl<'a> IsMesh<'a, Point3D, UnitVector3D> for SurfaceMesh3D {
     fn face_ids(&self) -> Box<dyn Iterator<Item = FaceId> + '_> {
         Box::new(self.face_ids.iter().copied())
     }

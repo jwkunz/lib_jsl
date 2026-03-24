@@ -50,6 +50,7 @@ pub mod dsp {
             }
             pub mod iir {
                 pub mod biquad;
+                pub mod butterworth;
                 pub mod discrete_linear_filter;
             }
 
@@ -60,6 +61,7 @@ pub mod dsp {
             pub use fir::overlap_and_add_fir;
             pub use fir::remez;
             pub use iir::biquad;
+            pub use iir::butterworth;
             pub use iir::discrete_linear_filter;
         }
         pub mod transformations {

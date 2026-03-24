@@ -6,8 +6,11 @@ pub mod common;
 pub mod coordinate_systems;
 /// Traits for geometric transformations such as translation and rotation.
 pub mod transformation_traits;
+#[path = "0D/mod.rs"]
+/// Zero-dimensional geometry traits centered on points.
+pub mod zero_d;
 #[path = "1D/mod.rs"]
-/// One-dimensional and point/line-oriented geometry traits.
+/// One-dimensional geometry traits such as lines, rays, and paths.
 pub mod one_d;
 #[path = "2D/mod.rs"]
 /// Two-dimensional geometry traits and orientation helpers.

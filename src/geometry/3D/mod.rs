@@ -3,7 +3,7 @@
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCenter, HasVertices, IsUnitVector, UsesTable,
 };
-use crate::geometry::one_d::IsPoint;
+use crate::geometry::zero_d::IsPoint;
 
 /// A plane primitive represented by a point and a unit normal.
 pub trait IsPlane: GeometricPrimitive {

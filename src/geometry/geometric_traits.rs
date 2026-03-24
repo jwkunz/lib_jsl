@@ -7,3 +7,4 @@ pub use crate::geometry::one_d::*;
 pub use crate::geometry::three_d::*;
 pub use crate::geometry::transformation_traits::*;
 pub use crate::geometry::two_d::*;
+pub use crate::geometry::zero_d::*;

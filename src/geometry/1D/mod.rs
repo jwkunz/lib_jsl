@@ -1,23 +1,10 @@
-//! Point-, line-, and path-oriented geometry traits.
+//! One-dimensional line- and path-oriented geometry traits.
 
 use crate::geometry::common::{
-    CanScale, CanScaleNonUniform, GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector,
-    ScalarOperable, SelfAddition, UsesTable,
+    GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector, ScalarOperable, SelfAddition,
+    UsesTable,
 };
-use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanTranslate};
-
-/// A point primitive supporting the core arithmetic and transformation traits.
-pub trait IsPoint:
-    GeometricPrimitive
-    + ScalarOperable
-    + SelfAddition
-    + CanTranslate<Point = Self>
-    + CanScale
-    + CanScaleNonUniform
-    + CanRotate<Point = Self>
-    + CanMirror<Point = Self>
-{
-}
+use crate::geometry::zero_d::IsPoint;
 
 /// A table-backed line primitive with two endpoints and derived line properties.
 pub trait IsLine<'a, T: IsPoint>:

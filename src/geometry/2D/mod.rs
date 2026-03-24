@@ -4,10 +4,11 @@ use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasMeasure, HasVertices,
     UsesTable,
 };
-use crate::geometry::one_d::{IsLine, IsPoint};
+use crate::geometry::one_d::IsLine;
 use crate::geometry::three_d::IsPlane;
 use crate::geometry::common::IsUnitVector;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
+use crate::geometry::zero_d::IsPoint;
 
 /// Relative winding/orientation classification for planar geometry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

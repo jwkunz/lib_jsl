@@ -11,11 +11,11 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{IsPlane, Line3D, Plane3D, Point3D, UnitVector3D};
+use crate::geometry::three_d::{IsPlane, Line3D, Plane3D, Point3D, Triangle3D, UnitVector3D};
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{HasOrientation, IsPolygon, Orientation2D};
 use serde::Serialize;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
@@ -50,6 +50,115 @@ impl PolygonFace3D {
             vertex_ids,
             vertex_table,
         }
+    }
+
+    /// Decomposes the polygon into a fan of triangles rooted at the first vertex.
+    pub fn triangulate(&self) -> Vec<Triangle3D> {
+        if self.vertex_ids.len() < 3 {
+            return Vec::new();
+        }
+        let root = self.vertex_ids[0];
+        (1..self.vertex_ids.len() - 1)
+            .map(|index| {
+                Triangle3D::new(
+                    root,
+                    self.vertex_ids[index],
+                    self.vertex_ids[index + 1],
+                    self.vertex_table.clone(),
+                )
+            })
+            .collect()
+    }
+
+    /// Composes a polygon from a set of triangles that share a common boundary.
+    pub fn from_triangles(triangles: &[Triangle3D]) -> Result<Self, String> {
+        if triangles.is_empty() {
+            return Err("cannot compose polygon from an empty triangle set".to_string());
+        }
+
+        let vertex_table = triangles[0].vertex_table().clone();
+        let mut boundary_counts: HashMap<(u64, u64), usize> = HashMap::new();
+        let mut boundary_direction: HashMap<(u64, u64), (PointId, PointId)> = HashMap::new();
+
+        for triangle in triangles {
+            let triangle_table = triangle.vertex_table().clone();
+            if !std::rc::Rc::ptr_eq(&vertex_table, &triangle_table) {
+                return Err("all triangles must share the same vertex table".to_string());
+            }
+
+            let ids: Vec<_> = triangle.vertex_ids().collect();
+            for (head, tail) in [(ids[0], ids[1]), (ids[1], ids[2]), (ids[2], ids[0])] {
+                let key = (head.0.min(tail.0), head.0.max(tail.0));
+                *boundary_counts.entry(key).or_insert(0) += 1;
+                boundary_direction.entry(key).or_insert((head, tail));
+            }
+        }
+
+        let boundary_edges: Vec<_> = boundary_counts
+            .iter()
+            .filter(|(_, count)| **count == 1)
+            .filter_map(|(key, _)| boundary_direction.get(key).copied())
+            .collect();
+
+        if boundary_edges.len() < 3 {
+            return Err("triangle set does not expose a valid polygon boundary".to_string());
+        }
+
+        let mut adjacency: HashMap<PointId, Vec<PointId>> = HashMap::new();
+        for (head, tail) in &boundary_edges {
+            adjacency.entry(*head).or_default().push(*tail);
+            adjacency.entry(*tail).or_default().push(*head);
+        }
+
+        if adjacency.values().any(|neighbors| neighbors.len() != 2) {
+            return Err("triangle set does not form a single closed polygon boundary".to_string());
+        }
+
+        let start = adjacency
+            .keys()
+            .min_by_key(|id| id.0)
+            .copied()
+            .ok_or_else(|| "failed to determine polygon boundary start".to_string())?;
+
+        let mut ordered = vec![start];
+        let mut previous = None;
+        let mut current = start;
+
+        loop {
+            let neighbors = adjacency
+                .get(&current)
+                .ok_or_else(|| "missing boundary adjacency entry".to_string())?;
+            let next = neighbors
+                .iter()
+                .copied()
+                .find(|candidate| Some(*candidate) != previous)
+                .ok_or_else(|| "failed to walk polygon boundary".to_string())?;
+
+            if next == start {
+                break;
+            }
+            if ordered.contains(&next) {
+                return Err("triangle set boundary is self-intersecting or duplicated".to_string());
+            }
+
+            ordered.push(next);
+            previous = Some(current);
+            current = next;
+        }
+
+        let desired_normal = triangles[0].normal();
+        let candidate = Self::new(ordered.clone(), vertex_table.clone());
+        let candidate_normal = candidate.normal();
+        let dot = candidate_normal[0] * desired_normal[0]
+            + candidate_normal[1] * desired_normal[1]
+            + candidate_normal[2] * desired_normal[2];
+        if dot < 0.0 {
+            let mut reversed = vec![ordered[0]];
+            reversed.extend(ordered[1..].iter().rev().copied());
+            ordered = reversed;
+        }
+
+        Ok(Self::new(ordered, vertex_table))
     }
 
     fn resolved_points(&self) -> Option<Vec<Point3D>> {

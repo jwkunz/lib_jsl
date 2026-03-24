@@ -146,4 +146,68 @@ mod tests {
         assert!(tetrahedron.surface_area() > 2.0);
         assert!(tetrahedron.is_valid());
     }
+
+    #[test]
+    fn polygon_face2d_triangle_round_trip_smoke_test() {
+        let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
+        point_table
+            .borrow_mut()
+            .insert(PointId(1), Point2D::new(0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(2), Point2D::new(2.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(3), Point2D::new(2.0, 1.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(4), Point2D::new(0.0, 1.0))
+            .unwrap();
+
+        let polygon = PolygonFace2D::new(
+            vec![PointId(1), PointId(2), PointId(3), PointId(4)],
+            point_table.clone(),
+        );
+        let triangles = polygon.triangulate();
+        let recomposed = PolygonFace2D::from_triangles(&triangles).unwrap();
+
+        assert_eq!(triangles.len(), 2);
+        assert!((triangles.iter().map(|triangle| triangle.area()).sum::<f32>() - polygon.area()).abs() < 1e-5);
+        assert_eq!(recomposed.vertex_ids().collect::<Vec<_>>(), polygon.vertex_ids().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn polygon_face3d_triangle_round_trip_smoke_test() {
+        let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
+        point_table
+            .borrow_mut()
+            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(2), Point3D::new(2.0, 0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(3), Point3D::new(2.0, 1.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(4), Point3D::new(0.0, 1.0, 0.0))
+            .unwrap();
+
+        let polygon = PolygonFace3D::new(
+            vec![PointId(1), PointId(2), PointId(3), PointId(4)],
+            point_table.clone(),
+        );
+        let triangles = polygon.triangulate();
+        let recomposed = PolygonFace3D::from_triangles(&triangles).unwrap();
+
+        assert_eq!(triangles.len(), 2);
+        assert!((triangles.iter().map(|triangle| triangle.area()).sum::<f32>() - polygon.area()).abs() < 1e-5);
+        assert_eq!(recomposed.vertex_ids().collect::<Vec<_>>(), polygon.vertex_ids().collect::<Vec<_>>());
+    }
 }

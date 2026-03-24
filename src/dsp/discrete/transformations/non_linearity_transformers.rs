@@ -116,7 +116,10 @@ mod tests {
     use std::fs;
 
     fn load_csv_real(path: &str) -> Vec<f64> {
-        let path = format!("{}/src/dsp/test_data/{path}", env!("CARGO_MANIFEST_DIR"));
+        let path = format!(
+            "{}/src/dsp/discrete/test_data/{path}",
+            env!("CARGO_MANIFEST_DIR")
+        );
         fs::read_to_string(path)
             .expect("read golden csv")
             .lines()
@@ -126,7 +129,10 @@ mod tests {
     }
 
     fn load_csv_complex(path: &str) -> Vec<Complex<f64>> {
-        let path = format!("{}/src/dsp/test_data/{path}", env!("CARGO_MANIFEST_DIR"));
+        let path = format!(
+            "{}/src/dsp/discrete/test_data/{path}",
+            env!("CARGO_MANIFEST_DIR")
+        );
         fs::read_to_string(path)
             .expect("read golden csv")
             .lines()

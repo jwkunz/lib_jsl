@@ -1,8 +1,7 @@
 //! Traits describing in-place geometric transformations.
 
-use crate::geometry::common::{GeometricPrimitive, GeometryMeasure, IsUnitVector};
+use crate::geometry::common::{GeometricPrimitive, GeometryMeasure, IsPlane, IsUnitVector};
 use crate::geometry::one_d::IsLine;
-use crate::geometry::three_d::IsPlane;
 use crate::geometry::zero_d::IsPoint;
 
 /// Translates a primitive along a line-defined direction.

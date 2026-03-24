@@ -1,14 +1,13 @@
 //! Concrete planar mirror/reference line abstraction for two-dimensional geometry.
 
-use crate::geometry::common::{GeometricPrimitive, GeometricPrimitive2D};
-use crate::geometry::three_d::IsPlane;
+use crate::geometry::common::{GeometricPrimitive, GeometricPrimitive2D, IsPlane};
 use crate::geometry::two_d::{Point2D, UnitVector2D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 
 /// Concrete 2D plane-like primitive represented by a point and an in-plane unit normal.
 ///
-/// In the current trait system, [`IsPlane`](crate::geometry::three_d::IsPlane) serves as the
+/// In the current trait system, [`IsPlane`](crate::geometry::common::IsPlane) serves as the
 /// shared mirror/reference abstraction. For 2D geometry this type corresponds to a line expressed
 /// in point-normal form.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]

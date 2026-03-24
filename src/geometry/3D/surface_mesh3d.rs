@@ -1,9 +1,9 @@
 //! Concrete surface mesh type built from three-dimensional polygon faces.
 //!
-//! [`SurfaceMesh3D`] is the current top-level three-dimensional concrete aggregate primitive. It
-//! models a polygonal surface mesh, not a volumetric cell complex. The type stores face ids into a
-//! shared face table and resolves those faces against the same point table used by the rest of the
-//! geometry graph.
+//! [`SurfaceMesh3D`] is the current top-level three-dimensional concrete aggregate primitive for
+//! polygonal surface meshes. It does not represent a volumetric cell complex. The type stores face
+//! ids into a shared face table and resolves those faces against the same point table used by the
+//! rest of the geometry graph.
 
 use crate::geometry::common::{
     FaceId, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasEdges, HasFaces,

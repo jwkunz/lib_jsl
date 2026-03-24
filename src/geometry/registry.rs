@@ -9,14 +9,16 @@
 //! geometry by stable IDs while still sharing a single point table.
 
 use crate::geometry::common::{
-    FaceId, IsGeometryTableBase, LineId, PointId, TriangleId,
+    FaceId, IsGeometryTableBase, LineId, PointId, TetrahedronId, TriangleId,
 };
 use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
-use crate::geometry::three_d::{Line3D, Point3D, PolygonFace3D, Triangle3D, UnitVector3D};
+use crate::geometry::three_d::{
+    Line3D, Point3D, PolygonFace3D, Tetrahedron3D, Triangle3D, UnitVector3D,
+};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-/// Root registry holding the current concrete point, line, face, and triangle tables.
+/// Root registry holding the current concrete point, line, face, triangle, and tetrahedron tables.
 ///
 /// This type is intentionally small and explicit so it can serve as the top-level integration
 /// object for applications building a geometry graph on top of the trait system.
@@ -26,6 +28,7 @@ pub struct GeometryTableRegistry {
     line_table: SharedGeometryTable<LineId, Line3D>,
     face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
     triangle_table: SharedGeometryTable<TriangleId, Triangle3D>,
+    tetrahedron_table: SharedGeometryTable<TetrahedronId, Tetrahedron3D>,
 }
 
 impl GeometryTableRegistry {
@@ -38,6 +41,7 @@ impl GeometryTableRegistry {
             line_table: Rc::new(RefCell::new(HashGeometryTable::new())),
             face_table: Rc::new(RefCell::new(HashGeometryTable::new())),
             triangle_table: Rc::new(RefCell::new(HashGeometryTable::new())),
+            tetrahedron_table: Rc::new(RefCell::new(HashGeometryTable::new())),
         }
     }
 }
@@ -54,10 +58,12 @@ impl<'a> IsGeometryTableBase<'a> for GeometryTableRegistry {
     type Line = Line3D;
     type Face = PolygonFace3D;
     type Triangle = Triangle3D;
+    type Tetrahedron = Tetrahedron3D;
     type PointTable = SharedGeometryTable<PointId, Point3D>;
     type LineTable = SharedGeometryTable<LineId, Line3D>;
     type FaceTable = SharedGeometryTable<FaceId, PolygonFace3D>;
     type TriangleTable = SharedGeometryTable<TriangleId, Triangle3D>;
+    type TetrahedronTable = SharedGeometryTable<TetrahedronId, Tetrahedron3D>;
 
     fn point_table(&self) -> &Self::PointTable {
         &self.point_table
@@ -89,5 +95,13 @@ impl<'a> IsGeometryTableBase<'a> for GeometryTableRegistry {
 
     fn triangle_table_mut(&mut self) -> &mut Self::TriangleTable {
         &mut self.triangle_table
+    }
+
+    fn tetrahedron_table(&self) -> &Self::TetrahedronTable {
+        &self.tetrahedron_table
+    }
+
+    fn tetrahedron_table_mut(&mut self) -> &mut Self::TetrahedronTable {
+        &mut self.tetrahedron_table
     }
 }

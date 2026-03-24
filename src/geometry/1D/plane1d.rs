@@ -1,8 +1,7 @@
 //! Concrete one-dimensional mirror plane abstraction.
 
-use crate::geometry::common::GeometricPrimitive;
+use crate::geometry::common::{GeometricPrimitive, IsPlane};
 use crate::geometry::one_d::{Point1D, UnitVector1D};
-use crate::geometry::three_d::IsPlane;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 

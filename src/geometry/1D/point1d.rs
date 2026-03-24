@@ -2,10 +2,9 @@
 
 use crate::geometry::common::{
     CanScale, CanScaleNonUniform, CoordinatePrimitive, GeometricPrimitive, GeometryMeasure,
-    HasDimension, ScalarOperable, SelfAddition, SelfProductInner,
+    HasDimension, IsPlane, ScalarOperable, SelfAddition, SelfProductInner,
 };
 use crate::geometry::one_d::UnitVector1D;
-use crate::geometry::three_d::IsPlane;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanTranslate};
 use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;

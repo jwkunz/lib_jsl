@@ -19,9 +19,8 @@ pub mod unit_vector2d;
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasEdges, HasMeasure,
-    HasVertices, PointId,
+    HasVertices, IsPlane, PointId,
 };
-use crate::geometry::three_d::IsPlane;
 use crate::geometry::common::IsUnitVector;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::zero_d::IsPoint;

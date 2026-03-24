@@ -42,7 +42,7 @@ pub use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 /// Re-exported three-dimensional concrete geometry types.
 pub use crate::geometry::three_d::{
     Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D, Triangle3D,
-    UnitVector3D,
+    UnitVector3D, VolumeMesh3D,
 };
 
 #[cfg(test)]
@@ -145,6 +145,38 @@ mod tests {
         assert!((tetrahedron.volume() - (1.0 / 6.0)).abs() < 1e-5);
         assert!(tetrahedron.surface_area() > 2.0);
         assert!(tetrahedron.is_valid());
+    }
+
+    #[test]
+    fn concrete_volume_mesh3d_smoke_test() {
+        let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
+        point_table
+            .borrow_mut()
+            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .unwrap();
+
+        let tetrahedron =
+            Tetrahedron3D::new(PointId(1), PointId(2), PointId(3), PointId(4), point_table.clone());
+        let volume_mesh = VolumeMesh3D::from_tetrahedra(vec![tetrahedron]).unwrap();
+
+        assert_eq!(volume_mesh.tetrahedron_count(), 1);
+        assert_eq!(volume_mesh.boundary_triangles().len(), 4);
+        assert_eq!(volume_mesh.boundary_faces().len(), 4);
+        assert_eq!(volume_mesh.surface_mesh().face_count(), 4);
+        assert!((volume_mesh.volume() - (1.0 / 6.0)).abs() < 1e-5);
+        assert!(volume_mesh.is_valid());
     }
 
     #[test]

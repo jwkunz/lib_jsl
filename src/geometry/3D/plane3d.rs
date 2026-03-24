@@ -1,7 +1,7 @@
 //! Concrete three-dimensional plane type for the public geometry API.
 
-use crate::geometry::common::{GeometricPrimitive, GeometricPrimitive3D};
-use crate::geometry::three_d::{IsPlane, Point3D, UnitVector3D};
+use crate::geometry::common::{GeometricPrimitive, GeometricPrimitive3D, IsPlane};
+use crate::geometry::three_d::{Point3D, UnitVector3D};
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 

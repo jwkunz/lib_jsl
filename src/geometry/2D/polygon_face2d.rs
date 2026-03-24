@@ -2,7 +2,7 @@
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasCentroid, HasEdges,
-    HasMeasure, HasVertices, PointId,
+    HasMeasure, HasVertices, IsPlane, PointId,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
@@ -12,7 +12,6 @@ use crate::geometry::two_d::{
     HasOrientation, IsPolygon, Line2D, Plane2D, Point2D, Triangle2D, UnitVector2D,
     Orientation2D,
 };
-use crate::geometry::three_d::IsPlane;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Display, Formatter};

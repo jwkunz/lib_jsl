@@ -6,11 +6,11 @@
 
 use crate::geometry::common::{
     CanScale, CanScaleNonUniform, CoordinatePrimitive, GeometricPrimitive, GeometricPrimitive3D,
-    GeometryMeasure, HasDimension, ScalarOperable, SelfAddition, SelfProductInner,
+    GeometryMeasure, HasDimension, IsPlane, ScalarOperable, SelfAddition, SelfProductInner,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{IsPlane, UnitVector3D};
+use crate::geometry::three_d::UnitVector3D;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanTranslate};
 use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;

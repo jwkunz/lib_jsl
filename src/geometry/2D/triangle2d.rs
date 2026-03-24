@@ -2,10 +2,9 @@
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasCentroid, HasEdges, HasMeasure,
-    HasVertices, PointId,
+    HasVertices, IsPlane, PointId,
 };
 use crate::geometry::tables::SharedGeometryTable;
-use crate::geometry::three_d::IsPlane;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{
     HasOrientation, IsPolygon, IsTriangle, Line2D, Plane2D, Point2D, PolygonFace2D, UnitVector2D,

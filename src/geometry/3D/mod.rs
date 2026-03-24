@@ -14,13 +14,15 @@ pub mod polygon_face3d;
 pub mod triangle3d;
 /// Concrete three-dimensional tetrahedron implementation.
 pub mod tetrahedron3d;
+/// Concrete three-dimensional volume mesh implementation.
+pub mod volume_mesh3d;
 pub(crate) mod transform_support;
 /// Concrete three-dimensional unit vector implementation.
 pub mod unit_vector3d;
 
 use crate::geometry::common::{
-    FaceId, GeometricPrimitive, GeometryMeasure, HasCenter, HasEdges, HasFaces, HasVertices,
-    IsUnitVector,
+    FaceId, GeometricPrimitive, GeometryMeasure, HasCenter, HasEdges, HasFaces, HasTetrahedra,
+    HasVertices, IsUnitVector, TetrahedronId,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::two_d::IsPolygon;
@@ -33,23 +35,7 @@ pub use polygon_face3d::PolygonFace3D;
 pub use tetrahedron3d::Tetrahedron3D;
 pub use triangle3d::Triangle3D;
 pub use unit_vector3d::UnitVector3D;
-
-/// A plane primitive represented by a point and a unit normal.
-pub trait IsPlane: GeometricPrimitive {
-    /// Point type used to anchor the plane.
-    type Point: IsPoint;
-    /// Unit normal type used to orient the plane.
-    type Normal: IsUnitVector;
-
-    /// Returns a point on the plane.
-    fn point(&self) -> Self::Point;
-    /// Returns a mutable reference to a point on the plane.
-    fn point_mut(&mut self) -> &mut Self::Point;
-    /// Returns the plane normal.
-    fn normal(&self) -> Self::Normal;
-    /// Returns a mutable reference to the plane normal.
-    fn normal_mut(&mut self) -> &mut Self::Normal;
-}
+pub use volume_mesh3d::VolumeMesh3D;
 
 /// A sphere primitive with radius-derived surface measures.
 pub trait IsSphere<T: IsPoint>:
@@ -65,11 +51,12 @@ pub trait IsSphere<T: IsPoint>:
     fn volume(&self) -> GeometryMeasure;
 }
 
-/// A mesh primitive with stored vertices and derived edges plus polygonal faces.
+/// A surface mesh primitive with stored vertices and polygonal boundary faces.
 ///
-/// The current mesh model assumes vertices are the primary stored table. Faces and edges may be
-/// backed by separate structures internally, but they are exposed through semantic mesh accessors
-/// rather than through [`UsesTable`](crate::geometry::common::UsesTable).
+/// This trait is explicitly for surface meshes rather than volumetric cell meshes. The current
+/// surface-mesh model assumes vertices are the primary stored table. Faces and edges may be backed
+/// by separate structures internally, but they are exposed through semantic mesh accessors rather
+/// than through [`UsesTable`](crate::geometry::common::UsesTable).
 pub trait IsMesh<'a, T: IsPoint, N: IsUnitVector>:
     GeometricPrimitive
     + HasVertices<'a, Vertex = T>
@@ -96,4 +83,50 @@ where
     fn face_normal(&self, index: usize) -> Option<N> {
         self.face(index).map(|face| face.normal())
     }
+}
+
+/// Named alias for the surface-mesh interpretation of [`IsMesh`].
+///
+/// This trait exists to make the intent of the current mesh abstraction obvious at the API level
+/// while preserving compatibility for existing `IsMesh` implementors.
+pub trait IsSurfaceMesh<'a, T: IsPoint, N: IsUnitVector>: IsMesh<'a, T, N>
+where
+    <Self as HasEdges>::Edge: IsLine<'a, T>,
+{
+}
+
+impl<'a, T, N, M> IsSurfaceMesh<'a, T, N> for M
+where
+    T: IsPoint,
+    N: IsUnitVector,
+    M: IsMesh<'a, T, N>,
+    <M as HasEdges>::Edge: IsLine<'a, T>,
+{
+}
+
+/// A volumetric mesh primitive with stored vertices and tetrahedral cells.
+pub trait IsVolumeMesh<'a, T: IsPoint, N: IsUnitVector>:
+    GeometricPrimitive
+    + HasVertices<'a, Vertex = T>
+    + HasTetrahedra<'a, Point = T, Normal = N>
+    + HasEdges
+where
+    <Self as HasEdges>::Edge: IsLine<'a, T>,
+{
+    /// Returns the ordered tetrahedron-table ids that participate in this mesh.
+    fn tetrahedron_ids(&self) -> Box<dyn Iterator<Item = TetrahedronId> + '_>;
+    /// Replaces the tetrahedron-table id at the given mesh cell position.
+    fn set_tetrahedron_id(&mut self, index: usize, tetrahedron_id: TetrahedronId) -> Result<(), String>;
+    /// Returns the number of tetrahedra in the mesh.
+    fn tetrahedron_count(&self) -> usize {
+        self.tetrahedron_ids().count()
+    }
+    /// Resolves and returns a tetrahedron by mesh-local position.
+    fn tetrahedron(&self, index: usize) -> Option<<Self as HasTetrahedra<'a>>::Tetrahedron> {
+        self.tetrahedron_ids()
+            .nth(index)
+            .and_then(|tetrahedron_id| self.get_tetrahedron(&tetrahedron_id))
+    }
+    /// Returns the total enclosed volume of the mesh.
+    fn volume(&self) -> GeometryMeasure;
 }

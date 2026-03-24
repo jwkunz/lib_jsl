@@ -27,6 +27,10 @@ pub struct FaceId(pub u64);
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 pub struct TriangleId(pub u64);
 
+/// Stable identifier for entries in the root tetrahedron table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub struct TetrahedronId(pub u64);
+
 /// Base trait for stable geometry table keys.
 pub trait IsGeometryKey: Debug + Clone + Copy + PartialEq + Eq + Hash + Serialize + Sized {}
 
@@ -34,6 +38,7 @@ impl IsGeometryKey for PointId {}
 impl IsGeometryKey for LineId {}
 impl IsGeometryKey for FaceId {}
 impl IsGeometryKey for TriangleId {}
+impl IsGeometryKey for TetrahedronId {}
 
 /// Base trait implemented by all geometry primitives in this module tree.
 pub trait GeometricPrimitive:
@@ -69,6 +74,26 @@ pub trait GeometricPrimitive3D: GeometricPrimitive {}
 
 /// Marker trait for primitives that live in a 4D space.
 pub trait GeometricPrimitive4D: GeometricPrimitive {}
+
+/// A plane-like primitive represented by a point and a unit normal.
+///
+/// This abstraction is dimension-neutral: in 3D it corresponds to a geometric plane, while in 2D
+/// and 1D it can serve as the mirror/reference hyperplane for transformation traits.
+pub trait IsPlane: GeometricPrimitive {
+    /// Point type used to anchor the plane.
+    type Point: IsPoint;
+    /// Unit normal type used to orient the plane.
+    type Normal: IsUnitVector;
+
+    /// Returns a point on the plane.
+    fn point(&self) -> Self::Point;
+    /// Returns a mutable reference to a point on the plane.
+    fn point_mut(&mut self) -> &mut Self::Point;
+    /// Returns the plane normal.
+    fn normal(&self) -> Self::Normal;
+    /// Returns a mutable reference to the plane normal.
+    fn normal_mut(&mut self) -> &mut Self::Normal;
+}
 
 /// Exposes the dimensionality of a primitive as a compile-time constant.
 pub trait HasDimension {
@@ -145,6 +170,8 @@ pub trait IsGeometryTableBase<'a> {
     type Face: IsPolygon<'a, Self::Point, Self::Normal>;
     /// Triangle primitive stored in the triangle table.
     type Triangle: IsTriangle<'a, Self::Point, Self::Normal>;
+    /// Tetrahedron primitive stored in the tetrahedron table.
+    type Tetrahedron: GeometricPrimitive;
 
     /// Concrete point table type.
     type PointTable: IsGeometryTable<Key = PointId, Item = Self::Point> + ?Sized + 'a;
@@ -154,6 +181,8 @@ pub trait IsGeometryTableBase<'a> {
     type FaceTable: IsGeometryTable<Key = FaceId, Item = Self::Face> + ?Sized + 'a;
     /// Concrete triangle table type.
     type TriangleTable: IsGeometryTable<Key = TriangleId, Item = Self::Triangle> + ?Sized + 'a;
+    /// Concrete tetrahedron table type.
+    type TetrahedronTable: IsGeometryTable<Key = TetrahedronId, Item = Self::Tetrahedron> + ?Sized + 'a;
 
     /// Returns an immutable reference to the point table.
     fn point_table(&self) -> &Self::PointTable;
@@ -171,6 +200,10 @@ pub trait IsGeometryTableBase<'a> {
     fn triangle_table(&self) -> &Self::TriangleTable;
     /// Returns a mutable reference to the triangle table.
     fn triangle_table_mut(&mut self) -> &mut Self::TriangleTable;
+    /// Returns an immutable reference to the tetrahedron table.
+    fn tetrahedron_table(&self) -> &Self::TetrahedronTable;
+    /// Returns a mutable reference to the tetrahedron table.
+    fn tetrahedron_table_mut(&mut self) -> &mut Self::TetrahedronTable;
 }
 
 /// Provides access to a borrowed point table.
@@ -296,6 +329,54 @@ pub trait HasTriangles<'a>: Sized {
     /// Removes and returns the triangle stored at `id`, if present.
     fn remove_triangle(&mut self, id: &TriangleId) -> Option<Self::Triangle> {
         self.triangle_table_mut().remove(id)
+    }
+}
+
+/// Provides access to a borrowed tetrahedron table.
+pub trait HasTetrahedra<'a>: Sized {
+    /// Point primitive referenced by the stored tetrahedra.
+    type Point: IsPoint;
+    /// Unit normal type used by the stored tetrahedra.
+    type Normal: IsUnitVector;
+    /// Tetrahedron primitive stored in the tetrahedron table.
+    type Tetrahedron: GeometricPrimitive;
+    /// Borrowed tetrahedron-table type.
+    type TetrahedronTable: IsGeometryTable<Key = TetrahedronId, Item = Self::Tetrahedron> + ?Sized + 'a;
+
+    /// Returns an immutable reference to the tetrahedron table.
+    fn tetrahedron_table(&self) -> &Self::TetrahedronTable;
+    /// Returns a mutable reference to the tetrahedron table.
+    fn tetrahedron_table_mut(&mut self) -> &mut Self::TetrahedronTable;
+    /// Rebinds the implementor to a different borrowed tetrahedron table.
+    fn set_tetrahedron_table(&mut self, table: &'a mut Self::TetrahedronTable);
+
+    /// Returns the number of entries in the tetrahedron table.
+    fn tetrahedron_table_size(&self) -> usize {
+        self.tetrahedron_table().size()
+    }
+
+    /// Returns the tetrahedron stored at `id`.
+    fn get_tetrahedron(&self, id: &TetrahedronId) -> Option<Self::Tetrahedron> {
+        self.tetrahedron_table().get(id)
+    }
+
+    /// Returns `true` if the tetrahedron table contains `id`.
+    fn contains_tetrahedron(&self, id: &TetrahedronId) -> bool {
+        self.tetrahedron_table().contains_key(id)
+    }
+
+    /// Inserts or replaces the tetrahedron stored at `id`.
+    fn insert_tetrahedron(
+        &mut self,
+        id: TetrahedronId,
+        value: Self::Tetrahedron,
+    ) -> Result<(), String> {
+        self.tetrahedron_table_mut().insert(id, value)
+    }
+
+    /// Removes and returns the tetrahedron stored at `id`, if present.
+    fn remove_tetrahedron(&mut self, id: &TetrahedronId) -> Option<Self::Tetrahedron> {
+        self.tetrahedron_table_mut().remove(id)
     }
 }
 

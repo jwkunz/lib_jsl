@@ -5,12 +5,12 @@
 
 use crate::geometry::common::{
     Canonicalize, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid,
-    HasEdges, HasMeasure, HasVertices, IsValid, PointId, Repair,
+    HasEdges, HasMeasure, HasVertices, IsPlane, IsValid, PointId, Repair,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{IsPlane, Line3D, Point3D, Triangle3D, UnitVector3D};
+use crate::geometry::three_d::{Line3D, Point3D, Triangle3D, UnitVector3D};
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::IsPolygon;
 use serde::Serialize;

@@ -1,6 +1,6 @@
 use std::{fs::File, io::Write, path::PathBuf};
 
-use lib_jsl::dsp::filters::remez::{remez, RemezFilterType};
+use lib_jsl::dsp::discrete::filters::remez::{remez, RemezFilterType};
 
 fn write_csv(path: PathBuf, data: &[f64]) {
     let mut f = File::create(path).expect("create csv");

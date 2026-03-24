@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use lib_jsl::dsp::windows;
+use lib_jsl::dsp::discrete::windows;
 
 fn write_csv(path: &Path, data: &[f64]) {
     let mut out = String::new();

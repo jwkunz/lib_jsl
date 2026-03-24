@@ -1,14 +1,12 @@
 //! One-dimensional line- and path-oriented geometry traits.
 
 use crate::geometry::common::{
-    GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector, ScalarOperable, SelfAddition,
+    GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector,
 };
 use crate::geometry::zero_d::IsPoint;
 
 /// A table-backed line primitive with two endpoints and derived line properties.
-pub trait IsLine<'a, T: IsPoint>:
-    GeometricPrimitive + ScalarOperable + SelfAddition + HasVertices<'a, Item = T>
-{
+pub trait IsLine<'a, T: IsPoint>: GeometricPrimitive + HasVertices<'a, Item = T> {
     /// Returns the first endpoint.
     fn head(&self) -> T;
     /// Returns a mutable reference to the first endpoint.

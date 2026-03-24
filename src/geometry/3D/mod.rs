@@ -37,9 +37,7 @@ pub trait IsSphere<T: IsPoint>:
 }
 
 /// A mesh primitive backed by a vertex table and face accessors.
-pub trait IsMesh<'a, T: IsPoint, F>:
-    GeometricPrimitive + HasVertices<'a, Item = T>
-{
+pub trait IsMesh<'a, T: IsPoint>: GeometricPrimitive + HasVertices<'a, Item = T> {
     /// Face type returned by the mesh.
     type Face;
 

@@ -1,5 +1,7 @@
 //! Shared foundational traits used by all geometry primitives.
 
+use crate::geometry::one_d::IsLine;
+use crate::geometry::two_d::{IsPolygon, IsTriangle};
 use crate::geometry::zero_d::IsPoint;
 use serde::Serialize;
 use std::fmt::{Debug, Display};
@@ -17,9 +19,19 @@ pub trait GeometricPrimitive:
     + PartialEq
     + Serialize
     + Hash
+    + Sized
+{
+}
+
+/// A coordinate-bearing primitive that supports indexed scalar access.
+///
+/// This trait is intended for point- and vector-like values. Composite shapes such as lines,
+/// polygons, planes, and meshes should generally implement [`GeometricPrimitive`] without also
+/// implementing this trait unless they are intentionally represented as flat coordinate vectors.
+pub trait CoordinatePrimitive:
+    GeometricPrimitive
     + AsRef<GeometryMeasure>
     + AsMut<GeometryMeasure>
-    + Sized
     + Index<usize, Output = GeometryMeasure>
     + IndexMut<usize, Output = GeometryMeasure>
 {
@@ -42,7 +54,7 @@ pub trait HasDimension {
 
 /// Supports scalar arithmetic against the geometry measurement type.
 pub trait ScalarOperable:
-    GeometricPrimitive
+    CoordinatePrimitive
     + Add<GeometryMeasure, Output = Self>
     + Sub<GeometryMeasure, Output = Self>
     + Mul<GeometryMeasure, Output = Self>
@@ -52,13 +64,13 @@ pub trait ScalarOperable:
 
 /// Supports primitive-to-primitive addition and subtraction.
 pub trait SelfAddition:
-    GeometricPrimitive + Add<Output = Self> + Sub<Output = Self>
+    CoordinatePrimitive + Add<Output = Self> + Sub<Output = Self>
 {
 }
 
 /// Supports an inner-product-like multiplication producing a scalar measure.
 pub trait SelfProductInner:
-    GeometricPrimitive + Mul<Self, Output = GeometryMeasure>
+    CoordinatePrimitive + Mul<Self, Output = GeometryMeasure>
 {
 }
 
@@ -136,20 +148,25 @@ where
     }
 }
 
-/// Provides line-oriented access for primitives backed by line tables.
-pub trait HasLines<'a>: UsesTable<'a> {
+/// Provides line-oriented access for primitives backed by stored line tables.
+pub trait HasLines<'a>: UsesTable<'a, Item = Self::Line> {
+    /// Point type used by the stored lines.
+    type Point: IsPoint;
+    /// Line type stored by the primitive.
+    type Line: IsLine<'a, Self::Point>;
+
     /// Returns the number of stored lines.
     fn line_count(&self) -> usize {
         self.table().size()
     }
 
     /// Returns a line by index.
-    fn line(&self, index: usize) -> Option<Self::Item> {
+    fn line(&self, index: usize) -> Option<Self::Line> {
         self.table().read(index)
     }
 
     /// Replaces the line at `index`.
-    fn set_line(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+    fn set_line(&mut self, index: usize, value: Self::Line) -> Result<(), String> {
         self.table_mut().write(index, value)
     }
 
@@ -159,20 +176,27 @@ pub trait HasLines<'a>: UsesTable<'a> {
     }
 }
 
-/// Provides triangle-oriented access for primitives backed by triangle tables.
-pub trait HasTriangles<'a>: UsesTable<'a> {
+/// Provides triangle-oriented access for primitives backed by stored triangle tables.
+pub trait HasTriangles<'a>: UsesTable<'a, Item = Self::Triangle> {
+    /// Point type used by the stored triangles.
+    type Point: IsPoint;
+    /// Unit normal type used by the stored triangles.
+    type Normal: IsUnitVector;
+    /// Triangle type stored by the primitive.
+    type Triangle: IsTriangle<'a, Self::Point, Self::Normal>;
+
     /// Returns the number of stored triangles.
     fn triangle_count(&self) -> usize {
         self.table().size()
     }
 
     /// Returns a triangle by index.
-    fn triangle(&self, index: usize) -> Option<Self::Item> {
+    fn triangle(&self, index: usize) -> Option<Self::Triangle> {
         self.table().read(index)
     }
 
     /// Replaces the triangle at `index`.
-    fn set_triangle(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+    fn set_triangle(&mut self, index: usize, value: Self::Triangle) -> Result<(), String> {
         self.table_mut().write(index, value)
     }
 
@@ -182,20 +206,27 @@ pub trait HasTriangles<'a>: UsesTable<'a> {
     }
 }
 
-/// Provides face-oriented access for primitives backed by face tables.
-pub trait HasFaces<'a>: UsesTable<'a> {
+/// Provides polygon-face access for primitives backed by stored face tables.
+pub trait HasFaces<'a>: UsesTable<'a, Item = Self::Face> {
+    /// Point type used by the stored faces.
+    type Point: IsPoint;
+    /// Unit normal type used by the stored faces.
+    type Normal: IsUnitVector;
+    /// Polygon face type stored by the primitive.
+    type Face: IsPolygon<'a, Self::Point, Self::Normal>;
+
     /// Returns the number of stored faces.
     fn face_count(&self) -> usize {
         self.table().size()
     }
 
     /// Returns a face by index.
-    fn face(&self, index: usize) -> Option<Self::Item> {
+    fn face(&self, index: usize) -> Option<Self::Face> {
         self.table().read(index)
     }
 
     /// Replaces the face at `index`.
-    fn set_face(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
+    fn set_face(&mut self, index: usize, value: Self::Face) -> Result<(), String> {
         self.table_mut().write(index, value)
     }
 
@@ -205,10 +236,13 @@ pub trait HasFaces<'a>: UsesTable<'a> {
     }
 }
 
-/// Provides indexed access to a shape's edges.
+/// Provides indexed access to a shape's derived geometric edges.
+///
+/// Unlike [`HasLines`], this trait does not imply that edges are stored in a table. Edges may be
+/// computed views over a higher-level primitive boundary.
 pub trait HasEdges {
     /// Edge type returned by the implementor.
-    type Edge;
+    type Edge: GeometricPrimitive;
 
     /// Number of edges available on the shape.
     fn edge_count(&self) -> usize;
@@ -225,7 +259,7 @@ pub trait HasMeasure {
 /// Exposes a geometric center point.
 pub trait HasCenter {
     /// Point type used to represent the center.
-    type Point: GeometricPrimitive;
+    type Point: IsPoint;
 
     /// Returns the center point.
     fn center(&self) -> Self::Point;
@@ -234,7 +268,7 @@ pub trait HasCenter {
 /// Exposes a centroid point for the primitive.
 pub trait HasCentroid {
     /// Point type used to represent the centroid.
-    type Point: GeometricPrimitive;
+    type Point: IsPoint;
 
     /// Returns the centroid.
     fn centroid(&self) -> Self::Point;
@@ -306,7 +340,7 @@ pub trait CanScale: GeometricPrimitive + Sized {
 /// Applies non-uniform scaling using a separate scale vector.
 pub trait CanScaleNonUniform: GeometricPrimitive + Sized {
     /// Primitive used to represent non-uniform scale factors.
-    type ScaleVector: GeometricPrimitive;
+    type ScaleVector: CoordinatePrimitive;
 
     /// Applies non-uniform scaling in place.
     fn scale_non_uniform(&mut self, factors: &Self::ScaleVector);
@@ -322,40 +356,40 @@ pub trait CanProject: GeometricPrimitive + Sized {
 }
 
 /// Normalizes a primitive in place.
-pub trait CanNormalize: GeometricPrimitive + Sized {
+pub trait CanNormalize: CoordinatePrimitive + Sized {
     /// Mutates the primitive into a normalized form.
     fn normalize(&mut self);
 }
 
 /// Marker trait for vectors guaranteed to have unit magnitude.
-pub trait IsUnitVector: GeometricPrimitive {}
+pub trait IsUnitVector: CoordinatePrimitive {}
 
 /// Computes a dot product between two values.
-pub trait DotProduct<Rhs = Self> {
+pub trait DotProduct<Rhs = Self>: CoordinatePrimitive {
     /// Output type produced by the dot product.
     type Output;
 
     /// Computes the dot product.
-    fn dot(&self, rhs: &Rhs) -> Self::Output;
+    fn dot(&self, rhs: &Rhs) -> <Self as DotProduct<Rhs>>::Output;
 }
 
 /// Computes a cross product between two values.
-pub trait CrossProduct<Rhs = Self> {
+pub trait CrossProduct<Rhs = Self>: CoordinatePrimitive {
     /// Output type produced by the cross product.
     type Output;
 
     /// Computes the cross product.
-    fn cross(&self, rhs: &Rhs) -> Self::Output;
+    fn cross(&self, rhs: &Rhs) -> <Self as CrossProduct<Rhs>>::Output;
 }
 
 /// Computes the norm or magnitude of a value.
-pub trait HasNorm {
+pub trait HasNorm: CoordinatePrimitive {
     /// Returns the norm.
     fn norm(&self) -> GeometryMeasure;
 }
 
 /// Produces a normalized copy without mutating the original value.
-pub trait Normalize: Sized {
+pub trait Normalize: CoordinatePrimitive + Sized {
     /// Returns a normalized copy of `self`.
     fn normalized(&self) -> Self;
 }

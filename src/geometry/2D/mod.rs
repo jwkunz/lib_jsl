@@ -1,7 +1,8 @@
 //! Two-dimensional shape traits and orientation helpers.
 
 use crate::geometry::common::{
-    GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasMeasure, HasVertices,
+    GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasEdges, HasMeasure,
+    HasVertices,
 };
 use crate::geometry::one_d::IsLine;
 use crate::geometry::three_d::IsPlane;
@@ -26,15 +27,8 @@ pub trait HasOrientation {
     fn orientation(&self) -> Orientation2D;
 }
 
-/// A triangle primitive backed by a point table.
-pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>:
-    GeometricPrimitive
-    + HasVertices<'a, Item = T>
-    + CanTranslate<Point = T>
-    + CanRotate<Point = T>
-    + CanShear<Point = T>
-    + CanMirror<Point = T, Normal = N>
-{
+/// A triangle primitive backed by a point table and treated as a polygon specialization.
+pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>: IsPolygon<'a, T, N> {
     /// Returns the first vertex.
     fn a(&self) -> T;
     /// Returns a mutable reference to the first vertex.
@@ -54,23 +48,13 @@ pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>:
     fn edge_bc(&self) -> impl IsLine<'a, T>;
     /// Returns the edge from `c` to `a`.
     fn edge_ca(&self) -> impl IsLine<'a, T>;
-
-    /// Returns the triangle perimeter.
-    fn perimeter(&self) -> GeometryMeasure;
-    /// Returns the triangle area.
-    fn area(&self) -> GeometryMeasure;
-    /// Returns the triangle centroid.
-    fn centroid(&self) -> T;
-    /// Returns the triangle normal.
-    fn normal(&self) -> N;
-    /// Returns the plane containing the triangle.
-    fn plane(&self) -> impl IsPlane<Point = T, Normal = N>;
 }
 
 /// A polygon primitive defined by an ordered point table.
 pub trait IsPolygon<'a, T: IsPoint, N: IsUnitVector>:
     GeometricPrimitive
     + HasVertices<'a, Item = T>
+    + HasEdges
     + CanTranslate<Point = T>
     + CanRotate<Point = T>
     + CanShear<Point = T>
@@ -79,8 +63,6 @@ pub trait IsPolygon<'a, T: IsPoint, N: IsUnitVector>:
     + HasMeasure
     + HasOrientation
 {
-    /// Returns the number of vertices in the polygon.
-    fn vertex_count(&self) -> usize;
     /// Returns the polygon normal.
     fn normal(&self) -> N;
     /// Returns the polygon perimeter.

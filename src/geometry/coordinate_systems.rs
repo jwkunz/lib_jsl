@@ -1,6 +1,6 @@
 //! Coordinate-system enums, markers, and conversion traits.
 
-use crate::geometry::common::GeometricPrimitive;
+use crate::geometry::common::CoordinatePrimitive;
 
 /// Supported coordinate systems for 2D primitives.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -46,7 +46,7 @@ pub trait IsCylindrical: IsCoordinateSystem3D {}
 /// Converts a value into a Cartesian representation.
 pub trait ToCartesian {
     /// Cartesian result type.
-    type Cartesian: GeometricPrimitive;
+    type Cartesian: CoordinatePrimitive;
 
     /// Returns the Cartesian representation of `self`.
     fn to_cartesian(&self) -> Self::Cartesian;
@@ -55,7 +55,7 @@ pub trait ToCartesian {
 /// Converts a value into a polar representation.
 pub trait ToPolar {
     /// Polar result type.
-    type Polar: GeometricPrimitive;
+    type Polar: CoordinatePrimitive;
 
     /// Returns the polar representation of `self`.
     fn to_polar(&self) -> Self::Polar;
@@ -64,7 +64,7 @@ pub trait ToPolar {
 /// Converts a value into a spherical representation.
 pub trait ToSpherical {
     /// Spherical result type.
-    type Spherical: GeometricPrimitive;
+    type Spherical: CoordinatePrimitive;
 
     /// Returns the spherical representation of `self`.
     fn to_spherical(&self) -> Self::Spherical;
@@ -73,7 +73,7 @@ pub trait ToSpherical {
 /// Converts a value into a cylindrical representation.
 pub trait ToCylindrical {
     /// Cylindrical result type.
-    type Cylindrical: GeometricPrimitive;
+    type Cylindrical: CoordinatePrimitive;
 
     /// Returns the cylindrical representation of `self`.
     fn to_cylindrical(&self) -> Self::Cylindrical;

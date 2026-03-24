@@ -12,6 +12,8 @@ pub mod point3d;
 pub mod polygon_face3d;
 /// Concrete three-dimensional triangle implementation.
 pub mod triangle3d;
+/// Concrete three-dimensional tetrahedron implementation.
+pub mod tetrahedron3d;
 pub(crate) mod transform_support;
 /// Concrete three-dimensional unit vector implementation.
 pub mod unit_vector3d;
@@ -28,6 +30,7 @@ pub use surface_mesh3d::SurfaceMesh3D;
 pub use plane3d::Plane3D;
 pub use point3d::Point3D;
 pub use polygon_face3d::PolygonFace3D;
+pub use tetrahedron3d::Tetrahedron3D;
 pub use triangle3d::Triangle3D;
 pub use unit_vector3d::UnitVector3D;
 

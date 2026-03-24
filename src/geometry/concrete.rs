@@ -41,13 +41,16 @@ pub use crate::geometry::registry::GeometryTableRegistry;
 pub use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 /// Re-exported three-dimensional concrete geometry types.
 pub use crate::geometry::three_d::{
-    Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Triangle3D, UnitVector3D,
+    Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D, Triangle3D,
+    UnitVector3D,
 };
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::geometry::common::{FaceId, IsGeometryTable, IsGeometryTableBase, PointId, TriangleId};
+    use crate::geometry::common::{
+        FaceId, HasEdges, IsGeometryTable, IsGeometryTableBase, IsValid, PointId, TriangleId,
+    };
     use crate::geometry::three_d::IsMesh;
     use crate::geometry::two_d::IsPolygon;
 
@@ -112,5 +115,35 @@ mod tests {
         let mesh = Mesh2D::new(vec![FaceId(1)], point_table, face_table);
         assert_eq!(mesh.face_count(), 1);
         assert!((mesh.surface_area() - 0.5).abs() < 1e-5);
+    }
+
+    #[test]
+    fn concrete_tetrahedron3d_smoke_test() {
+        let point_table = std::rc::Rc::new(std::cell::RefCell::new(HashGeometryTable::new()));
+        point_table
+            .borrow_mut()
+            .insert(PointId(1), Point3D::new(0.0, 0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(2), Point3D::new(1.0, 0.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(3), Point3D::new(0.0, 1.0, 0.0))
+            .unwrap();
+        point_table
+            .borrow_mut()
+            .insert(PointId(4), Point3D::new(0.0, 0.0, 1.0))
+            .unwrap();
+
+        let tetrahedron =
+            Tetrahedron3D::new(PointId(1), PointId(2), PointId(3), PointId(4), point_table);
+
+        assert_eq!(tetrahedron.face_count(), 4);
+        assert_eq!(tetrahedron.edge_count(), 6);
+        assert!((tetrahedron.volume() - (1.0 / 6.0)).abs() < 1e-5);
+        assert!(tetrahedron.surface_area() > 2.0);
+        assert!(tetrahedron.is_valid());
     }
 }

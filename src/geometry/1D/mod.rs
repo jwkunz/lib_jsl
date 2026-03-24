@@ -1,31 +1,44 @@
 //! One-dimensional line- and path-oriented geometry traits.
 
 use crate::geometry::common::{
-    GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector,
+    GeometricPrimitive, GeometryMeasure, HasVertices, IsUnitVector, PointId,
 };
 use crate::geometry::zero_d::IsPoint;
 
-/// A table-backed line primitive with two endpoints and derived line properties.
-pub trait IsLine<'a, T: IsPoint>: GeometricPrimitive + HasVertices<'a, Item = T> {
-    /// Returns the first endpoint.
-    fn head(&self) -> T;
-    /// Returns a mutable reference to the first endpoint.
-    fn head_mut(&mut self) -> &mut T;
-    /// Returns the second endpoint.
-    fn tail(&self) -> T;
-    /// Returns a mutable reference to the second endpoint.
-    fn tail_mut(&mut self) -> &mut T;
+/// A line primitive that resolves its endpoints through point identifiers.
+pub trait IsLine<'a, T: IsPoint>:
+    GeometricPrimitive + HasVertices<'a, Vertex = T>
+{
+    /// Returns the point-table id of the first endpoint.
+    fn head_id(&self) -> PointId;
+    /// Sets the point-table id of the first endpoint.
+    fn set_head_id(&mut self, point_id: PointId) -> Result<(), String>;
+    /// Returns the point-table id of the second endpoint.
+    fn tail_id(&self) -> PointId;
+    /// Sets the point-table id of the second endpoint.
+    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), String>;
+
+    /// Resolves and returns the first endpoint from the point table.
+    fn head(&self) -> Option<T> {
+        self.get_vertex(&self.head_id())
+    }
+
+    /// Resolves and returns the second endpoint from the point table.
+    fn tail(&self) -> Option<T> {
+        self.get_vertex(&self.tail_id())
+    }
+
     /// Returns the Euclidean length of the line.
     fn length(&self) -> GeometryMeasure;
-    /// Returns the midpoint of the line.
-    fn midpoint(&self) -> T;
+    /// Returns the midpoint of the line, if it can be derived from the point table.
+    fn midpoint(&self) -> Option<T>;
     /// Returns the line direction as a unit vector.
     fn direction(&self) -> impl IsUnitVector;
 }
 
 /// A connected sequence of line segments backed by a point table.
 pub trait IsPolyline<'a, T: IsPoint>:
-    GeometricPrimitive + HasVertices<'a, Item = T>
+    GeometricPrimitive + HasVertices<'a, Vertex = T>
 {
     /// Returns the number of segments in the polyline.
     fn segment_count(&self) -> usize;

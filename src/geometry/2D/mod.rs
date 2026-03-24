@@ -2,9 +2,8 @@
 
 use crate::geometry::common::{
     GeometricPrimitive, GeometryMeasure, HasCentroid, HasCenter, HasEdges, HasMeasure,
-    HasVertices,
+    HasVertices, PointId,
 };
-use crate::geometry::one_d::IsLine;
 use crate::geometry::three_d::IsPlane;
 use crate::geometry::common::IsUnitVector;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
@@ -29,31 +28,52 @@ pub trait HasOrientation {
 
 /// A triangle primitive backed by a point table and treated as a polygon specialization.
 pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>: IsPolygon<'a, T, N> {
-    /// Returns the first vertex.
-    fn a(&self) -> T;
-    /// Returns a mutable reference to the first vertex.
-    fn a_mut(&mut self) -> &mut T;
-    /// Returns the second vertex.
-    fn b(&self) -> T;
-    /// Returns a mutable reference to the second vertex.
-    fn b_mut(&mut self) -> &mut T;
-    /// Returns the third vertex.
-    fn c(&self) -> T;
-    /// Returns a mutable reference to the third vertex.
-    fn c_mut(&mut self) -> &mut T;
+    /// Returns the point-table id of the first vertex.
+    fn a_id(&self) -> PointId;
+    /// Sets the point-table id of the first vertex.
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String>;
+    /// Returns the point-table id of the second vertex.
+    fn b_id(&self) -> PointId;
+    /// Sets the point-table id of the second vertex.
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String>;
+    /// Returns the point-table id of the third vertex.
+    fn c_id(&self) -> PointId;
+    /// Sets the point-table id of the third vertex.
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String>;
+
+    /// Resolves and returns the first vertex from the point table.
+    fn a(&self) -> Option<T> {
+        self.get_vertex(&self.a_id())
+    }
+
+    /// Resolves and returns the second vertex from the point table.
+    fn b(&self) -> Option<T> {
+        self.get_vertex(&self.b_id())
+    }
+
+    /// Resolves and returns the third vertex from the point table.
+    fn c(&self) -> Option<T> {
+        self.get_vertex(&self.c_id())
+    }
 
     /// Returns the edge from `a` to `b`.
-    fn edge_ab(&self) -> impl IsLine<'a, T>;
+    fn edge_ab(&self) -> Option<<Self as HasEdges>::Edge> {
+        self.edge(0)
+    }
     /// Returns the edge from `b` to `c`.
-    fn edge_bc(&self) -> impl IsLine<'a, T>;
+    fn edge_bc(&self) -> Option<<Self as HasEdges>::Edge> {
+        self.edge(1)
+    }
     /// Returns the edge from `c` to `a`.
-    fn edge_ca(&self) -> impl IsLine<'a, T>;
+    fn edge_ca(&self) -> Option<<Self as HasEdges>::Edge> {
+        self.edge(2)
+    }
 }
 
 /// A polygon primitive defined by an ordered point table.
 pub trait IsPolygon<'a, T: IsPoint, N: IsUnitVector>:
     GeometricPrimitive
-    + HasVertices<'a, Item = T>
+    + HasVertices<'a, Vertex = T>
     + HasEdges
     + CanTranslate<Point = T>
     + CanRotate<Point = T>
@@ -63,6 +83,11 @@ pub trait IsPolygon<'a, T: IsPoint, N: IsUnitVector>:
     + HasMeasure
     + HasOrientation
 {
+    /// Returns the ordered point-table ids that define this polygon.
+    fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_>;
+    /// Replaces the point-table id at the given polygon vertex position.
+    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), String>;
+
     /// Returns the polygon normal.
     fn normal(&self) -> N;
     /// Returns the polygon perimeter.

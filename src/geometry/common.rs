@@ -11,6 +11,30 @@ use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 /// Canonical scalar type used for geometric measurements.
 pub type GeometryMeasure = f32;
 
+/// Stable identifier for entries in the root point table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub struct PointId(pub u64);
+
+/// Stable identifier for entries in the root line table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub struct LineId(pub u64);
+
+/// Stable identifier for entries in the root polygon-face table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub struct FaceId(pub u64);
+
+/// Stable identifier for entries in the root triangle table.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub struct TriangleId(pub u64);
+
+/// Base trait for stable geometry table keys.
+pub trait IsGeometryKey: Debug + Clone + Copy + PartialEq + Eq + Hash + Serialize + Sized {}
+
+impl IsGeometryKey for PointId {}
+impl IsGeometryKey for LineId {}
+impl IsGeometryKey for FaceId {}
+impl IsGeometryKey for TriangleId {}
+
 /// Base trait implemented by all geometry primitives in this module tree.
 pub trait GeometricPrimitive:
     Debug
@@ -74,17 +98,21 @@ pub trait SelfProductInner:
 {
 }
 
-/// Abstraction over a mutable collection of geometry primitives.
+/// Abstraction over a keyed mutable collection of geometry primitives.
 pub trait IsGeometryTable {
+    /// Stable key used to address items in the table.
+    type Key: IsGeometryKey;
     /// Item stored by the table.
     type Item: GeometricPrimitive;
 
-    /// Reads an item by index.
-    fn read(&self, index: usize) -> Option<Self::Item>;
-    /// Writes an item at the given index.
-    fn write(&mut self, index: usize, value: Self::Item) -> Result<(), String>;
-    /// Deletes the item at the given index.
-    fn delete(&mut self, index: usize) -> Result<(), String>;
+    /// Returns the item stored at `key`, if present.
+    fn get(&self, key: &Self::Key) -> Option<Self::Item>;
+    /// Inserts or replaces the item stored at `key`.
+    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), String>;
+    /// Removes and returns the item stored at `key`, if present.
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Item>;
+    /// Returns `true` if `key` exists in the table.
+    fn contains_key(&self, key: &Self::Key) -> bool;
     /// Returns the number of items held by the table.
     fn size(&self) -> usize;
     /// Computes the union of two tables.
@@ -95,10 +123,8 @@ pub trait IsGeometryTable {
     fn intersection(&self, other: &Self) -> Self
     where
         Self: Sized;
-    /// Iterates immutably over the table contents.
-    fn iter(&self) -> Box<dyn Iterator<Item = Self::Item> + '_>;
-    /// Iterates mutably over the table contents.
-    fn iter_mut(&mut self) -> Box<dyn Iterator<Item = &mut Self::Item> + '_>;
+    /// Iterates immutably over key/value pairs in the table.
+    fn iter(&self) -> Box<dyn Iterator<Item = (Self::Key, Self::Item)> + '_>;
     /// Serializes the table to a file.
     fn to_file(&self, path: &str) -> Result<(), String>;
     /// Loads a table instance from a file.
@@ -107,132 +133,213 @@ pub trait IsGeometryTable {
         Self: Sized;
 }
 
-/// Indicates that a type borrows and exposes a geometry table.
-pub trait UsesTable<'a>: Sized {
-    /// Item type stored in the referenced table.
-    type Item: GeometricPrimitive;
-    /// Concrete or dynamic table type used by the implementor.
-    type Table: IsGeometryTable<Item = Self::Item> + ?Sized + 'a;
-
-    /// Returns an immutable reference to the configured table.
-    fn table(&self) -> &Self::Table;
-    /// Returns a mutable reference to the configured table.
-    fn table_mut(&mut self) -> &mut Self::Table;
-    /// Rebinds the implementor to a different borrowed table.
-    fn set_table(&mut self, table: &'a mut Self::Table);
-}
-
-/// Provides vertex-oriented access for primitives backed by point tables.
-pub trait HasVertices<'a>: UsesTable<'a>
-where
-    Self::Item: IsPoint,
-{
-    /// Returns the number of vertices stored by the primitive.
-    fn vertex_count(&self) -> usize {
-        self.table().size()
-    }
-
-    /// Returns a vertex by index.
-    fn vertex(&self, index: usize) -> Option<Self::Item> {
-        self.table().read(index)
-    }
-
-    /// Replaces the vertex at `index`.
-    fn set_vertex(&mut self, index: usize, value: Self::Item) -> Result<(), String> {
-        self.table_mut().write(index, value)
-    }
-
-    /// Removes the vertex at `index`.
-    fn remove_vertex(&mut self, index: usize) -> Result<(), String> {
-        self.table_mut().delete(index)
-    }
-}
-
-/// Provides line-oriented access for primitives backed by stored line tables.
-pub trait HasLines<'a>: UsesTable<'a, Item = Self::Line> {
-    /// Point type used by the stored lines.
+/// Root registry that owns or exposes the current core geometry tables.
+pub trait IsGeometryTableBase<'a> {
+    /// Point primitive stored in the point table.
     type Point: IsPoint;
-    /// Line type stored by the primitive.
+    /// Unit normal type used by polygonal faces and triangles.
+    type Normal: IsUnitVector;
+    /// Line primitive stored in the line table.
     type Line: IsLine<'a, Self::Point>;
+    /// Polygon face primitive stored in the face table.
+    type Face: IsPolygon<'a, Self::Point, Self::Normal>;
+    /// Triangle primitive stored in the triangle table.
+    type Triangle: IsTriangle<'a, Self::Point, Self::Normal>;
 
-    /// Returns the number of stored lines.
-    fn line_count(&self) -> usize {
-        self.table().size()
+    /// Concrete point table type.
+    type PointTable: IsGeometryTable<Key = PointId, Item = Self::Point> + ?Sized + 'a;
+    /// Concrete line table type.
+    type LineTable: IsGeometryTable<Key = LineId, Item = Self::Line> + ?Sized + 'a;
+    /// Concrete face table type.
+    type FaceTable: IsGeometryTable<Key = FaceId, Item = Self::Face> + ?Sized + 'a;
+    /// Concrete triangle table type.
+    type TriangleTable: IsGeometryTable<Key = TriangleId, Item = Self::Triangle> + ?Sized + 'a;
+
+    /// Returns an immutable reference to the point table.
+    fn point_table(&self) -> &Self::PointTable;
+    /// Returns a mutable reference to the point table.
+    fn point_table_mut(&mut self) -> &mut Self::PointTable;
+    /// Returns an immutable reference to the line table.
+    fn line_table(&self) -> &Self::LineTable;
+    /// Returns a mutable reference to the line table.
+    fn line_table_mut(&mut self) -> &mut Self::LineTable;
+    /// Returns an immutable reference to the face table.
+    fn face_table(&self) -> &Self::FaceTable;
+    /// Returns a mutable reference to the face table.
+    fn face_table_mut(&mut self) -> &mut Self::FaceTable;
+    /// Returns an immutable reference to the triangle table.
+    fn triangle_table(&self) -> &Self::TriangleTable;
+    /// Returns a mutable reference to the triangle table.
+    fn triangle_table_mut(&mut self) -> &mut Self::TriangleTable;
+}
+
+/// Provides access to a borrowed point table.
+pub trait HasVertices<'a>: Sized {
+    /// Point primitive stored in the vertex table.
+    type Vertex: IsPoint;
+    /// Borrowed point-table type.
+    type VertexTable: IsGeometryTable<Key = PointId, Item = Self::Vertex> + ?Sized + 'a;
+
+    /// Returns an immutable reference to the vertex table.
+    fn vertex_table(&self) -> &Self::VertexTable;
+    /// Returns a mutable reference to the vertex table.
+    fn vertex_table_mut(&mut self) -> &mut Self::VertexTable;
+    /// Rebinds the implementor to a different borrowed vertex table.
+    fn set_vertex_table(&mut self, table: &'a mut Self::VertexTable);
+
+    /// Returns the number of entries in the vertex table.
+    fn vertex_table_size(&self) -> usize {
+        self.vertex_table().size()
     }
 
-    /// Returns a line by index.
-    fn line(&self, index: usize) -> Option<Self::Line> {
-        self.table().read(index)
+    /// Returns the vertex stored at `id`.
+    fn get_vertex(&self, id: &PointId) -> Option<Self::Vertex> {
+        self.vertex_table().get(id)
     }
 
-    /// Replaces the line at `index`.
-    fn set_line(&mut self, index: usize, value: Self::Line) -> Result<(), String> {
-        self.table_mut().write(index, value)
+    /// Returns `true` if the vertex table contains `id`.
+    fn contains_vertex(&self, id: &PointId) -> bool {
+        self.vertex_table().contains_key(id)
     }
 
-    /// Removes the line at `index`.
-    fn remove_line(&mut self, index: usize) -> Result<(), String> {
-        self.table_mut().delete(index)
+    /// Inserts or replaces the vertex stored at `id`.
+    fn insert_vertex(&mut self, id: PointId, value: Self::Vertex) -> Result<(), String> {
+        self.vertex_table_mut().insert(id, value)
+    }
+
+    /// Removes and returns the vertex stored at `id`, if present.
+    fn remove_vertex(&mut self, id: &PointId) -> Option<Self::Vertex> {
+        self.vertex_table_mut().remove(id)
     }
 }
 
-/// Provides triangle-oriented access for primitives backed by stored triangle tables.
-pub trait HasTriangles<'a>: UsesTable<'a, Item = Self::Triangle> {
-    /// Point type used by the stored triangles.
+/// Provides access to a borrowed line table.
+pub trait HasLines<'a>: Sized {
+    /// Point primitive referenced by lines in the line table.
+    type Point: IsPoint;
+    /// Line primitive stored in the line table.
+    type Line: IsLine<'a, Self::Point>;
+    /// Borrowed line-table type.
+    type LineTable: IsGeometryTable<Key = LineId, Item = Self::Line> + ?Sized + 'a;
+
+    /// Returns an immutable reference to the line table.
+    fn line_table(&self) -> &Self::LineTable;
+    /// Returns a mutable reference to the line table.
+    fn line_table_mut(&mut self) -> &mut Self::LineTable;
+    /// Rebinds the implementor to a different borrowed line table.
+    fn set_line_table(&mut self, table: &'a mut Self::LineTable);
+
+    /// Returns the number of entries in the line table.
+    fn line_table_size(&self) -> usize {
+        self.line_table().size()
+    }
+
+    /// Returns the line stored at `id`.
+    fn get_line(&self, id: &LineId) -> Option<Self::Line> {
+        self.line_table().get(id)
+    }
+
+    /// Returns `true` if the line table contains `id`.
+    fn contains_line(&self, id: &LineId) -> bool {
+        self.line_table().contains_key(id)
+    }
+
+    /// Inserts or replaces the line stored at `id`.
+    fn insert_line(&mut self, id: LineId, value: Self::Line) -> Result<(), String> {
+        self.line_table_mut().insert(id, value)
+    }
+
+    /// Removes and returns the line stored at `id`, if present.
+    fn remove_line(&mut self, id: &LineId) -> Option<Self::Line> {
+        self.line_table_mut().remove(id)
+    }
+}
+
+/// Provides access to a borrowed triangle table.
+pub trait HasTriangles<'a>: Sized {
+    /// Point primitive referenced by the stored triangles.
     type Point: IsPoint;
     /// Unit normal type used by the stored triangles.
     type Normal: IsUnitVector;
-    /// Triangle type stored by the primitive.
+    /// Triangle primitive stored in the triangle table.
     type Triangle: IsTriangle<'a, Self::Point, Self::Normal>;
+    /// Borrowed triangle-table type.
+    type TriangleTable: IsGeometryTable<Key = TriangleId, Item = Self::Triangle> + ?Sized + 'a;
 
-    /// Returns the number of stored triangles.
-    fn triangle_count(&self) -> usize {
-        self.table().size()
+    /// Returns an immutable reference to the triangle table.
+    fn triangle_table(&self) -> &Self::TriangleTable;
+    /// Returns a mutable reference to the triangle table.
+    fn triangle_table_mut(&mut self) -> &mut Self::TriangleTable;
+    /// Rebinds the implementor to a different borrowed triangle table.
+    fn set_triangle_table(&mut self, table: &'a mut Self::TriangleTable);
+
+    /// Returns the number of entries in the triangle table.
+    fn triangle_table_size(&self) -> usize {
+        self.triangle_table().size()
     }
 
-    /// Returns a triangle by index.
-    fn triangle(&self, index: usize) -> Option<Self::Triangle> {
-        self.table().read(index)
+    /// Returns the triangle stored at `id`.
+    fn get_triangle(&self, id: &TriangleId) -> Option<Self::Triangle> {
+        self.triangle_table().get(id)
     }
 
-    /// Replaces the triangle at `index`.
-    fn set_triangle(&mut self, index: usize, value: Self::Triangle) -> Result<(), String> {
-        self.table_mut().write(index, value)
+    /// Returns `true` if the triangle table contains `id`.
+    fn contains_triangle(&self, id: &TriangleId) -> bool {
+        self.triangle_table().contains_key(id)
     }
 
-    /// Removes the triangle at `index`.
-    fn remove_triangle(&mut self, index: usize) -> Result<(), String> {
-        self.table_mut().delete(index)
+    /// Inserts or replaces the triangle stored at `id`.
+    fn insert_triangle(&mut self, id: TriangleId, value: Self::Triangle) -> Result<(), String> {
+        self.triangle_table_mut().insert(id, value)
+    }
+
+    /// Removes and returns the triangle stored at `id`, if present.
+    fn remove_triangle(&mut self, id: &TriangleId) -> Option<Self::Triangle> {
+        self.triangle_table_mut().remove(id)
     }
 }
 
-/// Provides polygon-face access for primitives backed by stored face tables.
-pub trait HasFaces<'a>: UsesTable<'a, Item = Self::Face> {
-    /// Point type used by the stored faces.
+/// Provides access to a borrowed polygon-face table.
+pub trait HasFaces<'a>: Sized {
+    /// Point primitive referenced by the stored faces.
     type Point: IsPoint;
     /// Unit normal type used by the stored faces.
     type Normal: IsUnitVector;
-    /// Polygon face type stored by the primitive.
+    /// Polygon face primitive stored in the face table.
     type Face: IsPolygon<'a, Self::Point, Self::Normal>;
+    /// Borrowed face-table type.
+    type FaceTable: IsGeometryTable<Key = FaceId, Item = Self::Face> + ?Sized + 'a;
 
-    /// Returns the number of stored faces.
-    fn face_count(&self) -> usize {
-        self.table().size()
+    /// Returns an immutable reference to the face table.
+    fn face_table(&self) -> &Self::FaceTable;
+    /// Returns a mutable reference to the face table.
+    fn face_table_mut(&mut self) -> &mut Self::FaceTable;
+    /// Rebinds the implementor to a different borrowed face table.
+    fn set_face_table(&mut self, table: &'a mut Self::FaceTable);
+
+    /// Returns the number of entries in the face table.
+    fn face_table_size(&self) -> usize {
+        self.face_table().size()
     }
 
-    /// Returns a face by index.
-    fn face(&self, index: usize) -> Option<Self::Face> {
-        self.table().read(index)
+    /// Returns the face stored at `id`.
+    fn get_face(&self, id: &FaceId) -> Option<Self::Face> {
+        self.face_table().get(id)
     }
 
-    /// Replaces the face at `index`.
-    fn set_face(&mut self, index: usize, value: Self::Face) -> Result<(), String> {
-        self.table_mut().write(index, value)
+    /// Returns `true` if the face table contains `id`.
+    fn contains_face(&self, id: &FaceId) -> bool {
+        self.face_table().contains_key(id)
     }
 
-    /// Removes the face at `index`.
-    fn remove_face(&mut self, index: usize) -> Result<(), String> {
-        self.table_mut().delete(index)
+    /// Inserts or replaces the face stored at `id`.
+    fn insert_face(&mut self, id: FaceId, value: Self::Face) -> Result<(), String> {
+        self.face_table_mut().insert(id, value)
+    }
+
+    /// Removes and returns the face stored at `id`, if present.
+    fn remove_face(&mut self, id: &FaceId) -> Option<Self::Face> {
+        self.face_table_mut().remove(id)
     }
 }
 

@@ -10,7 +10,9 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::three_d::transform_support::{reflect_point_across_plane, rotate_point_around_axis};
-use crate::geometry::three_d::{IsTetrahedron, Line3D, Point3D, Triangle3D, UnitVector3D};
+use crate::geometry::three_d::{
+    GeometryVector3D, IsTetrahedron, Line3D, Point3D, Triangle3D, UnitVector3D,
+};
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::IsPolygon;
 use serde::Serialize;
@@ -135,7 +137,7 @@ impl Tetrahedron3D {
         let ab = [b.x() - a.x(), b.y() - a.y(), b.z() - a.z()];
         let ac = [c.x() - a.x(), c.y() - a.y(), c.z() - a.z()];
         let ad = [d.x() - a.x(), d.y() - a.y(), d.z() - a.z()];
-        let cross = Point3D::new(
+        let cross = GeometryVector3D::new(
             ab[1] * ac[2] - ab[2] * ac[1],
             ab[2] * ac[0] - ab[0] * ac[2],
             ab[0] * ac[1] - ab[1] * ac[0],
@@ -327,7 +329,7 @@ impl CanTranslate for Tetrahedron3D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = tail - head;
+        let delta = GeometryVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;

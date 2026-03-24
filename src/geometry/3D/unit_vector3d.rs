@@ -11,7 +11,7 @@ use crate::geometry::coordinate_systems::{
     CoordinateSystem3D, ToCartesian, ToCylindrical, ToSpherical,
 };
 use crate::geometry::three_d::coordinate_conversions;
-use crate::geometry::three_d::Point3D;
+use crate::geometry::three_d::GeometryVector3D;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
@@ -52,8 +52,9 @@ impl UnitVector3D {
         Self::from_cartesian_components(cartesian, coordinate_system)
     }
 
-    pub(crate) fn from_point(point: Point3D) -> Self {
-        Self::from_cartesian_components(point.cartesian_components(), point.coordinate_system())
+    /// Creates a unit vector by normalizing a free geometry vector.
+    pub fn from_vector(vector: GeometryVector3D) -> Self {
+        Self::from_cartesian_components(vector.cartesian_components(), vector.coordinate_system())
     }
 
     pub(crate) fn from_cartesian_components(
@@ -72,8 +73,9 @@ impl UnitVector3D {
         }
     }
 
-    pub(crate) fn as_point(self) -> Point3D {
-        Point3D::from_cartesian_components(self.cartesian_components(), CoordinateSystem3D::Cartesian)
+    /// Returns this unit vector as a free geometry vector with the same components.
+    pub fn as_vector(self) -> GeometryVector3D {
+        GeometryVector3D::from_cartesian_components(self.cartesian_components(), self.coordinate_system)
     }
 
     /// Returns the raw stored coordinates in the current coordinate system.
@@ -178,15 +180,18 @@ impl DotProduct for UnitVector3D {
 }
 
 impl CrossProduct for UnitVector3D {
-    type Output = Point3D;
+    type Output = GeometryVector3D;
 
     fn cross(&self, rhs: &Self) -> <Self as CrossProduct>::Output {
         let lhs = self.cartesian_components();
         let rhs = rhs.cartesian_components();
-        Point3D::new(
-            lhs[1] * rhs[2] - lhs[2] * rhs[1],
-            lhs[2] * rhs[0] - lhs[0] * rhs[2],
-            lhs[0] * rhs[1] - lhs[1] * rhs[0],
+        GeometryVector3D::from_cartesian_components(
+            [
+                lhs[1] * rhs[2] - lhs[2] * rhs[1],
+                lhs[2] * rhs[0] - lhs[0] * rhs[2],
+                lhs[0] * rhs[1] - lhs[1] * rhs[0],
+            ],
+            self.coordinate_system,
         )
     }
 }

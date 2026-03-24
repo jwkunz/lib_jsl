@@ -9,8 +9,8 @@ use crate::geometry::tables::SharedGeometryTable;
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::transform_support::{reflect_point_across_plane_2d, rotate_point_around_anchor_2d};
 use crate::geometry::two_d::{
-    HasOrientation, IsPolygon, Line2D, Plane2D, Point2D, Triangle2D, UnitVector2D,
-    Orientation2D,
+    GeometryVector2D, HasOrientation, IsPolygon, Line2D, Plane2D, Point2D, Triangle2D,
+    UnitVector2D, Orientation2D,
 };
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -273,7 +273,7 @@ impl CanTranslate for PolygonFace2D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = tail - head;
+        let delta = GeometryVector2D::new(tail.x() - head.x(), tail.y() - head.y());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;

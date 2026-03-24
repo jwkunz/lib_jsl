@@ -6,6 +6,7 @@ use crate::geometry::common::{
 };
 use crate::geometry::coordinate_systems::{CoordinateSystem2D, ToCartesian, ToPolar};
 use crate::geometry::two_d::coordinate_conversions;
+use crate::geometry::two_d::GeometryVector2D;
 use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
@@ -59,6 +60,16 @@ impl UnitVector2D {
             coords: coordinate_conversions::from_cartesian(normalized, coordinate_system),
             coordinate_system,
         }
+    }
+
+    /// Creates a unit vector by normalizing a free geometry vector.
+    pub fn from_vector(vector: GeometryVector2D) -> Self {
+        Self::from_cartesian_components(vector.cartesian_components(), vector.coordinate_system())
+    }
+
+    /// Returns this unit vector as a free geometry vector with the same components.
+    pub fn as_vector(self) -> GeometryVector2D {
+        GeometryVector2D::from_cartesian_components(self.cartesian_components(), self.coordinate_system)
     }
 
     /// Returns the raw stored coordinates in the current coordinate system.

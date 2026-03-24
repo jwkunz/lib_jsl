@@ -12,7 +12,7 @@
 //!
 //! ```rust
 //! use lib_jsl::geometry::common::{IsGeometryTable, IsGeometryTableBase, PointId};
-//! use lib_jsl::geometry::concrete::{GeometryTableRegistry, Line3D, Point3D};
+//! use lib_jsl::geometry::concrete::{GeometryTableRegistry, GeometryVector3D, Line3D, Point3D};
 //! use lib_jsl::geometry::one_d::IsLine;
 //!
 //! let mut registry = GeometryTableRegistry::new();
@@ -27,13 +27,15 @@
 //!
 //! let line = Line3D::new(PointId(1), PointId(2), registry.point_table().clone());
 //! assert!((line.length() - 1.0).abs() < 1e-5);
+//! let shifted = Point3D::new(0.0, 0.0, 0.0) + GeometryVector3D::new(1.0, 2.0, 3.0);
+//! assert_eq!(shifted, Point3D::new(1.0, 2.0, 3.0));
 //! ```
 
 /// Re-exported one-dimensional concrete geometry types.
 pub use crate::geometry::one_d::{Line1D, Plane1D, Point1D, UnitVector1D};
 /// Re-exported two-dimensional concrete geometry types.
 pub use crate::geometry::two_d::{
-    Line2D, Mesh2D, Plane2D, Point2D, PolygonFace2D, Triangle2D, UnitVector2D,
+    GeometryVector2D, Line2D, Mesh2D, Plane2D, Point2D, PolygonFace2D, Triangle2D, UnitVector2D,
 };
 /// Re-exported concrete geometry registry that owns the core shared tables.
 pub use crate::geometry::registry::GeometryTableRegistry;
@@ -41,8 +43,8 @@ pub use crate::geometry::registry::GeometryTableRegistry;
 pub use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 /// Re-exported three-dimensional concrete geometry types.
 pub use crate::geometry::three_d::{
-    Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D, Triangle3D,
-    UnitVector3D, VolumeMesh3D,
+    GeometryVector3D, Line3D, Plane3D, Point3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D,
+    Triangle3D, UnitVector3D, VolumeMesh3D,
 };
 
 #[cfg(test)]
@@ -262,7 +264,7 @@ mod tests {
         let mut point = Point2D::new(1.0, 1.0);
         point.set_coordinate_system(CoordinateSystem2D::Polar);
 
-        let translated = point + Point2D::new(1.0, 0.0);
+        let translated = point + GeometryVector2D::new(1.0, 0.0);
 
         assert_eq!(point.coordinate_system(), CoordinateSystem2D::Polar);
         assert_eq!(translated.coordinate_system(), CoordinateSystem2D::Polar);
@@ -277,7 +279,7 @@ mod tests {
         let mut point = Point3D::new(1.0, 0.0, 1.0);
         point.set_coordinate_system(CoordinateSystem3D::Spherical);
 
-        let translated = point + Point3D::new(0.0, 1.0, 0.0);
+        let translated = point + GeometryVector3D::new(0.0, 1.0, 0.0);
 
         assert_eq!(point.coordinate_system(), CoordinateSystem3D::Spherical);
         assert_eq!(translated.coordinate_system(), CoordinateSystem3D::Spherical);

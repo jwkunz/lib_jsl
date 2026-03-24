@@ -14,8 +14,8 @@ use crate::geometry::common::{
 use crate::geometry::one_d::IsLine;
 use crate::geometry::tables::{HashGeometryTable, SharedGeometryTable};
 use crate::geometry::three_d::{
-    IsVolumeMesh, Line3D, Point3D, PolygonFace3D, SurfaceMesh3D, Tetrahedron3D, Triangle3D,
-    UnitVector3D,
+    GeometryVector3D, IsVolumeMesh, Line3D, Point3D, PolygonFace3D, SurfaceMesh3D,
+    Tetrahedron3D, Triangle3D, UnitVector3D,
 };
 use crate::geometry::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::geometry::two_d::{IsPolygon, IsTriangle};
@@ -380,7 +380,7 @@ impl CanTranslate for VolumeMesh3D {
         let (Some(head), Some(tail)) = (translation_vector.head(), translation_vector.tail()) else {
             return;
         };
-        let delta = tail - head;
+        let delta = GeometryVector3D::new(tail.x() - head.x(), tail.y() - head.y(), tail.z() - head.z());
         for point_id in self.unique_vertex_ids() {
             if let Some(mut point) = self.get_vertex(&point_id) {
                 point = point + delta;

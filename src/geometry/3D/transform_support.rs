@@ -1,7 +1,7 @@
 //! Internal 3D transformation helpers shared by concrete primitives.
 
 use crate::geometry::common::{GeometryMeasure, IsUnitVector};
-use crate::geometry::three_d::{Point3D, UnitVector3D};
+use crate::geometry::three_d::{GeometryVector3D, Point3D, UnitVector3D};
 
 /// Rotates a point around an axis using Rodrigues' rotation formula.
 pub(crate) fn rotate_point_around_axis(
@@ -10,14 +10,12 @@ pub(crate) fn rotate_point_around_axis(
     axis: &impl IsUnitVector,
     angle: GeometryMeasure,
 ) -> Point3D {
-    let axis = Point3D::new(axis[0], axis[1], axis[2]);
-    let translated = point - origin;
-    let translated = translated.cartesian_components();
-    let translated = Point3D::new(translated[0], translated[1], translated[2]);
+    let axis = GeometryVector3D::new(axis[0], axis[1], axis[2]);
+    let translated = GeometryVector3D::new(point.x() - origin.x(), point.y() - origin.y(), point.z() - origin.z());
     let axis_components = axis.cartesian_components();
     let cos_theta = angle.cos();
     let sin_theta = angle.sin();
-    let cross = Point3D::new(
+    let cross = GeometryVector3D::new(
         axis_components[1] * translated.z() - axis_components[2] * translated.y(),
         axis_components[2] * translated.x() - axis_components[0] * translated.z(),
         axis_components[0] * translated.y() - axis_components[1] * translated.x(),
@@ -35,8 +33,12 @@ pub(crate) fn reflect_point_across_plane(
     plane_point: Point3D,
     normal: UnitVector3D,
 ) -> Point3D {
-    let offset = point - plane_point;
-    let normal_point = normal.as_point();
-    let distance = offset * normal_point;
-    point - normal_point * (2.0 * distance)
+    let offset = GeometryVector3D::new(
+        point.x() - plane_point.x(),
+        point.y() - plane_point.y(),
+        point.z() - plane_point.z(),
+    );
+    let normal_vector = normal.as_vector();
+    let distance = offset * normal_vector;
+    point - normal_vector * (2.0 * distance)
 }

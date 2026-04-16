@@ -15,7 +15,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 
-use crate::{lz77, lz78, lzw};
+use crate::{huffman, lz77, lz78, lzw};
 
 /// Common interface for byte-oriented source coders in this crate.
 ///
@@ -75,6 +75,19 @@ impl SourceCoder for LzwSourceCoder {
     }
 }
 
+/// Zero-sized wrapper for the Huffman implementation.
+pub struct HuffmanSourceCoder;
+
+impl SourceCoder for HuffmanSourceCoder {
+    fn try_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        huffman::try_huffman_compress(input)
+    }
+
+    fn try_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        huffman::try_huffman_decompress(input)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -101,9 +114,15 @@ mod tests {
     }
 
     #[test]
+    fn huffman_trait_wrapper_round_trip() {
+        assert_round_trip::<HuffmanSourceCoder>(b"this is an example of a huffman tree");
+    }
+
+    #[test]
     fn trait_wrappers_support_large_asset_round_trip() {
         let payload = include_bytes!("../test_assets/kjv.txt");
 
+        assert_round_trip::<HuffmanSourceCoder>(payload);
         assert_round_trip::<Lz77SourceCoder>(payload);
         assert_round_trip::<Lz78SourceCoder>(payload);
         assert_round_trip::<LzwSourceCoder>(payload);

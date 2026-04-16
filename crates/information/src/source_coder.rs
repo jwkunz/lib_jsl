@@ -15,7 +15,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 
-use crate::{huffman, lz77, lz78, lzw};
+use crate::{arithmetic, huffman, lz77, lz78, lzw};
 
 /// Common interface for byte-oriented source coders in this crate.
 ///
@@ -88,6 +88,19 @@ impl SourceCoder for HuffmanSourceCoder {
     }
 }
 
+/// Zero-sized wrapper for the arithmetic coding implementation.
+pub struct ArithmeticSourceCoder;
+
+impl SourceCoder for ArithmeticSourceCoder {
+    fn try_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        arithmetic::try_arithmetic_compress(input)
+    }
+
+    fn try_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        arithmetic::try_arithmetic_decompress(input)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -119,9 +132,15 @@ mod tests {
     }
 
     #[test]
+    fn arithmetic_trait_wrapper_round_trip() {
+        assert_round_trip::<ArithmeticSourceCoder>(b"arithmetic coding narrows an interval symbol by symbol");
+    }
+
+    #[test]
     fn trait_wrappers_support_large_asset_round_trip() {
         let payload = include_bytes!("../test_assets/kjv.txt");
 
+        assert_round_trip::<ArithmeticSourceCoder>(payload);
         assert_round_trip::<HuffmanSourceCoder>(payload);
         assert_round_trip::<Lz77SourceCoder>(payload);
         assert_round_trip::<Lz78SourceCoder>(payload);

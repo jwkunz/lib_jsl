@@ -15,7 +15,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 
-use crate::{arithmetic, huffman, lz77, lz78, lzw};
+use crate::{arithmetic, huffman, lz77, lz78, lzw, shannon_fano};
 
 /// Common interface for byte-oriented source coders in this crate.
 ///
@@ -101,6 +101,19 @@ impl SourceCoder for ArithmeticSourceCoder {
     }
 }
 
+/// Zero-sized wrapper for the Shannon-Fano implementation.
+pub struct ShannonFanoSourceCoder;
+
+impl SourceCoder for ShannonFanoSourceCoder {
+    fn try_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        shannon_fano::try_shannon_fano_compress(input)
+    }
+
+    fn try_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        shannon_fano::try_shannon_fano_decompress(input)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -137,6 +150,11 @@ mod tests {
     }
 
     #[test]
+    fn shannon_fano_trait_wrapper_round_trip() {
+        assert_round_trip::<ShannonFanoSourceCoder>(b"shannon fano recursively splits symbols by probability");
+    }
+
+    #[test]
     fn trait_wrappers_support_large_asset_round_trip() {
         let payload = include_bytes!("../test_assets/kjv.txt");
 
@@ -145,5 +163,6 @@ mod tests {
         assert_round_trip::<Lz77SourceCoder>(payload);
         assert_round_trip::<Lz78SourceCoder>(payload);
         assert_round_trip::<LzwSourceCoder>(payload);
+        assert_round_trip::<ShannonFanoSourceCoder>(payload);
     }
 }

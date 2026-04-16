@@ -8,6 +8,7 @@
 //! - [`lz77`] for the sliding-window back-reference variant
 //! - [`lz78`] for explicit dictionary entry emission
 //! - [`lzw`] for the Welch-style evolving code table
+//! - [`shannon_fano`] for top-down probability splitting into prefix codes
 //!
 //! The [`source_coder`] module provides a shared trait wrapper so callers can
 //! use any of these codecs through one common interface.
@@ -16,5 +17,6 @@ pub mod arithmetic;
 pub mod huffman;
 pub mod lz77;
 pub mod lz78;
+pub mod shannon_fano;
 pub mod source_coder;
 pub mod lzw;

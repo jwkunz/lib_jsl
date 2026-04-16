@@ -50,10 +50,14 @@ pub fn arithmetic_compress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`arithmetic_compress`].
 pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    // We store the original length in the header, so the encoder first makes
+    // sure that length fits into the chosen 64-bit field.
     if input.len() > u64::MAX as usize {
         return Err(ErrorsJSL::InvalidInputRange("Arithmetic coder input is too large to store its original length."));
     }
 
+    // Build the static order-0 model once. Every later interval calculation is
+    // driven by these cumulative symbol counts.
     let model = build_model(input)?;
     let symbol_count = model.frequencies.iter().filter(|&&count| count > 0).count();
 
@@ -82,6 +86,9 @@ pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     let mut pending_bits = 0u64;
 
     for &symbol in input {
+        // Convert the current symbol into its cumulative range `[cum_low,
+        // cum_high)` inside the model. Arithmetic coding does not jump to a
+        // codeword; it shrinks the active numeric interval to this slice.
         let symbol_index = symbol as usize;
         let range = (high - low + 1) as u128;
         let cum_low = model.cumulative[symbol_index] as u128;
@@ -96,12 +103,20 @@ pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
         // half, high half, or the middle "underflow" band.
         loop {
             if high < HALF {
+                // E1 scaling: the whole interval lies in the low half, so we
+                // can safely emit a leading `0` bit.
                 output_bit_plus_pending(&mut writer, false, &mut pending_bits);
             } else if low >= HALF {
+                // E2 scaling: the whole interval lies in the high half, so we
+                // emit a leading `1` bit and subtract that half before
+                // rescaling back to the full range.
                 output_bit_plus_pending(&mut writer, true, &mut pending_bits);
                 low -= HALF;
                 high -= HALF;
             } else if low >= FIRST_QTR && high < THIRD_QTR {
+                // E3 scaling: the interval sits in the ambiguous middle band.
+                // We cannot emit a stable leading bit yet, so we count one
+                // "pending" bit that will be resolved later.
                 pending_bits += 1;
                 low -= FIRST_QTR;
                 high -= FIRST_QTR;
@@ -109,6 +124,9 @@ pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
                 break;
             }
 
+            // After any renormalization step, stretch the interval back to the
+            // full fixed-precision range so the next symbol still has room to
+            // carve out a meaningful sub-interval.
             low = low.saturating_mul(2);
             high = high.saturating_mul(2).saturating_add(1);
         }
@@ -136,6 +154,8 @@ pub fn arithmetic_decompress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`arithmetic_decompress`].
 pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    // The header tells the decoder how many output bytes to expect and how to
+    // rebuild the same cumulative model used by the encoder.
     if input.len() < MAGIC.len() || &input[..MAGIC.len()] != MAGIC {
         return Err(ErrorsJSL::InvalidInputRange("Compressed payload is missing the arithmetic coder header."));
     }
@@ -236,6 +256,8 @@ pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
         let symbol = find_symbol(&model.cumulative, scaled_value)?;
         output.push(symbol as u8);
 
+        // Now shrink the active interval to that symbol's slice, exactly the
+        // same way the encoder did when it originally saw this symbol.
         let cum_low = model.cumulative[symbol] as u128;
         let cum_high = model.cumulative[symbol + 1] as u128;
 
@@ -246,10 +268,12 @@ pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
             if high < HALF {
                 // Nothing to subtract; the interval already sits in the low half.
             } else if low >= HALF {
+                // Mirror the encoder's E2 normalization.
                 code -= HALF;
                 low -= HALF;
                 high -= HALF;
             } else if low >= FIRST_QTR && high < THIRD_QTR {
+                // Mirror the encoder's E3 underflow handling.
                 code -= FIRST_QTR;
                 low -= FIRST_QTR;
                 high -= FIRST_QTR;
@@ -257,6 +281,8 @@ pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
                 break;
             }
 
+            // Pull one more payload bit into the live `code` register while the
+            // interval is stretched back to full precision.
             low = low.saturating_mul(2);
             high = high.saturating_mul(2).saturating_add(1);
             code = code.saturating_mul(2).saturating_add(reader.read_bit_or_zero());
@@ -267,6 +293,8 @@ pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 }
 
 fn build_model(input: &[u8]) -> Result<Model, ErrorsJSL> {
+    // The frequency table is the raw histogram of byte occurrences in the
+    // source. Arithmetic coding turns this histogram into cumulative counts.
     let mut frequencies = [0u32; 256];
     for &byte in input {
         frequencies[byte as usize] = frequencies[byte as usize]
@@ -279,6 +307,8 @@ fn build_model(input: &[u8]) -> Result<Model, ErrorsJSL> {
 fn build_model_from_frequencies(frequencies: [u32; 256]) -> Result<Model, ErrorsJSL> {
     let mut cumulative = [0u64; 257];
     for (index, &frequency) in frequencies.iter().enumerate() {
+        // `cumulative[i]` stores the total weight of all symbols strictly below
+        // `i`, so symbol `i` occupies `[cumulative[i], cumulative[i + 1))`.
         cumulative[index + 1] = cumulative[index]
             .checked_add(frequency as u64)
             .ok_or(ErrorsJSL::InvalidInputRange("Arithmetic coder cumulative frequency overflowed."))?;
@@ -292,6 +322,9 @@ fn build_model_from_frequencies(frequencies: [u32; 256]) -> Result<Model, Errors
 }
 
 fn find_symbol(cumulative: &[u64; 257], scaled_value: u64) -> Result<usize, ErrorsJSL> {
+    // Binary search is enough here because the cumulative table is monotonic.
+    // We are looking for the one symbol whose interval contains
+    // `scaled_value`.
     let mut low = 0usize;
     let mut high = 256usize;
 
@@ -310,8 +343,11 @@ fn find_symbol(cumulative: &[u64; 257], scaled_value: u64) -> Result<usize, Erro
 }
 
 fn output_bit_plus_pending(writer: &mut BitWriter, bit: bool, pending_bits: &mut u64) {
+    // Emit the stable leading bit we just discovered.
     writer.write_bit(bit);
     while *pending_bits > 0 {
+        // Every postponed middle-band event resolves to the opposite bit once
+        // the final direction becomes known.
         writer.write_bit(!bit);
         *pending_bits -= 1;
     }

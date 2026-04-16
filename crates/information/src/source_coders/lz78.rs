@@ -35,6 +35,9 @@ const MAX_INDEX: usize = u16::MAX as usize;
 
 /// Compress a byte slice with a manual LZ78 encoder.
 pub fn lz78_compress(input: &[u8]) -> Vec<u8> {
+    // The output starts with enough room for the original data plus a little
+    // framing overhead. The exact final size depends on how often the input
+    // can be expressed as "known phrase + one new byte".
     let mut output = Vec::with_capacity(input.len().saturating_add(MAGIC.len() + 4));
     output.extend_from_slice(MAGIC);
 
@@ -49,6 +52,9 @@ pub fn lz78_compress(input: &[u8]) -> Vec<u8> {
     let mut current_phrase = Vec::new();
 
     for &byte in input {
+        // Pretend that the next input byte extends the phrase we are currently
+        // building. LZ78 always asks "have I seen this longer phrase before?"
+        // before deciding whether to emit a token.
         let mut extended_phrase = current_phrase.clone();
         extended_phrase.push(byte);
 
@@ -61,6 +67,10 @@ pub fn lz78_compress(input: &[u8]) -> Vec<u8> {
             // dictionary, so emit:
             // - the index of the longest known prefix
             // - the new suffix byte that extends it
+            //
+            // Example:
+            // if the dictionary already knows `ABA` and the next byte is `Q`,
+            // the emitted token is `(index_of_ABA, 'Q')`.
             let prefix_index = phrase_index(&dictionary, &current_phrase);
             emit_token(&mut output, prefix_index, Some(byte));
 
@@ -94,6 +104,8 @@ pub fn lz78_decompress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`lz78_decompress`].
 pub fn try_lz78_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    // The decoder begins by validating the four-byte magic value so it knows
+    // the rest of the payload should be interpreted as LZ78 tokens.
     if input.len() < MAGIC.len() || &input[..MAGIC.len()] != MAGIC {
         return Err(ErrorsJSL::InvalidInputRange("Compressed payload is missing the LZ78 header."));
     }
@@ -106,13 +118,17 @@ pub fn try_lz78_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     let mut cursor = MAGIC.len();
 
     while cursor < input.len() {
+        // Every token must at least carry a two-byte prefix index and a
+        // one-byte suffix flag.
         if cursor + 3 > input.len() {
             return Err(ErrorsJSL::InvalidInputRange("LZ78 token is missing prefix index or suffix flag bytes."));
         }
 
+        // Recover the "existing dictionary phrase" part of the token.
         let prefix_index = u16::from_le_bytes([input[cursor], input[cursor + 1]]) as usize;
         cursor += 2;
 
+        // Then recover whether this token carries a trailing literal byte.
         let suffix_flag = input[cursor];
         cursor += 1;
 
@@ -143,6 +159,8 @@ pub fn try_lz78_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
             }
         }
 
+        // The token's decoded phrase is part of the original data stream, so
+        // append it directly to the output in the order we recovered it.
         output.extend_from_slice(&phrase);
 
         // Every non-empty decoded phrase becomes the next dictionary entry, just
@@ -158,6 +176,8 @@ pub fn try_lz78_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 /// Look up the dictionary index for a phrase, returning zero for the empty
 /// phrase.
 fn phrase_index(dictionary: &HashMap<Vec<u8>, u16>, phrase: &[u8]) -> u16 {
+    // LZ78 reserves index zero for "no prefix", which corresponds to the empty
+    // phrase at the start of a token.
     if phrase.is_empty() {
         0
     } else {
@@ -167,6 +187,10 @@ fn phrase_index(dictionary: &HashMap<Vec<u8>, u16>, phrase: &[u8]) -> u16 {
 
 /// Emit one LZ78 token into the custom byte stream.
 fn emit_token(output: &mut Vec<u8>, prefix_index: u16, suffix: Option<u8>) {
+    // The on-wire token layout is:
+    // 1. prefix index
+    // 2. suffix-present flag
+    // 3. optional suffix byte
     output.extend_from_slice(&prefix_index.to_le_bytes());
 
     match suffix {

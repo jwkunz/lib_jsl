@@ -28,6 +28,10 @@ use super::{arithmetic, huffman, lz77, lz78, lzw, shannon_fano};
 /// future codec-specific compression failures through the same `Result` type.
 pub trait SourceCoder {
     /// Compress a raw byte slice into a codec-specific byte stream.
+    ///
+    /// The trait keeps the signature intentionally small so generic code can
+    /// swap one source coder for another without having to learn codec-specific
+    /// setup APIs first.
     fn try_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL>;
 
     /// Decompress a codec-specific byte stream back into its original bytes.
@@ -54,6 +58,8 @@ pub struct Lz78SourceCoder;
 
 impl SourceCoder for Lz78SourceCoder {
     fn try_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+        // The wrapper's only job is to adapt the plain function-based module
+        // API into the shared trait shape.
         Ok(lz78::lz78_compress(input))
     }
 
@@ -119,6 +125,8 @@ mod tests {
     use super::*;
 
     fn assert_round_trip<T: SourceCoder>(payload: &[u8]) {
+        // This helper exercises the exact trait surface that generic callers
+        // would use: compress first, then decompress that returned byte stream.
         let compressed = T::try_compress(payload).expect("compression should succeed");
         let decompressed = T::try_decompress(&compressed).expect("decompression should succeed");
         assert_eq!(decompressed, payload);

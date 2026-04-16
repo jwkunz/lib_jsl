@@ -59,6 +59,8 @@ pub fn shannon_fano_compress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`shannon_fano_compress`].
 pub fn try_shannon_fano_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    // The format stores the original length explicitly so the decoder knows
+    // when to stop, even though the payload itself is packed at bit granularity.
     if input.len() > u64::MAX as usize {
         return Err(ErrorsJSL::InvalidInputRange("Shannon-Fano input is too large to encode its original length."));
     }
@@ -87,12 +89,17 @@ pub fn try_shannon_fano_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 
     let mut symbols = sorted_symbols(&frequencies);
     let mut codes = vec![Vec::new(); 256];
+
+    // Build a code table by recursively splitting the symbols into two groups
+    // with similar total weight.
     assign_codes(&mut symbols, &mut codes);
 
     let mut current_byte = 0u8;
     let mut bit_count = 0u8;
 
     for &byte in input {
+        // Pack the already-computed Shannon-Fano code for this byte into the
+        // output bitstream.
         for &bit in &codes[byte as usize] {
             current_byte <<= 1;
             if bit {
@@ -123,6 +130,8 @@ pub fn shannon_fano_decompress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`shannon_fano_decompress`].
 pub fn try_shannon_fano_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    // First recover the static frequency model that defines the same sorted
+    // symbol list and recursive split decisions used during compression.
     if input.len() < MAGIC.len() || &input[..MAGIC.len()] != MAGIC {
         return Err(ErrorsJSL::InvalidInputRange("Compressed payload is missing the Shannon-Fano header."));
     }
@@ -185,6 +194,9 @@ pub fn try_shannon_fano_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     let mut symbols = sorted_symbols(&frequencies);
     let mut codes = vec![Vec::new(); 256];
     assign_codes(&mut symbols, &mut codes);
+
+    // Turn the generated bit patterns into a binary decode tree so the payload
+    // can be read one bit at a time.
     let decode_root = build_decode_tree(&codes, &frequencies)?;
 
     if let DecodeNode::Leaf { symbol } = decode_root {
@@ -197,6 +209,7 @@ pub fn try_shannon_fano_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 
     for &packed_byte in bitstream {
         for shift in (0..8).rev() {
+            // Read one payload bit and walk one edge through the decode tree.
             let bit_is_set = ((packed_byte >> shift) & 1) == 1;
 
             current = match current {
@@ -221,6 +234,9 @@ pub fn try_shannon_fano_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
             };
 
             if let DecodeNode::Leaf { symbol } = current {
+                // Reaching a leaf means a full Shannon-Fano codeword has been
+                // consumed, so emit the symbol and restart from the root for
+                // the next one.
                 output.push(*symbol);
                 if output.len() == original_len {
                     return Ok(output);
@@ -255,6 +271,8 @@ fn descend_from_root<'a>(root: &'a DecodeNode, bit_is_set: bool) -> Result<&'a D
 }
 
 fn build_frequency_table(input: &[u8]) -> [u32; 256] {
+    // Count how often each byte occurs. The later recursive splits operate only
+    // on this histogram rather than on the raw source bytes.
     let mut frequencies = [0u32; 256];
     for &byte in input {
         frequencies[byte as usize] = frequencies[byte as usize].saturating_add(1);
@@ -288,6 +306,8 @@ fn assign_codes(symbols: &mut [SymbolFrequency], codes: &mut [Vec<bool>]) {
     if symbols.is_empty() {
         return;
     }
+    // The actual recursive split logic lives in the helper below; this thin
+    // wrapper just handles the empty-input corner case up front.
     assign_codes_recursive(symbols, codes);
 }
 
@@ -303,9 +323,11 @@ fn assign_codes_recursive(symbols: &mut [SymbolFrequency], codes: &mut [Vec<bool
 
     let split_index = choose_split_index(symbols);
 
+    // Every symbol in the left half gains a `0` at this recursion depth.
     for entry in &symbols[..split_index] {
         codes[entry.symbol as usize].push(false);
     }
+    // Every symbol in the right half gains a `1` at this recursion depth.
     for entry in &symbols[split_index..] {
         codes[entry.symbol as usize].push(true);
     }
@@ -372,6 +394,9 @@ fn insert_code_recursive(
             "Shannon-Fano code table attempted to descend through an existing leaf.",
         )),
         DecodeNode::Internal { left, right } => {
+            // Follow the next bit of the codeword: `0` goes left, `1` goes
+            // right. Missing interior nodes are created on demand so the code
+            // table can be turned into an explicit decode tree.
             let bit = code
                 .get(depth)
                 .ok_or(ErrorsJSL::RuntimeError("Shannon-Fano insertion depth exceeded the code length."))?;

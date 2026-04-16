@@ -221,10 +221,15 @@ pub fn try_huffman_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 
     for &packed_byte in bitstream {
         for shift in (0..8).rev() {
+            // Read one compressed bit and follow one edge through the decode
+            // tree.
             let bit_is_set = ((packed_byte >> shift) & 1) == 1;
 
             current = match current {
                 HuffmanNode::Leaf { symbol } => {
+                    // If the previous step already landed on a leaf, emit that
+                    // symbol and use the current bit to start a fresh descent
+                    // from the root.
                     output.push(*symbol);
                     if output.len() == original_len {
                         return Ok(output);
@@ -238,6 +243,8 @@ pub fn try_huffman_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
             };
 
             if let HuffmanNode::Leaf { symbol } = current {
+                // Reaching a leaf after consuming the current bit means one
+                // full codeword has been decoded.
                 output.push(*symbol);
                 if output.len() == original_len {
                     return Ok(output);
@@ -272,6 +279,7 @@ fn build_tree_from_frequencies(frequencies: &[u32; 256]) -> Result<HuffmanNode, 
 
     for (symbol, &frequency) in frequencies.iter().enumerate() {
         if frequency > 0 {
+            // Start with one heap node per present symbol.
             heap.push(HeapEntry {
                 frequency,
                 min_symbol: symbol as u8,
@@ -285,6 +293,8 @@ fn build_tree_from_frequencies(frequencies: &[u32; 256]) -> Result<HuffmanNode, 
     }
 
     while heap.len() > 1 {
+        // Repeatedly merge the two lightest subtrees. That greedy step is the
+        // core of the Huffman construction.
         let left = heap.pop().ok_or(ErrorsJSL::RuntimeError("Huffman heap unexpectedly emptied while building the tree."))?;
         let right = heap.pop().ok_or(ErrorsJSL::RuntimeError("Huffman heap unexpectedly emptied while building the tree."))?;
 
@@ -318,10 +328,12 @@ fn build_code_table(node: &HuffmanNode, current_path: &mut Vec<bool>, codes: &mu
             }
         }
         HuffmanNode::Internal { left, right } => {
+            // Appending `false` means "go left" at this depth.
             current_path.push(false);
             build_code_table(left, current_path, codes);
             current_path.pop();
 
+            // Appending `true` means "go right" at this depth.
             current_path.push(true);
             build_code_table(right, current_path, codes);
             current_path.pop();

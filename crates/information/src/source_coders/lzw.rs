@@ -24,6 +24,9 @@ const MAX_CODE: usize = u16::MAX as usize;
 
 /// Compress a byte slice with a manual LZW encoder.
 pub fn lzw_compress(input: &[u8]) -> Vec<u8> {
+    // We reserve enough room for the header plus a rough stream of 16-bit
+    // codes. LZW can compress or expand depending on the input, so this is
+    // only a starting guess.
     let mut output = Vec::with_capacity(input.len().saturating_add(MAGIC.len() + 2));
     output.extend_from_slice(MAGIC);
 
@@ -36,6 +39,9 @@ pub fn lzw_compress(input: &[u8]) -> Vec<u8> {
     let mut current_phrase = Vec::new();
 
     for &byte in input {
+        // Hypothesize that the next input byte extends the phrase we are
+        // currently building. If that longer phrase already exists, we keep
+        // growing; otherwise we emit the known prefix and learn the longer one.
         let mut extended_phrase = current_phrase.clone();
         extended_phrase.push(byte);
 
@@ -46,6 +52,10 @@ pub fn lzw_compress(input: &[u8]) -> Vec<u8> {
         } else {
             // The longer phrase is new, so emit the code for the longest phrase
             // we *did* know.
+            //
+            // Example:
+            // if `TOBE` is in the dictionary but `TOBEN` is not, we emit the
+            // code for `TOBE`, then insert `TOBEN`.
             if !current_phrase.is_empty() {
                 let code = dictionary[&current_phrase];
                 output.extend_from_slice(&code.to_le_bytes());
@@ -81,6 +91,8 @@ pub fn lzw_decompress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`lzw_decompress`].
 pub fn try_lzw_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    // The magic header distinguishes this payload from the other source coders
+    // in the crate, which all have their own byte layouts.
     if input.len() < MAGIC.len() || &input[..MAGIC.len()] != MAGIC {
         return Err(ErrorsJSL::InvalidInputRange("Compressed payload is missing the LZW header."));
     }
@@ -98,10 +110,12 @@ pub fn try_lzw_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     let mut previous_phrase: Option<Vec<u8>> = None;
 
     while cursor < input.len() {
+        // Read the next 16-bit phrase code from the compressed stream.
         let code = u16::from_le_bytes([input[cursor], input[cursor + 1]]);
         cursor += 2;
 
         let phrase = if let Some(existing) = dictionary.get(code as usize) {
+            // The common case: the code already names a phrase we know.
             existing.clone()
         } else if (code as usize) == next_code {
             // This is the classic LZW "KwKwK" edge case. The encoder has just
@@ -121,6 +135,7 @@ pub fn try_lzw_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
             return Err(ErrorsJSL::InvalidInputRange("LZW code points outside the reconstructed dictionary."));
         };
 
+        // Once the phrase is known, emit it directly to reconstruct the source.
         output.extend_from_slice(&phrase);
 
         if let Some(previous) = &previous_phrase {

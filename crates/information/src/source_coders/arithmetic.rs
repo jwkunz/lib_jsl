@@ -420,7 +420,7 @@ mod tests {
 
     #[test]
     fn round_trip_kjv_text_asset() {
-        let payload = include_bytes!("../test_assets/kjv.txt");
+        let payload = include_bytes!("../../test_assets/kjv.txt");
         let compressed = try_arithmetic_compress(payload).unwrap();
         let decompressed = try_arithmetic_decompress(&compressed).unwrap();
 

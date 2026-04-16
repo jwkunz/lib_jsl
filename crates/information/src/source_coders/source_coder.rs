@@ -15,7 +15,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 
-use crate::{arithmetic, huffman, lz77, lz78, lzw, shannon_fano};
+use super::{arithmetic, huffman, lz77, lz78, lzw, shannon_fano};
 
 /// Common interface for byte-oriented source coders in this crate.
 ///
@@ -156,7 +156,7 @@ mod tests {
 
     #[test]
     fn trait_wrappers_support_large_asset_round_trip() {
-        let payload = include_bytes!("../test_assets/kjv.txt");
+        let payload = include_bytes!("../../test_assets/kjv.txt");
 
         assert_round_trip::<ArithmeticSourceCoder>(payload);
         assert_round_trip::<HuffmanSourceCoder>(payload);

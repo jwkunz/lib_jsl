@@ -372,7 +372,7 @@ mod tests {
 
     #[test]
     fn round_trip_kjv_text_asset() {
-        let payload = include_bytes!("../test_assets/kjv.txt");
+        let payload = include_bytes!("../../test_assets/kjv.txt");
         let compressed = try_huffman_compress(payload).unwrap();
         let decompressed = try_huffman_decompress(&compressed).unwrap();
 

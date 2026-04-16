@@ -390,7 +390,7 @@ mod tests {
     fn round_trip_kjv_text_asset() {
         // Embed the asset directly into the test binary so the regression test
         // is independent of the current working directory.
-        let payload = include_bytes!("../test_assets/kjv.txt");
+        let payload = include_bytes!("../../test_assets/kjv.txt");
         let compressed = lz77_compress(payload);
         let decompressed = lz77_decompress(&compressed);
 

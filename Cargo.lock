@@ -555,6 +555,7 @@ dependencies = [
  "lib_jsl_dsp",
  "lib_jsl_ffts",
  "lib_jsl_geometry",
+ "lib_jsl_information",
  "lib_jsl_integration",
  "lib_jsl_interpolation",
  "lib_jsl_number_theory",
@@ -607,6 +608,13 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "lib_jsl_information"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
 ]
 
 [[package]]

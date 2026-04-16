@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/core",
+    "crates/information",
     "crates/geometry",
     "crates/dsp",
     "crates/ffts",
@@ -41,6 +42,7 @@ path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core = { path = "crates/core" }
+lib_jsl_information = { path = "crates/information" }
 lib_jsl_geometry = { path = "crates/geometry" }
 lib_jsl_dsp = { path = "crates/dsp" }
 lib_jsl_ffts = { path = "crates/ffts" }

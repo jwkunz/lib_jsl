@@ -1,0 +1,13 @@
+[package]
+name = "lib_jsl_information"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Information theory utilities including a manual Lempel-Ziv byte codec."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }

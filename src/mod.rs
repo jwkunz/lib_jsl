@@ -9,6 +9,7 @@ pub use lib_jsl_derivatives as derivatives;
 pub use lib_jsl_dsp as dsp;
 pub use lib_jsl_ffts as ffts;
 pub use lib_jsl_geometry as geometry;
+pub use lib_jsl_information as information;
 pub use lib_jsl_integration as integration;
 pub use lib_jsl_interpolation as interpolation;
 pub use lib_jsl_number_theory as number_theory;

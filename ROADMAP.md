@@ -7,7 +7,7 @@
 
 # Core
 [x] Data types and traits
-[ ] Constants
+[x] Constants
 
 # Derivatives
 [x] Scalar Derivatives 1D
@@ -27,7 +27,7 @@
 
 ### Spectral
 [x] freqs
-[ ] Fourier integrals
+[x] Fourier integrals
 
 ## Discrete
 [x] Stream Operators

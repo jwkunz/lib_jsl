@@ -19,18 +19,6 @@ pub type C2D = Array2<Complex<f64>>;
 pub type VR2D<'a> = ArrayView2<'a, f64>;
 pub type VC2D<'a> = ArrayView2<'a, num::Complex<f64>>;
 
-/// This module defines common error types and traits for the library. The `ErrorsJSL` enum provides a standardized way to represent various error conditions that may arise during the execution of the library's functions, such as invalid input, runtime errors, missing dependencies, and misconfigurations.
-#[derive(Debug)]
-pub enum ErrorsJSL {
-    NotImplementedYet,
-    IncompatibleArraySizes((usize, usize)),
-    InvalidInputRange(&'static str),
-    RuntimeError(&'static str),
-    MissingDependency(&'static str),
-    Other(&'static str),
-    Misconfiguration(&'static str),
-}
-
 /// The `IsLinearOperatable` trait defines a set of operations that must be supported by any type that can be used in linear operations, such as addition, subtraction, multiplication, division, and negation. This trait is implemented for common numeric types such as f64, f32, Complex<f64>, Complex<f32>, and various integer types, allowing them to be used in linear operations throughout the library.
 pub trait IsLinearOperatable:
     Debug

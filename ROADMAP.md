@@ -76,6 +76,18 @@
 [ ] Square
 [ ] Noise
 
+### Digital Communications
+[ ] Constellations 
+[ ] Barker codes 
+[ ] Decision feedback equalizer 
+[ ] Farro filter
+[ ] Mueller timing detector
+[ ] OFDM
+[ ] FM
+[ ] Pulse correlation tracker
+[ ] Addressable shift register 
+[ ] Ping pong buffer
+
 ### Image
 
 #### Filters
@@ -325,14 +337,14 @@
 [x] Gamma
 [x] Beta
 
-## Sorting and Selection
+# Sorting and Selection
 [ ] Quicksort
 [ ] Heapsort
 [ ] Select M largest
 [ ] Equivalence classes
 [ ] Shell's method
 
-## Special Functions 
+# Special Functions 
 [ ] Gamma
 [ ] Beta
 [ ] Factorial
@@ -356,7 +368,7 @@
 [ ] Hypergeometric functions
 [ ] Statistical functions
 
-## Root Finding
+# Root Finding
 [ ] Bracketing
 [ ] Bisection
 [ ] Secant method
@@ -366,15 +378,45 @@
 [ ] Newton-Raphson
 [ ] Polynomial roots
 
-## Machine Learning
+# Machine Learning
+
+## Supervised 
+
+### Regression 
 [ ] Least squares
 [ ] General least squares
-[ ] Nonlinear models
-[ ] Markov modeling
-[ ] Hidden Markov modeling
-[ ] k-means
-[ ] Viterbi decoding
+[ ] Ridge 
+[ ] Elastic Net
+
+
+### Classification 
+[ ] k-nearest neighbors
 [ ] Phylogentic trees
+[ ] Vitirbi algorithm 
+[ ] Random Forest 
+[ ] Support vector machine 
+[ ] Logistic regression 
+[ ] Naive Bayes
+
+## Unsupervised 
+
+### Clustering 
+[ ] k means
+[ ] k medoids 
+[ ] Heirarchacle 
+[ ] Support vector regression 
+[ ] DBSCAN
+[ ] HDBSCAN
+[ ] Gaussian mixture models
+[ ] Spectral clustering 
+
+### Reduction 
+[ ] Principle component analysis 
+[ ] Kernel PCA
+[ ] t-SNE
+[ ] UMAP
+[ ] LDA
+
 
 ## Electromagnetics
 

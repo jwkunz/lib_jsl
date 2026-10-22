@@ -9,7 +9,10 @@ pub mod continuous;
 pub mod discrete {
     pub mod convolve;
     pub mod cross_correlation;
+    pub mod digital_communications;
+    pub mod image;
     pub mod sinc;
+    pub mod sources;
     pub mod stream_operator;
     pub mod windows;
 

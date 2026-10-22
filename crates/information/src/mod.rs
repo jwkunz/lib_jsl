@@ -14,6 +14,9 @@
 //! individual codec modules and the shared [`source_coder`] trait layer are
 //! re-exported at the crate root for convenience.
 
+pub mod forward_error_correction;
+pub mod lfsr;
+pub mod operators;
 pub mod source_coders;
 
 pub use source_coders::arithmetic;

@@ -553,14 +553,20 @@ dependencies = [
  "lib_jsl_core",
  "lib_jsl_derivatives",
  "lib_jsl_dsp",
+ "lib_jsl_electromagnetics",
  "lib_jsl_ffts",
  "lib_jsl_geometry",
  "lib_jsl_information",
  "lib_jsl_integration",
  "lib_jsl_interpolation",
+ "lib_jsl_machine_learning",
  "lib_jsl_number_theory",
  "lib_jsl_optimization",
  "lib_jsl_random",
+ "lib_jsl_root_finding",
+ "lib_jsl_sorting",
+ "lib_jsl_special_functions",
+ "lib_jsl_utils",
 ]
 
 [[package]]
@@ -590,6 +596,13 @@ dependencies = [
  "ndarray-linalg",
  "num",
  "serde",
+]
+
+[[package]]
+name = "lib_jsl_electromagnetics"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
 ]
 
 [[package]]
@@ -633,6 +646,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_jsl_machine_learning"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+]
+
+[[package]]
 name = "lib_jsl_number_theory"
 version = "0.1.0"
 dependencies = [
@@ -658,6 +678,34 @@ version = "0.1.0"
 dependencies = [
  "lib_jsl_core",
  "num",
+]
+
+[[package]]
+name = "lib_jsl_root_finding"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+]
+
+[[package]]
+name = "lib_jsl_sorting"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+]
+
+[[package]]
+name = "lib_jsl_special_functions"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
+]
+
+[[package]]
+name = "lib_jsl_utils"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
 ]
 
 [[package]]

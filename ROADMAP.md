@@ -118,7 +118,6 @@
 [x] Overlap and add fir
 [x] Remez exchange algorithm
 [ ] FFT fir
-[ ] Savitzky-Golay
 
 #### IIR
 [x] Bessel
@@ -130,7 +129,7 @@
 [x] Elliptic
 [x] IIR comb
 [x] IIR notch
-[x] III peak
+[x] IIR peak
 
 ### Resampling
 [x] Polyphase arbitrary resampling
@@ -198,8 +197,8 @@
 [x] Polygon face 3D
 [x] Surface mesh 3D
 [x] Tetrahedron 3D
-[x] Triangle 2D
-[x] Unit vector 2D
+[x] Triangle 3D
+[x] Unit vector 3D
 [x] Volume mesh 3D
 
 ## Algorithms
@@ -276,6 +275,7 @@
 [ ] Fourier 1D
 [ ] Chebychev Approximations
 [ ] Lagrange interpolant
+[ ] Savitzky-Golay
 
 ## 2D
 [ ] Nearest
@@ -301,12 +301,12 @@
 [ ] Cubic basis
 
 # Number Theory
-[ ] Base exponent in modulus
-[ ] Greatest commond divisor
-[ ] Integer square root
-[ ] Multiplicative inverse modulo
-[ ] Polynomial
-[ ] Text coded integer
+[x] Base exponent in modulus
+[x] Greatest commond divisor
+[x] Integer square root
+[x] Multiplicative inverse modulo
+[x] Polynomial
+[x] Text coded integer
 
 # Optimization
 [x] Golden section search

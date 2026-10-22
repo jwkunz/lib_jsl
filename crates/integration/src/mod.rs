@@ -2,6 +2,7 @@ pub mod adaptive_gl7k15_integration_engine;
 pub mod adaptive_trapezoid_integration_engine;
 pub mod calculate_midpoints;
 pub mod can_integrate;
+pub mod complex_path_integrals;
 pub mod dormand_prince;
 pub mod midpoint_integration_engine;
 pub mod monte_carlo_integration;

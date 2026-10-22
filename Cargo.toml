@@ -11,6 +11,12 @@ members = [
     "crates/optimization",
     "crates/random",
     "crates/derivatives",
+    "crates/sorting",
+    "crates/special_functions",
+    "crates/root_finding",
+    "crates/machine_learning",
+    "crates/electromagnetics",
+    "crates/utils",
 ]
 resolver = "2"
 
@@ -52,3 +58,9 @@ lib_jsl_number_theory = { path = "crates/number_theory" }
 lib_jsl_optimization = { path = "crates/optimization" }
 lib_jsl_random = { path = "crates/random" }
 lib_jsl_derivatives = { path = "crates/derivatives" }
+lib_jsl_sorting = { path = "crates/sorting" }
+lib_jsl_special_functions = { path = "crates/special_functions" }
+lib_jsl_root_finding = { path = "crates/root_finding" }
+lib_jsl_machine_learning = { path = "crates/machine_learning" }
+lib_jsl_electromagnetics = { path = "crates/electromagnetics" }
+lib_jsl_utils = { path = "crates/utils" }

@@ -1,0 +1,13 @@
+[package]
+name = "lib_jsl_machine_learning"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Machine learning algorithms and models."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }

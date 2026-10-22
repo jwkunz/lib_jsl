@@ -1,0 +1,13 @@
+[package]
+name = "lib_jsl_sorting"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Sorting and selection algorithms."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }

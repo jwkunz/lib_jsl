@@ -11,6 +11,7 @@
 //! - [`crate::concrete`] for concrete types like `CoordinateVector3D`, `Line3D`, and `SurfaceMesh3D`
 //! - [`crate::geometric_traits`] for the broad trait surface
 
+pub mod algorithms;
 /// Shared foundational traits used across all geometry dimensions.
 pub mod common;
 /// Coordinate-system enums and conversion traits.

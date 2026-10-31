@@ -278,7 +278,7 @@
 [x] Natural cubic spline
 [x] Polynomial
 [x] PCHIP
-[ ] Akima
+[x] Akima
 [ ] Cubic basis
 [ ] AAA
 [ ] Prony's method

@@ -8,8 +8,8 @@
 use crate::{
     discrete::convolve::{apply_mode, fft_full, ConvolveMode},
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
@@ -33,9 +33,9 @@ pub fn fft_convolve<T: IsAnalytic>(in1: &[T], in2: &[T], mode: ConvolveMode) -> 
 pub(crate) fn fft2d(data: &Array2<Complex<f64>>, inverse: bool) -> Result<Array2<Complex<f64>>, ErrorsJSL> {
     let (rows, cols) = data.dim();
     let (direction, scale) = if inverse { (FftDirection::Inverse, FftScaleFactor::N) } else { (FftDirection::Forward, FftScaleFactor::None) };
-    let mut row_fft = BestFft::new();
+    let mut row_fft = Fft::new();
     row_fft.plan(cols, scale, direction, FftOrdering::Standard)?;
-    let mut col_fft = BestFft::new();
+    let mut col_fft = Fft::new();
     col_fft.plan(rows, scale, direction, FftOrdering::Standard)?;
     let mut tmp = Array2::<Complex<f64>>::zeros((rows, cols));
     for r in 0..rows {

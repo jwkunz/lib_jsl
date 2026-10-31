@@ -4,8 +4,8 @@
 
 use crate::{
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
@@ -54,7 +54,7 @@ pub(crate) fn fft_full<T: IsAnalytic>(in1: &[T], in2: &[T]) -> Result<Vec<T>, Er
         b[i] = v.to_complex();
     }
 
-    let mut fft = BestFft::new();
+    let mut fft = Fft::new();
     fft.plan(
         nfft,
         FftScaleFactor::None,
@@ -69,7 +69,7 @@ pub(crate) fn fft_full<T: IsAnalytic>(in1: &[T], in2: &[T]) -> Result<Vec<T>, Er
         c_fft[i] = a_fft[i] * b_fft[i];
     }
 
-    let mut ifft = BestFft::new();
+    let mut ifft = Fft::new();
     ifft.plan(
         nfft,
         FftScaleFactor::N,

@@ -19,7 +19,7 @@ use num::Complex;
 
 use crate::{
     bluestein_fft::BluesteinFft,
-    fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
 const ALPHA_TOL: f64 = 1e-12;

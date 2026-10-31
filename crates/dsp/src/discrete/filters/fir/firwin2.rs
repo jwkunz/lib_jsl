@@ -1,8 +1,8 @@
 use crate::{
     dsp::discrete::windows::{self, WindowType},
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::ErrorsJSL,
 };
@@ -153,7 +153,7 @@ pub fn firwin2(
         spec[nfft - k] = fx2[k].conj();
     }
 
-    let mut ifft = BestFft::new();
+    let mut ifft = Fft::new();
     ifft.plan(
         nfft,
         FftScaleFactor::N,

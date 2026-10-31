@@ -158,14 +158,18 @@
 [x] Non-linearity transformer
 
 # FFTs
+[x] FFT (default engine: picks the algorithm by size)
 [x] Best FFT
 [x] Bluestein FFT
 [x] Fractional FFT
+[x] SIMD FFT (generic, x86, ARM, RISC-V)
+[x] FFT engine trait
+
+# FFT Reference
 [x] Simple Cooley Tukey
 [x] Optimized radix-2
 [x] Optimized split radix
-[x] SIMD FFT (generic, x86, ARM, RISC-V)
-[x] FFT engine trait
+[x] FFT race benchmark
 
 # Geometry
 [x] Common

@@ -15,8 +15,8 @@
 use crate::{
     discrete::stream_operator::{StreamOperator, StreamOperatorManagement},
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
@@ -31,8 +31,8 @@ pub struct FftFir<T: IsAnalytic> {
     taps_fft: Vec<Complex<f64>>,
     history: Vec<Complex<f64>>,
     pending: Vec<Complex<f64>>,
-    fwd: BestFft,
-    inv: BestFft,
+    fwd: Fft,
+    inv: Fft,
     any_input: bool,
     _marker: PhantomData<T>,
 }
@@ -55,10 +55,10 @@ impl<T: IsAnalytic> FftFir<T> {
         for (dst, tap) in h.iter_mut().zip(taps) {
             *dst = tap.to_complex();
         }
-        let mut fwd = BestFft::new();
+        let mut fwd = Fft::new();
         fwd.plan(fft_len, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard)?;
         let taps_fft = fwd.execute(&h)?;
-        let mut inv = BestFft::new();
+        let mut inv = Fft::new();
         inv.plan(fft_len, FftScaleFactor::N, FftDirection::Inverse, FftOrdering::Standard)?;
         Ok(FftFir {
             taps_len,

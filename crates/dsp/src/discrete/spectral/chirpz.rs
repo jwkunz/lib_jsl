@@ -19,8 +19,8 @@ use num::Complex;
 
 use crate::{
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{C1D, ErrorsJSL, IsAnalytic},
 };
@@ -103,14 +103,14 @@ pub fn chirpz<T: IsAnalytic>(
         v[(q + (n as isize - 1)) as usize] = complex_powf(w, -0.5 * qf * qf)?;
     }
 
-    let mut fft = BestFft::new();
+    let mut fft = Fft::new();
     fft.plan(
         fft_len,
         FftScaleFactor::None,
         FftDirection::Forward,
         FftOrdering::Standard,
     )?;
-    let mut ifft = BestFft::new();
+    let mut ifft = Fft::new();
     ifft.plan(
         fft_len,
         FftScaleFactor::N,

@@ -10,8 +10,8 @@ use crate::{
         windows::{WindowType, kaiser_beta, kaiser_estimate_numtaps},
     },
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{C1D, ErrorsJSL},
 };
@@ -46,7 +46,7 @@ pub struct CriticallySampledPolyphaseAnalysisFilterBank {
     phases: usize,
     history: VecDeque<Complex<f64>>,
     pending: VecDeque<Complex<f64>>,
-    fft: BestFft,
+    fft: Fft,
 }
 
 impl CriticallySampledPolyphaseAnalysisFilterBank {
@@ -68,7 +68,7 @@ impl CriticallySampledPolyphaseAnalysisFilterBank {
         };
         let phases = taps.len() / channels;
 
-        let mut fft = BestFft::new();
+        let mut fft = Fft::new();
         fft.plan(
             channels,
             FftScaleFactor::None,
@@ -182,7 +182,7 @@ pub struct CriticallySampledPolyphaseSynthesisFilterBank {
     taps: Vec<f64>,
     phases: usize,
     frame_history: VecDeque<Vec<Complex<f64>>>,
-    ifft: BestFft,
+    ifft: Fft,
 }
 
 impl CriticallySampledPolyphaseSynthesisFilterBank {
@@ -204,7 +204,7 @@ impl CriticallySampledPolyphaseSynthesisFilterBank {
         };
         let phases = taps.len() / channels;
 
-        let mut ifft = BestFft::new();
+        let mut ifft = Fft::new();
         ifft.plan(
             channels,
             FftScaleFactor::N,

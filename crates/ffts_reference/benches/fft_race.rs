@@ -9,14 +9,16 @@
 //! Overall, this benchmarking code serves as a valuable tool for evaluating the performance of different FFT implementations and guiding decisions about which implementation to use in different contexts.
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+#[path = "../../ffts/benches/rust_fft_wrapper.rs"]
 mod rust_fft_wrapper;
 use lib_jsl_ffts::{
     best_fft::BestFft,
     bluestein_fft::BluesteinFft,
+    fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor},
     simd_fft::SimdFft,
-    fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
-    optimized_radix2::OptimizedRadix2FFT,
-    optimized_split_radix::OptimizedSplitRadixFFT,
+};
+use lib_jsl_ffts_reference::{
+    optimized_radix2::OptimizedRadix2FFT, optimized_split_radix::OptimizedSplitRadixFFT,
     simple_cooley_tukey::SimpleCooleyTukeyFFT,
 };
 use num::Complex;
@@ -37,11 +39,11 @@ fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
 }
 
 fn fft_gaussian_32768_input() -> Vec<Complex<f64>> {
-    parse_complex_bin(include_bytes!("../src/test_data/fft_gaussian_32768_input.bin"))
+    parse_complex_bin(include_bytes!("../../ffts/src/test_data/fft_gaussian_32768_input.bin"))
 }
 
 fn fft_gaussian_63_input() -> Vec<Complex<f64>> {
-    parse_complex_bin(include_bytes!("../src/test_data/fft_gaussian_63_input.bin"))
+    parse_complex_bin(include_bytes!("../../ffts/src/test_data/fft_gaussian_63_input.bin"))
 }
 
 fn bit_reverse_index(mut n: usize, bits: usize) -> usize {
@@ -62,7 +64,7 @@ fn make_bit_reversed_input(input: &[Complex<f64>]) -> Vec<Complex<f64>> {
     out
 }
 
-fn bench_engine_execute<E: FfftEngine1D>(
+fn bench_engine_execute<E: FftEngine1D>(
     c: &mut Criterion,
     group_name: &str,
     engine_name: &str,

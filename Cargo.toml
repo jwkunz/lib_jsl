@@ -5,6 +5,7 @@ members = [
     "crates/geometry",
     "crates/dsp",
     "crates/ffts",
+    "crates/ffts_reference",
     "crates/integration",
     "crates/file_io",
     "crates/interpolation",

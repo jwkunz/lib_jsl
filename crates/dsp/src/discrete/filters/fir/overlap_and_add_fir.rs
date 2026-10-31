@@ -7,8 +7,8 @@ use crate::{
         stream_operator::{StreamOperator, StreamOperatorManagement},
     },
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
@@ -24,8 +24,8 @@ pub struct OverlapAddFir<T: IsAnalytic> {
     taps_fft: Vec<Complex<f64>>,
     overlap: Vec<Complex<f64>>,
     pending: VecDeque<T>,
-    fwd: BestFft,
-    inv: BestFft,
+    fwd: Fft,
+    inv: Fft,
     processed_any: bool,
 }
 
@@ -45,7 +45,7 @@ impl<T: IsAnalytic> OverlapAddFir<T> {
             h_time[i] = tap.to_complex();
         }
 
-        let mut fwd = BestFft::new();
+        let mut fwd = Fft::new();
         fwd.plan(
             fft_len,
             FftScaleFactor::None,
@@ -54,7 +54,7 @@ impl<T: IsAnalytic> OverlapAddFir<T> {
         )?;
         let taps_fft = fwd.execute(&h_time)?;
 
-        let mut inv = BestFft::new();
+        let mut inv = Fft::new();
         inv.plan(
             fft_len,
             FftScaleFactor::N,

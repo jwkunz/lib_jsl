@@ -1,4 +1,4 @@
-/// A wrapper around the RustFFT library to conform to our FfftEngine1D trait, allowing us to benchmark RustFFT against our own implementations.
+/// A wrapper around the RustFFT library to conform to our FftEngine1D trait, allowing us to benchmark RustFFT against our own implementations.
 /// This wrapper provides a way to use the RustFFT library within our benchmarking framework, allowing us to compare its performance against our own FFT implementations. The `RustFftWrapper` struct maintains the
 /// necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, and the FFT plan and scratch space required by RustFFT. 
 /// The `execute` method performs the FFT computation using RustFFT, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
@@ -12,7 +12,7 @@
 /// In summary, the `RustFftWrapper` provides a seamless integration of the RustFFT library into our benchmarking framework, enabling us to evaluate its performance alongside our own FFT implementations and make informed decisions about which implementation to use in different contexts.
 use std::sync::Arc;
 
-use lib_jsl_ffts::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
 use lib_jsl_core::ErrorsJSL;
 use num::Complex;
 use rustfft::{Fft, FftPlanner};
@@ -57,7 +57,7 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
     reversed
 }
 
-impl FfftEngine1D for RustFftWrapper {
+impl FftEngine1D for RustFftWrapper {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(

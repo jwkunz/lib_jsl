@@ -1,0 +1,23 @@
+[package]
+name = "lib_jsl_ffts_reference"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Readable reference FFT implementations for study, plus a benchmark comparing them with the production engines."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }
+lib_jsl_ffts = { path = "../ffts" }
+num.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+rustfft.workspace = true
+
+[[bench]]
+name = "fft_race"
+harness = false

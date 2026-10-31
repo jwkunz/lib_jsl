@@ -8,9 +8,10 @@ use lib_jsl_core::ErrorsJSL;
 
 use crate::{
     best_fft::BestFft,
-    fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 
+#[derive(Debug)]
 pub struct BluesteinFft {
     size: usize,
     direction: FftDirection,
@@ -57,7 +58,7 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
     reversed
 }
 
-impl FfftEngine1D for BluesteinFft {
+impl FftEngine1D for BluesteinFft {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(

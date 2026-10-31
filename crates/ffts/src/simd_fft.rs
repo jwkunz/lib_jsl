@@ -7,7 +7,7 @@
 use num::Complex;
 use lib_jsl_core::ErrorsJSL;
 
-use crate::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use crate::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[path = "simd_fft_x86.rs"]
@@ -141,7 +141,7 @@ fn radix2_pass_arch(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size
     radix2_pass_scalar(buffer, twiddles, size, m);
 }
 
-impl FfftEngine1D for SimdFft {
+impl FftEngine1D for SimdFft {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(

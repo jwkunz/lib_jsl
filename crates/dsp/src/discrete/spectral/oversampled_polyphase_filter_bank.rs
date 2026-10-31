@@ -10,8 +10,8 @@ use crate::{
         windows::{WindowType, kaiser_beta, kaiser_estimate_numtaps},
     },
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::{C1D, ErrorsJSL},
 };
@@ -47,7 +47,7 @@ pub struct OversampledPolyphaseAnalysisFilterBank {
     phases: usize,
     history: VecDeque<Complex<f64>>,
     pending: VecDeque<Complex<f64>>,
-    fft: BestFft,
+    fft: Fft,
 }
 
 impl OversampledPolyphaseAnalysisFilterBank {
@@ -83,7 +83,7 @@ impl OversampledPolyphaseAnalysisFilterBank {
         let phases = taps.len() / channels;
         let hop = channels / oversampling_factor;
 
-        let mut fft = BestFft::new();
+        let mut fft = Fft::new();
         fft.plan(
             channels,
             FftScaleFactor::None,
@@ -199,7 +199,7 @@ pub struct OversampledPolyphaseSynthesisFilterBank {
     phases: usize,
     frame_history: VecDeque<Vec<Complex<f64>>>,
     overlap: Vec<Complex<f64>>,
-    ifft: BestFft,
+    ifft: Fft,
 }
 
 impl OversampledPolyphaseSynthesisFilterBank {
@@ -235,7 +235,7 @@ impl OversampledPolyphaseSynthesisFilterBank {
         let phases = taps.len() / channels;
         let hop = channels / oversampling_factor;
 
-        let mut ifft = BestFft::new();
+        let mut ifft = Fft::new();
         ifft.plan(
             channels,
             FftScaleFactor::N,

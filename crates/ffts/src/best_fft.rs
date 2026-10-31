@@ -24,7 +24,7 @@
 use num::Complex;
 use lib_jsl_core::ErrorsJSL;
 
-use crate::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use crate::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
 
 /// Points per cache block (16 bytes each): 4096 points = 64 KiB, comfortably inside L2.
 const BLOCK: usize = 4096;
@@ -68,6 +68,7 @@ impl Pass {
     }
 }
 
+#[derive(Debug)]
 pub struct BestFft {
     size: usize,
     direction: FftDirection,
@@ -620,7 +621,7 @@ mod avx {
     }
 }
 
-impl FfftEngine1D for BestFft {
+impl FftEngine1D for BestFft {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(

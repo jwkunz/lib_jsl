@@ -5,7 +5,7 @@
 //! `f(x) = (1 / 2 pi) integral F(omega) exp(i omega x) d omega`.
 //! The integral is approximated by the trapezoidal rule on `M` evenly spaced
 //! samples over the support. A chirp-z transform evaluates the requested
-//! evenly spaced frequencies using the crate's `BestFft` implementation.
+//! evenly spaced frequencies using the crate's `Fft` implementation.
 
 use num::Complex;
 use std::f64::consts::TAU;
@@ -43,7 +43,7 @@ pub struct FourierIntegralResult {
 /// trapezoidal rule is used.
 ///
 /// The frequency-domain evaluation uses the chirp-z transform, which is
-/// implemented through FFT convolution with `BestFft`. This permits arbitrary
+/// implemented through FFT convolution with `Fft`. This permits arbitrary
 /// frequency ranges, not only the standard FFT bins.
 pub fn fourier_integral(
     f: fn(f64) -> Complex<f64>,

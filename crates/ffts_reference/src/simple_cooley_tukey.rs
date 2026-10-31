@@ -5,7 +5,7 @@
 use num::Complex;
 use lib_jsl_core::ErrorsJSL;
 
-use crate::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
  pub struct SimpleCooleyTukeyFFT {
     size: usize,
     direction: FftDirection,
@@ -40,7 +40,7 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
     reversed
 }   
 
-impl FfftEngine1D for SimpleCooleyTukeyFFT {
+impl FftEngine1D for SimpleCooleyTukeyFFT {
     fn plan(&mut self, size: usize, scale: FftScaleFactor, direction: FftDirection, ordering: FftOrdering) -> Result<(), ErrorsJSL> {
         if !size.is_power_of_two() {
             return Err(ErrorsJSL::InvalidInputRange("Size must be a power of 2"));
@@ -117,7 +117,7 @@ impl FfftEngine1D for SimpleCooleyTukeyFFT {
     fn get_size(&self) -> usize {
         self.size
     }
-    fn get_ordering(&self) -> super::fft_engine_trait::FftOrdering {
+    fn get_ordering(&self) -> lib_jsl_ffts::fft_engine_trait::FftOrdering {
         self.ordering
     }
 }

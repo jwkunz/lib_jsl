@@ -1,17 +1,13 @@
-//! Learning-oriented aggressive FFT variant.
-//!
-//! This keeps the same interface as the other engines, but uses fused m=2/m=4/m=8
-//! front passes plus radix-2 tails. It is intentionally kept as a study target:
-//! it can run fast, but it may introduce noticeable numerical drift vs. the golden FFT.
-//! The implementation is designed to be flexible and efficient, making it suitable for a wide range of applications that require fast Fourier transforms on power-of-two input sizes, while also serving as a reference for understanding the trade-offs involved in aggressive unrolling and optimization techniques in FFT implementations.  
-//! The `OptimizedSplitRadixFFT` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
-//! The `execute` method performs the FFT computation using an iterative approach with aggressive unrolling for the initial stages, while the `plan` method prepares the necessary precomputations based on the specified parameters. The implementation includes detailed comments explaining the logic and structure of the algorithm, making it a valuable resource for learning and experimentation with FFT optimization techniques. 
+/// Optimized radix-2 FFT implementation for power-of-two sizes.
+/// This implementation uses an iterative Cooley-Tukey algorithm with precomputed twiddle factors and bit-reversal indexing for efficient in-place computation. 
+/// The `OptimizedRadix2FFT` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
+/// The `execute` method performs the FFT computation using an iterative approach, while the `plan` method prepares the necessary precomputations based on the specified parameters.            
 use num::Complex;
 use lib_jsl_core::ErrorsJSL;
 
-use crate::fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
+use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
 
-pub struct OptimizedSplitRadixFFT {
+pub struct OptimizedRadix2FFT {
     size: usize,
     direction: FftDirection,
     scale: FftScaleFactor,
@@ -21,7 +17,7 @@ pub struct OptimizedSplitRadixFFT {
     bit_reverse_map: Vec<usize>,
 }
 
-impl OptimizedSplitRadixFFT {
+impl OptimizedRadix2FFT {
     pub fn new() -> Self {
         Self {
             size: 0,
@@ -35,7 +31,7 @@ impl OptimizedSplitRadixFFT {
     }
 }
 
-impl Default for OptimizedSplitRadixFFT {
+impl Default for OptimizedRadix2FFT {
     fn default() -> Self {
         Self::new()
     }
@@ -52,104 +48,6 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
 }
 
 #[inline]
-fn pass_m2(buffer: &mut [Complex<f64>]) {
-    for k in (0..buffer.len()).step_by(2) {
-        let a = buffer[k];
-        let b = buffer[k + 1];
-        buffer[k] = a + b;
-        buffer[k + 1] = a - b;
-    }
-}
-
-#[inline]
-fn pass_m4(buffer: &mut [Complex<f64>], direction: FftDirection) {
-    let w = match direction {
-        FftDirection::Forward => Complex::new(0.0, -1.0),
-        FftDirection::Inverse => Complex::new(0.0, 1.0),
-    };
-    for k in (0..buffer.len()).step_by(4) {
-        let x0 = buffer[k];
-        let x1 = buffer[k + 1];
-        let x2 = buffer[k + 2];
-        let x3 = buffer[k + 3];
-
-        let t0 = x0 + x2;
-        let t1 = x0 - x2;
-        let t2 = x1 + x3;
-        let t3 = (x1 - x3) * w;
-
-        buffer[k] = t0 + t2;
-        buffer[k + 1] = t1 + t3;
-        buffer[k + 2] = t0 - t2;
-        buffer[k + 3] = t1 - t3;
-    }
-}
-
-#[inline]
-fn pass_m8_aggressive(buffer: &mut [Complex<f64>], direction: FftDirection) {
-    let c = std::f64::consts::FRAC_1_SQRT_2;
-    let w1 = match direction {
-        FftDirection::Forward => Complex::new(c, -c),
-        FftDirection::Inverse => Complex::new(c, c),
-    };
-    let w2 = match direction {
-        FftDirection::Forward => Complex::new(0.0, -1.0),
-        FftDirection::Inverse => Complex::new(0.0, 1.0),
-    };
-    let w3 = match direction {
-        FftDirection::Forward => Complex::new(-c, -c),
-        FftDirection::Inverse => Complex::new(-c, c),
-    };
-
-    for k in (0..buffer.len()).step_by(8) {
-        let x0 = buffer[k];
-        let x1 = buffer[k + 1];
-        let x2 = buffer[k + 2];
-        let x3 = buffer[k + 3];
-        let x4 = buffer[k + 4];
-        let x5 = buffer[k + 5];
-        let x6 = buffer[k + 6];
-        let x7 = buffer[k + 7];
-
-        let y0 = x0;
-        let y1 = x1 * w1;
-        let y2 = x2 * w2;
-        let y3 = x3 * w3;
-        let y4 = x4;
-        let y5 = x5 * w1;
-        let y6 = x6 * w2;
-        let y7 = x7 * w3;
-
-        let a0 = y0 + y4;
-        let a1 = y1 + y5;
-        let a2 = y2 + y6;
-        let a3 = y3 + y7;
-        let b0 = y0 - y4;
-        let b1 = y1 - y5;
-        let b2 = y2 - y6;
-        let b3 = y3 - y7;
-
-        let t0 = a0 + a2;
-        let t1 = a0 - a2;
-        let t2 = a1 + a3;
-        let t3 = (a1 - a3) * w2;
-        let u0 = b0 + b2;
-        let u1 = b0 - b2;
-        let u2 = b1 + b3;
-        let u3 = (b1 - b3) * w2;
-
-        buffer[k] = t0 + t2;
-        buffer[k + 4] = t0 - t2;
-        buffer[k + 2] = t1 + t3;
-        buffer[k + 6] = t1 - t3;
-        buffer[k + 1] = u0 + u2;
-        buffer[k + 5] = u0 - u2;
-        buffer[k + 3] = u1 + u3;
-        buffer[k + 7] = u1 - u3;
-    }
-}
-
-#[inline]
 fn radix2_pass_unrolled(
     buffer: &mut [Complex<f64>],
     twiddles: &[Complex<f64>],
@@ -160,7 +58,9 @@ fn radix2_pass_unrolled(
     for k in (0..size).step_by(m) {
         let mut j = 0usize;
         while j + 4 <= half {
-            // SAFETY: indexes are in-bounds by construction.
+            // SAFETY:
+            // - k in [0, size) and j..j+3 < half ensure all indexed values are in-bounds.
+            // - m <= size and k steps by m, so k + (m - 1) < size.
             unsafe {
                 let w0 = *twiddles.get_unchecked(j);
                 let w1 = *twiddles.get_unchecked(j + 1);
@@ -199,7 +99,7 @@ fn radix2_pass_unrolled(
         }
 
         while j < half {
-            // SAFETY: indexes are in-bounds by construction.
+            // SAFETY: same bounds reasoning as above, for scalar tail loop.
             unsafe {
                 let w = *twiddles.get_unchecked(j);
                 let a = k + j;
@@ -214,7 +114,7 @@ fn radix2_pass_unrolled(
     }
 }
 
-impl FfftEngine1D for OptimizedSplitRadixFFT {
+impl FftEngine1D for OptimizedRadix2FFT {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(
@@ -223,7 +123,9 @@ impl FfftEngine1D for OptimizedSplitRadixFFT {
         }
 
         let mut buffer = vec![Complex::new(0.0, 0.0); self.size];
+
         if matches!(self.ordering, FftOrdering::Standard) {
+            // Copy input into bit-reversed layout once up front.
             for (i, &value) in input.iter().enumerate() {
                 buffer[self.bit_reverse_map[i]] = value;
             }
@@ -233,19 +135,6 @@ impl FfftEngine1D for OptimizedSplitRadixFFT {
 
         let log2n = self.size.trailing_zeros() as usize;
         let mut stage = 1usize;
-
-        if stage <= log2n {
-            pass_m2(&mut buffer);
-            stage += 1;
-        }
-        if stage <= log2n {
-            pass_m4(&mut buffer, self.direction);
-            stage += 1;
-        }
-        if stage <= log2n {
-            pass_m8_aggressive(&mut buffer, self.direction);
-            stage += 1;
-        }
 
         while stage <= log2n {
             let m = 1usize << stage;
@@ -333,11 +222,11 @@ mod tests {
     use super::*;
     use crate::test_bench_data::{fft_gaussian_32768_golden, fft_gaussian_32768_input};
 
-    fn max_abs_error(a: &[Complex<f64>], b: &[Complex<f64>]) -> f64 {
-        a.iter()
-            .zip(b.iter())
-            .map(|(x, y)| (*x - *y).norm())
-            .fold(0.0_f64, f64::max)
+    fn assert_complex_close(actual: Complex<f64>, expected: Complex<f64>, tol: f64) {
+        assert!(
+            (actual.re - expected.re).abs() < tol && (actual.im - expected.im).abs() < tol,
+            "actual={actual:?}, expected={expected:?}, tol={tol}"
+        );
     }
 
     fn bit_reverse_index(mut n: usize, bits: usize) -> usize {
@@ -351,11 +240,11 @@ mod tests {
     }
 
     #[test]
-    fn test_optimized_split_radix_standard() {
+    fn test_better_fft_standard_ordering() {
         let input = fft_gaussian_32768_input();
         let expected = fft_gaussian_32768_golden();
 
-        let mut fft = OptimizedSplitRadixFFT::new();
+        let mut fft = OptimizedRadix2FFT::new();
         fft.plan(
             input.len(),
             FftScaleFactor::None,
@@ -367,16 +256,16 @@ mod tests {
         let start = Instant::now();
         let output = fft.execute(&input).unwrap();
         let elapsed = start.elapsed();
-        let err = max_abs_error(&output, &expected);
-        dbg!("optimized_split_radix::standard execute elapsed", elapsed);
-        dbg!("optimized_split_radix::standard max abs error", err);
+        dbg!("better_fft::standard execute elapsed", elapsed);
 
         assert_eq!(output.len(), expected.len());
-        assert!(output.iter().all(|v| v.re.is_finite() && v.im.is_finite()));
+        for (actual, expected) in output.iter().zip(expected.iter()) {
+            assert_complex_close(*actual, *expected, 1e-9);
+        }
     }
 
     #[test]
-    fn test_optimized_split_radix_bit_reversed() {
+    fn test_better_fft_bit_reversed_ordering() {
         let input = fft_gaussian_32768_input();
         let expected = fft_gaussian_32768_golden();
 
@@ -386,7 +275,7 @@ mod tests {
             bit_reversed_input[bit_reverse_index(i, bits)] = *value;
         }
 
-        let mut fft = OptimizedSplitRadixFFT::new();
+        let mut fft = OptimizedRadix2FFT::new();
         fft.plan(
             input.len(),
             FftScaleFactor::None,
@@ -398,11 +287,11 @@ mod tests {
         let start = Instant::now();
         let output = fft.execute(&bit_reversed_input).unwrap();
         let elapsed = start.elapsed();
-        let err = max_abs_error(&output, &expected);
-        dbg!("optimized_split_radix::bit_reversed execute elapsed", elapsed);
-        dbg!("optimized_split_radix::bit_reversed max abs error", err);
+        dbg!("better_fft::bit_reversed execute elapsed", elapsed);
 
         assert_eq!(output.len(), expected.len());
-        assert!(output.iter().all(|v| v.re.is_finite() && v.im.is_finite()));
+        for (actual, expected) in output.iter().zip(expected.iter()) {
+            assert_complex_close(*actual, *expected, 1e-9);
+        }
     }
 }

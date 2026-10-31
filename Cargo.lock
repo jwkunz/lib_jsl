@@ -616,6 +616,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_jsl_ffts_reference"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "lib_jsl_core",
+ "lib_jsl_ffts",
+ "num",
+ "rustfft",
+]
+
+[[package]]
 name = "lib_jsl_file_io"
 version = "0.1.0"
 dependencies = [

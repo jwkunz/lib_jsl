@@ -20,14 +20,14 @@ pub enum FftScaleFactor {
 #[derive(Clone,Copy,Debug)]
 pub enum FftOrdering {
     Standard, // k = 0, 1, ..., N-1
-    BitReversed,  // k = -N/2, ..., -1, 0, 1, ..., N/2-1
+    BitReversed,  // input samples arrive in bit-reversed index order (output is in natural order)
 }
 
 
 use num::Complex;
 
 use lib_jsl_core::{ErrorsJSL};
-pub trait FfftEngine1D {
+pub trait FftEngine1D {
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL>;
     fn plan(&mut self, size: usize, scale: FftScaleFactor, direction: FftDirection, ordering: FftOrdering) -> Result<(), ErrorsJSL>;
     fn get_size(&self) -> usize;

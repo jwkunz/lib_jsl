@@ -1,4 +1,4 @@
-//! Size sweep: BestFft against RustFFT for power-of-two sizes from 64 to 2^20 points (standard
+//! Size sweep: Fft against RustFFT for power-of-two sizes from 64 to 2^20 points (standard
 //! ordering, forward, unscaled).
 //!
 //! Small sizes live entirely in L1 cache, mid sizes in L2/L3, and the largest exceed the last-level
@@ -13,8 +13,8 @@
 use std::time::Instant;
 mod rust_fft_wrapper;
 use lib_jsl_ffts::{
-    best_fft::BestFft,
-    fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+    Fft,
+    fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
 use num::Complex;
 use rust_fft_wrapper::RustFftWrapper;
@@ -48,14 +48,14 @@ fn format_time(seconds: f64) -> String {
 
 fn main() {
     let only: Vec<String> = std::env::args().skip(1).filter(|a| !a.starts_with('-')).collect();
-    println!("{:>9}  {:>11}  {:>11}  {:>16}", "points", "best_fft", "rustfft", "best/rustfft");
+    println!("{:>9}  {:>11}  {:>11}  {:>16}", "points", "fft", "rustfft", "fft/rustfft");
     for log2n in LOG2_SIZES {
         let n = 1usize << log2n;
         if !only.is_empty() && !only.iter().any(|s| s == &n.to_string()) {
             continue;
         }
         let x = signal(n);
-        let mut engines: [Box<dyn FfftEngine1D>; 2] = [Box::new(BestFft::new()), Box::new(RustFftWrapper::new())];
+        let mut engines: [Box<dyn FftEngine1D>; 2] = [Box::new(Fft::new()), Box::new(RustFftWrapper::new())];
         for e in engines.iter_mut() {
             e.plan(n, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard).unwrap();
             for _ in 0..3 {

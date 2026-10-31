@@ -19,8 +19,8 @@
 
 use crate::{
     ffts::{
-        best_fft::BestFft,
-        fft_engine_trait::{FfftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
+        Fft,
+        fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
     },
     prelude::ErrorsJSL,
 };
@@ -117,15 +117,15 @@ pub struct OfdmDemodulated {
 /// An OFDM modulator/demodulator for a fixed layout.
 pub struct Ofdm {
     params: OfdmParams,
-    fwd: BestFft,
-    inv: BestFft,
+    fwd: Fft,
+    inv: Fft,
 }
 
 impl Ofdm {
     pub fn new(params: OfdmParams) -> Result<Self, ErrorsJSL> {
-        let mut fwd = BestFft::new();
+        let mut fwd = Fft::new();
         fwd.plan(params.fft_size, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard)?;
-        let mut inv = BestFft::new();
+        let mut inv = Fft::new();
         inv.plan(params.fft_size, FftScaleFactor::N, FftDirection::Inverse, FftOrdering::Standard)?;
         Ok(Ofdm { params, fwd, inv })
     }

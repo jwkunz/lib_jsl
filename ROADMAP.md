@@ -475,7 +475,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [ ] Covariance models
 
 ## Algorithms
-[ ] Overlap integral
+[x] Overlap integral
 [ ] CFM beamformer
 [ ] Max SNR beamformer
 [ ] LCMV beamformer

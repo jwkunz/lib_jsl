@@ -12,7 +12,7 @@ pub mod noise;
 pub use nco::{Nco, NcoSource, Phase, Waveform};
 pub use pulse_train::pulse_train;
 pub use ramp::ramp;
-pub use triangle::triangle;
+pub use triangle::{triangle, TriangleWave};
 pub use cordic::{cordic_sin_cos, Cordic};
 pub use sinusoid::{sinusoid, SineKernel, SineWave};
 pub use square::{square, SquareWave};

@@ -74,7 +74,7 @@
 ### Sources
 [ ] Pulse train
 [ ] Ramp
-[ ] Triangle
+[x] Triangle
 [x] CORDIC
 [x] Sinusoid
 [x] Square

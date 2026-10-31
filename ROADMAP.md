@@ -305,7 +305,7 @@
 [x] Trilinear
 [x] B-spline
 [x] Cubic Lagrangian
-[ ] Fourier 3D
+[x] Fourier 3D
 [x] Shepards
 
 ## ND

@@ -251,7 +251,7 @@ pub fn try_shannon_fano_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     ))
 }
 
-fn descend_from_root<'a>(root: &'a DecodeNode, bit_is_set: bool) -> Result<&'a DecodeNode, ErrorsJSL> {
+fn descend_from_root(root: &DecodeNode, bit_is_set: bool) -> Result<&DecodeNode, ErrorsJSL> {
     match root {
         DecodeNode::Internal { left, right } => {
             if bit_is_set {

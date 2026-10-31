@@ -16,7 +16,7 @@ pub fn gold_correlation_bound(n: u32) -> Option<u64> {
     match n % 4 {
         0 => None,
         2 => Some(1 + (1u64 << ((n + 2) / 2))),
-        _ => Some(1 + (1u64 << ((n + 1) / 2))),
+        _ => Some(1 + (1u64 << n.div_ceil(2))),
     }
 }
 

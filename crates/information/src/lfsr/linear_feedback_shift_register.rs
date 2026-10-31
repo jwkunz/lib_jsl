@@ -31,7 +31,7 @@ impl Lfsr {
     /// `0b1011`.
     pub fn from_polynomial(poly: u64, seed: u64) -> Self {
         assert!(poly > 1, "polynomial must have degree >= 1");
-        let width = 63 - poly.leading_zeros() as u32;
+        let width = 63 - poly.leading_zeros();
         Self::new(width, poly & !(1u64 << width), seed)
     }
 

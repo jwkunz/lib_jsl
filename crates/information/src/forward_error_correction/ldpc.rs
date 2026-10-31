@@ -100,7 +100,7 @@ impl LdpcCode {
     /// Builds a regular Gallager `(wc, wr)` code of length `n` (`n` a multiple of `wr`, `wc >= 2`)
     /// with a deterministic pseudo-random column permutation controlled by `seed`.
     pub fn gallager(n: usize, wc: usize, wr: usize, seed: u64) -> Result<Self, ErrorsJSL> {
-        if wc < 2 || wr < 3 || n % wr != 0 || n == 0 {
+        if wc < 2 || wr < 3 || !n.is_multiple_of(wr) || n == 0 {
             return Err(ErrorsJSL::InvalidInputRange("Gallager codes need wc >= 2, wr >= 3 and n a multiple of wr."));
         }
         let mut state = seed;

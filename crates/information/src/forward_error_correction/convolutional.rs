@@ -53,7 +53,7 @@ impl ConvolutionalCode {
         let tail = if terminate { self.tail_len() } else { 0 };
         let mut out = Vec::with_capacity(self.outputs() * (bits.len() + tail));
         let mut state = 0u32;
-        for &b in bits.iter().chain(std::iter::repeat(&0u8).take(tail)) {
+        for &b in bits.iter().chain(std::iter::repeat_n(&0u8, tail)) {
             let reg = ((b as u32 & 1) << (k - 1)) | state;
             out.extend(self.outputs_for(reg));
             state = reg >> 1;
@@ -66,7 +66,7 @@ impl ConvolutionalCode {
     /// bits (without tail bits when `terminated`).
     pub fn decode_soft(&self, llr: &[f64], terminated: bool) -> Result<Vec<u8>, ErrorsJSL> {
         let n = self.outputs();
-        if llr.len() % n != 0 {
+        if !llr.len().is_multiple_of(n) {
             return Err(ErrorsJSL::IncompatibleArraySizes((llr.len(), n)));
         }
         let steps = llr.len() / n;

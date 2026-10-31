@@ -97,7 +97,7 @@ pub fn try_lzw_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
         return Err(ErrorsJSL::InvalidInputRange("Compressed payload is missing the LZW header."));
     }
 
-    if (input.len() - MAGIC.len()) % 2 != 0 {
+    if !(input.len() - MAGIC.len()).is_multiple_of(2) {
         return Err(ErrorsJSL::InvalidInputRange("LZW code stream must contain an even number of bytes after the header."));
     }
 

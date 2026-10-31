@@ -97,7 +97,7 @@ pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 
         // Narrow the current interval down to the slice owned by this symbol.
         high = low + ((range * cum_high) / total - 1) as u64;
-        low = low + ((range * cum_low) / total) as u64;
+        low += ((range * cum_low) / total) as u64;
 
         // Renormalize whenever the interval has moved entirely into the low
         // half, high half, or the middle "underflow" band.
@@ -262,7 +262,7 @@ pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
         let cum_high = model.cumulative[symbol + 1] as u128;
 
         high = low + ((range * cum_high) / total - 1) as u64;
-        low = low + ((range * cum_low) / total) as u64;
+        low += ((range * cum_low) / total) as u64;
 
         loop {
             if high < HALF {

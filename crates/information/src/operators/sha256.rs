@@ -31,7 +31,7 @@ impl Sha256 {
 
     fn compress(h: &mut [u32; 8], block: &[u8]) {
         let mut w = [0u32; 64];
-        for (i, chunk) in block.chunks_exact(4).enumerate() {
+        for (i, chunk) in block.as_chunks::<4>().0.iter().enumerate() {
             w[i] = u32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
         }
         for i in 16..64 {
@@ -93,7 +93,7 @@ impl Sha256 {
         tail[self.buffered] = 0x80;
         let tail_len = if self.buffered < 56 { 64 } else { 128 };
         tail[tail_len - 8..tail_len].copy_from_slice(&bit_len.to_be_bytes());
-        for block in tail[..tail_len].chunks_exact(64) {
+        for block in tail[..tail_len].as_chunks::<64>().0 {
             Self::compress(&mut h, block);
         }
         let mut out = [0u8; 32];

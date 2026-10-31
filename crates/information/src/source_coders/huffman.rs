@@ -257,7 +257,7 @@ pub fn try_huffman_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     Err(ErrorsJSL::InvalidInputRange("Huffman bitstream ended before the declared number of output bytes was reconstructed."))
 }
 
-fn descend_from_root<'a>(root: &'a HuffmanNode, bit_is_set: bool) -> Result<&'a HuffmanNode, ErrorsJSL> {
+fn descend_from_root(root: &HuffmanNode, bit_is_set: bool) -> Result<&HuffmanNode, ErrorsJSL> {
     match root {
         HuffmanNode::Internal { left, right } => {
             if bit_is_set { Ok(right.as_ref()) } else { Ok(left.as_ref()) }

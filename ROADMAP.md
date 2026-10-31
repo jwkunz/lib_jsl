@@ -304,7 +304,7 @@
 [x] Nearest
 [x] Trilinear
 [ ] B-spline
-[ ] Cubic Lagrangian
+[x] Cubic Lagrangian
 [ ] Fourier 3D
 [ ] Shepards
 

@@ -8,6 +8,7 @@ pub mod quaternions;
 pub mod nearest_point_finding;
 pub mod intersection;
 pub mod kd_trees;
+pub mod region_tree;
 pub mod oct_trees;
 pub mod quad_trees;
 
@@ -20,4 +21,5 @@ pub use nearest_point_finding::nearest_point_finding;
 pub use intersection::intersection;
 pub use kd_trees::KdTree;
 pub use oct_trees::OctTree;
+pub use region_tree::RegionTree;
 pub use quad_trees::QuadTree;

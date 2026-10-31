@@ -224,7 +224,7 @@
 [ ] Intersection
 [x] KD Trees
 [ ] Oct Trees
-[ ] Quad Trees
+[x] Quad Trees
 
 ## 4D
 [ ] Space-time vector

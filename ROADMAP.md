@@ -72,7 +72,7 @@
 [x] State Space Model
 
 ### Sources
-[ ] Pulse train
+[x] Pulse train
 [x] Ramp
 [x] Triangle
 [x] CORDIC

@@ -287,7 +287,7 @@
 [ ] REIM
 [ ] Fourier 1D
 [ ] Chebyshev approximations
-[ ] Lagrange interpolant
+[x] Lagrange interpolant
 [ ] Savitzky-Golay
 
 ## 2D

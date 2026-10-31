@@ -102,14 +102,16 @@ pub fn parse_wav(data: &[u8]) -> Result<WavAudio, ErrorsJSL> {
     let bytes = (bits / 8) as usize;
     let samples: Vec<f32> = match (tag, bits) {
         (1, 8) => body.iter().map(|&b| (b as f32 - 128.0) / 128.0).collect(),
-        (1, 16) => body.chunks_exact(2).map(|b| i16::from_le_bytes([b[0], b[1]]) as f32 / 32768.0).collect(),
+        (1, 16) => body.as_chunks::<2>().0.iter().map(|b| i16::from_le_bytes(*b) as f32 / 32768.0).collect(),
         (1, 24) => body
-            .chunks_exact(3)
+            .as_chunks::<3>()
+            .0
+            .iter()
             .map(|b| (i32::from_le_bytes([0, b[0], b[1], b[2]]) >> 8) as f32 / 8_388_608.0)
             .collect(),
-        (1, 32) => body.chunks_exact(4).map(|b| (i32::from_le_bytes([b[0], b[1], b[2], b[3]]) as f64 / 2_147_483_648.0) as f32).collect(),
-        (3, 32) => body.chunks_exact(4).map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]])).collect(),
-        (3, 64) => body.chunks_exact(8).map(|b| f64::from_le_bytes(b.try_into().expect("8 bytes")) as f32).collect(),
+        (1, 32) => body.as_chunks::<4>().0.iter().map(|b| (i32::from_le_bytes(*b) as f64 / 2_147_483_648.0) as f32).collect(),
+        (3, 32) => body.as_chunks::<4>().0.iter().map(|b| f32::from_le_bytes(*b)).collect(),
+        (3, 64) => body.as_chunks::<8>().0.iter().map(|b| f64::from_le_bytes(*b) as f32).collect(),
         _ => return Err(ErrorsJSL::InvalidInputRange("Unsupported WAV sample format.")),
     };
     debug_assert!(bytes > 0);

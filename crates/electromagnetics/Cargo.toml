@@ -13,3 +13,6 @@ path = "src/mod.rs"
 lib_jsl_core = { path = "../core" }
 lib_jsl_geometry = { path = "../geometry" }
 num.workspace = true
+ndarray.workspace = true
+ndarray-linalg.workspace = true
+lib_jsl_special_functions = { path = "../special_functions" }

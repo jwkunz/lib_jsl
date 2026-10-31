@@ -145,7 +145,7 @@
 [x] Critically sampled polyphase filterbank
 [x] Oversampled polyphase filterbank
 [ ] Non-uniformly sampled
-[ ] MUSIC
+[x] MUSIC
 [x] Maximum entropy
 [x] Linear predictive coding
 [ ] Wavelet transform

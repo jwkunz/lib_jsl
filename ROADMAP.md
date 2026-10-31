@@ -370,7 +370,7 @@
 [x] Bessel functions integer
 [x] Bessel functions fractional
 [x] Bessel functions spherical
-[ ] Airy functions
+[x] Airy functions
 [ ] Fresnel integrals
 [ ] Cosine integrals
 [ ] Sine integrals

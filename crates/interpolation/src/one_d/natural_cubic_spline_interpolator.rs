@@ -47,7 +47,7 @@ impl<'a> NaturalCubicSplineInterpolator<'a> {
         /// Compute the coefficients of a natural cubic spline.
         /// 
         /// The spline is represented piecewise by:
-        /// S_i(x) = a[i] + b[i]*(x - x_i) + c[i]*(x - x_i)^2 + d[i]*(x - x_i)^3
+        /// `S_i(x) = a[i] + b[i]*(x - x_i) + c[i]*(x - x_i)^2 + d[i]*(x - x_i)^3`
         /// for x in [x_i, x_{i+1}].
         pub fn init_natural_cubic_spline(&mut self){
         let n = self.x_values.len();

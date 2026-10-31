@@ -23,7 +23,7 @@ pub struct DiscreteLinearFilter<T : IsLinearOperatable> {
 
 impl<T : IsLinearOperatable> DiscreteLinearFilter<T> {
     /// Create a new IIR DF2 filter from b[] and a[] taps.
-    /// a[0] must equal 1.0.
+    /// `a[0]` must equal 1.0.
     pub fn new(b: &[T], a: &[T]) -> Self {
         let order = usize::max(b.len(), a.len()).saturating_sub(1);
         Self {
@@ -103,7 +103,7 @@ impl StreamOperator<f64, f64> for DiscreteLinearFilter<f64> {
     }
 }
 
-/// For complex-valued filters, we can use Complex<f64> as the type parameter. This allows us to handle complex input and output samples, which is common in many DSP applications such as modulation, demodulation, and spectral processing.
+/// For complex-valued filters, we can use `Complex<f64>` as the type parameter. This allows us to handle complex input and output samples, which is common in many DSP applications such as modulation, demodulation, and spectral processing.
 impl StreamOperatorManagement for DiscreteLinearFilter<Complex<f64>> {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
         self.clear_buffer();

@@ -10,7 +10,7 @@ pub struct Histogram{
 }
 
 impl Histogram{
-    /// Creates a new histogram that spans [bin_min,bin_max] with n_bins
+    /// Creates a new histogram that spans `[bin_min, bin_max]` with `n_bins`
     /// Note the bin labels represent the lower edge, so bin_max is not represented in the bin_labels
     pub fn new(bin_min : f64, bin_max : f64, n_bins : usize)->Self{
         let span = bin_max-bin_min;

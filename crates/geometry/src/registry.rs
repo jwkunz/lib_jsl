@@ -1,6 +1,6 @@
 //! Concrete root registry for the public geometry table graph.
 //!
-//! [`GeometryTableRegistry`] is the main starting point for users of the concrete API. It owns the
+//! [`GeometryTableRegistry`](crate::registry::GeometryTableRegistry) is the main starting point for users of the concrete API. It owns the
 //! current core keyed tables for points, lines, polygon faces, triangles, and tetrahedra, and
 //! exposes them through the [`IsGeometryTableBase`](crate::common::IsGeometryTableBase)
 //! contract.

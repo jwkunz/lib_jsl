@@ -10,7 +10,7 @@ use lib_jsl_core::ErrorsJSL;
 ///
 /// Reference:
 ///   David Blackman & Sebastiano Vigna
-///   https://prng.di.unimi.it/xoshiro256plusplus.c
+///   <https://prng.di.unimi.it/xoshiro256plusplus.c>
 #[derive(Clone, Debug)]
 pub struct Xoshiro256PlusPlus {
     s: [u64; 4],

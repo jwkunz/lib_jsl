@@ -21,8 +21,8 @@ use super::{arithmetic, huffman, lz77, lz78, lzw, shannon_fano};
 ///
 /// A source coder consumes raw bytes and either:
 ///
-/// - produces a compressed byte stream with [`try_compress`], or
-/// - reconstructs the original bytes with [`try_decompress`]
+/// - produces a compressed byte stream with [`try_compress`](SourceCoder::try_compress), or
+/// - reconstructs the original bytes with [`try_decompress`](SourceCoder::try_decompress)
 ///
 /// The methods are fallible so callers can handle malformed compressed data or
 /// future codec-specific compression failures through the same `Result` type.

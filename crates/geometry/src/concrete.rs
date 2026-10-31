@@ -7,7 +7,7 @@
 //! [`crate::two_d::coordinate_vector2d`], [`crate::three_d::coordinate_vector3d`],
 //! [`crate::two_d::triangle2d`], and [`crate::three_d::surface_mesh3d`].
 //!
-//! Typical usage starts with a [`GeometryTableRegistry`], which provides the shared keyed tables
+//! Typical usage starts with a [`GeometryTableRegistry`](crate::registry::GeometryTableRegistry), which provides the shared keyed tables
 //! used by the graph of concrete primitives.
 //!
 //! ```rust

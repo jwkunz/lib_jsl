@@ -7,7 +7,7 @@ use std::fmt::{self, Display, Formatter};
 
 /// Concrete 2D plane-like primitive represented by a point and an in-plane unit normal.
 ///
-/// In the current trait system, [`IsPlane`](crate::common::IsPlane) serves as the
+/// In the current trait system, [`IsPlane`] serves as the
 /// shared mirror/reference abstraction. For 2D geometry this type corresponds to a line expressed
 /// in point-normal form.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]

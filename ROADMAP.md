@@ -255,7 +255,7 @@
 [ ] Polar
 [x] Hamming
 [x] Reed-Solomon
-[ ] Convolutional
+[x] Convolutional
 
 # Integration
 [x] Adaptive gl7k15

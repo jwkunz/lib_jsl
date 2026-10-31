@@ -35,7 +35,7 @@
 [x] Stream Operators
 [x] Sinc
 [x] Cross Correlation
-[ ] FFT cross correlation
+[x] FFT cross correlation
 [x] Convolution
 [x] FFT convolution
 

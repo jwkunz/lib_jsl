@@ -295,7 +295,7 @@
 [x] Bilinear
 [x] Bicubic
 [x] Lanczos
-[ ] Cubic basis
+[x] Cubic basis
 [x] All-phase
 [ ] Radial basis functions
 [ ] Fourier 2D

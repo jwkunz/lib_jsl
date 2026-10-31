@@ -5,3 +5,5 @@ pub mod polar;
 pub mod hamming;
 pub mod reed_solomon;
 pub mod convolutional;
+
+pub use hamming::{HammingCode, HammingDecoded, HammingStatus};

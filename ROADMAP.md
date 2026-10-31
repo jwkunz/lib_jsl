@@ -253,7 +253,7 @@
 ## Forward Error Correction
 [ ] LDPC
 [ ] Polar
-[ ] Hamming
+[x] Hamming
 [ ] Reed-Solomon
 [ ] Convolutional
 

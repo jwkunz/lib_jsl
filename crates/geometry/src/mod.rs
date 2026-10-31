@@ -24,20 +24,25 @@ pub mod registry;
 pub mod tables;
 /// Traits for geometric transformations such as translation and rotation.
 pub mod transformation_traits;
-#[path = "dim_0/mod.rs"]
 /// Zero-dimensional geometry traits centered on points.
-pub mod zero_d;
-#[path = "dim_1/mod.rs"]
+pub mod dim_0;
+/// Alias for [`dim_0`].
+pub use dim_0 as zero_d;
 /// One-dimensional geometry traits such as lines, rays, and paths.
-pub mod one_d;
-#[path = "dim_2/mod.rs"]
+pub mod dim_1;
+/// Alias for [`dim_1`].
+pub use dim_1 as one_d;
 /// Two-dimensional geometry traits and orientation helpers.
-pub mod two_d;
-#[path = "dim_3/mod.rs"]
+pub mod dim_2;
+/// Alias for [`dim_2`].
+pub use dim_2 as two_d;
 /// Three-dimensional geometry traits such as planes, spheres, and meshes.
-pub mod three_d;
-#[path = "dim_4/mod.rs"]
+pub mod dim_3;
+/// Alias for [`dim_3`].
+pub use dim_3 as three_d;
 /// Four-dimensional geometry extension points.
-pub mod four_d;
+pub mod dim_4;
+/// Alias for [`dim_4`].
+pub use dim_4 as four_d;
 /// Compatibility re-exports for the geometry trait surface.
 pub mod geometric_traits;

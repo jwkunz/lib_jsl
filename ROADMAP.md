@@ -451,7 +451,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Conventions (units, configurable time convention)
 [x] Coordinate systems
 [x] Polarization bases (linear, circular)
-[ ] Rigid transforms (translation, rotation)
+[x] Rigid transforms (translation, rotation)
 
 ## Fields
 [ ] Domains and quadrature (surface, volume)

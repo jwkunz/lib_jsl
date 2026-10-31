@@ -54,9 +54,9 @@ impl Interpolation2D for FourierInterpolator2D {
         let ex: Vec<Complex<f64>> = (0..nx).map(|k| Complex::from_polar(1.0, frequency(k, nx) * tx)).collect();
         let ey: Vec<Complex<f64>> = (0..ny).map(|l| Complex::from_polar(1.0, frequency(l, ny) * ty)).collect();
         let mut sum = Complex::new(0.0, 0.0);
-        for k in 0..nx {
-            let row: Complex<f64> = (0..ny).map(|l| self.coefficients[k][l] * ey[l]).sum();
-            sum += row * ex[k];
+        for (coef_row, phase) in self.coefficients.iter().zip(&ex) {
+            let row: Complex<f64> = coef_row.iter().zip(&ey).map(|(c, e)| c * e).sum();
+            sum += row * phase;
         }
         Ok(sum.re)
     }

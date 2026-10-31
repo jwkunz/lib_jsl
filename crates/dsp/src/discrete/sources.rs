@@ -16,4 +16,4 @@ pub use triangle::{triangle, TriangleWave};
 pub use cordic::{cordic_sin_cos, Cordic};
 pub use sinusoid::{sinusoid, SineKernel, SineWave};
 pub use square::{square, SquareWave};
-pub use noise::noise;
+pub use noise::{noise, NoiseKind, NoiseWave};

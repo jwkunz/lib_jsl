@@ -78,7 +78,7 @@
 [x] CORDIC
 [x] Sinusoid
 [x] Square
-[ ] Noise
+[x] Noise
 
 ### Digital Communications
 [ ] Constellations 

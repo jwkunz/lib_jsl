@@ -144,7 +144,7 @@
 [x] freqz
 [x] Critically sampled polyphase filterbank
 [x] Oversampled polyphase filterbank
-[ ] Non-uniformly sampled
+[x] Non-uniformly sampled
 [x] MUSIC
 [x] Maximum entropy
 [x] Linear predictive coding

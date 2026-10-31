@@ -46,3 +46,49 @@ pub mod cubic_basis;
 pub mod all_phase;
 pub mod radial_basis_functions;
 pub mod fourier_2d;
+
+/// Start and spacing of a uniformly spaced axis (relative tolerance 1e-9).
+pub(crate) fn uniform_axis(axis: VR1D) -> Result<(f64, f64), ErrorsJSL> {
+    let step = (axis[axis.len() - 1] - axis[0]) / (axis.len() - 1) as f64;
+    if axis.iter().enumerate().any(|(i, &a)| (a - axis[0] - i as f64 * step).abs() > 1e-9 * step.abs()) {
+        return Err(ErrorsJSL::InvalidInputRange("axis must be uniformly spaced"));
+    }
+    Ok((axis[0], step))
+}
+
+/// Separable kernel resampling on a uniform grid: the value at `(x, y)` is a weighted sum of the
+/// `2 * support` nearest nodes per axis, with weights `kernel(distance in samples)` normalised to
+/// sum to one along each axis (so constants are preserved). Indices outside the grid replicate the
+/// edge samples.
+pub(crate) struct SeparableResampler<'k> {
+    pub x0: f64,
+    pub dx: f64,
+    pub y0: f64,
+    pub dy: f64,
+    pub support: isize,
+    pub kernel: &'k dyn Fn(f64) -> f64,
+}
+
+impl SeparableResampler<'_> {
+    fn axis_weights(&self, u: f64, n: usize) -> Vec<(usize, f64)> {
+        let base = u.floor() as isize;
+        let mut taps: Vec<(usize, f64)> = ((base - self.support + 1)..=(base + self.support))
+            .map(|i| (i.clamp(0, n as isize - 1) as usize, (self.kernel)(u - i as f64)))
+            .collect();
+        let sum: f64 = taps.iter().map(|t| t.1).sum();
+        taps.iter_mut().for_each(|t| t.1 /= sum);
+        taps
+    }
+
+    pub fn eval(&self, z: &R2D, x: f64, y: f64) -> f64 {
+        let (nx, ny) = z.dim();
+        let wx = self.axis_weights((x - self.x0) / self.dx, nx);
+        let wy = self.axis_weights((y - self.y0) / self.dy, ny);
+        wx.iter().map(|&(i, a)| a * wy.iter().map(|&(j, b)| b * z[[i, j]]).sum::<f64>()).sum()
+    }
+}
+
+/// Normalised sinc, `sin(πx)/(πx)`.
+pub(crate) fn sinc(x: f64) -> f64 {
+    if x == 0.0 { 1.0 } else { (std::f64::consts::PI * x).sin() / (std::f64::consts::PI * x) }
+}

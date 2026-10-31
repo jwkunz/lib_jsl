@@ -294,7 +294,7 @@
 [x] Nearest
 [x] Bilinear
 [x] Bicubic
-[ ] Lanczos
+[x] Lanczos
 [ ] Cubic basis
 [ ] All-phase
 [ ] Radial basis functions

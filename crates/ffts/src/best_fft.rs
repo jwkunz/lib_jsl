@@ -51,6 +51,10 @@ enum Pass {
     /// fly. Used for the passes that sweep the whole array, where memory bandwidth, not arithmetic,
     /// is the limit, so a third of the twiddle traffic is worth two extra multiplications.
     Radix4Compact { l: usize, offset: usize },
+    /// The first two passes fused into one register-resident codelet: an 8-point (`l = 2`, after a
+    /// radix-2 first pass) or 16-point (`l = 4`, after a radix-4 first pass) transform of each
+    /// block, using the `Radix4 { l, offset }` twiddles.
+    Codelet { l: usize, offset: usize },
 }
 
 impl Pass {
@@ -59,7 +63,7 @@ impl Pass {
         match *self {
             Pass::Radix2First => 2,
             Pass::Radix4First => 4,
-            Pass::Radix4 { l, .. } | Pass::Radix4Compact { l, .. } => 4 * l,
+            Pass::Radix4 { l, .. } | Pass::Radix4Compact { l, .. } | Pass::Codelet { l, .. } => 4 * l,
         }
     }
 }
@@ -130,6 +134,19 @@ impl BestFft {
                 }
                 radix4_pass_compact_scalar(data, tw, l, inverse);
             }
+            Pass::Codelet { l, offset } => {
+                let tw = &self.twiddles[offset..offset + 3 * l];
+                #[cfg(target_arch = "x86_64")]
+                if self.use_avx {
+                    let p = data.as_mut_ptr();
+                    // SAFETY: AVX2/FMA detected; the codelet reads each block fully before writing
+                    // it, so reading and writing the same buffer is fine.
+                    unsafe { avx::codelet(p, None, 1.0, p, data.len(), tw, l, inverse) };
+                    return;
+                }
+                if l == 2 { radix2_first(data) } else { radix4_first(data, inverse) }
+                radix4_pass_scalar(data, tw, l, inverse);
+            }
         }
     }
 
@@ -188,13 +205,17 @@ impl BestFft {
                 }
             }
             #[cfg(target_arch = "x86_64")]
+            Some(&Pass::Codelet { l, offset }) if self.use_avx => unsafe {
+                avx::codelet(input.as_ptr(), map, s, dst, n, &self.twiddles[offset..offset + 3 * l], l, inverse)
+            },
+            #[cfg(target_arch = "x86_64")]
             Some(Pass::Radix2First) if self.use_avx && n >= 4 => unsafe { avx::first_radix2(input, map, s, dst, n) },
             #[cfg(target_arch = "x86_64")]
             Some(Pass::Radix4First) if self.use_avx => unsafe { avx::first_radix4(input, map, s, dst, n, inverse) },
             Some(&first) => {
                 let get = |i: usize| input[map.map_or(i, |m| m[i] as usize)] * s;
                 match first {
-                    Pass::Radix2First => {
+                    Pass::Radix2First | Pass::Codelet { l: 2, .. } => {
                         for q in 0..n / 2 {
                             let (a, b) = (get(2 * q), get(2 * q + 1));
                             unsafe {
@@ -219,6 +240,12 @@ impl BestFft {
             }
         }
         unsafe { out.set_len(n) };
+        // Without SIMD a codelet is the radix-2/radix-4 first pass above plus its second pass.
+        if let Some(&Pass::Codelet { l, offset }) = self.passes.first()
+            && !self.use_avx
+        {
+            radix4_pass_scalar(&mut out, &self.twiddles[offset..offset + 3 * l], l, inverse);
+        }
         out
     }
 }
@@ -442,6 +469,107 @@ mod avx {
         }
     }
 
+    /// Loads source element `i` (through `map`, if any) from a raw pointer as a 128-bit vector.
+    #[inline(always)]
+    unsafe fn load_ptr(src: *const Complex<f64>, map: Option<&[u32]>, i: usize) -> __m128d {
+        // SAFETY: callers pass i < n, map entries below n, and `src` valid for n reads.
+        unsafe {
+            let j = match map {
+                Some(m) => *m.get_unchecked(i) as usize,
+                None => i,
+            };
+            _mm_loadu_pd(src.add(j) as *const f64)
+        }
+    }
+
+    /// One radix-4 butterfly on two lanes: inputs `a, b, c, d` (quarters), twiddles for b, c, d.
+    #[inline(always)]
+    unsafe fn butterfly4([a, b, c, d]: [__m256d; 4], [w2, w1, w3]: [__m256d; 3], sign: __m256d) -> [__m256d; 4] {
+        // SAFETY: only inlined into AVX2/FMA functions.
+        unsafe {
+            let (tb, tc, td) = (cmul(b, w2), cmul(c, w1), cmul(d, w3));
+            let (t0, t1, t2) = (_mm256_add_pd(a, tb), _mm256_sub_pd(a, tb), _mm256_add_pd(tc, td));
+            let t3 = _mm256_xor_pd(_mm256_permute_pd(_mm256_sub_pd(tc, td), 0b0101), sign);
+            [_mm256_add_pd(t0, t2), _mm256_add_pd(t1, t3), _mm256_sub_pd(t0, t2), _mm256_sub_pd(t1, t3)]
+        }
+    }
+
+    /// Register-resident codelet for the first two passes: for every block of `4l` points
+    /// (`l = 2`: 8 points, `l = 4`: 16 points) it reads the block's inputs (element `i` is
+    /// `src[map[i]] · s`, or `src[i] · s` without a map), applies the radix-2 (`l = 2`) or
+    /// radix-4 (`l = 4`) first layer and the radix-4 second layer in registers, and stores the
+    /// block once. `tw` is the second layer's twiddle table (`3l` values).
+    ///
+    /// # Safety
+    /// AVX2/FMA required; `n` a multiple of `4l`; `src` and `dst` valid for `n` elements (they may
+    /// be the same buffer: each block is read completely before it is written); `map` (if any) a
+    /// permutation of `0..n`.
+    #[target_feature(enable = "avx2,fma")]
+    #[allow(clippy::too_many_arguments)]
+    pub(super) unsafe fn codelet(src: *const Complex<f64>, map: Option<&[u32]>, s: f64, dst: *mut Complex<f64>, n: usize, tw: &[Complex<f64>], l: usize, inverse: bool) {
+        debug_assert!((l == 2 || l == 4) && n.is_multiple_of(4 * l) && tw.len() >= 3 * l);
+        unsafe {
+            let sv = _mm256_set1_pd(s);
+            let sign = if inverse { _mm256_set_pd(0.0, -0.0, 0.0, -0.0) } else { _mm256_set_pd(-0.0, 0.0, -0.0, 0.0) };
+            let t = tw.as_ptr() as *const f64;
+            let out = dst as *mut f64;
+            // Builds the two-lane vector (element p, element q) of the block starting at `base`.
+            let pair = |base: usize, p: usize, q: usize| _mm256_mul_pd(_mm256_set_m128d(load_ptr(src, map, base + q), load_ptr(src, map, base + p)), sv);
+            if l == 2 {
+                let (w2, w1, w3) = (_mm256_loadu_pd(t), _mm256_loadu_pd(t.add(4)), _mm256_loadu_pd(t.add(8)));
+                for base in (0..n).step_by(8) {
+                    // First layer: radix-2 on pairs (0,1), (2,3), (4,5), (6,7), two pairs per vector.
+                    let (x, y) = (pair(base, 0, 2), pair(base, 1, 3));
+                    let (s01, d01) = (_mm256_add_pd(x, y), _mm256_sub_pd(x, y));
+                    let (x2, y2) = (pair(base, 4, 6), pair(base, 5, 7));
+                    let (s23, d23) = (_mm256_add_pd(x2, y2), _mm256_sub_pd(x2, y2));
+                    // Regroup into quarters: A = outputs of pair 0, B = pair 1, C = pair 2, D = pair 3.
+                    let a = _mm256_permute2f128_pd(s01, d01, 0x20);
+                    let b = _mm256_permute2f128_pd(s01, d01, 0x31);
+                    let c = _mm256_permute2f128_pd(s23, d23, 0x20);
+                    let d = _mm256_permute2f128_pd(s23, d23, 0x31);
+                    let r = butterfly4([a, b, c, d], [w2, w1, w3], sign);
+                    let o = out.add(2 * base);
+                    _mm256_storeu_pd(o, r[0]);
+                    _mm256_storeu_pd(o.add(4), r[1]);
+                    _mm256_storeu_pd(o.add(8), r[2]);
+                    _mm256_storeu_pd(o.add(12), r[3]);
+                }
+            } else {
+                let w = [_mm256_loadu_pd(t), _mm256_loadu_pd(t.add(4)), _mm256_loadu_pd(t.add(8)), _mm256_loadu_pd(t.add(12)), _mm256_loadu_pd(t.add(16)), _mm256_loadu_pd(t.add(20))];
+                for base in (0..n).step_by(16) {
+                    // First layer: radix-4 on quads 0..3, quads (0, 1) and (2, 3) side by side.
+                    let q01 = butterfly4_plain(pair(base, 0, 4), pair(base, 1, 5), pair(base, 2, 6), pair(base, 3, 7), sign);
+                    let q23 = butterfly4_plain(pair(base, 8, 12), pair(base, 9, 13), pair(base, 10, 14), pair(base, 11, 15), sign);
+                    // Second layer for outputs j = 0, 1 and j = 2, 3 of each quad.
+                    for (half, (x0, x1), (y0, y1)) in [(0usize, (q01[0], q01[1]), (q23[0], q23[1])), (1, (q01[2], q01[3]), (q23[2], q23[3]))] {
+                        let a = _mm256_permute2f128_pd(x0, x1, 0x20);
+                        let b = _mm256_permute2f128_pd(x0, x1, 0x31);
+                        let c = _mm256_permute2f128_pd(y0, y1, 0x20);
+                        let d = _mm256_permute2f128_pd(y0, y1, 0x31);
+                        let r = butterfly4([a, b, c, d], [w[3 * half], w[3 * half + 1], w[3 * half + 2]], sign);
+                        let o = out.add(2 * (base + 2 * half));
+                        _mm256_storeu_pd(o, r[0]);
+                        _mm256_storeu_pd(o.add(8), r[1]);
+                        _mm256_storeu_pd(o.add(16), r[2]);
+                        _mm256_storeu_pd(o.add(24), r[3]);
+                    }
+                }
+            }
+        }
+    }
+
+    /// A radix-4 butterfly with unit twiddles.
+    #[inline(always)]
+    unsafe fn butterfly4_plain(a: __m256d, b: __m256d, c: __m256d, d: __m256d, sign: __m256d) -> [__m256d; 4] {
+        // SAFETY: only inlined into AVX2/FMA functions.
+        unsafe {
+            let (t0, t1, t2) = (_mm256_add_pd(a, b), _mm256_sub_pd(a, b), _mm256_add_pd(c, d));
+            let t3 = _mm256_xor_pd(_mm256_permute_pd(_mm256_sub_pd(c, d), 0b0101), sign);
+            [_mm256_add_pd(t0, t2), _mm256_add_pd(t1, t3), _mm256_sub_pd(t0, t2), _mm256_sub_pd(t1, t3)]
+        }
+    }
+
     /// Fused permutation + radix-2 first pass, two butterflies per iteration.
     ///
     /// # Safety
@@ -597,6 +725,13 @@ impl FfftEngine1D for BestFft {
                 self.passes.push(Pass::Radix4 { l, offset });
             }
             l *= 4;
+        }
+
+        // Fuse the twiddle-free first pass and the next radix-4 pass into a codelet.
+        if let [Pass::Radix2First | Pass::Radix4First, Pass::Radix4 { l, offset }, ..] = self.passes[..]
+            && (l == 2 || l == 4)
+        {
+            self.passes.splice(0..2, [Pass::Codelet { l, offset }]);
         }
 
         #[cfg(target_arch = "x86_64")]

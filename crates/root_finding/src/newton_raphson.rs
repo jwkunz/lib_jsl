@@ -1,9 +1,45 @@
 //! Newton-Raphson method.
 
-pub fn newton_raphson<F, D>(_f: F, _df: D, _x0: f64, _tol: f64) -> Result<f64, String>
+/// Finds a root of `f` using Newton-Raphson iteration with derivative `df`, starting at `x0`.
+pub fn newton_raphson<F, D>(f: F, df: D, x0: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,
     D: Fn(f64) -> f64,
 {
-    todo!("newton_raphson is not yet implemented")
+    let mut x = x0;
+    for _ in 0..100 {
+        let fx = f(x);
+        if fx == 0.0 {
+            return Ok(x);
+        }
+        let d = df(x);
+        if d == 0.0 || !d.is_finite() {
+            return Err("newton_raphson: derivative is zero or non-finite".to_string());
+        }
+        let step = fx / d;
+        x -= step;
+        if !x.is_finite() {
+            return Err("newton_raphson: iterate diverged".to_string());
+        }
+        if step.abs() < tol {
+            return Ok(x);
+        }
+    }
+    Err("newton_raphson: failed to converge".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sqrt2() {
+        let r = newton_raphson(|x| x * x - 2.0, |x| 2.0 * x, 1.0, 1e-14).unwrap();
+        assert!((r - 2f64.sqrt()).abs() < 1e-13);
+    }
+
+    #[test]
+    fn zero_derivative_errors() {
+        assert!(newton_raphson(|x| x * x + 1.0, |x| 2.0 * x, 0.0, 1e-9).is_err());
+    }
 }

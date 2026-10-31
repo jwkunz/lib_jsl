@@ -1,8 +1,70 @@
 //! Ridder's method.
 
-pub fn ridders_method<F>(_f: F, _a: f64, _b: f64, _tol: f64) -> Result<f64, String>
+/// Finds a root of `f` in `[a, b]` using Ridder's method. Requires a sign change over the interval.
+pub fn ridders_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,
 {
-    todo!("ridders_method is not yet implemented")
+    let (mut x1, mut x2) = (a, b);
+    let (mut f1, mut f2) = (f(x1), f(x2));
+    if f1 == 0.0 {
+        return Ok(x1);
+    }
+    if f2 == 0.0 {
+        return Ok(x2);
+    }
+    if f1 * f2 > 0.0 {
+        return Err("ridders_method: f(a) and f(b) must have opposite signs".to_string());
+    }
+    let mut ans = f64::NAN;
+    for _ in 0..100 {
+        let xm = 0.5 * (x1 + x2);
+        let fm = f(xm);
+        let s = (fm * fm - f1 * f2).sqrt();
+        if s == 0.0 {
+            return Ok(xm);
+        }
+        let sign = if f1 >= f2 { 1.0 } else { -1.0 };
+        let xn = xm + (xm - x1) * sign * fm / s;
+        if ans.is_finite() && (xn - ans).abs() <= tol {
+            return Ok(xn);
+        }
+        ans = xn;
+        let fnew = f(xn);
+        if fnew == 0.0 {
+            return Ok(xn);
+        }
+        if fm.signum() != fnew.signum() {
+            x1 = xm;
+            f1 = fm;
+            x2 = xn;
+            f2 = fnew;
+        } else if f1.signum() != fnew.signum() {
+            x2 = xn;
+            f2 = fnew;
+        } else {
+            x1 = xn;
+            f1 = fnew;
+        }
+        if (x2 - x1).abs() <= tol {
+            return Ok(ans);
+        }
+    }
+    Err("ridders_method: failed to converge".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exp_root() {
+        let r = ridders_method(|x| x.exp() - 3.0, 0.0, 2.0, 1e-12).unwrap();
+        assert!((r - 3f64.ln()).abs() < 1e-10);
+    }
+
+    #[test]
+    fn rejects_same_sign() {
+        assert!(ridders_method(|x| x * x + 1.0, -1.0, 1.0, 1e-9).is_err());
+    }
 }

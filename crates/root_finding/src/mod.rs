@@ -9,7 +9,7 @@ pub mod van_wijngaarden_dekker_brent;
 pub mod newton_raphson;
 pub mod polynomial_roots;
 
-pub use bracketing::bracket_root;
+pub use bracketing::{bracket_root, bracket_roots_scan};
 pub use bisection::bisection;
 pub use secant_method::secant_method;
 pub use false_position_method::false_position;

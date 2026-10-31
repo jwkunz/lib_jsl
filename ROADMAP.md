@@ -102,7 +102,7 @@
 [x] Wiener filtering
 
 #### Segmentation
-[ ] Otsu's method
+[x] Otsu's method
 [ ] Canny Edge Detection
 [ ] Watershed
 

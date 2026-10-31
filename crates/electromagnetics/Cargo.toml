@@ -11,3 +11,5 @@ path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core = { path = "../core" }
+lib_jsl_geometry = { path = "../geometry" }
+num.workspace = true

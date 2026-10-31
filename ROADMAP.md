@@ -448,7 +448,7 @@
 Design: `crates/electromagnetics/DESIGN.md`
 
 ## Foundations
-[ ] Conventions (units, configurable time convention)
+[x] Conventions (units, configurable time convention)
 [ ] Coordinate systems
 [ ] Polarization bases (linear, circular)
 [ ] Rigid transforms (translation, rotation)

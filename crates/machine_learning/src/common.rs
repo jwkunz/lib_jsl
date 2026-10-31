@@ -130,3 +130,17 @@ pub fn argmax(values: &[f64]) -> Option<usize> {
         _ => Some((i, v)),
     }).map(|(i, _)| i)
 }
+
+/// The matrix of Euclidean distances between all pairs of rows.
+pub fn pairwise_distances(x: VR2D) -> R2D {
+    let r: Vec<Vec<f64>> = rows(x);
+    let mut d = R2D::zeros((r.len(), r.len()));
+    for i in 0..r.len() {
+        for j in i + 1..r.len() {
+            let v = squared_distance(&r[i], &r[j]).sqrt();
+            d[[i, j]] = v;
+            d[[j, i]] = v;
+        }
+    }
+    d
+}

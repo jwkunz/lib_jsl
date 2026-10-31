@@ -430,7 +430,7 @@
 ### Clustering 
 [x] k means
 [x] k medoids 
-[ ] Hierarchical clustering
+[x] Hierarchical clustering
 [ ] DBSCAN
 [ ] HDBSCAN
 [ ] Gaussian mixture models

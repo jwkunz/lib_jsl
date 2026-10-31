@@ -10,7 +10,7 @@ pub mod spectral_clustering;
 
 pub use k_means::KMeans;
 pub use k_medoids::KMedoids;
-pub use hierarchical::hierarchical_clustering;
+pub use hierarchical::{Dendrogram, HierarchicalClustering, Linkage, Merge, agglomerate};
 pub use dbscan::dbscan;
 pub use hdbscan::hdbscan;
 pub use gaussian_mixture_models::gaussian_mixture_models;

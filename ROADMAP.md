@@ -226,6 +226,16 @@
 [ ] Space-time vector
 [ ] Christoffel Symbols
 
+# File IO
+
+## Audio
+[x] WAV files
+[x] MP3
+
+## Image
+[x] JPEG
+[x] JPEG files
+
 # Information
 
 ## Source Coders
@@ -237,8 +247,6 @@
 [x] Shannon Fano
 [x] Source coder trait
 [x] Gray Codes
-[x] MP3
-[x] JPEG
 
 ## LFSRs
 [x] LFSR
@@ -456,6 +464,4 @@
 # Utils
 [x] Terminal plot generation
 [x] Unit conversion
-[x] WAV files
-[x] JPEG files
 [x] Machine epsilon

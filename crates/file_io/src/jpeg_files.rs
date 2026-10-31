@@ -1,10 +1,8 @@
 //! Reading and writing JPEG files with the workspace's baseline codec.
 
 use lib_jsl_core::ErrorsJSL;
-use lib_jsl_information::source_coders::jpeg::{JpegImage, jpeg_decode, jpeg_encode};
+use crate::jpeg::{JpegImage, jpeg_decode, jpeg_encode};
 use std::path::Path;
-
-pub use lib_jsl_information::source_coders::jpeg::JpegImage as Image;
 
 /// Reads and decodes a baseline JPEG file (grayscale or RGB).
 pub fn read_jpeg_file(path: impl AsRef<Path>) -> Result<JpegImage, ErrorsJSL> {

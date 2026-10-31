@@ -6,7 +6,7 @@
 
 use std::sync::OnceLock;
 
-static BLOB: &[u8] = include_bytes!("../../data/layer3_tables.bin");
+static BLOB: &[u8] = include_bytes!("../data/layer3_tables.bin");
 
 /// One code of a "big values" Huffman table: the value pair `(x, y)` and its bit pattern.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -142,7 +142,7 @@ pub fn count1_table(b: bool) -> &'static [Count1Entry] {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::operators::sha256::{sha256, to_hex};
+    use lib_jsl_information::operators::sha256::{sha256, to_hex};
 
     #[test]
     fn embedded_file_matches_the_recorded_digest() {

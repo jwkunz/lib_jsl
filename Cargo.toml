@@ -6,6 +6,7 @@ members = [
     "crates/dsp",
     "crates/ffts",
     "crates/integration",
+    "crates/file_io",
     "crates/interpolation",
     "crates/number_theory",
     "crates/optimization",

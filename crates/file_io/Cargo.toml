@@ -1,0 +1,16 @@
+[package]
+name = "lib_jsl_file_io"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Readers, writers and codecs for common media file formats: WAV, MP3 and JPEG."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }
+
+[dev-dependencies]
+lib_jsl_information = { path = "../information" }

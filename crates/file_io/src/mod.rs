@@ -1,0 +1,17 @@
+//! File formats: codecs and file readers/writers for audio and image data.
+//!
+//! - [`wav`] reads and writes RIFF/WAVE audio (PCM and float).
+//! - [`mp3`] is a small MPEG-1 Layer III encoder/decoder (with [`mp3_tables`] holding the
+//!   standard constants it needs).
+//! - [`jpeg`] is a baseline JPEG codec, and [`jpeg_files`] reads and writes `.jpg` files with it.
+
+pub mod jpeg;
+pub mod jpeg_files;
+pub mod mp3;
+pub mod mp3_tables;
+pub mod wav;
+
+pub use jpeg::{JpegImage, jpeg_decode, jpeg_encode};
+pub use jpeg_files::{read_jpeg_file, write_jpeg_file};
+pub use mp3::{GenericPsychoacousticModel, Mp3Audio, PsychoacousticModel, mp3_decode, mp3_encode, mp3_encode_with_model};
+pub use wav::{WavAudio, WavSampleFormat, encode_wav, parse_wav, read_wav_file, write_wav_file};

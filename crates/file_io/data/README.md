@@ -9,8 +9,7 @@ formula:
   empty), with their `linbits`;
 - the two Huffman code tables for the "count1" region.
 
-The byte layout is documented at the top of `extract_layer3_tables.py`; `src/source_coders/
-mp3_tables.rs` reads it.
+The byte layout is documented at the top of `extract_layer3_tables.py`; `src/mp3_tables.rs` reads it.
 
 ## Provenance and license
 

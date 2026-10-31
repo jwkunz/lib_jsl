@@ -11,4 +11,3 @@ path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core = { path = "../core" }
-lib_jsl_information = { path = "../information" }

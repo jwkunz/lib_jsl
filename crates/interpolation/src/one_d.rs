@@ -1,5 +1,6 @@
 //! One-dimensional interpolation.
 
+pub mod hermite;
 pub mod linear_interpolator;
 pub mod natural_cubic_spline_interpolator;
 pub mod polynomial_interpolator;

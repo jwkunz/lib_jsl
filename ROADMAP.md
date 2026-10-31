@@ -277,7 +277,7 @@
 [x] Linear
 [x] Natural cubic spline
 [x] Polynomial
-[ ] PCHIP
+[x] PCHIP
 [ ] Akima
 [ ] Cubic basis
 [ ] AAA

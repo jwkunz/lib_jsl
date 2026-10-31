@@ -458,4 +458,4 @@
 [ ] Unit conversion
 [ ] WAV files
 [ ] JPEG files
-[ ] Machine epsilon
+[x] Machine epsilon

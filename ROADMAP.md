@@ -107,7 +107,7 @@
 [x] Watershed
 
 #### Feature Extraction
-[ ] Scale-Invariant Feature Transform
+[x] Scale-Invariant Feature Transform
 [ ] Speeded-Up Robust Features
 [x] Hough Transform
 [x] BLOB detection

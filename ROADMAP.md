@@ -471,7 +471,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 ## Arrays and Signal Models
 [x] Sensor arrays and responses
 [x] Point source scenes
-[ ] Distributed source and noise temperature scenes
+[x] Distributed source and noise temperature scenes
 [ ] Covariance models
 
 ## Algorithms

@@ -70,7 +70,7 @@ fn sparse_features() {
     // Heteroscedastic noise: weighted least squares trusts the clean samples more.
     let n = 60;
     let x = R2D::from_shape_fn((n, 1), |(i, _)| i as f64 / 6.0);
-    let noisy = |i: usize| i % 5 == 0;
+    let noisy = |i: usize| i.is_multiple_of(5);
     let y = R1D::from_iter((0..n).map(|i| 2.0 * x[[i, 0]] + 1.0 + rng.gaussian(0.0, if noisy(i) { 6.0 } else { 0.1 })));
     let mut ols = LinearRegression::new();
     ols.fit(x.view(), y.view()).unwrap();

@@ -76,7 +76,7 @@
 [ ] Ramp
 [ ] Triangle
 [x] CORDIC
-[ ] Sinusoid
+[x] Sinusoid
 [ ] Square
 [ ] Noise
 

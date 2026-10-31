@@ -223,7 +223,7 @@
 [ ] Nearest point finding
 [ ] Intersection
 [x] KD Trees
-[ ] Oct Trees
+[x] Oct Trees
 [x] Quad Trees
 
 ## 4D

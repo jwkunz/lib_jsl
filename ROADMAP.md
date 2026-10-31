@@ -227,7 +227,7 @@
 [x] Quad Trees
 
 ## 4D
-[ ] Space-time vector
+[x] Space-time vector
 [ ] Christoffel Symbols
 
 # File IO

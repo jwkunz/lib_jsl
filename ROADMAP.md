@@ -455,7 +455,7 @@
 
 # Utils
 [ ] Terminal plot generation
-[ ] Unit conversion
+[x] Unit conversion
 [x] WAV files
 [x] JPEG files
 [x] Machine epsilon

@@ -282,7 +282,7 @@
 [x] Cubic basis
 [ ] AAA
 [ ] Prony's method
-[ ] Pade approximants
+[x] Pade approximants
 [x] Floater-Hormann
 [ ] REIM
 [ ] Fourier 1D

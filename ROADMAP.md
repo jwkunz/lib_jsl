@@ -462,7 +462,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Physics operations (Poynting, power, potentials)
 
 ## Antenna Models
-[ ] Hertzian dipole
+[x] Hertzian dipole
 [ ] Magnetic loop
 [ ] Half-wave dipole
 [ ] Dish

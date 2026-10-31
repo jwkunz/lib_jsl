@@ -248,7 +248,7 @@
 ## Operators
 [x] SHA256
 [x] CRC32
-[ ] Entropy
+[x] Entropy
 
 ## Forward Error Correction
 [ ] LDPC

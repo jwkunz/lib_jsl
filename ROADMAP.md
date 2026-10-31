@@ -237,7 +237,7 @@
 [x] Shannon Fano
 [x] Source coder trait
 [x] Gray Codes
-[ ] MP3
+[x] MP3
 [x] JPEG
 
 ## LFSRs

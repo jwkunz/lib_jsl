@@ -374,7 +374,7 @@
 [x] Fresnel integrals
 [x] Cosine integrals
 [x] Sine integrals
-[ ] Dawson's integral
+[x] Dawson's integral
 [ ] Fermi-Dirac integrals
 [ ] Inverse x log (x)
 [ ] Elliptic integrals

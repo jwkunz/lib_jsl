@@ -371,7 +371,7 @@
 [x] Bessel functions fractional
 [x] Bessel functions spherical
 [x] Airy functions
-[ ] Fresnel integrals
+[x] Fresnel integrals
 [ ] Cosine integrals
 [ ] Sine integrals
 [ ] Dawson's integral

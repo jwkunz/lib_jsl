@@ -1,16 +1,32 @@
 //! Sinusoid source.
 
-use super::cordic::Cordic;
+use super::cordic::{Cordic, ONE};
 use super::nco::{Nco, NcoSource, Phase, Waveform};
 use lib_jsl_core::ErrorsJSL;
 
-/// How the sine of the oscillator phase is evaluated.
+/// How the sine and cosine of the oscillator phase are evaluated.
 #[derive(Clone, Debug)]
 pub enum SineKernel {
-    /// The platform's floating-point `sin`.
+    /// The platform's floating-point `sin` and `cos`.
     Direct,
-    /// A [`Cordic`] rotator.
+    /// An integer [`Cordic`] rotator fed with the top 32 bits of the oscillator phase (so the
+    /// output is accurate to about 1e-8).
     Cordic(Cordic),
+}
+
+impl SineKernel {
+    /// Returns `(sin, cos)` of `2π · phase`.
+    pub fn sin_cos(&self, phase: Phase) -> (f64, f64) {
+        match self {
+            SineKernel::Direct => phase.radians().sin_cos(),
+            SineKernel::Cordic(c) => {
+                // Round the 64-bit phase to the 32-bit binary angle the rotator takes.
+                let angle = (phase.0.wrapping_add(1 << 31) >> 32) as u32;
+                let (s, co) = c.sin_cos_fixed(angle);
+                (s as f64 / ONE as f64, co as f64 / ONE as f64)
+            }
+        }
+    }
 }
 
 /// The sine waveform, `sin(2π · phase)`.
@@ -29,10 +45,7 @@ impl Waveform for SineWave {
     type Output = f64;
 
     fn sample(&mut self, phase: Phase) -> f64 {
-        match &self.kernel {
-            SineKernel::Direct => phase.radians().sin(),
-            SineKernel::Cordic(c) => c.sin_cos(phase.radians()).0,
-        }
+        self.kernel.sin_cos(phase).0
     }
 }
 
@@ -42,7 +55,8 @@ impl NcoSource<SineWave> {
         Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, SineWave::new(SineKernel::Direct)))
     }
 
-    /// Like [`sinusoid`](Self::sinusoid) but evaluating the sine with `iterations` CORDIC steps.
+    /// Like [`sinusoid`](Self::sinusoid) but evaluating the sine with `iterations` (1 to 30)
+    /// integer CORDIC steps.
     pub fn sinusoid_cordic(frequency_hz: f64, sample_rate: f64, iterations: u32) -> Result<Self, ErrorsJSL> {
         let kernel = SineKernel::Cordic(Cordic::new(iterations)?);
         Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, SineWave::new(kernel)))

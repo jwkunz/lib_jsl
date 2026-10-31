@@ -8,6 +8,7 @@ pub mod cordic;
 pub mod sinusoid;
 pub mod square;
 pub mod noise;
+pub mod quadrature;
 
 pub use nco::{Nco, NcoSource, Phase, Sample, Waveform};
 pub use pulse_train::{pulse_train, PulseTrainWave};
@@ -17,3 +18,4 @@ pub use cordic::{angle_from_radians, angle_from_turns, angle_to_radians, cordic_
 pub use sinusoid::{sinusoid, SineKernel, SineWave};
 pub use square::{square, SquareWave};
 pub use noise::{noise, NoiseKind, NoiseWave};
+pub use quadrature::{quadrature, Polarity, QuadratureWave};

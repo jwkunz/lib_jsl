@@ -98,7 +98,7 @@
 [x] Sobel
 [x] Gaussian blur
 [ ] Histogram equalization
-[ ] Sharpening
+[x] Sharpening
 [ ] Wiener filtering
 
 #### Segmentation

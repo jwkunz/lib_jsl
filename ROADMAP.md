@@ -85,7 +85,7 @@
 [ ] Barker codes 
 [ ] Decision feedback equalizer 
 [x] Farrow filter
-[ ] Mueller timing detector
+[x] Mueller timing detector
 [ ] OFDM
 [x] FM
 [ ] Pulse correlation tracker

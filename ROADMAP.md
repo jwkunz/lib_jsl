@@ -301,7 +301,7 @@
 [x] Fourier 2D
 
 ## 3D
-[ ] Nearest
+[x] Nearest
 [ ] Trilinear
 [ ] B-spline
 [ ] Cubic Lagrangian

@@ -16,3 +16,4 @@ pub mod shannon_fano;
 pub mod source_coder;
 
 pub use gray_codes::{gray_code, gray_code_sequence, gray_decode};
+pub use jpeg::{jpeg_decode, jpeg_encode, JpegImage};

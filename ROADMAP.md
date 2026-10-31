@@ -238,7 +238,7 @@
 [x] Source coder trait
 [x] Gray Codes
 [ ] MP3
-[ ] JPEG
+[x] JPEG
 
 ## LFSRs
 [x] LFSR

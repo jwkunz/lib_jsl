@@ -99,7 +99,7 @@
 [x] Gaussian blur
 [x] Histogram equalization
 [x] Sharpening
-[ ] Wiener filtering
+[x] Wiener filtering
 
 #### Segmentation
 [ ] Otsu's method

@@ -218,7 +218,7 @@
 [ ] Delaunay Triangulation
 [ ] Convex hull
 [ ] Slicing
-[ ] Rotations
+[x] Rotations
 [x] Quaternions
 [ ] Nearest point finding
 [ ] Intersection

@@ -440,7 +440,7 @@
 [x] Principal component analysis 
 [x] Kernel PCA
 [x] t-SNE
-[ ] UMAP
+[x] UMAP
 [x] LDA
 
 

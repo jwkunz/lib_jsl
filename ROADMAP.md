@@ -217,7 +217,7 @@
 ## Algorithms
 [x] Delaunay Triangulation
 [x] Convex hull
-[ ] Slicing
+[x] Slicing
 [x] Rotations
 [x] Quaternions
 [x] Nearest point finding

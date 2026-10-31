@@ -293,7 +293,7 @@
 ## 2D
 [x] Nearest
 [x] Bilinear
-[ ] Bicubic
+[x] Bicubic
 [ ] Lanczos
 [ ] Cubic basis
 [ ] All-phase

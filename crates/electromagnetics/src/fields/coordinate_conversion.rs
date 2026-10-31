@@ -206,10 +206,11 @@ mod tests {
         let e = dipole_pattern(d.clone());
         let r = RigidTransform::rotation_about([0.0, 1.0, 0.0], FRAC_PI_2); // ẑ → x̂
         let x_dipole = e.transformed(&r, InterpolationMethod::Cubic, Extrapolation::Error).unwrap();
+        let intensity = x_dipole.norm_squared();
         for i in (0..d.len()).step_by(37) {
             let dir = d.position_flat(i).to_cartesian();
             let want = (1.0 - dir[0] * dir[0]).max(0.0).sqrt(); // |sin| of the angle from x̂
-            let got = x_dipole.norm_squared()[i].sqrt();
+            let got = intensity[i].sqrt();
             assert!((got - want).abs() < 2e-3, "{dir:?}: {got} vs {want}");
         }
         assert!((x_dipole.integrate_norm_squared() - e.integrate_norm_squared()).abs() < 1e-3 * e.integrate_norm_squared());

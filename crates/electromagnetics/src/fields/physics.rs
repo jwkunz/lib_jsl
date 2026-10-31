@@ -135,7 +135,8 @@ fn require_far_field(e: &HarmonicField) -> Result<(), ErrorsJSL> {
 pub fn radiation_intensity(e: &HarmonicField, medium: &Medium) -> Result<HarmonicField, ErrorsJSL> {
     require_far_field(e)?;
     let eta = medium.impedance(e.convention()).re;
-    let values = Array2::from_shape_fn((e.len(), 1), |(i, _)| C64::new(e.norm_squared()[i] / (2.0 * eta), 0.0));
+    let intensity = e.norm_squared();
+    let values = Array2::from_shape_fn((e.len(), 1), |(i, _)| C64::new(intensity[i] / (2.0 * eta), 0.0));
     HarmonicField::new(e.domain().clone(), FieldQuantity::Generic, Rank::Scalar, e.frequency(), e.convention(), values)
 }
 

@@ -17,7 +17,7 @@ pub use decision_feedback_equalizer::decision_feedback_equalizer;
 pub use farrow_filter::{farrow_filter, FarrowFilter};
 pub use mueller_timing_detector::mueller_timing_detector;
 pub use ofdm::ofdm_demodulate;
-pub use fm::fm_demodulate;
+pub use fm::{carson_bandwidth, fm_demodulate, fm_modulate, FmDemodulator, FmModulator};
 pub use pulse_correlation_tracker::pulse_correlation_tracker;
 pub use addressable_shift_register::AddressableShiftRegister;
 pub use ping_pong_buffer::{PingPongBuffer, PushOutcome};

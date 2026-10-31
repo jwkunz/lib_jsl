@@ -87,7 +87,7 @@
 [x] Farrow filter
 [ ] Mueller timing detector
 [ ] OFDM
-[ ] FM
+[x] FM
 [ ] Pulse correlation tracker
 [ ] Addressable shift register 
 [x] Ping pong buffer

@@ -208,7 +208,7 @@ mod tests {
     #[test]
     fn curve_occupies_expected_rows() {
         let x: Vec<f64> = (0..=40).map(|i| i as f64).collect();
-        let y: Vec<f64> = x.iter().map(|&v| v).collect();
+        let y: Vec<f64> = x.to_vec();
         let text = generate_terminal_plot(&x, &y, 20, 8);
         let lines: Vec<&str> = text.lines().collect();
         // A rising line starts in the bottom-left and ends in the top-right.

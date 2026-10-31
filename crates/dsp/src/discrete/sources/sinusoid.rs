@@ -1,6 +1,6 @@
 //! Sinusoid source.
 
-use super::cordic::{Cordic, ONE};
+use super::cordic::{Cordic32, Cordic64};
 use super::nco::{Nco, NcoSource, Phase, Waveform};
 use lib_jsl_core::ErrorsJSL;
 
@@ -9,9 +9,12 @@ use lib_jsl_core::ErrorsJSL;
 pub enum SineKernel {
     /// The platform's floating-point `sin` and `cos`.
     Direct,
-    /// An integer [`Cordic`] rotator fed with the top 32 bits of the oscillator phase (so the
-    /// output is accurate to about 1e-8).
-    Cordic(Cordic),
+    /// A 32-bit integer [`Cordic32`] rotator fed with the top 32 bits of the oscillator phase
+    /// (accurate to about 1e-8).
+    Cordic(Cordic32),
+    /// A 64-bit integer [`Cordic64`] rotator fed with the oscillator's full 64-bit phase
+    /// (double-precision accuracy at 52 or more iterations).
+    Cordic64(Cordic64),
 }
 
 impl SineKernel {
@@ -23,7 +26,12 @@ impl SineKernel {
                 // Round the 64-bit phase to the 32-bit binary angle the rotator takes.
                 let angle = (phase.0.wrapping_add(1 << 31) >> 32) as u32;
                 let (s, co) = c.sin_cos_fixed(angle);
-                (s as f64 / ONE as f64, co as f64 / ONE as f64)
+                (s as f64 / Cordic32::ONE as f64, co as f64 / Cordic32::ONE as f64)
+            }
+            SineKernel::Cordic64(c) => {
+                // The oscillator phase is already a 64-bit binary angle.
+                let (s, co) = c.sin_cos_fixed(phase.0);
+                (s as f64 / Cordic64::ONE as f64, co as f64 / Cordic64::ONE as f64)
             }
         }
     }
@@ -58,7 +66,14 @@ impl NcoSource<SineWave> {
     /// Like [`sinusoid`](Self::sinusoid) but evaluating the sine with `iterations` (1 to 30)
     /// integer CORDIC steps.
     pub fn sinusoid_cordic(frequency_hz: f64, sample_rate: f64, iterations: u32) -> Result<Self, ErrorsJSL> {
-        let kernel = SineKernel::Cordic(Cordic::new(iterations)?);
+        let kernel = SineKernel::Cordic(Cordic32::new(iterations)?);
+        Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, SineWave::new(kernel)))
+    }
+
+    /// Like [`sinusoid`](Self::sinusoid) but evaluating the sine with `iterations` (1 to 62)
+    /// 64-bit integer CORDIC steps; 52 or more reaches double-precision accuracy.
+    pub fn sinusoid_cordic64(frequency_hz: f64, sample_rate: f64, iterations: u32) -> Result<Self, ErrorsJSL> {
+        let kernel = SineKernel::Cordic64(Cordic64::new(iterations)?);
         Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, SineWave::new(kernel)))
     }
 }
@@ -102,6 +117,23 @@ mod tests {
         }
         assert!(NcoSource::sinusoid_cordic(10.0, 100.0, 0).is_err());
         assert!(NcoSource::sinusoid_cordic(10.0, 100.0, 31).is_err());
+    }
+
+    #[test]
+    fn cordic64_kernel_matches_double_precision_and_beats_the_32_bit_one() {
+        let mut direct = NcoSource::sinusoid(1234.5, 44_100.0).unwrap();
+        let mut wide = NcoSource::sinusoid_cordic64(1234.5, 44_100.0, 52).unwrap();
+        let mut narrow = NcoSource::sinusoid_cordic(1234.5, 44_100.0, 30).unwrap();
+        let (mut e_wide, mut e_narrow) = (0.0f64, 0.0f64);
+        for _ in 0..20_000 {
+            let d = direct.next_sample();
+            e_wide = e_wide.max((d - wide.next_sample()).abs());
+            e_narrow = e_narrow.max((d - narrow.next_sample()).abs());
+        }
+        assert!(e_wide < 3e-15, "64-bit kernel error {e_wide:e}");
+        assert!(e_narrow > 1e-10 && e_wide < e_narrow / 1000.0, "{e_wide:e} vs {e_narrow:e}");
+        assert!(NcoSource::sinusoid_cordic64(10.0, 100.0, 0).is_err());
+        assert!(NcoSource::sinusoid_cordic64(10.0, 100.0, 63).is_err());
     }
 
     #[test]

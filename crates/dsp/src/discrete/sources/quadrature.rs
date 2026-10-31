@@ -2,7 +2,7 @@
 
 use super::nco::{Nco, NcoSource, Phase, Waveform};
 use super::sinusoid::SineKernel;
-use super::cordic::Cordic;
+use super::cordic::{Cordic32, Cordic64};
 use lib_jsl_core::ErrorsJSL;
 use num::Complex;
 
@@ -65,10 +65,18 @@ impl NcoSource<QuadratureWave> {
         Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, QuadratureWave::new(SineKernel::Direct, polarity)))
     }
 
-    /// A quadrature source whose sine and cosine come from a single integer CORDIC pass with
-    /// `iterations` (1 to 30) micro-rotations.
+    /// A quadrature source whose sine and cosine come from a single 32-bit integer CORDIC pass
+    /// with `iterations` (1 to 30) micro-rotations (accurate to about 1e-8).
     pub fn quadrature_cordic(frequency_hz: f64, sample_rate: f64, polarity: Polarity, iterations: u32) -> Result<Self, ErrorsJSL> {
-        let kernel = SineKernel::Cordic(Cordic::new(iterations)?);
+        let kernel = SineKernel::Cordic(Cordic32::new(iterations)?);
+        Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, QuadratureWave::new(kernel, polarity)))
+    }
+
+    /// Like [`quadrature_cordic`](Self::quadrature_cordic) but with the 64-bit CORDIC
+    /// (`iterations` 1 to 62; 52 or more reaches double-precision accuracy) driven by the
+    /// oscillator's full 64-bit phase.
+    pub fn quadrature_cordic64(frequency_hz: f64, sample_rate: f64, polarity: Polarity, iterations: u32) -> Result<Self, ErrorsJSL> {
+        let kernel = SineKernel::Cordic64(Cordic64::new(iterations)?);
         Ok(NcoSource::from_parts(Nco::new(frequency_hz, sample_rate)?, QuadratureWave::new(kernel, polarity)))
     }
 
@@ -157,6 +165,23 @@ mod tests {
         // A coarse rotator is visibly worse.
         let coarse = NcoSource::quadrature_cordic(800.0, 8000.0, Polarity::Positive, 8).unwrap().generate(800);
         assert!(dft_at(&coarse, -0.1) > 1e-4, "image {}", dft_at(&coarse, -0.1));
+    }
+
+    #[test]
+    fn cordic64_quadrature_is_double_precision_clean() {
+        // 800 Hz at 8 kHz: exactly 80 cycles in 800 samples, so the image bin has no leakage.
+        let x = NcoSource::quadrature_cordic64(800.0, 8000.0, Polarity::Positive, 52).unwrap().generate(800);
+        assert!(dft_at(&x, -0.1) < 5e-15, "image {}", dft_at(&x, -0.1));
+        assert!((dft_at(&x, 0.1) - 1.0).abs() < 5e-15);
+        for v in &x {
+            assert!((v.norm() - 1.0).abs() < 3e-15);
+        }
+        let mut direct = NcoSource::quadrature(333.3, 8000.0, Polarity::Negative).unwrap();
+        let mut wide = NcoSource::quadrature_cordic64(333.3, 8000.0, Polarity::Negative, 52).unwrap();
+        for _ in 0..3000 {
+            assert!((direct.next_sample() - wide.next_sample()).norm() < 5e-15);
+        }
+        assert!(NcoSource::quadrature_cordic64(1.0, 10.0, Polarity::Positive, 63).is_err());
     }
 
     #[test]

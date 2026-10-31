@@ -148,7 +148,7 @@
 [x] MUSIC
 [x] Maximum entropy
 [x] Linear predictive coding
-[ ] Wavelet transform
+[x] Wavelet transform
 
 ### Transformations
 [x] Channel impairment

@@ -220,7 +220,7 @@
 [ ] Slicing
 [x] Rotations
 [x] Quaternions
-[ ] Nearest point finding
+[x] Nearest point finding
 [ ] Intersection
 [x] KD Trees
 [x] Oct Trees

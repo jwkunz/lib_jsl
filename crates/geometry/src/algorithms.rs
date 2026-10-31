@@ -17,7 +17,7 @@ pub use convex_hull::{Hull3D, convex_hull_2d, convex_hull_3d, convex_polygon_con
 pub use slicing::slicing;
 pub use rotations::{Axis, EulerSequence, Matrix3, Rotation2, Rotation3};
 pub use quaternions::Quaternion;
-pub use nearest_point_finding::nearest_point_finding;
+pub use nearest_point_finding::{Closest, closest_point_on_aabb, closest_point_on_line, closest_point_on_mesh, closest_point_on_plane, closest_point_on_polygon_boundary, closest_point_on_polyline, closest_point_on_ray, closest_point_on_segment, closest_point_on_sphere, closest_point_on_triangle, closest_points_between_segments, distance_point_to_line_3d};
 pub use intersection::intersection;
 pub use kd_trees::KdTree;
 pub use oct_trees::OctTree;

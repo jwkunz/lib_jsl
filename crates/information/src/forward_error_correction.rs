@@ -9,3 +9,4 @@ pub mod convolutional;
 pub use hamming::{HammingCode, HammingDecoded, HammingStatus};
 pub use reed_solomon::ReedSolomon;
 pub use convolutional::ConvolutionalCode;
+pub use polar::PolarCode;

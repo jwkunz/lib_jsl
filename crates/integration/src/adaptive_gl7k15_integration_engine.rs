@@ -1,8 +1,8 @@
 use crate::can_integrate::CanIntegrate1D;
 use lib_jsl_core::ErrorsJSL;
 
-//const GUASS_LEGENDRE_NODES_7:[f64;4] =[0.0,0.405845151377397,0.741531185599394,0.949107912342759];
-const GUASS_LEGENDRE_WEIGHTS_7: [f64; 4] = [
+//const GAUSS_LEGENDRE_NODES_7:[f64;4] =[0.0,0.405845151377397,0.741531185599394,0.949107912342759];
+const GAUSS_LEGENDRE_WEIGHTS_7: [f64; 4] = [
     0.417959183673469,
     0.381830050505119,
     0.279705391489277,
@@ -55,12 +55,12 @@ where
         .map(|&w| scale_w(a, b, w))
         .chain(KRONROD_WEIGHTS_15.iter().skip(1).map(|&w| scale_w(a, b, w)))
         .collect();
-    let gl_weights: Vec<f64> = GUASS_LEGENDRE_WEIGHTS_7
+    let gl_weights: Vec<f64> = GAUSS_LEGENDRE_WEIGHTS_7
         .iter()
         .rev()
         .map(|&w| scale_w(a, b, w))
         .chain(
-            GUASS_LEGENDRE_WEIGHTS_7
+            GAUSS_LEGENDRE_WEIGHTS_7
                 .iter()
                 .skip(1)
                 .map(|&w| scale_w(a, b, w)),
@@ -80,7 +80,7 @@ where
     (gl, kr)
 }
 
-// An struct the integrates a 1D real function f(x) using a Guass-Legendre 7 and Kronrod 15 quadrature to inspect the convergence error
+// A struct that integrates a 1D real function f(x) using a Gauss-Legendre 7 and Kronrod 15 quadrature to inspect the convergence error
 pub struct AdaptiveGL7K15IntegrationEngine {
     tolerance: f64,   // Where to bound error on each subinterval
     lower_bound: f64, // The lower bound of x

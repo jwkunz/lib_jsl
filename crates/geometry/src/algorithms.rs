@@ -1,33 +1,23 @@
 //! Geometry algorithms.
 
-pub fn delaunay_triangulation() {
-    todo!("delaunay_triangulation is not yet implemented")
-}
+pub mod delaunay_triangulation;
+pub mod convex_hull;
+pub mod slicing;
+pub mod rotations;
+pub mod quaternions;
+pub mod nearest_point_finding;
+pub mod intersection;
+pub mod kd_trees;
+pub mod oct_trees;
+pub mod quad_trees;
 
-pub fn convex_hull() {
-    todo!("convex_hull is not yet implemented")
-}
-
-pub fn slicing() {
-    todo!("slicing is not yet implemented")
-}
-
-pub fn rotations() {
-    todo!("rotations is not yet implemented")
-}
-
-pub fn quaternions() {
-    todo!("quaternions is not yet implemented")
-}
-
-pub fn nearest_point_finding() {
-    todo!("nearest_point_finding is not yet implemented")
-}
-
-pub fn intersection() {
-    todo!("intersection is not yet implemented")
-}
-
-pub struct KdTree;
-pub struct OctTree;
-pub struct QuadTree;
+pub use delaunay_triangulation::delaunay_triangulation;
+pub use convex_hull::convex_hull;
+pub use slicing::slicing;
+pub use rotations::rotations;
+pub use quaternions::quaternions;
+pub use nearest_point_finding::nearest_point_finding;
+pub use intersection::intersection;
+pub use kd_trees::KdTree;
+pub use oct_trees::OctTree;
+pub use quad_trees::QuadTree;

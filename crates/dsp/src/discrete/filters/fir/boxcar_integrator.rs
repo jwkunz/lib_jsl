@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use crate::{dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement}, prelude::{ErrorsJSL, IsLinearOperatable}};
-/// A boxcar intergrator takes the sum of the last `n` values. This has an
+/// A boxcar integrator takes the sum of the last `n` values. This has an
 /// efficient streaming implementation that only requires one multiplication and
 /// two additions per output value, regardless of the number of taps.
 ///

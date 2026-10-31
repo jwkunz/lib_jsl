@@ -10,6 +10,8 @@ pub mod discrete {
     pub mod convolve;
     pub mod cross_correlation;
     pub mod digital_communications;
+    pub mod fft_convolution;
+    pub mod fft_cross_correlation;
     pub mod image;
     pub mod sinc;
     pub mod sources;
@@ -21,6 +23,7 @@ pub mod discrete {
             pub mod boxcar_integrator;
             pub mod derivative_filter;
             pub mod firwin;
+            pub mod fft_fir;
             pub mod firwin2;
             pub mod overlap_and_add_fir;
             pub mod remez;
@@ -41,6 +44,7 @@ pub mod discrete {
 
         pub use fir::boxcar_integrator;
         pub use fir::derivative_filter;
+        pub use fir::fft_fir;
         pub use fir::firwin;
         pub use fir::firwin2;
         pub use fir::overlap_and_add_fir;
@@ -80,6 +84,11 @@ pub mod discrete {
         pub mod chirpz;
         pub mod critically_sampled_polyphase_filter_bank;
         pub mod freqz;
+        pub mod linear_predictive_coding;
+        pub mod maximum_entropy;
+        pub mod music;
+        pub mod non_uniformly_sampled;
         pub mod oversampled_polyphase_filter_bank;
+        pub mod wavelet_transform;
     }
 }

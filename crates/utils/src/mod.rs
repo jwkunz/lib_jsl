@@ -1,21 +1,13 @@
 //! General utilities, formatting, and file I/O helpers.
 
-pub fn generate_terminal_plot(_data: &[f64]) -> String {
-    todo!("generate_terminal_plot is not yet implemented")
-}
+pub mod terminal_plot;
+pub mod unit_conversion;
+pub mod wav_files;
+pub mod jpeg_files;
+pub mod machine_epsilon;
 
-pub fn unit_conversion(_value: f64, _from: &str, _to: &str) -> f64 {
-    todo!("unit_conversion is not yet implemented")
-}
-
-pub fn read_wav_file(_path: &str) -> Vec<f32> {
-    todo!("read_wav_file is not yet implemented")
-}
-
-pub fn read_jpeg_file(_path: &str) -> Vec<u8> {
-    todo!("read_jpeg_file is not yet implemented")
-}
-
-pub fn machine_epsilon() -> f64 {
-    f64::EPSILON
-}
+pub use terminal_plot::generate_terminal_plot;
+pub use unit_conversion::unit_conversion;
+pub use wav_files::read_wav_file;
+pub use jpeg_files::read_jpeg_file;
+pub use machine_epsilon::machine_epsilon;

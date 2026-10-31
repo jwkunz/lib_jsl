@@ -26,7 +26,7 @@ pub trait InterpolationTrait<'a> : Sized{
         Ok(())
     }
 
-    /// Finds the index immidiately before x, optionally relying on the cache of the previous value
+    /// Finds the index immediately before x, optionally relying on the cache of the previous value
     /// The location will not exceed N-2 so it always indicates to two valid sequential indexes, even if at the end
     fn locate(&mut self, x : f64) -> Result<usize,ErrorsJSL>{
         let x_values = self.get_x_values();
@@ -64,7 +64,7 @@ pub trait InterpolationTrait<'a> : Sized{
     }
 
 
-    /// This is where the interpolation gets computed based on the methoed
+    /// This is where the interpolation gets computed based on the method
     fn raw_interpolate(&mut self, jlo : usize, x : f64) -> Result<f64,ErrorsJSL>;
 
     /// Top level wrapper for evaluation

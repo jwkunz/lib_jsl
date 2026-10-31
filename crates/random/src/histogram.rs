@@ -76,13 +76,13 @@ impl Histogram{
 #[cfg(test)]
 mod test{
     use super::*;
-    use crate::{distributions::guassian_distribution_box_muller_vec, uniform_generator::UniformRNG};
+    use crate::{distributions::gaussian_distribution_box_muller_vec, uniform_generator::UniformRNG};
     #[test]
     fn test_histogram(){
         let mut rng = UniformRNG::from_seed(0);
         let mut dut = Histogram::new(0.0, 10.0, 10);
         let n_samples = 1_000_000;
-        guassian_distribution_box_muller_vec(n_samples,&mut rng, 5.0, 1.0).iter().for_each(|&x| {let _ = dut.count(x);});
+        gaussian_distribution_box_muller_vec(n_samples,&mut rng, 5.0, 1.0).iter().for_each(|&x| {let _ = dut.count(x);});
         let golden = vec![        2.7999944000112e-5,
         0.001378997242005516,
         0.021566956866086267,

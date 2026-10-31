@@ -1,4 +1,4 @@
-//! This file implments the Nelder-Mead method for optimization. 
+//! This file implements the Nelder-Mead method for optimization. 
 //! The Nelder-Mead method is a gradient-free optimization algorithm that is used to find the minimum of a function. 
 //! The algorithm works by maintaining a simplex of n+1 points in n-dimensional space, where each point represents a candidate solution to the optimization problem. 
 //! The algorithm iteratively updates the simplex by performing operations such as reflection, expansion, contraction, and shrinkage, based on the function values at the vertices of the simplex. 

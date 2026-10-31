@@ -10,7 +10,7 @@ use crate::{
     },
     prelude::ErrorsJSL,
     random::{
-        distributions::guassian_distribution_box_muller,
+        distributions::gaussian_distribution_box_muller,
         uniform_generator::UniformRNG,
         xoshiro256plusplus::Xoshiro256PlusPlus,
     },
@@ -110,7 +110,7 @@ impl ChannelImpairment {
         let sigma = (n0 * fs / 2.0).sqrt();
 
         for x in data.iter_mut() {
-            let (n_i, n_q) = guassian_distribution_box_muller(&mut self.rng, 0.0, sigma);
+            let (n_i, n_q) = gaussian_distribution_box_muller(&mut self.rng, 0.0, sigma);
             *x += Complex::new(n_i, n_q);
         }
     }

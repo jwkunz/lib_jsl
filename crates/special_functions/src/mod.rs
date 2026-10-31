@@ -1,85 +1,47 @@
 //! Special mathematical functions.
 
-pub fn gamma(_x: f64) -> f64 {
-    todo!("gamma is not yet implemented")
-}
+pub mod gamma;
+pub mod beta;
+pub mod factorial;
+pub mod binomial_coefficients;
+pub mod incomplete_gamma;
+pub mod error_function;
+pub mod exponential_integrals;
+pub mod incomplete_beta;
+pub mod bessel_functions_integer;
+pub mod bessel_functions_fractional;
+pub mod bessel_functions_spherical;
+pub mod airy_functions;
+pub mod fresnel_integrals;
+pub mod cosine_integrals;
+pub mod sine_integrals;
+pub mod dawsons_integral;
+pub mod fermi_dirac_integrals;
+pub mod inverse_x_log_x;
+pub mod elliptic_integrals;
+pub mod jacobian_elliptic_functions;
+pub mod hypergeometric_functions;
+pub mod statistical_functions;
 
-pub fn beta(_a: f64, _b: f64) -> f64 {
-    todo!("beta is not yet implemented")
-}
-
-pub fn factorial(_n: u64) -> u64 {
-    todo!("factorial is not yet implemented")
-}
-
-pub fn binomial_coefficient(_n: u64, _k: u64) -> u64 {
-    todo!("binomial_coefficient is not yet implemented")
-}
-
-pub fn incomplete_gamma(_a: f64, _x: f64) -> f64 {
-    todo!("incomplete_gamma is not yet implemented")
-}
-
-pub fn error_function(_x: f64) -> f64 {
-    todo!("error_function is not yet implemented")
-}
-
-pub fn exponential_integral(_x: f64) -> f64 {
-    todo!("exponential_integral is not yet implemented")
-}
-
-pub fn incomplete_beta(_a: f64, _b: f64, _x: f64) -> f64 {
-    todo!("incomplete_beta is not yet implemented")
-}
-
-pub fn bessel_j_integer(_n: i32, _x: f64) -> f64 {
-    todo!("bessel_j_integer is not yet implemented")
-}
-
-pub fn bessel_fractional(_v: f64, _x: f64) -> f64 {
-    todo!("bessel_fractional is not yet implemented")
-}
-
-pub fn bessel_spherical(_n: i32, _x: f64) -> f64 {
-    todo!("bessel_spherical is not yet implemented")
-}
-
-pub fn airy_ai(_x: f64) -> f64 {
-    todo!("airy_ai is not yet implemented")
-}
-
-pub fn fresnel_integrals(_x: f64) -> (f64, f64) {
-    todo!("fresnel_integrals is not yet implemented")
-}
-
-pub fn cosine_integral(_x: f64) -> f64 {
-    todo!("cosine_integral is not yet implemented")
-}
-
-pub fn sine_integral(_x: f64) -> f64 {
-    todo!("sine_integral is not yet implemented")
-}
-
-pub fn dawson_integral(_x: f64) -> f64 {
-    todo!("dawson_integral is not yet implemented")
-}
-
-pub fn fermi_dirac_integral(_j: f64, _x: f64) -> f64 {
-    todo!("fermi_dirac_integral is not yet implemented")
-}
-
-pub fn inverse_x_log_x(_y: f64) -> f64 {
-    todo!("inverse_x_log_x is not yet implemented")
-}
-
-pub fn elliptic_integral(_k: f64) -> f64 {
-    todo!("elliptic_integral is not yet implemented")
-}
-
-pub fn jacobian_elliptic(_u: f64, _m: f64) -> (f64, f64, f64) {
-    todo!("jacobian_elliptic is not yet implemented")
-}
-
-pub fn hypergeometric(_a: f64, _b: f64, _c: f64, _z: f64) -> f64 {
-    todo!("hypergeometric is not yet implemented")
-}
+pub use gamma::gamma;
+pub use beta::beta;
+pub use factorial::factorial;
+pub use binomial_coefficients::binomial_coefficient;
+pub use incomplete_gamma::incomplete_gamma;
+pub use error_function::error_function;
+pub use exponential_integrals::exponential_integral;
+pub use incomplete_beta::incomplete_beta;
+pub use bessel_functions_integer::bessel_j_integer;
+pub use bessel_functions_fractional::bessel_fractional;
+pub use bessel_functions_spherical::bessel_spherical;
+pub use airy_functions::airy_ai;
+pub use fresnel_integrals::fresnel_integrals;
+pub use cosine_integrals::cosine_integral;
+pub use sine_integrals::sine_integral;
+pub use dawsons_integral::dawson_integral;
+pub use fermi_dirac_integrals::fermi_dirac_integral;
+pub use inverse_x_log_x::inverse_x_log_x;
+pub use elliptic_integrals::elliptic_integral;
+pub use jacobian_elliptic_functions::jacobian_elliptic;
+pub use hypergeometric_functions::hypergeometric;
+pub use statistical_functions::statistical_functions;

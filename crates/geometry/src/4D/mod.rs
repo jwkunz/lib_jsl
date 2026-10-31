@@ -5,12 +5,8 @@ use crate::common::GeometricPrimitive;
 /// Marker trait for future 4D-specific primitive behavior.
 pub trait GeometricPrimitive4DExt: GeometricPrimitive {}
 
-pub struct SpaceTimeVector4D {
-    pub t: f64,
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-}
+pub mod christoffel_symbols;
+pub mod space_time_vector;
 
-pub struct ChristoffelSymbols4D;
-
+pub use christoffel_symbols::ChristoffelSymbols4D;
+pub use space_time_vector::SpaceTimeVector4D;

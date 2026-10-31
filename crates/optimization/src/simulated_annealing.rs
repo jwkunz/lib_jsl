@@ -23,7 +23,7 @@ use crate::optimization_traits::{
 };
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_random::{
-    distributions::guassian_distribution_box_muller_vec,
+    distributions::gaussian_distribution_box_muller_vec,
     uniform_generator::{UniformGenerator, UniformRNG},
 };
 
@@ -39,7 +39,7 @@ pub struct SimulatedAnnealing {
     /// The maximum temperature is the highest temperature that the algorithm will use during the optimization process. 
     /// It can be set to a large value to allow for a wide exploration of the search space at the beginning of the optimization, or it can be set to a smaller value to focus the search on a narrower region of the search space.
     maximum_temperature: Option<f64>,
-    /// Interations per temperature is the number of iterations that the algorithm will perform at each temperature level before cooling down. It can be set to a fixed value or it can be dynamically adjusted based on the progress of the optimization.
+    /// Iterations per temperature is the number of iterations that the algorithm will perform at each temperature level before cooling down. It can be set to a fixed value or it can be dynamically adjusted based on the progress of the optimization.
     iterations_per_temperature: Option<usize>,
 }
 
@@ -111,10 +111,10 @@ impl MinimizationControls for SimulatedAnnealing {
 
 fn generate_candidate_solution<T>(current_parameters: &[f64], current_temperature: f64, rng: &mut T) -> Vec<f64> 
 where T: UniformGenerator{
-    let perterbations = guassian_distribution_box_muller_vec(current_parameters.len(), rng, 0.0, current_temperature);
+    let perturbations = gaussian_distribution_box_muller_vec(current_parameters.len(), rng, 0.0, current_temperature);
     current_parameters
         .iter()
-        .zip(perterbations.iter())
+        .zip(perturbations.iter())
         .map(|(&param, &perturbation)| {
             param + perturbation
         })

@@ -1,0 +1,17 @@
+//! One-dimensional interpolation.
+
+pub mod linear_interpolator;
+pub mod natural_cubic_spline_interpolator;
+pub mod polynomial_interpolator;
+pub mod pchip;
+pub mod akima;
+pub mod cubic_basis;
+pub mod aaa;
+pub mod pronys_method;
+pub mod pade_approximants;
+pub mod floater_hormann;
+pub mod reim;
+pub mod fourier_1d;
+pub mod chebyshev_approximations;
+pub mod lagrange_interpolant;
+pub mod savitzky_golay;

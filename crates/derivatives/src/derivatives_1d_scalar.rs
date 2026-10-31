@@ -1,4 +1,4 @@
-/// This file contains routines that will numerically comute the derivatives on scalar valued functions.
+/// This file contains routines that will numerically compute the derivatives on scalar valued functions.
 use lib_jsl_core::ErrorsJSL;
 
 /// This function compute the simple 2 point derivative of a scalar valued function at a given point. The step size can be optionally provided, and if not provided, it defaults to the machine epsilon. The function uses central differences to compute the derivative, which provides a good balance between accuracy and computational efficiency.

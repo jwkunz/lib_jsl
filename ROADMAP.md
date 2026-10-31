@@ -375,7 +375,7 @@
 [x] Cosine integrals
 [x] Sine integrals
 [x] Dawson's integral
-[ ] Fermi-Dirac integrals
+[x] Fermi-Dirac integrals
 [ ] Inverse x log (x)
 [ ] Elliptic integrals
 [ ] Jacobian elliptic functions

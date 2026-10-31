@@ -476,7 +476,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 
 ## Algorithms
 [x] Overlap integral
-[ ] CFM beamformer
+[x] CFM beamformer
 [ ] Max SNR beamformer
 [ ] LCMV beamformer
 

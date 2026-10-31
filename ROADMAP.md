@@ -298,7 +298,7 @@
 [x] Cubic basis
 [x] All-phase
 [ ] Radial basis functions
-[ ] Fourier 2D
+[x] Fourier 2D
 
 ## 3D
 [ ] Nearest

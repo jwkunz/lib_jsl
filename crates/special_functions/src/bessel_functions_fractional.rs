@@ -302,7 +302,7 @@ fn bessel_ik_positive(x: f64, xnu: f64) -> (f64, f64) {
             q += c * qnew;
             b += 2.0;
             d = 1.0 / (b + a * d);
-            delh = (b * d - 1.0) * delh;
+            delh *= b * d - 1.0;
             h += delh;
             let dels = q * delh;
             s += dels;

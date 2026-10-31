@@ -256,10 +256,10 @@ mod tests {
     fn complete_first_and_second_kind() {
         let cases = [
             (0.0, 1.5707963267948966, 1.5707963267948966),
-            (0.3, 1.6080486199305128, 1.5348334649232490),
-            (0.5, 1.6857503548125961, 1.4674622093394272),
+            (0.3, 1.6080486199305128, 1.534_833_464_923_249),
+            (0.5, 1.685_750_354_812_596, 1.4674622093394272),
             (0.9, 2.2805491384227703, 1.1716970527816142),
-            (0.999, 4.4955963958421509, 1.0039944099655078),
+            (0.999, 4.495_596_395_842_151, 1.0039944099655078),
         ];
         for &(k, kk, ee) in &cases {
             assert!(close(elliptic_integral(k), kk, 1e-14), "K({k})");
@@ -274,17 +274,17 @@ mod tests {
     #[test]
     fn incomplete_forms() {
         assert!(close(elliptic_f(1.0, 0.5), 1.0373561200021773, 1e-14));
-        assert!(close(elliptic_e(1.0, 0.5), 0.96487645426862749, 1e-14));
+        assert!(close(elliptic_e(1.0, 0.5), 0.964_876_454_268_627_4, 1e-14));
         assert!(close(elliptic_pi(1.0, 0.3, 0.5), 1.1386198831894311, 1e-14));
         assert!(close(elliptic_integral_third(0.3, 0.5), 2.0277924458111315, 1e-14));
-        assert!(close(elliptic_pi(1.2, -2.0, 0.5f64.sqrt()), 0.84630033528324021, 1e-14));
+        assert!(close(elliptic_pi(1.2, -2.0, 0.5f64.sqrt()), 0.846_300_335_283_240_2, 1e-14));
     }
 
     #[test]
     fn amplitude_beyond_quarter_period() {
-        assert!(close(elliptic_f(5.0, 0.5), 5.3878724275355712, 1e-14));
-        assert!(close(elliptic_e(5.0, 0.5), 4.6525864357205965, 1e-14));
-        assert!(close(elliptic_pi(5.0, 0.3, 0.5), 6.5503339088946389, 1e-13));
+        assert!(close(elliptic_f(5.0, 0.5), 5.387_872_427_535_571, 1e-14));
+        assert!(close(elliptic_e(5.0, 0.5), 4.652_586_435_720_597, 1e-14));
+        assert!(close(elliptic_pi(5.0, 0.3, 0.5), 6.550_333_908_894_639, 1e-13));
         assert!((elliptic_f(-1.0, 0.5) + elliptic_f(1.0, 0.5)).abs() < 1e-15);
         assert!(close(elliptic_f(std::f64::consts::FRAC_PI_2, 0.7), elliptic_integral(0.7), 1e-14));
     }

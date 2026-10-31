@@ -21,7 +21,7 @@ pub fn bessel_spherical(n: i32, x: f64) -> f64 {
     if n < 0 {
         let m = (-n - 1) as u32;
         let y = bessel_spherical_y(m as i32, x);
-        return if m % 2 == 0 { -y } else { y };
+        return if m.is_multiple_of(2) { -y } else { y };
     }
     if x == 0.0 {
         return if n == 0 { 1.0 } else { 0.0 };
@@ -47,7 +47,7 @@ pub fn bessel_spherical_y(n: i32, x: f64) -> f64 {
     if n < 0 {
         let m = (-n - 1) as u32;
         let j = bessel_spherical(m as i32, x);
-        return if m % 2 == 0 { j } else { -j };
+        return if m.is_multiple_of(2) { j } else { -j };
     }
     if x == 0.0 {
         return f64::NEG_INFINITY;

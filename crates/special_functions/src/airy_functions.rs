@@ -109,11 +109,11 @@ mod tests {
     fn bi_values() {
         assert!(close(airy_bi(0.0), 0.6149266274460007, 1e-14));
         assert!(close(airy_bi(1.0), 1.2074235949528713, 1e-14));
-        assert!(close(airy_bi(-1.0), 0.10399738949694461, 1e-13));
+        assert!(close(airy_bi(-1.0), 0.103_997_389_496_944_6, 1e-13));
         assert!(close(airy_bi(3.0), 14.037328963730232, 1e-13));
         assert!(close(airy_bi(-5.0), -0.13836913490160058, 1e-12));
         assert!(close(airy_bi(10.0), 455641153.5482251, 1e-12));
-        assert!(close(airy_bi(-10.0), -0.31467982964383864, 1e-12));
+        assert!(close(airy_bi(-10.0), -0.314_679_829_643_838_6, 1e-12));
     }
 
     #[test]

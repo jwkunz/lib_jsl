@@ -158,17 +158,17 @@ mod tests {
     fn reference_values() {
         assert!(close(hypergeometric(1.0, 1.0, 2.0, 0.5), 1.3862943611198906, 1e-14));
         assert!(close(hypergeometric(0.5, 0.5, 1.0, 0.9), 1.6412644143423708, 1e-12));
-        assert!(close(hypergeometric(0.5, 0.5, 1.0, -3.0), 0.68644025030917508, 1e-13));
+        assert!(close(hypergeometric(0.5, 0.5, 1.0, -3.0), 0.686_440_250_309_175_1, 1e-13));
         assert!(close(hypergeometric(1.5, 2.5, 4.2, 0.7), 2.5577444106945205, 1e-13));
-        assert!(close(hypergeometric(1.0, 2.0, 3.5, -10.0), 0.17801852881994710, 1e-13));
-        assert!(close(hypergeometric(2.1, 0.3, 1.7, 0.95), 3.9710736112251758, 1e-12));
+        assert!(close(hypergeometric(1.0, 2.0, 3.5, -10.0), 0.178_018_528_819_947_1, 1e-13));
+        assert!(close(hypergeometric(2.1, 0.3, 1.7, 0.95), 3.971_073_611_225_176, 1e-12));
         assert!(close(hypergeometric(0.3, 0.4, 1.2, 0.99), 1.2619447158474417, 1e-12));
-        assert!(close(hypergeometric(1.0, 1.0, 2.0, -100.0), 0.046151205168412595, 1e-12));
+        assert!(close(hypergeometric(1.0, 1.0, 2.0, -100.0), 0.046_151_205_168_412_6, 1e-12));
     }
 
     #[test]
     fn terminating_and_special_points() {
-        assert!(close(hypergeometric(-3.0, 1.2, 2.1, 2.0), -0.09430144992694160, 1e-12));
+        assert!(close(hypergeometric(-3.0, 1.2, 2.1, 2.0), -0.094_301_449_926_941_6, 1e-12));
         // Gauss: 2F1(a,b;c;1) = G(c)G(c-a-b)/(G(c-a)G(c-b))
         let want = gamma(3.0) * gamma(2.0) / (gamma(2.5) * gamma(2.5));
         assert!(close(hypergeometric(0.5, 0.5, 3.0, 1.0), want, 1e-14));
@@ -188,9 +188,9 @@ mod tests {
 
     #[test]
     fn confluent() {
-        assert!(close(hypergeometric_1f1(1.5, 2.5, 3.0), 7.9316624651495779, 1e-13));
-        assert!(close(hypergeometric_1f1(1.5, 2.5, -30.0), 0.0080901079689773247, 1e-11));
-        assert!(close(hypergeometric_1f1(0.5, 1.5, -3.0), 0.50434356023143881, 1e-13));
+        assert!(close(hypergeometric_1f1(1.5, 2.5, 3.0), 7.931_662_465_149_578, 1e-13));
+        assert!(close(hypergeometric_1f1(1.5, 2.5, -30.0), 0.008_090_107_968_977_325, 1e-11));
+        assert!(close(hypergeometric_1f1(0.5, 1.5, -3.0), 0.504_343_560_231_438_8, 1e-13));
         // M(a, a, x) = e^x
         assert!(close(hypergeometric_1f1(2.0, 2.0, 1.7), 1.7f64.exp(), 1e-14));
         // 0F1(;3/2; -x²/4) = sin(x)/x

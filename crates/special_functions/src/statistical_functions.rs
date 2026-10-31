@@ -47,7 +47,7 @@ fn standard_normal_quantile(p: f64) -> f64 {
     // Acklam's rational approximation followed by Halley refinement.
     const A: [f64; 6] = [
         -3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
-        1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00,
+        1.383_577_518_672_69e2, -3.066479806614716e+01, 2.506628277459239e+00,
     ];
     const B: [f64; 5] = [
         -5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
@@ -265,7 +265,7 @@ mod tests {
     #[test]
     fn normal() {
         assert!(close(normal_cdf(1.5, 0.0, 1.0), 0.9331927987311419, 1e-14));
-        assert!(close(normal_cdf(-6.0, 0.0, 1.0), 9.865876450376981e-10, 1e-12));
+        assert!(close(normal_cdf(-6.0, 0.0, 1.0), 9.865_876_450_376_98e-10, 1e-12));
         assert!(close(normal_cdf(0.7, 1.0, 1.0), 0.3820885778110474, 1e-14));
         assert!(close(normal_pdf(0.0, 0.0, 1.0), 0.3989422804014327, 1e-15));
         assert!(close(normal_pdf(3.0, 1.0, 2.0), 0.12098536225957168, 1e-14));
@@ -294,13 +294,13 @@ mod tests {
     #[test]
     fn student_and_f() {
         assert!(close(student_t_cdf(2.0, 5.0), 0.9490302605850708, 1e-13));
-        assert!(close(student_t_cdf(-1.3, 3.0), 0.14223375436394869, 1e-13));
-        assert!(close(student_t_cdf(0.4, 30.0), 0.6540047417429040, 1e-13));
+        assert!(close(student_t_cdf(-1.3, 3.0), 0.142_233_754_363_948_7, 1e-13));
+        assert!(close(student_t_cdf(0.4, 30.0), 0.654_004_741_742_904, 1e-13));
         assert_eq!(student_t_cdf(0.0, 4.0), 0.5);
         assert!(close(student_t_quantile(0.975, 5.0), 2.5705818356363148, 1e-12));
         assert!(close(student_t_quantile(0.025, 5.0), -2.5705818356363148, 1e-12));
-        assert!(close(f_cdf(2.5, 4.0, 9.0), 0.88328505728343125, 1e-13));
-        assert!(close(f_cdf(0.7, 10.0, 3.0), 0.29180564480614543, 1e-13));
+        assert!(close(f_cdf(2.5, 4.0, 9.0), 0.883_285_057_283_431_2, 1e-13));
+        assert!(close(f_cdf(0.7, 10.0, 3.0), 0.291_805_644_806_145_4, 1e-13));
     }
 
     #[test]

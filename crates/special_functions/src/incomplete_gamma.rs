@@ -98,8 +98,8 @@ mod tests {
     #[test]
     fn a_equals_one_is_exponential() {
         for &x in &[0.1, 0.5, 1.0, 3.0, 10.0] {
-            assert!((incomplete_gamma(1.0, x) - (1.0 - (-x as f64).exp())).abs() < 1e-14);
-            assert!((incomplete_gamma_upper(1.0, x) - (-x as f64).exp()).abs() < 1e-14);
+            assert!((incomplete_gamma(1.0, x) - (1.0 - (-x).exp())).abs() < 1e-14);
+            assert!((incomplete_gamma_upper(1.0, x) - (-x).exp()).abs() < 1e-14);
         }
     }
 

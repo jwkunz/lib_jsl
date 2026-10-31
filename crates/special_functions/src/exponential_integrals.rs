@@ -147,7 +147,7 @@ mod tests {
     fn ei_values() {
         assert!(close(exponential_integral_ei(1.0), 1.8951178163559368, 1e-14));
         assert!(close(exponential_integral_ei(10.0), 2492.228976241877, 1e-13));
-        assert!(close(exponential_integral_ei(50.0), 1.0585636897131690e20, 1e-12));
+        assert!(close(exponential_integral_ei(50.0), 1.058_563_689_713_169e20, 1e-12));
         assert!(close(exponential_integral_ei(-1.0), -0.21938393439552029, 1e-14));
         assert_eq!(exponential_integral_ei(0.0), f64::NEG_INFINITY);
     }

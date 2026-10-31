@@ -110,7 +110,7 @@ mod tests {
     fn integer_orders() {
         assert!(close(fermi_dirac_integral(1.0, 0.0), std::f64::consts::PI.powi(2) / 12.0, 1e-13));
         assert!(close(fermi_dirac_integral(2.0, 0.0), 0.9015426773696957, 1e-13));
-        assert!(close(fermi_dirac_integral(1.0, 30.0), 451.64493406684813, 1e-13));
+        assert!(close(fermi_dirac_integral(1.0, 30.0), 451.644_934_066_848_1, 1e-13));
         assert!(close(fermi_dirac_integral(3.0, -0.5), 0.585866475325089, 1e-13));
     }
 
@@ -119,7 +119,7 @@ mod tests {
         assert!(close(fermi_dirac_integral(0.5, 1.0), 1.5756407761513002, 1e-12));
         assert!(close(fermi_dirac_integral(0.5, -2.0), 0.12929851332007559, 1e-12));
         assert!(close(fermi_dirac_integral(-0.5, 0.3), 0.7238460148294637, 1e-12));
-        assert!(close(fermi_dirac_integral(1.5, 5.0), 20.914467402762629, 1e-12));
+        assert!(close(fermi_dirac_integral(1.5, 5.0), 20.914_467_402_762_63, 1e-12));
         assert!(close(fermi_dirac_integral(-0.5, -1.0), 0.29402761761145122, 1e-12));
         assert!(close(fermi_dirac_integral(0.5, 100.0), 752.3455915521961, 1e-12));
     }

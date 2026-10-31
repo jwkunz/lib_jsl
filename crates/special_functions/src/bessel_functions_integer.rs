@@ -73,8 +73,8 @@ mod tests {
         assert!(close(bessel_y_integer(0, 1.0), 0.08825696421567697, 1e-13));
         assert!(close(bessel_y_integer(2, 3.0), -0.16040039348492374, 1e-12));
         assert!(close(bessel_i_integer(0, 2.0), 2.279585302336067, 1e-14));
-        assert!(close(bessel_i_integer(-1, 2.0), 1.5906368546373291, 1e-13));
-        assert!(close(bessel_i_integer(1, -2.0), -1.5906368546373291, 1e-13));
+        assert!(close(bessel_i_integer(-1, 2.0), 1.590_636_854_637_329, 1e-13));
+        assert!(close(bessel_i_integer(1, -2.0), -1.590_636_854_637_329, 1e-13));
         assert!(close(bessel_k_integer(2, 1.5), 0.583655963256651, 1e-12));
         assert!(bessel_k_integer(0, -1.0).is_nan());
         let (j, y) = bessel_jy_integer(1, 2.0);

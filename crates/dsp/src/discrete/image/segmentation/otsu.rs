@@ -33,6 +33,7 @@ pub fn otsu_threshold(image: &Array2<u8>) -> Result<u8, ErrorsJSL> {
     Ok(otsu(image)?.threshold)
 }
 
+#[allow(clippy::needless_range_loop)]
 /// Thresholds an 8-bit image with Otsu's method.
 pub fn otsu(image: &Array2<u8>) -> Result<OtsuResult, ErrorsJSL> {
     if image.is_empty() {

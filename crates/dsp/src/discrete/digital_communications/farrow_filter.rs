@@ -261,6 +261,7 @@ mod tests {
         assert!(f.set_mu(1.5).is_err());
     }
 
+    #[allow(clippy::needless_range_loop)]
     #[test]
     fn complex_samples() {
         let x: Vec<Complex<f64>> = (0..100).map(|n| Complex::from_polar(1.0, TAU * 0.05 * n as f64)).collect();

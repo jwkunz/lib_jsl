@@ -166,6 +166,7 @@ impl Ofdm {
         Ok(out)
     }
 
+    #[allow(clippy::wrong_self_convention)]
     /// Frequency-domain values on every subcarrier index of one received OFDM symbol (with prefix).
     fn to_frequency(&mut self, symbol: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         let p = &self.params;

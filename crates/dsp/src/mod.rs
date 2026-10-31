@@ -1,3 +1,6 @@
+
+// Guards such as `!(x > 0.0)` are deliberate: unlike `x <= 0.0` they also reject NaN.
+#![allow(clippy::neg_cmp_op_on_partial_ord)]
 pub use crate as dsp;
 pub use lib_jsl_core as prelude;
 pub use lib_jsl_ffts as ffts;

@@ -122,6 +122,7 @@ pub struct SinusoidFit {
     pub offset: f64,
 }
 
+#[allow(clippy::needless_range_loop)]
 /// Least-squares fit of a constant plus a sinusoid of known frequency `f` (cycles per unit time).
 pub fn fit_sinusoid(t: &[f64], y: &[f64], f: f64) -> Result<SinusoidFit, ErrorsJSL> {
     check_inputs(t, y)?;
@@ -242,6 +243,7 @@ mod tests {
         assert!((neg.phase + 2.0).abs() < 1e-9);
     }
 
+    #[allow(clippy::needless_range_loop)]
     #[test]
     fn non_uniform_dft_matches_the_dft_for_even_sampling() {
         let n = 16;

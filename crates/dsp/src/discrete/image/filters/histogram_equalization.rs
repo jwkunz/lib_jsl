@@ -77,6 +77,7 @@ mod tests {
         assert!(*img.iter().max().unwrap() < 141);
     }
 
+    #[allow(clippy::needless_range_loop)]
     #[test]
     fn output_cdf_is_close_to_linear() {
         let mut seed = 6;

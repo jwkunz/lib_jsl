@@ -287,6 +287,7 @@ mod tests {
         worst
     }
 
+    #[allow(clippy::needless_range_loop)]
     #[test]
     fn tables_match_their_definitions() {
         for (i, &t) in ATAN_BAM_32.iter().enumerate() {
@@ -392,6 +393,7 @@ mod tests {
         worst
     }
 
+    #[allow(clippy::needless_range_loop)]
     #[test]
     fn tables64_match_their_definitions_to_double_precision() {
         assert_eq!(ATAN_BAM_64[0], 1 << 61, "atan(1) is exactly an eighth of a turn");

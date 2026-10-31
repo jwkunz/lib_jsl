@@ -421,7 +421,7 @@
 [ ] Phylogenetic trees
 [ ] Viterbi algorithm 
 [ ] Random Forest 
-[ ] Support vector machine 
+[x] Support vector machine 
 [x] Logistic regression 
 [x] Naive Bayes
 

@@ -121,7 +121,7 @@
 [x] firwin2
 [x] Overlap and add fir
 [x] Remez exchange algorithm
-[ ] FFT fir
+[x] FFT fir
 
 #### IIR
 [x] Bessel

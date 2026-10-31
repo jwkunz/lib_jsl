@@ -12,6 +12,7 @@ pub mod lz77;
 pub mod lz78;
 pub mod lzw;
 pub mod mp3;
+pub mod mp3_tables;
 pub mod shannon_fano;
 pub mod source_coder;
 

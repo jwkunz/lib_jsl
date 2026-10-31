@@ -228,7 +228,7 @@
 
 ## 4D
 [x] Space-time vector
-[ ] Christoffel Symbols
+[x] Christoffel Symbols
 
 # File IO
 

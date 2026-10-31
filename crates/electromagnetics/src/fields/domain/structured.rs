@@ -306,8 +306,7 @@ impl Domain {
         let target_theta = if theta_index < 0 {
             // Mirror about θ = 0: the sample at index |i| (or |i| - 1 if the pole itself is not sampled).
             let k = if theta.first().abs() < 1e-12 { -theta_index } else { -theta_index - 1 };
-            let t = *theta.values().get(k as usize)?;
-            t
+            *theta.values().get(k as usize)?
         } else if theta_index >= n {
             let over = theta_index - (n - 1);
             let k = if (theta.last() - PI).abs() < 1e-12 { n - 1 - over } else { n - over };

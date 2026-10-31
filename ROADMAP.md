@@ -281,7 +281,7 @@
 [x] Akima
 [x] Cubic basis
 [x] AAA
-[ ] Prony's method
+[x] Prony's method
 [x] Pade approximants
 [x] Floater-Hormann
 [ ] REIM

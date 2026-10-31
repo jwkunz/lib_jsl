@@ -466,7 +466,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Magnetic loop
 [x] Half-wave dipole
 [x] Dish
-[ ] Patch antenna
+[x] Patch antenna
 
 ## Arrays and Signal Models
 [ ] Sensor arrays and responses

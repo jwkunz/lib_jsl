@@ -376,7 +376,7 @@
 [x] Sine integrals
 [x] Dawson's integral
 [x] Fermi-Dirac integrals
-[ ] Inverse x log (x)
+[x] Inverse x log (x)
 [ ] Elliptic integrals
 [ ] Jacobian elliptic functions
 [ ] Hypergeometric functions

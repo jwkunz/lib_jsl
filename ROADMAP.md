@@ -457,7 +457,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Domains and quadrature (surface, volume)
 [x] Field container (scalar/vector, harmonic/time-varying, quantities)
 [ ] Coordinate conversion
-[ ] Interpolation (nearest, linear, cubic)
+[x] Interpolation (nearest, linear, cubic)
 [ ] Vector calculus
 [ ] Physics operations (Poynting, power, potentials)
 

@@ -73,7 +73,7 @@
 
 ### Sources
 [ ] Pulse train
-[ ] Ramp
+[x] Ramp
 [x] Triangle
 [x] CORDIC
 [x] Sinusoid

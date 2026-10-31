@@ -283,7 +283,7 @@
 [ ] AAA
 [ ] Prony's method
 [ ] Pade approximants
-[ ] Floater-Hormann
+[x] Floater-Hormann
 [ ] REIM
 [ ] Fourier 1D
 [ ] Chebyshev approximations

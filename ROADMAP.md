@@ -216,7 +216,7 @@
 
 ## Algorithms
 [ ] Delaunay Triangulation
-[ ] Convex hull
+[x] Convex hull
 [ ] Slicing
 [x] Rotations
 [x] Quaternions

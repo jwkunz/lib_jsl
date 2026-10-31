@@ -12,7 +12,7 @@ pub mod oct_trees;
 pub mod quad_trees;
 
 pub use delaunay_triangulation::delaunay_triangulation;
-pub use convex_hull::convex_hull;
+pub use convex_hull::{Hull3D, convex_hull_2d, convex_hull_3d, convex_polygon_contains_2d, polygon_area_2d};
 pub use slicing::slicing;
 pub use rotations::{Axis, EulerSequence, Matrix3, Rotation2, Rotation3};
 pub use quaternions::Quaternion;

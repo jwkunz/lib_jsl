@@ -250,6 +250,7 @@ impl Rotation2 {
     }
 }
 
+#[allow(clippy::suspicious_arithmetic_impl)] // composing planar rotations adds their angles
 impl Mul for Rotation2 {
     type Output = Rotation2;
     /// `a * b` rotates by `b` first, then by `a`.

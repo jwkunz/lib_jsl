@@ -279,7 +279,7 @@
 [x] Polynomial
 [x] PCHIP
 [x] Akima
-[ ] Cubic basis
+[x] Cubic basis
 [ ] AAA
 [ ] Prony's method
 [ ] Pade approximants

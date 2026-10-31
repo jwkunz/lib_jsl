@@ -90,7 +90,7 @@
 [ ] FM
 [ ] Pulse correlation tracker
 [ ] Addressable shift register 
-[ ] Ping pong buffer
+[x] Ping pong buffer
 
 ### Image
 

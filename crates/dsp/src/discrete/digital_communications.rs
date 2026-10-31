@@ -20,4 +20,4 @@ pub use ofdm::ofdm_demodulate;
 pub use fm::fm_demodulate;
 pub use pulse_correlation_tracker::pulse_correlation_tracker;
 pub use addressable_shift_register::AddressableShiftRegister;
-pub use ping_pong_buffer::PingPongBuffer;
+pub use ping_pong_buffer::{PingPongBuffer, PushOutcome};

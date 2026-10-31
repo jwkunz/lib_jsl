@@ -77,7 +77,7 @@
 [ ] Triangle
 [x] CORDIC
 [x] Sinusoid
-[ ] Square
+[x] Square
 [ ] Noise
 
 ### Digital Communications

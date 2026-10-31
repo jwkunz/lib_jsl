@@ -15,5 +15,5 @@ pub use ramp::ramp;
 pub use triangle::triangle;
 pub use cordic::{cordic_sin_cos, Cordic};
 pub use sinusoid::{sinusoid, SineKernel, SineWave};
-pub use square::square;
+pub use square::{square, SquareWave};
 pub use noise::noise;

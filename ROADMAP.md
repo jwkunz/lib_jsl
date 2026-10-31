@@ -369,7 +369,7 @@
 [x] Incomplete Beta function
 [x] Bessel functions integer
 [x] Bessel functions fractional
-[ ] Bessel functions spherical
+[x] Bessel functions spherical
 [ ] Airy functions
 [ ] Fresnel integrals
 [ ] Cosine integrals

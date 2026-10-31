@@ -17,3 +17,6 @@ ndarray.workspace = true
 ndarray-linalg.workspace = true
 lib_jsl_special_functions = { path = "../special_functions" }
 lib_jsl_random = { path = "../random" }
+
+[dev-dependencies]
+lib_jsl_utils = { path = "../utils" }

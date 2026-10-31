@@ -606,6 +606,7 @@ dependencies = [
  "lib_jsl_geometry",
  "lib_jsl_random",
  "lib_jsl_special_functions",
+ "lib_jsl_utils",
  "ndarray",
  "ndarray-linalg",
  "num",

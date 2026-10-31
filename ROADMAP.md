@@ -221,7 +221,7 @@
 [x] Rotations
 [x] Quaternions
 [x] Nearest point finding
-[ ] Intersection
+[x] Intersection
 [x] KD Trees
 [x] Oct Trees
 [x] Quad Trees

@@ -235,9 +235,12 @@ impl Axis {
             let width = next - self.values[i];
             return Some((i, if width > 0.0 { (u - self.values[i]) / width } else { 0.0 }));
         }
-        if u < self.values[0] || u > self.values[n - 1] {
+        // Accept points a rounding error outside the ends (e.g. after a rotation) and clamp them.
+        let tol = 1e-9 * (self.values[n - 1] - self.values[0]).abs().max(self.values[0].abs()).max(self.values[n - 1].abs()).max(1e-300);
+        if u < self.values[0] - tol || u > self.values[n - 1] + tol {
             return None;
         }
+        let u = u.clamp(self.values[0], self.values[n - 1]);
         if n == 1 {
             return Some((0, 0.0));
         }

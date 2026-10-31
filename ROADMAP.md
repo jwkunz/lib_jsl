@@ -352,11 +352,11 @@
 [x] Beta
 
 # Sorting and Selection
-[ ] Quicksort
-[ ] Heapsort
-[ ] Select M largest
-[ ] Equivalence classes
-[ ] Shell's method
+[x] Quicksort
+[x] Heapsort
+[x] Select M largest
+[x] Equivalence classes
+[x] Shell's method
 
 # Special Functions 
 [ ] Gamma
@@ -383,14 +383,14 @@
 [ ] Statistical functions
 
 # Root Finding
-[ ] Bracketing
-[ ] Bisection
-[ ] Secant method
-[ ] False position method
-[ ] Ridder's method
-[ ] Van Wijngaarden-Dekker-Brent
-[ ] Newton-Raphson
-[ ] Polynomial roots
+[x] Bracketing
+[x] Bisection
+[x] Secant method
+[x] False position method
+[x] Ridder's method
+[x] Van Wijngaarden-Dekker-Brent
+[x] Newton-Raphson
+[x] Polynomial roots
 
 # Machine Learning
 

@@ -310,7 +310,7 @@
 
 ## ND
 [x] Grid data
-[ ] Nearest 
+[x] Nearest 
 [ ] Cubic basis
 
 # Number Theory

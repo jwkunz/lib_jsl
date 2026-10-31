@@ -361,7 +361,7 @@
 # Special Functions 
 [x] Gamma
 [ ] Beta
-[ ] Factorial
+[x] Factorial
 [ ] Binomial coefficients
 [ ] Incomplete Gamma
 [ ] Error function

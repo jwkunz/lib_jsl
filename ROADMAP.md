@@ -291,7 +291,7 @@
 [x] Savitzky-Golay
 
 ## 2D
-[ ] Nearest
+[x] Nearest
 [ ] Bilinear
 [ ] Bicubic
 [ ] Lanczos

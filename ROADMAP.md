@@ -311,7 +311,7 @@
 ## ND
 [x] Grid data
 [x] Nearest 
-[ ] Cubic basis
+[x] Cubic basis
 
 # Number Theory
 [x] Base exponent in modulus

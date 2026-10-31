@@ -5,5 +5,8 @@ pub mod maximum_length_polynomials;
 pub mod gold_codes;
 
 pub use linear_feedback_shift_register::Lfsr;
-pub use maximum_length_polynomials::maximum_length_polynomials;
-pub use gold_codes::gold_codes;
+pub use maximum_length_polynomials::{
+    all_maximum_length_polynomials, is_primitive_polynomial, maximum_length_polynomial,
+    maximum_length_polynomials,
+};
+pub use gold_codes::{gold_codes, gold_correlation_bound};

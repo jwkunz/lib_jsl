@@ -459,7 +459,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Coordinate conversion
 [x] Interpolation (nearest, linear, cubic)
 [x] Vector calculus
-[ ] Physics operations (Poynting, power, potentials)
+[x] Physics operations (Poynting, power, potentials)
 
 ## Antenna Models
 [ ] Hertzian dipole

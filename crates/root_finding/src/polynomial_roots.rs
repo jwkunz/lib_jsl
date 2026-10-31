@@ -65,11 +65,10 @@ fn real_roots(coeffs: &[f64]) -> Vec<f64> {
         let (fa, fb) = (eval(coeffs, a), eval(coeffs, b));
         if fa == 0.0 {
             out.push(a);
-        } else if fa * fb < 0.0 {
-            if let Ok(x) = brent_method(|x| eval(coeffs, x), a, b, 1e-14) {
+        } else if fa * fb < 0.0
+            && let Ok(x) = brent_method(|x| eval(coeffs, x), a, b, 1e-14) {
                 out.push(x);
             }
-        }
     }
     // Interior critical points that are (numerically) roots: repeated roots.
     for &c in pts[1..pts.len() - 1].iter() {

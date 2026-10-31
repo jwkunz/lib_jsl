@@ -14,7 +14,7 @@ pub mod ping_pong_buffer;
 pub use constellations::{qam16, Constellation};
 pub use barker_codes::{barker_autocorrelation, barker_code, BARKER_LENGTHS};
 pub use decision_feedback_equalizer::decision_feedback_equalizer;
-pub use farrow_filter::farrow_filter;
+pub use farrow_filter::{farrow_filter, FarrowFilter};
 pub use mueller_timing_detector::mueller_timing_detector;
 pub use ofdm::ofdm_demodulate;
 pub use fm::fm_demodulate;

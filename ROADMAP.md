@@ -84,7 +84,7 @@
 [ ] Constellations 
 [ ] Barker codes 
 [ ] Decision feedback equalizer 
-[ ] Farrow filter
+[x] Farrow filter
 [ ] Mueller timing detector
 [ ] OFDM
 [ ] FM

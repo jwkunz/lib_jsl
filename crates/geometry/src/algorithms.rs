@@ -15,7 +15,7 @@ pub use delaunay_triangulation::delaunay_triangulation;
 pub use convex_hull::convex_hull;
 pub use slicing::slicing;
 pub use rotations::rotations;
-pub use quaternions::quaternions;
+pub use quaternions::Quaternion;
 pub use nearest_point_finding::nearest_point_finding;
 pub use intersection::intersection;
 pub use kd_trees::KdTree;

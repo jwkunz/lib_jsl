@@ -219,7 +219,7 @@
 [ ] Convex hull
 [ ] Slicing
 [ ] Rotations
-[ ] Quaternions
+[x] Quaternions
 [ ] Nearest point finding
 [ ] Intersection
 [ ] KD Trees

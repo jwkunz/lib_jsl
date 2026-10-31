@@ -95,7 +95,7 @@
 ### Image
 
 #### Filters
-[ ] Sobel
+[x] Sobel
 [x] Gaussian blur
 [ ] Histogram equalization
 [ ] Sharpening

@@ -472,7 +472,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Sensor arrays and responses
 [x] Point source scenes
 [x] Distributed source and noise temperature scenes
-[ ] Covariance models
+[x] Covariance models
 
 ## Algorithms
 [x] Overlap integral

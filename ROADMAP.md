@@ -419,7 +419,7 @@
 ### Classification 
 [x] k-nearest neighbors
 [ ] Phylogenetic trees
-[ ] Viterbi algorithm 
+[x] Viterbi algorithm 
 [x] Random Forest 
 [x] Support vector machine 
 [x] Logistic regression 

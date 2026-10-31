@@ -10,7 +10,7 @@ pub mod naive_bayes;
 
 pub use k_nearest_neighbors::KNearestNeighbors;
 pub use phylogenetic_trees::phylogenetic_trees;
-pub use viterbi_algorithm::viterbi_algorithm;
+pub use viterbi_algorithm::{HiddenMarkovModel, viterbi_path};
 pub use random_forest::{DecisionTree, RandomForest};
 pub use support_vector_machine::SupportVectorMachine;
 pub use logistic_regression::LogisticRegression;

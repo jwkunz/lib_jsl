@@ -280,7 +280,7 @@
 [x] PCHIP
 [x] Akima
 [x] Cubic basis
-[ ] AAA
+[x] AAA
 [ ] Prony's method
 [x] Pade approximants
 [x] Floater-Hormann

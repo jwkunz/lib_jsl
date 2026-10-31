@@ -292,7 +292,7 @@
 
 ## 2D
 [x] Nearest
-[ ] Bilinear
+[x] Bilinear
 [ ] Bicubic
 [ ] Lanczos
 [ ] Cubic basis

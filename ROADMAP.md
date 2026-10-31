@@ -23,7 +23,9 @@
 [x] Bessel
 [x] Elliptic
 [x] Butterworth
-[x] Chebychev 1 + 2
+[x] Chebyshev 1 + 2
+[x] Bi-linear transform (zero-pole-gain form)
+[x] Filter design types and band transforms (Zpk, Tf, lp2lp, lp2hp, lp2bp, lp2bs)
 
 ### Spectral
 [x] freqs
@@ -50,7 +52,7 @@
 [x] Barthann
 [x] Hamming
 [x] Hann
-[x] Kaiser
+[x] Kaiser (including beta and tap-count estimation helpers)
 [x] KaiserBesselDerived
 [x] Gaussian
 [x] GeneralGaussian
@@ -61,6 +63,8 @@
 [x] Taylor
 [x] Dpss 
 [x] Lanczos
+[x] General cosine
+[x] General Hamming
 
 ### Controls
 [x] Kalman Filter
@@ -80,7 +84,7 @@
 [ ] Constellations 
 [ ] Barker codes 
 [ ] Decision feedback equalizer 
-[ ] Farro filter
+[ ] Farrow filter
 [ ] Mueller timing detector
 [ ] OFDM
 [ ] FM
@@ -92,7 +96,7 @@
 
 #### Filters
 [ ] Sobel
-[ ] Guassian blur
+[ ] Gaussian blur
 [ ] Histogram equalization
 [ ] Sharpening
 [ ] Wiener filtering
@@ -123,8 +127,8 @@
 [x] Bessel
 [x] Biquad
 [x] Butterworth
-[x] Chebychev 1
-[x] Chebychev 2
+[x] Chebyshev 1
+[x] Chebyshev 2
 [x] Discrete linear filter (direct forms)
 [x] Elliptic
 [x] IIR comb
@@ -133,7 +137,7 @@
 
 ### Resampling
 [x] Polyphase arbitrary resampling
-[x] Polyphase integeter resampling
+[x] Polyphase integer resampling
 
 ### Spectral
 [x] Chirpz transform
@@ -144,7 +148,7 @@
 [ ] MUSIC
 [ ] Maximum entropy
 [ ] Linear predictive coding
-[ ] Wavelett transform
+[ ] Wavelet transform
 
 ### Transformations
 [x] Channel impairment
@@ -158,6 +162,10 @@
 [x] Bluestein FFT
 [x] Fractional FFT
 [x] Simple Cooley Tukey
+[x] Optimized radix-2
+[x] Optimized split radix
+[x] SIMD FFT (generic, x86, ARM, RISC-V)
+[x] FFT engine trait
 
 # Geometry
 [x] Common
@@ -167,6 +175,7 @@
 [x] Registry
 [x] Tables
 [x] Transformation traits
+[x] Transform support (2D and 3D helpers)
 
 ## 0D
 [x] Points
@@ -202,7 +211,7 @@
 [x] Volume mesh 3D
 
 ## Algorithms
-[ ] Delanauy Triangulation
+[ ] Delaunay Triangulation
 [ ] Convex hull
 [ ] Slicing
 [ ] Rotations
@@ -215,7 +224,7 @@
 
 ## 4D
 [ ] Space-time vector
-[ ] Christofel Symbols
+[ ] Christoffel Symbols
 
 # Information
 
@@ -226,6 +235,7 @@
 [x] lz78
 [x] lzw
 [x] Shannon Fano
+[x] Source coder trait
 [ ] Gray Codes
 [ ] MP3
 [ ] JPEG
@@ -244,7 +254,7 @@
 [ ] LDPC
 [ ] Polar
 [ ] Hamming
-[ ] Reed Soloman
+[ ] Reed-Solomon
 [ ] Convolutional
 
 # Integration
@@ -256,9 +266,12 @@
 [x] Runge Kutta
 [x] Simpsons 1 3
 [x] Trapezoidal
+[x] Integrator trait (1D)
+[x] Midpoint calculation helper
 [ ] Complex path integrals
 
 # Interpolation
+[x] Interpolation trait
 
 ## 1D
 [x] Linear
@@ -273,7 +286,7 @@
 [ ] Floater-Hormann
 [ ] REIM
 [ ] Fourier 1D
-[ ] Chebychev Approximations
+[ ] Chebyshev approximations
 [ ] Lagrange interpolant
 [ ] Savitzky-Golay
 
@@ -291,7 +304,7 @@
 [ ] Nearest
 [ ] Trilinear
 [ ] B-spline
-[ ] Cubic Langrangian
+[ ] Cubic Lagrangian
 [ ] Fourier 3D
 [ ] Shepards
 
@@ -302,7 +315,7 @@
 
 # Number Theory
 [x] Base exponent in modulus
-[x] Greatest commond divisor
+[x] Greatest common divisor
 [x] Integer square root
 [x] Multiplicative inverse modulo
 [x] Polynomial
@@ -313,7 +326,8 @@
 [x] Gradient descent
 [x] Nelder Mead
 [x] Newton Raphson
-[x] Simulated annealing 
+[x] Simulated annealing
+[x] Optimization traits
 [ ] Linear programming
 [ ] Dynamic programming
 [ ] Powell's method
@@ -327,11 +341,11 @@
 ## Distributions
 [x] Exponential
 [x] Uniform (float)
-[x] Bernouli
+[x] Bernoulli
 [x] Geometric
 [x] Weibull
 [x] Poisson
-[x] Guassian
+[x] Gaussian
 [x] Chi Square
 [x] Student's T
 [x] Gamma
@@ -348,11 +362,11 @@
 [ ] Gamma
 [ ] Beta
 [ ] Factorial
-[ ] Binomial coeficients
+[ ] Binomial coefficients
 [ ] Incomplete Gamma
 [ ] Error function
 [ ] Exponential integrals
-[ ] Imcomplete Beta function
+[ ] Incomplete Beta function
 [ ] Bessel functions integer
 [ ] Bessel functions fractional
 [ ] Bessel functions spherical
@@ -387,12 +401,13 @@
 [ ] General least squares
 [ ] Ridge 
 [ ] Elastic Net
+[ ] Support vector regression
 
 
 ### Classification 
 [ ] k-nearest neighbors
-[ ] Phylogentic trees
-[ ] Vitirbi algorithm 
+[ ] Phylogenetic trees
+[ ] Viterbi algorithm 
 [ ] Random Forest 
 [ ] Support vector machine 
 [ ] Logistic regression 
@@ -403,43 +418,42 @@
 ### Clustering 
 [ ] k means
 [ ] k medoids 
-[ ] Heirarchacle 
-[ ] Support vector regression 
+[ ] Hierarchical clustering
 [ ] DBSCAN
 [ ] HDBSCAN
 [ ] Gaussian mixture models
 [ ] Spectral clustering 
 
 ### Reduction 
-[ ] Principle component analysis 
+[ ] Principal component analysis 
 [ ] Kernel PCA
 [ ] t-SNE
 [ ] UMAP
 [ ] LDA
 
 
-## Electromagnetics
+# Electromagnetics
 
-### Antenna Models
+## Antenna Models
 [ ] Half-wave dipole
 [ ] Dish
 [ ] Hertzian dipole
 [ ] Magnetic loop
 [ ] Patch antenna 
 
-### Fields
+## Fields
 [ ] Field container
 [ ] Interpolation
-[ ] Coordinate converstion
+[ ] Coordinate conversion
 [ ] Vector calculus
 
-### Algorithms
+## Algorithms
 [ ] Overlap integral
 [ ] CFM beamformer
-[ ] Hadamrd beamformer
+[ ] Hadamard beamformer
 [ ] LCMV beamformer
 
-## Utils
+# Utils
 [ ] Terminal plot generation
 [ ] Unit conversion
 [ ] WAV files

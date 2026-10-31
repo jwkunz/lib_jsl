@@ -366,7 +366,7 @@
 [x] Incomplete Gamma
 [x] Error function
 [x] Exponential integrals
-[ ] Incomplete Beta function
+[x] Incomplete Beta function
 [ ] Bessel functions integer
 [ ] Bessel functions fractional
 [ ] Bessel functions spherical

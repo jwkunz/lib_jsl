@@ -41,7 +41,7 @@ fn direct_full<T: IsAnalytic>(in1: &[T], in2: &[T]) -> Vec<T> {
     out
 }
 
-fn fft_full<T: IsAnalytic>(in1: &[T], in2: &[T]) -> Result<Vec<T>, ErrorsJSL> {
+pub(crate) fn fft_full<T: IsAnalytic>(in1: &[T], in2: &[T]) -> Result<Vec<T>, ErrorsJSL> {
     let n = in1.len() + in2.len() - 1;
     let nfft = n.next_power_of_two();
 
@@ -80,7 +80,7 @@ fn fft_full<T: IsAnalytic>(in1: &[T], in2: &[T]) -> Result<Vec<T>, ErrorsJSL> {
     Ok(c.into_iter().take(n).map(T::from_complex).collect())
 }
 
-fn apply_mode<T: IsAnalytic>(full: Vec<T>, in1_len: usize, in2_len: usize, mode: ConvolveMode) -> Vec<T> {
+pub(crate) fn apply_mode<T: IsAnalytic>(full: Vec<T>, in1_len: usize, in2_len: usize, mode: ConvolveMode) -> Vec<T> {
     match mode {
         ConvolveMode::Full => full,
         ConvolveMode::Same => {

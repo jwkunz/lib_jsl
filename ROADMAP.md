@@ -37,7 +37,7 @@
 [x] Cross Correlation
 [ ] FFT cross correlation
 [x] Convolution
-[ ] FFT convolution
+[x] FFT convolution
 
 ### Windows
 [x] Boxcar

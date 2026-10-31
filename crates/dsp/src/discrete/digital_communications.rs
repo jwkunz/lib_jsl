@@ -12,7 +12,7 @@ pub mod addressable_shift_register;
 pub mod ping_pong_buffer;
 
 pub use constellations::{qam16, Constellation};
-pub use barker_codes::barker_code;
+pub use barker_codes::{barker_autocorrelation, barker_code, BARKER_LENGTHS};
 pub use decision_feedback_equalizer::decision_feedback_equalizer;
 pub use farrow_filter::farrow_filter;
 pub use mueller_timing_detector::mueller_timing_detector;

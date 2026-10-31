@@ -241,7 +241,7 @@
 [ ] JPEG
 
 ## LFSRs
-[ ] LFSR
+[x] LFSR
 [ ] Maximum length polynomials
 [ ] Gold codes
 

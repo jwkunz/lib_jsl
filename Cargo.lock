@@ -674,6 +674,7 @@ version = "0.1.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_random",
+ "lib_jsl_utils",
  "ndarray",
  "ndarray-linalg",
 ]

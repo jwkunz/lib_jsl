@@ -454,7 +454,7 @@
 [ ] LCMV beamformer
 
 # Utils
-[ ] Terminal plot generation
+[x] Terminal plot generation
 [x] Unit conversion
 [x] WAV files
 [x] JPEG files

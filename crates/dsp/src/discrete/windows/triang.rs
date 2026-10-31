@@ -1,6 +1,6 @@
 use super::{extend, len_guard, truncate};
 
-/// The triangular window, also known as the Bartlett window, is defined by a linear tapering of the coefficients from the center to the edges. The coefficients are computed based on the position within the window and the total length, with special handling for even and odd lengths to ensure proper symmetry.
+/// The triangular window is a linear taper from the center to the edges. Unlike the Bartlett window its end points are non-zero, and it handles even and odd lengths separately to remain symmetric.
 pub fn triang(m: usize, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;

@@ -1,6 +1,6 @@
 use super::general_cosine::general_cosine;
 
-/// The Lanczos window is defined by the sinc function, which provides a smooth tapering of the coefficients based on the distance from the center of the window. The coefficients are computed based on the position within the window and the total length, with special handling for the edges to ensure proper symmetry and smoothness.
+/// The Blackman window is a three-term general cosine window with coefficients `[0.42, 0.5, 0.08]`, giving lower side lobes than the Hann and Hamming windows at the cost of a wider main lobe.
 pub fn blackman(m: usize, sym: bool) -> Vec<f64> {
     general_cosine(m, &[0.42, 0.5, 0.08], sym)
 }

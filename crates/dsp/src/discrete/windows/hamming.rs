@@ -1,11 +1,11 @@
 use super::general_cosine::general_cosine;
 
-/// The Hamming window is defined by a specific set of coefficients that provide a smooth tapering of the coefficients based on the position within the window. The coefficients are computed using the general cosine function with specific values to achieve the desired shape and spectral properties.
+/// The general Hamming window is a two-term cosine window with coefficients `[alpha, 1 - alpha]`.
 pub fn general_hamming(m: usize, alpha: f64, sym: bool) -> Vec<f64> {
     general_cosine(m, &[alpha, 1.0 - alpha], sym)
 }
 
-/// The Hanning window, also known as the Hann window, is defined by a specific set of coefficients that provide a smooth tapering of the coefficients based on the position within the window. The coefficients are computed using the general cosine function with specific values to achieve the desired shape and spectral properties.
+/// The Hamming window is the general Hamming window with `alpha = 0.54`, which places a zero near the first side lobe of the rectangular window's spectrum.
 pub fn hamming(m: usize, sym: bool) -> Vec<f64> {
     general_hamming(m, 0.54, sym)
 }

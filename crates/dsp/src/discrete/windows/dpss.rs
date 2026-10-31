@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use super::{extend, len_guard, truncate};
 
-/// The Chebyshev window is defined by a specific mathematical formula that involves the hyperbolic cosine function and the inverse hyperbolic cosine function. The coefficients are computed based on the position within the window, the total length, and the attenuation parameter `at`, which controls the shape of the window and its spectral properties.
+/// The discrete prolate spheroidal sequence (Slepian) window with time-half-bandwidth product `nw`. It is the first eigenvector of the symmetric tridiagonal matrix that maximizes energy concentration within the band, computed here by power iteration.
 pub fn dpss(m: usize, nw: f64, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;

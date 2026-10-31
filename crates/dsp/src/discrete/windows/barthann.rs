@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use super::{extend, len_guard, truncate};
 
-/// The Bartlett window, also known as the triangular window, is defined by a linear tapering of the coefficients from the center to the edges. The coefficients are computed based on the position within the window and the total length, with special handling for even and odd lengths to ensure proper symmetry.
+/// The modified Bartlett-Hann window combines a linear taper with a cosine taper (`0.62 - 0.48|x - 0.5| - 0.38 cos(2*pi*x)` for `x` in `[0, 1]`), giving lower side lobes than the plain Bartlett window.
 pub fn barthann(m: usize, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;

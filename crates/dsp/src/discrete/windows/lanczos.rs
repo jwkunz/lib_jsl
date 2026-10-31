@@ -2,7 +2,7 @@ use crate::discrete::sinc::sinc;
 
 use super::{extend, len_guard, truncate};
 
-/// The cosine window is defined by a specific mathematical formula that involves the sine function. The coefficients are computed based on the position within the window and the total length, with special handling for symmetric and periodic windows to ensure proper shape and spectral properties.
+/// The Lanczos window is the central lobe of the sinc function, `sinc(2n/(M-1) - 1)`, giving a smooth taper that is zero-crossing at the edges.
 pub fn lanczos(m: usize, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;

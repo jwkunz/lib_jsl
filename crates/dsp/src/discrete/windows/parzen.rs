@@ -1,6 +1,6 @@
 use super::{extend, len_guard, linspace, truncate};
 
-/// The triangular window, also known as the Bartlett window, is defined by a linear tapering of the coefficients from the center to the edges. The coefficients are computed based on the position within the window and the total length, with special handling for even and odd lengths to ensure proper symmetry.
+/// The Parzen window is a piecewise cubic B-spline taper: a cubic polynomial near the center and a cubed linear falloff toward the edges, with strictly non-negative coefficients.
 pub fn parzen(m: usize, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;

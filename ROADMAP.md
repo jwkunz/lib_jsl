@@ -81,15 +81,15 @@
 [x] Noise
 
 ### Digital Communications
-[ ] Constellations 
-[ ] Barker codes 
-[ ] Decision feedback equalizer 
+[x] Constellations 
+[x] Barker codes 
+[x] Decision feedback equalizer 
 [x] Farrow filter
 [x] Mueller timing detector
 [x] OFDM
 [x] FM
 [x] Pulse correlation tracker
-[ ] Addressable shift register 
+[x] Addressable shift register 
 [x] Ping pong buffer
 
 ### Image

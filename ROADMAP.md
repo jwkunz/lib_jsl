@@ -340,7 +340,7 @@
 [x] Newton Raphson
 [x] Simulated annealing
 [x] Optimization traits
-[ ] Linear programming
+[x] Linear programming
 [ ] Dynamic programming
 [x] Powell's method
 

@@ -25,7 +25,7 @@ use rust_fft_wrapper::RustFftWrapper;
 fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {
     assert!(bytes.len().is_multiple_of(16), "binary complex data must be 16-byte aligned");
     bytes
-        .chunks_exact(16)
+        .as_chunks::<16>().0.iter()
         .map(|chunk| {
             let mut re = [0_u8; 8];
             let mut im = [0_u8; 8];

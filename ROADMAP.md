@@ -434,7 +434,7 @@
 [x] DBSCAN
 [x] HDBSCAN
 [x] Gaussian mixture models
-[ ] Spectral clustering 
+[x] Spectral clustering 
 
 ### Reduction 
 [ ] Principal component analysis 

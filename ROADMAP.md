@@ -429,7 +429,7 @@
 
 ### Clustering 
 [x] k means
-[ ] k medoids 
+[x] k medoids 
 [ ] Hierarchical clustering
 [ ] DBSCAN
 [ ] HDBSCAN

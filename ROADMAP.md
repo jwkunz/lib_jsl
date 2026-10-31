@@ -432,7 +432,7 @@
 [x] k medoids 
 [x] Hierarchical clustering
 [x] DBSCAN
-[ ] HDBSCAN
+[x] HDBSCAN
 [ ] Gaussian mixture models
 [ ] Spectral clustering 
 

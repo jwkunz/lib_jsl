@@ -147,7 +147,7 @@
 [ ] Non-uniformly sampled
 [ ] MUSIC
 [ ] Maximum entropy
-[ ] Linear predictive coding
+[x] Linear predictive coding
 [ ] Wavelet transform
 
 ### Transformations

@@ -458,7 +458,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Field container (scalar/vector, harmonic/time-varying, quantities)
 [x] Coordinate conversion
 [x] Interpolation (nearest, linear, cubic)
-[ ] Vector calculus
+[x] Vector calculus
 [ ] Physics operations (Poynting, power, potentials)
 
 ## Antenna Models

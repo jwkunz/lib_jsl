@@ -457,5 +457,5 @@
 [ ] Terminal plot generation
 [ ] Unit conversion
 [x] WAV files
-[ ] JPEG files
+[x] JPEG files
 [x] Machine epsilon

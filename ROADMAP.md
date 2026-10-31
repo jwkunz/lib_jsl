@@ -75,7 +75,7 @@
 [ ] Pulse train
 [ ] Ramp
 [ ] Triangle
-[ ] CORDIC
+[x] CORDIC
 [ ] Sinusoid
 [ ] Square
 [ ] Noise

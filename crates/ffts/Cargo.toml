@@ -20,3 +20,7 @@ rustfft.workspace = true
 [[bench]]
 name = "fft_race"
 harness = false
+
+[[bench]]
+name = "fft_sizes"
+harness = false

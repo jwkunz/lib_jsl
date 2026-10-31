@@ -60,7 +60,7 @@ fn lagrange_polynomials(order: usize) -> Vec<Vec<f64>> {
 impl<T: IsAnalytic> FarrowFilter<T> {
     /// A filter of odd `order` in `1..=9` (so `order + 1` points), initially at `μ = 0`.
     pub fn new(order: usize) -> Result<Self, ErrorsJSL> {
-        if order % 2 == 0 || order > 9 {
+        if order.is_multiple_of(2) || order > 9 {
             return Err(ErrorsJSL::InvalidInputRange("Farrow order must be odd and at most 9"));
         }
         Ok(FarrowFilter { order, coefficients: lagrange_polynomials(order), history: vec![T::zero(); order + 1], mu: 0.0 })

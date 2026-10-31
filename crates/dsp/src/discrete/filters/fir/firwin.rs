@@ -64,7 +64,7 @@ pub fn firwin(
 
     let mut h = vec![0.0; numtaps];
     let alpha = 0.5 * (numtaps as f64 - 1.0);
-    for band in c.chunks_exact(2) {
+    for band in c.as_chunks::<2>().0 {
         let left = band[0];
         let right = band[1];
         for (n, hn) in h.iter_mut().enumerate() {

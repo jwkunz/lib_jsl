@@ -113,7 +113,7 @@ impl Constellation {
     /// multiple of [`bits_per_symbol`](Self::bits_per_symbol).
     pub fn map_bits(&self, bits: &[u8]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         let k = self.bits_per_symbol;
-        if bits.len() % k != 0 {
+        if !bits.len().is_multiple_of(k) {
             return Err(ErrorsJSL::IncompatibleArraySizes((bits.len(), k)));
         }
         Ok(bits.chunks(k).map(|c| self.points[c.iter().fold(0usize, |acc, &b| (acc << 1) | (b & 1) as usize)]).collect())

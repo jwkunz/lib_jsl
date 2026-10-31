@@ -137,7 +137,7 @@ impl<T: IsAnalytic> StreamOperator<T, T> for FftFir<T> {
         }
         // Drain what is left, then the filter tail, by feeding zeros through partial blocks.
         let mut rest = std::mem::take(&mut self.pending);
-        rest.extend(std::iter::repeat(Complex::new(0.0, 0.0)).take(self.taps_len - 1));
+        rest.extend(std::iter::repeat_n(Complex::new(0.0, 0.0), self.taps_len - 1));
         let mut out = Vec::new();
         for chunk in rest.chunks(self.block_len) {
             out.extend(self.run_block(chunk, chunk.len())?.into_iter().map(T::from_complex));

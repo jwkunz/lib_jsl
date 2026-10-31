@@ -156,7 +156,7 @@ impl Ofdm {
     /// of [`num_data`](OfdmParams::num_data).
     pub fn modulate(&mut self, symbols: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         let nd = self.params.num_data();
-        if symbols.is_empty() || symbols.len() % nd != 0 {
+        if symbols.is_empty() || !symbols.len().is_multiple_of(nd) {
             return Err(ErrorsJSL::IncompatibleArraySizes((symbols.len(), nd)));
         }
         let mut out = Vec::with_capacity(symbols.len() / nd * self.params.symbol_len());
@@ -176,7 +176,7 @@ impl Ofdm {
 
     fn check_stream(&self, rx: &[Complex<f64>]) -> Result<usize, ErrorsJSL> {
         let len = self.params.symbol_len();
-        if rx.is_empty() || rx.len() % len != 0 {
+        if rx.is_empty() || !rx.len().is_multiple_of(len) {
             return Err(ErrorsJSL::IncompatibleArraySizes((rx.len(), len)));
         }
         Ok(rx.len() / len)

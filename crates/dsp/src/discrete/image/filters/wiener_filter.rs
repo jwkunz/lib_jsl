@@ -24,14 +24,13 @@ use num::Complex;
 /// `noise_variance` is the variance of the additive noise; `None` estimates it as the mean of the
 /// local variances over the image (robust when most of the image is smooth).
 pub fn wiener_filter(image: &Array2<f64>, window: usize, noise_variance: Option<f64>) -> Result<Array2<f64>, ErrorsJSL> {
-    if window < 3 || window % 2 == 0 {
+    if window < 3 || window.is_multiple_of(2) {
         return Err(ErrorsJSL::InvalidInputRange("Window size must be odd and at least 3"));
     }
-    if let Some(v) = noise_variance {
-        if !(v >= 0.0) || !v.is_finite() {
+    if let Some(v) = noise_variance
+        && (!(v >= 0.0) || !v.is_finite()) {
             return Err(ErrorsJSL::InvalidInputRange("Noise variance must be non-negative and finite"));
         }
-    }
     let box_kernel = vec![1.0 / window as f64; window];
     let mean = separable_convolve(image, &box_kernel, &box_kernel, Border::Reflect)?;
     let squares = image.mapv(|v| v * v);

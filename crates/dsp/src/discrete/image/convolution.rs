@@ -78,7 +78,7 @@ pub fn convolve2d(image: &Array2<f64>, kernel: &Array2<f64>, border: Border) -> 
 /// Separable filtering: convolves every row with `row_kernel` and then every column with
 /// `col_kernel` (both odd length, symmetric or not; true convolution).
 pub fn separable_convolve(image: &Array2<f64>, row_kernel: &[f64], col_kernel: &[f64], border: Border) -> Result<Array2<f64>, ErrorsJSL> {
-    if row_kernel.len() % 2 == 0 || col_kernel.len() % 2 == 0 || row_kernel.is_empty() || col_kernel.is_empty() {
+    if row_kernel.len().is_multiple_of(2) || col_kernel.len().is_multiple_of(2) || row_kernel.is_empty() || col_kernel.is_empty() {
         return Err(ErrorsJSL::InvalidInputRange("Kernel lengths must be odd and nonzero"));
     }
     let (rows, cols) = image.dim();

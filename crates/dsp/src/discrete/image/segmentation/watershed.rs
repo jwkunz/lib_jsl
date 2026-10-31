@@ -49,7 +49,7 @@ pub fn watershed(elevation: &Array2<f64>, markers: &Array2<i32>) -> Result<Array
 /// Like [`watershed`] but flooding only where `mask` is true (pixels outside the mask stay 0).
 pub fn watershed_masked(elevation: &Array2<f64>, markers: &Array2<i32>, mask: Option<&Array2<bool>>) -> Result<Array2<i32>, ErrorsJSL> {
     let (rows, cols) = elevation.dim();
-    if markers.dim() != (rows, cols) || mask.map_or(false, |m| m.dim() != (rows, cols)) {
+    if markers.dim() != (rows, cols) || mask.is_some_and(|m| m.dim() != (rows, cols)) {
         return Err(ErrorsJSL::IncompatibleArraySizes((rows * cols, markers.len())));
     }
     if rows == 0 || cols == 0 {
@@ -64,7 +64,7 @@ pub fn watershed_masked(elevation: &Array2<f64>, markers: &Array2<i32>, mask: Op
     if elevation.iter().any(|v| v.is_nan()) {
         return Err(ErrorsJSL::InvalidInputRange("Elevation must not contain NaN"));
     }
-    let allowed = |r: usize, c: usize| mask.map_or(true, |m| m[(r, c)]);
+    let allowed = |r: usize, c: usize| mask.is_none_or(|m| m[(r, c)]);
     let mut labels = Array2::<i32>::zeros((rows, cols));
     let mut heap = BinaryHeap::new();
     let mut age = 0u64;

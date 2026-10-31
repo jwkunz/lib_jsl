@@ -100,7 +100,7 @@ impl Nco {
         if period < 2 {
             return Err(ErrorsJSL::InvalidInputRange("An NCO period must be at least 2 samples."));
         }
-        let increment = ((1u128 << 64) + period as u128 - 1) / period as u128;
+        let increment = (1u128 << 64).div_ceil(period as u128);
         Ok(Nco { phase: 0, increment: increment as u64, initial_phase: 0, sample_rate: 1.0 })
     }
 

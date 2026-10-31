@@ -290,13 +290,13 @@ pub fn surf(image: &Array2<f64>, params: &SurfParams) -> Result<Vec<SurfKeypoint
         let step = params.init_sample * (1usize << o);
         let filters: Vec<usize> = (0..params.intervals).map(|i| start + i * spacing).collect();
         start += spacing;
-        if filters.last().map_or(true, |&f| f >= rows.min(cols)) {
+        if filters.last().is_none_or(|&f| f >= rows.min(cols)) {
             break; // the filter would not fit in the image
         }
         let layers: Vec<ResponseLayer> = filters.iter().map(|&f| ResponseLayer::build(&integral, f, step)).collect();
         for t in 1..layers.len() - 1 {
             let (bot, mid, top) = (&layers[t - 1], &layers[t], &layers[t + 1]);
-            let border = (top.filter + 1) / 2 / step + 1;
+            let border = top.filter.div_ceil(2) / step + 1;
             for r in border..mid.rows.saturating_sub(border) {
                 for c in border..mid.cols.saturating_sub(border) {
                     let v = mid.response[(r, c)];

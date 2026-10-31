@@ -134,7 +134,7 @@ impl Wavelet {
 }
 
 fn check_even(n: usize, filter_len: usize) -> Result<(), ErrorsJSL> {
-    if n < filter_len || n % 2 != 0 {
+    if n < filter_len || !n.is_multiple_of(2) {
         return Err(ErrorsJSL::InvalidInputRange("Signal length must be even and at least the filter length"));
     }
     Ok(())
@@ -173,7 +173,7 @@ pub fn max_level(n: usize, wavelet: Wavelet) -> Result<usize, ErrorsJSL> {
     let l = wavelet.scaling_filter()?.len();
     let mut len = n;
     let mut level = 0;
-    while len >= l && len % 2 == 0 {
+    while len >= l && len.is_multiple_of(2) {
         level += 1;
         len /= 2;
     }

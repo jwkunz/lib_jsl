@@ -121,7 +121,7 @@ pub struct HoughCircle {
 /// closer than `min_distance` pixels suppressed.
 pub fn hough_circles(edges: &Array2<bool>, radii: &[usize], min_support: f64, min_distance: usize) -> Result<Vec<HoughCircle>, ErrorsJSL> {
     let (rows, cols) = edges.dim();
-    if rows == 0 || cols == 0 || radii.is_empty() || radii.iter().any(|&r| r == 0) {
+    if rows == 0 || cols == 0 || radii.is_empty() || radii.contains(&0) {
         return Err(ErrorsJSL::InvalidInputRange("Need a non-empty edge map and positive radii"));
     }
     if !(min_support > 0.0) {

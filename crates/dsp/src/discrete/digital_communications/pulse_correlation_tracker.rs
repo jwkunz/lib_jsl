@@ -119,7 +119,7 @@ impl PulseCorrelationTracker {
         if template.is_empty() {
             return Err(ErrorsJSL::InvalidInputRange("The pulse template must be non-empty"));
         }
-        if !(alpha > 0.0 && alpha <= 1.0) || !(beta >= 0.0 && beta <= 2.0) {
+        if !(alpha > 0.0 && alpha <= 1.0) || !(0.0..=2.0).contains(&beta) {
             return Err(ErrorsJSL::InvalidInputRange("Need 0 < alpha <= 1 and 0 <= beta <= 2"));
         }
         Ok(PulseCorrelationTracker {

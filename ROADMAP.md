@@ -469,7 +469,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Patch antenna
 
 ## Arrays and Signal Models
-[ ] Sensor arrays and responses
+[x] Sensor arrays and responses
 [ ] Point source scenes
 [ ] Distributed source and noise temperature scenes
 [ ] Covariance models

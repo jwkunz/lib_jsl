@@ -3,6 +3,9 @@
 
 pub mod algorithms;
 pub mod antenna_models;
+pub mod arrays;
 pub mod conventions;
 pub mod coordinates;
 pub mod fields;
+pub mod signal_models;
+pub mod linalg;

@@ -96,7 +96,7 @@
 
 #### Filters
 [ ] Sobel
-[ ] Gaussian blur
+[x] Gaussian blur
 [ ] Histogram equalization
 [ ] Sharpening
 [ ] Wiener filtering

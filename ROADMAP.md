@@ -251,7 +251,7 @@
 [x] Entropy
 
 ## Forward Error Correction
-[ ] LDPC
+[x] LDPC
 [x] Polar
 [x] Hamming
 [x] Reed-Solomon

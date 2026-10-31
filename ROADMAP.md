@@ -360,7 +360,7 @@
 
 # Special Functions 
 [x] Gamma
-[ ] Beta
+[x] Beta
 [x] Factorial
 [x] Binomial coefficients
 [ ] Incomplete Gamma

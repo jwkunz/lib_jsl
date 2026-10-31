@@ -364,7 +364,7 @@
 [x] Factorial
 [x] Binomial coefficients
 [x] Incomplete Gamma
-[ ] Error function
+[x] Error function
 [ ] Exponential integrals
 [ ] Incomplete Beta function
 [ ] Bessel functions integer

@@ -373,7 +373,7 @@
 [x] Airy functions
 [x] Fresnel integrals
 [x] Cosine integrals
-[ ] Sine integrals
+[x] Sine integrals
 [ ] Dawson's integral
 [ ] Fermi-Dirac integrals
 [ ] Inverse x log (x)

@@ -11,7 +11,7 @@ pub mod pulse_correlation_tracker;
 pub mod addressable_shift_register;
 pub mod ping_pong_buffer;
 
-pub use constellations::qam16;
+pub use constellations::{qam16, Constellation};
 pub use barker_codes::barker_code;
 pub use decision_feedback_equalizer::decision_feedback_equalizer;
 pub use farrow_filter::farrow_filter;

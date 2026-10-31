@@ -342,7 +342,7 @@
 [x] Optimization traits
 [ ] Linear programming
 [ ] Dynamic programming
-[ ] Powell's method
+[x] Powell's method
 
 # Random
 [x] Histogram

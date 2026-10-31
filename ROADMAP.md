@@ -103,7 +103,7 @@
 
 #### Segmentation
 [x] Otsu's method
-[ ] Canny Edge Detection
+[x] Canny Edge Detection
 [ ] Watershed
 
 #### Feature Extraction

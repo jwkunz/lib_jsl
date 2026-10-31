@@ -359,7 +359,7 @@
 [x] Shell's method
 
 # Special Functions 
-[ ] Gamma
+[x] Gamma
 [ ] Beta
 [ ] Factorial
 [ ] Binomial coefficients

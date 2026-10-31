@@ -422,7 +422,7 @@
 [ ] Viterbi algorithm 
 [ ] Random Forest 
 [ ] Support vector machine 
-[ ] Logistic regression 
+[x] Logistic regression 
 [x] Naive Bayes
 
 ## Unsupervised 

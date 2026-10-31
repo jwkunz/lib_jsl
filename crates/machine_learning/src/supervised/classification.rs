@@ -13,5 +13,5 @@ pub use phylogenetic_trees::phylogenetic_trees;
 pub use viterbi_algorithm::viterbi_algorithm;
 pub use random_forest::random_forest;
 pub use support_vector_machine::support_vector_machine;
-pub use logistic_regression::logistic_regression;
+pub use logistic_regression::LogisticRegression;
 pub use naive_bayes::{GaussianNaiveBayes, MultinomialNaiveBayes};

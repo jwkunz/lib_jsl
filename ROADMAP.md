@@ -222,7 +222,7 @@
 [x] Quaternions
 [ ] Nearest point finding
 [ ] Intersection
-[ ] KD Trees
+[x] KD Trees
 [ ] Oct Trees
 [ ] Quad Trees
 

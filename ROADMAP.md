@@ -88,7 +88,7 @@
 [x] Mueller timing detector
 [ ] OFDM
 [x] FM
-[ ] Pulse correlation tracker
+[x] Pulse correlation tracker
 [ ] Addressable shift register 
 [x] Ping pong buffer
 

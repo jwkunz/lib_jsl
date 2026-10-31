@@ -433,7 +433,7 @@
 [x] Hierarchical clustering
 [x] DBSCAN
 [x] HDBSCAN
-[ ] Gaussian mixture models
+[x] Gaussian mixture models
 [ ] Spectral clustering 
 
 ### Reduction 

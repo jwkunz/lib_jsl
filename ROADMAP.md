@@ -438,7 +438,7 @@
 
 ### Reduction 
 [x] Principal component analysis 
-[ ] Kernel PCA
+[x] Kernel PCA
 [ ] t-SNE
 [ ] UMAP
 [ ] LDA

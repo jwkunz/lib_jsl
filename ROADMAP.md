@@ -409,11 +409,11 @@
 ## Supervised 
 
 ### Regression 
-[ ] Least squares
-[ ] General least squares
-[ ] Ridge 
-[ ] Elastic Net
-[ ] Support vector regression
+[x] Least squares
+[x] General least squares
+[x] Ridge 
+[x] Elastic Net
+[x] Support vector regression
 
 
 ### Classification 

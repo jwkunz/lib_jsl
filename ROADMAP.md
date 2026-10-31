@@ -379,7 +379,7 @@
 [x] Inverse x log (x)
 [x] Elliptic integrals
 [x] Jacobian elliptic functions
-[ ] Hypergeometric functions
+[x] Hypergeometric functions
 [ ] Statistical functions
 
 # Root Finding

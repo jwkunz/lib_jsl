@@ -175,6 +175,7 @@ impl LdpcCode {
         word.len() == self.n && self.checks.iter().all(|c| c.iter().fold(0u8, |a, &v| a ^ (word[v] & 1)) == 0)
     }
 
+    #[allow(clippy::needless_range_loop)]
     /// Sum-product decoding of channel LLRs for at most `max_iterations` iterations.
     pub fn decode(&self, llr: &[f64], max_iterations: usize) -> Result<LdpcDecoded, ErrorsJSL> {
         if llr.len() != self.n {

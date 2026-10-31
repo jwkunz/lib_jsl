@@ -14,6 +14,7 @@ struct Field {
     log: [u8; 256],
 }
 
+#[allow(clippy::needless_range_loop)]
 fn field() -> &'static Field {
     static F: OnceLock<Field> = OnceLock::new();
     F.get_or_init(|| {
@@ -107,6 +108,7 @@ impl ReedSolomon {
         (self.n - self.k) / 2
     }
 
+    #[allow(clippy::needless_range_loop)]
     /// Computes the `n - k` parity bytes of a `k`-byte message.
     pub fn parity(&self, message: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
         if message.len() != self.k {

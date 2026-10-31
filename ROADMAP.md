@@ -362,7 +362,7 @@
 [x] Gamma
 [ ] Beta
 [x] Factorial
-[ ] Binomial coefficients
+[x] Binomial coefficients
 [ ] Incomplete Gamma
 [ ] Error function
 [ ] Exponential integrals

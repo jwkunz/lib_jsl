@@ -478,7 +478,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Overlap integral
 [x] CFM beamformer
 [x] Max SNR beamformer
-[ ] LCMV beamformer
+[x] LCMV beamformer
 
 # Utils
 [x] Terminal plot generation

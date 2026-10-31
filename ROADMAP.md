@@ -380,7 +380,7 @@
 [x] Elliptic integrals
 [x] Jacobian elliptic functions
 [x] Hypergeometric functions
-[ ] Statistical functions
+[x] Statistical functions
 
 # Root Finding
 [x] Bracketing

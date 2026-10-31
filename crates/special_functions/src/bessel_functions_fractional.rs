@@ -371,9 +371,7 @@ pub fn bessel_fractional(v: f64, x: f64) -> f64 {
     if x == 0.0 {
         return if v == 0.0 {
             1.0
-        } else if v > 0.0 {
-            0.0
-        } else if v == v.round() {
+        } else if v > 0.0 || v == v.round() {
             0.0
         } else {
             f64::INFINITY

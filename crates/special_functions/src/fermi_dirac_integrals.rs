@@ -6,6 +6,7 @@ use crate::gamma::gamma;
 
 const GL_ORDER: usize = 20;
 
+#[allow(clippy::needless_range_loop)]
 /// Gauss-Legendre nodes and weights on [-1, 1], computed by Newton iteration.
 fn gauss_legendre() -> &'static [(f64, f64); GL_ORDER] {
     static NODES: OnceLock<[(f64, f64); GL_ORDER]> = OnceLock::new();

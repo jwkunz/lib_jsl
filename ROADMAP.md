@@ -341,7 +341,7 @@
 [x] Simulated annealing
 [x] Optimization traits
 [x] Linear programming
-[ ] Dynamic programming
+[x] Dynamic programming
 [x] Powell's method
 
 # Random

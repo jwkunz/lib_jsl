@@ -37,13 +37,13 @@ where
 
     let mut index_of_root: Vec<Option<usize>> = vec![None; n];
     let mut classes: Vec<Vec<T>> = Vec::new();
-    for i in 0..n {
+    for (i, item) in items.iter().enumerate() {
         let r = find(&mut parent, i);
         match index_of_root[r] {
-            Some(k) => classes[k].push(items[i].clone()),
+            Some(k) => classes[k].push(item.clone()),
             None => {
                 index_of_root[r] = Some(classes.len());
-                classes.push(vec![items[i].clone()]);
+                classes.push(vec![item.clone()]);
             }
         }
     }

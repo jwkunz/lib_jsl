@@ -1,6 +1,7 @@
 # Electromagnetics crate design
 
-This document records the agreed structure of `lib_jsl_electromagnetics` before implementation.
+This document records the agreed structure of `lib_jsl_electromagnetics`. **Status: implemented**
+(all steps of §11; see the demonstrations below).
 The field containers are the backbone: antennas produce them, and the overlap integral, array
 signal models and beamformer solvers consume them.
 
@@ -168,3 +169,25 @@ since periodic and pole-aware stencils on these domains do not fit the interpola
 8. Arrays and signal models
 9. Beamformer solvers (CFM, max-SNR, LCMV)
 10. Demonstration examples
+
+## 12. Demonstrations
+
+`cargo run --release -p lib_jsl_electromagnetics --example <name>`:
+
+- `antenna_patterns`: directivity and radiation resistance of every model, patch design and inset
+  feed, dish beamwidth, and polar dB pattern cuts.
+- `fields_demo`: Poynting-flux conservation of an exact near field, Maxwell's equations checked with
+  the containers' vector calculus, overlap integrals across grids and bases, and rigid transforms.
+- `beamforming_demo`: a 16-element dipole array with jammers, a warm ground and a cold sky;
+  CFM, max-SNR, MVDR and LCMV compared by SINR, jammer suppression and pattern.
+
+## 13. Notes from implementation
+
+- Array elements are either *analytic* (an antenna model plus orientation, evaluated exactly) or
+  *sampled* (a pattern container, interpolated in Cartesian components). Idealised isotropic
+  elements with a fixed polarization are discontinuous at the poles (hairy-ball theorem) and must
+  be analytic.
+- LCMV constraints are stated as responses, `wᴴ c_k = f_k` (equivalently `Cᴴ w = f*`).
+- Brightness scenes use per-polarization brightness temperature: unpolarized emission gives
+  `R = k_B B / (4π) ∫ T A Aᴴ dΩ`, so a lossless antenna in a uniform sky sees `k_B T B`.
+- Vector calculus is implemented for volume domains; surface operators are not yet provided.

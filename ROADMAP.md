@@ -286,7 +286,7 @@
 [x] Floater-Hormann
 [ ] REIM
 [ ] Fourier 1D
-[ ] Chebyshev approximations
+[x] Chebyshev approximations
 [x] Lagrange interpolant
 [ ] Savitzky-Golay
 

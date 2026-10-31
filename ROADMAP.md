@@ -243,7 +243,7 @@
 ## LFSRs
 [x] LFSR
 [x] Maximum length polynomials
-[ ] Gold codes
+[x] Gold codes
 
 ## Operators
 [ ] SHA256

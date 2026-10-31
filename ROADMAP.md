@@ -463,7 +463,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 
 ## Antenna Models
 [x] Hertzian dipole
-[ ] Magnetic loop
+[x] Magnetic loop
 [ ] Half-wave dipole
 [ ] Dish
 [ ] Patch antenna

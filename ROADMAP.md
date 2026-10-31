@@ -372,7 +372,7 @@
 [x] Bessel functions spherical
 [x] Airy functions
 [x] Fresnel integrals
-[ ] Cosine integrals
+[x] Cosine integrals
 [ ] Sine integrals
 [ ] Dawson's integral
 [ ] Fermi-Dirac integrals

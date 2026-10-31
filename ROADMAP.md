@@ -454,7 +454,7 @@ Design: `crates/electromagnetics/DESIGN.md`
 [x] Rigid transforms (translation, rotation)
 
 ## Fields
-[ ] Domains and quadrature (surface, volume)
+[x] Domains and quadrature (surface, volume)
 [ ] Field container (scalar/vector, harmonic/time-varying, quantities)
 [ ] Coordinate conversion
 [ ] Interpolation (nearest, linear, cubic)

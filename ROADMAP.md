@@ -445,24 +445,39 @@
 
 
 # Electromagnetics
+Design: `crates/electromagnetics/DESIGN.md`
 
-## Antenna Models
-[ ] Half-wave dipole
-[ ] Dish
-[ ] Hertzian dipole
-[ ] Magnetic loop
-[ ] Patch antenna 
+## Foundations
+[ ] Conventions (units, configurable time convention)
+[ ] Coordinate systems
+[ ] Polarization bases (linear, circular)
+[ ] Rigid transforms (translation, rotation)
 
 ## Fields
-[ ] Field container
-[ ] Interpolation
+[ ] Domains and quadrature (surface, volume)
+[ ] Field container (scalar/vector, harmonic/time-varying, quantities)
 [ ] Coordinate conversion
+[ ] Interpolation (nearest, linear, cubic)
 [ ] Vector calculus
+[ ] Physics operations (Poynting, power, potentials)
+
+## Antenna Models
+[ ] Hertzian dipole
+[ ] Magnetic loop
+[ ] Half-wave dipole
+[ ] Dish
+[ ] Patch antenna
+
+## Arrays and Signal Models
+[ ] Sensor arrays and responses
+[ ] Point source scenes
+[ ] Distributed source and noise temperature scenes
+[ ] Covariance models
 
 ## Algorithms
 [ ] Overlap integral
 [ ] CFM beamformer
-[ ] Hadamard beamformer
+[ ] Max SNR beamformer
 [ ] LCMV beamformer
 
 # Utils

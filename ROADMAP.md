@@ -104,7 +104,7 @@
 #### Segmentation
 [x] Otsu's method
 [x] Canny Edge Detection
-[ ] Watershed
+[x] Watershed
 
 #### Feature Extraction
 [ ] Scale-Invariant Feature Transform

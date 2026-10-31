@@ -8,8 +8,8 @@ pub mod hdbscan;
 pub mod gaussian_mixture_models;
 pub mod spectral_clustering;
 
-pub use k_means::k_means;
-pub use k_medoids::k_medoids;
+pub use k_means::KMeans;
+pub use k_medoids::KMedoids;
 pub use hierarchical::hierarchical_clustering;
 pub use dbscan::dbscan;
 pub use hdbscan::hdbscan;

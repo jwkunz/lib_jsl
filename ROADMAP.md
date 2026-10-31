@@ -428,7 +428,7 @@
 ## Unsupervised 
 
 ### Clustering 
-[ ] k means
+[x] k means
 [ ] k medoids 
 [ ] Hierarchical clustering
 [ ] DBSCAN

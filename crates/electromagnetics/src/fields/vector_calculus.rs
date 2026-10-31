@@ -38,7 +38,7 @@ impl FieldScalar for C64 {
 }
 
 /// Weights `w` such that `f'(x) ≈ Σ w_a f(nodes_a)` (derivative of the Lagrange interpolant).
-fn derivative_weights(nodes: &[f64], x: f64) -> Vec<f64> {
+pub(crate) fn derivative_weights(nodes: &[f64], x: f64) -> Vec<f64> {
     let n = nodes.len();
     (0..n)
         .map(|a| {
@@ -59,6 +59,35 @@ fn require_volume(domain: &Domain) -> Result<(), ErrorsJSL> {
     Ok(())
 }
 
+/// The derivative stencil along axis `a` at the multi-index `idx`: `(flat neighbour, weight)`
+/// pairs with `∂f/∂u_a ≈ Σ w f(neighbour)`. Five points (fourth order) when the axis has at least
+/// five samples, else three (or two); centred where possible, wrapping on periodic axes and
+/// shifted inside bounded ones near their ends.
+pub(crate) fn axis_stencil(domain: &Domain, idx: &[usize], a: usize) -> Vec<(usize, f64)> {
+    let axis = domain.axis(a);
+    let len = axis.len() as isize;
+    let i = idx[a] as isize;
+    let width: isize = if len >= 5 { 5 } else { len.min(3) };
+    let half = width / 2;
+    let start = if axis.is_periodic() { i - half } else { (i - half).clamp(0, len - width) };
+    let window: Vec<isize> = (start..start + width).collect();
+    let coord = |k: isize| match axis.period() {
+        Some(p) => axis.values()[k.rem_euclid(len) as usize] + p * k.div_euclid(len) as f64,
+        None => axis.values()[k as usize],
+    };
+    let nodes: Vec<f64> = window.iter().map(|&k| coord(k)).collect();
+    let weights = derivative_weights(&nodes, axis.values()[idx[a]]);
+    window
+        .iter()
+        .zip(weights)
+        .map(|(&k, w)| {
+            let mut neighbour = idx.to_vec();
+            neighbour[a] = axis.wrap_index(k).expect("stencil index inside the axis");
+            (domain.flatten(&neighbour), w)
+        })
+        .collect()
+}
+
 /// For each sample, the Jacobian `J[k][j] = ∂F_k/∂x_j` of Cartesian components `F_k`.
 fn cartesian_jacobians<T: FieldScalar>(domain: &Domain, cart: &[[T; 3]]) -> Vec<[[T; 3]; 3]> {
     let n = domain.len();
@@ -72,26 +101,10 @@ fn cartesian_jacobians<T: FieldScalar>(domain: &Domain, cart: &[[T; 3]]) -> Vec<
             continue;
         }
         let frame = pos.frame(domain.system());
-        for (a, axis) in domain.axes().iter().enumerate() {
-            let len = axis.len() as isize;
-            let i = idx[a] as isize;
-            // Five points (fourth order) when the axis is long enough, else three (or two):
-            // centred where possible, shifted inside the axis near the ends of bounded axes.
-            let width: isize = if len >= 5 { 5 } else { len.min(3) };
-            let half = width / 2;
-            let start = if axis.is_periodic() { i - half } else { (i - half).clamp(0, len - width) };
-            let window: Vec<isize> = (start..start + width).collect();
-            let coord = |k: isize| match axis.period() {
-                Some(p) => axis.values()[k.rem_euclid(len) as usize] + p * k.div_euclid(len) as f64,
-                None => axis.values()[k as usize],
-            };
-            let nodes: Vec<f64> = window.iter().map(|&k| coord(k)).collect();
-            let weights = derivative_weights(&nodes, axis.values()[idx[a]]);
+        for a in 0..domain.axes().len() {
             let mut d = [T::zero(); 3];
-            for (&k, &w) in window.iter().zip(&weights) {
-                let mut neighbour = idx.clone();
-                neighbour[a] = axis.wrap_index(k).expect("stencil index inside the axis");
-                let v = cart[domain.flatten(&neighbour)];
+            for (neighbour, w) in axis_stencil(domain, &idx, a) {
+                let v = cart[neighbour];
                 for c in 0..3 {
                     d[c] = d[c] + v[c] * w;
                 }

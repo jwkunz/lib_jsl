@@ -77,7 +77,7 @@ fn taps_for(method: InterpolationMethod, coords: &dyn Fn(isize) -> f64, cell: is
 }
 
 /// Virtual coordinate of index `k` on a polar axis continued across the poles.
-fn polar_coordinate(axis: &Axis, k: isize) -> f64 {
+pub(crate) fn polar_coordinate(axis: &Axis, k: isize) -> f64 {
     let n = axis.len() as isize;
     let v = axis.values();
     let north = axis.first().abs() < 1e-12;

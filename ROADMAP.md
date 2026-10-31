@@ -109,7 +109,7 @@
 #### Feature Extraction
 [ ] Scale-Invariant Feature Transform
 [ ] Speeded-Up Robust Features
-[ ] Hough Transform
+[x] Hough Transform
 [ ] BLOB detection
 
 ### Filters

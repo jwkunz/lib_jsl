@@ -423,7 +423,7 @@
 [ ] Random Forest 
 [ ] Support vector machine 
 [ ] Logistic regression 
-[ ] Naive Bayes
+[x] Naive Bayes
 
 ## Unsupervised 
 

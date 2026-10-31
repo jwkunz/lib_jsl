@@ -1,96 +1,93 @@
-# Out-of-scope
-*  Linear algebra primitives
-*  Intrinsics or SIMD optimizations
-*  Containers or data-structures
-*  Complex number primitives
-*  Arbitrary precision primitives
+# lib_jsl roadmap
 
-# Core
+Sections follow the workspace crates (`crates/<name>`, published as `lib_jsl_<name>`), in
+alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
+
+# Core (`core`)
 [x] Data types and traits
 [x] Constants
 
-# Derivatives
-[x] Scalar Derivatives 1D
-[x] Vector Derivatives
+# Derivatives (`derivatives`)
+[x] Scalar derivatives (1D)
+[x] Vector derivatives
 
-
-# DSP
+# DSP (`dsp`)
 
 ## Continuous
 
 ### Filters
-[x] Bi-linear transform
-[x] Bessel
-[x] Elliptic
-[x] Butterworth
-[x] Chebyshev 1 + 2
-[x] Bi-linear transform (zero-pole-gain form)
+[x] Bilinear transform
+[x] Bilinear transform (zero-pole-gain form)
 [x] Filter design types and band transforms (Zpk, Tf, lp2lp, lp2hp, lp2bp, lp2bs)
+[x] Bessel
+[x] Butterworth
+[x] Chebyshev type I and II
+[x] Elliptic
 
 ### Spectral
 [x] freqs
 [x] Fourier integrals
 
 ## Discrete
-[x] Stream Operators
+[x] Stream operators
 [x] Sinc
-[x] Cross Correlation
-[x] FFT cross correlation
+[x] Cross-correlation
+[x] FFT cross-correlation
 [x] Convolution
 [x] FFT convolution
 
 ### Windows
 [x] Boxcar
-[x] Triang
+[x] Triangular
 [x] Parzen
 [x] Bohman
 [x] Blackman
 [x] Nuttall
-[x] BlackmanHarris
-[x] Flattop
+[x] Blackman-Harris
+[x] Flat top
 [x] Bartlett
-[x] Barthann
+[x] Bartlett-Hann
 [x] Hamming
 [x] Hann
 [x] Kaiser (including beta and tap-count estimation helpers)
-[x] KaiserBesselDerived
+[x] Kaiser-Bessel derived
 [x] Gaussian
-[x] GeneralGaussian
-[x] Chebwin
+[x] General Gaussian
+[x] Dolph-Chebyshev
 [x] Cosine
 [x] Exponential
 [x] Tukey
 [x] Taylor
-[x] Dpss 
+[x] DPSS (Slepian)
 [x] Lanczos
 [x] General cosine
 [x] General Hamming
 
 ### Controls
-[x] Kalman Filter
-[x] PID Loop
-[x] State Space Model
+[x] Kalman filter
+[x] PID loop
+[x] State-space model
 
 ### Sources
 [x] Pulse train
 [x] Ramp
 [x] Triangle
-[x] CORDIC
-[x] Sinusoid
+[x] CORDIC (fixed point)
+[x] Sinusoid and quadrature
 [x] Square
 [x] Noise
 
-### Digital Communications
-[x] Constellations 
-[x] Barker codes 
-[x] Decision feedback equalizer 
+### Digital communications
+[x] Constellations
+[x] Barker codes
+[x] Decision feedback equalizer
 [x] Farrow filter
 [x] Mueller timing detector
 [x] OFDM
 [x] FM
 [x] Pulse correlation tracker
-[x] Addressable shift register 
-[x] Ping pong buffer
+[x] Addressable shift register
+[x] Ping-pong buffer
 
 ### Image
 
@@ -103,14 +100,14 @@
 
 #### Segmentation
 [x] Otsu's method
-[x] Canny Edge Detection
+[x] Canny edge detection
 [x] Watershed
 
-#### Feature Extraction
-[x] Scale-Invariant Feature Transform
-[x] Speeded-Up Robust Features
-[x] Hough Transform
-[x] BLOB detection
+#### Feature extraction
+[x] SIFT (scale-invariant feature transform)
+[x] SURF (speeded-up robust features)
+[x] Hough transform
+[x] Blob detection
 
 ### Filters
 
@@ -119,32 +116,32 @@
 [x] Derivative filters
 [x] firwin
 [x] firwin2
-[x] Overlap and add fir
+[x] Overlap-add FIR
 [x] Remez exchange algorithm
-[x] FFT fir
+[x] FFT FIR
 
 #### IIR
 [x] Bessel
 [x] Biquad
 [x] Butterworth
-[x] Chebyshev 1
-[x] Chebyshev 2
+[x] Chebyshev type I
+[x] Chebyshev type II
 [x] Discrete linear filter (direct forms)
 [x] Elliptic
-[x] IIR comb
-[x] IIR notch
-[x] IIR peak
+[x] Comb
+[x] Notch
+[x] Peak
 
 ### Resampling
 [x] Polyphase arbitrary resampling
 [x] Polyphase integer resampling
 
 ### Spectral
-[x] Chirpz transform
+[x] Chirp-z transform
 [x] freqz
-[x] Critically sampled polyphase filterbank
-[x] Oversampled polyphase filterbank
-[x] Non-uniformly sampled
+[x] Critically sampled polyphase filter bank
+[x] Oversampled polyphase filter bank
+[x] Non-uniformly sampled spectra
 [x] MUSIC
 [x] Maximum entropy
 [x] Linear predictive coding
@@ -157,21 +154,74 @@
 [x] Frequency mixer
 [x] Non-linearity transformer
 
-# FFTs
+# Electromagnetics (`electromagnetics`)
+Design and conventions: `crates/electromagnetics/DESIGN.md`
+
+## Foundations
+[x] Conventions (units, configurable time convention, media)
+[x] Coordinate systems
+[x] Polarization bases (linear, circular)
+[x] Rigid transforms (translation, rotation)
+
+## Fields
+[x] Domains and quadrature (surface, volume)
+[x] Field container (scalar/vector, harmonic/time-varying, quantities)
+[x] Coordinate conversion
+[x] Interpolation (nearest, linear, cubic)
+[x] Vector calculus (volume)
+[x] Surface vector calculus (gradient, divergence, curl, Laplace-Beltrami)
+[x] Physics operations (Poynting, power, potentials)
+
+## Antenna models
+[x] Hertzian dipole
+[x] Magnetic loop
+[x] Half-wave and finite dipoles
+[x] Dish
+[x] Patch antenna
+
+## Arrays and signal models
+[x] Sensor arrays and responses
+[x] Point source scenes
+[x] Distributed source and noise temperature scenes
+[x] Covariance models
+
+## Algorithms
+[x] Overlap integral
+[x] CFM beamformer
+[x] Max-SNR beamformer
+[x] LCMV and MVDR beamformers
+
+## Demonstrations
+[x] Antenna patterns
+[x] Field containers
+[x] Beamforming
+
+# FFTs (`ffts`)
 [x] FFT (default engine: picks the algorithm by size)
 [x] Best FFT
 [x] Bluestein FFT
 [x] Fractional FFT
 [x] SIMD FFT (generic, x86, ARM, RISC-V)
 [x] FFT engine trait
+[x] Size-sweep benchmark
 
-# FFT Reference
-[x] Simple Cooley Tukey
+# FFT reference (`ffts_reference`)
+[x] Simple Cooley-Tukey
 [x] Optimized radix-2
 [x] Optimized split radix
 [x] FFT race benchmark
 
-# Geometry
+# File IO (`file_io`)
+
+## Audio
+[x] WAV files
+[x] MP3
+
+## Image
+[x] JPEG
+[x] JPEG files
+
+# Geometry (`geometry`)
 [x] Common
 [x] Concrete types
 [x] Coordinate systems
@@ -214,43 +264,33 @@
 [x] Unit vector 3D
 [x] Volume mesh 3D
 
+## 4D
+[x] Space-time vector
+[x] Christoffel symbols
+
 ## Algorithms
-[x] Delaunay Triangulation
+[x] Delaunay triangulation
 [x] Convex hull
 [x] Slicing
 [x] Rotations
 [x] Quaternions
 [x] Nearest point finding
 [x] Intersection
-[x] KD Trees
-[x] Oct Trees
-[x] Quad Trees
+[x] k-d trees
+[x] Octrees
+[x] Quadtrees
 
-## 4D
-[x] Space-time vector
-[x] Christoffel Symbols
+# Information (`information`)
 
-# File IO
-
-## Audio
-[x] WAV files
-[x] MP3
-
-## Image
-[x] JPEG
-[x] JPEG files
-
-# Information
-
-## Source Coders
+## Source coders
+[x] Source coder trait
 [x] Arithmetic
 [x] Huffman
-[x] lz77
-[x] lz78
-[x] lzw
-[x] Shannon Fano
-[x] Source coder trait
-[x] Gray Codes
+[x] LZ77
+[x] LZ78
+[x] LZW
+[x] Shannon-Fano
+[x] Gray codes
 
 ## LFSRs
 [x] LFSR
@@ -258,31 +298,31 @@
 [x] Gold codes
 
 ## Operators
-[x] SHA256
-[x] CRC32
+[x] SHA-256
+[x] CRC-32
 [x] Entropy
 
-## Forward Error Correction
+## Forward error correction
 [x] LDPC
 [x] Polar
 [x] Hamming
 [x] Reed-Solomon
 [x] Convolutional
 
-# Integration
-[x] Adaptive gl7k15
-[x] Adaptive trapezoid
-[x] Dormand Prince
-[x] Midpoint
-[x] Monte Carlo
-[x] Runge Kutta
-[x] Simpsons 1 3
-[x] Trapezoidal
+# Integration (`integration`)
 [x] Integrator trait (1D)
+[x] Adaptive Gauss-Kronrod (G7-K15)
+[x] Adaptive trapezoid
+[x] Dormand-Prince
+[x] Midpoint
 [x] Midpoint calculation helper
+[x] Monte Carlo
+[x] Runge-Kutta
+[x] Simpson's 1/3 rule
+[x] Trapezoidal
 [x] Complex path integrals
 
-# Interpolation
+# Interpolation (`interpolation`)
 [x] Interpolation trait
 
 ## 1D
@@ -294,7 +334,7 @@
 [x] Cubic basis
 [x] AAA
 [x] Prony's method
-[x] Pade approximants
+[x] Padé approximants
 [x] Floater-Hormann
 [x] Bulirsch-Stoer rational interpolation
 [x] Fourier 1D
@@ -318,14 +358,65 @@
 [x] B-spline
 [x] Cubic Lagrangian
 [x] Fourier 3D
-[x] Shepards
+[x] Shepard's inverse distance weighting
 
 ## ND
 [x] Grid data
-[x] Nearest 
+[x] Nearest
 [x] Cubic basis
 
-# Number Theory
+# Machine learning (`machine_learning`)
+
+## Foundations
+[x] Model traits (regressor, classifier, clusterer, transformer)
+[x] Metrics
+[x] Synthetic datasets
+[x] Preprocessing
+[x] Kernels
+
+## Supervised
+
+### Regression
+[x] Least squares
+[x] General least squares
+[x] Ridge
+[x] Elastic net
+[x] Support vector regression
+
+### Classification
+[x] k-nearest neighbors
+[x] Phylogenetic trees
+[x] Viterbi algorithm
+[x] Decision trees and random forests
+[x] Support vector machine
+[x] Logistic regression
+[x] Naive Bayes
+
+## Unsupervised
+
+### Clustering
+[x] k-means
+[x] k-medoids
+[x] Hierarchical clustering
+[x] DBSCAN
+[x] HDBSCAN
+[x] Gaussian mixture models
+[x] Spectral clustering
+
+### Reduction
+[x] Principal component analysis
+[x] Kernel PCA
+[x] t-SNE
+[x] UMAP
+[x] Linear discriminant analysis
+
+## Demonstrations
+[x] Clustering
+[x] Regression
+[x] Classification
+[x] Embedding
+
+# Number theory (`number_theory`)
 [x] Base exponent in modulus
 [x] Greatest common divisor
 [x] Integer square root
@@ -333,22 +424,22 @@
 [x] Polynomial
 [x] Text coded integer
 
-# Optimization
+# Optimization (`optimization`)
+[x] Optimization traits
 [x] Golden section search
 [x] Gradient descent
-[x] Nelder Mead
-[x] Newton Raphson
+[x] Nelder-Mead
+[x] Newton-Raphson
 [x] Simulated annealing
-[x] Optimization traits
+[x] Powell's method
 [x] Linear programming
 [x] Dynamic programming
-[x] Powell's method
 
-# Random
+# Random (`random`)
 [x] Histogram
 [x] Uniform RNG
 [x] xoshiro256++
-[x] Split Mix 64
+[x] SplitMix64
 
 ## Distributions
 [x] Exponential
@@ -358,129 +449,60 @@
 [x] Weibull
 [x] Poisson
 [x] Gaussian
-[x] Chi Square
-[x] Student's T
+[x] Chi-squared
+[x] Student's t
 [x] Gamma
 [x] Beta
 
-# Sorting and Selection
+# Root finding (`root_finding`)
+[x] Bracketing
+[x] Bisection
+[x] Secant method
+[x] False position method
+[x] Ridders' method
+[x] Van Wijngaarden-Dekker-Brent
+[x] Newton-Raphson
+[x] Polynomial roots
+
+# Sorting and selection (`sorting`)
 [x] Quicksort
 [x] Heapsort
 [x] Select M largest
 [x] Equivalence classes
 [x] Shell's method
 
-# Special Functions 
+# Special functions (`special_functions`)
 [x] Gamma
 [x] Beta
 [x] Factorial
 [x] Binomial coefficients
-[x] Incomplete Gamma
+[x] Incomplete gamma
 [x] Error function
 [x] Exponential integrals
-[x] Incomplete Beta function
-[x] Bessel functions integer
-[x] Bessel functions fractional
-[x] Bessel functions spherical
+[x] Incomplete beta
+[x] Bessel functions (integer order)
+[x] Bessel functions (fractional order)
+[x] Bessel functions (spherical)
 [x] Airy functions
 [x] Fresnel integrals
 [x] Cosine integrals
 [x] Sine integrals
 [x] Dawson's integral
 [x] Fermi-Dirac integrals
-[x] Inverse x log (x)
+[x] Inverse of x log x
 [x] Elliptic integrals
 [x] Jacobian elliptic functions
 [x] Hypergeometric functions
 [x] Statistical functions
 
-# Root Finding
-[x] Bracketing
-[x] Bisection
-[x] Secant method
-[x] False position method
-[x] Ridder's method
-[x] Van Wijngaarden-Dekker-Brent
-[x] Newton-Raphson
-[x] Polynomial roots
-
-# Machine Learning
-
-## Supervised 
-
-### Regression 
-[x] Least squares
-[x] General least squares
-[x] Ridge 
-[x] Elastic Net
-[x] Support vector regression
-
-
-### Classification 
-[x] k-nearest neighbors
-[x] Phylogenetic trees
-[x] Viterbi algorithm 
-[x] Random Forest 
-[x] Support vector machine 
-[x] Logistic regression 
-[x] Naive Bayes
-
-## Unsupervised 
-
-### Clustering 
-[x] k means
-[x] k medoids 
-[x] Hierarchical clustering
-[x] DBSCAN
-[x] HDBSCAN
-[x] Gaussian mixture models
-[x] Spectral clustering 
-
-### Reduction 
-[x] Principal component analysis 
-[x] Kernel PCA
-[x] t-SNE
-[x] UMAP
-[x] LDA
-
-
-# Electromagnetics
-Design: `crates/electromagnetics/DESIGN.md`
-
-## Foundations
-[x] Conventions (units, configurable time convention)
-[x] Coordinate systems
-[x] Polarization bases (linear, circular)
-[x] Rigid transforms (translation, rotation)
-
-## Fields
-[x] Domains and quadrature (surface, volume)
-[x] Field container (scalar/vector, harmonic/time-varying, quantities)
-[x] Coordinate conversion
-[x] Interpolation (nearest, linear, cubic)
-[x] Vector calculus
-[x] Physics operations (Poynting, power, potentials)
-
-## Antenna Models
-[x] Hertzian dipole
-[x] Magnetic loop
-[x] Half-wave dipole
-[x] Dish
-[x] Patch antenna
-
-## Arrays and Signal Models
-[x] Sensor arrays and responses
-[x] Point source scenes
-[x] Distributed source and noise temperature scenes
-[x] Covariance models
-
-## Algorithms
-[x] Overlap integral
-[x] CFM beamformer
-[x] Max SNR beamformer
-[x] LCMV beamformer
-
-# Utils
-[x] Terminal plot generation
+# Utils (`utils`)
+[x] Terminal plots (Cartesian and polar)
 [x] Unit conversion
 [x] Machine epsilon
+
+# Out of scope
+* Linear algebra primitives (dense linear algebra comes from `ndarray-linalg`)
+* Intrinsics or SIMD optimizations, except in the FFT engines
+* General-purpose containers or data structures
+* Complex number primitives (from `num`)
+* Arbitrary precision primitives

@@ -236,7 +236,7 @@
 [x] lzw
 [x] Shannon Fano
 [x] Source coder trait
-[ ] Gray Codes
+[x] Gray Codes
 [ ] MP3
 [ ] JPEG
 

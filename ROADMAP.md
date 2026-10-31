@@ -437,7 +437,7 @@
 [x] Spectral clustering 
 
 ### Reduction 
-[ ] Principal component analysis 
+[x] Principal component analysis 
 [ ] Kernel PCA
 [ ] t-SNE
 [ ] UMAP

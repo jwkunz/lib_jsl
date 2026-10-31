@@ -417,7 +417,7 @@
 
 
 ### Classification 
-[ ] k-nearest neighbors
+[x] k-nearest neighbors
 [ ] Phylogenetic trees
 [ ] Viterbi algorithm 
 [ ] Random Forest 

@@ -8,10 +8,10 @@ pub mod support_vector_machine;
 pub mod logistic_regression;
 pub mod naive_bayes;
 
-pub use k_nearest_neighbors::k_nearest_neighbors;
+pub use k_nearest_neighbors::KNearestNeighbors;
 pub use phylogenetic_trees::phylogenetic_trees;
 pub use viterbi_algorithm::viterbi_algorithm;
 pub use random_forest::random_forest;
 pub use support_vector_machine::support_vector_machine;
 pub use logistic_regression::logistic_regression;
-pub use naive_bayes::naive_bayes;
+pub use naive_bayes::{GaussianNaiveBayes, MultinomialNaiveBayes};

@@ -246,7 +246,7 @@
 [x] Gold codes
 
 ## Operators
-[ ] SHA256
+[x] SHA256
 [x] CRC32
 [ ] Entropy
 

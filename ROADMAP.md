@@ -306,7 +306,7 @@
 [ ] B-spline
 [x] Cubic Lagrangian
 [ ] Fourier 3D
-[ ] Shepards
+[x] Shepards
 
 ## ND
 [ ] Grid data

@@ -26,6 +26,8 @@ impl SineWave {
 }
 
 impl Waveform for SineWave {
+    type Output = f64;
+
     fn sample(&mut self, phase: Phase) -> f64 {
         match &self.kernel {
             SineKernel::Direct => phase.radians().sin(),

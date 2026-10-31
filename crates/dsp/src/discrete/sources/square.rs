@@ -18,6 +18,8 @@ impl SquareWave {
 }
 
 impl Waveform for SquareWave {
+    type Output = f64;
+
     fn sample(&mut self, phase: Phase) -> f64 {
         if (phase.0 as u128) < self.threshold { 1.0 } else { -1.0 }
     }

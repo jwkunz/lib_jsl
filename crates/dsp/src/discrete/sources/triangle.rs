@@ -9,6 +9,8 @@ use lib_jsl_core::ErrorsJSL;
 pub struct TriangleWave;
 
 impl Waveform for TriangleWave {
+    type Output = f64;
+
     fn sample(&mut self, phase: Phase) -> f64 {
         let t = phase.turns();
         if t < 0.25 {

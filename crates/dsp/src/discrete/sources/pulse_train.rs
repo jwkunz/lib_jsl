@@ -17,6 +17,8 @@ impl PulseTrainWave {
 }
 
 impl Waveform for PulseTrainWave {
+    type Output = f64;
+
     fn sample(&mut self, phase: Phase) -> f64 {
         if (phase.0 as u128) < self.threshold { 1.0 } else { 0.0 }
     }

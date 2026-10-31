@@ -13,12 +13,15 @@
 //! rising zero crossing (or, for the 0/1 pulse train, at the start of the pulse).
 //!
 //! # Streaming
-//! A source implements `StreamOperator<(), f64>` (free-running: the length of the input slice is the
-//! number of samples to produce) and `StreamOperator<f64, f64>` (frequency modulation: each input
-//! value is an instantaneous frequency offset in Hz added to the oscillator frequency).
+//! A source implements `StreamOperator<(), Output>` (free-running: the length of the input slice is
+//! the number of samples to produce) and `StreamOperator<f64, Output>` (frequency modulation: each
+//! input value is an instantaneous frequency offset in Hz added to the oscillator frequency), where
+//! `Output` is `f64` for real sources and `Complex<f64>` for the quadrature source.
 
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;
+use num::Complex;
+use std::fmt::Debug;
 
 /// `2^64` as a float: one full cycle of the phase accumulator.
 const CYCLE: f64 = 18_446_744_073_709_551_616.0;
@@ -158,11 +161,40 @@ impl Nco {
     }
 }
 
+/// A type a source can emit: real (`f64`) or complex (`Complex<f64>`) samples.
+pub trait Sample: Copy + Debug {
+    /// The additive identity, used as the default offset.
+    fn zero() -> Self;
+    /// `amplitude * self + offset`.
+    fn scaled(self, amplitude: f64, offset: Self) -> Self;
+}
+
+impl Sample for f64 {
+    fn zero() -> f64 {
+        0.0
+    }
+    fn scaled(self, amplitude: f64, offset: f64) -> f64 {
+        amplitude * self + offset
+    }
+}
+
+impl Sample for Complex<f64> {
+    fn zero() -> Complex<f64> {
+        Complex::new(0.0, 0.0)
+    }
+    fn scaled(self, amplitude: f64, offset: Complex<f64>) -> Complex<f64> {
+        self * amplitude + offset
+    }
+}
+
 /// Maps oscillator phase to an output value.
 pub trait Waveform {
+    /// The type of sample produced: `f64` for real waveforms, `Complex<f64>` for quadrature.
+    type Output: Sample;
+
     /// The waveform value at `phase`. Called once per output sample, in order, so stateful
     /// waveforms (such as sample-and-hold noise) may keep history.
-    fn sample(&mut self, phase: Phase) -> f64;
+    fn sample(&mut self, phase: Phase) -> Self::Output;
 
     /// Returns any internal state to its starting condition.
     fn reset(&mut self) {}
@@ -174,13 +206,13 @@ pub struct NcoSource<W: Waveform> {
     nco: Nco,
     waveform: W,
     amplitude: f64,
-    offset: f64,
+    offset: W::Output,
 }
 
 impl<W: Waveform> NcoSource<W> {
     /// Builds a unit-amplitude, zero-offset source from an oscillator and a waveform.
     pub fn from_parts(nco: Nco, waveform: W) -> Self {
-        NcoSource { nco, waveform, amplitude: 1.0, offset: 0.0 }
+        NcoSource { nco, waveform, amplitude: 1.0, offset: W::Output::zero() }
     }
 
     /// Sets the output amplitude (a multiplier on the waveform).
@@ -189,8 +221,8 @@ impl<W: Waveform> NcoSource<W> {
         self
     }
 
-    /// Sets a constant added to every output sample.
-    pub fn with_offset(mut self, offset: f64) -> Self {
+    /// Sets a constant added to every output sample (a complex constant for complex sources).
+    pub fn with_offset(mut self, offset: W::Output) -> Self {
         self.offset = offset;
         self
     }
@@ -219,26 +251,26 @@ impl<W: Waveform> NcoSource<W> {
         &mut self.waveform
     }
 
-    fn shape(&self, w: f64) -> f64 {
-        self.amplitude * w + self.offset
+    fn shape(&self, w: W::Output) -> W::Output {
+        w.scaled(self.amplitude, self.offset)
     }
 
     /// Produces the next output sample.
-    pub fn next_sample(&mut self) -> f64 {
+    pub fn next_sample(&mut self) -> W::Output {
         let phase = self.nco.next_phase();
         let w = self.waveform.sample(phase);
         self.shape(w)
     }
 
     /// Produces the next output sample with the frequency offset by `offset_hz` for this step.
-    pub fn next_sample_modulated(&mut self, offset_hz: f64) -> f64 {
+    pub fn next_sample_modulated(&mut self, offset_hz: f64) -> W::Output {
         let phase = self.nco.next_phase_modulated(offset_hz);
         let w = self.waveform.sample(phase);
         self.shape(w)
     }
 
     /// Produces the next `count` samples.
-    pub fn generate(&mut self, count: usize) -> Vec<f64> {
+    pub fn generate(&mut self, count: usize) -> Vec<W::Output> {
         (0..count).map(|_| self.next_sample()).collect()
     }
 }
@@ -256,29 +288,29 @@ impl<W: Waveform> StreamOperatorManagement for NcoSource<W> {
 }
 
 /// Free-running operation: the number of input items is the number of samples produced.
-impl<W: Waveform> StreamOperator<(), f64> for NcoSource<W> {
-    fn process(&mut self, data_in: &[()]) -> Result<Option<Vec<f64>>, ErrorsJSL> {
+impl<W: Waveform> StreamOperator<(), W::Output> for NcoSource<W> {
+    fn process(&mut self, data_in: &[()]) -> Result<Option<Vec<W::Output>>, ErrorsJSL> {
         if data_in.is_empty() {
             return Ok(None);
         }
         Ok(Some(self.generate(data_in.len())))
     }
 
-    fn flush(&mut self) -> Result<Option<Vec<f64>>, ErrorsJSL> {
+    fn flush(&mut self) -> Result<Option<Vec<W::Output>>, ErrorsJSL> {
         Ok(None)
     }
 }
 
 /// Frequency-modulated operation: each input is a frequency offset in Hz for that sample.
-impl<W: Waveform> StreamOperator<f64, f64> for NcoSource<W> {
-    fn process(&mut self, data_in: &[f64]) -> Result<Option<Vec<f64>>, ErrorsJSL> {
+impl<W: Waveform> StreamOperator<f64, W::Output> for NcoSource<W> {
+    fn process(&mut self, data_in: &[f64]) -> Result<Option<Vec<W::Output>>, ErrorsJSL> {
         if data_in.is_empty() {
             return Ok(None);
         }
         Ok(Some(data_in.iter().map(|&df| self.next_sample_modulated(df)).collect()))
     }
 
-    fn flush(&mut self) -> Result<Option<Vec<f64>>, ErrorsJSL> {
+    fn flush(&mut self) -> Result<Option<Vec<W::Output>>, ErrorsJSL> {
         Ok(None)
     }
 }
@@ -289,6 +321,7 @@ mod tests {
 
     struct Identity;
     impl Waveform for Identity {
+        type Output = f64;
         fn sample(&mut self, phase: Phase) -> f64 {
             phase.turns()
         }

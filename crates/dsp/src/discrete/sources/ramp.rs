@@ -9,6 +9,8 @@ use lib_jsl_core::ErrorsJSL;
 pub struct RampWave;
 
 impl Waveform for RampWave {
+    type Output = f64;
+
     fn sample(&mut self, phase: Phase) -> f64 {
         // Shifting by half a turn is an exact wrapping add on the fixed-point phase.
         let shifted = phase.0.wrapping_add(1 << 63);

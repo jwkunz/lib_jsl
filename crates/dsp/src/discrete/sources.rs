@@ -9,7 +9,7 @@ pub mod sinusoid;
 pub mod square;
 pub mod noise;
 
-pub use nco::{Nco, NcoSource, Phase, Waveform};
+pub use nco::{Nco, NcoSource, Phase, Sample, Waveform};
 pub use pulse_train::{pulse_train, PulseTrainWave};
 pub use ramp::{ramp, RampWave};
 pub use triangle::{triangle, TriangleWave};

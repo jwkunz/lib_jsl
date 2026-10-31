@@ -20,7 +20,7 @@ impl Xoshiro256PlusPlus {
     /// Rotate left (safe wrapper)
     #[inline(always)]
     fn rotl(x: u64, k: u32) -> u64 {
-        (x << k) | (x >> (64 - k))
+        x.rotate_left(k)
     }
 
     /// Create a new generator from a 256-bit seed (4 u64 values).

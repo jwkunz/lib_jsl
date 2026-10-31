@@ -319,10 +319,10 @@ fn quantize_channel(coefs: &[f64], thresholds: &[f64; NUM_BANDS], scale: f64) ->
         let e = ((4.0 * step.log2()).round() as i32).clamp(STEP_MIN, STEP_MAX);
         out.exponents[b] = e;
         let inv = 1.0 / step_size(e);
-        for k in lo..hi {
-            let a = (coefs[k].abs() * inv).powf(0.75);
+        for (k, &c) in coefs.iter().enumerate().take(hi).skip(lo) {
+            let a = (c.abs() * inv).powf(0.75);
             let q = (a - 0.0946 + 0.5).floor().max(0.0) as i32;
-            out.q[k] = if coefs[k] < 0.0 { -q } else { q };
+            out.q[k] = if c < 0.0 { -q } else { q };
         }
     }
     out
@@ -333,7 +333,7 @@ fn zigzag_signed(d: i32) -> u32 {
 }
 
 fn unzigzag_signed(u: u32) -> i32 {
-    if u % 2 == 0 { (u / 2) as i32 } else { -(((u + 1) / 2) as i32) }
+    if u.is_multiple_of(2) { (u / 2) as i32 } else { -(u.div_ceil(2) as i32) }
 }
 
 const ZERO_BAND: u32 = 7;
@@ -425,7 +425,7 @@ pub fn mp3_encode_with_model(
     if !(8..=320).contains(&bitrate_kbps) {
         return Err(ErrorsJSL::InvalidInputRange("Bitrate must be between 8 and 320 kbps."));
     }
-    if samples.len() % channels != 0 {
+    if !samples.len().is_multiple_of(channels) {
         return Err(ErrorsJSL::IncompatibleArraySizes((samples.len(), channels)));
     }
     let frames = samples.len() / channels;
@@ -461,17 +461,18 @@ pub fn mp3_encode_with_model(
             let e_l: f64 = spectra[0].iter().map(|x| x * x).sum();
             let e_r: f64 = spectra[1].iter().map(|x| x * x).sum();
             let (mut e_m, mut e_s) = (0.0, 0.0);
-            for k in 0..GRANULE {
-                let (m, s) = ((spectra[0][k] + spectra[1][k]) * std::f64::consts::FRAC_1_SQRT_2, (spectra[0][k] - spectra[1][k]) * std::f64::consts::FRAC_1_SQRT_2);
+            for (&l, &r) in spectra[0].iter().zip(&spectra[1]) {
+                let (m, s) = ((l + r) * std::f64::consts::FRAC_1_SQRT_2, (l - r) * std::f64::consts::FRAC_1_SQRT_2);
                 e_m += m * m;
                 e_s += s * s;
             }
             mid_side = e_l + e_r > 0.0 && e_s < 0.3 * e_m;
             if mid_side {
-                for k in 0..GRANULE {
-                    let (l, r) = (spectra[0][k], spectra[1][k]);
-                    spectra[0][k] = (l + r) * std::f64::consts::FRAC_1_SQRT_2;
-                    spectra[1][k] = (l - r) * std::f64::consts::FRAC_1_SQRT_2;
+                let (left, right) = spectra.split_at_mut(1);
+                for (a, b) in left[0].iter_mut().zip(right[0].iter_mut()) {
+                    let (l, r) = (*a, *b);
+                    *a = (l + r) * std::f64::consts::FRAC_1_SQRT_2;
+                    *b = (l - r) * std::f64::consts::FRAC_1_SQRT_2;
                 }
                 // Noise in M and S each must stay under the tighter of the two L/R thresholds.
                 let tight: [f64; NUM_BANDS] = std::array::from_fn(|i| thresholds[0][i].min(thresholds[1][i]));
@@ -554,10 +555,11 @@ pub fn mp3_decode(data: &[u8]) -> Result<Mp3Audio, ErrorsJSL> {
             spectra.push(read_channel(&mut reader)?);
         }
         if mid_side {
-            for k in 0..GRANULE {
-                let (m, s) = (spectra[0][k], spectra[1][k]);
-                spectra[0][k] = (m + s) * std::f64::consts::FRAC_1_SQRT_2;
-                spectra[1][k] = (m - s) * std::f64::consts::FRAC_1_SQRT_2;
+            let (left, right) = spectra.split_at_mut(1);
+            for (a, b) in left[0].iter_mut().zip(right[0].iter_mut()) {
+                let (m, s) = (*a, *b);
+                *a = (m + s) * std::f64::consts::FRAC_1_SQRT_2;
+                *b = (m - s) * std::f64::consts::FRAC_1_SQRT_2;
             }
         }
         for (c, spec) in spectra.iter().enumerate() {
@@ -622,8 +624,8 @@ mod tests {
         // The windowed lapped transform is orthogonal, so (with silence at both ends) the total
         // coefficient energy equals the total signal energy.
         let mut x = vec![0.0; 6 * GRANULE];
-        for i in GRANULE..4 * GRANULE {
-            x[i] = (i as f64 * 0.37).sin() * 1000.0 + ((i * 31) % 17) as f64;
+        for (i, v) in x.iter_mut().enumerate().take(4 * GRANULE).skip(GRANULE) {
+            *v = (i as f64 * 0.37).sin() * 1000.0 + ((i * 31) % 17) as f64;
         }
         let energy_in: f64 = x.iter().map(|v| v * v).sum();
         let total: f64 = (0..5)
@@ -757,7 +759,7 @@ mod tests {
         assert_eq!(dec.channels, 2);
         assert_eq!(dec.samples.len(), inter.len());
         assert!(snr_db(&inter, &dec.samples) > 15.0);
-        for pair in dec.samples.chunks_exact(2) {
+        for pair in dec.samples.as_chunks::<2>().0 {
             assert!((pair[0] as i32 - pair[1] as i32).abs() <= 1, "channels diverged");
         }
         // Compare with a genuinely stereo signal: M/S makes the correlated file cheaper.

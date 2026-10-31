@@ -193,8 +193,8 @@ mod tests {
         let mut out = Vec::new();
         for s in &sub {
             v.copy_within(0..960, 64);
-            for i in 0..64 {
-                v[i] = (0..32).map(|k| ((16 + i) as f64 * (2 * k + 1) as f64 * std::f64::consts::PI / 64.0).cos() * s[k]).sum();
+            for (i, vi) in v.iter_mut().enumerate().take(64) {
+                *vi = (0..32).map(|k| ((16 + i) as f64 * (2 * k + 1) as f64 * std::f64::consts::PI / 64.0).cos() * s[k]).sum();
             }
             let mut u = [0.0f64; 512];
             for a in 0..8 {

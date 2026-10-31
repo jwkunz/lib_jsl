@@ -650,7 +650,7 @@ pub fn jpeg_decode(data: &[u8]) -> Result<JpegImage, ErrorsJSL> {
     let mut mcu_count = 0usize;
     for my in 0..mcus_y {
         for mx in 0..mcus_x {
-            if restart_interval > 0 && mcu_count > 0 && mcu_count % restart_interval == 0 {
+            if restart_interval > 0 && mcu_count > 0 && mcu_count.is_multiple_of(restart_interval) {
                 reader.restart()?;
                 prev_dc.iter_mut().for_each(|p| *p = 0);
             }

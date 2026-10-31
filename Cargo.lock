@@ -643,6 +643,9 @@ name = "lib_jsl_interpolation"
 version = "0.1.0"
 dependencies = [
  "lib_jsl_core",
+ "ndarray",
+ "ndarray-linalg",
+ "num",
 ]
 
 [[package]]

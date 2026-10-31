@@ -288,7 +288,7 @@
 [ ] Fourier 1D
 [x] Chebyshev approximations
 [x] Lagrange interpolant
-[ ] Savitzky-Golay
+[x] Savitzky-Golay
 
 ## 2D
 [ ] Nearest

@@ -11,3 +11,6 @@ path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core = { path = "../core" }
+ndarray.workspace = true
+ndarray-linalg.workspace = true
+num.workspace = true

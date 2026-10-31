@@ -5,5 +5,5 @@ pub mod crc32;
 pub mod entropy;
 
 pub use sha256::sha256;
-pub use crc32::crc32;
+pub use crc32::{crc32, crc32c, Crc32};
 pub use entropy::entropy;

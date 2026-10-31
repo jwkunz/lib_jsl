@@ -53,7 +53,7 @@ mod tests {
             }
         }
         let c = Lanczos2D::new(x.view(), y.view(), R2D::from_elem((12, 10), 4.5).view(), 2).unwrap();
-        assert!((c.interpolate_at(3.14, -1.1).unwrap() - 4.5).abs() < 1e-12);
+        assert!((c.interpolate_at(3.17, -1.1).unwrap() - 4.5).abs() < 1e-12);
     }
 
     #[test]

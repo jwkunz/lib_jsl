@@ -441,7 +441,7 @@
 [x] Kernel PCA
 [ ] t-SNE
 [ ] UMAP
-[ ] LDA
+[x] LDA
 
 
 # Electromagnetics

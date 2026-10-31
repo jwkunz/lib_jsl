@@ -297,7 +297,7 @@
 [x] Lanczos
 [x] Cubic basis
 [x] All-phase
-[ ] Radial basis functions
+[x] Radial basis functions
 [x] Fourier 2D
 
 ## 3D

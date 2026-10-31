@@ -8,6 +8,6 @@ pub mod lda;
 
 pub use principal_component_analysis::Pca;
 pub use kernel_pca::KernelPca;
-pub use t_sne::tsne;
+pub use t_sne::Tsne;
 pub use umap::umap;
 pub use lda::Lda;

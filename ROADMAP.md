@@ -378,7 +378,7 @@
 [x] Fermi-Dirac integrals
 [x] Inverse x log (x)
 [x] Elliptic integrals
-[ ] Jacobian elliptic functions
+[x] Jacobian elliptic functions
 [ ] Hypergeometric functions
 [ ] Statistical functions
 

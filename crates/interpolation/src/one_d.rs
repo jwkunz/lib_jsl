@@ -11,7 +11,7 @@ pub mod aaa;
 pub mod pronys_method;
 pub mod pade_approximants;
 pub mod floater_hormann;
-pub mod reim;
+pub mod bulirsch_stoer;
 pub mod fourier_1d;
 pub mod chebyshev_approximations;
 pub mod lagrange_interpolant;

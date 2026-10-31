@@ -284,7 +284,7 @@
 [x] Prony's method
 [x] Pade approximants
 [x] Floater-Hormann
-[ ] REIM
+[x] Bulirsch-Stoer rational interpolation
 [x] Fourier 1D
 [x] Chebyshev approximations
 [x] Lagrange interpolant

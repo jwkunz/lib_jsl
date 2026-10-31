@@ -377,7 +377,7 @@
 [x] Dawson's integral
 [x] Fermi-Dirac integrals
 [x] Inverse x log (x)
-[ ] Elliptic integrals
+[x] Elliptic integrals
 [ ] Jacobian elliptic functions
 [ ] Hypergeometric functions
 [ ] Statistical functions

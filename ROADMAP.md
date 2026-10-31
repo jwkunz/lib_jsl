@@ -280,7 +280,7 @@
 [x] Trapezoidal
 [x] Integrator trait (1D)
 [x] Midpoint calculation helper
-[ ] Complex path integrals
+[x] Complex path integrals
 
 # Interpolation
 [x] Interpolation trait

@@ -15,12 +15,11 @@ pub fn select_m_largest<T: Ord + Clone>(slice: &[T], m: usize) -> Vec<T> {
     for item in slice {
         if heap.len() < m {
             heap.push(Reverse(item.clone()));
-        } else if let Some(Reverse(min)) = heap.peek() {
-            if item > min {
+        } else if let Some(Reverse(min)) = heap.peek()
+            && item > min {
                 heap.pop();
                 heap.push(Reverse(item.clone()));
             }
-        }
     }
     let mut out: Vec<T> = heap.into_iter().map(|Reverse(x)| x).collect();
     out.sort_by(|a, b| b.cmp(a));

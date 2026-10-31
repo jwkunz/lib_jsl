@@ -420,7 +420,7 @@
 [x] k-nearest neighbors
 [ ] Phylogenetic trees
 [ ] Viterbi algorithm 
-[ ] Random Forest 
+[x] Random Forest 
 [x] Support vector machine 
 [x] Logistic regression 
 [x] Naive Bayes

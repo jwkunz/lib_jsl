@@ -4,6 +4,7 @@ pub mod domain;
 pub mod field_container;
 pub mod interpolation;
 pub mod physics;
+pub mod surface_calculus;
 pub mod coordinate_conversion;
 pub mod vector_calculus;
 

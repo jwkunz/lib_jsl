@@ -254,7 +254,7 @@
 [ ] LDPC
 [ ] Polar
 [x] Hamming
-[ ] Reed-Solomon
+[x] Reed-Solomon
 [ ] Convolutional
 
 # Integration

@@ -80,11 +80,12 @@ mod tests {
     #[test]
     fn cordic_kernel_agrees_with_direct() {
         let mut direct = NcoSource::sinusoid(1234.5, 44_100.0).unwrap();
-        let mut cordic = NcoSource::sinusoid_cordic(1234.5, 44_100.0, 40).unwrap();
+        let mut cordic = NcoSource::sinusoid_cordic(1234.5, 44_100.0, 30).unwrap();
         for _ in 0..3000 {
-            assert!((direct.next_sample() - cordic.next_sample()).abs() < 1e-10);
+            assert!((direct.next_sample() - cordic.next_sample()).abs() < 3e-8);
         }
         assert!(NcoSource::sinusoid_cordic(10.0, 100.0, 0).is_err());
+        assert!(NcoSource::sinusoid_cordic(10.0, 100.0, 31).is_err());
     }
 
     #[test]

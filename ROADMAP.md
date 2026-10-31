@@ -309,7 +309,7 @@
 [x] Shepards
 
 ## ND
-[ ] Grid data
+[x] Grid data
 [ ] Nearest 
 [ ] Cubic basis
 

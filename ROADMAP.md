@@ -285,7 +285,7 @@
 [x] Pade approximants
 [x] Floater-Hormann
 [ ] REIM
-[ ] Fourier 1D
+[x] Fourier 1D
 [x] Chebyshev approximations
 [x] Lagrange interpolant
 [x] Savitzky-Golay

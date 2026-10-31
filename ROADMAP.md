@@ -215,7 +215,7 @@
 [x] Volume mesh 3D
 
 ## Algorithms
-[ ] Delaunay Triangulation
+[x] Delaunay Triangulation
 [x] Convex hull
 [ ] Slicing
 [x] Rotations

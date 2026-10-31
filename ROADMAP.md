@@ -86,7 +86,7 @@
 [ ] Decision feedback equalizer 
 [x] Farrow filter
 [x] Mueller timing detector
-[ ] OFDM
+[x] OFDM
 [x] FM
 [x] Pulse correlation tracker
 [ ] Addressable shift register 

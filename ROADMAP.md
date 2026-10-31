@@ -431,7 +431,7 @@
 [x] k means
 [x] k medoids 
 [x] Hierarchical clustering
-[ ] DBSCAN
+[x] DBSCAN
 [ ] HDBSCAN
 [ ] Gaussian mixture models
 [ ] Spectral clustering 

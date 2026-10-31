@@ -27,11 +27,15 @@ pub struct PlotOptions {
     pub color: bool,
     /// Draw only the sample points instead of connecting them.
     pub scatter: bool,
+    /// Fixed x-axis range (otherwise fitted to the data).
+    pub x_range: Option<(f64, f64)>,
+    /// Fixed y-axis range (otherwise fitted to the data).
+    pub y_range: Option<(f64, f64)>,
 }
 
 impl Default for PlotOptions {
     fn default() -> Self {
-        PlotOptions { width: 60, height: 16, title: None, x_label: None, y_label: None, color: false, scatter: false }
+        PlotOptions { width: 60, height: 16, title: None, x_label: None, y_label: None, color: false, scatter: false, x_range: None, y_range: None }
     }
 }
 
@@ -66,8 +70,8 @@ fn extent(values: impl Iterator<Item = f64>) -> (f64, f64) {
 /// Renders one or more series as a multi-line string (no trailing newline).
 pub fn render_terminal_plot(series: &[PlotSeries], opts: &PlotOptions) -> String {
     let (w, h) = (opts.width.max(4), opts.height.max(2));
-    let (xmin, xmax) = extent(series.iter().flat_map(|s| s.x.iter().copied()));
-    let (ymin, ymax) = extent(series.iter().flat_map(|s| s.y.iter().copied()));
+    let (xmin, xmax) = opts.x_range.filter(|r| r.1 > r.0).unwrap_or_else(|| extent(series.iter().flat_map(|s| s.x.iter().copied())));
+    let (ymin, ymax) = opts.y_range.filter(|r| r.1 > r.0).unwrap_or_else(|| extent(series.iter().flat_map(|s| s.y.iter().copied())));
     let (dw, dh) = (w * 2, h * 4);
     // Per cell: dot bits and the index of the last series that touched it.
     let mut cells = vec![(0u8, 0usize); w * h];
@@ -184,6 +188,63 @@ pub fn generate_terminal_plot(x: &[f64], y: &[f64], width: usize, height: usize)
     render_terminal_plot(&series, &PlotOptions { width, height, ..Default::default() })
 }
 
+/// One curve of a polar plot: angles (radians, measured from the plot's +x direction,
+/// counter-clockwise) and values in dB.
+#[derive(Debug, Clone)]
+pub struct PolarSeries<'a> {
+    pub label: &'a str,
+    pub angles: &'a [f64],
+    pub values_db: &'a [f64],
+}
+
+/// Renders a polar plot of dB values, the usual way to show antenna pattern cuts. The radius is
+/// `value - floor_db` (values below the floor sit at the centre), reference rings mark the
+/// peak and every `ring_step_db` below it (0 for none), and the frame keeps a true circular aspect (Braille dots
+/// are square when a character cell is twice as tall as it is wide). `width` is in character
+/// cells; the height is chosen from it.
+pub fn render_polar_plot(series: &[PolarSeries], floor_db: f64, ring_step_db: f64, width: usize, title: Option<&str>, color: bool) -> String {
+    let peak = series.iter().flat_map(|s| s.values_db.iter().copied()).filter(|v| v.is_finite()).fold(f64::NEG_INFINITY, f64::max);
+    let peak = if peak.is_finite() { peak } else { floor_db + 1.0 };
+    let r_max = (peak - floor_db).max(1e-9);
+    let mut owned: Vec<(String, Vec<f64>, Vec<f64>)> = series
+        .iter()
+        .map(|s| {
+            let (x, y): (Vec<f64>, Vec<f64>) = s.angles.iter().zip(s.values_db).map(|(&a, &v)| {
+                let r = (v - floor_db).max(0.0);
+                (r * a.cos(), r * a.sin())
+            }).unzip();
+            (s.label.to_string(), x, y)
+        })
+        .collect();
+    // Reference rings at the peak and every ring_step below it (drawn as sparse dotted circles).
+    let mut level = peak;
+    while ring_step_db > 0.0 && level > floor_db + 1e-9 {
+        let r = level - floor_db;
+        let (x, y): (Vec<f64>, Vec<f64>) = (0..120).map(|k| {
+            let a = std::f64::consts::TAU * k as f64 / 120.0;
+            (r * a.cos(), r * a.sin())
+        }).unzip();
+        owned.push((format!("{:+.0} dB ring", level - peak), x, y));
+        level -= ring_step_db;
+    }
+    let curves: Vec<PlotSeries> = owned[..series.len()].iter().map(|(l, x, y)| PlotSeries { label: l, x, y }).collect();
+    let rings: Vec<PlotSeries> = owned[series.len()..].iter().map(|(l, x, y)| PlotSeries { label: l, x, y }).collect();
+    let width = width.max(8);
+    let opts = PlotOptions {
+        width,
+        height: (width / 2).max(4),
+        title: title.map(str::to_string),
+        color,
+        x_range: Some((-r_max, r_max)),
+        y_range: Some((-r_max, r_max)),
+        ..Default::default()
+    };
+    // Rings first, so the pattern curves are drawn over them.
+    let mut all: Vec<PlotSeries> = rings;
+    all.extend(curves);
+    render_terminal_plot(&all, &opts)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -242,5 +303,20 @@ mod tests {
         let text = render_terminal_plot(&[s], &opts);
         let dots: usize = text.chars().filter(|c| ('\u{2801}'..='\u{28FF}').contains(c)).count();
         assert_eq!(dots, 2);
+    }
+
+    #[test]
+    fn fixed_ranges_and_polar_plots() {
+        let x = [0.0, 1.0];
+        let y = [0.0, 1.0];
+        let opts = PlotOptions { width: 20, height: 6, x_range: Some((-1.0, 3.0)), y_range: Some((0.0, 2.0)), ..Default::default() };
+        let text = render_terminal_plot(&[PlotSeries { label: "", x: &x, y: &y }], &opts);
+        assert!(text.contains("-1") && text.lines().next().unwrap().trim_start().starts_with('2'));
+        // A cardioid-like pattern in dB with a -20 dB floor.
+        let angles: Vec<f64> = (0..360).map(|k| (k as f64).to_radians()).collect();
+        let db: Vec<f64> = angles.iter().map(|a| 20.0 * ((1.0 + a.cos()) / 2.0).max(1e-3).log10()).collect();
+        let p = render_polar_plot(&[PolarSeries { label: "pattern", angles: &angles, values_db: &db }], -20.0, 10.0, 40, Some("cut"), false);
+        assert!(p.contains("cut") && p.contains("pattern") && p.contains("-10 dB ring"));
+        assert_eq!(p.lines().filter(|l| l.contains('│')).count(), 20); // height = width / 2
     }
 }

@@ -673,6 +673,9 @@ name = "lib_jsl_machine_learning"
 version = "0.1.0"
 dependencies = [
  "lib_jsl_core",
+ "lib_jsl_random",
+ "ndarray",
+ "ndarray-linalg",
 ]
 
 [[package]]

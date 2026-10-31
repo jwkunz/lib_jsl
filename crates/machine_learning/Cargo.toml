@@ -11,3 +11,6 @@ path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core = { path = "../core" }
+lib_jsl_random = { path = "../random" }
+ndarray.workspace = true
+ndarray-linalg.workspace = true

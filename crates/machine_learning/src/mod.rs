@@ -1,4 +1,21 @@
-//! Machine learning algorithms.
+//! Machine learning algorithms, with the supporting traits, metrics, datasets and preprocessing
+//! needed to try them out.
+//!
+//! - [`common`]: the model traits ([`common::Regressor`], [`common::Classifier`],
+//!   [`common::Clusterer`], [`common::Transformer`]) and a seeded random helper
+//! - [`datasets`]: reproducible synthetic data (blobs, moons, circles, Swiss roll, ...)
+//! - [`preprocessing`]: scalers, train/test splitting, polynomial features
+//! - [`metrics`]: errors, accuracy, silhouette, adjusted Rand index
+//! - [`supervised`]: regression and classification
+//! - [`unsupervised`]: clustering and dimensionality reduction
 
+pub mod common;
+pub mod datasets;
+pub mod metrics;
+pub mod preprocessing;
 pub mod supervised;
 pub mod unsupervised;
+
+// ndarray is built with BLAS support; referencing ndarray-linalg makes sure the BLAS/LAPACK
+// libraries it links in are always pulled into dependents.
+use ndarray_linalg as _;

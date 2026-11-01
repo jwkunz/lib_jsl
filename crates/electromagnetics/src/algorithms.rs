@@ -7,6 +7,7 @@ pub mod fdtd;
 pub mod lcmv_beamformer;
 pub mod max_snr_beamformer;
 pub mod method_of_moments;
+pub mod near_field_far_field;
 pub mod overlap_integral;
 
 pub use beamforming::{normalize, output_power, response, sinr};
@@ -17,3 +18,4 @@ pub use overlap_integral::{Overlap, overlap_integral};
 pub use direction_of_arrival::{bartlett_spectrum, capon_spectrum, esprit_ula, music_spectrum, spectrum_peaks};
 pub use fdtd::{Fdtd1D, FdtdTmz, gaussian_pulse};
 pub use method_of_moments::{WireDipole, WireSolution};
+pub use near_field_far_field::{planar_near_to_far, scan_taper, spherical_near_to_far};

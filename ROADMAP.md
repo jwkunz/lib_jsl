@@ -221,7 +221,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 ## Advanced algorithms
 [x] Spherical wave expansion
-[ ] Near-field to far-field transformation
+[x] Near-field to far-field transformation
 [x] Direction-of-arrival estimation on sensor arrays
 [x] Method of moments (wire antennas)
 [x] FDTD solver

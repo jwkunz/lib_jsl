@@ -38,14 +38,14 @@ pub fn vector_spherical_harmonics(n: u32, m: i32, theta: f64, phi: f64) -> ([C64
 
 /// The outgoing spherical Hankel function `h_n^{(2)}(x) = j_n(x) − j y_n(x)` and
 /// `(x h_n(x))'`.
-fn hankel(n: u32, x: f64) -> (C64, C64) {
+pub(crate) fn hankel(n: u32, x: f64) -> (C64, C64) {
     let h = |k: i32| C64::new(bessel_spherical(k, x), -bessel_spherical_y(k, x));
     let hn = h(n as i32);
     (hn, x * h(n as i32 - 1) - n as f64 * hn)
 }
 
 /// Gauss-Legendre nodes and weights on [−1, 1] by Newton's method.
-fn gauss_legendre(count: usize) -> Vec<(f64, f64)> {
+pub(crate) fn gauss_legendre(count: usize) -> Vec<(f64, f64)> {
     (0..count)
         .map(|i| {
             let mut x = (PI * (i as f64 + 0.75) / (count as f64 + 0.5)).cos();

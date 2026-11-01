@@ -7,3 +7,4 @@
 pub mod atmosphere;
 pub mod multipath;
 pub mod path_loss;
+pub mod radar_equation;

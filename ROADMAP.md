@@ -217,7 +217,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Friis transmission and path loss
 [x] Multipath and two-ray models
 [x] Atmospheric attenuation
-[ ] Radar equation
+[x] Radar equation
 
 ## Advanced algorithms
 [ ] Spherical wave expansion

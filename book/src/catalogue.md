@@ -65,7 +65,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 #### Partial differential equations
 
 - [Finite difference methods](integration/finite-differences.md)
-- Finite element methods
+- [Finite element methods](integration/finite-elements.md)
 - Spectral methods
 
 ### Interpolation

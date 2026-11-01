@@ -133,6 +133,7 @@ where
     }
     let mut rows: Vec<BTreeMap<usize, f64>> = vec![BTreeMap::new(); n];
     let mut load = vec![0.0; n];
+    // ANCHOR: triangle_assembly
     for t in &mesh.triangles {
         let [p0, p1, p2] = [mesh.nodes[t[0]], mesh.nodes[t[1]], mesh.nodes[t[2]]];
         let area2 = (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p2[0] - p0[0]) * (p1[1] - p0[1]);
@@ -160,6 +161,7 @@ where
             }
         }
     }
+    // ANCHOR_END: triangle_assembly
     // Eliminate the Dirichlet nodes symmetrically.
     let mut fixed = vec![None; n];
     for &d in dirichlet_nodes {

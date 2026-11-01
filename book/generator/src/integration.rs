@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    finite_element_figures();
     finite_difference_figures();
     bvp_figures();
     stiff_figures();
@@ -726,4 +727,47 @@ fn finite_difference_figures() {
         previous = Some(err);
     }
     write(CHAPTER, "poisson_convergence.md", &table);
+}
+
+fn finite_element_figures() {
+    use lib_jsl_integration::pde::finite_elements::{EndCondition, TriangleMesh, fem_1d, fem_poisson_2d};
+    // 1D: −u'' + u = (π² + 1) sin πx, u(0) = u(1) = 0, exact u = sin πx.
+    let mut table = String::from("| elements | $h$ | error at the nodes | error at element midpoints | midpoint ratio |\n|---:|---:|---:|---:|---:|\n");
+    let mut previous: Option<f64> = None;
+    for m in [4usize, 8, 16, 32, 64, 128] {
+        let nodes: Vec<f64> = (0..=m).map(|i| i as f64 / m as f64).collect();
+        let u = fem_1d(|_| 1.0, |_| 1.0, |x| (PI * PI + 1.0) * (PI * x).sin(), &nodes, EndCondition::Dirichlet(0.0), EndCondition::Dirichlet(0.0)).unwrap();
+        let nodal = nodes.iter().zip(&u).map(|(&x, &v)| (v - (PI * x).sin()).abs()).fold(0.0, f64::max);
+        let mid = (0..m).map(|e| { let x = 0.5 * (nodes[e] + nodes[e + 1]); (0.5 * (u[e] + u[e + 1]) - (PI * x).sin()).abs() }).fold(0.0, f64::max);
+        let ratio = previous.map_or(String::new(), |p| format!("{:.2}", p / mid));
+        table.push_str(&format!("| {m} | 1/{m} | {nodal:.2e} | {mid:.2e} | {ratio} |\n"));
+        previous = Some(mid);
+    }
+    write(CHAPTER, "fem_1d_convergence.md", &table);
+
+    // A layered rod: −(p u')' = 1 with p = 1 on [0, ½) and 10 on (½, 1], u(0) = u(1) = 0.
+    let (p1, p2) = (1.0, 10.0);
+    let c = (1.0 / (8.0 * p1) + 3.0 / (8.0 * p2)) / (1.0 / (2.0 * p1) + 1.0 / (2.0 * p2));
+    let exact = move |x: f64| if x <= 0.5 { (c * x - 0.5 * x * x) / p1 } else { (c * 0.5 - 0.125) / p1 + (c * (x - 0.5) - 0.5 * (x * x - 0.25)) / p2 };
+    let nodes: Vec<f64> = (0..=10).map(|i| i as f64 / 10.0).collect();
+    let u = fem_1d(move |x| if x < 0.5 { p1 } else { p2 }, |_| 0.0, |_| 1.0, &nodes, EndCondition::Dirichlet(0.0), EndCondition::Dirichlet(0.0)).unwrap();
+    let mut plot = Plot::new("Layered rod: conductivity jumps from 1 to 10 at x = ½ (10 linear elements)", "x", "u(x)");
+    plot.legend = Legend::TopRight;
+    plot.series.push(Series::new("exact solution", (0..=400).map(|i| { let x = i as f64 / 400.0; (x, exact(x)) }).collect(), Style::Line, 6));
+    plot.series.push(Series::new("finite elements", nodes.iter().zip(&u).map(|(&x, &v)| (x, v)).collect(), Style::LineMarkers, 1));
+    write(CHAPTER, "fem_layered.svg", &plot.render());
+
+    // 2D: −∇²u = 2π² sin πx sin πy on the unit square, triangles.
+    let mut table = String::from("| mesh | triangles | maximum nodal error | ratio |\n|---:|---:|---:|---:|\n");
+    let mut previous: Option<f64> = None;
+    for m in [8usize, 16, 32, 64] {
+        let mesh = TriangleMesh::rectangle(1.0, 1.0, m, m);
+        let boundary = mesh.box_boundary_nodes();
+        let u = fem_poisson_2d(&mesh, |_, _| 1.0, |x, y| 2.0 * PI * PI * (PI * x).sin() * (PI * y).sin(), |_, _| 0.0, &boundary).unwrap();
+        let err = mesh.nodes.iter().zip(&u).map(|(p, &v)| (v - (PI * p[0]).sin() * (PI * p[1]).sin()).abs()).fold(0.0, f64::max);
+        let ratio = previous.map_or(String::new(), |p| format!("{:.2}", p / err));
+        table.push_str(&format!("| {m} × {m} | {} | {err:.2e} | {ratio} |\n", mesh.triangles.len()));
+        previous = Some(err);
+    }
+    write(CHAPTER, "fem_2d_convergence.md", &table);
 }

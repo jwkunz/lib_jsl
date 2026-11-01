@@ -1,6 +1,11 @@
 //! Ridders' method.
 
-/// Finds a root of `f` in `[a, b]` using Ridders' method (C. Ridders, 1979). Requires a sign change over the interval.
+/// Finds a root of `f` in `[a, b]` using Ridders' method (C. Ridders, 1979). Requires a sign
+/// change over the interval.
+///
+/// Each iteration evaluates `f` at the midpoint and at an exponentially-corrected false-position
+/// point, keeping a bracket; it stops when successive estimates or the bracket width fall below
+/// `tol`, and errors after 100 iterations.
 pub fn ridders_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,

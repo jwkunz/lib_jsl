@@ -14,8 +14,12 @@
 pub struct SystemOptions {
     /// Converged when `‖F‖∞` falls below this.
     pub function_tolerance: f64,
-    /// Or when the relative step falls below this.
+    /// The iteration also stops when the largest relative step `|Δxᵢ| / max(|xᵢ|, 1)` falls below
+    /// this, or the line search can make no progress; it then counts as converged if
+    /// `‖F‖∞ ≤ max(function_tolerance, 1e-8)`, and otherwise (typically at a local minimum of
+    /// `‖F‖` that is not a root) as not converged.
     pub step_tolerance: f64,
+    /// The maximum number of Newton or Broyden iterations.
     pub max_iterations: usize,
 }
 
@@ -28,11 +32,15 @@ impl Default for SystemOptions {
 /// The outcome of a system solve.
 #[derive(Debug, Clone)]
 pub struct SystemRootResult {
+    /// The final iterate.
     pub x: Vec<f64>,
     /// `‖F(x)‖∞`.
     pub residual: f64,
+    /// Newton or Broyden iterations taken.
     pub iterations: usize,
+    /// Evaluations of `F`, including those for finite-difference Jacobians and line searches.
     pub function_evaluations: usize,
+    /// Whether the convergence test of [`SystemOptions`] was met.
     pub converged: bool,
 }
 
@@ -144,8 +152,9 @@ fn finish(x: Vec<f64>, fx: &[f64], iterations: usize, evaluations: usize, conver
     SystemRootResult { residual: inf_norm(fx), x, iterations, function_evaluations: evaluations, converged }
 }
 
-/// Globally convergent Newton's method for `F(x) = 0` from `x0`. With `jacobian = None` the
-/// Jacobian is formed by forward differences.
+/// Globally convergent Newton's method for `F(x) = 0` from `x0`. `jacobian(x)` returns the rows
+/// `∂Fᵢ/∂xⱼ`; with `jacobian = None` the Jacobian is formed by forward differences. Errors for an
+/// empty `x0` or mismatched dimensions; a singular Jacobian ends the iteration unconverged.
 pub fn newton_system<F, J>(f: F, jacobian: Option<J>, x0: Vec<f64>, options: SystemOptions) -> Result<SystemRootResult, String>
 where
     F: Fn(&[f64]) -> Vec<f64>,
@@ -169,6 +178,9 @@ where
             Some(j) => j(&x),
             None => sys.jacobian(&x, &fx),
         };
+        if jac.len() != n || jac.iter().any(|row| row.len() != n) {
+            return Err("newton_system: the Jacobian must be n × n".to_string());
+        }
         let Some(step) = solve_dense(jac, fx.iter().map(|v| -v).collect()) else {
             return Ok(finish(x, &fx, iteration, sys.evaluations, false));
         };
@@ -307,6 +319,7 @@ mod tests {
         assert!(r.converged && r.x[0].abs() < 1e-12, "{r:?}");
         assert!(newton_system(|x: &[f64]| vec![x[0]], None::<NoJacobian>, vec![], SystemOptions::default()).is_err());
         assert!(broyden_system(|x: &[f64]| vec![x[0], 1.0], vec![1.0], SystemOptions::default()).is_err());
+        assert!(newton_system(|x: &[f64]| vec![x[0] - 1.0], Some(|_: &[f64]| vec![vec![1.0, 0.0]]), vec![0.0], SystemOptions::default()).is_err());
         // x² + 1 has no real root: reported as not converged.
         assert!(!newton_system(|x: &[f64]| vec![x[0] * x[0] + 1.0], None::<NoJacobian>, vec![0.5], SystemOptions::default()).unwrap().converged);
     }

@@ -1,6 +1,10 @@
 //! Secant method.
 
 /// Finds a root of `f` with the secant method starting from `x0` and `x1`.
+///
+/// Stops when successive iterates differ by less than `tol` or `f` is exactly zero. Errors on a
+/// zero secant slope, divergence, or 100 iterations without convergence. The order of convergence
+/// near a simple root is the golden ratio, 1.618.
 pub fn secant_method<F>(f: F, x0: f64, x1: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,

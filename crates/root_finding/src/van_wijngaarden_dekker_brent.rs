@@ -4,6 +4,10 @@ use crate::same_sign;
 
 /// Finds a root of `f` in `[a, b]` using Brent's method (inverse quadratic interpolation,
 /// secant and bisection). Requires a sign change over the interval.
+///
+/// Returns when the bracket around the best estimate has half-width below `tol / 2 + 2ε|x|`, so
+/// the root is located to within about `tol`. Never takes more than a few times the evaluations
+/// of bisection, and converges superlinearly for smooth `f`.
 pub fn brent_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,

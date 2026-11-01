@@ -4,6 +4,9 @@ use crate::same_sign;
 
 /// Finds a root of `f` in `[a, b]` by false position, using the Illinois modification to
 /// avoid stagnation of one endpoint. Requires a sign change over the interval.
+///
+/// Stops when the bracket is narrower than `tol` or `f` is exactly zero at the estimate; errors
+/// after 500 iterations.
 pub fn false_position<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,

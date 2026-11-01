@@ -1,6 +1,10 @@
 //! Newton-Raphson method.
 
 /// Finds a root of `f` using Newton-Raphson iteration with derivative `df`, starting at `x0`.
+///
+/// Stops when a step `|f(x)/f'(x)|` is below `tol` (returning the updated iterate) or `f(x)` is
+/// exactly zero. Errors on a zero or non-finite derivative, divergence, or 100 iterations without
+/// convergence. Converges quadratically near a simple root, linearly near a repeated one.
 pub fn newton_raphson<F, D>(f: F, df: D, x0: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,

@@ -186,6 +186,11 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
     let mut shift_total = 0.0;
     let mut hi = n; // the active matrix is rows/columns 0..hi
     let mut its = 0;
+    // Without Z only the active block need be kept up to date (EISPACK's hqr rather than hqr2):
+    // entries outside it are never read again.
+    let full = zt.is_some();
+    let col_end = |nn: usize| if full { n } else { nn + 1 };
+    let row_start = |l: usize| if full { 0 } else { l };
     macro_rules! at {
         ($i:expr, $j:expr) => {
             a.data[($i) * n + ($j)]
@@ -231,8 +236,12 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
                 let (p, q) = (x / s, z / s);
                 let r = p.hypot(q);
                 let (p, q) = (p / r, q / r);
-                rotate_rows(a, nn - 1, nn, |u, v| (q * u + p * v, q * v - p * u));
-                for i in 0..=nn {
+                for j in nn - 1..col_end(nn) {
+                    let (u, v) = (at!(nn - 1, j), at!(nn, j));
+                    at!(nn - 1, j) = q * u + p * v;
+                    at!(nn, j) = q * v - p * u;
+                }
+                for i in row_start(l)..=nn {
                     let (u, v) = (at!(i, nn - 1), at!(i, nn));
                     at!(i, nn - 1) = q * u + p * v;
                     at!(i, nn) = q * v - p * u;
@@ -322,7 +331,7 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
             let (hx, hy, hz) = (p / s, q / s, r / s);
             q /= p;
             r /= p;
-            for j in k..n {
+            for j in k..col_end(nn) {
                 let mut t = at!(k, j) + q * at!(k + 1, j);
                 if !last {
                     t += r * at!(k + 2, j);
@@ -331,7 +340,7 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
                 at!(k + 1, j) -= t * hy;
                 at!(k, j) -= t * hx;
             }
-            for i in 0..=nn.min(k + 3) {
+            for i in row_start(l)..=nn.min(k + 3) {
                 let mut t = hx * at!(i, k) + hy * at!(i, k + 1);
                 if !last {
                     t += hz * at!(i, k + 2);

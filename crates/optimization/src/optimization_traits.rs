@@ -1,6 +1,8 @@
 //! Here are traits that are used in optimization algorithms. They are defined
 //! here to avoid circular dependencies between the optimization algorithms and
 //! the traits they use.
+//!
+//! See the book entry [Optimisation](https://jwkunz.github.io/lib_jsl/book/optimization/index.html#in-the-library).
 use lib_jsl_core::ErrorsJSL;
 
 /// - `ObjectiveFunction`: A trait for objective functions that can be optimized. It has a method `evaluate` that takes a vector of parameters and returns a single scalar value of the objective function at those parameters.

@@ -140,23 +140,23 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 
 Optimization algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · 15 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 15 items
 
-- Optimization traits
-- Golden section search
-- Gradient descent
-- Nelder-Mead
-- Newton-Raphson
-- Simulated annealing
-- Powell's method
-- Linear programming
-- Dynamic programming
-- Nonlinear least squares and curve fitting (Levenberg-Marquardt)
-- Quasi-Newton methods (BFGS, L-BFGS)
-- Nonlinear conjugate gradient
-- Constrained optimization (SQP, augmented Lagrangian)
-- Differential evolution
-- Particle swarm optimization
+- [Optimization traits](optimization/index.md#in-the-library)
+- [Golden section search](optimization/one-dimensional.md#golden-section-search)
+- [Gradient descent](optimization/gradient-methods.md#gradient-descent)
+- [Nelder-Mead](optimization/direct-search.md#the-nelder-mead-simplex-method)
+- [Newton-Raphson](optimization/newton-quasi-newton.md#newtons-method)
+- [Simulated annealing](optimization/stochastic.md#simulated-annealing)
+- [Powell's method](optimization/direct-search.md#powells-method)
+- [Linear programming](optimization/linear-programming.md)
+- [Dynamic programming](optimization/dynamic-programming.md)
+- [Nonlinear least squares and curve fitting (Levenberg-Marquardt)](optimization/least-squares.md#the-levenberg-marquardt-method)
+- [Quasi-Newton methods (BFGS, L-BFGS)](optimization/newton-quasi-newton.md#bfgs)
+- [Nonlinear conjugate gradient](optimization/gradient-methods.md#nonlinear-conjugate-gradients)
+- [Constrained optimization (SQP, augmented Lagrangian)](optimization/constrained.md)
+- [Differential evolution](optimization/stochastic.md#differential-evolution)
+- [Particle swarm optimization](optimization/stochastic.md#particle-swarm-optimisation)
 
 ### Special functions
 

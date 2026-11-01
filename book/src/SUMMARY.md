@@ -36,6 +36,16 @@
     - [Newton's method and the secant method](root_finding/newton.md)
     - [Polynomial roots](root_finding/polynomial-roots.md)
     - [Nonlinear systems: Newton's and Broyden's methods](root_finding/nonlinear-systems.md)
+- [Optimisation](optimization/index.md)
+    - [One-dimensional minimisation and line searches](optimization/one-dimensional.md)
+    - [Gradient descent and nonlinear conjugate gradients](optimization/gradient-methods.md)
+    - [Newton and quasi-Newton methods: Newton, BFGS and L-BFGS](optimization/newton-quasi-newton.md)
+    - [Direct search: the Nelder-Mead and Powell methods](optimization/direct-search.md)
+    - [Nonlinear least squares and curve fitting](optimization/least-squares.md)
+    - [Constrained optimisation: SQP and the augmented Lagrangian method](optimization/constrained.md)
+    - [Linear programming: the simplex method](optimization/linear-programming.md)
+    - [Dynamic programming](optimization/dynamic-programming.md)
+    - [Stochastic global optimisation](optimization/stochastic.md)
 
 ---
 

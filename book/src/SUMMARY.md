@@ -10,7 +10,7 @@
     - [Newton-Cotes rules: midpoint, trapezoid and Simpson](integration/newton-cotes.md)
     - [Romberg integration](integration/romberg.md)
     - [Gaussian quadrature](integration/gaussian-quadrature.md)
-    - [Adaptive Gauss-Kronrod quadrature]()
+    - [Adaptive Gauss-Kronrod quadrature](integration/gauss-kronrod.md)
     - [Tanh-sinh quadrature](integration/tanh-sinh.md)
     - [Complex contour integration]()
     - [Multidimensional cubature]()

@@ -44,7 +44,7 @@ Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, bou
 Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 21 items
 
 - [Integrator trait (1D)](integration/index.md#in-the-library)
-- Adaptive Gauss-Kronrod (G7-K15)
+- [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
 - [Adaptive trapezoid](integration/newton-cotes.md#the-adaptive-trapezoid-rule)
 - Dormand-Prince
 - [Midpoint](integration/newton-cotes.md#the-midpoint-rule)

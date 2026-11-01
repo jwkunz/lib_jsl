@@ -52,7 +52,7 @@ singularities, keeps its exponential rate.
 | Smooth, expensive to evaluate | Gauss-Legendre quadrature | [Gaussian quadrature](gaussian-quadrature.md) |
 | Weight $e^{-x^2}$ on $\mathbb{R}$, or $x^\alpha e^{-x}$ on $[0, \infty)$ | Gauss-Hermite, Gauss-Laguerre | [Gaussian quadrature](gaussian-quadrature.md) |
 | Singular or infinitely steep at an endpoint | Tanh-sinh quadrature | [Tanh-sinh quadrature](tanh-sinh.md) |
-| Localised peaks, kinks or discontinuities inside the interval | Adaptive Gauss-Kronrod (or, for kinks and jumps, the adaptive trapezoid rule) | *(entry in preparation)*, [adaptive trapezoid](newton-cotes.md#the-adaptive-trapezoid-rule) |
+| Localised peaks, kinks or discontinuities inside the interval, or unknown behaviour | Adaptive Gauss-Kronrod | [Adaptive Gauss-Kronrod quadrature](gauss-kronrod.md) |
 | Periodic over its interval | Trapezoid rule | [Newton-Cotes rules](newton-cotes.md#the-trapezoid-rule-on-periodic-functions) |
 | Several dimensions | Cubature, then quasi-Monte Carlo above about ten | *(entries in preparation)* |
 

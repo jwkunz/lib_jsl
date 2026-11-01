@@ -3,6 +3,7 @@
 use crate::svg::{Legend, Plot, Series, Style};
 use crate::write;
 use lib_jsl_integration::can_integrate::CanIntegrate1D;
+use lib_jsl_integration::adaptive_gl7k15_integration_engine::AdaptiveGL7K15IntegrationEngine;
 use lib_jsl_integration::adaptive_trapezoid_integration_engine::AdaptiveTrapezoidIntegrationEngine;
 use lib_jsl_integration::gaussian_quadrature::{GaussLegendreEngine, gauss_legendre};
 use lib_jsl_integration::midpoint_integration_engine::MidpointIntegrationEngine;
@@ -173,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    gauss_kronrod_figures();
     newton_cotes_figures();
     convergence_figures();
     gauss_figures();
@@ -283,4 +285,56 @@ fn newton_cotes_figures() {
     plot.series.push(Series::new("f(x)", curve, Style::Line, 0));
     plot.series.push(Series::new("samples", xs.iter().map(|&x| (x, kink(x))).collect(), Style::Markers, 1));
     write(CHAPTER, "adaptive_trapezoid_samples.svg", &plot.render());
+}
+
+fn gauss_kronrod_figures() {
+    // The G7-K15 pair: Kronrod adds 8 nodes between and beyond the 7 Gauss nodes.
+    let g7 = gauss_legendre(7).unwrap();
+    let k15: [f64; 8] = [0.0, 0.2077849550078985, 0.4058451513773972, 0.5860872354676911, 0.7415311855993945, 0.8648644233597691, 0.9491079123427585, 0.9914553711208126];
+    let wk: [f64; 8] = [0.2094821410847278, 0.2044329400752989, 0.1903505780647854, 0.1690047266392679, 0.1406532597155259, 0.1047900103222502, 0.0630920926299786, 0.0229353220105292];
+    let mut kronrod_points: Vec<(f64, f64)> = k15.iter().zip(&wk).flat_map(|(&x, &w)| [(-x, w), (x, w)]).collect();
+    kronrod_points.dedup();
+    let mut plot = Plot::new("The 15 Kronrod nodes contain the 7 Gauss nodes", "node x", "weight");
+    plot.series.push(Series::new("Kronrod (15 points)", kronrod_points, Style::Stems, 0));
+    plot.series.push(Series::new("Gauss (7 points)", g7.nodes.iter().zip(&g7.weights).map(|(&x, &w)| (x, w)).collect(), Style::Markers, 1));
+    plot.y_range = Some((0.0, 0.45));
+    write(CHAPTER, "gauss_kronrod_nodes.svg", &plot.render());
+
+    // Where the global strategy samples an integrand with a peak and a kink.
+    let f = |x: f64| 1.0 / (1.0 + 1e4 * (x - 0.3) * (x - 0.3)) + (x - 0.7).abs().sqrt();
+    let samples = RefCell::new(Vec::new());
+    let (_, _, n) = AdaptiveGL7K15IntegrationEngine::new(1e-10, 0.0, 1.0).integrate_with_error(|x| { samples.borrow_mut().push(x); f(x) }).unwrap();
+    let xs = samples.into_inner();
+    let mut plot = Plot::new(&format!("Global adaptivity concentrates panels at the peak and the kink ({n} evaluations)"), "x", "f(x)");
+    let curve: Vec<(f64, f64)> = (0..=1000).map(|i| { let x = i as f64 / 1000.0; (x, f(x)) }).collect();
+    plot.series.push(Series::new("f(x) = 1/(1 + 10⁴(x − 0.3)²) + √|x − 0.7|", curve, Style::Line, 0));
+    plot.series.push(Series::new("samples", xs.iter().map(|&x| (x, f(x))).collect(), Style::Markers, 1));
+    plot.legend = Legend::TopRight;
+    plot.y_range = Some((0.0, 1.8));
+    write(CHAPTER, "gauss_kronrod_samples.svg", &plot.render());
+
+    // Evaluations, true and estimated errors at tolerance 1e-10, against the adaptive trapezoid rule.
+    let c = 1.0 / PI;
+    type Case<'a> = (&'a str, &'a dyn Fn(f64) -> f64, f64);
+    let r = 1e-4f64.sqrt();
+    let cases: [Case; 5] = [
+        ("$e^x$", &f64::exp, std::f64::consts::E - 1.0),
+        ("$1/(10^{-4} + (x - 0.3)^2)$", &|x: f64| 1.0 / (1e-4 + (x - 0.3) * (x - 0.3)), ((0.7 / r).atan() + (0.3 / r).atan()) / r),
+        ("$\\sqrt{\\lvert x - 1/\\pi \\rvert}$", &move |x: f64| (x - c).abs().sqrt(), 2.0 / 3.0 * (c.powf(1.5) + (1.0 - c).powf(1.5))),
+        ("$\\ln x$", &f64::ln, -1.0),
+        ("$x^{-0.9}$", &|x: f64| x.powf(-0.9), 10.0),
+    ];
+    let tol = 1e-10;
+    let mut table = String::from("| integrand on $[0, 1]$ | evaluations | true error | estimated error | adaptive trapezoid evaluations |\n|---|---:|---:|---:|---:|\n");
+    for (label, f, exact) in cases {
+        let engine = AdaptiveGL7K15IntegrationEngine::new(tol, 0.0, 1.0);
+        let (v, est, n) = engine.integrate_with_error(f).unwrap();
+        let trap = {
+            let count = Cell::new(0);
+            let ok = AdaptiveTrapezoidIntegrationEngine::new(tol, 0.0, 1.0).integrate(|x| { count.set(count.get() + 1); f(x) });
+            match ok { Ok(_) => count.get().to_string(), Err(_) => "fails (f(0) is infinite)".to_string() }
+        };
+        table.push_str(&format!("| {label} | {n} | {:.1e} | {est:.1e} | {trap} |\n", (v - exact).abs()));
+    }
+    write(CHAPTER, "gauss_kronrod_table.md", &table);
 }

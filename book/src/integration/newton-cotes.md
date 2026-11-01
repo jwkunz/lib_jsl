@@ -232,7 +232,7 @@ At a **jump** the uniform rule is stuck at an $O(h)$ error, while the adaptive r
 discontinuity in a panel of width $2^{-50}$ and is exact to rounding error with about a hundred
 evaluations. The lesson generalises: adaptivity pays for itself on non-smooth integrands, and on
 smooth ones it is better combined with a high-order rule, as in
-[adaptive Gauss-Kronrod quadrature](index.md#choosing-a-method).
+[adaptive Gauss-Kronrod quadrature](gauss-kronrod.md).
 
 ## Algorithm
 

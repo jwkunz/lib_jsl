@@ -618,6 +618,7 @@ version = "0.1.0"
 dependencies = [
  "criterion",
  "lib_jsl_core",
+ "ndarray",
  "num",
  "rustfft",
 ]

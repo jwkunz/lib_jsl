@@ -36,6 +36,7 @@ pub mod fft_engine_trait;
 pub mod best_fft;
 pub mod bluestein_fft;
 pub mod fractional_fft;
+pub mod multidimensional_fft;
 pub mod real_fft;
 pub mod simd_fft;
 
@@ -44,6 +45,7 @@ pub use bluestein_fft::BluesteinFft;
 pub use fft::Fft;
 pub use fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
 pub use fractional_fft::{FractionalFft, frft};
+pub use multidimensional_fft::{fft2, fft3, fft_axis, fftn, fftshift, ifft2, ifft3};
 pub use real_fft::{RealFft, irfft, rfft};
 pub use simd_fft::SimdFft;
 

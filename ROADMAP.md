@@ -160,7 +160,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 
 ### Adaptive filters
 [x] LMS and normalized LMS
-[ ] RLS
+[x] RLS
 
 ### Synchronization
 [ ] Phase-locked loop

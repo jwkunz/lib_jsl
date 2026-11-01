@@ -24,6 +24,7 @@ pub mod discrete {
     pub mod filters {
         pub mod adaptive {
             pub mod lms;
+            pub mod rls;
         }
 
         pub mod fir {

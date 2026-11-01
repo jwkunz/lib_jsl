@@ -2,6 +2,8 @@
 //!
 //! Uses Steed's method with Temme's series for small arguments (Numerical Recipes `bessjy` /
 //! `bessik`). Accuracy is typically 1e-14 relative away from zeros of J and Y.
+//!
+//! See the book entry [Bessel and Airy functions](https://jwkunz.github.io/lib_jsl/book/special_functions/bessel.html#bessel-functions-of-real-order).
 
 use std::f64::consts::PI;
 

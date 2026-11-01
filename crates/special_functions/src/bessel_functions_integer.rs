@@ -1,4 +1,6 @@
 //! Bessel functions of integer order.
+//!
+//! See the book entry [Bessel and Airy functions](https://jwkunz.github.io/lib_jsl/book/special_functions/bessel.html#bessel-functions-of-integer-order).
 
 use crate::bessel_functions_fractional::{bessel_fractional, bessel_i_fractional, bessel_jy, bessel_k_fractional, bessel_y_fractional};
 

@@ -2,6 +2,8 @@
 //!
 //! A Maclaurin series is used for small |x|; otherwise the functions are expressed through
 //! Bessel functions of order 1/3.
+//!
+//! See the book entry [Bessel and Airy functions](https://jwkunz.github.io/lib_jsl/book/special_functions/bessel.html#airy-functions).
 
 use crate::bessel_functions_fractional::{bessel_ik, bessel_jy};
 use std::f64::consts::PI;
@@ -33,6 +35,7 @@ fn series_fg(x: f64) -> (f64, f64) {
     (f, g)
 }
 
+// ANCHOR: airy_ai
 /// The Airy function Ai(x).
 pub fn airy_ai(x: f64) -> f64 {
     if x.is_nan() {
@@ -56,6 +59,7 @@ pub fn airy_ai(x: f64) -> f64 {
         0.5 * ax.sqrt() * (j - y / 3f64.sqrt())
     }
 }
+// ANCHOR_END: airy_ai
 
 /// The Airy function Bi(x).
 pub fn airy_bi(x: f64) -> f64 {

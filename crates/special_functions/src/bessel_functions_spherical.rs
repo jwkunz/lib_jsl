@@ -1,4 +1,6 @@
 //! Spherical Bessel functions.
+//!
+//! See the book entry [Bessel and Airy functions](https://jwkunz.github.io/lib_jsl/book/special_functions/bessel.html#spherical-bessel-functions).
 
 use crate::bessel_functions_fractional::bessel_jy;
 use std::f64::consts::PI;

@@ -16,3 +16,6 @@ path = "src/mod.rs"
 [dependencies]
 lib_jsl_core.workspace = true
 num-complex.workspace = true
+
+[dev-dependencies]
+lib_jsl_root_finding.workspace = true

@@ -514,6 +514,7 @@ name = "lib_jsl_special_functions"
 version = "1.0.0"
 dependencies = [
  "lib_jsl_core",
+ "lib_jsl_root_finding",
  "num-complex",
 ]
 

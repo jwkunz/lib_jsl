@@ -210,7 +210,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 ## Transmission lines and networks
 [x] Transmission lines (impedance transformation, standing waves)
-[ ] S-parameters and network conversions
+[x] S-parameters and network conversions
 [ ] Smith chart
 
 ## Propagation and systems

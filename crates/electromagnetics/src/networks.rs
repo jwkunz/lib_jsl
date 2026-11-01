@@ -4,4 +4,5 @@
 // Guards such as `!(x > 0.0)` are deliberate: unlike `x <= 0.0` they also reject NaN.
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
 
+pub mod s_parameters;
 pub mod transmission_lines;

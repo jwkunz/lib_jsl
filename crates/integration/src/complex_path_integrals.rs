@@ -7,6 +7,8 @@
 //!
 //! On top of that are the standard tools of complex analysis: [`residue`], the Cauchy formula for
 //! derivatives [`cauchy_derivative`], and the [`winding_number`] of a closed path around a point.
+//!
+//! See the book entry [Complex contour integration](https://jwkunz.github.io/lib_jsl/book/integration/contour-integration.html).
 
 use crate::adaptive_gl7k15_integration_engine::{GAUSS_LEGENDRE_WEIGHTS_7, KRONROD_NODES_15, KRONROD_WEIGHTS_15};
 use lib_jsl_core::ErrorsJSL;
@@ -15,6 +17,7 @@ use std::f64::consts::TAU;
 use std::fmt;
 use std::rc::Rc;
 
+/// A double-precision complex number.
 pub type C64 = Complex<f64>;
 
 /// One smooth piece of a contour.
@@ -40,6 +43,7 @@ impl fmt::Debug for PathSegment {
 }
 
 impl PathSegment {
+    /// The straight segment from `from` to `to`.
     pub fn line(from: C64, to: C64) -> Self {
         PathSegment::Line { from, to }
     }
@@ -49,10 +53,12 @@ impl PathSegment {
         PathSegment::Arc { centre, radius, start_angle: 0.0, end_angle: TAU }
     }
 
+    /// The circular arc `centre + radius·e^{iθ}`, `θ` from `start_angle` to `end_angle` (radians).
     pub fn arc(centre: C64, radius: f64, start_angle: f64, end_angle: f64) -> Self {
         PathSegment::Arc { centre, radius, start_angle, end_angle }
     }
 
+    /// The curve `z(t)`, `t` from `t0` to `t1`, with its derivative `dz(t) = z'(t)`.
     pub fn curve(z: impl Fn(f64) -> C64 + 'static, dz: impl Fn(f64) -> C64 + 'static, t0: f64, t1: f64) -> Self {
         PathSegment::Curve { z: Rc::new(z), dz: Rc::new(dz), t0, t1 }
     }
@@ -102,6 +108,7 @@ pub struct Contour {
 }
 
 impl Contour {
+    /// The contour through the given segments, in order.
     pub fn new(segments: Vec<PathSegment>) -> Self {
         Contour { segments }
     }
@@ -168,7 +175,7 @@ fn gk15(f: &mut impl FnMut(f64) -> C64, a: f64, b: f64) -> (C64, C64) {
     for (i, (&x, &wk)) in KRONROD_NODES_15.iter().zip(&KRONROD_WEIGHTS_15).enumerate() {
         let sample = if i == 0 { f(centre) } else { f(centre - half * x) + f(centre + half * x) };
         kronrod += sample * wk;
-        // The odd-indexed Kronrod nodes coincide with the 7-point Gauss nodes.
+        // The even-indexed Kronrod nodes (centre first) coincide with the 7-point Gauss nodes.
         if i % 2 == 0 {
             gauss += sample * GAUSS_LEGENDRE_WEIGHTS_7[i / 2];
         }

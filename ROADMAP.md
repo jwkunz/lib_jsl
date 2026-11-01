@@ -168,7 +168,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 
 ### Multirate and radar
 [x] CIC filters
-[ ] Half-band filters
+[x] Half-band filters
 [ ] Pulse compression (matched filtering, chirps)
 
 # Electromagnetics (`electromagnetics`)

@@ -6,6 +6,8 @@
 //! parameters). The damping `μ` follows Nielsen's gain-ratio update: steps that achieve the
 //! predicted reduction shrink `μ` towards Gauss-Newton, failed steps grow it towards a short
 //! gradient-descent step.
+//!
+//! See the book entry [Nonlinear least squares and curve fitting](https://jwkunz.github.io/lib_jsl/book/optimization/least-squares.html).
 
 use crate::optimization_traits::MinimizationControls;
 use lib_jsl_core::ErrorsJSL;
@@ -155,6 +157,7 @@ impl LevenbergMarquardt {
                 break;
             }
             iterations += 1;
+            // ANCHOR: lm_step
             let diag: Vec<f64> = (0..n).map(|i| a[[i, i]].max(1e-12 * max_diag.max(1.0))).collect();
             let mut damped = a.clone();
             (0..n).for_each(|i| damped[[i, i]] += mu * diag[i]);
@@ -187,6 +190,7 @@ impl LevenbergMarquardt {
                 jac = jac_at(&p, &r)?;
                 (a, g) = normal_equations(&jac, &r);
                 mu *= (1.0f64 / 3.0).max(1.0 - (2.0 * rho - 1.0).powi(3));
+            // ANCHOR_END: lm_step
                 nu = 2.0;
                 if relative_drop < tol {
                     converged = true;

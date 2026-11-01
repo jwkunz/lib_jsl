@@ -3,6 +3,8 @@
 //!
 //! Invalid parameters (non-positive scales, degrees of freedom, probabilities outside `[0, 1]`)
 //! yield `NaN`.
+//!
+//! See the book entry [Statistical distribution functions](https://jwkunz.github.io/lib_jsl/book/special_functions/statistical.html).
 
 use crate::error_function::erfc;
 use crate::gamma::ln_gamma;
@@ -128,6 +130,7 @@ pub fn beta_cdf(x: f64, a: f64, b: f64) -> f64 {
     incomplete_beta(a, b, x.clamp(0.0, 1.0))
 }
 
+// ANCHOR: student_t_cdf
 /// The CDF of Student's t distribution with `nu` degrees of freedom.
 pub fn student_t_cdf(t: f64, nu: f64) -> f64 {
     if !(nu > 0.0) || t.is_nan() {
@@ -139,6 +142,7 @@ pub fn student_t_cdf(t: f64, nu: f64) -> f64 {
     let tail = 0.5 * incomplete_beta(0.5 * nu, 0.5, nu / (nu + t * t));
     if t > 0.0 { 1.0 - tail } else { tail }
 }
+// ANCHOR_END: student_t_cdf
 
 /// The quantile of Student's t distribution with `nu` degrees of freedom, for `p` in `[0, 1]`.
 pub fn student_t_quantile(p: f64, nu: f64) -> f64 {

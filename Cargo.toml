@@ -62,8 +62,10 @@ lib_jsl_geometry = { path = "crates/geometry" }
 lib_jsl_graph = { path = "crates/graph" }
 lib_jsl_dsp = { path = "crates/dsp" }
 lib_jsl_ffts = { path = "crates/ffts" }
+lib_jsl_file_io = { path = "crates/file_io" }
 lib_jsl_integration = { path = "crates/integration" }
 lib_jsl_interpolation = { path = "crates/interpolation" }
+lib_jsl_linalg = { path = "crates/linalg" }
 lib_jsl_number_theory = { path = "crates/number_theory" }
 lib_jsl_optimization = { path = "crates/optimization" }
 lib_jsl_random = { path = "crates/random" }

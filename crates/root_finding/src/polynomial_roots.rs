@@ -38,9 +38,9 @@ fn normalise(coeffs: &[f64]) -> Option<(&[f64], usize)> {
 ///
 /// `coeffs` are ordered from the highest degree to the constant term, e.g. `[1, 0, -2]` is
 /// `x^2 - 2`. The roots are the real eigenvalues of the companion matrix (see
-/// [`polynomial_roots_complex`]), each polished by Newton's method; an eigenvalue with a small
-/// imaginary part counts as real when the polynomial vanishes at its real part to within rounding
-/// error. A repeated root, which appears as a cluster of nearby eigenvalues, is reported once, at
+/// [`polynomial_roots_complex`]), each polished by Newton's method; an eigenvalue with an imaginary
+/// part below `10⁻³ |z|` counts as real when the polynomial vanishes at its real part to within
+/// rounding error. A repeated root, which appears as a cluster of nearby eigenvalues, is reported once, at
 /// the cluster's mean (accurate to about `ε^(1/m)` for multiplicity `m`, often much better).
 /// Distinct roots closer together than the rounding error of the polynomial can resolve are merged.
 pub fn polynomial_roots(coeffs: &[f64]) -> Vec<f64> {
@@ -67,7 +67,9 @@ fn real_roots(coeffs: &[f64]) -> Result<Vec<f64>, String> {
     // The rounding error in evaluating p at x: below it, the value of p(x) means nothing.
     let noise = |x: f64| 8.0 * deg as f64 * f64::EPSILON * eval_abs(coeffs, x);
     let mut eig = companion_eigenvalues(coeffs)?;
-    eig.retain(|z| z.im == 0.0 || eval(coeffs, z.re).abs() <= noise(z.re));
+    // A real eigenvalue is a real root; a nearly real pair is a multiple real root perturbed by
+    // rounding (by about ε^(1/m)), if p vanishes at its real part to within rounding error.
+    eig.retain(|z| z.im == 0.0 || (z.im.abs() <= 1e-3 * z.norm().max(1.0) && eval(coeffs, z.re).abs() <= noise(z.re)));
     eig.sort_by(|a, b| a.re.total_cmp(&b.re));
     // Group eigenvalues that p cannot tell apart: close together, with p in the noise between.
     let mut out = Vec::new();
@@ -205,6 +207,12 @@ mod tests {
             // Wilkinson's roots are ill-conditioned: errors grow quickly with the degree.
             assert!(err < tol, "degree {n}: error {err:e}");
         }
+        // Wilkinson's perturbation: 2⁻²³ off the x¹⁹ coefficient leaves ten real roots.
+        let mut w = poly_from_roots(&(1..=20).map(|k| k as f64).collect::<Vec<_>>());
+        w[1] -= 2f64.powi(-23);
+        let found = polynomial_roots(&w);
+        assert_eq!(found.len(), 10, "{found:?}");
+        assert!((found[9] - 20.8469).abs() < 1e-3, "{found:?}");
         let r = polynomial_roots(&poly_from_roots(&[1.0, 1.0, 1.0]));
         assert!(r.len() == 1 && (r[0] - 1.0).abs() < 1e-12, "{r:?}");
     }

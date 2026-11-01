@@ -340,3 +340,34 @@ fn preconditioned_svd_edge_cases() {
     let (_, sg, _) = z.svd(false, false).unwrap();
     assert!(sz.iter().zip(&sg).all(|(x, y)| (x - y).abs() < 1e-12), "{sz} vs {sg}");
 }
+
+#[test]
+fn least_squares_reports_small_singular_values_accurately() {
+    // A = U diag(1, 1e-5, 1e-10) Vᵀ is of full rank, so the pivoted-QR path is taken. Its singular
+    // values were once the square roots of eig(RᴴR), which gave 3.5e-9 for the 1e-10.
+    let orthonormal = |a: Array2<f64>| {
+        let (m, n) = a.dim();
+        let mut q = Array2::<f64>::zeros((m, n));
+        for j in 0..n {
+            let mut v = a.column(j).to_owned();
+            for _ in 0..2 {
+                for i in 0..j {
+                    let r = q.column(i).dot(&v);
+                    v.scaled_add(-r, &q.column(i));
+                }
+            }
+            let norm = v.dot(&v).sqrt();
+            q.column_mut(j).assign(&(v / norm));
+        }
+        q
+    };
+    let u = orthonormal(Array2::from_shape_fn((6, 3), |(i, j)| ((i * 7 + j * 3) as f64).sin()));
+    let v = orthonormal(Array2::from_shape_fn((3, 3), |(i, j)| ((i * 5 + j * 11 + 1) as f64).cos()));
+    let sigma = [1.0, 1e-5, 1e-10];
+    let a = u.dot(&Array2::from_diag(&Array1::from(sigma.to_vec()))).dot(&v.t());
+    let r = a.least_squares(&Array1::from_elem(6, 1.0)).unwrap();
+    assert_eq!(r.rank, 3);
+    for (got, want) in r.singular_values.iter().zip(sigma) {
+        assert!((got - want).abs() <= 1e-6 * want + 1e-15, "{} vs {want}", got);
+    }
+}

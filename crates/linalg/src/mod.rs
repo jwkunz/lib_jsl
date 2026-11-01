@@ -302,16 +302,9 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
                 for (j, &p) in qr.permutation.iter().enumerate() {
                     x[p] = z[j];
                 }
-                // The singular values of A are those of R: the square roots of eig(RᴴR).
-                let rr = qr.upper();
-                let mut minus_rh = rr.adjoint();
-                minus_rh.data.iter_mut().for_each(|v| *v = -*v);
-                let mut gram = Mat::<T>::zeros(n, n);
-                // SAFETY: three distinct n × n buffers.
-                unsafe { dense::sub_matmul(n, n, n, minus_rh.data.as_ptr(), n, rr.data.as_ptr(), n, gram.data.as_mut_ptr(), n) };
-                let mut eigen = eigh::eigvalsh(&gram, UPLO::Lower)?;
-                eigen.reverse();
-                let singular_values = Array1::from_iter(eigen.iter().map(|&l| l.max(0.0).sqrt()));
+                // The singular values of A are those of R. (Taking them as the square roots of
+                // eig(RᴴR) squared the condition number: σ = 1e-10 next to σ = 1 came out 3.5e-9.)
+                let singular_values = Array1::from_vec(svd::thin_svd(&qr.upper())?.sigma);
                 let residual = (m > n).then(|| qtb[n..].iter().map(|v| v.abs_sqr()).sum::<f64>());
                 return Ok(LeastSquaresResult { solution: to_array1(x), singular_values, rank: n, residual_sum_of_squares: residual });
             }

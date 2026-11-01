@@ -6,6 +6,7 @@
 mod derivatives;
 mod integration;
 mod interpolation;
+mod linear_algebra;
 mod optimization;
 mod optimization_more;
 mod root_finding;
@@ -34,4 +35,5 @@ fn main() {
     optimization::generate();
     optimization_more::generate();
     special_functions::generate();
+    linear_algebra::generate();
 }

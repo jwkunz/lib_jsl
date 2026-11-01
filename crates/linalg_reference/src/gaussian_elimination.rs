@@ -6,6 +6,8 @@
 //! `a_kk`. A zero pivot stops the naive algorithm; a tiny one lets rounding errors grow without
 //! bound. **Partial pivoting** swaps the row with the largest `|a_ik|` into the pivot position,
 //! keeping every multiplier at most one in magnitude.
+//!
+//! See the book entry [Gaussian elimination and LU factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/lu.html#gaussian-elimination-and-pivoting).
 
 use crate::Error;
 use ndarray::{Array1, Array2};
@@ -30,6 +32,7 @@ pub fn solve_without_pivoting(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1
     back_substitute(&a, &b)
 }
 
+// ANCHOR: partial_pivoting
 /// Solves `A x = b` by elimination with **partial pivoting**: at step `k` the row with the
 /// largest `|a_ik|` (`i ≥ k`) is swapped into the pivot position.
 pub fn solve_with_partial_pivoting(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, Error> {
@@ -56,6 +59,7 @@ pub fn solve_with_partial_pivoting(a: &Array2<f64>, b: &Array1<f64>) -> Result<A
     }
     back_substitute(&a, &b)
 }
+// ANCHOR_END: partial_pivoting
 
 /// Solves the upper triangular system `U x = c`, last unknown first.
 pub fn back_substitute(u: &Array2<f64>, c: &Array1<f64>) -> Result<Array1<f64>, Error> {

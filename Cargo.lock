@@ -307,6 +307,8 @@ dependencies = [
  "lib_jsl_derivatives",
  "lib_jsl_integration",
  "lib_jsl_interpolation",
+ "lib_jsl_linalg",
+ "lib_jsl_linalg_reference",
  "lib_jsl_optimization",
  "lib_jsl_random",
  "lib_jsl_root_finding",

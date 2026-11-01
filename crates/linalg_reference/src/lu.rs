@@ -3,6 +3,8 @@
 //! Gaussian elimination secretly computes `L` (the multipliers) and `U` (the reduced matrix).
 //! Keeping them lets you solve `A x = b` for any number of right-hand sides at `O(n²)` each after
 //! one `O(n³)` factorisation, and gives the determinant as the product of the pivots.
+//!
+//! See the book entry [Gaussian elimination and LU factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/lu.html#lu-factorisation).
 
 use crate::Error;
 use ndarray::{Array1, Array2};
@@ -20,6 +22,7 @@ pub struct Lu {
     pub swaps: usize,
 }
 
+// ANCHOR: doolittle
 /// Factorises a square matrix with partial pivoting.
 pub fn lu(a: &Array2<f64>) -> Result<Lu, Error> {
     let n = a.nrows();
@@ -52,6 +55,7 @@ pub fn lu(a: &Array2<f64>) -> Result<Lu, Error> {
     }
     Ok(Lu { l, u, rows, swaps })
 }
+// ANCHOR_END: doolittle
 
 impl Lu {
     /// Solves `A x = b`: permute, then `L y = P b` forward and `U x = y` backward.

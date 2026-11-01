@@ -1,4 +1,6 @@
 //! LU factorisation with partial pivoting: `P A = L U`.
+//!
+//! See the book entry [Gaussian elimination and LU factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/lu.html#blocked-and-recursive-factorisation).
 
 use crate::dense::{BLOCK, Mat, axpy_sub, require_square, sub_matmul};
 use crate::error::{LinalgError, Result};
@@ -148,6 +150,7 @@ const LEAF: usize = 32;
 /// Triangular blocks up to this order are solved row by row.
 const SOLVE_LEAF: usize = 16;
 
+// ANCHOR: recursive_lu
 /// Factorises the panel of columns `k..k + w` (rows `k..n`) of the square buffer in place,
 /// swapping whole rows so that every column sees the same permutation.
 fn recursive_lu<T: Scalar>(a: &mut Mat<T>, pivots: &mut [usize], k: usize, w: usize, threshold: f64) -> Result<()> {
@@ -165,6 +168,7 @@ fn recursive_lu<T: Scalar>(a: &mut Mat<T>, pivots: &mut [usize], k: usize, w: us
     unsafe { sub_matmul(n - k - w1, w1, w - w1, ptr.add((k + w1) * n + k), n, ptr.add(k * n + k + w1), n, ptr.add((k + w1) * n + k + w1), n) };
     recursive_lu(a, pivots, k + w1, w - w1, threshold)
 }
+// ANCHOR_END: recursive_lu
 
 /// Factorises the panel of columns `k..k + w` (rows `k..n`). The narrow panel is copied to
 /// column-major order, where pivot searches and eliminations run along long contiguous columns,

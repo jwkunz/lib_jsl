@@ -1,4 +1,6 @@
 //! Special mathematical functions.
+//!
+//! See the book chapter [Special functions](https://jwkunz.github.io/lib_jsl/book/special_functions/index.html).
 
 // Guards such as `!(x > 0.0)` are deliberate: unlike `x <= 0.0` they also reject NaN.
 #![allow(clippy::neg_cmp_op_on_partial_ord)]

@@ -162,35 +162,35 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 
 Special functions: gamma, beta, error, Bessel, Airy, elliptic, hypergeometric and zeta functions, orthogonal polynomials.
 
-Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · 27 items
+Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 27 items
 
-- Gamma
-- Beta
-- Factorial
-- Binomial coefficients
-- Incomplete gamma
-- Error function
-- Exponential integrals
-- Incomplete beta
-- Bessel functions (integer order)
-- Bessel functions (fractional order)
-- Bessel functions (spherical)
-- Airy functions
-- Fresnel integrals
-- Cosine integrals
-- Sine integrals
-- Dawson's integral
-- Fermi-Dirac integrals
-- Inverse of x log x
-- Elliptic integrals
-- Jacobian elliptic functions
-- Hypergeometric functions
-- Statistical functions
-- Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)
-- Associated Legendre functions and spherical harmonics
-- Riemann zeta
-- Lambert W
-- Polylogarithm
+- [Gamma](special_functions/gamma.md#the-gamma-function)
+- [Beta](special_functions/gamma.md#the-beta-function)
+- [Factorial](special_functions/gamma.md#factorials-and-binomial-coefficients)
+- [Binomial coefficients](special_functions/gamma.md#factorials-and-binomial-coefficients)
+- [Incomplete gamma](special_functions/incomplete.md#the-incomplete-gamma-function)
+- [Error function](special_functions/incomplete.md#the-error-function)
+- [Exponential integrals](special_functions/exponential-integrals.md#exponential-integrals)
+- [Incomplete beta](special_functions/incomplete.md#the-incomplete-beta-function)
+- [Bessel functions (integer order)](special_functions/bessel.md#bessel-functions-of-integer-order)
+- [Bessel functions (fractional order)](special_functions/bessel.md#bessel-functions-of-real-order)
+- [Bessel functions (spherical)](special_functions/bessel.md#spherical-bessel-functions)
+- [Airy functions](special_functions/bessel.md#airy-functions)
+- [Fresnel integrals](special_functions/exponential-integrals.md#fresnel-integrals)
+- [Cosine integrals](special_functions/exponential-integrals.md#sine-and-cosine-integrals)
+- [Sine integrals](special_functions/exponential-integrals.md#sine-and-cosine-integrals)
+- [Dawson's integral](special_functions/incomplete.md#dawsons-integral)
+- [Fermi-Dirac integrals](special_functions/zeta.md#fermi-dirac-integrals)
+- [Inverse of x log x](special_functions/lambert-w.md#the-inverse-of-x-ln-x)
+- [Elliptic integrals](special_functions/elliptic.md#elliptic-integrals)
+- [Jacobian elliptic functions](special_functions/elliptic.md#jacobian-elliptic-functions)
+- [Hypergeometric functions](special_functions/hypergeometric.md)
+- [Statistical functions](special_functions/statistical.md)
+- [Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)](special_functions/orthogonal-polynomials.md#classical-orthogonal-polynomials)
+- [Associated Legendre functions and spherical harmonics](special_functions/orthogonal-polynomials.md#associated-legendre-functions-and-spherical-harmonics)
+- [Riemann zeta](special_functions/zeta.md#the-riemann-zeta-function)
+- [Lambert W](special_functions/lambert-w.md#the-lambert-w-function)
+- [Polylogarithm](special_functions/zeta.md#the-polylogarithm)
 
 ## Linear algebra and transforms
 

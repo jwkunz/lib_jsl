@@ -46,6 +46,17 @@
     - [Linear programming: the simplex method](optimization/linear-programming.md)
     - [Dynamic programming](optimization/dynamic-programming.md)
     - [Stochastic global optimisation](optimization/stochastic.md)
+- [Special functions](special_functions/index.md)
+    - [The gamma function and related functions](special_functions/gamma.md)
+    - [Incomplete gamma and beta functions and the error function](special_functions/incomplete.md)
+    - [Exponential, sine, cosine and Fresnel integrals](special_functions/exponential-integrals.md)
+    - [Bessel and Airy functions](special_functions/bessel.md)
+    - [Elliptic integrals and Jacobian elliptic functions](special_functions/elliptic.md)
+    - [Hypergeometric functions](special_functions/hypergeometric.md)
+    - [Orthogonal polynomials and spherical harmonics](special_functions/orthogonal-polynomials.md)
+    - [Zeta functions, polylogarithms and Fermi-Dirac integrals](special_functions/zeta.md)
+    - [The Lambert W function](special_functions/lambert-w.md)
+    - [Statistical distribution functions](special_functions/statistical.md)
 
 ---
 

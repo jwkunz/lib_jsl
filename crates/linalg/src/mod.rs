@@ -119,6 +119,14 @@ pub trait SVD<T> {
     fn svd(&self, calc_u: bool, calc_vt: bool) -> Result<(Option<Array2<T>>, Array1<f64>, Option<Array2<T>>)>;
 }
 
+/// The SVD by the one-sided Jacobi method, with the same output as [`SVD::svd`]. It is slower than
+/// the default (Golub-Kahan) method but determines small singular values to high *relative*
+/// accuracy, which matters for graded or badly scaled matrices.
+pub trait SvdJacobi<T> {
+    #[allow(clippy::type_complexity)]
+    fn svd_jacobi(&self, calc_u: bool, calc_vt: bool) -> Result<(Option<Array2<T>>, Array1<f64>, Option<Array2<T>>)>;
+}
+
 /// The result of [`LeastSquaresSvd::least_squares`].
 #[derive(Debug, Clone)]
 pub struct LeastSquaresResult<T> {
@@ -246,11 +254,25 @@ impl<T: Scalar, S: Data<Elem = T>> EigVals for ArrayBase<S, Ix2> {
 impl<T: Scalar, S: Data<Elem = T>> SVD<T> for ArrayBase<S, Ix2> {
     fn svd(&self, calc_u: bool, calc_vt: bool) -> Result<(Option<Array2<T>>, Array1<f64>, Option<Array2<T>>)> {
         let a = Mat::from_array(self)?;
-        let thin = svd::thin_svd(&a)?;
-        let u = calc_u.then(|| svd::complete_square(&thin.u).into_array());
-        let vt = calc_vt.then(|| svd::complete_square(&thin.v).adjoint().into_array());
-        Ok((u, Array1::from_vec(thin.sigma), vt))
+        if !calc_u && !calc_vt {
+            return Ok((None, Array1::from_vec(svd::singular_values(&a)?), None));
+        }
+        Ok(full_factors(svd::thin_svd(&a)?, calc_u, calc_vt))
     }
+}
+
+impl<T: Scalar, S: Data<Elem = T>> SvdJacobi<T> for ArrayBase<S, Ix2> {
+    fn svd_jacobi(&self, calc_u: bool, calc_vt: bool) -> Result<(Option<Array2<T>>, Array1<f64>, Option<Array2<T>>)> {
+        Ok(full_factors(svd::thin_svd_jacobi(&Mat::from_array(self)?)?, calc_u, calc_vt))
+    }
+}
+
+/// Completes a thin SVD to square `U` and `Vᴴ` as requested.
+#[allow(clippy::type_complexity)]
+fn full_factors<T: Scalar>(thin: svd::ThinSvd<T>, calc_u: bool, calc_vt: bool) -> (Option<Array2<T>>, Array1<f64>, Option<Array2<T>>) {
+    let u = calc_u.then(|| svd::complete_square(&thin.u).into_array());
+    let vt = calc_vt.then(|| svd::complete_square(&thin.v).adjoint().into_array());
+    (u, Array1::from_vec(thin.sigma), vt)
 }
 
 impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {

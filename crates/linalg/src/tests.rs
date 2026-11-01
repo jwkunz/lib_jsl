@@ -292,6 +292,30 @@ fn preconditioned_svd_edge_cases() {
     let graded: Vec<f64> = (0..24).map(|i| 10f64.powf(-12.0 * i as f64 / 23.0)).collect();
     let a = q1.unwrap().dot(&Array2::from_diag(&Array1::from(graded.clone()))).dot(&q2.unwrap());
     let s = check(&a, "graded");
-    let worst = s.iter().zip(&graded).fold(0.0f64, |m, (x, y)| m.max((x - y).abs() / y));
+    // Golub-Kahan is accurate relative to the largest singular value …
+    assert!(s.iter().zip(&graded).all(|(x, y)| (x - y).abs() < 1e-14), "{s}");
+    // … and Jacobi relative to each singular value.
+    let (_, sj, _) = a.svd_jacobi(false, false).unwrap();
+    let worst = sj.iter().zip(&graded).fold(0.0f64, |m, (x, y)| m.max((x - y).abs() / y));
     assert!(worst < 1e-3, "relative error {worst:e}");
+    // Both methods agree on random matrices, values-only paths included.
+    for (m, n) in [(70, 70), (90, 40), (30, 80)] {
+        let b = rng.real(m, n);
+        let (_, s1, _) = b.svd(false, false).unwrap();
+        let (u, s2, vt) = b.svd_jacobi(true, true).unwrap();
+        assert!(s1.iter().zip(&s2).all(|(x, y)| (x - y).abs() < 1e-12), "{m}x{n}");
+        assert!(identity_error(&u.unwrap()) < 1e-11 && identity_error(&vt.unwrap()) < 1e-11);
+    }
+    // Exact zeros on the diagonal of the bidiagonal form.
+    let mut z = Array2::<f64>::zeros((6, 6));
+    for i in 0..6 {
+        z[[i, i]] = if i % 2 == 0 { 0.0 } else { i as f64 };
+        if i + 1 < 6 {
+            z[[i, i + 1]] = 1.0;
+        }
+    }
+    check(&z, "zero diagonal");
+    let (_, sz, _) = z.svd_jacobi(false, false).unwrap();
+    let (_, sg, _) = z.svd(false, false).unwrap();
+    assert!(sz.iter().zip(&sg).all(|(x, y)| (x - y).abs() < 1e-12), "{sz} vs {sg}");
 }

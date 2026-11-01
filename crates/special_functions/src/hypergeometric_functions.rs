@@ -1,5 +1,6 @@
 //! Hypergeometric functions.
 
+use crate::bessel_functions_fractional::bessel_fractional;
 use crate::gamma::gamma;
 
 const EPS: f64 = 1e-17;
@@ -117,9 +118,17 @@ pub fn hypergeometric_1f1(a: f64, b: f64, x: f64) -> f64 {
 }
 
 /// The confluent hypergeometric limit function ₀F₁(; b; x).
+///
+/// Summed as a series, except for `x < −10` (with `b ≤ 100`), where the alternating series loses
+/// digits to cancellation (about 1e-9 relative at `x = −100`) and the Bessel function relation
+/// `₀F₁(; b; −z²/4) = Γ(b) (z/2)^{1−b} J_{b−1}(z)` is used instead.
 pub fn hypergeometric_0f1(b: f64, x: f64) -> f64 {
     if b.is_nan() || x.is_nan() || is_nonpositive_integer(b) {
         return f64::NAN;
+    }
+    if x < -10.0 && b <= 100.0 {
+        let half_z = (-x).sqrt();
+        return gamma(b) * half_z.powf(1.0 - b) * bessel_fractional(b - 1.0, 2.0 * half_z);
     }
     let mut term = 1.0;
     let mut sum = 1.0;
@@ -197,5 +206,14 @@ mod tests {
         let x: f64 = 2.0;
         assert!(close(hypergeometric_0f1(1.5, -x * x / 4.0), x.sin() / x, 1e-14));
         assert!(hypergeometric_1f1(1.0, 0.0, 1.0).is_nan());
+    }
+
+    #[test]
+    fn zero_f_one_is_accurate_for_large_negative_arguments() {
+        // mpmath values; the series lost digits to cancellation here (1.4e-9 relative at b = 0.5).
+        for (b, x, want) in [(0.5, -100.0, 0.40808206181339196), (1.0, -100.0, 0.16702466434058316), (10.0, -100.0, 4.540581528666412e-5), (2.5, -100.0, -0.0027182609945775797)] {
+            let got = hypergeometric_0f1(b, x);
+            assert!(((got - want) / want).abs() < 1e-12, "b = {b}: {got} vs {want}");
+        }
     }
 }

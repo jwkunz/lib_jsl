@@ -3,6 +3,10 @@ name = "lib_jsl_optimization"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
 description = "Optimization algorithms including gradient-based, gradient-free, and stochastic methods."
 
@@ -10,7 +14,7 @@ description = "Optimization algorithms including gradient-based, gradient-free, 
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
-lib_jsl_random = { path = "../random" }
+lib_jsl_core.workspace = true
+lib_jsl_random.workspace = true
 ndarray.workspace = true
-lib_jsl_linalg = { path = "../linalg" }
+lib_jsl_linalg.workspace = true

@@ -3,15 +3,19 @@ name = "lib_jsl_integration"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Numerical integration engines for one-dimensional and stochastic integration."
+description = "Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
-lib_jsl_ffts = { path = "../ffts" }
-lib_jsl_random = { path = "../random" }
-lib_jsl_special_functions = { path = "../special_functions" }
+lib_jsl_core.workspace = true
+lib_jsl_ffts.workspace = true
+lib_jsl_random.workspace = true
+lib_jsl_special_functions.workspace = true
 num-complex.workspace = true

@@ -31,10 +31,14 @@ exclude = ["crates/linalg_bench"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/jwkunz/lib_jsl"
+homepage = "https://jwkunz.github.io/lib_jsl/book/"
+keywords = ["scientific-computing", "numerics", "mathematics", "signal-processing", "linear-algebra"]
+categories = ["science", "mathematics"]
 
 [workspace.dependencies]
 num-complex = "0.4.6"
@@ -47,39 +51,68 @@ serde_json = "1.0.154"
 criterion = "0.8.2"
 rustfft = "6.4.1"
 
+# The workspace crates, versioned so that they can be published.
+lib_jsl_core = { path = "crates/core", version = "1.0.0" }
+lib_jsl_derivatives = { path = "crates/derivatives", version = "1.0.0" }
+lib_jsl_dsp = { path = "crates/dsp", version = "1.0.0" }
+lib_jsl_electromagnetics = { path = "crates/electromagnetics", version = "1.0.0" }
+lib_jsl_ffts = { path = "crates/ffts", version = "1.0.0" }
+lib_jsl_ffts_reference = { path = "crates/ffts_reference", version = "1.0.0" }
+lib_jsl_file_io = { path = "crates/file_io", version = "1.0.0" }
+lib_jsl_geometry = { path = "crates/geometry", version = "1.0.0" }
+lib_jsl_graph = { path = "crates/graph", version = "1.0.0" }
+lib_jsl_information = { path = "crates/information", version = "1.0.0" }
+lib_jsl_integration = { path = "crates/integration", version = "1.0.0" }
+lib_jsl_interpolation = { path = "crates/interpolation", version = "1.0.0" }
+lib_jsl_linalg = { path = "crates/linalg", version = "1.0.0" }
+lib_jsl_linalg_reference = { path = "crates/linalg_reference", version = "1.0.0" }
+lib_jsl_machine_learning = { path = "crates/machine_learning", version = "1.0.0" }
+lib_jsl_number_theory = { path = "crates/number_theory", version = "1.0.0" }
+lib_jsl_optimization = { path = "crates/optimization", version = "1.0.0" }
+lib_jsl_random = { path = "crates/random", version = "1.0.0" }
+lib_jsl_root_finding = { path = "crates/root_finding", version = "1.0.0" }
+lib_jsl_sorting = { path = "crates/sorting", version = "1.0.0" }
+lib_jsl_special_functions = { path = "crates/special_functions", version = "1.0.0" }
+lib_jsl_statistics = { path = "crates/statistics", version = "1.0.0" }
+lib_jsl_utils = { path = "crates/utils", version = "1.0.0" }
+
 [package]
 name = "lib_jsl"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 readme.workspace = true
-description = "Umbrella facade crate for the lib_jsl scientific computing workspace."
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Jake's Scientific Library: pure-Rust algorithms for scientific computing, re-exporting the lib_jsl domain crates."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "crates/core" }
-lib_jsl_information = { path = "crates/information" }
-lib_jsl_geometry = { path = "crates/geometry" }
-lib_jsl_graph = { path = "crates/graph" }
-lib_jsl_dsp = { path = "crates/dsp" }
-lib_jsl_ffts = { path = "crates/ffts" }
-lib_jsl_file_io = { path = "crates/file_io" }
-lib_jsl_integration = { path = "crates/integration" }
-lib_jsl_interpolation = { path = "crates/interpolation" }
-lib_jsl_linalg = { path = "crates/linalg" }
-lib_jsl_number_theory = { path = "crates/number_theory" }
-lib_jsl_optimization = { path = "crates/optimization" }
-lib_jsl_random = { path = "crates/random" }
-lib_jsl_derivatives = { path = "crates/derivatives" }
-lib_jsl_sorting = { path = "crates/sorting" }
-lib_jsl_special_functions = { path = "crates/special_functions" }
-lib_jsl_statistics = { path = "crates/statistics" }
-lib_jsl_root_finding = { path = "crates/root_finding" }
-lib_jsl_machine_learning = { path = "crates/machine_learning" }
-lib_jsl_electromagnetics = { path = "crates/electromagnetics" }
-lib_jsl_utils = { path = "crates/utils" }
+lib_jsl_core.workspace = true
+lib_jsl_information.workspace = true
+lib_jsl_geometry.workspace = true
+lib_jsl_graph.workspace = true
+lib_jsl_dsp.workspace = true
+lib_jsl_ffts.workspace = true
+lib_jsl_file_io.workspace = true
+lib_jsl_integration.workspace = true
+lib_jsl_interpolation.workspace = true
+lib_jsl_linalg.workspace = true
+lib_jsl_number_theory.workspace = true
+lib_jsl_optimization.workspace = true
+lib_jsl_random.workspace = true
+lib_jsl_derivatives.workspace = true
+lib_jsl_sorting.workspace = true
+lib_jsl_special_functions.workspace = true
+lib_jsl_statistics.workspace = true
+lib_jsl_root_finding.workspace = true
+lib_jsl_machine_learning.workspace = true
+lib_jsl_electromagnetics.workspace = true
+lib_jsl_utils.workspace = true
 
 [features]
 # Serialisation of geometry types with serde.

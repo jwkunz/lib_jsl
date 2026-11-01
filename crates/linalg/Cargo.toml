@@ -3,8 +3,12 @@ name = "lib_jsl_linalg"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Dense linear algebra in pure Rust: LU, Cholesky, QR-based eigensolvers and the SVD for real and complex matrices."
+description = "Dense linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices."
 
 [lib]
 path = "src/mod.rs"

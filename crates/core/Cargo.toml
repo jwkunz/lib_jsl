@@ -3,6 +3,10 @@ name = "lib_jsl_core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
 description = "Shared foundation types, aliases, and traits for the lib_jsl workspace."
 

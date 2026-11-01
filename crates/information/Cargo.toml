@@ -3,11 +3,17 @@ name = "lib_jsl_information"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Information theory utilities including a manual Lempel-Ziv byte codec."
+# Test vectors stay in the repository; the published crate does not need them.
+exclude = ["test_assets/"]
+description = "Information theory and coding: source coding, LFSRs, CRC and SHA-256, error-correcting codes."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true

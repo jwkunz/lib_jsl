@@ -3,6 +3,10 @@ name = "lib_jsl_linalg_reference"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
 description = "Readable textbook linear algebra algorithms for study, plus a benchmark comparing them with lib_jsl_linalg."
 
@@ -13,7 +17,7 @@ path = "src/mod.rs"
 ndarray.workspace = true
 
 [dev-dependencies]
-lib_jsl_linalg = { path = "../linalg" }
+lib_jsl_linalg.workspace = true
 criterion.workspace = true
 
 [[bench]]

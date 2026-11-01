@@ -3,15 +3,19 @@ name = "lib_jsl_number_theory"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Number theory and polynomial utilities for the lib_jsl workspace."
+description = "Number theory: modular arithmetic, primes, factorisation, the Chinese remainder theorem and polynomials."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true
 ndarray.workspace = true
-lib_jsl_linalg = { path = "../linalg" }
+lib_jsl_linalg.workspace = true
 num-complex.workspace = true
 num-traits.workspace = true

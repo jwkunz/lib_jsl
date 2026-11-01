@@ -3,6 +3,10 @@ name = "lib_jsl_sorting"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
 description = "Sorting and selection algorithms."
 
@@ -10,4 +14,4 @@ description = "Sorting and selection algorithms."
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true

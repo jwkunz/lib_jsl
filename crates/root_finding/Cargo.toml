@@ -3,11 +3,15 @@ name = "lib_jsl_root_finding"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Root finding algorithms."
+description = "Root finding: bracketing methods, Brent, Newton, polynomial roots and nonlinear systems."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true

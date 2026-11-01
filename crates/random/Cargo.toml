@@ -3,11 +3,15 @@ name = "lib_jsl_random"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Random number generation, distributions, and histogram utilities."
+description = "Random number generators, quasi-random sequences, distributions and MCMC."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true

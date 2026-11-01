@@ -3,6 +3,10 @@ name = "lib_jsl_ffts_reference"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
 description = "Readable reference FFT implementations for study, plus a benchmark comparing them with the production engines."
 
@@ -10,8 +14,8 @@ description = "Readable reference FFT implementations for study, plus a benchmar
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
-lib_jsl_ffts = { path = "../ffts" }
+lib_jsl_core.workspace = true
+lib_jsl_ffts.workspace = true
 num-complex.workspace = true
 
 [dev-dependencies]

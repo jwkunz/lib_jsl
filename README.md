@@ -17,11 +17,12 @@ work as well as use them.
 
 | | |
 |---|---|
+| Version | 1.0.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
 | Algorithms | 457 roadmap items across 23 library crates, all implemented |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; the book's integration chapter is the pilot, with the other chapters in progress |
-| Publishing | Not yet on crates.io; use a path or git dependency |
+| Publishing | Every crate packages and verifies for crates.io (`cargo package --workspace`); not yet published, so use a git dependency for now |
 
 ## Crates
 
@@ -58,9 +59,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl" }
+lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.0.0" }
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl" }
+lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.0.0" }
 ```
 
 ```rust
@@ -145,6 +146,19 @@ Pushes to `main` publish the site to GitHub Pages through `.github/workflows/doc
 - Crate roots use `mod.rs`.
 - Dependency versions are pinned once, in the workspace manifest.
 - One commit per roadmap feature, each with tests.
+- [Semantic versioning](https://semver.org): breaking API changes need a new major version.
+  All crates are versioned together; internal dependencies are declared once in the workspace
+  manifest with both a path and a version, so the crates can be published.
+
+## Next phase
+
+1.0.0 completes the algorithm roadmap. Planned next:
+
+- **Publishing** the crates to crates.io, dependencies first (`core`, then the domain crates,
+  then the umbrella `lib_jsl`).
+- **The book**: chapters for the remaining domains, following the integration pilot.
+- **Linear algebra**: multishift QR with aggressive early deflation for large general
+  eigenproblems, the one operation still well behind LAPACK.
 
 ## License
 

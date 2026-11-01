@@ -3,17 +3,21 @@ name = "lib_jsl_machine_learning"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Machine learning algorithms and models."
+description = "Machine learning: regression, classification, clustering, dimensionality reduction, neural networks and boosting."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
-lib_jsl_random = { path = "../random" }
+lib_jsl_core.workspace = true
+lib_jsl_random.workspace = true
 ndarray.workspace = true
-lib_jsl_linalg = { path = "../linalg" }
+lib_jsl_linalg.workspace = true
 
 [dev-dependencies]
-lib_jsl_utils = { path = "../utils" }
+lib_jsl_utils.workspace = true

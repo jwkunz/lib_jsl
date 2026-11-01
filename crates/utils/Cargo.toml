@@ -3,11 +3,15 @@ name = "lib_jsl_utils"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "General utilities, plot generation, and helpers."
+description = "Terminal plots, unit conversion and numerical helpers."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true

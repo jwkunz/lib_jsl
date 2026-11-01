@@ -3,21 +3,25 @@ name = "lib_jsl_electromagnetics"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Electromagnetics, antennas, and field computations."
+description = "Electromagnetics: fields, antennas, arrays, beamforming, direction finding, transmission lines, propagation, MoM and FDTD."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
-lib_jsl_geometry = { path = "../geometry" }
+lib_jsl_core.workspace = true
+lib_jsl_geometry.workspace = true
 num-complex.workspace = true
 num-traits.workspace = true
 ndarray.workspace = true
-lib_jsl_linalg = { path = "../linalg" }
-lib_jsl_special_functions = { path = "../special_functions" }
-lib_jsl_random = { path = "../random" }
+lib_jsl_linalg.workspace = true
+lib_jsl_special_functions.workspace = true
+lib_jsl_random.workspace = true
 
 [dev-dependencies]
-lib_jsl_utils = { path = "../utils" }
+lib_jsl_utils.workspace = true

@@ -3,16 +3,20 @@ name = "lib_jsl_file_io"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 readme = "../../README.md"
-description = "Readers, writers and codecs for common media file formats: WAV, MP3 and JPEG."
+description = "Readers and writers for WAV, MP3, JPEG, PNG, Netpbm, CSV and NumPy .npy files."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
-lib_jsl_core = { path = "../core" }
+lib_jsl_core.workspace = true
 ndarray.workspace = true
 num-complex.workspace = true
 
 [dev-dependencies]
-lib_jsl_information = { path = "../information" }
+lib_jsl_information.workspace = true

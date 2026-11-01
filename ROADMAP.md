@@ -163,7 +163,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] RLS
 
 ### Synchronization
-[ ] Phase-locked loop
+[x] Phase-locked loop
 [ ] Costas loop
 
 ### Multirate and radar

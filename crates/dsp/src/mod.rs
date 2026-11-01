@@ -88,6 +88,10 @@ pub mod discrete {
         pub mod state_space;
     }
 
+    pub mod synchronization {
+        pub mod phase_locked_loop;
+    }
+
     pub mod spectral {
         pub mod chirpz;
         pub mod critically_sampled_polyphase_filter_bank;

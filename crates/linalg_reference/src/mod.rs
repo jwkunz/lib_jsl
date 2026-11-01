@@ -18,6 +18,8 @@
 //! | [`least_squares`] | Normal equations versus QR | The same trade-off for least squares |
 //!
 //! Run `cargo bench -p lib_jsl_linalg_reference` to compare them with the production crate.
+//!
+//! See the book chapter [Dense linear algebra](https://jwkunz.github.io/lib_jsl/book/linear_algebra/index.html).
 
 pub mod cholesky;
 pub mod gaussian_elimination;

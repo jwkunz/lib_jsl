@@ -200,32 +200,32 @@ Dense matrix factorisations and eigenproblems, Fourier transforms, and readable 
 
 Dense linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · 7 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 7 items
 
-- LU factorisation: solves, inverse, determinant
-- Cholesky factorisation and triangular solves
+- [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
+- [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
 - Hermitian eigenproblem (Householder tridiagonalisation, implicit QL)
 - General eigenproblem (Hessenberg reduction, shifted QR, complex Schur form)
 - Singular value decomposition (one-sided Jacobi)
 - Least squares (pivoted QR, SVD for rank-deficient systems)
-- Benchmarks against LAPACK (`ndarray-linalg`)
+- [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 
 ### Linear algebra reference
 
 Readable textbook linear algebra algorithms for study, plus a benchmark comparing them with lib_jsl_linalg.
 
-Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_reference/index.html) · 10 items
+Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_reference/index.html) · [book chapter](linear_algebra/index.md#the-reference-crate) · 10 items
 
-- Gaussian elimination without and with partial pivoting
-- Doolittle LU: solves, determinant, inverse
-- Cholesky-Banachiewicz
+- [Gaussian elimination without and with partial pivoting](linear_algebra/lu.md#gaussian-elimination-and-pivoting)
+- [Doolittle LU: solves, determinant, inverse](linear_algebra/lu.md#lu-factorisation)
+- [Cholesky-Banachiewicz](linear_algebra/cholesky.md#the-factorisation)
 - Classical and modified Gram-Schmidt, Householder QR
 - Power, inverse and Rayleigh quotient iteration
 - Cyclic Jacobi eigenvalue method
 - Unshifted and Wilkinson-shifted QR algorithm with deflation
 - SVD from the eigenproblem of AᵀA
 - Least squares by normal equations and by QR
-- Linear algebra race benchmark
+- [Linear algebra race benchmark](linear_algebra/index.md#the-reference-crate)
 
 ### FFTs
 

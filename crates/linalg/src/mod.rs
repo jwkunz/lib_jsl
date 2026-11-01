@@ -15,6 +15,8 @@
 //! `ArrayBase<S, Ix2>` (owned arrays and views). Everything is written for clarity and moderate
 //! sizes (up to a few hundred rows); for large problems an optimised LAPACK will be faster. The
 //! benchmarks in `crates/linalg_bench` compare the two.
+//!
+//! See the book chapter [Dense linear algebra](https://jwkunz.github.io/lib_jsl/book/linear_algebra/index.html).
 
 // Matrix algorithms read most clearly with explicit row and column indices.
 #![allow(clippy::needless_range_loop)]

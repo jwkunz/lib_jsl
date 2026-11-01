@@ -58,6 +58,12 @@
     - [The Lambert W function](special_functions/lambert-w.md)
     - [Statistical distribution functions](special_functions/statistical.md)
 
+# Linear algebra and transforms
+
+- [Dense linear algebra](linear_algebra/index.md)
+    - [Gaussian elimination and LU factorisation](linear_algebra/lu.md)
+    - [Cholesky factorisation](linear_algebra/cholesky.md)
+
 ---
 
 [Writing an entry](writing-an-entry.md)

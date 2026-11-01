@@ -31,6 +31,16 @@ pub struct TanhSinhEngine {
 const T_MAX: f64 = 6.0;
 
 impl TanhSinhEngine {
+    /// A tanh-sinh integrator over `[lower_bound, upper_bound]` with the default tolerance and
+    /// level limit.
+    ///
+    /// ```
+    /// use lib_jsl_integration::tanh_sinh::TanhSinhEngine;
+    ///
+    /// // ∫₀¹ ln(x) dx = −1, with a logarithmic singularity at x = 0.
+    /// let (value, _) = TanhSinhEngine::new(0.0, 1.0).integrate_with_error(f64::ln).unwrap();
+    /// assert!((value + 1.0).abs() < 1e-12);
+    /// ```
     pub fn new(lower_bound: f64, upper_bound: f64) -> Self {
         TanhSinhEngine { lower_bound, upper_bound, tolerance: 1e-12, max_levels: 10 }
     }
@@ -54,6 +64,7 @@ impl TanhSinhEngine {
             return Ok((0.0, 0.0));
         }
         let width = b - a;
+        // ANCHOR: tanh_sinh_pair
         // Contribution of the symmetric pair ±t, scaled by the weight.
         let pair = |t: f64| -> f64 {
             let u = FRAC_PI_2 * t.sinh();
@@ -72,6 +83,8 @@ impl TanhSinhEngine {
             }
             weight * s
         };
+        // ANCHOR_END: tanh_sinh_pair
+        // ANCHOR: tanh_sinh_levels
         let mut h = 1.0;
         let mut sum: f64 = (0..=(T_MAX as usize)).map(|k| pair(k as f64)).sum();
         let mut estimate = 0.5 * width * h * sum;
@@ -89,6 +102,7 @@ impl TanhSinhEngine {
                 break;
             }
         }
+        // ANCHOR_END: tanh_sinh_levels
         Ok((estimate, error))
     }
 }

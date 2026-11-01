@@ -32,20 +32,39 @@ fn check(n: usize) -> Result<(), ErrorsJSL> {
 }
 
 /// The n-point Gauss-Legendre rule for `∫_{−1}^{1} f(x) dx`, nodes ascending.
+///
+/// The nodes are the zeros of the Legendre polynomial `P_n` and the weights are
+/// `w_i = 2 / ((1 − x_i²) P_n'(x_i)²)`. The rule is exact for polynomials of degree `2n − 1`.
+/// Map it to `[a, b]` with `x = (a + b)/2 + (b − a)/2 · t`, or use [`GaussLegendreEngine`].
+///
+/// ```
+/// use lib_jsl_integration::gaussian_quadrature::gauss_legendre;
+///
+/// let rule = gauss_legendre(3).unwrap();
+/// // Three points integrate x⁴ exactly (degree 4 ≤ 2·3 − 1): ∫ x⁴ dx over [−1, 1] = 2/5.
+/// assert!((rule.apply(|x| x.powi(4)) - 0.4).abs() < 1e-15);
+/// // The weights sum to the length of the interval.
+/// assert!((rule.weights.iter().sum::<f64>() - 2.0).abs() < 1e-15);
+/// ```
 pub fn gauss_legendre(n: usize) -> Result<QuadratureRule, ErrorsJSL> {
     check(n)?;
     let mut nodes = vec![0.0; n];
     let mut weights = vec![0.0; n];
+    // ANCHOR: legendre_newton
+    // Nodes come in ± pairs, so only the non-negative half is computed.
     for i in 0..n.div_ceil(2) {
+        // Asymptotic first guess for the i-th zero (Tricomi).
         let mut z = (PI * (i as f64 + 0.75) / (n as f64 + 0.5)).cos();
         let mut derivative = 1.0;
         for _ in 0..100 {
+            // Bonnet's recurrence: j P_j = (2j − 1) x P_{j−1} − (j − 1) P_{j−2}.
             let (mut p1, mut p2) = (1.0, 0.0);
             for j in 1..=n {
                 let p3 = p2;
                 p2 = p1;
                 p1 = ((2 * j - 1) as f64 * z * p2 - (j - 1) as f64 * p3) / j as f64;
             }
+            // P_n'(x) = n (x P_n − P_{n−1}) / (x² − 1), then a Newton step.
             derivative = n as f64 * (z * p1 - p2) / (z * z - 1.0);
             let dz = p1 / derivative;
             z -= dz;
@@ -59,6 +78,7 @@ pub fn gauss_legendre(n: usize) -> Result<QuadratureRule, ErrorsJSL> {
         weights[i] = w;
         weights[n - 1 - i] = w;
     }
+    // ANCHOR_END: legendre_newton
     if n % 2 == 1 {
         nodes[n / 2] = 0.0;
     }

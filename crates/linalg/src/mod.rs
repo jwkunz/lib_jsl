@@ -7,8 +7,8 @@
 //! | Triangular systems | [`SolveTriangular`] | Forward and back substitution |
 //! | Hermitian / symmetric eigenproblem | [`Eigh`], [`EigValsh`] | Householder tridiagonalisation and implicit QL |
 //! | General eigenproblem | [`Eig`], [`EigVals`] | Hessenberg reduction and shifted QR (complex Schur form) |
-//! | Singular value decomposition | [`SVD`] | One-sided Jacobi |
-//! | Least squares, minimum-norm for rank-deficient systems | [`LeastSquaresSvd`] | SVD |
+//! | Singular value decomposition | [`SVD`], [`SvdJacobi`] | Golub-Kahan bidiagonalisation; one-sided Jacobi for high relative accuracy |
+//! | Least squares, minimum-norm for rank-deficient systems | [`LeastSquaresSvd`] | Householder QR with column pivoting; SVD when rank-deficient |
 //!
 //! The traits follow the names and signatures of the `ndarray-linalg` crate, so code written
 //! against it ports by changing the import. They are implemented for every ndarray

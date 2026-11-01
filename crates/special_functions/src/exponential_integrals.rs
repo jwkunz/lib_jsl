@@ -1,4 +1,6 @@
 //! Exponential integrals.
+//!
+//! See the book entry [Exponential, sine, cosine and Fresnel integrals](https://jwkunz.github.io/lib_jsl/book/special_functions/exponential-integrals.html#exponential-integrals).
 
 const EULER: f64 = 0.577_215_664_901_532_9;
 const EPS: f64 = 1e-16;
@@ -11,6 +13,7 @@ pub fn exponential_integral(x: f64) -> f64 {
     exponential_integral_en(1, x)
 }
 
+// ANCHOR: en
 /// The generalized exponential integral Eₙ(x) = ∫₁^∞ e^(-xt)/tⁿ dt, for `x >= 0`.
 pub fn exponential_integral_en(n: u32, x: f64) -> f64 {
     if x.is_nan() || x < 0.0 {
@@ -64,6 +67,7 @@ pub fn exponential_integral_en(n: u32, x: f64) -> f64 {
         ans
     }
 }
+// ANCHOR_END: en
 
 /// The exponential integral Ei(x) = -PV ∫₋ₓ^∞ e^(-t)/t dt, defined for all real `x`
 /// (principal value at 0, where it tends to -infinity).

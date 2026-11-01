@@ -1,4 +1,6 @@
 //! Fresnel integrals.
+//!
+//! See the book entry [Exponential, sine, cosine and Fresnel integrals](https://jwkunz.github.io/lib_jsl/book/special_functions/exponential-integrals.html#fresnel-integrals).
 
 use std::f64::consts::{FRAC_PI_2, PI};
 

@@ -16,6 +16,7 @@ pub mod log_normal;
 pub mod cauchy;
 pub mod binomial;
 pub mod multivariate_normal;
+pub mod dirichlet;
 
 pub use uniform::uniform_distribution;
 pub use exponential::exponential_distribution;
@@ -32,3 +33,4 @@ pub use log_normal::log_normal_distribution;
 pub use cauchy::cauchy_distribution;
 pub use binomial::binomial_distribution;
 pub use multivariate_normal::MultivariateNormal;
+pub use dirichlet::dirichlet_distribution;

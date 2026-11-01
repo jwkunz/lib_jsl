@@ -545,7 +545,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Cauchy
 [x] Binomial
 [x] Multivariate normal
-[ ] Dirichlet
+[x] Dirichlet
 
 # Root finding (`root_finding`)
 [x] Bracketing

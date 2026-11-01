@@ -2,6 +2,7 @@
 
 pub mod beamforming;
 pub mod cfm_beamformer;
+pub mod direction_of_arrival;
 pub mod lcmv_beamformer;
 pub mod max_snr_beamformer;
 pub mod overlap_integral;
@@ -11,3 +12,4 @@ pub use cfm_beamformer::{cfm_beamformer, cfm_for_direction, cfm_weights};
 pub use lcmv_beamformer::{lcmv_beamformer, mvdr_beamformer};
 pub use max_snr_beamformer::max_snr_beamformer;
 pub use overlap_integral::{Overlap, overlap_integral};
+pub use direction_of_arrival::{bartlett_spectrum, capon_spectrum, esprit_ula, music_spectrum, spectrum_peaks};

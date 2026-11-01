@@ -598,7 +598,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Descriptive statistics
 [x] Correlation and covariance
 [x] Hypothesis tests
-[ ] Kernel density estimation
+[x] Kernel density estimation
 [ ] Bootstrap
 
 # Utils (`utils`)

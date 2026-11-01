@@ -2,6 +2,7 @@
 
 [Introduction](introduction.md)
 [How to read an entry](how-to-read.md)
+[Catalogue of algorithms](catalogue.md)
 
 # Integration
 

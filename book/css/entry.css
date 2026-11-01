@@ -31,3 +31,11 @@ main img {
 main blockquote {
     font-style: normal;
 }
+/* The catalogue of algorithms: long item lists flow into columns on wide screens. */
+.catalogue ul {
+    columns: 2 18em;
+    column-gap: 2.5em;
+}
+.catalogue li {
+    break-inside: avoid;
+}

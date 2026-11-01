@@ -3,6 +3,10 @@
 Sections follow the workspace crates (`crates/<name>`, published as `lib_jsl_<name>`), in
 alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 
+This file also generates the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html)
+(`book/generator/src/catalogue.rs`), which regroups the crates by subject. A new crate must be
+added to one of the catalogue's subject groups there, or the book build stops with an error.
+
 # Core (`core`)
 [x] Data types and traits
 [x] Constants

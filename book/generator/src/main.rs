@@ -1,8 +1,10 @@
-//! Generates the figures (SVG) and tables (Markdown) used by the book, by calling the library.
+//! Generates the figures (SVG) and tables (Markdown) used by the book, by calling the library,
+//! and the catalogue of algorithms from `ROADMAP.md`.
 //!
 //! Run from the repository root with `cargo run -p lib_jsl_book_generator --release`; outputs go
 //! to `book/src/generated/`.
 
+mod catalogue;
 mod integration;
 mod svg;
 
@@ -21,5 +23,6 @@ pub fn write(chapter: &str, name: &str, contents: &str) {
 }
 
 fn main() {
+    catalogue::generate();
     integration::generate();
 }

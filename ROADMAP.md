@@ -164,7 +164,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 
 ### Synchronization
 [x] Phase-locked loop
-[ ] Costas loop
+[x] Costas loop
 
 ### Multirate and radar
 [ ] CIC filters

@@ -89,6 +89,7 @@ pub mod discrete {
     }
 
     pub mod synchronization {
+        pub mod costas_loop;
         pub mod phase_locked_loop;
     }
 

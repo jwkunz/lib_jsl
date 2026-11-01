@@ -3,6 +3,8 @@
 //! A product of `nb` reflectors `H_j = I − 2 v_j v_jᴴ` equals `I − V T Vᴴ` for `V = [v_0 … v_{nb−1}]`
 //! and an upper triangular `T` (the compact WY representation; LAPACK's `larft`). Applying the
 //! product then costs three matrix multiplies (`larfb`) instead of `nb` rank-one updates.
+//!
+//! See the book entry [QR factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/qr.html#householder-reflections).
 
 use crate::dense::{Mat, sub_matmul};
 use crate::scalar::Scalar;

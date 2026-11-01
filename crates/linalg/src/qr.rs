@@ -1,5 +1,7 @@
 //! Householder QR with column pivoting, `A P = Q R`, used for least squares and to precondition
 //! the Jacobi SVD.
+//!
+//! See the book entry [QR factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/qr.html#column-pivoting).
 
 use crate::dense::{Mat, axpy_sub};
 use crate::scalar::Scalar;
@@ -15,6 +17,7 @@ pub(crate) struct Householder<T> {
     pub reflectors: Vec<Vec<T>>,
 }
 
+// ANCHOR: householder_pivoted
 /// Factorises `A P = Q R`, choosing at each step the remaining column of largest norm. Column
 /// norms are downdated rather than recomputed, with a recomputation when cancellation would make
 /// the downdated value unreliable (the safeguard of LAPACK's `geqp3`).
@@ -78,6 +81,7 @@ pub(crate) fn householder_pivoted<T: Scalar>(a: &Mat<T>) -> Householder<T> {
     }
     Householder { r, permutation, reflectors }
 }
+// ANCHOR_END: householder_pivoted
 
 impl<T: Scalar> Householder<T> {
     /// `b ← Qᴴ b`.

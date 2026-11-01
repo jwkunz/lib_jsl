@@ -13,6 +13,8 @@
 //!
 //! All three return the thin factorisation of an `m × n` matrix with `m ≥ n`: `Q` is `m × n` and
 //! `R` is `n × n`.
+//!
+//! See the book entry [QR factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/qr.html).
 
 use ndarray::{Array1, Array2, s};
 
@@ -33,6 +35,7 @@ pub fn classical_gram_schmidt(a: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
     (q, r)
 }
 
+// ANCHOR: mgs
 /// Modified Gram-Schmidt: `r_ij = q_i · v` with the column `v` as orthogonalised so far.
 pub fn modified_gram_schmidt(a: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
     let (m, n) = a.dim();
@@ -49,7 +52,9 @@ pub fn modified_gram_schmidt(a: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
     }
     (q, r)
 }
+// ANCHOR_END: mgs
 
+// ANCHOR: householder
 /// Householder QR. Reflection `k` maps column `k` (from row `k` down) onto a multiple of `e_1`;
 /// `Q` is then accumulated by applying the reflections to the first `n` columns of the identity.
 pub fn householder(a: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
@@ -75,6 +80,7 @@ pub fn householder(a: &Array2<f64>) -> (Array2<f64>, Array2<f64>) {
     let r = Array2::from_shape_fn((n, n), |(i, j)| if j >= i { r[[i, j]] } else { 0.0 });
     (q, r)
 }
+// ANCHOR_END: householder
 
 /// Overwrites rows `k..` of `x` with `(I − 2 v vᵀ)` applied to them.
 fn apply_reflector(x: &mut Array2<f64>, v: &Array1<f64>, k: usize) {

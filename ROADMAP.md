@@ -330,7 +330,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Graph representation helpers (edge lists, adjacency)
 [x] Shortest paths (Dijkstra, Bellman-Ford, A*)
 [x] All-pairs shortest paths (Floyd-Warshall)
-[ ] Minimum spanning trees (Kruskal, Prim)
+[x] Minimum spanning trees (Kruskal, Prim)
 [ ] Maximum flow (Edmonds-Karp, Dinic)
 [ ] Topological sort and strongly connected components
 

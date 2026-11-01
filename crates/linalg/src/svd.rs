@@ -1,9 +1,13 @@
-//! Singular value decomposition by one-sided Jacobi rotations (Hestenes), and least squares.
+//! Singular value decomposition, by two methods.
 //!
-//! Plane rotations are applied to pairs of columns of `A` until every pair is orthogonal; the
-//! column norms are then the singular values, the normalised columns the left singular vectors,
-//! and the accumulated rotations the right singular vectors. The method is simple and highly
-//! accurate (small singular values are found to high relative accuracy).
+//! * [`thin_svd`] (the default, behind `SVD::svd`): Golub-Kahan bidiagonalisation followed by
+//!   implicit-shift QR on the bidiagonal, as in LAPACK's `gesvd`. Fast and backward stable: the
+//!   singular values are accurate to about `ε σ_max` in absolute terms.
+//! * [`thin_svd_jacobi`] (behind `SvdJacobi::svd_jacobi`): one-sided Jacobi rotations (Hestenes),
+//!   applied to pairs of columns until every pair is orthogonal; the column norms are then the
+//!   singular values, the normalised columns the left singular vectors, and the accumulated
+//!   rotations the right singular vectors. Slower, but small singular values of graded matrices
+//!   are found to high *relative* accuracy. Pivoted QR preconditions it.
 
 use crate::dense::{Mat, axpy_sub, dot_conj};
 use crate::error::{LinalgError, Result};

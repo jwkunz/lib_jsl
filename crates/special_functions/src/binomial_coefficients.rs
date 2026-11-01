@@ -1,4 +1,6 @@
 //! Binomial coefficients.
+//!
+//! See the book entry [The gamma function and related functions](https://jwkunz.github.io/lib_jsl/book/special_functions/gamma.html#factorials-and-binomial-coefficients).
 
 use crate::gamma::ln_gamma;
 

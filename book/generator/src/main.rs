@@ -9,6 +9,7 @@ mod interpolation;
 mod optimization;
 mod optimization_more;
 mod root_finding;
+mod special_functions;
 mod svg;
 
 use std::path::{Path, PathBuf};
@@ -32,4 +33,5 @@ fn main() {
     root_finding::generate();
     optimization::generate();
     optimization_more::generate();
+    special_functions::generate();
 }

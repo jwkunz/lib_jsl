@@ -1,4 +1,6 @@
 //! Gamma function and related functions.
+//!
+//! See the book entry [The gamma function and related functions](https://jwkunz.github.io/lib_jsl/book/special_functions/gamma.html#the-gamma-function).
 
 use std::f64::consts::PI;
 
@@ -24,6 +26,7 @@ fn lanczos_sum(x: f64) -> f64 {
     a
 }
 
+// ANCHOR: gamma
 /// The gamma function Γ(x) for real `x`.
 ///
 /// Uses a Lanczos approximation (relative error about 1e-15) with the reflection formula for
@@ -60,6 +63,7 @@ pub fn gamma(x: f64) -> f64 {
     let half = t.powf(0.5 * (x + 0.5));
     (2.0 * PI).sqrt() * half * (-t).exp() * half * lanczos_sum(x)
 }
+// ANCHOR_END: gamma
 
 /// The natural logarithm of |Γ(x)|. Returns `+inf` at the poles.
 pub fn ln_gamma(x: f64) -> f64 {

@@ -146,7 +146,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Maximum entropy
 [x] Linear predictive coding
 [x] Wavelet transform
-[ ] Welch power spectral density
+[x] Welch power spectral density
 [ ] Short-time Fourier transform and spectrogram
 [ ] Hilbert transform and analytic signal
 [ ] Goertzel algorithm

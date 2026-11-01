@@ -224,7 +224,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [ ] Near-field to far-field transformation
 [x] Direction-of-arrival estimation on sensor arrays
 [ ] Method of moments (wire antennas)
-[ ] FDTD solver
+[x] FDTD solver
 
 ## Demonstrations
 [x] Antenna patterns

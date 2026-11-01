@@ -332,7 +332,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] All-pairs shortest paths (Floyd-Warshall)
 [x] Minimum spanning trees (Kruskal, Prim)
 [x] Maximum flow (Edmonds-Karp, Dinic)
-[ ] Topological sort and strongly connected components
+[x] Topological sort and strongly connected components
 
 # Information (`information`)
 

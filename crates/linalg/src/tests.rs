@@ -154,6 +154,27 @@ fn general_eigenproblems() {
     roots.sort_by(|a, b| key(a).partial_cmp(&key(b)).unwrap());
     let expected = [C::new(0.0, -1.0), C::new(0.0, 1.0), C::new(1.0, 0.0), C::new(2.0, 0.0)];
     assert!(roots.iter().zip(expected).all(|(r, e)| (r - e).norm() < 1e-10), "{roots:?}");
+    // Balancing: the companion matrix of Wilkinson's polynomial ∏(x − k), k = 1..20, has entries
+    // up to 2.4e18; unbalanced, the QR iteration returned 18 zeros and a wild complex pair.
+    let mut c = vec![1.0f64];
+    for k in 1..=20 {
+        let mut next = vec![0.0; c.len() + 1];
+        for (i, &a) in c.iter().enumerate() {
+            next[i] += a;
+            next[i + 1] -= a * k as f64;
+        }
+        c = next;
+    }
+    let mut wilkinson = Array2::<f64>::zeros((20, 20));
+    for j in 0..20 {
+        wilkinson[[0, j]] = -c[j + 1];
+    }
+    for i in 1..20 {
+        wilkinson[[i, i - 1]] = 1.0;
+    }
+    let mut w: Vec<f64> = wilkinson.eigvals().unwrap().iter().map(|z| z.re).collect();
+    w.sort_by(f64::total_cmp);
+    assert!(w.iter().enumerate().all(|(i, x)| (x - (i + 1) as f64).abs() < 1e-2), "{w:?}");
     // An upper triangular matrix is already in Schur form.
     let upper = array![[1.0, 5.0, -2.0], [0.0, 3.0, 4.0], [0.0, 0.0, -1.0]];
     let mut eigen: Vec<f64> = upper.eigvals().unwrap().iter().map(|z| z.re).collect();

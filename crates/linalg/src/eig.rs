@@ -1,5 +1,7 @@
 //! Eigendecomposition of general square matrices via the Schur form.
 //!
+//! 0. Balancing by a diagonal similarity with power-of-two scale factors equalises the row and
+//!    column norms (as LAPACK's `geev` does by default); the eigenvectors are scaled back at the end.
 //! 1. Householder reflections reduce `A` to upper Hessenberg form `H = Qᴴ A Q`.
 //! 2. The shifted QR algorithm drives `H` to the Schur form `T = Zᴴ A Z`:
 //!    - real matrices use Francis's implicit double-shift step, in real arithmetic, reaching the
@@ -412,9 +414,63 @@ fn complexify(a: &Mat<f64>, pair: &[bool], zt: Option<&Mat<f64>>) -> (Mat<C>, Op
     (t, zt)
 }
 
-/// The complex Schur form `T` (upper triangular) and `Zᵀ` if requested.
-fn schur<T: Scalar>(a: &Mat<T>, want_z: bool) -> Result<(Mat<C>, Option<Mat<C>>)> {
+/// The Schur form, `Zᵀ` if requested, and the balancing scale factors.
+type BalancedSchur = (Mat<C>, Option<Mat<C>>, Vec<f64>);
+
+/// Balances `a` in place by a diagonal similarity `D⁻¹ A D` (Parlett and Reinsch, 1969, as in
+/// LAPACK's `gebal`), so that each row and the matching column have similar norms; returns `D`.
+/// The scale factors are powers of two, so the eigenvalues are unchanged exactly, while the
+/// rounding errors of the QR iteration, proportional to `‖A‖`, can shrink by many orders of
+/// magnitude (companion matrices of polynomials with widely ranging coefficients are the classic
+/// case). An eigenvector `v` of the balanced matrix is `D v` for the original.
+fn balance<T: Scalar>(a: &mut Mat<T>) -> Vec<f64> {
+    let n = a.rows;
+    let mut d = vec![1.0f64; n];
+    let mut converged = false;
+    while !converged {
+        converged = true;
+        for i in 0..n {
+            let (mut c, mut r) = (0.0f64, 0.0f64);
+            for j in (0..n).filter(|&j| j != i) {
+                c += a.at(j, i).abs();
+                r += a.at(i, j).abs();
+            }
+            if c == 0.0 || r == 0.0 {
+                continue;
+            }
+            let (s, mut f) = (c + r, 1.0f64);
+            let (mut c2, mut r2) = (c, r);
+            while c2 < r2 / 2.0 {
+                (c2, r2, f) = (c2 * 2.0, r2 / 2.0, f * 2.0);
+            }
+            while c2 >= r2 * 2.0 {
+                (c2, r2, f) = (c2 / 2.0, r2 * 2.0, f / 2.0);
+            }
+            // Rescale only if it reduces the row-plus-column norm noticeably.
+            if c2 + r2 < 0.95 * s {
+                converged = false;
+                d[i] *= f;
+                for j in 0..n {
+                    *a.at_mut(i, j) = a.at(i, j).scale(1.0 / f);
+                    *a.at_mut(j, i) = a.at(j, i).scale(f);
+                }
+            }
+        }
+    }
+    d
+}
+
+/// The complex Schur form `T` (upper triangular) of the balanced matrix, `Zᵀ` if requested, and
+/// the balancing scale factors.
+fn schur<T: Scalar>(a: &Mat<T>, want_z: bool) -> Result<BalancedSchur> {
     require_square(a.rows, a.cols)?;
+    let mut a = Mat { rows: a.rows, cols: a.cols, data: a.data.clone() };
+    let d = balance(&mut a);
+    let (t, zt) = schur_balanced(&a, want_z)?;
+    Ok((t, zt, d))
+}
+
+fn schur_balanced<T: Scalar>(a: &Mat<T>, want_z: bool) -> Result<(Mat<C>, Option<Mat<C>>)> {
     if T::IS_COMPLEX {
         let mut t = Mat { rows: a.rows, cols: a.cols, data: a.data.iter().map(|v| v.to_complex()).collect() };
         let mut zt = hessenberg(&mut t, want_z);
@@ -430,13 +486,13 @@ fn schur<T: Scalar>(a: &Mat<T>, want_z: bool) -> Result<(Mat<C>, Option<Mat<C>>)
 
 /// The eigenvalues, in Schur order.
 pub(crate) fn eigvals<T: Scalar>(a: &Mat<T>) -> Result<Vec<C>> {
-    let (t, _) = schur(a, false)?;
+    let (t, _, _) = schur(a, false)?;
     Ok((0..t.rows).map(|i| t.at(i, i)).collect())
 }
 
 /// Eigenvalues (in Schur order) and unit-norm eigenvectors as columns.
 pub(crate) fn eig<T: Scalar>(a: &Mat<T>) -> Result<(Vec<C>, Mat<C>)> {
-    let (t, zt) = schur(a, true)?;
+    let (t, zt, d) = schur(a, true)?;
     let zt = zt.expect("Z requested");
     let n = t.rows;
     let values: Vec<C> = (0..n).map(|i| t.at(i, i)).collect();
@@ -465,6 +521,10 @@ pub(crate) fn eig<T: Scalar>(a: &Mat<T>) -> Result<(Vec<C>, Mat<C>)> {
         // SAFETY: three distinct n × n buffers; (rs, cs) = (1, n) reads Zᵀ as Z and Yᵀ as Y.
         // C ← C − Z (−Y): the sign is folded into the result below.
         unsafe { C::gemm_sub(n, n, n, zt.data.as_ptr(), 1, n_, yt.data.as_ptr(), 1, n_, vectors.data.as_mut_ptr(), n_, 1) };
+    }
+    // Undo the balancing: the eigenvectors of A are D times those of D⁻¹ A D.
+    for (row, &di) in vectors.data.chunks_exact_mut(n.max(1)).zip(&d) {
+        row.iter_mut().for_each(|v| *v = v.scale(di));
     }
     let mut norms = vec![0.0f64; n];
     for row in vectors.data.chunks_exact(n.max(1)) {

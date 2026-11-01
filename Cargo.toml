@@ -84,3 +84,5 @@ lib_jsl_utils = { path = "crates/utils" }
 [features]
 # Serialisation of geometry types with serde.
 serde = ["lib_jsl_geometry/serde"]
+# Multithreaded matrix multiplication in the linear algebra factorisations.
+threading = ["lib_jsl_linalg/threading"]

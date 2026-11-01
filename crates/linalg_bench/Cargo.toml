@@ -14,6 +14,10 @@ lib_jsl_linalg = { path = "../linalg" }
 ndarray = "0.17.2"
 ndarray-linalg = { version = "0.18.1", features = ["openblas-system"] }
 num-complex = "0.4.6"
+matrixmultiply = "0.3.11"
+
+[features]
+threading = ["lib_jsl_linalg/threading"]
 
 [dev-dependencies]
 criterion = "0.8.2"

@@ -14,3 +14,8 @@ matrixmultiply.workspace = true
 ndarray.workspace = true
 num-complex.workspace = true
 num-traits.workspace = true
+
+[features]
+# Multithreaded matrix multiplication inside the blocked factorisations (up to 4 threads, set by
+# the MATMUL_NUM_THREADS environment variable; the default is the number of physical cores).
+threading = ["matrixmultiply/threading"]

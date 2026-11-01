@@ -43,7 +43,7 @@ fn identity_error<T: Scalar>(q: &Array2<T>) -> f64 {
 #[test]
 fn lu_solves_inverts_and_computes_determinants() {
     let mut rng = Lcg(1);
-    for n in [1, 2, 7, 40, 150] {
+    for n in [1, 2, 7, 17, 40, 150, 333] {
         let a = rng.real(n, n);
         let b = Array1::from_shape_fn(n, |_| rng.next());
         let x = a.solve(&b).unwrap();

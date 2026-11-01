@@ -515,7 +515,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Linear programming
 [x] Dynamic programming
 [x] Nonlinear least squares and curve fitting (Levenberg-Marquardt)
-[ ] Quasi-Newton methods (BFGS, L-BFGS)
+[x] Quasi-Newton methods (BFGS, L-BFGS)
 [ ] Nonlinear conjugate gradient
 [ ] Constrained optimization (SQP, augmented Lagrangian)
 [ ] Differential evolution

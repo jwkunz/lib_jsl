@@ -238,7 +238,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Fractional FFT
 [x] SIMD FFT (generic, x86, ARM, RISC-V)
 [x] FFT engine trait
-[ ] Real-input FFT
+[x] Real-input FFT
 [ ] Multidimensional FFT (2D, 3D)
 [ ] Discrete cosine and sine transforms
 [x] Size-sweep benchmark

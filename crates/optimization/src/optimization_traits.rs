@@ -13,15 +13,18 @@ pub trait GradientFunction {
     fn evaluate(&self, parameters: &[f64]) -> Vec<f64>;
 }
 
-/// - 'HessianFunction': A trait for Hessian functions that can be used in optimization algorithms. It has a method `evaluate` that takes a vector of parameters and returns a matrix (represented as a vector of vectors) representing the Hessian of the objective function at those parameters.  This is a placeholder for the Hessian function. In a real implementation, you would need to define a separate trait for the Hessian and implement it for the objective function. --- IGNORE ---
- pub trait HessianFunction {
-     fn evaluate(&self, parameters: &[f64]) -> Vec<Vec<f64>>;
+/// `HessianFunction`: the Hessian `∂²f/∂xᵢ∂xⱼ` of the objective at the given parameters, as
+/// rows of a symmetric matrix. Used by [`NewtonRaphsonMethod`](crate::newton_raphson_method::NewtonRaphsonMethod).
+pub trait HessianFunction {
+    fn evaluate(&self, parameters: &[f64]) -> Vec<Vec<f64>>;
 }
 
 /// - `ObjectiveFunctionWithGradient`: A trait for objective functions that also have a gradient. It is a marker trait that indicates that the objective function implements both `ObjectiveFunction` and `GradientFunction`.
 pub trait ObjectiveFunctionWithGradient: ObjectiveFunction + GradientFunction {}
 
-/// - `OptimizationResult`: A struct that can be used to store the results of an optimization algorithm, including the optimal parameters, the value of the objective function at those parameters, the number of iterations taken to converge, and whether the algorithm converged or not.
+/// `OptimizationResult`: the best parameters found, the objective there, the iterations taken
+/// and whether the method's convergence test was met. What counts as an iteration, and what the
+/// test is, differ between methods; see each method's documentation.
 #[derive(Debug, Clone)]
 pub struct OptimizationResult {
     pub parameters: Vec<f64>,

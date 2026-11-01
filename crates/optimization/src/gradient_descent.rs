@@ -1,7 +1,11 @@
 //! This file contains the implementation of the gradient descent algorithm for optimization.
 //! Gradient descent is an iterative optimization algorithm used to find the minimum of a function.
 //! The algorithm works by taking steps proportional to the negative of the gradient of the function at the current point. The size of the steps is determined by a learning rate, which is a hyperparameter that controls how quickly the algorithm converges to the minimum. 
-//! The algorithm continues until it reaches a point where the gradient is close to zero, indicating that it has found a local minimum. 
+//! It stops when the objective changes by less than the tolerance (default 1e-5) in one step, or
+//! after `max_iterations` (default 1000). That test does not measure the gradient: with a small
+//! learning rate the objective changes little per step even far from a minimum, so check the
+//! result. Too large a learning rate (above `2/L` for an `L`-smooth function) diverges. With
+//! bounds, each step is projected onto the box (projected gradient descent).
 
 use crate::optimization_traits::{
     GradientBasedMinimizationEngine, GradientFunction, MinimizationControls, ObjectiveFunction,

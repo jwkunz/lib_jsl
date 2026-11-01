@@ -13,7 +13,17 @@
 //! that controls the likelihood of accepting worse solutions. As the algorithm
 //! progresses, the temperature is gradually decreased, which reduces the
 //! probability of accepting worse solutions and allows the algorithm to
-//! converge to a minimum. Simulated annealing can be effective for optimizing
+//! converge to a minimum.
+//!
+//! In this implementation a candidate adds Gaussian noise with standard deviation equal to the
+//! current temperature to every coordinate, so the temperature sets both the acceptance
+//! probability `exp(−Δf/T)` and the step size: choose the maximum temperature (default 1) on the
+//! scale of the variables and of the changes in `f`. The temperature falls geometrically by the
+//! cooling coefficient (default 0.9) after `iterations_per_temperature` (default 100) candidates,
+//! until it reaches the minimum temperature (default 1e-5); `converged` means the schedule
+//! finished. The tolerance is not used. The best point ever evaluated is returned.
+//!
+//! Simulated annealing can be effective for optimizing
 //! complex, non-convex functions, but it can also be computationally expensive
 //! and may require careful tuning of the temperature schedule and other
 //! hyperparameters to achieve good performance.

@@ -269,7 +269,7 @@ impl FiniteMdp {
     /// Finite-horizon backward induction: the optimal expected total reward over `horizon` steps
     /// plus `terminal_values[s]` on arrival in the final state. Returns, for each stage from the
     /// first (`0`) to the last (`horizon - 1`), the value of being in each state and the optimal
-    /// action there, plus the stage-0 values as the headline.
+    /// action there; the first element holds the optimal values over the whole horizon.
     pub fn backward_induction(&self, horizon: usize, terminal_values: &[f64]) -> Result<Vec<MdpSolution>, ErrorsJSL> {
         self.validate()?;
         if terminal_values.len() != self.rewards.len() {
@@ -306,7 +306,9 @@ impl FiniteMdp {
         Err(ErrorsJSL::RuntimeError("Value iteration did not converge."))
     }
 
-    /// The expected discounted return of following `policy` forever, by Gauss-Seidel sweeps.
+    /// The expected discounted return of following `policy` forever, by Gauss-Seidel sweeps,
+    /// stopping when a sweep changes no value by `tolerance` or more (the remaining error can be
+    /// up to about `discount / (1 − discount)` times larger).
     pub fn evaluate_policy(&self, policy: &[usize], discount: f64, tolerance: f64) -> Result<Vec<f64>, ErrorsJSL> {
         self.validate()?;
         if policy.len() != self.rewards.len() || policy.iter().zip(&self.rewards).any(|(&a, r)| a >= r.len()) || !(0.0..1.0).contains(&discount) {

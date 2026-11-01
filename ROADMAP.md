@@ -149,7 +149,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Welch power spectral density
 [x] Short-time Fourier transform and spectrogram
 [x] Hilbert transform and analytic signal
-[ ] Goertzel algorithm
+[x] Goertzel algorithm
 
 ### Transformations
 [x] Channel impairment

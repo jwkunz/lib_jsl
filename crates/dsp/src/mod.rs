@@ -87,6 +87,7 @@ pub mod discrete {
         pub mod chirpz;
         pub mod critically_sampled_polyphase_filter_bank;
         pub mod freqz;
+        pub mod goertzel;
         pub mod hilbert;
         pub mod linear_predictive_coding;
         pub mod maximum_entropy;

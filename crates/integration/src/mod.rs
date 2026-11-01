@@ -4,6 +4,7 @@ pub mod calculate_midpoints;
 pub mod can_integrate;
 pub mod complex_path_integrals;
 pub mod dormand_prince;
+pub mod gaussian_quadrature;
 pub mod midpoint_integration_engine;
 pub mod monte_carlo_integration;
 pub mod runge_kutta_4;

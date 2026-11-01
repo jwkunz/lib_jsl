@@ -12,4 +12,5 @@ path = "src/mod.rs"
 [dependencies]
 lib_jsl_core = { path = "../core" }
 lib_jsl_random = { path = "../random" }
+lib_jsl_special_functions = { path = "../special_functions" }
 num.workspace = true

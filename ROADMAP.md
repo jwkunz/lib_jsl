@@ -375,7 +375,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Simpson's 1/3 rule
 [x] Trapezoidal
 [x] Complex path integrals
-[ ] Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
+[x] Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
 [ ] Tanh-sinh quadrature
 [ ] Romberg integration
 [ ] Multidimensional cubature

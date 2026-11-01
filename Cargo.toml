@@ -21,6 +21,7 @@ members = [
     "crates/machine_learning",
     "crates/electromagnetics",
     "crates/utils",
+    "book/generator",
 ]
 resolver = "2"
 

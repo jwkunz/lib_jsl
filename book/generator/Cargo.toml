@@ -1,0 +1,11 @@
+[package]
+name = "lib_jsl_book_generator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "Generates the figures and tables of the lib_jsl book from the library itself."
+
+[dependencies]
+lib_jsl_integration = { path = "../../crates/integration" }
+lib_jsl_special_functions = { path = "../../crates/special_functions" }

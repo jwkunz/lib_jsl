@@ -572,6 +572,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_jsl_book_generator"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_integration",
+ "lib_jsl_special_functions",
+]
+
+[[package]]
 name = "lib_jsl_core"
 version = "0.1.0"
 dependencies = [

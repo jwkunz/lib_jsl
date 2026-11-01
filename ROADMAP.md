@@ -377,7 +377,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Complex path integrals
 [x] Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
 [x] Tanh-sinh quadrature
-[ ] Romberg integration
+[x] Romberg integration
 [ ] Multidimensional cubature
 [ ] Quasi-Monte Carlo integration
 [ ] Stiff ODE solvers (BDF, Rosenbrock)

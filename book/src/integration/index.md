@@ -59,11 +59,21 @@ singularities, keeps its exponential rate.
 ## Beyond quadrature
 
 The same ideas underlie the rest of this chapter. Integrating an ordinary differential equation
-$y' = f(t, y)$ is quadrature in which the integrand depends on the unknown solution. Runge-Kutta
-methods are, at heart, quadrature rules applied stage by stage, and collocation methods for
-boundary value problems are quadrature in disguise. Spectral methods for partial differential
-equations rely on the same Chebyshev and Fourier approximations that make Gaussian and
-trapezoid quadrature converge exponentially.
+$y' = f(t, y)$ is quadrature in which the integrand depends on the unknown solution.
+[Runge-Kutta methods](runge-kutta.md) are, at heart, quadrature rules applied stage by stage, and
+the collocation methods for [boundary value problems](boundary-value-problems.md) are Simpson's rule
+in disguise. [Spectral methods](spectral-methods.md) for differential equations rely on the same
+Chebyshev and Fourier approximations that make Gaussian and trapezoid quadrature converge
+exponentially.
+
+| Your differential equation | Recommended | Entry |
+|---|---|---|
+| Initial value problem, non-stiff | Adaptive Dormand-Prince | [Runge-Kutta methods](runge-kutta.md) |
+| Initial value problem with fast and slow time scales (stiff) | BDF, or Rosenbrock at loose tolerances | [Stiff ODE solvers](stiff-ode.md) |
+| Conditions at both ends of an interval | Collocation (shooting if well conditioned) | [Boundary value problems](boundary-value-problems.md) |
+| Heat, wave or Poisson equation on a rectangle | Finite differences | [Finite difference methods](finite-differences.md) |
+| Irregular domains, variable or discontinuous coefficients | Finite elements | [Finite element methods](finite-elements.md) |
+| Smooth solution on an interval or a periodic domain | Chebyshev or Fourier spectral methods | [Spectral methods](spectral-methods.md) |
 
 ## In the library
 

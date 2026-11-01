@@ -16,6 +16,7 @@ fn in_circle(a: [f64; 2], b: [f64; 2], c: [f64; 2], d: [f64; 2]) -> f64 {
 /// no input point lies inside any triangle's circumcircle. Together the triangles tile the convex
 /// hull of the points.
 #[derive(Debug, Clone, PartialEq)]
+
 pub struct Triangulation {
     pub triangles: Vec<[usize; 3]>,
 }

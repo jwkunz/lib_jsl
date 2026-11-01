@@ -11,13 +11,13 @@ use crate::common::{
 };
 use crate::coordinate_systems::{CoordinateSystem2D, ToCartesian, ToPolar};
 use crate::two_d::coordinate_conversions;
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 /// Concrete 2D free-vector implementation whose stored coordinates may be Cartesian or polar.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FreeVector2D {
     coords: [GeometryMeasure; 2],
     coordinate_system: CoordinateSystem2D,

@@ -2,7 +2,6 @@
 
 use crate::common::{GeometricPrimitive, GeometricPrimitive2D, IsPlane};
 use crate::two_d::{CoordinateVector2D, UnitVector2D};
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 
 /// Concrete 2D plane-like primitive represented by a point and an in-plane unit normal.
@@ -10,7 +9,8 @@ use std::fmt::{self, Display, Formatter};
 /// In the current trait system, [`IsPlane`] serves as the
 /// shared mirror/reference abstraction. For 2D geometry this type corresponds to a line expressed
 /// in point-normal form.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Plane2D {
     point: CoordinateVector2D,
     normal: UnitVector2D,

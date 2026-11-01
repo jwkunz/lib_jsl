@@ -9,6 +9,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 /// A quaternion `w + xi + yj + zk` (scalar part first).
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub struct Quaternion {
     pub w: f64,
     pub x: f64,

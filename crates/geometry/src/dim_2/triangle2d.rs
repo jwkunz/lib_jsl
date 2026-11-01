@@ -10,17 +10,17 @@ use crate::two_d::{
     HasOrientation, IsPolygon, IsTriangle, Line2D, Plane2D, CoordinateVector2D, PolygonFace2D, UnitVector2D,
     Orientation2D,
 };
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 2D triangle implementation backed by three point ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Triangle2D {
     a_id: PointId,
     b_id: PointId,
     c_id: PointId,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
 }
 

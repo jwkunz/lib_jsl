@@ -15,19 +15,19 @@ use crate::three_d::{
 };
 use crate::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::two_d::IsPolygon;
-use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 3D tetrahedron implementation backed by four point ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Tetrahedron3D {
     a_id: PointId,
     b_id: PointId,
     c_id: PointId,
     d_id: PointId,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 

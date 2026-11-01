@@ -2,11 +2,11 @@
 
 use crate::common::{GeometricPrimitive, GeometricPrimitive3D, IsPlane};
 use crate::three_d::{CoordinateVector3D, UnitVector3D};
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 
 /// Concrete 3D plane implementation defined by a point and unit normal.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Plane3D {
     point: CoordinateVector3D,
     normal: UnitVector3D,

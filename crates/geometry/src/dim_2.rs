@@ -39,6 +39,7 @@ pub use unit_vector2d::UnitVector2D;
 
 /// Relative winding/orientation classification for planar geometry.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum Orientation2D {
     /// Points or edges are ordered clockwise.
     Clockwise,

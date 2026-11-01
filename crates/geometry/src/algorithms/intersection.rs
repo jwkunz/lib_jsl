@@ -27,6 +27,7 @@ fn at3(o: [f64; 3], d: [f64; 3], t: f64) -> [f64; 3] {
 
 /// Result of intersecting two segments or lines in the plane.
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub enum Intersection2D {
     /// No common point.
     None,
@@ -140,6 +141,7 @@ pub fn plane_plane(p1: [f64; 3], n1: [f64; 3], p2: [f64; 3], n2: [f64; 3]) -> Op
 
 /// A ray-triangle hit: distance along the ray and barycentric weights of the hit point.
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub struct TriangleHit {
     pub t: f64,
     /// Weights `[wa, wb, wc]` of the triangle's vertices at the hit point.

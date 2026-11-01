@@ -11,13 +11,13 @@ use crate::two_d::coordinate_conversions;
 use crate::two_d::transform_support::{reflect_point_across_plane_2d, rotate_point_around_anchor_2d};
 use crate::two_d::{FreeVector2D, IsPlane, UnitVector2D};
 use crate::zero_d::IsPoint;
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 /// Concrete 2D coordinate-vector implementation whose stored coordinates may be Cartesian or polar.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CoordinateVector2D {
     coords: [GeometryMeasure; 2],
     coordinate_system: CoordinateSystem2D,

@@ -10,5 +10,9 @@ description = "Geometry traits, table-backed geometry graphs, and concrete 1D/2D
 path = "src/mod.rs"
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+
+[features]
+# Serialize (and, where implemented, deserialize) geometry types and tables with serde.
+serde = ["dep:serde", "dep:serde_json"]

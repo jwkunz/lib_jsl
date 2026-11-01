@@ -9,6 +9,7 @@ use std::collections::BinaryHeap;
 /// in roughly `O(log n)` for nearest neighbours. Queries return indices into the point slice the
 /// tree was built from. Points with non-finite coordinates are not indexed.
 #[derive(Debug, Clone)]
+
 pub struct KdTree<const D: usize> {
     points: Vec<[f64; D]>,
     /// Point indices arranged so that for each subslice the median is the node and the halves are
@@ -17,6 +18,7 @@ pub struct KdTree<const D: usize> {
 }
 
 #[derive(PartialEq)]
+
 struct Candidate {
     dist2: f64,
     index: usize,

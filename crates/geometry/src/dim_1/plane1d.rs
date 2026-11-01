@@ -2,11 +2,11 @@
 
 use crate::common::{GeometricPrimitive, IsPlane};
 use crate::one_d::{CoordinateVector1D, UnitVector1D};
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 
 /// Concrete 1D mirror reference represented by a point and unit normal.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Plane1D {
     point: CoordinateVector1D,
     normal: UnitVector1D,

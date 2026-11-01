@@ -19,7 +19,6 @@ use crate::three_d::{
 };
 use crate::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::two_d::{IsPolygon, IsTriangle};
-use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Display, Formatter};
@@ -27,12 +26,13 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// Concrete 3D tetrahedral volume mesh implementation backed by tetrahedron ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct VolumeMesh3D {
     tetrahedron_ids: Vec<TetrahedronId>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     tetrahedron_table: SharedGeometryTable<TetrahedronId, Tetrahedron3D>,
 }
 

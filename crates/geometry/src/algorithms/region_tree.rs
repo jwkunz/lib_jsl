@@ -4,6 +4,7 @@ use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
 #[derive(Debug, Clone)]
+
 struct Node<const D: usize> {
     min: [f64; D],
     max: [f64; D],
@@ -12,6 +13,7 @@ struct Node<const D: usize> {
 }
 
 #[derive(PartialEq)]
+
 struct Candidate {
     dist2: f64,
     id: usize,
@@ -158,6 +160,7 @@ impl<const D: usize> Node<D> {
 /// See [`QuadTree`](super::quad_trees::QuadTree) (`D = 2`) and [`OctTree`](super::oct_trees::OctTree)
 /// (`D = 3`).
 #[derive(Debug, Clone)]
+
 pub struct RegionTree<const D: usize> {
     root: Node<D>,
     capacity: usize,

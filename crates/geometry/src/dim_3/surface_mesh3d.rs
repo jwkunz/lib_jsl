@@ -13,18 +13,18 @@ use crate::one_d::IsLine;
 use crate::tables::SharedGeometryTable;
 use crate::three_d::{IsMesh, Line3D, CoordinateVector3D, PolygonFace3D, UnitVector3D};
 use crate::two_d::IsPolygon;
-use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 3D surface mesh implementation referencing polygon faces through ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct SurfaceMesh3D {
     face_ids: Vec<FaceId>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
 }
 

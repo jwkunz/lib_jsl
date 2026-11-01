@@ -10,6 +10,7 @@ pub type Metric4 = [[f64; 4]; 4];
 
 /// The Christoffel symbols `Γ^λ_{μν}` at one point.
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub struct ChristoffelSymbols4D {
     pub gamma: [[[f64; 4]; 4]; 4],
 }

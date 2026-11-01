@@ -4,13 +4,13 @@ use crate::common::{
     CanNormalize, CoordinatePrimitive, DotProduct, GeometricPrimitive, GeometryMeasure,
     HasDimension, HasNorm, IsUnitVector, Normalize,
 };
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Index, IndexMut};
 
 /// Concrete 1D unit-vector implementation with values constrained to `-1` or `1`.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UnitVector1D {
     coord: GeometryMeasure,
 }

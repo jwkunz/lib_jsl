@@ -12,13 +12,13 @@ use crate::coordinate_systems::{
 };
 use crate::three_d::coordinate_conversions;
 use crate::three_d::FreeVector3D;
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Index, IndexMut};
 
 /// Concrete 3D unit-vector implementation whose stored coordinates may be Cartesian, spherical, or cylindrical.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UnitVector3D {
     coords: [GeometryMeasure; 3],
     coordinate_system: CoordinateSystem3D,

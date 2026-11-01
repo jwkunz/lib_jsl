@@ -6,6 +6,7 @@ use std::collections::BTreeSet;
 /// A Voronoi diagram clipped to a bounding box: the cell of each site is the convex polygon of
 /// box points closer to that site than to any other.
 #[derive(Debug, Clone)]
+
 pub struct VoronoiDiagram {
     /// Counter-clockwise cell polygons, one per input site (empty for duplicate or non-finite
     /// sites, which have no cell of their own).

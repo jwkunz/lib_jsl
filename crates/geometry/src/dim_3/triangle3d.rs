@@ -12,17 +12,17 @@ use crate::tables::SharedGeometryTable;
 use crate::three_d::{Line3D, Plane3D, CoordinateVector3D, PolygonFace3D, UnitVector3D};
 use crate::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::two_d::{HasOrientation, IsPolygon, IsTriangle, Orientation2D};
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 3D triangle implementation backed by three point ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Triangle3D {
     a_id: PointId,
     b_id: PointId,
     c_id: PointId,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 

@@ -60,6 +60,7 @@ pub fn convex_polygon_contains_2d(points: &[[f64; 2]], hull: &[usize], p: [f64; 
 /// A convex polyhedron: triangular faces indexing into the input points, with counter-clockwise
 /// winding when seen from outside (normals point outward).
 #[derive(Debug, Clone, PartialEq)]
+
 pub struct Hull3D {
     pub faces: Vec<[usize; 3]>,
 }

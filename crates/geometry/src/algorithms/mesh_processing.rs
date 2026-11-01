@@ -91,6 +91,7 @@ pub fn taubin_smoothing(vertices: &[V3], triangles: &[[usize; 3]], iterations: u
 
 /// A symmetric 4×4 quadric stored as its 10 upper-triangle entries.
 #[derive(Clone, Copy, Default)]
+
 struct Quadric([f64; 10]);
 
 impl Quadric {
@@ -142,6 +143,7 @@ impl Quadric {
 }
 
 #[derive(PartialEq)]
+
 struct Candidate {
     cost: f64,
     a: usize,

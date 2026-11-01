@@ -24,6 +24,7 @@ use std::rc::Rc;
 /// This type is intentionally small and explicit so it can serve as the top-level integration
 /// object for applications building a geometry graph on top of the trait system.
 #[derive(Debug, Clone)]
+
 pub struct GeometryTableRegistry {
     point_table: SharedGeometryTable<PointId, CoordinateVector3D>,
     line_table: SharedGeometryTable<LineId, Line3D>,

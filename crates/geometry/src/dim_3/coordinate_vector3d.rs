@@ -17,14 +17,14 @@ use crate::three_d::transform_support::{reflect_point_across_plane, rotate_point
 use crate::three_d::{FreeVector3D, UnitVector3D};
 use crate::transformation_traits::{CanMirror, CanRotate, CanTranslate};
 use crate::zero_d::IsPoint;
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 /// Concrete 3D coordinate-vector implementation whose stored coordinates may be Cartesian,
 /// spherical, or cylindrical.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CoordinateVector3D {
     coords: [GeometryMeasure; 3],
     coordinate_system: CoordinateSystem3D,

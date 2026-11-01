@@ -9,6 +9,7 @@ use std::collections::HashMap;
 
 /// A chain of points where a plane cuts a mesh.
 #[derive(Debug, Clone, PartialEq)]
+
 pub struct Contour {
     /// Vertices in order. For a closed contour the first vertex is *not* repeated at the end.
     pub points: Vec<[f64; 3]>,

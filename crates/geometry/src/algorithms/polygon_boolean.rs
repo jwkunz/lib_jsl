@@ -10,6 +10,7 @@
 
 /// The boolean operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+
 pub enum BooleanOperation {
     Intersection,
     Union,
@@ -36,6 +37,7 @@ pub fn point_in_polygon(p: P, poly: &[P]) -> bool {
 }
 
 #[derive(Clone)]
+
 struct Node {
     p: P,
     /// Index of the matching node in the other list, for intersections.

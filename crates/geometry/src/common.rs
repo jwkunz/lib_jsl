@@ -4,7 +4,6 @@ use crate::one_d::IsLine;
 use crate::two_d::{IsPolygon, IsTriangle};
 use crate::three_d::IsTetrahedron;
 use crate::zero_d::IsPoint;
-use serde::Serialize;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
@@ -13,27 +12,46 @@ use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 pub type GeometryMeasure = f32;
 
 /// Stable identifier for entries in the root point table.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct PointId(pub u64);
 
 /// Stable identifier for entries in the root line table.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct LineId(pub u64);
 
 /// Stable identifier for entries in the root polygon-face table.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct FaceId(pub u64);
 
 /// Stable identifier for entries in the root triangle table.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct TriangleId(pub u64);
 
 /// Stable identifier for entries in the root tetrahedron table.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct TetrahedronId(pub u64);
 
+/// `serde::Serialize` when the `serde` feature is enabled, and no requirement otherwise. Used in
+/// trait bounds so that geometry types are serializable exactly when serialization is available.
+#[cfg(feature = "serde")]
+pub trait MaybeSerialize: serde::Serialize {}
+#[cfg(feature = "serde")]
+impl<T: serde::Serialize + ?Sized> MaybeSerialize for T {}
+
+/// `serde::Serialize` when the `serde` feature is enabled, and no requirement otherwise. Used in
+/// trait bounds so that geometry types are serializable exactly when serialization is available.
+#[cfg(not(feature = "serde"))]
+pub trait MaybeSerialize {}
+#[cfg(not(feature = "serde"))]
+impl<T: ?Sized> MaybeSerialize for T {}
+
 /// Base trait for stable geometry table keys.
-pub trait IsGeometryKey: Debug + Clone + Copy + PartialEq + Eq + Hash + Serialize + Sized {}
+pub trait IsGeometryKey: Debug + Clone + Copy + PartialEq + Eq + Hash + MaybeSerialize + Sized {}
 
 impl IsGeometryKey for PointId {}
 impl IsGeometryKey for LineId {}
@@ -47,7 +65,7 @@ pub trait GeometricPrimitive:
     + Clone
     + Display
     + PartialEq
-    + Serialize
+    + MaybeSerialize
     + Hash
     + Sized
 {
@@ -151,7 +169,8 @@ pub trait IsGeometryTable {
         Self: Sized;
     /// Iterates immutably over key/value pairs in the table.
     fn iter(&self) -> Box<dyn Iterator<Item = (Self::Key, Self::Item)> + '_>;
-    /// Serializes the table to a file.
+    /// Serializes the table to a file (as JSON for the library's tables; requires the `serde`
+    /// feature, and returns an error without it).
     fn to_file(&self, path: &str) -> Result<(), String>;
     /// Loads a table instance from a file.
     fn from_file(path: &str) -> Result<Self, String>
@@ -342,7 +361,7 @@ pub trait HasTriangles<'a>: Sized {
 /// use lib_jsl::geometry::common::{HasTetrahedra, IsGeometryTable, PointId, TetrahedronId};
 /// use lib_jsl::geometry::two_d::{CoordinateVector2D, UnitVector2D};
 ///
-/// #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+/// #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// struct FakeTable;
 ///
 /// impl IsGeometryTable for FakeTable {

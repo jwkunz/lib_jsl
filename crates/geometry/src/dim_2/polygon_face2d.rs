@@ -12,16 +12,16 @@ use crate::two_d::{
     FreeVector2D, HasOrientation, IsPolygon, Line2D, Plane2D, CoordinateVector2D, Triangle2D,
     UnitVector2D, Orientation2D,
 };
-use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 2D polygon face backed by ordered point ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct PolygonFace2D {
     vertex_ids: Vec<PointId>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
 }
 

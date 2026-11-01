@@ -610,5 +610,5 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 * Linear algebra primitives (dense linear algebra comes from `ndarray-linalg`)
 * Intrinsics or SIMD optimizations, except in the FFT engines
 * General-purpose containers or data structures
-* Complex number primitives (from `num`)
+* Complex number primitives (from `num-complex`)
 * Arbitrary precision primitives

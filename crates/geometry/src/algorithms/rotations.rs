@@ -111,6 +111,7 @@ pub fn rotation_matrix_axis_angle(axis: [f64; 3], angle: f64) -> Matrix3 {
 
 /// A coordinate axis.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum Axis {
     X,
     Y,
@@ -134,6 +135,7 @@ impl Axis {
 /// first and last axes coincide (XYX, ...) are "proper" Euler angles; the others (XYZ, ...) are
 /// Tait-Bryan angles.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub struct EulerSequence(pub [Axis; 3]);
 
 impl EulerSequence {
@@ -207,6 +209,7 @@ impl EulerSequence {
 
 /// A rotation in the plane about the origin.
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub struct Rotation2 {
     pub angle: f64,
 }
@@ -261,6 +264,7 @@ impl Mul for Rotation2 {
 
 /// A rotation in three dimensions, stored as a unit quaternion.
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub struct Rotation3 {
     q: Quaternion,
 }

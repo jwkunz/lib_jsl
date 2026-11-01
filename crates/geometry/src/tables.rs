@@ -6,10 +6,8 @@
 //! table.
 
 use crate::common::{GeometricPrimitive, IsGeometryKey, IsGeometryTable};
-use serde::Serialize;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::path::Path;
 use std::rc::Rc;
 
 /// Shared interior-mutable handle to a hash-backed geometry table.
@@ -21,7 +19,8 @@ pub type SharedGeometryTable<K, V> = Rc<RefCell<HashGeometryTable<K, V>>>;
 /// Hash-backed keyed geometry table implementation.
 ///
 /// This is the default concrete table type used by [`GeometryTableRegistry`](crate::registry::GeometryTableRegistry).
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct HashGeometryTable<K, V> {
     entries: HashMap<K, V>,
 }
@@ -90,9 +89,15 @@ where
         Box::new(self.entries.iter().map(|(key, value)| (*key, value.clone())))
     }
 
+    #[cfg(feature = "serde")]
     fn to_file(&self, path: &str) -> Result<(), String> {
         let serialized = serde_json::to_string_pretty(self).map_err(|err| err.to_string())?;
-        std::fs::write(Path::new(path), serialized).map_err(|err| err.to_string())
+        std::fs::write(std::path::Path::new(path), serialized).map_err(|err| err.to_string())
+    }
+
+    #[cfg(not(feature = "serde"))]
+    fn to_file(&self, _path: &str) -> Result<(), String> {
+        Err("writing geometry tables requires the `serde` feature".to_string())
     }
 
     fn from_file(path: &str) -> Result<Self, String>

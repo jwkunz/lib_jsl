@@ -7,7 +7,6 @@ use crate::common::{
 use crate::one_d::UnitVector1D;
 use crate::transformation_traits::{CanMirror, CanTranslate};
 use crate::zero_d::IsPoint;
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
@@ -22,7 +21,8 @@ use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 ///
 /// requires_transformable::<CoordinateVector1D>();
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CoordinateVector1D {
     coord: GeometryMeasure,
 }

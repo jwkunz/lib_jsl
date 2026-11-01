@@ -24,6 +24,7 @@ fn cross3(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
 
 /// A closest point and its distance from the query.
 #[derive(Debug, Clone, Copy, PartialEq)]
+
 pub struct Closest<const D: usize> {
     pub point: [f64; D],
     pub distance: f64,

@@ -9,6 +9,7 @@
 use std::ops::{Add, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+
 pub struct SpaceTimeVector4D {
     pub t: f64,
     pub x: f64,
@@ -18,6 +19,7 @@ pub struct SpaceTimeVector4D {
 
 /// How a four-vector sits relative to the light cone.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum Causality {
     Timelike,
     Lightlike,

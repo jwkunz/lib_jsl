@@ -16,16 +16,16 @@ use crate::three_d::{
 };
 use crate::transformation_traits::{CanMirror, CanRotate, CanShear, CanTranslate};
 use crate::two_d::{HasOrientation, IsPolygon, Orientation2D};
-use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 3D polygon face backed by ordered point ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct PolygonFace3D {
     vertex_ids: Vec<PointId>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 

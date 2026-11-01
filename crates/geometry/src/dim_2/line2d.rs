@@ -6,16 +6,16 @@ use crate::common::{
 use crate::one_d::IsLine;
 use crate::tables::SharedGeometryTable;
 use crate::two_d::{CoordinateVector2D, UnitVector2D};
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 2D line implementation backed by point ids and a shared point table.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Line2D {
     head_id: PointId,
     tail_id: PointId,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
 }
 

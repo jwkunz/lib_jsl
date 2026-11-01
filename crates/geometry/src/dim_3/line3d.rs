@@ -9,16 +9,16 @@ use crate::common::{
 use crate::one_d::IsLine;
 use crate::tables::SharedGeometryTable;
 use crate::three_d::{CoordinateVector3D, UnitVector3D};
-use serde::Serialize;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 3D line implementation backed by point ids and a shared point table.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Line3D {
     head_id: PointId,
     tail_id: PointId,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector3D>,
 }
 

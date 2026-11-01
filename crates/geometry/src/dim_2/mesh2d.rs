@@ -8,18 +8,18 @@ use crate::one_d::IsLine;
 use crate::tables::SharedGeometryTable;
 use crate::three_d::IsMesh;
 use crate::two_d::{IsPolygon, Line2D, CoordinateVector2D, PolygonFace2D, UnitVector2D};
-use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt::{self, Display, Formatter};
 use std::hash::{Hash, Hasher};
 
 /// Concrete 2D mesh implementation referencing polygon faces through ids.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Mesh2D {
     face_ids: Vec<FaceId>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     vertex_table: SharedGeometryTable<PointId, CoordinateVector2D>,
-    #[serde(skip_serializing)]
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     face_table: SharedGeometryTable<FaceId, PolygonFace2D>,
 }
 

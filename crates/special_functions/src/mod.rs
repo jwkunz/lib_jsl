@@ -21,6 +21,7 @@ pub mod sine_integrals;
 pub mod dawsons_integral;
 pub mod fermi_dirac_integrals;
 pub mod inverse_x_log_x;
+pub mod lambert_w;
 pub mod elliptic_integrals;
 pub mod jacobian_elliptic_functions;
 pub mod hypergeometric_functions;
@@ -152,3 +153,4 @@ pub use spherical_harmonics::{
     spherical_harmonic,
     real_spherical_harmonic,
 };
+pub use lambert_w::lambert_w;

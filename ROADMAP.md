@@ -591,7 +591,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)
 [x] Associated Legendre functions and spherical harmonics
 [ ] Riemann zeta
-[ ] Lambert W
+[x] Lambert W
 [ ] Polylogarithm
 
 # Statistics (`statistics`, planned crate)

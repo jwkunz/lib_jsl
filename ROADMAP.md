@@ -588,7 +588,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Jacobian elliptic functions
 [x] Hypergeometric functions
 [x] Statistical functions
-[ ] Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)
+[x] Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)
 [ ] Associated Legendre functions and spherical harmonics
 [ ] Riemann zeta
 [ ] Lambert W

@@ -25,6 +25,7 @@ pub mod elliptic_integrals;
 pub mod jacobian_elliptic_functions;
 pub mod hypergeometric_functions;
 pub mod statistical_functions;
+pub mod orthogonal_polynomials;
 
 pub use gamma::{
     gamma,
@@ -133,4 +134,14 @@ pub use statistical_functions::{
     poisson_cdf,
     binomial_pmf,
     binomial_cdf,
+};
+pub use orthogonal_polynomials::{
+    legendre,
+    legendre_with_derivative,
+    chebyshev_t,
+    chebyshev_u,
+    hermite,
+    hermite_he,
+    laguerre,
+    jacobi,
 };

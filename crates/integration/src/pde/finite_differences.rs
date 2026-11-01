@@ -19,6 +19,7 @@ pub fn solve_tridiagonal(a: &[f64], b: &[f64], c: &[f64], d: &[f64]) -> Result<V
     if a.len() != n || b.len() != n || c.len() != n || n == 0 {
         return Err(ErrorsJSL::IncompatibleArraySizes((a.len(), n)));
     }
+    // ANCHOR: thomas
     let mut cp = vec![0.0; n];
     let mut dp = vec![0.0; n];
     let mut denominator = b[0];
@@ -39,6 +40,7 @@ pub fn solve_tridiagonal(a: &[f64], b: &[f64], c: &[f64], d: &[f64]) -> Result<V
     for i in (0..n - 1).rev() {
         x[i] -= cp[i] * x[i + 1];
     }
+    // ANCHOR_END: thomas
     Ok(x)
 }
 

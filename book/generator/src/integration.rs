@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    finite_difference_figures();
     bvp_figures();
     stiff_figures();
     runge_kutta_figures();
@@ -672,4 +673,57 @@ fn bvp_figures() {
     plot.series.push(Series::new("collocation solution", curve, Style::Line, 0));
     plot.series.push(Series::new("mesh points", sol.x.iter().zip(&sol.y).filter(|(x, _)| **x > 0.0).map(|(&x, y)| (x, y[0])).collect(), Style::Markers, 1));
     write(CHAPTER, "bvp_boundary_layer.svg", &plot.render());
+}
+
+fn finite_difference_figures() {
+    use lib_jsl_integration::pde::finite_differences::{HeatScheme, heat_equation_1d, poisson_2d, wave_equation_1d};
+    // Heat equation u_t = u_xx, u(x, 0) = sin πx, at t = 0.1: exact e^{−π² t} sin πx.
+    let t_end = 0.1;
+    let mut table = String::from("| grid points | $\\Delta x$ | explicit steps ($r \\le \\tfrac12$) | explicit error | Crank-Nicolson steps ($\\Delta t = \\Delta x$) | Crank-Nicolson error |\n|---:|---:|---:|---:|---:|---:|\n");
+    for n in [11usize, 21, 41, 81, 161] {
+        let dx = 1.0 / (n - 1) as f64;
+        let u0: Vec<f64> = (0..n).map(|i| (PI * i as f64 * dx).sin()).collect();
+        let exact: Vec<f64> = (0..n).map(|i| (-PI * PI * t_end).exp() * (PI * i as f64 * dx).sin()).collect();
+        let err = |u: &[f64]| u.iter().zip(&exact).map(|(a, b)| (a - b).abs()).fold(0.0, f64::max);
+        let explicit_steps = (t_end / (0.5 * dx * dx)).ceil() as usize;
+        let e = heat_equation_1d(&u0, 1.0, 1.0, t_end / explicit_steps as f64, explicit_steps, 0.0, 0.0, HeatScheme::Explicit).unwrap();
+        let cn_steps = (t_end / dx).ceil() as usize;
+        let c = heat_equation_1d(&u0, 1.0, 1.0, t_end / cn_steps as f64, cn_steps, 0.0, 0.0, HeatScheme::CrankNicolson).unwrap();
+        table.push_str(&format!("| {n} | {dx:.4} | {explicit_steps} | {:.2e} | {cn_steps} | {:.2e} |\n", err(&e), err(&c)));
+    }
+    write(CHAPTER, "heat_convergence.md", &table);
+
+    // A wave pulse after t = 0.4 with Courant numbers 1 and 0.5, against d'Alembert's solution.
+    let n = 101;
+    let dx = 1.0 / (n - 1) as f64;
+    let pulse = |x: f64| (-3000.0 * (x - 0.3).powi(2)).exp();
+    // Odd, 2-periodic extension (fixed ends reflect with a sign change).
+    let extended = |x: f64| { let y = x.rem_euclid(2.0); if y <= 1.0 { pulse(y) } else { -pulse(2.0 - y) } };
+    let t = 0.4;
+    let u0: Vec<f64> = (0..n).map(|i| pulse(i as f64 * dx)).collect();
+    let v0 = vec![0.0; n];
+    let mut plot = Plot::new("A wave pulse at t = 0.4: leapfrog with Courant numbers 1 and 0.5", "x", "u(x, 0.4)");
+    plot.legend = Legend::BottomRight;
+    let exact: Vec<(f64, f64)> = (0..=1000).map(|i| { let x = i as f64 / 1000.0; (x, 0.5 * (extended(x - t) + extended(x + t))) }).collect();
+    plot.series.push(Series::new("exact (d'Alembert)", exact, Style::Line, 6));
+    for (k, courant) in [1.0f64, 0.5].iter().enumerate() {
+        let dt = courant * dx;
+        let steps = (t / dt).round() as usize;
+        let u = wave_equation_1d(&u0, &v0, 1.0, 1.0, dt, steps).unwrap();
+        plot.series.push(Series::new(&format!("Courant number {courant}"), u.iter().enumerate().map(|(i, &v)| (i as f64 * dx, v)).collect(), Style::LineMarkers, k));
+    }
+    write(CHAPTER, "wave_courant.svg", &plot.render());
+
+    // Poisson on the unit square: −∇²u = 2π² sin πx sin πy, u = 0 on the boundary.
+    let mut table = String::from("| grid | $h$ | maximum error | ratio |\n|---:|---:|---:|---:|\n");
+    let mut previous: Option<f64> = None;
+    for n in [9usize, 17, 33, 65, 129] {
+        let u = poisson_2d(|x, y| 2.0 * PI * PI * (PI * x).sin() * (PI * y).sin(), |_, _| 0.0, 1.0, 1.0, n, n).unwrap();
+        let h = 1.0 / (n - 1) as f64;
+        let err = (0..n).flat_map(|j| (0..n).map(move |i| (i, j))).map(|(i, j)| (u[j][i] - (PI * i as f64 * h).sin() * (PI * j as f64 * h).sin()).abs()).fold(0.0, f64::max);
+        let ratio = previous.map_or(String::new(), |p| format!("{:.2}", p / err));
+        table.push_str(&format!("| {n} × {n} | 1/{} | {err:.2e} | {ratio} |\n", n - 1));
+        previous = Some(err);
+    }
+    write(CHAPTER, "poisson_convergence.md", &table);
 }

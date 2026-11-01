@@ -3,6 +3,8 @@
 //! Conventions: the Condon-Shortley phase `(−1)^m` is included in `P_l^m`, and
 //! `Y_l^m(θ, φ) = √((2l+1)/(4π) · (l−m)!/(l+m)!) P_l^m(cos θ) e^{imφ}` is orthonormal on the unit
 //! sphere, with `Y_l^{−m} = (−1)^m conj(Y_l^m)` (the physics and quantum-mechanics convention).
+//!
+//! See the book entry [Orthogonal polynomials and spherical harmonics](https://jwkunz.github.io/lib_jsl/book/special_functions/orthogonal-polynomials.html#associated-legendre-functions-and-spherical-harmonics).
 
 use num_complex::Complex;
 use std::f64::consts::PI;

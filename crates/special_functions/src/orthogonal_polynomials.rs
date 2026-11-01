@@ -8,7 +8,10 @@
 //! | Hermite `H_n` (physicists') | `e^{−x²}` | ℝ | leading coefficient `2ⁿ` |
 //! | Hermite `He_n` (probabilists') | `e^{−x²/2}` | ℝ | monic |
 //! | Laguerre `L_n^{(α)}` | `x^α e^{−x}` | [0, ∞) | `L_n^{(α)}(0) = C(n+α, n)` |
+//!
+//! See the book entry [Orthogonal polynomials and spherical harmonics](https://jwkunz.github.io/lib_jsl/book/special_functions/orthogonal-polynomials.html#classical-orthogonal-polynomials).
 
+// ANCHOR: recurrence
 /// Runs `p_{k+1} = a_k(x) p_k − b_k p_{k−1}` from `p_0 = 1`, `p_1` and returns `(p_n, p_{n−1})`
 /// (`p_{−1} = 0`).
 fn recurrence(n: u32, p1: f64, step: impl Fn(u32, f64, f64) -> f64) -> (f64, f64) {
@@ -25,6 +28,7 @@ fn recurrence(n: u32, p1: f64, step: impl Fn(u32, f64, f64) -> f64) -> (f64, f64
         }
     }
 }
+// ANCHOR_END: recurrence
 
 /// The Legendre polynomial `P_n(x)`.
 pub fn legendre(n: u32, x: f64) -> f64 {

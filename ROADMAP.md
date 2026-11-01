@@ -599,7 +599,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Correlation and covariance
 [x] Hypothesis tests
 [x] Kernel density estimation
-[ ] Bootstrap
+[x] Bootstrap
 
 # Utils (`utils`)
 [x] Terminal plots (Cartesian and polar)

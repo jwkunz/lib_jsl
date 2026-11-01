@@ -6,3 +6,4 @@
 
 pub mod descriptive;
 pub mod correlation;
+pub mod hypothesis_tests;

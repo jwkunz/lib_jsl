@@ -258,7 +258,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 ## Image
 [x] JPEG
 [x] JPEG files
-[ ] Lossless images (PNG, PPM)
+[x] Lossless images (PNG, PPM)
 
 ## Data
 [ ] CSV files

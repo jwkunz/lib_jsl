@@ -1,4 +1,6 @@
 //! Nonlinear conjugate gradient minimization.
+//!
+//! See the book entry [Gradient descent and nonlinear conjugate gradients](https://jwkunz.github.io/lib_jsl/book/optimization/gradient-methods.html#nonlinear-conjugate-gradients).
 
 use crate::line_search::strong_wolfe;
 use crate::optimization_traits::{GradientBasedMinimizationEngine, GradientFunction, MinimizationControls, ObjectiveFunction, OptimizationResult};
@@ -85,6 +87,7 @@ impl<T: ObjectiveFunction, U: GradientFunction> GradientBasedMinimizationEngine<
             let gg = dot(&g, &g);
             let new_gg = dot(&p.gradient, &p.gradient);
             let dy = dot(&d, &y);
+            // ANCHOR: cg_direction
             let beta = match self.beta {
                 ConjugateGradientBeta::FletcherReeves => new_gg / gg,
                 ConjugateGradientBeta::PolakRibierePlus => (dot(&p.gradient, &y) / gg).max(0.0),
@@ -100,6 +103,7 @@ impl<T: ObjectiveFunction, U: GradientFunction> GradientBasedMinimizationEngine<
                 beta
             };
             d.iter_mut().zip(&g).for_each(|(di, gi)| *di = -gi + beta * *di);
+            // ANCHOR_END: cg_direction
             converged = inf_norm(&g) <= tol;
         }
         Ok(OptimizationResult { parameters: x, objective_value: f, iterations, converged })

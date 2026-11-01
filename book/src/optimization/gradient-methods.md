@@ -1,0 +1,180 @@
+# Gradient descent and nonlinear conjugate gradients
+
+<div class="entry-summary">
+
+| | |
+|---|---|
+| **Problem** | Minimise a smooth function of many variables using its gradient |
+| **Devised by** | Gradient descent: Augustin-Louis Cauchy (1847). Conjugate gradients: Magnus Hestenes and Eduard Stiefel (1952, for linear systems); for nonlinear functions, Roger Fletcher and Colin Reeves (1964), Elijah Polak and Gerard Ribière (1969), Boris Polyak (1969), Yu-Hong Dai and Ya-Xiang Yuan (1999) |
+| **Accuracy** | Gradient descent: linear convergence, with rate $(\kappa - 1)/(\kappa + 1)$ at best for condition number $\kappa$. Conjugate gradients: about $(\sqrt\kappa - 1)/(\sqrt\kappa + 1)$, and exact in $n$ steps on a quadratic with exact line searches |
+| **Cost** | One gradient per iteration (gradient descent), or one line search (conjugate gradients); $O(n)$ memory |
+| **API** | [`GradientDescent`](../../api/lib_jsl_optimization/gradient_descent/struct.GradientDescent.html), [`NonlinearConjugateGradient`](../../api/lib_jsl_optimization/conjugate_gradient/struct.NonlinearConjugateGradient.html), [`ConjugateGradientBeta`](../../api/lib_jsl_optimization/conjugate_gradient/enum.ConjugateGradientBeta.html) |
+
+</div>
+
+## Overview
+
+The gradient $\nabla f(\mathbf x)$ points in the direction in which $f$ increases fastest, so $-\nabla f$ is the
+direction of **steepest descent**. **Gradient descent** simply steps along it, again and again. It
+is the simplest optimisation method there is, and in its stochastic form it trains almost every
+neural network. But it is slow on **ill-conditioned** problems, where $f$ changes much faster in
+some directions than in others: the steps zigzag across a narrow valley instead of running along
+it.
+
+**Conjugate gradient** methods remove the zigzag by choosing each new direction to be
+**conjugate** to the previous ones, so that progress made along one direction is not undone along
+the next. They cost little more than gradient descent per iteration, store only a few vectors, and
+converge far faster. They are the method of choice for very large smooth problems when memory is
+short.
+
+## History
+
+Augustin-Louis Cauchy proposed the method of steepest descent in 1847, to solve the systems of
+equations arising in astronomy by minimising a sum of squares. For a century it was the only
+general method, and its slow convergence was analysed by Leonid Kantorovich (1945), who bounded its
+rate in terms of the condition number.
+
+Magnus Hestenes and Eduard Stiefel, working independently and then together at the Institute for
+Numerical Analysis in Los Angeles, published the conjugate gradient method for symmetric positive
+definite linear systems in 1952; for the quadratic $\tfrac12\mathbf x^{\mathsf T}A\mathbf x - \mathbf b^{\mathsf T}\mathbf x$ it is a minimiser that
+terminates in at most $n$ steps. Roger Fletcher and Colin Reeves (1964) extended it to general
+functions by replacing the exact formulas with line searches. Elijah Polak and Gerard Ribière, and
+independently Boris Polyak (1969), proposed a variant that restarts itself when it stops making
+progress, and Michael Powell (1984) and Jean Charles Gilbert and Jorge Nocedal (1992) analysed its
+convergence and introduced the safeguarded "PR+" version used here.
+
+## The idea
+
+### Gradient descent
+
+From $\mathbf x_k$, step against the gradient with a **learning rate** $\alpha$:
+
+$$
+\mathbf x_{k+1} = \mathbf x_k - \alpha\,\nabla f(\mathbf x_k).
+$$
+
+The behaviour is clearest on a quadratic $f = \tfrac12\mathbf x^{\mathsf T}A\mathbf x$, whose Hessian $A$ has eigenvalues
+from $\mu$ to $L$. In the eigenvector coordinates each component is multiplied by $1 - \alpha\lambda_i$ per
+step, so the iteration converges if and only if $\alpha < 2/L$, and its rate is $\max_i|1 - \alpha\lambda_i|$. The
+best fixed step, $\alpha = 2/(L + \mu)$, gives the rate
+
+$$
+\frac{L - \mu}{L + \mu} = \frac{\kappa - 1}{\kappa + 1}, \qquad \kappa = L/\mu,
+$$
+
+which is close to 1 when the **condition number** $\kappa$ is large: about $\kappa$ iterations per factor
+$e$ of progress. For $\tfrac12(x^2 + 10y^2)$, with $L = 10$, $\mu = 1$, the best step is $2/11 \approx 0.18$:
+
+![Gradient descent with various steps](../generated/optimization/step_sizes.svg)
+
+A step of 0.205 exceeds $2/L = 0.2$ and diverges; a step of 0.02 is safe but ten times slower than
+0.18. For a general smooth $f$, $L$ is a bound on the curvature (the **Lipschitz constant** of $\nabla f$),
+and a step $\alpha \le 1/L$ guarantees that $f$ decreases. Choosing $\alpha$ well requires knowing $L$, which
+is why practical methods choose the step by a [line search](one-dimensional.md#line-searches-and-the-wolfe-conditions)
+instead.
+
+Even with the best step, the path zigzags. Each step is perpendicular to the contour at its
+starting point, and in an elongated valley that direction points mostly across the valley:
+
+![Gradient descent and conjugate gradients](../generated/optimization/quadratic_paths.svg)
+
+### Nonlinear conjugate gradients
+
+Conjugate gradients build each search direction from the new gradient and the previous direction,
+
+$$
+\mathbf d_{k+1} = -\nabla f(\mathbf x_{k+1}) + \beta_k\,\mathbf d_k, \qquad \mathbf x_{k+1} = \mathbf x_k + \alpha_k\mathbf d_k,
+$$
+
+with $\alpha_k$ from a line search and $\beta_k$ chosen so that, for a quadratic with exact line
+searches, the directions are **conjugate**: $\mathbf d_i^{\mathsf T}A\,\mathbf d_j = 0$ for $i \ne j$. Then the minimisation
+along each direction never needs repeating, and the minimum of an $n$-dimensional quadratic is
+reached in at most $n$ steps: two steps in the figure. With $\mathbf g_k = \nabla f(\mathbf x_k)$ and $\mathbf y_k = \mathbf g_{k+1} - \mathbf g_k$,
+the classic choices of $\beta_k$, all equal on a quadratic with exact line searches, are
+
+| name | $\beta_k$ | property |
+|---|---|---|
+| Fletcher-Reeves | $\|\mathbf g_{k+1}\|^2 / \|\mathbf g_k\|^2$ | global convergence theory, but can stall with tiny steps |
+| Polak-Ribière (PR+) | $\max(0,\ \mathbf g_{k+1}^{\mathsf T}\mathbf y_k / \|\mathbf g_k\|^2)$ | restarts itself when progress stalls; the usual default |
+| Hestenes-Stiefel | $\mathbf g_{k+1}^{\mathsf T}\mathbf y_k / \mathbf d_k^{\mathsf T}\mathbf y_k$ | the original linear formula |
+| Dai-Yuan | $\|\mathbf g_{k+1}\|^2 / \mathbf d_k^{\mathsf T}\mathbf y_k$ | descent with any Wolfe line search |
+
+On a non-quadratic function conjugacy holds only approximately, so the method is restarted with
+steepest descent every $n$ iterations, or whenever $\mathbf d$ fails to be a descent direction. Near a
+minimum $f$ is nearly quadratic, and the convergence rate approaches that of linear conjugate
+gradients, about $(\sqrt\kappa - 1)/(\sqrt\kappa + 1)$ per iteration: $\sqrt\kappa$ iterations per factor $e$, rather
+than $\kappa$.
+
+## Algorithm
+
+**Gradient descent** with learning rate $\alpha$: repeat $\mathbf x \leftarrow \mathbf x - \alpha\nabla f(\mathbf x)$ (projected onto the
+bounds if any) until $f$ changes by less than the tolerance.
+
+**Nonlinear conjugate gradients**:
+
+1. Set $\mathbf d_0 = -\mathbf g_0$.
+2. Find $\alpha_k$ by a strong Wolfe line search with $c_2 = 0.1$, starting from a step scaled from the
+   previous one.
+3. Compute $\mathbf g_{k+1}$ and $\beta_k$, and set $\mathbf d_{k+1} = -\mathbf g_{k+1} + \beta_k\mathbf d_k$ (with $\beta_k = 0$ every $n$ steps).
+4. Stop when $\|\mathbf g\|_\infty$ is below the tolerance.
+
+## Implementation
+
+```rust,ignore
+{{#include ../../../crates/optimization/src/gradient_descent.rs:gradient_step}}
+```
+
+```rust,ignore
+{{#include ../../../crates/optimization/src/conjugate_gradient.rs:cg_direction}}
+```
+
+- `GradientDescent` stops when one step changes $f$ by less than the tolerance (default $10^{-5}$). That
+  test does not look at the gradient: with a small learning rate, $f$ changes little per step even
+  far from the minimum, so check the result. With bounds, each step is projected onto the box.
+- `NonlinearConjugateGradient` stops on the gradient norm (default $10^{-8}$) and does not support
+  bounds.
+- On the Rosenbrock function and an ill-conditioned quadratic the methods compare as follows (more
+  methods in the [next entry](newton-quasi-newton.md#comparison)): gradient descent needs over 14 000
+  iterations from $(-1.2, 1)$, conjugate gradients about 36.
+
+## In practice
+
+```rust,ignore
+{{#include ../../../crates/optimization/examples/optimization_gradient.rs}}
+```
+
+**Strengths**
+
+- $O(n)$ memory and cost per iteration, so they scale to millions of variables.
+- Conjugate gradients need no parameter tuning and converge like $\sqrt\kappa$ rather than $\kappa$.
+
+**Weaknesses**
+
+- Gradient descent is very slow on ill-conditioned problems and needs a well-chosen step.
+- Conjugate gradients need accurate line searches, and are usually beaten by
+  [L-BFGS](newton-quasi-newton.md#l-bfgs), which uses the same memory more effectively.
+
+## Exercises
+
+1. For $f = \tfrac12\mathbf x^{\mathsf T}A\mathbf x$, show that gradient descent with step $\alpha$ multiplies each eigencomponent by
+   $1 - \alpha\lambda_i$, and that the best fixed step is $2/(L + \mu)$.
+2. Show that gradient descent with exact line searches takes successive steps at right angles.
+3. Show that on a quadratic, with exact line searches, the Fletcher-Reeves and Polak-Ribière formulas
+   give the same $\beta$.
+4. Minimise $\tfrac12\sum_i i\,x_i^2$ for $n = 10, 100, 1000$ with conjugate gradients and gradient descent.
+   How do the iteration counts grow with $n$ (and so with $\kappa = n$)?
+5. Replace the fixed learning rate with a backtracking (Armijo) line search, and compare on the
+   Rosenbrock function.
+
+## Further reading
+
+- A. Cauchy, "Méthode générale pour la résolution des systèmes d'équations simultanées", *Comptes
+  Rendus de l'Académie des Sciences* 25 (1847) 536–538.
+- M. R. Hestenes and E. Stiefel, "Methods of conjugate gradients for solving linear systems", *Journal
+  of Research of the National Bureau of Standards* 49 (1952) 409–436.
+- R. Fletcher and C. M. Reeves, "Function minimization by conjugate gradients", *The Computer Journal*
+  7 (1964) 149–154.
+- W. W. Hager and H. Zhang, "A survey of nonlinear conjugate gradient methods", *Pacific Journal of
+  Optimization* 2 (2006) 35–58.
+- J. R. Shewchuk, "An introduction to the conjugate gradient method without the agonizing pain",
+  Carnegie Mellon University, 1994.

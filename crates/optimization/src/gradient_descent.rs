@@ -6,6 +6,8 @@
 //! learning rate the objective changes little per step even far from a minimum, so check the
 //! result. Too large a learning rate (above `2/L` for an `L`-smooth function) diverges. With
 //! bounds, each step is projected onto the box (projected gradient descent).
+//!
+//! See the book entry [Gradient descent and nonlinear conjugate gradients](https://jwkunz.github.io/lib_jsl/book/optimization/gradient-methods.html#gradient-descent).
 
 use crate::optimization_traits::{
     GradientBasedMinimizationEngine, GradientFunction, MinimizationControls, ObjectiveFunction,
@@ -96,6 +98,7 @@ where T: ObjectiveFunction, U: GradientFunction {
                     "Gradient length must match the number of parameters.",
                 ));
             }
+            // ANCHOR: gradient_step
             let mut new_parameters: Vec<f64> = result.parameters.iter().zip(gradient.iter()).map(|(p, g)| p - self.learning_rate * g).collect();
             if let Some(bounds) = bounds.as_ref() {
                 new_parameters = new_parameters.iter().enumerate().map(|(i, p)| {
@@ -103,6 +106,7 @@ where T: ObjectiveFunction, U: GradientFunction {
                     p.max(lower_bound).min(upper_bound)
                 }).collect();
             }
+            // ANCHOR_END: gradient_step
             // The objective value at the new parameters is evaluated, and the convergence status is determined based on whether the change in objective value is smaller than the specified tolerance.
             let new_objective_value = objective_function.evaluate(&new_parameters);
             result.iterations += 1;

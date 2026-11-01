@@ -4,8 +4,10 @@
 [How to read an entry](how-to-read.md)
 [Catalogue of algorithms](catalogue.md)
 
-# Integration
+# Calculus and analysis
 
+- [Numerical differentiation](derivatives/index.md)
+    - [Finite difference derivatives](derivatives/finite-differences.md)
 - [Numerical integration](integration/index.md)
     - [Newton-Cotes rules: midpoint, trapezoid and Simpson](integration/newton-cotes.md)
     - [Romberg integration](integration/romberg.md)

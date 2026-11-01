@@ -32,10 +32,10 @@ Derivatives, integrals, interpolation, equations and optimisation of functions, 
 
 Numerical differentiation routines for scalar and vector-valued functions.
 
-Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.html) · 2 items
+Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.html) · [book chapter](derivatives/index.md) · 2 items
 
-- Scalar derivatives (1D)
-- Vector derivatives
+- [Scalar derivatives (1D)](derivatives/finite-differences.md)
+- [Vector derivatives](derivatives/finite-differences.md#gradients-hessians-and-jacobians)
 
 ### Integration
 

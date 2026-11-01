@@ -3,6 +3,7 @@
 //! Run from the repository root with `cargo run -p lib_jsl_book_generator --release`; outputs go
 //! to `book/src/generated/`.
 
+mod derivatives;
 mod integration;
 mod svg;
 
@@ -21,5 +22,6 @@ pub fn write(chapter: &str, name: &str, contents: &str) {
 }
 
 fn main() {
+    derivatives::generate();
     integration::generate();
 }

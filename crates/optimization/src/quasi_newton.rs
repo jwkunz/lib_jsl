@@ -1,6 +1,8 @@
 //! Quasi-Newton minimizers: BFGS with a dense inverse-Hessian approximation and limited-memory
 //! L-BFGS. Both use a strong Wolfe line search, which keeps the curvature condition `yᵀs > 0`
 //! and hence the approximation positive definite.
+//!
+//! See the book entry [Newton and quasi-Newton methods](https://jwkunz.github.io/lib_jsl/book/optimization/newton-quasi-newton.html#bfgs).
 
 use crate::line_search::strong_wolfe;
 use crate::optimization_traits::{GradientBasedMinimizationEngine, GradientFunction, MinimizationControls, ObjectiveFunction, OptimizationResult};
@@ -112,6 +114,7 @@ impl<T: ObjectiveFunction, U: GradientFunction> GradientBasedMinimizationEngine<
                     h.iter_mut().flatten().for_each(|v| *v *= scale);
                     first = false;
                 }
+                // ANCHOR: bfgs_update
                 let rho = 1.0 / sy;
                 let hy: Vec<f64> = h.iter().map(|row| dot(row, &y)).collect();
                 let yhy = dot(&y, &hy);
@@ -120,6 +123,7 @@ impl<T: ObjectiveFunction, U: GradientFunction> GradientBasedMinimizationEngine<
                         h[i][j] += -rho * (hy[i] * s[j] + s[i] * hy[j]) + (rho * rho * yhy + rho) * s[i] * s[j];
                     }
                 }
+                // ANCHOR_END: bfgs_update
             }
             converged = inf_norm(&g) <= tol;
         }
@@ -162,6 +166,7 @@ impl<T: ObjectiveFunction, U: GradientFunction> GradientBasedMinimizationEngine<
         let mut converged = inf_norm(&g) <= tol;
         while !converged && iterations < max_iterations {
             iterations += 1;
+            // ANCHOR: two_loop
             // Two-loop recursion: d = −H g.
             let mut q = g.clone();
             let mut alphas = Vec::with_capacity(pairs.len());
@@ -176,6 +181,7 @@ impl<T: ObjectiveFunction, U: GradientFunction> GradientBasedMinimizationEngine<
                 let b = rho * dot(y, &q);
                 q.iter_mut().zip(s).for_each(|(v, si)| *v += (a - b) * si);
             }
+            // ANCHOR_END: two_loop
             let mut d: Vec<f64> = q.iter().map(|v| -v).collect();
             if dot(&d, &g) >= 0.0 {
                 pairs.clear();

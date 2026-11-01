@@ -3,6 +3,8 @@
 //! definite Hessian, but it is the pure method, with no line search or trust region: from a poor
 //! start, or where the Hessian is indefinite, it can move uphill or towards a saddle point. For
 //! robust minimization prefer [`Bfgs`](crate::quasi_newton::Bfgs).
+//!
+//! See the book entry [Newton and quasi-Newton methods](https://jwkunz.github.io/lib_jsl/book/optimization/newton-quasi-newton.html#newtons-method).
 use crate::{
     optimization_traits::{
         GradientFunction, HessianBasedMinimizationEngine, HessianFunction, MinimizationControls,

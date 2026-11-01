@@ -541,7 +541,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Student's t
 [x] Gamma
 [x] Beta
-[ ] Log-normal
+[x] Log-normal
 [ ] Cauchy
 [ ] Binomial
 [ ] Multivariate normal

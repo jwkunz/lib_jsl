@@ -9,6 +9,7 @@
 //! - [`kernels`]: linear, polynomial, RBF and sigmoid kernels
 //! - [`metrics`]: errors, accuracy, silhouette, adjusted Rand index
 //! - [`model_selection`]: k-fold and stratified cross-validation, grid search
+//! - [`neural_network`]: multilayer perceptrons trained by backpropagation and Adam
 //! - [`supervised`]: regression and classification
 //! - [`unsupervised`]: clustering and dimensionality reduction
 
@@ -18,6 +19,7 @@ pub mod ensembles;
 pub mod kernels;
 pub mod metrics;
 pub mod model_selection;
+pub mod neural_network;
 pub mod preprocessing;
 pub mod supervised;
 pub mod unsupervised;

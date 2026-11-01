@@ -477,7 +477,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Linear discriminant analysis
 
 ## Neural networks
-[ ] Multilayer perceptron with backpropagation
+[x] Multilayer perceptron with backpropagation
 
 ## Ensembles and model selection
 [x] Gradient boosting

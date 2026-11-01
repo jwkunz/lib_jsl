@@ -1,5 +1,7 @@
 //! Cholesky factorisation `A = L Lᴴ` of Hermitian positive-definite matrices, and triangular
 //! solves.
+//!
+//! See the book entry [Cholesky factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/cholesky.html#the-blocked-algorithm).
 
 use crate::dense::{Mat, dot_conj, require_square, sub_matmul};
 
@@ -24,6 +26,7 @@ pub(crate) fn cholesky_lower<T: Scalar>(a: &Mat<T>, uplo: UPLO) -> Result<Mat<T>
         }
     }
     let mut panel_adjoint: Vec<T> = Vec::new();
+    // ANCHOR: blocked_cholesky
     for k in (0..n).step_by(BLOCK) {
         let kb = BLOCK.min(n - k);
         factor_diagonal_block(&mut l, k, kb)?;
@@ -70,6 +73,7 @@ pub(crate) fn cholesky_lower<T: Scalar>(a: &Mat<T>, uplo: UPLO) -> Result<Mat<T>
             }
         }
     }
+    // ANCHOR_END: blocked_cholesky
     // The trailing updates also wrote above the diagonal of each diagonal block.
     for i in 0..n {
         l.data[i * n + i + 1..(i + 1) * n].fill(T::zero());

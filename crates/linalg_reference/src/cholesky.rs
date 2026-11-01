@@ -8,10 +8,13 @@
 //! It costs half as much as LU, needs no pivoting (the diagonal of a positive-definite matrix
 //! dominates), and doubles as a test for positive definiteness: the square root fails exactly
 //! when `A` is not positive definite.
+//!
+//! See the book entry [Cholesky factorisation](https://jwkunz.github.io/lib_jsl/book/linear_algebra/cholesky.html).
 
 use crate::Error;
 use ndarray::Array2;
 
+// ANCHOR: banachiewicz
 /// The lower Cholesky factor `L`.
 pub fn cholesky(a: &Array2<f64>) -> Result<Array2<f64>, Error> {
     let n = a.nrows();
@@ -32,6 +35,7 @@ pub fn cholesky(a: &Array2<f64>) -> Result<Array2<f64>, Error> {
     }
     Ok(l)
 }
+// ANCHOR_END: banachiewicz
 
 #[cfg(test)]
 mod tests {

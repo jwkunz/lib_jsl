@@ -6,6 +6,8 @@
 //! nearest the shift `σ`; the closer the shift, the faster the convergence. **Rayleigh quotient
 //! iteration** updates the shift to the current estimate `σ = vᵀAv` at every step, which converges
 //! cubically for symmetric matrices, at the price of a new factorisation per step.
+//!
+//! See the book entry [Eigenvalue algorithms](https://jwkunz.github.io/lib_jsl/book/linear_algebra/eigen-iterations.html#power-iteration-inverse-iteration-and-the-rayleigh-quotient).
 
 use crate::Error;
 use ndarray::{Array1, Array2};
@@ -61,6 +63,7 @@ pub fn inverse_iteration(
     iterate(a, start, tolerance, max_iterations, |v, _| factors.solve(v).map(Some))
 }
 
+// ANCHOR: rqi
 /// Rayleigh quotient iteration: `v ← (A − σ_k I)⁻¹ v` with `σ_k = vᵀAv`, refactorising each step.
 pub fn rayleigh_quotient_iteration(
     a: &Array2<f64>,
@@ -76,6 +79,7 @@ pub fn rayleigh_quotient_iteration(
         }
     })
 }
+// ANCHOR_END: rqi
 
 #[cfg(test)]
 mod tests {

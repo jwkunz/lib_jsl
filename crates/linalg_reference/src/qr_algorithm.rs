@@ -12,6 +12,8 @@
 //! 2 × 2 block nearer its corner entry, always converges for symmetric matrices. Production codes
 //! add one more ingredient, a preliminary reduction to tridiagonal (or Hessenberg) form, so that
 //! each step costs `O(n)` (or `O(n²)`) rather than `O(n³)`.
+//!
+//! See the book entry [Eigenvalue algorithms](https://jwkunz.github.io/lib_jsl/book/linear_algebra/eigen-iterations.html#the-qr-algorithm).
 
 use crate::Error;
 use crate::qr::householder;
@@ -48,6 +50,7 @@ pub fn unshifted_qr(a: &Array2<f64>, tolerance: f64, max_iterations: usize) -> R
     Err("unshifted QR did not converge")
 }
 
+// ANCHOR: shifted_qr
 /// QR iteration with Wilkinson shifts and deflation.
 pub fn shifted_qr(a: &Array2<f64>, tolerance: f64, max_iterations: usize) -> Result<QrEigenvalues, Error> {
     let scale = frobenius(a);
@@ -71,6 +74,7 @@ pub fn shifted_qr(a: &Array2<f64>, tolerance: f64, max_iterations: usize) -> Res
     }
     Ok(QrEigenvalues { values: sorted_diagonal(&a), iterations })
 }
+// ANCHOR_END: shifted_qr
 
 /// The eigenvalue of `[[a, b], [b, c]]` closer to `c`.
 pub fn wilkinson_shift(a: f64, b: f64, c: f64) -> f64 {

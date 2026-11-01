@@ -7,6 +7,8 @@
 //! method converges quadratically once the off-diagonal part is small. It is slower than
 //! tridiagonalisation followed by QL (what `lib_jsl_linalg` does) but simple, highly accurate, and
 //! the basis of the one-sided Jacobi SVD.
+//!
+//! See the book entry [Eigenvalue algorithms](https://jwkunz.github.io/lib_jsl/book/linear_algebra/eigen-iterations.html#the-jacobi-method).
 
 use crate::Error;
 use ndarray::{Array1, Array2};
@@ -19,6 +21,7 @@ pub struct JacobiEigen {
     pub sweeps: usize,
 }
 
+// ANCHOR: jacobi
 /// Cyclic Jacobi: sweeps over all pairs `p < q` until the off-diagonal norm is below
 /// `tolerance × ‖A‖_F`.
 pub fn jacobi_eigen(a: &Array2<f64>, tolerance: f64) -> Result<JacobiEigen, Error> {
@@ -56,6 +59,7 @@ pub fn jacobi_eigen(a: &Array2<f64>, tolerance: f64) -> Result<JacobiEigen, Erro
         sweeps,
     })
 }
+// ANCHOR_END: jacobi
 
 /// `X ← X J` for the rotation with `J_pp = J_qq = c`, `J_pq = s`, `J_qp = −s`.
 fn rotate_columns(x: &mut Array2<f64>, p: usize, q: usize, c: f64, s: f64) {

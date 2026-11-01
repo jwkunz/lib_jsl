@@ -378,7 +378,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
 [x] Tanh-sinh quadrature
 [x] Romberg integration
-[ ] Multidimensional cubature
+[x] Multidimensional cubature
 [ ] Quasi-Monte Carlo integration
 [ ] Stiff ODE solvers (BDF, Rosenbrock)
 [ ] Boundary value problems (shooting, collocation)

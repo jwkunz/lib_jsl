@@ -240,7 +240,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] FFT engine trait
 [x] Real-input FFT
 [x] Multidimensional FFT (2D, 3D)
-[ ] Discrete cosine and sine transforms
+[x] Discrete cosine and sine transforms
 [x] Size-sweep benchmark
 
 # FFT reference (`ffts_reference`)

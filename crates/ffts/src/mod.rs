@@ -35,6 +35,7 @@ pub mod fft_engine_trait;
 
 pub mod best_fft;
 pub mod bluestein_fft;
+pub mod dct;
 pub mod fractional_fft;
 pub mod multidimensional_fft;
 pub mod real_fft;
@@ -42,6 +43,7 @@ pub mod simd_fft;
 
 pub use best_fft::BestFft;
 pub use bluestein_fft::BluesteinFft;
+pub use dct::{TrigNormalization, TrigTransformType, dct, dst, idct, idst};
 pub use fft::Fft;
 pub use fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
 pub use fractional_fft::{FractionalFft, frft};

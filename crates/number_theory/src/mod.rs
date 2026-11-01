@@ -7,3 +7,4 @@ pub mod text_coded_integer;
 pub mod prime_sieves;
 pub mod primality;
 pub mod integer_factorization;
+pub mod chinese_remainder_theorem;

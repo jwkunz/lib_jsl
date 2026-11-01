@@ -124,17 +124,17 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 Root finding: bracketing methods, Brent, Newton, polynomial roots and nonlinear systems.
 
-Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · 9 items
+Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 9 items
 
-- Bracketing
-- Bisection
-- Secant method
-- False position method
-- Ridders' method
-- Van Wijngaarden-Dekker-Brent
-- Newton-Raphson
-- Polynomial roots
-- Nonlinear systems (Newton, Broyden)
+- [Bracketing](root_finding/bracketing.md#finding-a-bracket)
+- [Bisection](root_finding/bracketing.md#bisection)
+- [Secant method](root_finding/newton.md#the-secant-method)
+- [False position method](root_finding/bracketing.md#false-position-and-the-illinois-modification)
+- [Ridders' method](root_finding/bracketing.md#ridders-method)
+- [Van Wijngaarden-Dekker-Brent](root_finding/bracketing.md#brents-method)
+- [Newton-Raphson](root_finding/newton.md#newtons-method)
+- [Polynomial roots](root_finding/polynomial-roots.md)
+- [Nonlinear systems (Newton, Broyden)](root_finding/nonlinear-systems.md)
 
 ### Optimization
 

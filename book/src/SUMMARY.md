@@ -31,6 +31,11 @@
     - [Savitzky-Golay smoothing](interpolation/savitzky-golay.md)
     - [Interpolation on grids](interpolation/grids.md)
     - [Scattered data interpolation](interpolation/scattered.md)
+- [Root finding](root_finding/index.md)
+    - [Bracketing methods: bisection, false position, Ridders and Brent](root_finding/bracketing.md)
+    - [Newton's method and the secant method](root_finding/newton.md)
+    - [Polynomial roots](root_finding/polynomial-roots.md)
+    - [Nonlinear systems: Newton's and Broyden's methods](root_finding/nonlinear-systems.md)
 
 ---
 

@@ -1,4 +1,6 @@
 //! Root finding algorithms.
+//!
+//! See the book chapter [Root finding](https://jwkunz.github.io/lib_jsl/book/root_finding/index.html).
 
 pub mod bracketing;
 pub mod bisection;

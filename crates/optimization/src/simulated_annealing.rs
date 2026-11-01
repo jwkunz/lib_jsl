@@ -27,6 +27,8 @@
 //! complex, non-convex functions, but it can also be computationally expensive
 //! and may require careful tuning of the temperature schedule and other
 //! hyperparameters to achieve good performance.
+//!
+//! See the book entry [Stochastic global optimisation](https://jwkunz.github.io/lib_jsl/book/optimization/stochastic.html#simulated-annealing).
 
 use crate::optimization_traits::{
     GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult,
@@ -204,6 +206,7 @@ where T: ObjectiveFunction {
                 // Generate a new candidate solution by making a small random change to the current parameters. This can be done by adding a random perturbation to each parameter, where the magnitude of the perturbation is proportional to the current temperature. The new candidate solution is then projected back into the feasible region defined by the bounds, if bounds are set.
                 // Evaluate the objective function at the new candidate solution and compare it to the current solution. If the new solution has a lower objective function value, it is accepted as the new current solution. If the new solution has a higher objective function value, it is accepted with a probability that depends on the difference in objective function values and the current temperature. This allows the algorithm to occasionally accept worse solutions, which can help it escape local minima and explore the search space more effectively.
                 // Update the temperature according to the cooling schedule defined by the cooling coefficient. This typically involves multiplying the current temperature by the cooling coefficient, which reduces the temperature over time and allows the algorithm to converge to a minimum.
+                // ANCHOR: sa_step
                 let mut candidate_parameters = generate_candidate_solution(&current_parameters, current_temperature, &mut rng);
                 if let Some(b) = bounds.as_ref() {
                     candidate_parameters = project_to_bounds(&candidate_parameters, b); 
@@ -227,6 +230,7 @@ where T: ObjectiveFunction {
                         current_objective_value = candidate_objective_value;
                     }   
                 }
+                // ANCHOR_END: sa_step
                 iteration_counter+=1;
             }
             current_temperature *= cooling_coefficient;

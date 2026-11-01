@@ -1,4 +1,6 @@
 //! Differential evolution (Storn and Price), a population-based global minimizer.
+//!
+//! See the book entry [Stochastic global optimisation](https://jwkunz.github.io/lib_jsl/book/optimization/stochastic.html#differential-evolution).
 
 use crate::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult};
 use lib_jsl_core::ErrorsJSL;
@@ -94,6 +96,7 @@ impl<T: ObjectiveFunction> GradientFreeMinimizationEngine<T> for DifferentialEvo
         while generation < generations {
             generation += 1;
             for i in 0..np {
+                // ANCHOR: de_trial
                 let a = pick(&mut rng, &[i]);
                 let b = pick(&mut rng, &[i, a]);
                 let c = pick(&mut rng, &[i, a, b]);
@@ -121,6 +124,7 @@ impl<T: ObjectiveFunction> GradientFreeMinimizationEngine<T> for DifferentialEvo
                     population[i] = trial;
                     values[i] = value;
                 }
+                // ANCHOR_END: de_trial
             }
             let (best, worst) = values.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), &v| (lo.min(v), hi.max(v)));
             if worst - best <= tol * (1.0 + best.abs()) {

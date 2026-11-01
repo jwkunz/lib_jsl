@@ -1,4 +1,6 @@
 //! Particle swarm optimization (Kennedy and Eberhart, with Clerc's constriction coefficients).
+//!
+//! See the book entry [Stochastic global optimisation](https://jwkunz.github.io/lib_jsl/book/optimization/stochastic.html#particle-swarm-optimisation).
 
 use crate::differential_evolution::search_box;
 use crate::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult};
@@ -85,6 +87,7 @@ impl<T: ObjectiveFunction> GradientFreeMinimizationEngine<T> for ParticleSwarm {
         while iteration < max_iterations {
             iteration += 1;
             for i in 0..n {
+                // ANCHOR: pso_update
                 for k in 0..d {
                     let (r1, r2) = (rng.next_f64(), rng.next_f64());
                     let vel = self.inertia * v[i][k] + self.cognitive * r1 * (personal[i][k] - x[i][k]) + self.social * r2 * (best[k] - x[i][k]);
@@ -96,6 +99,7 @@ impl<T: ObjectiveFunction> GradientFreeMinimizationEngine<T> for ParticleSwarm {
                     personal_value[i] = value;
                     personal[i] = x[i].clone();
                 }
+                // ANCHOR_END: pso_update
             }
             g = (0..n).min_by(|&i, &j| personal_value[i].total_cmp(&personal_value[j])).expect("non-empty swarm");
             if best_value - personal_value[g] > tol * (1.0 + best_value.abs()) {

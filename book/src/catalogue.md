@@ -207,7 +207,7 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - Hermitian eigenproblem (Householder tridiagonalisation, implicit QL)
 - General eigenproblem (Hessenberg reduction, shifted QR, complex Schur form)
 - Singular value decomposition (one-sided Jacobi)
-- Least squares (pivoted QR, SVD for rank-deficient systems)
+- [Least squares (pivoted QR, SVD for rank-deficient systems)](linear_algebra/least-squares.md)
 - [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 
 ### Linear algebra reference
@@ -219,12 +219,12 @@ Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_referenc
 - [Gaussian elimination without and with partial pivoting](linear_algebra/lu.md#gaussian-elimination-and-pivoting)
 - [Doolittle LU: solves, determinant, inverse](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky-Banachiewicz](linear_algebra/cholesky.md#the-factorisation)
-- Classical and modified Gram-Schmidt, Householder QR
+- [Classical and modified Gram-Schmidt, Householder QR](linear_algebra/qr.md)
 - Power, inverse and Rayleigh quotient iteration
 - Cyclic Jacobi eigenvalue method
 - Unshifted and Wilkinson-shifted QR algorithm with deflation
 - SVD from the eigenproblem of AᵀA
-- Least squares by normal equations and by QR
+- [Least squares by normal equations and by QR](linear_algebra/least-squares.md)
 - [Linear algebra race benchmark](linear_algebra/index.md#the-reference-crate)
 
 ### FFTs

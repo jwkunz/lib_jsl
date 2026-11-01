@@ -285,6 +285,7 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
         }
         let a = Mat::from_array(self)?;
         let rhs = vector(b)?;
+        // ANCHOR: least_squares
         if m >= n && n > 0 {
             let qr = qr::householder_pivoted(&a);
             let mut qtb = rhs.clone();
@@ -324,6 +325,7 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
             (0..m).map(|i| (rhs[i] - (0..n).fold(T::zero(), |s, j| s + a.at(i, j) * x[j])).abs_sqr()).sum::<f64>()
         });
         Ok(LeastSquaresResult { solution: to_array1(x), singular_values: Array1::from_vec(thin.sigma), rank, residual_sum_of_squares })
+        // ANCHOR_END: least_squares
     }
 }
 

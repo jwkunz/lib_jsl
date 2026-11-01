@@ -63,6 +63,8 @@
 - [Dense linear algebra](linear_algebra/index.md)
     - [Gaussian elimination and LU factorisation](linear_algebra/lu.md)
     - [Cholesky factorisation](linear_algebra/cholesky.md)
+    - [QR factorisation](linear_algebra/qr.md)
+    - [Linear least squares](linear_algebra/least-squares.md)
 
 ---
 

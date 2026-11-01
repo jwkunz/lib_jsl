@@ -70,3 +70,5 @@ blocking and bidiagonalisation buy. `cargo bench -p lib_jsl_linalg_reference` ra
 | Solve $A\mathbf x = \mathbf b$, general square $A$ | `solve`, or `factorize` for many right-hand sides | [Gaussian elimination and LU](lu.md) |
 | Solve $A\mathbf x = \mathbf b$, symmetric positive definite $A$ | `cholesky` and two triangular solves | [Cholesky factorisation](cholesky.md) |
 | Determinant or inverse | `det`, `inv` (prefer solving to inverting) | [Gaussian elimination and LU](lu.md#lu-factorisation) |
+| An orthonormal basis, or a rank-revealing factorisation | Householder QR (with column pivoting) | [QR factorisation](qr.md) |
+| Overdetermined, underdetermined or rank-deficient $A\mathbf x \approx \mathbf b$ | `least_squares` | [Linear least squares](least-squares.md) |

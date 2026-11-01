@@ -4,11 +4,14 @@
 //! solved cheaply with Cholesky, but forming `AᵀA` squares the condition number. **QR** writes
 //! `A = Q R`, so `‖A x − b‖ = ‖R x − Qᵀb‖` in the column space, and solves the triangular system
 //! `R x = Qᵀb` directly, with error proportional to `κ(A)` rather than `κ(A)²`.
+//!
+//! See the book entry [Linear least squares](https://jwkunz.github.io/lib_jsl/book/linear_algebra/least-squares.html).
 
 use crate::Error;
 use crate::gaussian_elimination::back_substitute;
 use ndarray::{Array1, Array2};
 
+// ANCHOR: normal_equations
 /// Solves the normal equations `AᵀA x = Aᵀb` with Cholesky: `L y = Aᵀb`, then `Lᵀ x = y`.
 pub fn normal_equations(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, Error> {
     let l = crate::cholesky::cholesky(&a.t().dot(a))?;
@@ -20,6 +23,7 @@ pub fn normal_equations(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>,
     }
     back_substitute(&l.t().to_owned(), &y)
 }
+// ANCHOR_END: normal_equations
 
 /// Solves `R x = Qᵀb` with the Householder QR factorisation.
 pub fn qr_least_squares(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, Error> {

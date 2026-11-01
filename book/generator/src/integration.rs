@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    stiff_figures();
     runge_kutta_figures();
     monte_carlo_figures();
     cubature_figures();
@@ -566,4 +567,56 @@ fn runge_kutta_figures() {
     plot.series.push(Series::new("RK4, fixed step", rk4, Style::LineMarkers, 0));
     plot.series.push(Series::new("Dormand-Prince 5(4), adaptive", dopri, Style::LineMarkers, 1));
     write(CHAPTER, "arenstorf_convergence.svg", &plot.render());
+}
+
+fn stiff_figures() {
+    use lib_jsl_integration::dormand_prince::dormand_prince_solve;
+    use lib_jsl_integration::stiff_ode::{OdeOptions, OdeSolution, bdf, rosenbrock23};
+    type NoJacobian = fn(f64, &[f64]) -> Vec<Vec<f64>>;
+    let opts = |rtol: f64, atol: f64| OdeOptions { relative_tolerance: rtol, absolute_tolerance: atol, max_steps: 20_000_000, ..Default::default() };
+
+    let scalar = |t: f64, y: &[f64]| vec![-1000.0 * (y[0] - t.cos())];
+    let van_der_pol = |_t: f64, y: &[f64]| vec![y[1], 100.0 * ((1.0 - y[0] * y[0]) * y[1]) - y[0]];
+    let robertson = |_t: f64, y: &[f64]| vec![-0.04 * y[0] + 1e4 * y[1] * y[2], 0.04 * y[0] - 1e4 * y[1] * y[2] - 3e7 * y[1] * y[1], 3e7 * y[1] * y[1]];
+    // Reference solutions.
+    let scalar_ref = {
+        // y = (10⁶ cos t + 10³ sin t − 10⁶ e^{−1000 t}) / (10⁶ + 1).
+        let t: f64 = 1.0;
+        (1e6 * t.cos() + 1e3 * t.sin() - 1e6 * (-1000.0 * t).exp()) / (1e6 + 1.0)
+    };
+    let vdp_ref = rosenbrock23(van_der_pol, None::<NoJacobian>, 0.0, &[2.0, 0.0], 200.0, opts(1e-11, 1e-13)).unwrap().last()[0];
+    let robertson_ref = 0.715_827_068_7;
+
+    type Problem<'a> = (&'a str, &'a dyn Fn(f64, &[f64]) -> Vec<f64>, Vec<f64>, f64, f64, f64, f64);
+    let problems: [Problem; 3] = [
+        ("$y' = -1000(y - \\cos t)$ on $[0, 1]$", &scalar, vec![0.0], 1.0, scalar_ref, 1e-6, 1e-9),
+        ("Van der Pol, $\\mu = 100$, on $[0, 200]$", &van_der_pol, vec![2.0, 0.0], 200.0, vdp_ref, 1e-6, 1e-9),
+        ("Robertson kinetics on $[0, 40]$", &robertson, vec![1.0, 0.0, 0.0], 40.0, robertson_ref, 1e-6, 1e-10),
+    ];
+    let mut table = String::from("| problem | solver | steps | rejected | evaluations of $f$ | Jacobians | error in $y_1$ |\n|---|---|---:|---:|---:|---:|---:|\n");
+    let row = |name: &str, label: &str, s: &OdeSolution, exact: f64| format!("| {name} | {label} | {} | {} | {} | {} | {:.1e} |\n", s.t.len() - 1, s.rejected_steps, s.function_evaluations, s.jacobian_evaluations, (s.last()[0] - exact).abs());
+    for (name, f, y0, t1, exact, rtol, atol) in problems {
+        let o = opts(rtol, atol);
+        table.push_str(&row(name, "Dormand-Prince", &dormand_prince_solve(f, 0.0, &y0, t1, o).unwrap(), exact));
+        table.push_str(&row("", "Rosenbrock 2(3)", &rosenbrock23(f, None::<NoJacobian>, 0.0, &y0, t1, o).unwrap(), exact));
+        table.push_str(&row("", "BDF, orders 1–5", &bdf(f, None::<NoJacobian>, 0.0, &y0, t1, 5, o).unwrap(), exact));
+    }
+    write(CHAPTER, "stiff_table.md", &table);
+
+    // Step sizes along the Van der Pol solution.
+    let o = opts(1e-6, 1e-9);
+    let steps = |s: &OdeSolution| -> Vec<(f64, f64)> { s.t.windows(2).map(|w| (w[1], w[1] - w[0])).collect() };
+    let dp = dormand_prince_solve(van_der_pol, 0.0, &[2.0, 0.0], 200.0, o).unwrap();
+    let ros = rosenbrock23(van_der_pol, None::<NoJacobian>, 0.0, &[2.0, 0.0], 200.0, o).unwrap();
+    let bd = bdf(van_der_pol, None::<NoJacobian>, 0.0, &[2.0, 0.0], 200.0, 5, o).unwrap();
+    let mut plot = Plot::new("Van der Pol (μ = 100): step size along the solution", "t", "step size h");
+    plot.log_y = true;
+    plot.legend = Legend::BottomRight;
+    plot.series.push(Series::new(&format!("Dormand-Prince ({} steps)", dp.t.len() - 1), steps(&dp), Style::Line, 0));
+    plot.series.push(Series::new(&format!("Rosenbrock 2(3) ({} steps)", ros.t.len() - 1), steps(&ros), Style::Line, 1));
+    plot.series.push(Series::new(&format!("BDF ({} steps)", bd.t.len() - 1), steps(&bd), Style::Line, 2));
+    write(CHAPTER, "stiff_step_sizes.svg", &plot.render());
+    let mut plot = Plot::new("Van der Pol (μ = 100): slow drift and sudden jumps", "t", "y₁(t)");
+    plot.series.push(Series::new("", ros.t.iter().zip(&ros.y).map(|(&t, y)| (t, y[0])).collect(), Style::Line, 1));
+    write(CHAPTER, "van_der_pol.svg", &plot.render());
 }

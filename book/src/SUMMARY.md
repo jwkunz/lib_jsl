@@ -16,7 +16,7 @@
     - [Multidimensional cubature](integration/cubature.md)
     - [Monte Carlo and quasi-Monte Carlo integration](integration/monte-carlo.md)
     - [Runge-Kutta methods](integration/runge-kutta.md)
-    - [Stiff ODE solvers: Rosenbrock and BDF]()
+    - [Stiff ODE solvers: Rosenbrock and BDF](integration/stiff-ode.md)
     - [Boundary value problems]()
     - [Finite difference methods]()
     - [Finite element methods]()

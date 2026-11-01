@@ -59,7 +59,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Romberg integration](integration/romberg.md)
 - [Multidimensional cubature](integration/cubature.md)
 - [Quasi-Monte Carlo integration](integration/monte-carlo.md#randomised-quasi-monte-carlo)
-- Stiff ODE solvers (BDF, Rosenbrock)
+- [Stiff ODE solvers (BDF, Rosenbrock)](integration/stiff-ode.md)
 - Boundary value problems (shooting, collocation)
 
 #### Partial differential equations

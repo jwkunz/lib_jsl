@@ -1,4 +1,6 @@
 //! Fermi-Dirac integrals.
+//!
+//! See the book entry [Zeta functions, polylogarithms and Fermi-Dirac integrals](https://jwkunz.github.io/lib_jsl/book/special_functions/zeta.html#fermi-dirac-integrals).
 
 use std::sync::OnceLock;
 

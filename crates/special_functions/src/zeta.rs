@@ -1,4 +1,6 @@
 //! The Riemann and Hurwitz zeta functions for real arguments.
+//!
+//! See the book entry [Zeta functions, polylogarithms and Fermi-Dirac integrals](https://jwkunz.github.io/lib_jsl/book/special_functions/zeta.html#the-riemann-zeta-function).
 
 use crate::gamma::gamma;
 use std::f64::consts::{LN_2, PI};
@@ -22,6 +24,7 @@ fn borwein_d() -> [f64; BORWEIN_TERMS + 1] {
     d
 }
 
+// ANCHOR: eta
 /// The Dirichlet eta function `η(s) = Σ (−1)^{k−1} / k^s` for `s ≥ 0` by Borwein's algorithm.
 fn eta(s: f64) -> f64 {
     let d = borwein_d();
@@ -34,6 +37,7 @@ fn eta(s: f64) -> f64 {
         .sum();
     -sum / dn
 }
+// ANCHOR_END: eta
 
 /// The Riemann zeta function `ζ(s)` for real `s ≠ 1` (`+∞` at the pole).
 ///

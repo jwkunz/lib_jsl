@@ -1,4 +1,6 @@
 //! The polylogarithm `Li_s(z) = Σ_{k≥1} z^k / k^s` for real order and real argument.
+//!
+//! See the book entry [Zeta functions, polylogarithms and Fermi-Dirac integrals](https://jwkunz.github.io/lib_jsl/book/special_functions/zeta.html#the-polylogarithm).
 
 use crate::fermi_dirac_integrals::fermi_dirac_integral;
 use crate::gamma::gamma;

@@ -640,6 +640,8 @@ version = "0.1.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_information",
+ "ndarray",
+ "num",
 ]
 
 [[package]]

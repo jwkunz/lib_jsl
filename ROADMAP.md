@@ -262,7 +262,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 ## Data
 [x] CSV files
-[ ] NumPy .npy files
+[x] NumPy .npy files
 
 # Geometry (`geometry`)
 [x] Common

@@ -324,7 +324,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Quadtrees
 [x] Voronoi diagrams
 [x] Mesh smoothing and decimation
-[ ] Polygon boolean operations
+[x] Polygon boolean operations
 
 # Graph (`graph`)
 [x] Graph representation helpers (edge lists, adjacency)

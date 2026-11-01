@@ -526,7 +526,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Uniform RNG
 [x] xoshiro256++
 [x] SplitMix64
-[ ] Quasi-random sequences (Sobol, Halton)
+[x] Quasi-random sequences (Sobol, Halton)
 [ ] Markov chain Monte Carlo (Metropolis-Hastings)
 
 ## Distributions

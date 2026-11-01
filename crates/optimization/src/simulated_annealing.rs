@@ -41,6 +41,8 @@ pub struct SimulatedAnnealing {
     maximum_temperature: Option<f64>,
     /// Iterations per temperature is the number of iterations that the algorithm will perform at each temperature level before cooling down. It can be set to a fixed value or it can be dynamically adjusted based on the progress of the optimization.
     iterations_per_temperature: Option<usize>,
+    /// Seed of the random number generator (default 0), so runs are reproducible.
+    seed: u64,
 }
 
 impl SimulatedAnnealing {
@@ -53,6 +55,7 @@ impl SimulatedAnnealing {
             minimum_temperature: None,
             maximum_temperature: None,
             iterations_per_temperature: None,
+            seed: 0,
         }
     }
 
@@ -79,6 +82,13 @@ impl SimulatedAnnealing {
     }
     pub fn get_iterations_per_temperature(&self) -> Option<usize> {
         self.iterations_per_temperature
+    }
+    /// Sets the seed of the random number generator; different seeds give independent runs.
+    pub fn set_seed(&mut self, seed: u64) {
+        self.seed = seed;
+    }
+    pub fn get_seed(&self) -> u64 {
+        self.seed
     }
 }
 
@@ -144,6 +154,9 @@ where T: ObjectiveFunction {
         objective_function: &T,
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL> {
+        if initial_parameters.is_empty() {
+            return Err(ErrorsJSL::Misconfiguration("Initial parameters must be a non-empty vector."));
+        }
         let mut current_temperature = self.get_maximum_temperature().unwrap_or(1.0);
         let cooling_coefficient = self.get_cooling_coefficient().unwrap_or(0.9);
         let minimum_temperature = self.get_minimum_temperature().unwrap_or(1e-5);
@@ -162,7 +175,7 @@ where T: ObjectiveFunction {
                 ));
             }
         }
-        let mut rng = UniformRNG::from_seed(0);
+        let mut rng = UniformRNG::from_seed(self.seed);
         let mut current_parameters = initial_parameters.clone();
         let mut current_objective_value = objective_function.evaluate(&current_parameters);
         let mut iteration_counter = 0;
@@ -172,9 +185,6 @@ where T: ObjectiveFunction {
             iterations: iteration_counter,
             converged: false,
         };
-        if initial_parameters.is_empty() {
-            return Err(ErrorsJSL::Misconfiguration("Initial parameters must be a non-empty vector."));
-        }
         while current_temperature > minimum_temperature && iteration_counter < maximum_steps {
             // Here is the implementation of the simulated annealing algorithm. It assumes that the objective function is defined and that the initial parameters are a valid starting point for the optimization.
             // The algorithm generates a new candidate solution by making a small random change to the current parameters, and then decides whether to accept the new solution based on the difference in objective function values and the current temperature. The temperature is then updated according to the cooling schedule defined by the cooling coefficient.

@@ -322,7 +322,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] k-d trees
 [x] Octrees
 [x] Quadtrees
-[ ] Voronoi diagrams
+[x] Voronoi diagrams
 [ ] Mesh smoothing and decimation
 [ ] Polygon boolean operations
 

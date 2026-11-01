@@ -3,6 +3,7 @@ members = [
     "crates/core",
     "crates/information",
     "crates/geometry",
+    "crates/graph",
     "crates/dsp",
     "crates/ffts",
     "crates/ffts_reference",
@@ -53,6 +54,7 @@ path = "src/mod.rs"
 lib_jsl_core = { path = "crates/core" }
 lib_jsl_information = { path = "crates/information" }
 lib_jsl_geometry = { path = "crates/geometry" }
+lib_jsl_graph = { path = "crates/graph" }
 lib_jsl_dsp = { path = "crates/dsp" }
 lib_jsl_ffts = { path = "crates/ffts" }
 lib_jsl_integration = { path = "crates/integration" }

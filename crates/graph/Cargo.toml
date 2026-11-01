@@ -1,0 +1,13 @@
+[package]
+name = "lib_jsl_graph"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Graph representations and algorithms: shortest paths, spanning trees, flows and orderings."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }

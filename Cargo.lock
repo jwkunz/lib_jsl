@@ -556,6 +556,7 @@ dependencies = [
  "lib_jsl_electromagnetics",
  "lib_jsl_ffts",
  "lib_jsl_geometry",
+ "lib_jsl_graph",
  "lib_jsl_information",
  "lib_jsl_integration",
  "lib_jsl_interpolation",
@@ -651,6 +652,13 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "lib_jsl_graph"
+version = "0.1.0"
+dependencies = [
+ "lib_jsl_core",
 ]
 
 [[package]]

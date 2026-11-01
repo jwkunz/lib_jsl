@@ -326,8 +326,8 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [ ] Mesh smoothing and decimation
 [ ] Polygon boolean operations
 
-# Graph (`graph`, planned crate)
-[ ] Graph representation helpers (edge lists, adjacency)
+# Graph (`graph`)
+[x] Graph representation helpers (edge lists, adjacency)
 [ ] Shortest paths (Dijkstra, Bellman-Ford, A*)
 [ ] All-pairs shortest paths (Floyd-Warshall)
 [ ] Minimum spanning trees (Kruskal, Prim)

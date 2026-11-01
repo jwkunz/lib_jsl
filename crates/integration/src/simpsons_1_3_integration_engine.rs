@@ -4,7 +4,7 @@ use crate::{
 use lib_jsl_core::ErrorsJSL;
 
 // An struct the integrates a 1D real function f(x) using the Simpson's 1/3 rule
-// Note: This is pedagogical and does not converge quickly
+// Fourth-order accurate (error O(h⁴)); exact for cubic polynomials.
 pub struct Simpson13Engine {
     number_of_points: usize,        // The number of points in to sample
     lower_bound: f64,               // The lower bound of x
@@ -64,17 +64,25 @@ impl CanIntegrate1D for Simpson13Engine {
                 "Must have more than two points for integration",
             ));
         }
-        // Simple integration and scaling
-        let middle = x_points
-            .iter()
-            .enumerate()
-            .skip(1)
-            .take(x_points.len() - 2)
-            .map(|(n, &x)| if n & 0b1 == 0 { 4.0 * f(x) } else { 2.0 * f(x) })
-            .sum::<f64>();
-        let first = f(*x_points.first().expect(""));
-        let last = f(*x_points.last().expect(""));
-        Ok((middle + first + last) * dx / 3.0)
+        let n = x_points.len();
+        let y: Vec<f64> = x_points.iter().map(|&x| f(x)).collect();
+        if n == 2 {
+            return Ok(0.5 * dx * (y[0] + y[1]));
+        }
+        // Composite Simpson 1/3 needs an even number of panels (odd number of points): weights
+        // 1, 4, 2, 4, …, 2, 4, 1. With an odd number of panels, the last three panels use
+        // Simpson's 3/8 rule (weights 1, 3, 3, 1) so the result stays fourth order.
+        let simpson_points = if n % 2 == 1 { n } else { n - 3 };
+        let mut total = 0.0;
+        if simpson_points >= 3 {
+            let interior: f64 = (1..simpson_points - 1).map(|i| if i % 2 == 1 { 4.0 } else { 2.0 } * y[i]).sum();
+            total += (y[0] + interior + y[simpson_points - 1]) * dx / 3.0;
+        }
+        if n % 2 == 0 {
+            let k = n - 4;
+            total += 3.0 * dx / 8.0 * (y[k] + 3.0 * y[k + 1] + 3.0 * y[k + 2] + y[k + 3]);
+        }
+        Ok(total)
     }
 
     // Dynamically sets the lower bound.  Will update cache if configured.
@@ -112,23 +120,21 @@ mod test {
     use super::*;
     #[test]
     fn test_simpsons_integration() {
-        let error_limit = 1E-3;
-        let upper_bound = 0.0;
-        let lower_bound = PI / 2.0;
-        let number_of_points = 10000;
-        let dut = Simpson13Engine::new(number_of_points, lower_bound, upper_bound, false);
-        let result = dut.integrate(|x| x.sin()).unwrap();
-        let error = -1.0 - result;
-        dbg!(&error);
-        assert!(error.abs() < error_limit);
-
-        let upper_bound = PI / 2.0;
-        let lower_bound = -PI / 2.0;
-        let number_of_points = 10000;
-        let dut = Simpson13Engine::new(number_of_points, lower_bound, upper_bound, false);
-        let result = dut.integrate(|x| x.sin()).unwrap();
-        let error = 0.0 - result;
-        dbg!(&error);
-        assert!(error.abs() < error_limit);
+        // Exact for cubics with any number of points (odd counts use 1/3, even add a 3/8 tail).
+        let cubic = |x: f64| 2.0 * x * x * x - x * x + 3.0;
+        let exact = 0.5 * 16.0 - 8.0 / 3.0 + 6.0; // ∫₀² of the cubic
+        for n in [3, 4, 5, 6, 7, 10, 11] {
+            let v = Simpson13Engine::new(n, 0.0, 2.0, false).integrate(cubic).unwrap();
+            assert!((v - exact).abs() < 1e-12, "n={n}: {v}");
+        }
+        // Fourth-order convergence: halving h divides the error by about 16.
+        let error = |n: usize| (Simpson13Engine::new(n, 0.0, PI, false).integrate(f64::sin).unwrap() - 2.0).abs();
+        let ratio = error(17) / error(33);
+        assert!(ratio > 15.0 && ratio < 17.0, "{ratio}");
+        // Reversed bounds give the negated integral.
+        let reversed = Simpson13Engine::new(101, PI / 2.0, 0.0, false).integrate(f64::sin).unwrap();
+        assert!((reversed + 1.0).abs() < 1e-8);
+        let two = Simpson13Engine::new(2, 0.0, 1.0, true).integrate(|x| x).unwrap();
+        assert!((two - 0.5).abs() < 1e-15);
     }
 }

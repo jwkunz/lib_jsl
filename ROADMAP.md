@@ -323,7 +323,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Octrees
 [x] Quadtrees
 [x] Voronoi diagrams
-[ ] Mesh smoothing and decimation
+[x] Mesh smoothing and decimation
 [ ] Polygon boolean operations
 
 # Graph (`graph`)

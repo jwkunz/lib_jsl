@@ -12,6 +12,7 @@ pub mod region_tree;
 pub mod oct_trees;
 pub mod quad_trees;
 pub mod voronoi;
+pub mod mesh_processing;
 
 pub use delaunay_triangulation::{Triangulation, delaunay_triangulation};
 pub use convex_hull::{Hull3D, convex_hull_2d, convex_hull_3d, convex_polygon_contains_2d, polygon_area_2d};
@@ -25,3 +26,4 @@ pub use oct_trees::OctTree;
 pub use region_tree::RegionTree;
 pub use quad_trees::QuadTree;
 pub use voronoi::{VoronoiDiagram, polygon_signed_area, voronoi_diagram};
+pub use mesh_processing::{boundary_vertices, decimate, laplacian_smoothing, taubin_smoothing, vertex_neighbours};

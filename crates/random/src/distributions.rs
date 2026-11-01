@@ -13,6 +13,7 @@ pub mod students_t;
 pub mod gamma;
 pub mod beta;
 pub mod log_normal;
+pub mod cauchy;
 
 pub use uniform::uniform_distribution;
 pub use exponential::exponential_distribution;
@@ -26,3 +27,4 @@ pub use students_t::students_t_distribution;
 pub use gamma::gamma_distribution;
 pub use beta::beta_distribution;
 pub use log_normal::log_normal_distribution;
+pub use cauchy::cauchy_distribution;

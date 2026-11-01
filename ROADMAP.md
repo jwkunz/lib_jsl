@@ -542,7 +542,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Gamma
 [x] Beta
 [x] Log-normal
-[ ] Cauchy
+[x] Cauchy
 [ ] Binomial
 [ ] Multivariate normal
 [ ] Dirichlet

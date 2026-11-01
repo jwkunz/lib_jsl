@@ -190,4 +190,17 @@ since periodic and pole-aware stencils on these domains do not fit the interpola
 - LCMV constraints are stated as responses, `wᴴ c_k = f_k` (equivalently `Cᴴ w = f*`).
 - Brightness scenes use per-polarization brightness temperature: unpolarized emission gives
   `R = k_B B / (4π) ∫ T A Aᴴ dΩ`, so a lossless antenna in a uniform sky sees `k_B T B`.
-- Vector calculus is implemented for volume domains; surface operators are not yet provided.
+- Vector calculus is implemented for volume domains, and surface operators (gradient, divergence,
+  curl, Laplace-Beltrami) for plane, sphere and cylinder domains.
+
+## 14. Extensions beyond the original design
+
+- `networks/`: transmission lines (impedance transformation, standing waves, stub matching),
+  two-port S/Z/Y/ABCD/T conversions and Smith chart geometry (`e^{+jωt}` only).
+- `propagation/`: Friis and empirical path loss, two-ray and multipath channels, atmospheric
+  attenuation (simplified ITU-R P.676 and P.840) and the radar equation.
+- `fields/spherical_waves.rs`: spherical wave expansions; a far-field pattern's TE/TM amplitudes
+  reproduce the field anywhere outside the minimum sphere.
+- `algorithms/`: direction-of-arrival estimation (Bartlett, Capon, MUSIC, ESPRIT), planar and
+  spherical near-field to far-field transformation, Hallén method of moments for thin wires, and
+  1D and 2D TMz FDTD solvers.

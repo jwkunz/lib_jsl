@@ -4,6 +4,8 @@
 //! The algorithm iteratively updates the simplex by performing operations such as reflection, expansion, contraction, and shrinkage, based on the function values at the vertices of the simplex. 
 //! The algorithm continues until it reaches a point where the function values at the vertices of the simplex are sufficiently close to each other, indicating that it has found a local minimum. 
 //! The Nelder-Mead method can be effective for optimizing non-convex functions and functions with noisy gradients, but it can also be computationally expensive and may require careful tuning of the algorithm's parameters to achieve good performance.  
+//!
+//! See the book entry [Direct search](https://jwkunz.github.io/lib_jsl/book/optimization/direct-search.html#the-nelder-mead-simplex-method).
 
 use crate::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult};
 use lib_jsl_core::ErrorsJSL;
@@ -126,6 +128,7 @@ where T: ObjectiveFunction {
                 return Ok(result);
             }
 
+            // ANCHOR: nelder_mead_step
             let centroid = centroid_excluding_worst(&simplex);
             let worst = &simplex[dimension];
             let second_worst_value = values[dimension - 1];
@@ -181,6 +184,7 @@ where T: ObjectiveFunction {
                 simplex[i] = project_to_bounds(&simplex[i], bounds.as_deref());
                 values[i] = objective_function.evaluate(&simplex[i]);
             }
+            // ANCHOR_END: nelder_mead_step
         }
 
         sort_simplex(&mut simplex, &mut values);

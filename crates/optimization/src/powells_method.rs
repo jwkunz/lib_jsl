@@ -9,6 +9,8 @@
 //!
 //! Bounds, if set, are enforced by clamping every trial point into the box, so the returned
 //! solution always lies inside it.
+//!
+//! See the book entry [Direct search](https://jwkunz.github.io/lib_jsl/book/optimization/direct-search.html#powells-method).
 
 use crate::optimization_traits::{GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult};
 use lib_jsl_core::ErrorsJSL;
@@ -178,6 +180,7 @@ where
 
         while iterations < max_iterations {
             iterations += 1;
+            // ANCHOR: powell_iteration
             let (p0, f0) = (p.clone(), fp);
             let (mut biggest, mut biggest_i) = (0.0, 0);
             for (i, dir) in dirs.iter().enumerate() {
@@ -212,6 +215,7 @@ where
                     dirs[last] = net;
                 }
             }
+            // ANCHOR_END: powell_iteration
         }
         Ok(OptimizationResult { parameters: p, objective_value: fp, iterations, converged })
     }

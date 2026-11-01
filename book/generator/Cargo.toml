@@ -12,6 +12,7 @@ lib_jsl_derivatives.workspace = true
 lib_jsl_integration.workspace = true
 lib_jsl_interpolation.workspace = true
 lib_jsl_core.workspace = true
+ndarray.workspace = true
 lib_jsl_special_functions.workspace = true
 num-complex.workspace = true
 lib_jsl_random.workspace = true

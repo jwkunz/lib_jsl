@@ -1,4 +1,6 @@
 //! Shepard's inverse-distance weighting for scattered 3D data.
+//!
+//! See the book entry [Scattered data interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/scattered.html).
 
 use super::Interpolation3D;
 use lib_jsl_core::*;

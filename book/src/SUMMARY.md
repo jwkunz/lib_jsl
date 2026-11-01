@@ -29,6 +29,8 @@
     - [Rational interpolation and approximation](interpolation/rational.md)
     - [Trigonometric interpolation and Prony's method](interpolation/trigonometric.md)
     - [Savitzky-Golay smoothing](interpolation/savitzky-golay.md)
+    - [Interpolation on grids](interpolation/grids.md)
+    - [Scattered data interpolation](interpolation/scattered.md)
 
 ---
 

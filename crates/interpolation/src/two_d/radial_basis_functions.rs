@@ -1,4 +1,6 @@
 //! Radial basis function interpolation of scattered 2D data.
+//!
+//! See the book entry [Scattered data interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/scattered.html).
 
 use super::Interpolation2D;
 use lib_jsl_core::*;
@@ -53,6 +55,7 @@ impl RadialBasisInterpolator {
             return Err(ErrorsJSL::IncompatibleArraySizes((n, f.len())));
         }
         let centers: Vec<[f64; 2]> = (0..n).map(|i| [x[i], y[i]]).collect();
+        // ANCHOR: rbf_system
         let m = n + 3;
         let mut a = Array2::<f64>::zeros((m, m));
         for i in 0..n {
@@ -68,6 +71,7 @@ impl RadialBasisInterpolator {
         let mut rhs = Array1::<f64>::zeros(m);
         rhs.slice_mut(ndarray::s![..n]).assign(&f);
         let sol = a.solve(&rhs).map_err(|_| ErrorsJSL::RuntimeError("singular RBF system (duplicate or collinear points?)"))?;
+        // ANCHOR_END: rbf_system
         Ok(RadialBasisInterpolator {
             kernel,
             centers,

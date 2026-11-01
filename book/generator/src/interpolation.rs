@@ -64,6 +64,8 @@ fn polynomial_figures() {
 }
 
 pub fn generate() {
+    grid_figures();
+    scattered_figures();
     trigonometric_figures();
     savitzky_golay_figures();
     rational_figures();
@@ -246,4 +248,131 @@ fn savitzky_golay_figures() {
         table.push_str(&format!("| Savitzky-Golay, window {window}, order {order} | {:.1} |\n", rms(d.as_slice().unwrap())));
     }
     write(CHAPTER, "savitzky_golay_derivative.md", &table);
+}
+
+fn grid_figures() {
+    use lib_jsl_core::R2D;
+    use lib_jsl_interpolation::two_d::Interpolation2D;
+    use lib_jsl_interpolation::two_d::{all_phase::AllPhase2D, bicubic::Bicubic, bilinear::Bilinear, cubic_basis::CubicBasis2D, fourier_2d::FourierInterpolator2D, lanczos::Lanczos2D, nearest::Nearest2D};
+    // Effective kernels: interpolate a unit impulse at x = 0 (constant in y).
+    let xs = R1D::from_vec((-8..=8).map(|i| i as f64).collect());
+    let ys = R1D::from_vec(vec![0.0, 1.0, 2.0, 3.0]);
+    let z = R2D::from_shape_fn((17, 4), |(i, _)| if i == 8 { 1.0 } else { 0.0 });
+    let grid: Vec<f64> = (0..=800).map(|i| -4.0 + 8.0 * i as f64 / 800.0).collect();
+    let mut plot = Plot::new("Each method's response to a single unit sample (its interpolation kernel)", "distance in grid steps", "weight");
+    plot.legend = Legend::TopLeft;
+    plot.y_range = Some((-0.2, 1.1));
+    let methods: Vec<(&str, Box<dyn Interpolation2D>)> = vec![
+        ("nearest", Box::new(Nearest2D::new(xs.view(), ys.view(), z.view()).unwrap())),
+        ("bilinear", Box::new(Bilinear::new(xs.view(), ys.view(), z.view()).unwrap())),
+        ("bicubic (Hermite, central-difference slopes)", Box::new(Bicubic::new(xs.view(), ys.view(), z.view()).unwrap())),
+        ("Lanczos, a = 3", Box::new(Lanczos2D::new(xs.view(), ys.view(), z.view(), 3).unwrap())),
+        ("all-phase, n = 4", Box::new(AllPhase2D::new(xs.view(), ys.view(), z.view(), 4).unwrap())),
+    ];
+    for (k, (label, m)) in methods.iter().enumerate() {
+        plot.series.push(Series::new(label, grid.iter().map(|&x| (x, m.interpolate_at(x, 1.5).unwrap())).collect(), Style::Line, k));
+    }
+    write(CHAPTER, "grid_kernels.svg", &plot.render());
+
+    // Accuracy on a 16 × 16 grid over [0, 1): periodic and non-periodic smooth functions.
+    let n = 16;
+    let axis = R1D::from_vec((0..n).map(|i| i as f64 / n as f64).collect());
+    let periodic = |x: f64, y: f64| (2.0 * PI * x).sin() * (2.0 * PI * y).cos();
+    let plain = |x: f64, y: f64| (x + 0.5 * y).exp();
+    // Interior points stay at least four samples from the edges, where the kernel methods replicate
+    // edge values; "near edges" points cover the whole span between the first and last samples.
+    let region = |lo: f64, hi: f64| -> Vec<(f64, f64)> { (0..40).flat_map(|i| (0..40).map(move |j| (lo + (hi - lo) * i as f64 / 39.0, lo + (hi - lo) * j as f64 / 39.0))).collect() };
+    let (interior, whole) = (region(0.25, 0.68), region(0.0, 15.0 / 16.0));
+    let mut table = String::from("| method | periodic $\\sin 2\\pi x \\cos 2\\pi y$, interior | non-periodic $e^{x + y/2}$, interior | non-periodic, whole grid |\n|---|---:|---:|---:|\n");
+    let rms_on = |m: &dyn Interpolation2D, f: &dyn Fn(f64, f64) -> f64, pts: &[(f64, f64)]| (pts.iter().map(|&(x, y)| (m.interpolate_at(x, y).unwrap() - f(x, y)).powi(2)).sum::<f64>() / pts.len() as f64).sqrt();
+    type Build<'a> = (&'a str, Box<dyn Fn(&R2D) -> Box<dyn Interpolation2D> + 'a>);
+    let builders: Vec<Build> = vec![
+        ("nearest", Box::new(|z: &R2D| Box::new(Nearest2D::new(axis.view(), axis.view(), z.view()).unwrap()) as Box<dyn Interpolation2D>)),
+        ("bilinear", Box::new(|z: &R2D| Box::new(Bilinear::new(axis.view(), axis.view(), z.view()).unwrap()) as Box<dyn Interpolation2D>)),
+        ("bicubic", Box::new(|z: &R2D| Box::new(Bicubic::new(axis.view(), axis.view(), z.view()).unwrap()) as Box<dyn Interpolation2D>)),
+        ("cubic basis (Catmull-Rom)", Box::new(|z: &R2D| Box::new(CubicBasis2D::new(axis.view(), axis.view(), z.view(), 0.0).unwrap()) as Box<dyn Interpolation2D>)),
+        ("Lanczos, a = 3", Box::new(|z: &R2D| Box::new(Lanczos2D::new(axis.view(), axis.view(), z.view(), 3).unwrap()) as Box<dyn Interpolation2D>)),
+        ("all-phase, n = 4", Box::new(|z: &R2D| Box::new(AllPhase2D::new(axis.view(), axis.view(), z.view(), 4).unwrap()) as Box<dyn Interpolation2D>)),
+        ("Fourier", Box::new(|z: &R2D| Box::new(FourierInterpolator2D::new(z.view(), 0.0, 0.0, 1.0, 1.0).unwrap()) as Box<dyn Interpolation2D>)),
+    ];
+    for (label, build) in &builders {
+        let zp = R2D::from_shape_fn((n, n), |(i, j)| periodic(axis[i], axis[j]));
+        let zn = R2D::from_shape_fn((n, n), |(i, j)| plain(axis[i], axis[j]));
+        let (mp, mn) = (build(&zp), build(&zn));
+        table.push_str(&format!("| {label} | {:.1e} | {:.1e} | {:.1e} |\n", rms_on(mp.as_ref(), &periodic, &interior), rms_on(mn.as_ref(), &plain, &interior), rms_on(mn.as_ref(), &plain, &whole)));
+    }
+    write(CHAPTER, "grid_accuracy.md", &table);
+
+    // 3D convergence: trilinear, tricubic Lagrange and B-spline.
+    use lib_jsl_interpolation::three_d::Interpolation3D;
+    use lib_jsl_interpolation::three_d::{b_spline::BSpline3D, cubic_lagrangian::CubicLagrangian3D, trilinear::Trilinear};
+    let f3 = |x: f64, y: f64, z: f64| (x + 2.0 * y).sin() * (1.0 + z * z).ln();
+    let mut table = String::from("| grid | trilinear | tricubic Lagrange | tricubic B-spline |\n|---:|---:|---:|---:|\n");
+    for m in [5usize, 9, 17, 33] {
+        let ax = R1D::from_vec((0..m).map(|i| i as f64 / (m - 1) as f64).collect());
+        let v = ndarray::Array3::from_shape_fn((m, m, m), |(i, j, k)| f3(ax[i], ax[j], ax[k]));
+        let methods: Vec<Box<dyn Interpolation3D>> = vec![
+            Box::new(Trilinear::new(ax.view(), ax.view(), ax.view(), &v).unwrap()),
+            Box::new(CubicLagrangian3D::new(ax.view(), ax.view(), ax.view(), &v).unwrap()),
+            Box::new(BSpline3D::new(ax.view(), ax.view(), ax.view(), &v).unwrap()),
+        ];
+        let pts: Vec<[f64; 3]> = (0..10).flat_map(|i| (0..10).flat_map(move |j| (0..10).map(move |k| [0.25 + 0.5 * i as f64 / 9.0, 0.25 + 0.5 * j as f64 / 9.0, 0.25 + 0.5 * k as f64 / 9.0]))).collect();
+        let errs: Vec<String> = methods.iter().map(|mth| format!("{:.1e}", pts.iter().map(|p| (mth.interpolate_at(p[0], p[1], p[2]).unwrap() - f3(p[0], p[1], p[2])).abs()).fold(0.0, f64::max))).collect();
+        table.push_str(&format!("| {m}³ | {} |\n", errs.join(" | ")));
+    }
+    write(CHAPTER, "grid_3d.md", &table);
+}
+
+fn scattered_figures() {
+    use lib_jsl_interpolation::three_d::Interpolation3D;
+    use lib_jsl_interpolation::three_d::shepards::Shepards;
+    use lib_jsl_interpolation::two_d::Interpolation2D;
+    use lib_jsl_interpolation::two_d::radial_basis_functions::{RadialBasisInterpolator, RadialKernel};
+    use lib_jsl_random::quasi_random::HaltonSequence;
+    // Franke's test function on the unit square, sampled at 100 Halton points.
+    let franke = |x: f64, y: f64| {
+        0.75 * (-((9.0 * x - 2.0).powi(2) + (9.0 * y - 2.0).powi(2)) / 4.0).exp()
+            + 0.75 * (-(9.0 * x + 1.0).powi(2) / 49.0 - (9.0 * y + 1.0) / 10.0).exp()
+            + 0.5 * (-((9.0 * x - 7.0).powi(2) + (9.0 * y - 3.0).powi(2)) / 4.0).exp()
+            - 0.2 * (-(9.0 * x - 4.0).powi(2) - (9.0 * y - 7.0).powi(2)).exp()
+    };
+    let mut h = HaltonSequence::new(2).unwrap();
+    let pts: Vec<(f64, f64)> = (0..100).map(|_| { let p = h.next_point(); (p[0], p[1]) }).collect();
+    let (xs, ys) = (R1D::from_vec(pts.iter().map(|p| p.0).collect()), R1D::from_vec(pts.iter().map(|p| p.1).collect()));
+    let fs = R1D::from_vec(pts.iter().map(|&(x, y)| franke(x, y)).collect());
+    let test: Vec<(f64, f64)> = (0..50).flat_map(|i| (0..50).map(move |j| (i as f64 / 49.0, j as f64 / 49.0))).collect();
+    let mut table = String::from("| method | RMS error | maximum error |\n|---|---:|---:|\n");
+    let mut record = |label: &str, eval: &dyn Fn(f64, f64) -> f64| {
+        let errs: Vec<f64> = test.iter().map(|&(x, y)| (eval(x, y) - franke(x, y)).abs()).collect();
+        let rms = (errs.iter().map(|e| e * e).sum::<f64>() / errs.len() as f64).sqrt();
+        table.push_str(&format!("| {label} | {rms:.1e} | {:.1e} |\n", errs.iter().cloned().fold(0.0, f64::max)));
+    };
+    let kernels = [
+        ("RBF, Gaussian (ε = 5)", RadialKernel::Gaussian(5.0)),
+        ("RBF, multiquadric (ε = 3)", RadialKernel::Multiquadric(3.0)),
+        ("RBF, inverse multiquadric (ε = 3)", RadialKernel::InverseMultiquadric(3.0)),
+        ("RBF, cubic", RadialKernel::Cubic),
+        ("RBF, thin-plate spline", RadialKernel::ThinPlateSpline),
+    ];
+    for (label, kernel) in kernels {
+        let r = RadialBasisInterpolator::new(xs.view(), ys.view(), fs.view(), kernel).unwrap();
+        record(label, &|x, y| r.interpolate_at(x, y).unwrap());
+    }
+    let zeros = R1D::zeros(100);
+    for power in [2.0, 4.0] {
+        let s = Shepards::new(xs.view(), ys.view(), zeros.view(), fs.view(), power).unwrap();
+        record(&format!("Shepard, power {power}"), &|x, y| s.interpolate_at(x, y, 0.0).unwrap());
+    }
+    write(CHAPTER, "scattered_table.md", &table);
+
+    // A slice at y = 0.5.
+    let tps = RadialBasisInterpolator::new(xs.view(), ys.view(), fs.view(), RadialKernel::ThinPlateSpline).unwrap();
+    let shep = Shepards::new(xs.view(), ys.view(), zeros.view(), fs.view(), 2.0).unwrap();
+    let grid: Vec<f64> = (0..=400).map(|i| i as f64 / 400.0).collect();
+    let mut plot = Plot::new("Franke's function from 100 scattered samples: the slice y = 0.5", "x", "f(x, 0.5)");
+    plot.legend = Legend::TopRight;
+    plot.series.push(Series::new("exact", grid.iter().map(|&x| (x, franke(x, 0.5))).collect(), Style::Dashed, 6));
+    plot.series.push(Series::new("thin-plate spline RBF", grid.iter().map(|&x| (x, tps.interpolate_at(x, 0.5).unwrap())).collect(), Style::Line, 0));
+    plot.series.push(Series::new("Shepard, power 2", grid.iter().map(|&x| (x, shep.interpolate_at(x, 0.5, 0.0).unwrap())).collect(), Style::Line, 1));
+    write(CHAPTER, "scattered_slice.svg", &plot.render());
 }

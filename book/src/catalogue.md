@@ -74,7 +74,7 @@ Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and 
 
 Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 33 items
 
-- Interpolation trait
+- [Interpolation trait](interpolation/index.md#in-the-library)
 
 #### 1D
 
@@ -96,29 +96,29 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 #### 2D
 
-- Nearest
-- Bilinear
-- Bicubic
-- Lanczos
-- Cubic basis
-- All-phase
-- Radial basis functions
-- Fourier 2D
+- [Nearest](interpolation/grids.md#tensor-products)
+- [Bilinear](interpolation/grids.md#tensor-products)
+- [Bicubic](interpolation/grids.md#cubic-methods)
+- [Lanczos](interpolation/grids.md#interpolation-as-convolution)
+- [Cubic basis](interpolation/grids.md#cubic-methods)
+- [All-phase](interpolation/grids.md#interpolation-as-convolution)
+- [Radial basis functions](interpolation/scattered.md#radial-basis-functions)
+- [Fourier 2D](interpolation/grids.md#accuracy)
 
 #### 3D
 
-- Nearest
-- Trilinear
-- B-spline
-- Cubic Lagrangian
-- Fourier 3D
-- Shepard's inverse distance weighting
+- [Nearest](interpolation/grids.md#tensor-products)
+- [Trilinear](interpolation/grids.md#tensor-products)
+- [B-spline](interpolation/grids.md#cubic-methods)
+- [Cubic Lagrangian](interpolation/grids.md#cubic-methods)
+- [Fourier 3D](interpolation/grids.md#accuracy)
+- [Shepard's inverse distance weighting](interpolation/scattered.md#shepards-inverse-distance-weighting)
 
 #### ND
 
-- Grid data
-- Nearest
-- Cubic basis
+- [Grid data](interpolation/grids.md#tensor-products)
+- [Nearest](interpolation/grids.md#tensor-products)
+- [Cubic basis](interpolation/grids.md#cubic-methods)
 
 ### Root finding
 

@@ -1,7 +1,10 @@
 //! Cholesky factorisation `A = L Lᴴ` of Hermitian positive-definite matrices, and triangular
 //! solves.
 
-use crate::dense::{BLOCK, Mat, dot_conj, require_square, sub_matmul};
+use crate::dense::{Mat, dot_conj, require_square, sub_matmul};
+
+/// The block size of the Cholesky factorisation.
+const BLOCK: usize = 16;
 use crate::error::{Diag, LinalgError, Result, UPLO};
 use crate::scalar::Scalar;
 

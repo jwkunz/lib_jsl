@@ -78,19 +78,7 @@ fn hessenberg<T: Scalar>(h: &mut Mat<T>, want_q: bool) -> Option<Mat<T>> {
     if !want_q {
         return None;
     }
-    // Q = H₀ H₁ ⋯, accumulated backwards on trailing blocks (as in the Hermitian solver).
-    let mut q = Mat::<T>::identity(n);
-    for (k, v) in reflectors.iter().enumerate().rev() {
-        let lo = k + 1;
-        let t = &mut t[..n - lo];
-        t.fill(T::zero());
-        for (r, &vr) in v.iter().enumerate() {
-            axpy_sub(t, -vr.conj(), &q.data[(lo + r) * n + lo..(lo + r + 1) * n]);
-        }
-        for (r, &vr) in v.iter().enumerate() {
-            axpy_sub(&mut q.data[(lo + r) * n + lo..(lo + r + 1) * n], vr.scale(2.0), t);
-        }
-    }
+    let q = crate::reflectors::accumulate(n, &reflectors, 1);
     let mut qt = Mat::zeros(n, n);
     for i in 0..n {
         for j in 0..n {

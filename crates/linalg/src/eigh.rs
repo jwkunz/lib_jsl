@@ -58,16 +58,26 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
             continue;
         }
         v.iter_mut().for_each(|z| *z = z.scale(1.0 / vnorm));
-        // p = A₂₂ v, μ = vᴴ p, w = p − μ v; A₂₂ ← A₂₂ − 2 v wᴴ − 2 w vᴴ.
+        // p = A₂₂ v, μ = vᴴ p, w = p − μ v; A₂₂ ← A₂₂ − 2 v wᴴ − 2 w vᴴ. Only the lower triangle
+        // is read and updated: one pass over it gives the whole Hermitian product, since each
+        // stored a_rj (j < r) contributes a_rj v_j to p_r and conj(a_rj) v_r to p_j.
         let v_conj: Vec<T> = v.iter().map(|z| z.conj()).collect();
-        let p: Vec<T> = (0..m).map(|r| dot_conj(&a.data[(k + 1 + r) * n + k + 1..(k + 2 + r) * n], &v_conj)).collect();
+        let mut p = vec![T::zero(); m];
+        for r in 0..m {
+            let row = &a.data[(k + 1 + r) * n + k + 1..(k + 1 + r) * n + k + 2 + r];
+            p[r] += dot_conj(row, &v_conj[..=r]);
+            let vr = v[r];
+            for (pj, &arj) in p[..r].iter_mut().zip(&row[..r]) {
+                *pj += arj.conj() * vr;
+            }
+        }
         let mu = dot_conj(&p, &v);
         let w2: Vec<T> = p.iter().zip(&v).map(|(&pp, &vv)| (pp - mu * vv).scale(2.0)).collect();
         let w2_conj: Vec<T> = w2.iter().map(|z| z.conj()).collect();
         for r in 0..m {
-            let row = &mut a.data[(k + 1 + r) * n + k + 1..(k + 2 + r) * n];
-            axpy_sub(row, v[r], &w2_conj);
-            axpy_sub(row, w2[r], &v_conj);
+            let row = &mut a.data[(k + 1 + r) * n + k + 1..(k + 1 + r) * n + k + 2 + r];
+            axpy_sub(row, v[r], &w2_conj[..=r]);
+            axpy_sub(row, w2[r], &v_conj[..=r]);
         }
         *a.at_mut(k + 1, k) = alpha;
         *a.at_mut(k, k + 1) = alpha.conj();
@@ -92,21 +102,8 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
         d.sort_by(f64::total_cmp);
         return Ok((d, None));
     }
-    // Q = H₀ H₁ ⋯ H_{n−3}, accumulated backwards so each reflector touches only the trailing
-    // block: Q₂₂ ← (I − 2 v vᴴ) Q₂₂ = Q₂₂ − 2 v (vᴴ Q₂₂), a row operation in row-major storage.
-    let mut q = Mat::<T>::identity(n);
-    let mut t = vec![T::zero(); n];
-    for (k, v) in reflectors.iter().enumerate().rev() {
-        let lo = k + 1;
-        let t = &mut t[..n - lo];
-        t.fill(T::zero());
-        for (r, &vr) in v.iter().enumerate() {
-            axpy_sub(t, -vr.conj(), &q.data[(lo + r) * n + lo..(lo + r + 1) * n]);
-        }
-        for (r, &vr) in v.iter().enumerate() {
-            axpy_sub(&mut q.data[(lo + r) * n + lo..(lo + r + 1) * n], vr.scale(2.0), t);
-        }
-    }
+    // Q = H₀ H₁ ⋯ H_{n−3}, accumulated backwards in blocks.
+    let mut q = crate::reflectors::accumulate(n, &reflectors, 1);
     for row in 0..n {
         for (c, ph) in phases.iter().enumerate() {
             q.data[row * n + c] *= *ph;

@@ -26,6 +26,7 @@ mod eigh;
 mod error;
 mod lu;
 mod qr;
+mod reflectors;
 mod scalar;
 mod svd;
 

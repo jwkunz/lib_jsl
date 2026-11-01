@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    runge_kutta_figures();
     monte_carlo_figures();
     cubature_figures();
     contour_figures();
@@ -514,4 +515,55 @@ fn monte_carlo_figures() {
         table.push_str(&format!("| {d} | 0.5 | {:.1e} | {:.1e} | {:.1e} | {tensor} evaluations |\n", (mc.value - 1.0).abs(), mc.standard_error, (q.value - 1.0).abs()));
     }
     write(CHAPTER, "monte_carlo_dimensions.md", &table);
+}
+
+/// The restricted three-body problem (Earth-Moon) with the periodic Arenstorf orbit.
+const ARENSTORF_MU: f64 = 0.012277471;
+const ARENSTORF_Y0: [f64; 4] = [0.994, 0.0, 0.0, -2.001_585_106_379_082_5];
+const ARENSTORF_PERIOD: f64 = 17.065_216_560_157_96;
+
+fn arenstorf(_t: f64, y: &[f64]) -> Vec<f64> {
+    let (mu, mu1) = (ARENSTORF_MU, 1.0 - ARENSTORF_MU);
+    let d1 = ((y[0] + mu).powi(2) + y[1] * y[1]).powf(1.5);
+    let d2 = ((y[0] - mu1).powi(2) + y[1] * y[1]).powf(1.5);
+    vec![
+        y[2],
+        y[3],
+        y[0] + 2.0 * y[3] - mu1 * (y[0] + mu) / d1 - mu * (y[0] - mu1) / d2,
+        y[1] - 2.0 * y[2] - mu1 * y[1] / d1 - mu * y[1] / d2,
+    ]
+}
+
+fn runge_kutta_figures() {
+    use lib_jsl_integration::dormand_prince::dormand_prince_solve;
+    use lib_jsl_integration::runge_kutta_4::rk4_solve;
+    use lib_jsl_integration::stiff_ode::OdeOptions;
+    let opts = |tol: f64| OdeOptions { relative_tolerance: tol, absolute_tolerance: tol, ..Default::default() };
+    // The orbit, with the accepted Dormand-Prince steps.
+    let s = dormand_prince_solve(arenstorf, 0.0, &ARENSTORF_Y0, ARENSTORF_PERIOD, opts(1e-7)).unwrap();
+    let fine = dormand_prince_solve(arenstorf, 0.0, &ARENSTORF_Y0, ARENSTORF_PERIOD, OdeOptions { initial_step: Some(1e-4), ..opts(1e-12) }).unwrap();
+    let mut plot = Plot::new(&format!("The Arenstorf orbit: {} adaptive steps at tolerance 10⁻⁷", s.t.len() - 1), "x", "y");
+    plot.series.push(Series::new("orbit", fine.y.iter().map(|y| (y[0], y[1])).collect(), Style::Line, 0));
+    plot.series.push(Series::new("accepted steps", s.y.iter().map(|y| (y[0], y[1])).collect(), Style::Markers, 1));
+    plot.series.push(Series::new("Earth and Moon", vec![(-ARENSTORF_MU, 0.0), (1.0 - ARENSTORF_MU, 0.0)], Style::Markers, 6));
+    plot.legend = Legend::TopRight;
+    write(CHAPTER, "arenstorf_orbit.svg", &plot.render());
+
+    // Error after one period against evaluations.
+    let error = |y: &[f64]| ((y[0] - ARENSTORF_Y0[0]).powi(2) + (y[1] - ARENSTORF_Y0[1]).powi(2)).sqrt();
+    let rk4: Vec<(f64, f64)> = [2000usize, 4000, 8000, 16000, 32000, 64000, 128000].iter().map(|&n| {
+        let s = rk4_solve(arenstorf, 0.0, &ARENSTORF_Y0, ARENSTORF_PERIOD, n).unwrap();
+        (s.function_evaluations as f64, error(s.y.last().unwrap()).max(1e-16))
+    }).collect();
+    let dopri: Vec<(f64, f64)> = [1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12].iter().map(|&tol| {
+        let s = dormand_prince_solve(arenstorf, 0.0, &ARENSTORF_Y0, ARENSTORF_PERIOD, opts(tol)).unwrap();
+        (s.function_evaluations as f64, error(s.y.last().unwrap()).max(1e-16))
+    }).collect();
+    let mut plot = Plot::new("Arenstorf orbit: error after one period", "function evaluations", "distance from the starting point");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.legend = Legend::BottomLeft;
+    plot.series.push(Series::new("RK4, fixed step", rk4, Style::LineMarkers, 0));
+    plot.series.push(Series::new("Dormand-Prince 5(4), adaptive", dopri, Style::LineMarkers, 1));
+    write(CHAPTER, "arenstorf_convergence.svg", &plot.render());
 }

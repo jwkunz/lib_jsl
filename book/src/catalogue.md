@@ -46,11 +46,11 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Integrator trait (1D)](integration/index.md#in-the-library)
 - [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
 - [Adaptive trapezoid](integration/newton-cotes.md#the-adaptive-trapezoid-rule)
-- Dormand-Prince
+- [Dormand-Prince](integration/runge-kutta.md#error-estimation-with-embedded-pairs)
 - [Midpoint](integration/newton-cotes.md#the-midpoint-rule)
 - [Sample-point helpers (grid points, panel midpoints)](integration/newton-cotes.md#implementation)
 - [Monte Carlo](integration/monte-carlo.md)
-- Runge-Kutta
+- [Runge-Kutta](integration/runge-kutta.md)
 - [Simpson's 1/3 rule](integration/newton-cotes.md#simpsons-rules)
 - [Trapezoidal](integration/newton-cotes.md#the-trapezoid-rule)
 - [Complex path integrals](integration/contour-integration.md)

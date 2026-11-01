@@ -148,7 +148,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Wavelet transform
 [x] Welch power spectral density
 [x] Short-time Fourier transform and spectrogram
-[ ] Hilbert transform and analytic signal
+[x] Hilbert transform and analytic signal
 [ ] Goertzel algorithm
 
 ### Transformations

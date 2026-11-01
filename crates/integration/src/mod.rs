@@ -24,7 +24,8 @@
 //!
 //! # Differential equations
 //!
-//! [`runge_kutta_4`] and [`dormand_prince`] for non-stiff initial value problems,
+//! [`runge_kutta_4::rk4_solve`] (fixed step) and [`dormand_prince::dormand_prince_solve`]
+//! (adaptive) for non-stiff initial value problems `y' = f(t, y)`,
 //! [`stiff_ode`] (Rosenbrock and BDF) for stiff ones, [`boundary_value_problems`] (shooting and
 //! collocation), and [`pde`] (finite difference, finite element and spectral methods).
 

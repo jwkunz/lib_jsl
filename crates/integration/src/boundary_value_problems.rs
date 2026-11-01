@@ -84,63 +84,9 @@ type Trajectory = (Vec<f64>, Vec<Vec<f64>>);
 /// Integrates `y' = f(x, y)` from `a` to `b` with adaptive Dormand-Prince 5(4), returning every
 /// accepted step.
 fn dormand_prince_system<F: Fn(f64, &[f64]) -> Vec<f64>>(f: &F, a: f64, y0: &[f64], b: f64, rtol: f64, atol: f64) -> Result<Trajectory, ErrorsJSL> {
-    const C: [f64; 7] = [0.0, 0.2, 0.3, 0.8, 8.0 / 9.0, 1.0, 1.0];
-    const A: [[f64; 6]; 7] = [
-        [0.0; 6],
-        [0.2, 0.0, 0.0, 0.0, 0.0, 0.0],
-        [3.0 / 40.0, 9.0 / 40.0, 0.0, 0.0, 0.0, 0.0],
-        [44.0 / 45.0, -56.0 / 15.0, 32.0 / 9.0, 0.0, 0.0, 0.0],
-        [19372.0 / 6561.0, -25360.0 / 2187.0, 64448.0 / 6561.0, -212.0 / 729.0, 0.0, 0.0],
-        [9017.0 / 3168.0, -355.0 / 33.0, 46732.0 / 5247.0, 49.0 / 176.0, -5103.0 / 18656.0, 0.0],
-        [35.0 / 384.0, 0.0, 500.0 / 1113.0, 125.0 / 192.0, -2187.0 / 6784.0, 11.0 / 84.0],
-    ];
-    const E: [f64; 7] = [
-        35.0 / 384.0 - 5179.0 / 57600.0,
-        0.0,
-        500.0 / 1113.0 - 7571.0 / 16695.0,
-        125.0 / 192.0 - 393.0 / 640.0,
-        -2187.0 / 6784.0 + 92097.0 / 339200.0,
-        11.0 / 84.0 - 187.0 / 2100.0,
-        -1.0 / 40.0,
-    ];
-    let n = y0.len();
-    let span = b - a;
-    let direction = span.signum();
-    let (mut x, mut y) = (a, y0.to_vec());
-    let mut xs = vec![x];
-    let mut ys = vec![y.clone()];
-    let mut h = 1e-3 * span.abs();
-    let mut k = vec![eval(f, x, &y)?];
-    for _ in 0..1_000_000 {
-        if (b - x) * direction <= 0.0 {
-            return Ok((xs, ys));
-        }
-        h = h.min((b - x).abs());
-        let hs = h * direction;
-        k.truncate(1);
-        for s in 1..7 {
-            let ys_stage: Vec<f64> = (0..n).map(|i| y[i] + hs * (0..s).map(|j| A[s][j] * k[j][i]).sum::<f64>()).collect();
-            k.push(eval(f, x + C[s] * hs, &ys_stage)?);
-        }
-        let y_new: Vec<f64> = (0..n).map(|i| y[i] + hs * (0..6).map(|j| A[6][j] * k[j][i]).sum::<f64>()).collect();
-        let error = (0..n)
-            .map(|i| (hs * (0..7).map(|j| E[j] * k[j][i]).sum::<f64>()).abs() / (atol + rtol * y[i].abs().max(y_new[i].abs())))
-            .fold(0.0, f64::max);
-        if error <= 1.0 && y_new.iter().all(|v| v.is_finite()) {
-            x = if (b - x).abs() <= h { b } else { x + hs };
-            y = y_new;
-            let last = k.pop().expect("seven stages");
-            k = vec![last]; // first-same-as-last
-            xs.push(x);
-            ys.push(y.clone());
-        }
-        let factor = if error.is_finite() { 0.9 * error.max(1e-10).powf(-0.2) } else { 0.1 };
-        h *= factor.clamp(0.2, 5.0);
-        if h < 1e-15 * span.abs() {
-            return Err(ErrorsJSL::RuntimeError("The initial value problem step size underflowed."));
-        }
-    }
-    Err(ErrorsJSL::RuntimeError("The initial value problem needed too many steps."))
+    let options = crate::stiff_ode::OdeOptions { relative_tolerance: rtol, absolute_tolerance: atol, initial_step: Some(1e-3 * (b - a).abs()), max_steps: 1_000_000 };
+    let s = crate::dormand_prince::dormand_prince_solve(f, a, y0, b, options)?;
+    Ok((s.t, s.y))
 }
 
 /// Solves the boundary value problem by single shooting from the guess `initial_state` for

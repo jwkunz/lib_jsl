@@ -16,29 +16,41 @@
 use lib_jsl_core::ErrorsJSL;
 use std::collections::VecDeque;
 
-/// Tolerances and limits shared by the stiff solvers.
+/// Tolerances and limits shared by the ODE solvers (stiff and non-stiff). Each step must keep
+/// every component's local error below `absolute_tolerance + relative_tolerance · |yᵢ|`.
 #[derive(Debug, Clone, Copy)]
-pub struct StiffOdeOptions {
+pub struct OdeOptions {
+    /// Error target relative to the size of each component.
     pub relative_tolerance: f64,
+    /// Error target for components near zero.
     pub absolute_tolerance: f64,
     /// Initial step; chosen automatically when `None`.
     pub initial_step: Option<f64>,
+    /// The largest number of steps (accepted and rejected).
     pub max_steps: usize,
 }
 
-impl Default for StiffOdeOptions {
+/// The former name of [`OdeOptions`].
+pub type StiffOdeOptions = OdeOptions;
+
+impl Default for OdeOptions {
     fn default() -> Self {
-        StiffOdeOptions { relative_tolerance: 1e-6, absolute_tolerance: 1e-9, initial_step: None, max_steps: 100_000 }
+        OdeOptions { relative_tolerance: 1e-6, absolute_tolerance: 1e-9, initial_step: None, max_steps: 100_000 }
     }
 }
 
 /// The accepted steps of a solve.
 #[derive(Debug, Clone)]
 pub struct OdeSolution {
+    /// The times of the accepted steps, starting with `t0` and ending with `t1`.
     pub t: Vec<f64>,
+    /// The state at each time in `t`.
     pub y: Vec<Vec<f64>>,
+    /// Steps whose error estimate exceeded the tolerance and were retried with a smaller step.
     pub rejected_steps: usize,
+    /// Evaluations of `f`.
     pub function_evaluations: usize,
+    /// Evaluations of the Jacobian (zero for explicit methods).
     pub jacobian_evaluations: usize,
 }
 
@@ -142,14 +154,14 @@ where
     }
 }
 
-fn weighted_max(v: &[f64], y0: &[f64], y1: &[f64], o: &StiffOdeOptions) -> f64 {
+pub(crate) fn weighted_max(v: &[f64], y0: &[f64], y1: &[f64], o: &OdeOptions) -> f64 {
     v.iter()
         .enumerate()
         .map(|(i, e)| e.abs() / (o.absolute_tolerance + o.relative_tolerance * y0[i].abs().max(y1[i].abs())))
         .fold(0.0, f64::max)
 }
 
-fn validate(y0: &[f64], t0: f64, t1: f64, o: &StiffOdeOptions) -> Result<(), ErrorsJSL> {
+pub(crate) fn validate(y0: &[f64], t0: f64, t1: f64, o: &OdeOptions) -> Result<(), ErrorsJSL> {
     if y0.is_empty() {
         return Err(ErrorsJSL::InvalidInputRange("The state must not be empty."));
     }
@@ -163,7 +175,7 @@ fn validate(y0: &[f64], t0: f64, t1: f64, o: &StiffOdeOptions) -> Result<(), Err
 }
 
 /// Hairer's starting-step heuristic `0.01 ‖y₀‖ / ‖f₀‖` in the weighted norm, capped by the span.
-fn starting_step(y0: &[f64], f0: &[f64], span: f64, o: &StiffOdeOptions) -> f64 {
+pub(crate) fn starting_step(y0: &[f64], f0: &[f64], span: f64, o: &OdeOptions) -> f64 {
     if let Some(h) = o.initial_step {
         return h.abs().min(span.abs());
     }
@@ -175,7 +187,7 @@ fn starting_step(y0: &[f64], f0: &[f64], span: f64, o: &StiffOdeOptions) -> f64 
 
 /// Solves `y' = f(t, y)` from `(t0, y0)` to `t1` with the Rosenbrock 2(3) pair of `ode23s`.
 /// `∂f/∂t` is estimated by a forward difference.
-pub fn rosenbrock23<F, J>(f: F, jacobian: Option<J>, t0: f64, y0: &[f64], t1: f64, options: StiffOdeOptions) -> Result<OdeSolution, ErrorsJSL>
+pub fn rosenbrock23<F, J>(f: F, jacobian: Option<J>, t0: f64, y0: &[f64], t1: f64, options: OdeOptions) -> Result<OdeSolution, ErrorsJSL>
 where
     F: Fn(f64, &[f64]) -> Vec<f64>,
     J: Fn(f64, &[f64]) -> Vec<Vec<f64>>,
@@ -262,7 +274,7 @@ fn extrapolate(times: &[f64], values: &[&Vec<f64>], t: f64) -> Vec<f64> {
 /// tolerances but only stable in a wedge about the negative real axis (fine for dissipative
 /// problems, less so for lightly damped oscillations). The local error is estimated from the
 /// difference between the Newton-corrected solution and the polynomial predictor.
-pub fn bdf<F, J>(f: F, jacobian: Option<J>, t0: f64, y0: &[f64], t1: f64, max_order: usize, options: StiffOdeOptions) -> Result<OdeSolution, ErrorsJSL>
+pub fn bdf<F, J>(f: F, jacobian: Option<J>, t0: f64, y0: &[f64], t1: f64, max_order: usize, options: OdeOptions) -> Result<OdeSolution, ErrorsJSL>
 where
     F: Fn(f64, &[f64]) -> Vec<f64>,
     J: Fn(f64, &[f64]) -> Vec<Vec<f64>>,
@@ -386,7 +398,7 @@ mod tests {
 
     #[test]
     fn both_solvers_handle_the_robertson_problem() {
-        let options = StiffOdeOptions { relative_tolerance: 1e-6, absolute_tolerance: 1e-10, ..Default::default() };
+        let options = OdeOptions { relative_tolerance: 1e-6, absolute_tolerance: 1e-10, ..Default::default() };
         let y0 = [1.0, 0.0, 0.0];
         let ros = rosenbrock23(robertson, Some(robertson_jacobian), 0.0, &y0, 40.0, options).unwrap();
         let bdf5 = bdf(robertson, None::<NoJacobian>, 0.0, &y0, 40.0, 5, options).unwrap();
@@ -405,7 +417,7 @@ mod tests {
     fn stiff_linear_problem_follows_the_slow_manifold_cheaply() {
         // y' = −1000 (y − cos t) − sin t has solution cos t; explicit methods need h < 2e-3.
         let f = |t: f64, y: &[f64]| vec![-1000.0 * (y[0] - t.cos()) - t.sin()];
-        let options = StiffOdeOptions { relative_tolerance: 1e-7, absolute_tolerance: 1e-9, ..Default::default() };
+        let options = OdeOptions { relative_tolerance: 1e-7, absolute_tolerance: 1e-9, ..Default::default() };
         for order in [1, 2, 3, 5] {
             let sol = bdf(f, None::<NoJacobian>, 0.0, &[1.0], 10.0, order, options).unwrap();
             let worst = sol.t.iter().zip(&sol.y).map(|(t, y)| (y[0] - t.cos()).abs()).fold(0.0, f64::max);
@@ -415,7 +427,7 @@ mod tests {
             }
         }
         // The second-order Rosenbrock pair suits looser tolerances.
-        let loose = StiffOdeOptions { relative_tolerance: 1e-4, absolute_tolerance: 1e-6, ..Default::default() };
+        let loose = OdeOptions { relative_tolerance: 1e-4, absolute_tolerance: 1e-6, ..Default::default() };
         let sol = rosenbrock23(f, None::<NoJacobian>, 0.0, &[1.0], 10.0, loose).unwrap();
         let worst = sol.t.iter().zip(&sol.y).map(|(t, y)| (y[0] - t.cos()).abs()).fold(0.0, f64::max);
         assert!(worst < 1e-4 && sol.t.len() < 1000, "{worst} in {} steps", sol.t.len());
@@ -424,13 +436,13 @@ mod tests {
     #[test]
     fn higher_orders_need_fewer_steps_and_backward_integration_works() {
         let f = |_: f64, y: &[f64]| vec![y[1], -y[0]];
-        let options = StiffOdeOptions { relative_tolerance: 1e-9, absolute_tolerance: 1e-12, ..Default::default() };
+        let options = OdeOptions { relative_tolerance: 1e-9, absolute_tolerance: 1e-12, ..Default::default() };
         let low = bdf(f, None::<NoJacobian>, 0.0, &[0.0, 1.0], 2.0, 1, options).unwrap();
         let high = bdf(f, None::<NoJacobian>, 0.0, &[0.0, 1.0], 2.0, 5, options).unwrap();
         assert!(high.t.len() * 10 < low.t.len(), "{} vs {}", high.t.len(), low.t.len());
         assert!((high.last()[0] - 2f64.sin()).abs() < 1e-7);
         // Backwards in time: y' = y from y(1) = e to t = 0.
-        let back = rosenbrock23(|_, y: &[f64]| vec![y[0]], None::<NoJacobian>, 1.0, &[std::f64::consts::E], 0.0, StiffOdeOptions::default()).unwrap();
+        let back = rosenbrock23(|_, y: &[f64]| vec![y[0]], None::<NoJacobian>, 1.0, &[std::f64::consts::E], 0.0, OdeOptions::default()).unwrap();
         assert!((back.last()[0] - 1.0).abs() < 1e-4 && *back.t.last().unwrap() == 0.0);
         assert!(bdf(f, None::<NoJacobian>, 0.0, &[0.0, 1.0], 1.0, 6, options).is_err());
         assert!(rosenbrock23(f, None::<NoJacobian>, 0.0, &[], 1.0, options).is_err());

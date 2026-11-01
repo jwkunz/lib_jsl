@@ -50,13 +50,13 @@ impl OdeSolution {
 }
 
 /// Dense LU factorisation with partial pivoting, stored in place.
-struct Lu {
+pub(crate) struct Lu {
     a: Vec<Vec<f64>>,
     pivot: Vec<usize>,
 }
 
 impl Lu {
-    fn new(mut a: Vec<Vec<f64>>) -> Result<Self, ErrorsJSL> {
+    pub(crate) fn new(mut a: Vec<Vec<f64>>) -> Result<Self, ErrorsJSL> {
         let n = a.len();
         let mut pivot = vec![0; n];
         for k in 0..n {
@@ -78,7 +78,7 @@ impl Lu {
         Ok(Lu { a, pivot })
     }
 
-    fn solve(&self, b: &[f64]) -> Vec<f64> {
+    pub(crate) fn solve(&self, b: &[f64]) -> Vec<f64> {
         let n = b.len();
         let mut x = b.to_vec();
         for k in 0..n {

@@ -381,7 +381,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Multidimensional cubature
 [x] Quasi-Monte Carlo integration
 [x] Stiff ODE solvers (BDF, Rosenbrock)
-[ ] Boundary value problems (shooting, collocation)
+[x] Boundary value problems (shooting, collocation)
 
 ## Partial differential equations
 [ ] Finite difference methods

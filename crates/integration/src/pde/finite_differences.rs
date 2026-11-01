@@ -7,6 +7,8 @@
 //!   for Courant number `c Δt / Δx ≤ 1`, exact on the grid when it equals one).
 //! * The Poisson equation `−∇²u = f` on a rectangle with Dirichlet data, by the five-point stencil
 //!   solved matrix-free with conjugate gradients.
+//!
+//! See the book entry [Finite difference methods](https://jwkunz.github.io/lib_jsl/book/integration/finite-differences.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -197,7 +199,9 @@ where
 }
 
 /// Conjugate gradients for a symmetric positive-definite operator `apply`, from zero, to the
-/// relative residual `tolerance`.
+/// relative residual `tolerance`. If `max_iterations` is reached first, a solution whose residual
+/// is within a factor 1000 of the target is still returned (rounding often stalls the last digits);
+/// otherwise the result is an error.
 pub fn conjugate_gradient<A: Fn(&[f64]) -> Vec<f64>>(apply: A, b: &[f64], tolerance: f64, max_iterations: usize) -> Result<Vec<f64>, ErrorsJSL> {
     let dot = |a: &[f64], c: &[f64]| a.iter().zip(c).map(|(p, q)| p * q).sum::<f64>();
     let mut x = vec![0.0; b.len()];

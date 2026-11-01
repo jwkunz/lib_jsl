@@ -8,6 +8,8 @@
 //!   `u'' + p(x) u' + q(x) u = f(x)` with Dirichlet ends by collocation.
 //! * [`fourier_derivative`] of periodic samples by the FFT, and [`periodic_heat`], which advances
 //!   the periodic heat equation exactly in Fourier space.
+//!
+//! See the book entry [Spectral methods](https://jwkunz.github.io/lib_jsl/book/integration/spectral-methods.html).
 
 use crate::stiff_ode::Lu;
 use lib_jsl_core::ErrorsJSL;

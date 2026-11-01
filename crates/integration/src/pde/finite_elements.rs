@@ -8,6 +8,8 @@
 //!
 //! Linear elements converge at second order in the L² and nodal errors and first order in the
 //! energy norm.
+//!
+//! See the book entry [Finite element methods](https://jwkunz.github.io/lib_jsl/book/integration/finite-elements.html).
 
 use lib_jsl_core::ErrorsJSL;
 use std::collections::BTreeMap;
@@ -84,7 +86,9 @@ where
 /// A triangle mesh: node coordinates and counter-clockwise (or any consistent) node triples.
 #[derive(Debug, Clone)]
 pub struct TriangleMesh {
+    /// The node coordinates.
     pub nodes: Vec<[f64; 2]>,
+    /// Each triangle's three node indices.
     pub triangles: Vec<[usize; 3]>,
 }
 

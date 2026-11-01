@@ -556,7 +556,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Van Wijngaarden-Dekker-Brent
 [x] Newton-Raphson
 [x] Polynomial roots
-[ ] Nonlinear systems (Newton, Broyden)
+[x] Nonlinear systems (Newton, Broyden)
 
 # Sorting and selection (`sorting`)
 [x] Quicksort

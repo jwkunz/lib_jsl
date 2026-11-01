@@ -5,6 +5,7 @@
 
 mod derivatives;
 mod integration;
+mod interpolation;
 mod svg;
 
 use std::path::{Path, PathBuf};
@@ -23,5 +24,6 @@ pub fn write(chapter: &str, name: &str, contents: &str) {
 
 fn main() {
     derivatives::generate();
+    interpolation::generate();
     integration::generate();
 }

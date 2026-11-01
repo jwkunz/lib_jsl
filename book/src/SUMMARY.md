@@ -23,6 +23,8 @@
     - [Finite difference methods](integration/finite-differences.md)
     - [Finite element methods](integration/finite-elements.md)
     - [Spectral methods](integration/spectral-methods.md)
+- [Interpolation](interpolation/index.md)
+    - [Polynomial interpolation](interpolation/polynomial.md)
 
 ---
 

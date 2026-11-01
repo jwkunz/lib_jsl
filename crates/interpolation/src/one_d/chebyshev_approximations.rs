@@ -1,4 +1,6 @@
 //! Chebyshev approximation of a function on an interval.
+//!
+//! See the book entry [Polynomial interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/polynomial.html#chebyshev-series).
 
 use lib_jsl_core::*;
 use std::f64::consts::PI;

@@ -1,4 +1,6 @@
 //! Lagrange interpolation in barycentric form (second form, O(n) per evaluation).
+//!
+//! See the book entry [Polynomial interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/polynomial.html).
 
 use crate::interpolation_trait::InterpolationTrait;
 use lib_jsl_core::*;
@@ -66,6 +68,7 @@ impl<'a> InterpolationTrait<'a> for LagrangeInterpolant<'a> {
     }
 }
 
+// ANCHOR: barycentric
 /// Second-form barycentric evaluation shared with Floater-Hormann and Chebyshev interpolation.
 pub(crate) fn barycentric_eval(x_nodes: VR1D, y: VR1D, w: VR1D, x: f64) -> f64 {
     let (mut num, mut den) = (0.0, 0.0);
@@ -80,6 +83,7 @@ pub(crate) fn barycentric_eval(x_nodes: VR1D, y: VR1D, w: VR1D, x: f64) -> f64 {
     }
     num / den
 }
+// ANCHOR_END: barycentric
 
 #[cfg(test)]
 mod tests {

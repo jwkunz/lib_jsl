@@ -72,7 +72,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions.
 
-Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · 33 items
+Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 33 items
 
 - Interpolation trait
 
@@ -80,7 +80,7 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 - Linear
 - Natural cubic spline
-- Polynomial
+- [Polynomial](interpolation/polynomial.md#newtons-divided-differences)
 - PCHIP
 - Akima
 - Cubic basis
@@ -90,8 +90,8 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - Floater-Hormann
 - Bulirsch-Stoer rational interpolation
 - Fourier 1D
-- Chebyshev approximations
-- Lagrange interpolant
+- [Chebyshev approximations](interpolation/polynomial.md#chebyshev-series)
+- [Lagrange interpolant](interpolation/polynomial.md#the-barycentric-formula)
 - Savitzky-Golay
 
 #### 2D

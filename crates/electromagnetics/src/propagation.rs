@@ -4,5 +4,6 @@
 // Guards such as `!(x > 0.0)` are deliberate: unlike `x <= 0.0` they also reject NaN.
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
 
+pub mod atmosphere;
 pub mod multipath;
 pub mod path_loss;

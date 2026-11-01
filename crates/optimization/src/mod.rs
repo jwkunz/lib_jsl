@@ -1,4 +1,5 @@
 pub mod conjugate_gradient;
+pub mod constrained;
 pub mod differential_evolution;
 pub mod dynamic_programming;
 pub mod golden_section_search;

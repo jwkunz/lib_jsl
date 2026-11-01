@@ -12,5 +12,6 @@ pub mod quasi_monte_carlo;
 pub mod romberg;
 pub mod runge_kutta_4;
 pub mod simpsons_1_3_integration_engine;
+pub mod stiff_ode;
 pub mod tanh_sinh;
 pub mod trapezoidal_integration_engine;

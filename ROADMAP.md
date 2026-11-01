@@ -380,7 +380,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Romberg integration
 [x] Multidimensional cubature
 [x] Quasi-Monte Carlo integration
-[ ] Stiff ODE solvers (BDF, Rosenbrock)
+[x] Stiff ODE solvers (BDF, Rosenbrock)
 [ ] Boundary value problems (shooting, collocation)
 
 ## Partial differential equations

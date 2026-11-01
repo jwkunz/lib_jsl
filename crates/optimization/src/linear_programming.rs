@@ -12,6 +12,8 @@
 //! and phase two optimises. Pivoting uses Bland's rule, so the method cannot cycle on degenerate
 //! problems; it is reliable rather than fast, and is intended for problems of up to a few hundred
 //! variables and constraints. To maximise, negate the objective.
+//!
+//! See the book entry [Linear programming](https://jwkunz.github.io/lib_jsl/book/optimization/linear-programming.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -261,6 +263,7 @@ fn simplex(t: &mut [Vec<f64>], basis: &mut [usize], cost: &[f64], total: usize, 
     let limit = limit.unwrap_or(total);
     let eps = 1e-9;
     for _ in 0..50_000 {
+        // ANCHOR: simplex_iteration
         // Reduced costs: c_j - c_B · column_j.
         let entering = (0..limit).find(|&j| {
             let reduced = cost[j] - basis.iter().enumerate().map(|(i, &b)| cost[b] * t[i][j]).sum::<f64>();
@@ -283,6 +286,7 @@ fn simplex(t: &mut [Vec<f64>], basis: &mut [usize], cost: &[f64], total: usize, 
         }
         let Some((_, row, _)) = best else { return Some(LpStatus::Unbounded) };
         pivot(t, basis, row, col, total);
+        // ANCHOR_END: simplex_iteration
         *iterations += 1;
     }
     None

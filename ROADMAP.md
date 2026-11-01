@@ -499,7 +499,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Multiplicative inverse modulo
 [x] Polynomial
 [x] Text coded integer
-[ ] Prime sieves
+[x] Prime sieves
 [ ] Primality testing (Miller-Rabin)
 [ ] Integer factorization
 [ ] Chinese remainder theorem

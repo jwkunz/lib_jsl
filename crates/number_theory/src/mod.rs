@@ -4,3 +4,4 @@ pub mod integer_square_root;
 pub mod multiplicative_inverse_modulo;
 pub mod polynomial;
 pub mod text_coded_integer;
+pub mod prime_sieves;

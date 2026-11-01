@@ -379,7 +379,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Tanh-sinh quadrature
 [x] Romberg integration
 [x] Multidimensional cubature
-[ ] Quasi-Monte Carlo integration
+[x] Quasi-Monte Carlo integration
 [ ] Stiff ODE solvers (BDF, Rosenbrock)
 [ ] Boundary value problems (shooting, collocation)
 

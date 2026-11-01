@@ -1,4 +1,7 @@
 //! Prony's method: fit uniformly sampled data with a sum of complex exponentials.
+//!
+//! See the book entry [Trigonometric interpolation and Prony's method](https://jwkunz.github.io/lib_jsl/book/interpolation/trigonometric.html#pronys-method). With noisy data, fit more exponentials than the
+//! signal contains: the extra ones absorb the noise as strongly damped components.
 
 use lib_jsl_core::*;
 use ndarray::{Array1, Array2};
@@ -24,6 +27,7 @@ impl PronyModel {
         if order == 0 || n < 2 * order || dx <= 0.0 {
             return Err(ErrorsJSL::InvalidInputRange("need order > 0, dx > 0 and at least 2*order samples"));
         }
+        // ANCHOR: prony_steps
         // Linear prediction: y[k+p] = -Σ_{j=1..p} a_j y[k+p-j] for k = 0..n-p.
         let rows = n - order;
         let a = Array2::from_shape_fn((rows, order), |(k, j)| y[k + order - 1 - j]);
@@ -50,6 +54,7 @@ impl PronyModel {
             .map_err(|_| ErrorsJSL::RuntimeError("amplitude least squares failed"))?
             .solution
             .to_vec();
+        // ANCHOR_END: prony_steps
         Ok(PronyModel { x0, dx, poles, amplitudes })
     }
 

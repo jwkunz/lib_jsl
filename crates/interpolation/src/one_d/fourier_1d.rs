@@ -1,4 +1,6 @@
 //! Trigonometric (Fourier) interpolation of uniformly sampled periodic data.
+//!
+//! See the book entry [Trigonometric interpolation and Prony's method](https://jwkunz.github.io/lib_jsl/book/interpolation/trigonometric.html).
 
 use lib_jsl_core::*;
 use num_complex::Complex;

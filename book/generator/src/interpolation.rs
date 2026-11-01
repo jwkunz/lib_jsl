@@ -64,6 +64,8 @@ fn polynomial_figures() {
 }
 
 pub fn generate() {
+    trigonometric_figures();
+    savitzky_golay_figures();
     rational_figures();
     spline_figures();
     polynomial_figures();
@@ -161,4 +163,86 @@ fn rational_figures() {
         table.push_str(&format!("| {x} | {exact:.10} | {:.1e} | {:.1e} |\n", (t - exact).abs(), (pade.evaluate(x) - exact).abs()));
     }
     write(CHAPTER, "pade_log.md", &table);
+}
+
+fn trigonometric_figures() {
+    use lib_jsl_interpolation::one_d::fourier_1d::FourierInterpolator1D;
+    use lib_jsl_interpolation::one_d::pronys_method::PronyModel;
+    use lib_jsl_random::uniform_generator::{UniformGenerator, UniformRNG};
+    // Fourier interpolation of a periodic function and of a non-periodic one, 16 samples each.
+    let n = 16;
+    let grid: Vec<f64> = (0..=600).map(|i| i as f64 / 600.0).collect();
+    let mut plot = Plot::new("Trigonometric interpolation from 16 samples on [0, 1)", "x", "y");
+    plot.legend = Legend::BottomLeft;
+    let cases: [(&str, &dyn Fn(f64) -> f64, usize); 2] = [
+        ("periodic: exp(sin 2πx)", &|x: f64| (2.0 * PI * x).sin().exp(), 0),
+        ("not periodic: x", &|x: f64| x, 1),
+    ];
+    for (label, f, k) in cases {
+        let samples = R1D::from_vec((0..n).map(|i| f(i as f64 / n as f64)).collect());
+        let interp = FourierInterpolator1D::new(samples.view(), 0.0, 1.0).unwrap();
+        plot.series.push(Series::new(&format!("{label}, interpolant"), grid.iter().map(|&x| (x, interp.evaluate(x))).collect(), Style::Line, k));
+        plot.series.push(Series::new("", grid.iter().map(|&x| (x, f(x))).collect(), Style::Dashed, k));
+        plot.series.push(Series::new("", (0..n).map(|i| { let x = i as f64 / n as f64; (x, f(x)) }).collect(), Style::Markers, k));
+    }
+    write(CHAPTER, "fourier_interpolation.svg", &plot.render());
+
+    // Prony's method: two damped oscillations plus noise.
+    let truth = |t: f64| 1.0 * (-0.3 * t).exp() * (2.0 * PI * 1.2 * t).cos() + 0.5 * (-0.1 * t).exp() * (2.0 * PI * 0.45 * t + 0.7).cos();
+    let dt = 0.1;
+    let mut rng = UniformRNG::from_seed(4);
+    let data: Vec<f64> = (0..80).map(|k| truth(k as f64 * dt) + 0.02 * (rng.next_f64() - 0.5)).collect();
+    let exact_order = PronyModel::new(R1D::from_vec(data.clone()).view(), 0.0, dt, 4).unwrap();
+    let over_order = PronyModel::new(R1D::from_vec(data.clone()).view(), 0.0, dt, 8).unwrap();
+    let mut plot = Plot::new("Prony's method on 8 s of noisy data, extrapolated to 16 s", "t", "y");
+    plot.legend = Legend::TopRight;
+    plot.series.push(Series::new("data", data.iter().enumerate().map(|(k, &y)| (k as f64 * dt, y)).collect(), Style::Markers, 6));
+    plot.series.push(Series::new("true signal", (0..=1600).map(|i| { let t = i as f64 * 0.01; (t, truth(t)) }).collect(), Style::Dashed, 6));
+    plot.series.push(Series::new("4 exponentials (the true number)", (0..=1600).map(|i| { let t = i as f64 * 0.01; (t, exact_order.evaluate(t)) }).collect(), Style::Line, 0));
+    plot.series.push(Series::new("8 exponentials", (0..=1600).map(|i| { let t = i as f64 * 0.01; (t, over_order.evaluate(t)) }).collect(), Style::Line, 1));
+    write(CHAPTER, "prony.svg", &plot.render());
+    let mut table = String::from("| model | oscillatory components found: damping, frequency (Hz) |\n|---|---|\n");
+    table.push_str("| true signal | 0.100, 0.450 Hz; 0.300, 1.200 Hz |\n");
+    for (label, model) in [("4 exponentials", &exact_order), ("8 exponentials", &over_order)] {
+        let mut comps: Vec<(f64, f64)> = model.exponents().into_iter().filter(|s| s.im > 1e-9).map(|s| (-s.re, s.im / (2.0 * PI))).collect();
+        comps.sort_by(|a, b| a.0.total_cmp(&b.0));
+        let text: Vec<String> = comps.iter().map(|(d, f)| format!("{d:.3}, {f:.3} Hz")).collect();
+        table.push_str(&format!("| {label} | {} |\n", text.join("; ")));
+    }
+    write(CHAPTER, "prony_table.md", &table);
+}
+
+fn savitzky_golay_figures() {
+    use lib_jsl_interpolation::one_d::savitzky_golay::savitzky_golay;
+    use lib_jsl_random::uniform_generator::{UniformGenerator, UniformRNG};
+    // A narrow peak on a slope, with noise.
+    let n = 400;
+    let dx = 1.0 / n as f64;
+    let signal = |x: f64| 0.5 * x + (-((x - 0.5) / 0.02).powi(2)).exp();
+    let mut rng = UniformRNG::from_seed(9);
+    let noisy: Vec<f64> = (0..n).map(|i| signal(i as f64 * dx) + 0.1 * (2.0 * rng.next_f64() - 1.0)).collect();
+    let y = R1D::from_vec(noisy.clone());
+    let average = savitzky_golay(y.view(), 21, 0, 0, dx).unwrap();
+    let sg = savitzky_golay(y.view(), 21, 4, 0, dx).unwrap();
+    let mut plot = Plot::new("Smoothing a noisy peak with a 21-point window", "x", "y");
+    plot.x_range = Some((0.3, 0.7));
+    plot.legend = Legend::TopRight;
+    let pts = |v: &[f64]| -> Vec<(f64, f64)> { v.iter().enumerate().map(|(i, &y)| (i as f64 * dx, y)).filter(|p| p.0 >= 0.3 && p.0 <= 0.7).collect() };
+    plot.series.push(Series::new("noisy data", pts(&noisy), Style::Markers, 6));
+    plot.series.push(Series::new("moving average (order 0)", pts(average.as_slice().unwrap()), Style::Line, 0));
+    plot.series.push(Series::new("Savitzky-Golay, order 4", pts(sg.as_slice().unwrap()), Style::Line, 1));
+    plot.series.push(Series::new("true signal", (0..=400).map(|i| { let x = 0.3 + 0.4 * i as f64 / 400.0; (x, signal(x)) }).collect(), Style::Dashed, 2));
+    write(CHAPTER, "savitzky_golay_peak.svg", &plot.render());
+
+    // Derivatives of noisy data: central differences against Savitzky-Golay.
+    let dsignal = |x: f64| 0.5 - 2.0 * (x - 0.5) / (0.02f64 * 0.02) * (-((x - 0.5) / 0.02).powi(2)).exp();
+    let rms = |v: &[f64]| (v.iter().enumerate().skip(30).take(n - 60).map(|(i, d)| (d - dsignal(i as f64 * dx)).powi(2)).sum::<f64>() / (n - 60) as f64).sqrt();
+    let central: Vec<f64> = (0..n).map(|i| if i == 0 || i == n - 1 { 0.0 } else { (noisy[i + 1] - noisy[i - 1]) / (2.0 * dx) }).collect();
+    let mut table = String::from("| derivative estimate | RMS error |\n|---|---:|\n");
+    table.push_str(&format!("| central differences | {:.1} |\n", rms(&central)));
+    for (window, order) in [(11, 2), (21, 2), (21, 4), (41, 4)] {
+        let d = savitzky_golay(y.view(), window, order, 1, dx).unwrap();
+        table.push_str(&format!("| Savitzky-Golay, window {window}, order {order} | {:.1} |\n", rms(d.as_slice().unwrap())));
+    }
+    write(CHAPTER, "savitzky_golay_derivative.md", &table);
 }

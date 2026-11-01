@@ -8,6 +8,8 @@
 //! * [`broyden_system`]: Broyden's "good" rank-one update of the Jacobian; superlinear
 //!   convergence with a single function evaluation per iteration, re-forming the Jacobian by
 //!   finite differences only when the update stops producing descent.
+//!
+//! See the book entry [Nonlinear systems](https://jwkunz.github.io/lib_jsl/book/root_finding/nonlinear-systems.html).
 
 /// Settings for the system solvers.
 #[derive(Debug, Clone, Copy)]
@@ -181,11 +183,13 @@ where
         if jac.len() != n || jac.iter().any(|row| row.len() != n) {
             return Err("newton_system: the Jacobian must be n × n".to_string());
         }
+        // ANCHOR: newton_step
         let Some(step) = solve_dense(jac, fx.iter().map(|v| -v).collect()) else {
             return Ok(finish(x, &fx, iteration, sys.evaluations, false));
         };
         let f0 = half_norm_squared(&fx);
         let (x_new, f_new, ok) = line_search(&mut sys, &x, f0, -2.0 * f0, &step);
+        // ANCHOR_END: newton_step
         let relative_step = x_new.iter().zip(&x).map(|(a, b)| (a - b).abs() / a.abs().max(1.0)).fold(0.0, f64::max);
         x = x_new;
         fx = f_new;
@@ -231,6 +235,7 @@ where
                 let s: Vec<f64> = x_new.iter().zip(&x).map(|(a, c)| a - c).collect();
                 let ss: f64 = s.iter().map(|v| v * v).sum();
                 let relative_step = s.iter().zip(&x_new).map(|(d, a)| d.abs() / a.abs().max(1.0)).fold(0.0, f64::max);
+                // ANCHOR: broyden_update
                 if ss > 0.0 {
                     let bs: Vec<f64> = b.iter().map(|row| row.iter().zip(&s).map(|(a, c)| a * c).sum()).collect();
                     for i in 0..n {
@@ -238,6 +243,7 @@ where
                         b[i].iter_mut().zip(&s).for_each(|(bij, sj)| *bij += u * sj);
                     }
                 }
+                // ANCHOR_END: broyden_update
                 x = x_new;
                 fx = f_new;
                 fresh = false;

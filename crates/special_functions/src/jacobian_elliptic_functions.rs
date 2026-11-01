@@ -39,19 +39,16 @@ pub fn jacobian_elliptic(u: f64, m: f64) -> (f64, f64, f64) {
     }
     let n = a.len() - 1;
     let mut phi = (1u64 << n.min(62)) as f64 * a[n] * u;
-    let mut phi1 = phi; // φ₁, the iterate just before the final backward step
     for i in (1..=n).rev() {
-        if i == 1 {
-            phi1 = phi;
-        }
         // t = 2 φ_{i-1} - φ_i satisfies sin t = (c_i / a_i) sin φ_i and |t| < π/2.
         let t = (c[i] / a[i] * phi.sin()).asin();
         phi = 0.5 * (phi + t);
     }
-    let phi0 = phi;
-    let sn = phi0.sin();
-    let cn = phi0.cos();
-    let dn = cn / (phi1 - phi0).cos();
+    let sn = phi.sin();
+    let cn = phi.cos();
+    // dn² = 1 − m sn² = (1 − m) + m cn², a sum of non-negative terms. (The A&S formula
+    // dn = cn / cos(φ₁ − φ₀) is 0/0 at u = K, where it gave 0.2418 instead of 0.2236 for m = 0.95.)
+    let dn = ((1.0 - m) + m * cn * cn).sqrt();
     (sn, cn, dn)
 }
 
@@ -105,5 +102,17 @@ mod tests {
         let (s2, _, _) = jacobian_elliptic(0.3 + 4.0 * kk, m);
         assert!((s1 - s2).abs() < 1e-12);
         assert!(jacobian_elliptic(1.0, 1.5).0.is_nan());
+    }
+
+    #[test]
+    fn dn_is_smooth_through_the_quarter_period() {
+        // At u = K the old formula divided zero by zero.
+        let m: f64 = 0.95;
+        let k = crate::elliptic_integral(m.sqrt());
+        for u in [k, 3.0 * k, k + 1e-12] {
+            let (sn, _, dn) = jacobian_elliptic(u, m);
+            assert!((dn - (1.0 - m * sn * sn).sqrt()).abs() < 1e-14, "u = {u}: dn = {dn}");
+            assert!((dn - (1.0 - m).sqrt()).abs() < 1e-10, "u = {u}: dn = {dn}");
+        }
     }
 }

@@ -7,7 +7,7 @@
 # Integration
 
 - [Numerical integration](integration/index.md)
-    - [Newton-Cotes rules: midpoint, trapezoid and Simpson]()
+    - [Newton-Cotes rules: midpoint, trapezoid and Simpson](integration/newton-cotes.md)
     - [Romberg integration](integration/romberg.md)
     - [Gaussian quadrature](integration/gaussian-quadrature.md)
     - [Adaptive Gauss-Kronrod quadrature]()

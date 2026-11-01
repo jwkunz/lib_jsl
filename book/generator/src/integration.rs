@@ -3,13 +3,15 @@
 use crate::svg::{Legend, Plot, Series, Style};
 use crate::write;
 use lib_jsl_integration::can_integrate::CanIntegrate1D;
+use lib_jsl_integration::adaptive_trapezoid_integration_engine::AdaptiveTrapezoidIntegrationEngine;
 use lib_jsl_integration::gaussian_quadrature::{GaussLegendreEngine, gauss_legendre};
+use lib_jsl_integration::midpoint_integration_engine::MidpointIntegrationEngine;
 use lib_jsl_integration::romberg::RombergEngine;
 use lib_jsl_integration::simpsons_1_3_integration_engine::Simpson13Engine;
 use lib_jsl_integration::tanh_sinh::TanhSinhEngine;
 use lib_jsl_integration::trapezoidal_integration_engine::TrapezoidalIntegrationEngine;
 use lib_jsl_special_functions::legendre;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::f64::consts::{FRAC_PI_2, PI};
 
 const CHAPTER: &str = "integration";
@@ -171,8 +173,114 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    newton_cotes_figures();
     convergence_figures();
     gauss_figures();
     romberg_figures();
     tanh_sinh_figures();
+}
+
+/// The weights of the closed Newton-Cotes rule with `points` equally spaced nodes on [0, 1], from
+/// the moment equations Σ wᵢ tᵢᵏ = 1/(k + 1) (small enough for elimination with pivoting).
+fn newton_cotes_weights(points: usize) -> Vec<f64> {
+    let n = points;
+    let t: Vec<f64> = (0..n).map(|i| i as f64 / (n - 1) as f64).collect();
+    let mut m: Vec<Vec<f64>> = (0..n).map(|k| { let mut row: Vec<f64> = t.iter().map(|&x| x.powi(k as i32)).collect(); row.push(1.0 / (k + 1) as f64); row }).collect();
+    for c in 0..n {
+        let p = (c..n).max_by(|&i, &j| m[i][c].abs().total_cmp(&m[j][c].abs())).unwrap();
+        m.swap(c, p);
+        let pivot_row = m[c].clone();
+        for row in m.iter_mut().skip(c + 1) {
+            let f = row[c] / pivot_row[c];
+            for (x, p) in row.iter_mut().zip(&pivot_row).skip(c) {
+                *x -= f * p;
+            }
+        }
+    }
+    let mut w = vec![0.0; n];
+    for r in (0..n).rev() {
+        w[r] = (m[r][n] - (r + 1..n).map(|k| m[r][k] * w[k]).sum::<f64>()) / m[r][r];
+    }
+    w
+}
+
+fn newton_cotes_figures() {
+    let exact = std::f64::consts::E - 1.0;
+    // Error against the number of panels for the three composite rules.
+    let mut plot = Plot::new("Composite rules on ∫₀¹ eˣ dx: slopes 2, 2 and 4", "number of panels", "absolute error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.legend = Legend::BottomLeft;
+    let panels: Vec<usize> = (0..=12).map(|k| 1usize << k).collect();
+    let mid: Vec<(f64, f64)> = panels.iter().map(|&n| (n as f64, (MidpointIntegrationEngine::new(n, 0.0, 1.0, false).integrate(f64::exp).unwrap() - exact).abs())).collect();
+    let trap: Vec<(f64, f64)> = panels.iter().map(|&n| (n as f64, (TrapezoidalIntegrationEngine::new(n + 1, 0.0, 1.0, false).integrate(f64::exp).unwrap() - exact).abs())).collect();
+    let simp: Vec<(f64, f64)> = panels.iter().filter(|&&n| n >= 2).map(|&n| (n as f64, (Simpson13Engine::new(n + 1, 0.0, 1.0, false).integrate(f64::exp).unwrap() - exact).abs().max(1e-17))).collect();
+    plot.series.push(Series::new("trapezoid", trap, Style::LineMarkers, 0));
+    plot.series.push(Series::new("midpoint", mid, Style::LineMarkers, 1));
+    plot.series.push(Series::new("Simpson 1/3", simp, Style::LineMarkers, 4));
+    write(CHAPTER, "newton_cotes_convergence.svg", &plot.render());
+
+    // Midpoint and trapezoid errors, side by side.
+    let mut table = String::from("| panels $n$ | midpoint $M_n - I$ | trapezoid $T_n - I$ | ratio | $(2M_n + T_n)/3 - I$ |\n|---:|---:|---:|---:|---:|\n");
+    for n in [1usize, 2, 4, 8, 16] {
+        let m = MidpointIntegrationEngine::new(n, 0.0, 1.0, false).integrate(f64::exp).unwrap();
+        let t = TrapezoidalIntegrationEngine::new(n + 1, 0.0, 1.0, false).integrate(f64::exp).unwrap();
+        table.push_str(&format!("| {n} | {:+.3e} | {:+.3e} | {:.4} | {:+.3e} |\n", m - exact, t - exact, (m - exact) / (t - exact), (2.0 * m + t) / 3.0 - exact));
+    }
+    write(CHAPTER, "newton_cotes_midpoint_trapezoid.md", &table);
+
+    // Closed Newton-Cotes weights, degree of exactness and Σ|w|.
+    let mut table = String::from("| points | weights on $[0, 1]$ | degree | $\\sum_i \\lvert w_i \\rvert$ |\n|---:|---|---:|---:|\n");
+    for points in 2..=11usize {
+        let w = newton_cotes_weights(points);
+        let panels = points - 1;
+        let degree = if panels % 2 == 0 { panels + 1 } else { panels };
+        let shown: Vec<String> = w.iter().take(points.div_ceil(2)).map(|v| format!("{v:.5}")).collect();
+        let more = if points > 2 { ", …" } else { "" };
+        table.push_str(&format!("| {points} | {}{more} | {degree} | {:.3} |\n", shown.join(", "), w.iter().map(|v| v.abs()).sum::<f64>()));
+    }
+    write(CHAPTER, "newton_cotes_weights.md", &table);
+
+    // The trapezoid rule on a periodic integrand converges exponentially.
+    let periodic_exact = 2.0 * PI * lib_jsl_special_functions::bessel_functions_integer::bessel_i_integer(0, 1.0);
+    let mut plot = Plot::new("The trapezoid rule on a periodic integrand converges exponentially", "number of panels", "absolute error");
+    plot.log_y = true;
+    plot.y_range = Some((1e-17, 10.0));
+    let periodic: Vec<(f64, f64)> = (1..=24).map(|n| (n as f64, (TrapezoidalIntegrationEngine::new(n + 1, 0.0, 2.0 * PI, false).integrate(|x| x.cos().exp()).unwrap() - periodic_exact).abs().max(1e-17))).collect();
+    let nonperiodic: Vec<(f64, f64)> = (1..=24).map(|n| (n as f64, (TrapezoidalIntegrationEngine::new(n + 1, 0.0, 1.0, false).integrate(f64::exp).unwrap() - exact).abs())).collect();
+    plot.series.push(Series::new("trapezoid, e^(cos x) on [0, 2π]", periodic, Style::LineMarkers, 0));
+    plot.series.push(Series::new("trapezoid, eˣ on [0, 1]", nonperiodic, Style::LineMarkers, 1));
+    write(CHAPTER, "trapezoid_periodic.svg", &plot.render());
+
+    // The adaptive trapezoid rule against the uniform rule with the same number of evaluations.
+    let c = 1.0 / PI;
+    let r = 1e-3f64.sqrt();
+    type Case<'a> = (&'a str, &'a dyn Fn(f64) -> f64, f64);
+    let peak = |x: f64| 1.0 / (1e-3 + (x - 0.3) * (x - 0.3));
+    let kink = move |x: f64| (x - c).abs().sqrt();
+    let jump = move |x: f64| if x < c { 0.0 } else { 1.0 };
+    let cases: [Case; 3] = [
+        ("smooth peak", &peak, ((0.7 / r).atan() + (0.3 / r).atan()) / r),
+        ("kink", &kink, 2.0 / 3.0 * (c.powf(1.5) + (1.0 - c).powf(1.5))),
+        ("jump", &jump, 1.0 - c),
+    ];
+    let mut table = String::from("| integrand on $[0, 1]$ | tolerance | evaluations | adaptive error | uniform error, same evaluations |\n|---|---:|---:|---:|---:|\n");
+    for (label, f, exact) in cases {
+        for tol in [1e-4, 1e-8] {
+            let (v, n) = counted(&f, |g| AdaptiveTrapezoidIntegrationEngine::new(tol, 0.0, 1.0).integrate(g).unwrap());
+            let u = TrapezoidalIntegrationEngine::new(n, 0.0, 1.0, false).integrate(f).unwrap();
+            table.push_str(&format!("| {label} | {tol:.0e} | {n} | {:.1e} | {:.1e} |\n", (v - exact).abs(), (u - exact).abs()));
+        }
+    }
+    write(CHAPTER, "adaptive_trapezoid_table.md", &table);
+
+    let samples = RefCell::new(Vec::new());
+    AdaptiveTrapezoidIntegrationEngine::new(1e-4, 0.0, 1.0).integrate(|x| { samples.borrow_mut().push(x); kink(x) }).unwrap();
+    let xs = samples.into_inner();
+    let mut plot = Plot::new(&format!("Adaptive trapezoid samples cluster at the kink ({} samples, tolerance 10⁻⁴)", xs.len()), "x", "f(x) = √|x − 1/π|");
+    plot.legend = Legend::BottomRight;
+    let curve: Vec<(f64, f64)> = (0..=800).map(|i| { let x = i as f64 / 800.0; (x, kink(x)) }).collect();
+    plot.series.push(Series::new("f(x)", curve, Style::Line, 0));
+    plot.series.push(Series::new("samples", xs.iter().map(|&x| (x, kink(x))).collect(), Style::Markers, 1));
+    write(CHAPTER, "adaptive_trapezoid_samples.svg", &plot.render());
 }

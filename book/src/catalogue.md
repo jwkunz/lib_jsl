@@ -43,20 +43,20 @@ Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, bou
 
 Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 21 items
 
-- Integrator trait (1D)
+- [Integrator trait (1D)](integration/index.md#in-the-library)
 - Adaptive Gauss-Kronrod (G7-K15)
-- Adaptive trapezoid
+- [Adaptive trapezoid](integration/newton-cotes.md#the-adaptive-trapezoid-rule)
 - Dormand-Prince
-- Midpoint
-- Midpoint calculation helper
+- [Midpoint](integration/newton-cotes.md#the-midpoint-rule)
+- [Sample-point helpers (grid points, panel midpoints)](integration/newton-cotes.md#implementation)
 - Monte Carlo
 - Runge-Kutta
-- Simpson's 1/3 rule
-- Trapezoidal
+- [Simpson's 1/3 rule](integration/newton-cotes.md#simpsons-rules)
+- [Trapezoidal](integration/newton-cotes.md#the-trapezoid-rule)
 - Complex path integrals
-- Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
-- Tanh-sinh quadrature
-- Romberg integration
+- [Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature](integration/gaussian-quadrature.md)
+- [Tanh-sinh quadrature](integration/tanh-sinh.md)
+- [Romberg integration](integration/romberg.md)
 - Multidimensional cubature
 - Quasi-Monte Carlo integration
 - Stiff ODE solvers (BDF, Rosenbrock)

@@ -224,3 +224,45 @@ fn least_squares_solutions() {
     assert!((r.solution - array![1.0, 2.0, 2.0]).iter().all(|v| v.abs() < 1e-12));
     assert!(wide.least_squares(&array![1.0, 2.0]).is_err());
 }
+
+#[test]
+fn real_schur_path_stress() {
+    let mut rng = Lcg(9);
+    let check = |a: &Array2<f64>, label: &str| {
+        let n = a.nrows();
+        let (w, v) = a.eig().unwrap();
+        let ac = a.mapv(|x| C::new(x, 0.0));
+        let scale = max_abs(a).max(1.0);
+        let residual = max_abs(&(matmul(&ac, &v) - &v * &w));
+        assert!(residual < 1e-9 * scale, "{label} n={n}: residual {residual:e}");
+        // The real path agrees with the complex path on the same matrix.
+        let key = |z: &C| ((z.re * 1e6).round(), (z.im * 1e6).round());
+        let mut real_path: Vec<C> = a.eigvals().unwrap().to_vec();
+        let mut complex_path: Vec<C> = ac.eigvals().unwrap().to_vec();
+        real_path.sort_by(|x, y| key(x).partial_cmp(&key(y)).unwrap());
+        complex_path.sort_by(|x, y| key(x).partial_cmp(&key(y)).unwrap());
+        let gap = real_path.iter().zip(&complex_path).fold(0.0f64, |m, (x, y)| m.max((x - y).norm()));
+        assert!(gap < 1e-8 * scale, "{label}: real and complex paths differ by {gap:e}");
+    };
+    for n in [3, 4, 64, 150] {
+        check(&rng.real(n, n), "random");
+    }
+    let s = rng.real(40, 40);
+    check(&(&s + &s.t()), "symmetric");
+    check(&Array2::<f64>::eye(7), "identity");
+    check(&Array2::<f64>::zeros((5, 5)), "zero");
+    // A cyclic permutation: eigenvalues are the 12th roots of unity, all of equal modulus.
+    check(&Array2::from_shape_fn((12, 12), |(i, j)| if (i + 1) % 12 == j { 1.0 } else { 0.0 }), "cyclic");
+    // Block diagonal rotations and a Jordan-like upper bidiagonal block.
+    let mut blocks = Array2::<f64>::zeros((6, 6));
+    for k in [0, 2] {
+        blocks[[k, k]] = 0.5;
+        blocks[[k + 1, k + 1]] = 0.5;
+        blocks[[k, k + 1]] = -2.0;
+        blocks[[k + 1, k]] = 2.0;
+    }
+    blocks[[4, 4]] = 3.0;
+    blocks[[5, 5]] = 3.0;
+    blocks[[4, 5]] = 1e-3;
+    check(&blocks, "blocks");
+}

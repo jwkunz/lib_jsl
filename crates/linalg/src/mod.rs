@@ -238,11 +238,7 @@ impl<T: Scalar, S: Data<Elem = T>> Eig for ArrayBase<S, Ix2> {
 
 impl<T: Scalar, S: Data<Elem = T>> EigVals for ArrayBase<S, Ix2> {
     fn eigvals(&self) -> Result<Array1<Complex<f64>>> {
-        let a = Mat::from_array(self)?;
-        require_square(a.rows, a.cols)?;
-        let ac = Mat { rows: a.rows, cols: a.cols, data: a.data.iter().map(|v| v.to_complex()).collect() };
-        let (t, _) = eig::schur(&ac)?;
-        Ok(Array1::from_iter((0..t.rows).map(|i| t.at(i, i))))
+        Ok(Array1::from_vec(eig::eigvals(&Mat::from_array(self)?)?))
     }
 }
 

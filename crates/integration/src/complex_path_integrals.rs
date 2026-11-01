@@ -167,25 +167,37 @@ pub struct PathIntegral {
     pub evaluations: usize,
 }
 
-/// Fifteen Kronrod nodes in `[-1, 1]` (positive half, nodes[0] = 0) with Gauss and Kronrod weights.
-fn gk15(f: &mut impl FnMut(f64) -> C64, a: f64, b: f64) -> (C64, C64) {
+/// The 7-point Gauss and 15-point Kronrod estimates of `∫ₐᵇ f`, and the Kronrod estimate of
+/// `∫ₐᵇ |f|`.
+fn gk15(f: &mut impl FnMut(f64) -> C64, a: f64, b: f64) -> (C64, C64, f64) {
     let (centre, half) = (0.5 * (a + b), 0.5 * (b - a));
     let mut kronrod = C64::new(0.0, 0.0);
     let mut gauss = C64::new(0.0, 0.0);
+    let mut absolute = 0.0;
     for (i, (&x, &wk)) in KRONROD_NODES_15.iter().zip(&KRONROD_WEIGHTS_15).enumerate() {
-        let sample = if i == 0 { f(centre) } else { f(centre - half * x) + f(centre + half * x) };
+        let (sample, magnitude) = if i == 0 {
+            let v = f(centre);
+            (v, v.norm())
+        } else {
+            let (lo, hi) = (f(centre - half * x), f(centre + half * x));
+            (lo + hi, lo.norm() + hi.norm())
+        };
         kronrod += sample * wk;
+        absolute += magnitude * wk;
         // The even-indexed Kronrod nodes (centre first) coincide with the 7-point Gauss nodes.
         if i % 2 == 0 {
             gauss += sample * GAUSS_LEGENDRE_WEIGHTS_7[i / 2];
         }
     }
-    (gauss * half, kronrod * half)
+    (gauss * half, kronrod * half, absolute * half.abs())
 }
 
 /// Integrates `weight(z(t), z'(t))` over the segment's parameter range (`weight = f(z) z'` for a
 /// contour integral, `|z'|` for arc length).
-fn integrate_segment(weight: &dyn Fn(C64, C64) -> C64, seg: &PathSegment, tol: f64, absolute: bool) -> (C64, f64, usize) {
+/// Returns the value, the error estimate, the number of evaluations, and whether the tolerance
+/// was met (panels accepted only because of the depth or evaluation limits, with a total error
+/// well above the tolerance, mean it was not).
+fn integrate_segment(weight: &dyn Fn(C64, C64) -> C64, seg: &PathSegment, tol: f64, absolute: bool) -> (C64, f64, usize, bool) {
     let (a, b) = seg.interval();
     let evals = std::cell::Cell::new(0usize);
     let mut integrand = |t: f64| {
@@ -194,25 +206,37 @@ fn integrate_segment(weight: &dyn Fn(C64, C64) -> C64, seg: &PathSegment, tol: f
         weight(z, dz)
     };
     // Stack-based adaptive bisection: each interval is accepted when its error is within its
-    // share of the tolerance (proportional to its width).
+    // share of the tolerance (proportional to its width). The segment starts as four panels, so
+    // that an integrand oscillating several times along it (e^z/z^13 around a circle, say) is not
+    // aliased by a single 15-point rule into a wrong answer that looks converged.
     let total_width = (b - a).abs();
-    let mut stack = vec![(a, b, 0usize)];
+    const INITIAL_PANELS: usize = 4;
+    let mut stack: Vec<(f64, f64, usize)> = (0..INITIAL_PANELS)
+        .map(|i| (a + (b - a) * i as f64 / INITIAL_PANELS as f64, a + (b - a) * (i + 1) as f64 / INITIAL_PANELS as f64, 0))
+        .collect();
     let (mut value, mut error) = (C64::new(0.0, 0.0), 0.0);
-    // Use a relative tolerance against a first coarse estimate of the whole integral.
-    let (_, k0) = gk15(&mut integrand, a, b);
-    if !k0.re.is_finite() || !k0.im.is_finite() {
-        // The integrand blew up (for example a path through a pole): bisecting cannot help.
-        return (C64::new(f64::NAN, f64::NAN), f64::NAN, evals.get());
+    let mut forced = false;
+    // A relative tolerance is measured against ∫|f(z) z'| dt, the scale that rounding errors in the
+    // sum are proportional to: the integral itself may be far smaller through cancellation.
+    let mut magnitude = 0.0;
+    for &(lo, hi, _) in &stack {
+        let (_, k, m) = gk15(&mut integrand, lo, hi);
+        if !k.re.is_finite() || !k.im.is_finite() {
+            // The integrand blew up (for example a path through a pole): bisecting cannot help.
+            return (C64::new(f64::NAN, f64::NAN), f64::NAN, evals.get(), false);
+        }
+        magnitude += m;
     }
-    let scale = if absolute { 1.0 } else { k0.norm().max(1e-300) };
+    let scale = if absolute { 1.0 } else { magnitude.max(1e-300) };
     const MAX_EVALUATIONS: usize = 2_000_000;
     while let Some((lo, hi, depth)) = stack.pop() {
-        let (g, k) = gk15(&mut integrand, lo, hi);
+        let (g, k, _) = gk15(&mut integrand, lo, hi);
         let err = (k - g).norm();
         let allowed = tol * scale * if total_width > 0.0 { (hi - lo).abs() / total_width } else { 1.0 };
         // Accept when within tolerance; also when out of budget or refined past useful precision,
         // or when the estimate is not finite (a singular sub-interval), where more splitting is futile.
         if err <= allowed || depth >= 40 || evals.get() > MAX_EVALUATIONS || !err.is_finite() {
+            forced |= err > allowed || !err.is_finite();
             value += k;
             error += err;
         } else {
@@ -221,10 +245,13 @@ fn integrate_segment(weight: &dyn Fn(C64, C64) -> C64, seg: &PathSegment, tol: f
             stack.push((mid, hi, depth + 1));
         }
     }
-    (value, error, evals.get())
+    let converged = !forced || error <= 10.0 * tol * scale;
+    (value, error, evals.get(), converged)
 }
 
-/// Integrates `f` along the contour to relative tolerance `tol` (for example `1e-10`) per segment.
+/// Integrates `f` along the contour to relative tolerance `tol` (for example `1e-10`) per segment,
+/// relative to `∫|f(z)| |dz|` along the segment (the smallest error floating point can promise when
+/// the integral is small through cancellation).
 pub fn contour_integral(f: impl Fn(C64) -> C64, contour: &Contour, tol: f64) -> Result<PathIntegral, ErrorsJSL> {
     if contour.segments.is_empty() {
         return Err(ErrorsJSL::InvalidInputRange("The contour has no segments."));
@@ -234,7 +261,10 @@ pub fn contour_integral(f: impl Fn(C64) -> C64, contour: &Contour, tol: f64) -> 
     }
     let mut total = PathIntegral { value: C64::new(0.0, 0.0), error: 0.0, evaluations: 0 };
     for seg in &contour.segments {
-        let (v, e, n) = integrate_segment(&|z, dz| f(z) * dz, seg, tol, false);
+        let (v, e, n, converged) = integrate_segment(&|z, dz| f(z) * dz, seg, tol, false);
+        if !converged {
+            return Err(ErrorsJSL::RuntimeError("The integral did not converge (the path may pass through or very near a singularity)."));
+        }
         total.value += v;
         total.error += e;
         total.evaluations += n;
@@ -369,6 +399,13 @@ mod tests {
         for n in 0..5 {
             let d = cauchy_derivative(|z| z.exp(), z0, n, 1.0, 1e-12).unwrap();
             assert!(close(d, z0.exp(), 1e-9), "n={n}");
+        }
+        // e^z/z^13 oscillates 13 times around the circle; a single 15-point panel used to alias
+        // it into a wrong answer that looked converged (error ≈ 1 at radius 2.5). Radii below about
+        // 3 are limited by rounding instead (see the book figure).
+        for r in [3.0, 6.0, 10.0] {
+            let d = cauchy_derivative(|z| z.exp(), C64::new(0.0, 0.0), 12, r, 1e-14).unwrap();
+            assert!(close(d, C64::new(1.0, 0.0), 1e-9), "r={r}: {d}");
         }
         // d²/dz² of z⁵ at 2 is 20·8 = 160.
         assert!(close(cauchy_derivative(|z| z.powi(5), C64::new(2.0, 0.0), 2, 0.5, 1e-12).unwrap(), C64::new(160.0, 0.0), 1e-8));

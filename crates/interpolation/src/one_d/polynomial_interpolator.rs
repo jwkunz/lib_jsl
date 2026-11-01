@@ -1,8 +1,12 @@
 use crate::interpolation_trait::InterpolationTrait;
 use lib_jsl_core::*;
 
-/// This struct implements polynomial interpolation for y = f(x)
-/// This uses Newtons divided differences for efficient computation
+/// The polynomial of degree `n − 1` through `n` points, in Newton's divided-difference form,
+/// evaluated by Horner's scheme (`O(n)` per point after `O(n²)` set-up). The abscissas must be
+/// distinct. For many points, or points that are not well spread, prefer the numerically stabler
+/// barycentric form of [`LagrangeInterpolant`](super::lagrange_interpolant::LagrangeInterpolant).
+///
+/// See the book entry [Polynomial interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/polynomial.html).
 
 #[derive(Debug)]
 pub struct PolynomialInterpolator<'a> {
@@ -31,7 +35,8 @@ impl<'a> InterpolationTrait<'a> for PolynomialInterpolator<'a> {
         // Do nothing
     }
 
-    /// This is the logic of the linear interpolator
+    /// Not used: the polynomial is global, so [`interpolate_at`](InterpolationTrait::interpolate_at)
+    /// evaluates it directly.
     fn raw_interpolate(&mut self, _: usize, _: f64) -> Result<f64, ErrorsJSL> {
         Err(ErrorsJSL::NotImplementedYet) // Not needed
     }
@@ -61,7 +66,7 @@ impl<'a> PolynomialInterpolator<'a> {
     /// P(x) = a[0] + a[1](x - x0) + a[2](x - x0)(x - x1) + ...
     fn init_newton_divided_differences(&mut self){
         let n = self.x_values.len();
-        self.coefficients.extend_from_slice(self.y_values.as_slice().expect("These were initialized before"));
+        self.coefficients.extend(self.y_values.iter().copied());
 
         // Compute divided differences in-place
         for j in 1..n {
@@ -79,6 +84,13 @@ impl<'a> PolynomialInterpolator<'a> {
             coefficients: Vec::with_capacity(x_values.len()),
         };
         result.verify_sizes(2)?;
+        for i in 0..x_values.len() {
+            for j in i + 1..x_values.len() {
+                if x_values[i] == x_values[j] {
+                    return Err(ErrorsJSL::InvalidInputRange("x values must be distinct"));
+                }
+            }
+        }
         result.init_newton_divided_differences();
         Ok(result)
     }
@@ -94,7 +106,7 @@ mod test {
     }
 
     #[test]
-    fn tb_linear_interpolator() -> Result<(), ErrorsJSL> {
+    fn cubic_through_four_points() -> Result<(), ErrorsJSL> {
         let x = R1D::from_vec(vec![0.0, 1.0, 2.0, 3.0]);
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
@@ -121,7 +133,10 @@ mod test {
         assert!(approx_eq(y_interp,0.125,1E-9));
         let y_interp = dut.interpolate_at(-1.0)?;
         assert!(approx_eq(y_interp,-7.0,1E-9));
-
+        // Repeated abscissas are rejected instead of producing infinite coefficients.
+        let xs = R1D::from_vec(vec![0.0, 1.0, 1.0]);
+        let ys = R1D::from_vec(vec![0.0, 1.0, 2.0]);
+        assert!(PolynomialInterpolator::new(xs.view(), ys.view()).is_err());
         Ok(())
     }
 }

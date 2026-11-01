@@ -518,7 +518,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Quasi-Newton methods (BFGS, L-BFGS)
 [x] Nonlinear conjugate gradient
 [ ] Constrained optimization (SQP, augmented Lagrangian)
-[ ] Differential evolution
+[x] Differential evolution
 [ ] Particle swarm optimization
 
 # Random (`random`)

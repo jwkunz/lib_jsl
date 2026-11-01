@@ -9,3 +9,4 @@ pub mod coordinates;
 pub mod fields;
 pub mod signal_models;
 pub mod linalg;
+pub mod networks;

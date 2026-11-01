@@ -209,7 +209,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] LCMV and MVDR beamformers
 
 ## Transmission lines and networks
-[ ] Transmission lines (impedance transformation, standing waves)
+[x] Transmission lines (impedance transformation, standing waves)
 [ ] S-parameters and network conversions
 [ ] Smith chart
 

@@ -22,6 +22,10 @@ pub mod discrete {
     pub mod windows;
 
     pub mod filters {
+        pub mod adaptive {
+            pub mod lms;
+        }
+
         pub mod fir {
             pub mod boxcar_integrator;
             pub mod derivative_filter;

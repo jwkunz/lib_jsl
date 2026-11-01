@@ -159,7 +159,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Non-linearity transformer
 
 ### Adaptive filters
-[ ] LMS and normalized LMS
+[x] LMS and normalized LMS
 [ ] RLS
 
 ### Synchronization

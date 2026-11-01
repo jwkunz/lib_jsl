@@ -154,10 +154,11 @@ pub fn student_t_quantile(p: f64, nu: f64) -> f64 {
     if p == 0.5 {
         return 0.0;
     }
-    if p < 0.5 {
-        return -student_t_quantile(1.0 - p, nu);
-    }
-    invert_monotone(|t| student_t_cdf(t, nu), p, 0.0, f64::INFINITY, 1.0)
+    // Invert the smaller tail, P(T ≤ −t) = min(p, 1 − p), directly: forming 1 − p for small p would
+    // lose its relative precision (six digits at p = 1e-10).
+    let tail = p.min(1.0 - p);
+    let t = invert_monotone(|t| -student_t_cdf(-t, nu), -tail, 0.0, f64::INFINITY, 1.0);
+    if p < 0.5 { -t } else { t }
 }
 
 /// The CDF of the F distribution with `d1` and `d2` degrees of freedom.
@@ -323,5 +324,20 @@ mod tests {
         assert_eq!(binomial_pmf(11, 10, 0.3), 0.0);
         assert!(binomial_pmf(1, 10, 1.5).is_nan());
         assert_eq!(poisson_pmf(0, 0.0), 1.0);
+    }
+
+    #[test]
+    fn student_t_quantile_keeps_tail_probabilities_exact() {
+        // The quantile for p < 0.5 was −quantile(1 − p), and 1 − 1e-10 has lost six digits of p.
+        for nu in [1.0, 2.5, 10.0, 100.0] {
+            for p in [1e-10, 1e-5, 0.3] {
+                let t = student_t_quantile(p, nu);
+                assert!(((student_t_cdf(t, nu) - p) / p).abs() < 1e-12, "nu = {nu}, p = {p}");
+                // Symmetry, where 1 − p is itself accurate enough to compare.
+                if p > 1e-6 {
+                    assert!((student_t_quantile(1.0 - p, nu) + t).abs() <= 1e-8 * t.abs());
+                }
+            }
+        }
     }
 }

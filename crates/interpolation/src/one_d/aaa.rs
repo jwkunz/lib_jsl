@@ -1,4 +1,6 @@
 //! AAA rational approximation (Nakatsukasa, Sète and Trefethen, 2018) for real data.
+//!
+//! See the book entry [Rational interpolation and approximation](https://jwkunz.github.io/lib_jsl/book/interpolation/rational.html#the-aaa-algorithm).
 
 use lib_jsl_core::*;
 use ndarray::Array2;
@@ -20,6 +22,11 @@ impl AaaApproximation {
         let m = z.len();
         if m != f.len() || m < 2 {
             return Err(ErrorsJSL::IncompatibleArraySizes((m, f.len())));
+        }
+        let mut sorted: Vec<f64> = z.to_vec();
+        sorted.sort_by(f64::total_cmp);
+        if sorted.windows(2).any(|w| w[0] == w[1]) || sorted.iter().any(|v| !v.is_finite()) {
+            return Err(ErrorsJSL::InvalidInputRange("the sample points must be finite and distinct"));
         }
         let f_norm = f.iter().fold(0.0f64, |a, &v| a.max(v.abs()));
         let mut remaining: Vec<usize> = (0..m).collect();
@@ -135,5 +142,12 @@ mod tests {
         let a = AaaApproximation::new(z.view(), f.view(), 1e-13, 10).unwrap();
         assert_eq!(a.evaluate(1.7), 2.0);
         assert!(AaaApproximation::new(z.view(), R1D::zeros(3).view(), 1e-13, 5).is_err());
+    }
+
+    #[test]
+    fn rejects_repeated_sample_points() {
+        let z = R1D::from_vec(vec![0.0, 0.5, 0.5, 1.0]);
+        let f = R1D::from_vec(vec![1.0, 2.0, 3.0, 4.0]);
+        assert!(AaaApproximation::new(z.view(), f.view(), 1e-13, 10).is_err());
     }
 }

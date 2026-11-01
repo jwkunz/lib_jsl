@@ -1,4 +1,6 @@
 //! Floater-Hormann rational interpolation (barycentric, no poles on the real line).
+//!
+//! See the book entry [Rational interpolation and approximation](https://jwkunz.github.io/lib_jsl/book/interpolation/rational.html#floater-hormann-interpolation).
 
 use super::lagrange_interpolant::barycentric_eval;
 use crate::interpolation_trait::InterpolationTrait;

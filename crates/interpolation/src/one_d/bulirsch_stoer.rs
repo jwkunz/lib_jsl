@@ -1,4 +1,6 @@
 //! Bulirsch-Stoer rational function interpolation.
+//!
+//! See the book entry [Rational interpolation and approximation](https://jwkunz.github.io/lib_jsl/book/interpolation/rational.html#bulirsch-stoer-rational-interpolation).
 
 use crate::interpolation_trait::InterpolationTrait;
 use lib_jsl_core::*;

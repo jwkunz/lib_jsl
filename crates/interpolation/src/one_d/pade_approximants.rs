@@ -1,4 +1,6 @@
 //! Padé approximants built from Taylor series coefficients.
+//!
+//! See the book entry [Rational interpolation and approximation](https://jwkunz.github.io/lib_jsl/book/interpolation/rational.html#pade-approximants).
 
 use lib_jsl_core::*;
 use ndarray::{Array1, Array2};

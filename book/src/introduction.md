@@ -41,5 +41,4 @@ cd lib_jsl
 cargo run --release -p lib_jsl_integration --example quadrature_gauss_legendre
 ```
 
-The linear-algebra parts of the library use OpenBLAS; on Debian or Ubuntu install it with
-`sudo apt-get install libopenblas-dev gfortran`.
+The library is pure Rust with no system dependencies, so a Rust toolchain is all you need.

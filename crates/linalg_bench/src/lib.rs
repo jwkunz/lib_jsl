@@ -1,8 +1,10 @@
 //! Shared test matrices for the `lib_jsl_linalg` versus `ndarray-linalg` benchmarks.
 //!
-//! This crate is excluded from the workspace's default members because `ndarray-linalg` needs the
-//! system OpenBLAS library. Run the comparison with
-//! `cargo bench -p lib_jsl_linalg_bench` (append `-- --quick` for a fast pass).
+//! This is a standalone package outside the lib_jsl workspace, because `ndarray-linalg` needs the
+//! system OpenBLAS library and would otherwise be feature-unified into the library's builds. Run
+//! the comparison from the repository root with
+//! `cargo bench --manifest-path crates/linalg_bench/Cargo.toml --bench linalg_vs_lapack`
+//! (append `-- --quick` for a fast pass).
 
 // Link the BLAS/LAPACK libraries that ndarray-linalg depends on.
 use ndarray_linalg as _;

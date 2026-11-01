@@ -1,8 +1,8 @@
 [package]
 name = "lib_jsl_linalg_bench"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
 publish = false
 description = "Benchmarks comparing lib_jsl_linalg with ndarray-linalg (LAPACK through OpenBLAS)."
 
@@ -11,13 +11,16 @@ path = "src/lib.rs"
 
 [dependencies]
 lib_jsl_linalg = { path = "../linalg" }
-ndarray.workspace = true
-ndarray-linalg.workspace = true
-num-complex.workspace = true
+ndarray = "0.17.2"
+ndarray-linalg = { version = "0.18.1", features = ["openblas-system"] }
+num-complex = "0.4.6"
 
 [dev-dependencies]
-criterion.workspace = true
+criterion = "0.8.2"
 
 [[bench]]
 name = "linalg_vs_lapack"
 harness = false
+
+# A standalone package, outside the lib_jsl workspace (see the root Cargo.toml).
+[workspace]

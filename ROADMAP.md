@@ -431,6 +431,15 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Nearest
 [x] Cubic basis
 
+# Linear algebra (`linalg`)
+[x] LU factorisation: solves, inverse, determinant
+[x] Cholesky factorisation and triangular solves
+[x] Hermitian eigenproblem (Householder tridiagonalisation, implicit QL)
+[x] General eigenproblem (Hessenberg reduction, shifted QR, complex Schur form)
+[x] Singular value decomposition (one-sided Jacobi)
+[x] Least squares (pivoted QR, SVD for rank-deficient systems)
+[x] Benchmarks against LAPACK (`ndarray-linalg`)
+
 # Machine learning (`machine_learning`)
 
 ## Foundations
@@ -607,7 +616,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Machine epsilon
 
 # Out of scope
-* Linear algebra primitives (dense linear algebra comes from `ndarray-linalg`)
+* Sparse, distributed or BLAS-tuned linear algebra (the dense routines favour clarity and portability)
 * Intrinsics or SIMD optimizations, except in the FFT engines
 * General-purpose containers or data structures
 * Complex number primitives (from `num-complex`)

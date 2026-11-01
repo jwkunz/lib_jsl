@@ -11,7 +11,6 @@ members = [
     "crates/file_io",
     "crates/interpolation",
     "crates/linalg",
-    "crates/linalg_bench",
     "crates/number_theory",
     "crates/optimization",
     "crates/random",
@@ -25,34 +24,9 @@ members = [
     "crates/utils",
     "book/generator",
 ]
-# Everything except the LAPACK comparison benchmarks, which need the system OpenBLAS library
-# (run them with `cargo bench -p lib_jsl_linalg_bench`).
-default-members = [
-    ".",
-    "crates/core",
-    "crates/information",
-    "crates/geometry",
-    "crates/graph",
-    "crates/dsp",
-    "crates/ffts",
-    "crates/ffts_reference",
-    "crates/integration",
-    "crates/file_io",
-    "crates/interpolation",
-    "crates/linalg",
-    "crates/number_theory",
-    "crates/optimization",
-    "crates/random",
-    "crates/derivatives",
-    "crates/sorting",
-    "crates/special_functions",
-    "crates/statistics",
-    "crates/root_finding",
-    "crates/machine_learning",
-    "crates/electromagnetics",
-    "crates/utils",
-    "book/generator",
-]
+# The LAPACK comparison benchmarks are a separate package so that ndarray-linalg (and the system
+# OpenBLAS it needs) can never be feature-unified into the library's builds.
+exclude = ["crates/linalg_bench"]
 resolver = "2"
 
 [workspace.package]
@@ -65,7 +39,6 @@ readme = "README.md"
 num-complex = "0.4.6"
 num-traits = "0.2.19"
 ndarray = "0.17.2"
-ndarray-linalg = { version = "0.18.1", features = ["openblas-system"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 criterion = "0.8.2"

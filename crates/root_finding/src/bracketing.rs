@@ -1,4 +1,6 @@
 //! Root bracketing.
+//!
+//! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html).
 
 use crate::same_sign;
 

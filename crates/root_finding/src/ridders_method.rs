@@ -1,4 +1,6 @@
 //! Ridders' method.
+//!
+//! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#ridders-method).
 
 /// Finds a root of `f` in `[a, b]` using Ridders' method (C. Ridders, 1979). Requires a sign
 /// change over the interval.

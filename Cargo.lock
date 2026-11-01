@@ -308,6 +308,7 @@ dependencies = [
  "lib_jsl_integration",
  "lib_jsl_interpolation",
  "lib_jsl_random",
+ "lib_jsl_root_finding",
  "lib_jsl_special_functions",
  "ndarray",
  "num-complex",

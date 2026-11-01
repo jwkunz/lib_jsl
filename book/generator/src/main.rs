@@ -6,6 +6,7 @@
 mod derivatives;
 mod integration;
 mod interpolation;
+mod root_finding;
 mod svg;
 
 use std::path::{Path, PathBuf};
@@ -26,4 +27,5 @@ fn main() {
     derivatives::generate();
     interpolation::generate();
     integration::generate();
+    root_finding::generate();
 }

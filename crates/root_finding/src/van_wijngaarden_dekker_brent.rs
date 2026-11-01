@@ -1,4 +1,6 @@
 //! Van Wijngaarden-Dekker-Brent method.
+//!
+//! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#brents-method).
 
 use crate::same_sign;
 
@@ -49,6 +51,7 @@ where
         if xm.abs() <= tol1 || fb == 0.0 {
             return Ok(b);
         }
+        // ANCHOR: brent_step
         if e.abs() >= tol1 && fa.abs() > fb.abs() {
             let s = fb / fa;
             let (mut p, mut q);
@@ -78,6 +81,7 @@ where
             d = xm;
             e = d;
         }
+        // ANCHOR_END: brent_step
         a = b;
         fa = fb;
         if d.abs() > tol1 {

@@ -16,3 +16,4 @@ ndarray.workspace = true
 lib_jsl_special_functions.workspace = true
 num-complex.workspace = true
 lib_jsl_random.workspace = true
+lib_jsl_root_finding.workspace = true

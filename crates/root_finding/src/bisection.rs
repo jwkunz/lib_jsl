@@ -1,4 +1,6 @@
 //! Bisection method.
+//!
+//! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#bisection).
 
 use crate::same_sign;
 
@@ -19,6 +21,7 @@ where
     if !(fa < 0.0 && fb > 0.0 || fa > 0.0 && fb < 0.0) {
         return Err("bisection: f(a) and f(b) must have opposite signs".to_string());
     }
+    // ANCHOR: bisection
     for _ in 0..200 {
         let m = 0.5 * (a + b);
         let fm = f(m);
@@ -32,6 +35,7 @@ where
             fa = fm;
         }
     }
+    // ANCHOR_END: bisection
     Ok(0.5 * (a + b))
 }
 

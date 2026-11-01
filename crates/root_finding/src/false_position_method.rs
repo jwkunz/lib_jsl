@@ -1,4 +1,6 @@
 //! False position method (Illinois variant).
+//!
+//! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#false-position-and-the-illinois-modification).
 
 use crate::same_sign;
 

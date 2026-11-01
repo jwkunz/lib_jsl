@@ -1,97 +1,100 @@
-//! This file contains derivative routines for vector valued functions. 
-use lib_jsl_core::ErrorsJSL;  
+//! Finite difference gradients, Hessians and Jacobians of functions of several variables.
+//!
+//! See the book entry [Finite difference derivatives](https://jwkunz.github.io/lib_jsl/book/derivatives/finite-differences.html).
 
-/// Multivariate scalar valued functions can be differentiated using a simple 2 point stencil, which is a numerical method for approximating the gradient of a function. 
+use crate::derivatives_1d_scalar::{optimal_relative_step, representable_step};
+use lib_jsl_core::ErrorsJSL;
+
+/// The gradient `∇f(x)` of a scalar function of several variables by central differences, one
+/// coordinate at a time (`2n` evaluations).
 ///
-/// The gradient of a scalar valued function can be computed using a simple 2 point stencil, which is a numerical method for approximating the derivative of a function. The gradient is a vector that contains the partial derivatives of the scalar valued function with respect to each variable. The 2 point stencil method works by evaluating the function at two points that are close to each other, and then using the difference between these two evaluations to approximate the derivative. The step size can be optionally provided, and if not provided, it defaults to the machine epsilon. This method is simple and efficient, but it may not be accurate for functions that have high curvature or for functions that are not smooth.
-pub fn gradient_2_point<T>(f: &T, x: &[f64], step_size: Option<f64>) -> Result<Vec<f64>, ErrorsJSL> 
-where T: Fn(&[f64]) -> f64 {
-    let step = step_size.unwrap_or(1E-6);
-    let n = x.len();
-    let mut gradient = vec![0.0; n];
-    for i in 0..n {
-        let mut x_forward = x.to_owned();
-        let mut x_backward = x.to_owned();
-        x_forward[i] += step;
-        x_backward[i] -= step;
-        let f_forward = f(&x_forward);
-        let f_backward = f(&x_backward);
-        gradient[i] = (f_forward - f_backward) / (2.0 * step);
+/// `step_size` is relative: coordinate `i` is perturbed by `h · max(|xᵢ|, 1)`, with default
+/// `h = ε^{1/3}` (about ten correct digits for well-scaled functions).
+pub fn gradient_2_point<T>(f: &T, x: &[f64], step_size: Option<f64>) -> Result<Vec<f64>, ErrorsJSL>
+where
+    T: Fn(&[f64]) -> f64,
+{
+    let relative = step_size.unwrap_or(optimal_relative_step(2, 1));
+    let mut gradient = vec![0.0; x.len()];
+    let mut point = x.to_vec();
+    for i in 0..x.len() {
+        let h = representable_step(x[i], relative);
+        point[i] = x[i] + h;
+        let forward = f(&point);
+        point[i] = x[i] - h;
+        let backward = f(&point);
+        point[i] = x[i];
+        gradient[i] = (forward - backward) / (2.0 * h);
     }
     Ok(gradient)
 }
 
-/// The hessian of a scalar valued function can be computed using a simple 2 point stencil, which is a numerical method for approximating the second derivative of a function. The hessian is a matrix that contains the second partial derivatives of the scalar valued function with respect to each variable. The 2 point stencil method works by evaluating the function at two points that are close to each other, and then using the difference between these two evaluations to approximate the second derivative. The step size can be optionally provided, and if not provided, it defaults to the machine epsilon. This method is simple and efficient, but it may not be accurate for functions that have high curvature or for functions that are not smooth.
-pub fn hessian_2_point<T>(f: &T, x: &[f64], step_size: Option<f64>) -> Result<Vec<Vec<f64>>, ErrorsJSL> 
-where T: Fn(&[f64]) -> f64 {
-    let step = step_size.unwrap_or(1E-6);
+/// The Hessian `∇²f(x)` of a scalar function by central differences: second differences on the
+/// diagonal and the four-point cross difference off it (`1 + 2n + 2n(n − 1)` evaluations).
+///
+/// `step_size` is relative, with default `h = ε^{1/4}` (about eight correct digits): the step that
+/// balances the `O(h²)` truncation error of a second difference against its `ε/h²` rounding error.
+pub fn hessian_2_point<T>(f: &T, x: &[f64], step_size: Option<f64>) -> Result<Vec<Vec<f64>>, ErrorsJSL>
+where
+    T: Fn(&[f64]) -> f64,
+{
+    let relative = step_size.unwrap_or(optimal_relative_step(2, 2));
     let n = x.len();
+    let steps: Vec<f64> = x.iter().map(|&xi| representable_step(xi, relative)).collect();
     let mut hessian = vec![vec![0.0; n]; n];
     let fx = f(x);
+    let mut point = x.to_vec();
     for i in 0..n {
-        // Diagonal second derivatives
-        let mut x_forward = x.to_owned();
-        let mut x_backward = x.to_owned();
-
-        x_forward[i] += step;
-        x_backward[i] -= step;
-
-        let f_forward = f(&x_forward);
-        let f_backward = f(&x_backward);
-
-        hessian[i][i] = (f_forward - 2.0 * fx + f_backward) / (step * step);
-
-        // Mixed partial derivatives
-        for j in (i + 1)..n {
-            let mut x_pp = x.to_owned(); // +i +j
-            let mut x_pm = x.to_owned(); // +i -j
-            let mut x_mp = x.to_owned(); // -i +j
-            let mut x_mm = x.to_owned(); // -i -j
-
-            x_pp[i] += step;
-            x_pp[j] += step;
-
-            x_pm[i] += step;
-            x_pm[j] -= step;
-
-            x_mp[i] -= step;
-            x_mp[j] += step;
-
-            x_mm[i] -= step;
-            x_mm[j] -= step;
-
-            let value = (
-                f(&x_pp)
-                - f(&x_pm)
-                - f(&x_mp)
-                + f(&x_mm)
-            ) / (4.0 * step * step);
-
+        let hi = steps[i];
+        point[i] = x[i] + hi;
+        let forward = f(&point);
+        point[i] = x[i] - hi;
+        let backward = f(&point);
+        point[i] = x[i];
+        hessian[i][i] = (forward - 2.0 * fx + backward) / (hi * hi);
+        for j in i + 1..n {
+            let hj = steps[j];
+            let mut value = 0.0;
+            for (si, sj, sign) in [(1.0, 1.0, 1.0), (1.0, -1.0, -1.0), (-1.0, 1.0, -1.0), (-1.0, -1.0, 1.0)] {
+                point[i] = x[i] + si * hi;
+                point[j] = x[j] + sj * hj;
+                value += sign * f(&point);
+            }
+            point[i] = x[i];
+            point[j] = x[j];
+            let value = value / (4.0 * hi * hj);
             hessian[i][j] = value;
-            hessian[j][i] = value; // symmetry
+            hessian[j][i] = value;
         }
     }
     Ok(hessian)
 }
 
-/// Vector valued functions can be differentiated using a simple 2 point stencil, which is a numerical method for approximating the jacobian of a function. 
+/// The Jacobian `∂fᵢ/∂xⱼ` of a vector-valued function by central differences (`2n + 1`
+/// evaluations); row `i` is the gradient of component `i`.
 ///
-/// The jacobian of a vector valued function can be computed using a simple 2 point stencil, which is a numerical method for approximating the derivative of a function. The jacobian is a matrix that contains the partial derivatives of each component of the vector valued function with respect to each variable. The 2 point stencil method works by evaluating the function at two points that are close to each other, and then using the difference between these two evaluations to approximate the derivative. The step size can be optionally provided, and if not provided, it defaults to the machine epsilon. This method is simple and efficient, but it may not be accurate for functions that have high curvature or for functions that are not smooth.
-pub fn jacobian_2_point<T>(f: &T, x: &[f64], step_size: Option<f64>) -> Result<Vec<Vec<f64>>, ErrorsJSL> 
-where T: Fn(&[f64]) -> Vec<f64> {
-    let step = step_size.unwrap_or(1E-6);
+/// `step_size` is relative, with default `h = ε^{1/3}`.
+pub fn jacobian_2_point<T>(f: &T, x: &[f64], step_size: Option<f64>) -> Result<Vec<Vec<f64>>, ErrorsJSL>
+where
+    T: Fn(&[f64]) -> Vec<f64>,
+{
+    let relative = step_size.unwrap_or(optimal_relative_step(2, 1));
     let n = x.len();
     let m = f(x).len();
     let mut jacobian = vec![vec![0.0; n]; m];
+    let mut point = x.to_vec();
     for i in 0..n {
-        let mut x_forward = x.to_owned();
-        let mut x_backward = x.to_owned();
-        x_forward[i] += step;
-        x_backward[i] -= step;
-        let f_forward = f(&x_forward);
-        let f_backward = f(&x_backward);
+        let h = representable_step(x[i], relative);
+        point[i] = x[i] + h;
+        let forward = f(&point);
+        point[i] = x[i] - h;
+        let backward = f(&point);
+        point[i] = x[i];
+        if forward.len() != m || backward.len() != m {
+            return Err(ErrorsJSL::IncompatibleArraySizes((forward.len(), m)));
+        }
         for j in 0..m {
-            jacobian[j][i] = (f_forward[j] - f_backward[j]) / (2.0 * step);
+            jacobian[j][i] = (forward[j] - backward[j]) / (2.0 * h);
         }
     }
     Ok(jacobian)
@@ -100,34 +103,47 @@ where T: Fn(&[f64]) -> Vec<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_gradient_2_point() {
-        // This is a simple test case for the gradient_2_point function. 
         let f = |x: &[f64]| (x[0] * x[0] * x[0]) + (x[1] * x[1] * x[1]); // x^3 + y^3
-        let x = vec![2.0, 3.0]; // x = 2, y = 3
-        let result = gradient_2_point(&f, &x, Some(1E-4)).unwrap();
-        assert!((result[0] - 12.0).abs() < 1E-4); // 3x^2 = 3*4 = 12
-        assert!((result[1] - 27.0).abs() < 1E-4); // 3y^2 = 3*9 = 27
+        let result = gradient_2_point(&f, &[2.0, 3.0], Some(1E-4)).unwrap();
+        assert!((result[0] - 12.0).abs() < 1E-4);
+        assert!((result[1] - 27.0).abs() < 1E-4);
+        let result = gradient_2_point(&f, &[2.0, 3.0], None).unwrap();
+        assert!((result[0] - 12.0).abs() < 1E-8 && (result[1] - 27.0).abs() < 1E-8);
     }
+
     #[test]
     fn test_hessian_2_point() {
-        // This is a simple test case for the hessian_2_point function. 
-        let f = |x: &[f64]| (x[0] * x[0] * x[0]) + (x[1] * x[1] * x[1]); // x^3 + y^3
-        let x = vec![2.0, 3.0];
-        let result = hessian_2_point(&f, &x, Some(1E-4)).unwrap();
-        assert!((result[0][0] - 12.0).abs() < 1E-4); // 6x = 6*2 = 12
-        assert!((result[1][1] - 18.0).abs() < 1E-4); // 6y = 6*3 = 18
-        assert!((result[0][1]).abs() < 1E-4); // mixed partials should be zero for this function        
+        let f = |x: &[f64]| (x[0] * x[0] * x[0]) + (x[1] * x[1] * x[1]);
+        let result = hessian_2_point(&f, &[2.0, 3.0], Some(1E-4)).unwrap();
+        assert!((result[0][0] - 12.0).abs() < 1E-4);
+        assert!((result[1][1] - 18.0).abs() < 1E-4);
+        assert!((result[0][1]).abs() < 1E-4);
     }
+
     #[test]
     fn test_jacobian_2_point() {
-        // This is a simple test case for the jacobian_2_point function. 
-        let f = |x: &[f64]| vec![x[0] * x[0], x[1] * x[1]]; // [x^2, y^2]
-        let x = vec![2.0, 3.0];
-        let result = jacobian_2_point(&f, &x, Some(1E-4)).unwrap();
-        assert!((result[0][0] - 4.0).abs() < 1E-4); // df1/dx = 2x = 4
-        assert!((result[0][1]).abs() < 1E-4); // df1/dy = 0
-        assert!((result[1][0]).abs() < 1E-4); // df2/dx = 0
-        assert!((result[1][1] - 6.0).abs() < 1E-4); // df2/dy = 2y = 6
+        let f = |x: &[f64]| vec![x[0] * x[0], x[1] * x[1]];
+        let result = jacobian_2_point(&f, &[2.0, 3.0], Some(1E-4)).unwrap();
+        assert!((result[0][0] - 4.0).abs() < 1E-4);
+        assert!((result[0][1]).abs() < 1E-4);
+        assert!((result[1][0]).abs() < 1E-4);
+        assert!((result[1][1] - 6.0).abs() < 1E-4);
+    }
+
+    #[test]
+    fn default_steps_give_accurate_hessians() {
+        // f = e^{x + 2y}: Hessian e^{x+2y} [[1, 2], [2, 4]] at (0.3, −0.1).
+        let f = |v: &[f64]| (v[0] + 2.0 * v[1]).exp();
+        let e = (0.1f64).exp();
+        let h = hessian_2_point(&f, &[0.3, -0.1], None).unwrap();
+        let want = [[e, 2.0 * e], [2.0 * e, 4.0 * e]];
+        for i in 0..2 {
+            for j in 0..2 {
+                assert!((h[i][j] - want[i][j]).abs() < 1e-6, "({i}, {j}): {}", h[i][j]);
+            }
+        }
     }
 }

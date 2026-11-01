@@ -1,5 +1,8 @@
 //! Jacobian elliptic functions.
+//!
+//! See the book entry [Elliptic integrals and Jacobian elliptic functions](https://jwkunz.github.io/lib_jsl/book/special_functions/elliptic.html#jacobian-elliptic-functions).
 
+// ANCHOR: jacobi
 /// The Jacobian elliptic functions `(sn(u | m), cn(u | m), dn(u | m))` with parameter `m = k²`
 /// for `0 <= m <= 1`.
 ///
@@ -51,6 +54,7 @@ pub fn jacobian_elliptic(u: f64, m: f64) -> (f64, f64, f64) {
     let dn = ((1.0 - m) + m * cn * cn).sqrt();
     (sn, cn, dn)
 }
+// ANCHOR_END: jacobi
 
 #[cfg(test)]
 mod tests {

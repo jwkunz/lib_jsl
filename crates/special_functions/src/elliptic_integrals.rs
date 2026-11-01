@@ -2,6 +2,8 @@
 //!
 //! All Legendre-form functions take the modulus `k` (so the parameter is `m = k²`) and the
 //! amplitude `phi` in radians.
+//!
+//! See the book entry [Elliptic integrals and Jacobian elliptic functions](https://jwkunz.github.io/lib_jsl/book/special_functions/elliptic.html#elliptic-integrals).
 
 use std::f64::consts::PI;
 
@@ -32,6 +34,7 @@ pub fn carlson_rc(x: f64, y: f64) -> f64 {
     w * (1.0 + s * s * (0.3 + s * (1.0 / 7.0 + s * (0.375 + s * 9.0 / 22.0)))) / ave.sqrt()
 }
 
+// ANCHOR: carlson_rf
 /// Carlson's elliptic integral of the first kind `R_F(x, y, z)`, for non-negative arguments with
 /// at most one equal to zero.
 pub fn carlson_rf(x: f64, y: f64, z: f64) -> f64 {
@@ -62,6 +65,7 @@ pub fn carlson_rf(x: f64, y: f64, z: f64) -> f64 {
     let e3 = delx * dely * delz;
     (1.0 + (e2 / 24.0 - 0.1 - 3.0 * e3 / 44.0) * e2 + e3 / 14.0) / ave.sqrt()
 }
+// ANCHOR_END: carlson_rf
 
 /// Carlson's elliptic integral of the second kind `R_D(x, y, z)`, for `x, y >= 0` (not both zero)
 /// and `z > 0`.

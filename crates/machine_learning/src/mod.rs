@@ -7,6 +7,7 @@
 //! - [`preprocessing`]: scalers, train/test splitting, polynomial features
 //! - [`kernels`]: linear, polynomial, RBF and sigmoid kernels
 //! - [`metrics`]: errors, accuracy, silhouette, adjusted Rand index
+//! - [`model_selection`]: k-fold and stratified cross-validation, grid search
 //! - [`supervised`]: regression and classification
 //! - [`unsupervised`]: clustering and dimensionality reduction
 
@@ -14,6 +15,7 @@ pub mod common;
 pub mod datasets;
 pub mod kernels;
 pub mod metrics;
+pub mod model_selection;
 pub mod preprocessing;
 pub mod supervised;
 pub mod unsupervised;

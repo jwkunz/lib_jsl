@@ -481,7 +481,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 ## Ensembles and model selection
 [ ] Gradient boosting
-[ ] Cross-validation and grid search
+[x] Cross-validation and grid search
 
 ## Sequence models
 [x] HMM training (Baum-Welch)

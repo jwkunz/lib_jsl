@@ -154,13 +154,16 @@ Pushes to `main` publish the site to GitHub Pages through `.github/workflows/doc
 
 ## Next phase
 
-1.0.0 completes the original plan of algorithms. Planned next:
+1.0.0 completes the original plan of algorithms. Planned work is tracked in
+[GitHub issues](https://github.com/jwkunz/lib_jsl/issues):
 
-- **Publishing** the crates to crates.io, dependencies first (`core`, then the domain crates,
-  then the umbrella `lib_jsl`).
-- **The book**: chapters for the remaining domains, following the integration pilot.
-- **Linear algebra**: multishift QR with aggressive early deflation for large general
-  eigenproblems, the one operation still well behind LAPACK.
+- **The book**: chapters for every subject of the catalogue, following the integration pilot
+  ([#7](https://github.com/jwkunz/lib_jsl/issues/7), with one issue per part).
+- **Publishing** the crates to crates.io ([#8](https://github.com/jwkunz/lib_jsl/issues/8)).
+- **Linear algebra performance**: multishift QR for large general eigenproblems
+  ([#9](https://github.com/jwkunz/lib_jsl/issues/9)), LU and small Cholesky
+  ([#10](https://github.com/jwkunz/lib_jsl/issues/10)) and blocked pivoted QR
+  ([#11](https://github.com/jwkunz/lib_jsl/issues/11)).
 
 ## License
 

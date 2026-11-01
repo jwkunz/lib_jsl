@@ -4,7 +4,8 @@ This catalogue lists everything the library implements, grouped by subject. Use 
 where an algorithm lives, to see the neighbours of the one you are studying, or to plan a path
 through the book. It describes the current release and is updated whenever an algorithm is
 added; the [changelog](https://github.com/jwkunz/lib_jsl/blob/main/CHANGELOG.md) records what
-changed between releases.
+changed between releases, and planned work is tracked in
+[GitHub issues](https://github.com/jwkunz/lib_jsl/issues).
 
 Book chapters follow the same subjects. Where a chapter has been written, its crate heading
 links to it; the integration chapter is the first. For the precise types, functions and

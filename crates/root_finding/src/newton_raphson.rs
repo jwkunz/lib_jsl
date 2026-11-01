@@ -1,4 +1,6 @@
 //! Newton-Raphson method.
+//!
+//! See the book entry [Newton's method and the secant method](https://jwkunz.github.io/lib_jsl/book/root_finding/newton.html).
 
 /// Finds a root of `f` using Newton-Raphson iteration with derivative `df`, starting at `x0`.
 ///
@@ -11,6 +13,7 @@ where
     D: Fn(f64) -> f64,
 {
     let mut x = x0;
+    // ANCHOR: newton
     for _ in 0..100 {
         let fx = f(x);
         if fx == 0.0 {
@@ -29,6 +32,7 @@ where
             return Ok(x);
         }
     }
+    // ANCHOR_END: newton
     Err("newton_raphson: failed to converge".to_string())
 }
 

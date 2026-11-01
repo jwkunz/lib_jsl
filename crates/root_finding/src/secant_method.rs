@@ -1,4 +1,6 @@
 //! Secant method.
+//!
+//! See the book entry [Newton's method and the secant method](https://jwkunz.github.io/lib_jsl/book/root_finding/newton.html#the-secant-method).
 
 /// Finds a root of `f` with the secant method starting from `x0` and `x1`.
 ///
@@ -19,6 +21,7 @@ where
         if f1 == f0 {
             return Err("secant_method: zero slope between iterates".to_string());
         }
+        // ANCHOR: secant
         let mut x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
         if !x2.is_finite() {
             return Err("secant_method: iterate diverged".to_string());
@@ -36,6 +39,7 @@ where
         if f2 == 0.0 || (small && (f2.signum() != f1.signum() || (f2 * (x2 - x1)).abs() <= (tol * (f2 - f1)).abs())) {
             return Ok(x2);
         }
+        // ANCHOR_END: secant
         (x0, f0, x1, f1) = (x1, f1, x2, f2);
     }
     Err("secant_method: failed to converge".to_string())

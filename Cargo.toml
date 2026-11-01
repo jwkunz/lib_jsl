@@ -10,6 +10,7 @@ members = [
     "crates/integration",
     "crates/file_io",
     "crates/interpolation",
+    "crates/linalg",
     "crates/number_theory",
     "crates/optimization",
     "crates/random",

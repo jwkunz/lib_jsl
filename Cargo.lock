@@ -592,6 +592,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_jsl_linalg"
+version = "0.1.0"
+dependencies = [
+ "ndarray",
+ "num-complex",
+ "num-traits",
+]
+
+[[package]]
 name = "lib_jsl_machine_learning"
 version = "0.1.0"
 dependencies = [

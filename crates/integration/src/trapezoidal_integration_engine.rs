@@ -8,7 +8,7 @@ use lib_jsl_core::ErrorsJSL;
 /// The composite trapezoid rule: `∫ₐᵇ f ≈ h [½ f(x₀) + f(x₁) + ⋯ + f(xₙ₋₂) + ½ f(xₙ₋₁)]` on
 /// `n` equally spaced points `xᵢ = a + i h`, `h = (b − a)/(n − 1)`.
 ///
-/// Second order (error `(b − a) h² f''(ξ) / 12`) and exact for straight lines. For smooth
+/// Second order (the rule minus the integral is `(b − a) h² f''(ξ) / 12`) and exact for straight lines. For smooth
 /// *periodic* integrands over a whole period it converges exponentially fast.
 pub struct TrapezoidalIntegrationEngine {
     number_of_points: usize,

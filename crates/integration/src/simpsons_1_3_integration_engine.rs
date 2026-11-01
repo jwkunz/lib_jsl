@@ -8,7 +8,7 @@ use lib_jsl_core::ErrorsJSL;
 /// The composite Simpson's 1/3 rule on `n` equally spaced points (`n − 1` panels of width
 /// `h = (b − a)/(n − 1)`): weights `h/3 · (1, 4, 2, 4, …, 2, 4, 1)`.
 ///
-/// Fourth order (error `−(b − a) h⁴ f⁽⁴⁾(ξ) / 180`) and exact for cubics. The 1/3 rule needs an
+/// Fourth order (the rule minus the integral is `(b − a) h⁴ f⁽⁴⁾(ξ) / 180`) and exact for cubics. The 1/3 rule needs an
 /// even number of panels; with an odd number, the last three panels use Simpson's 3/8 rule so the
 /// result stays fourth order. Two points fall back to the trapezoid rule.
 pub struct Simpson13Engine {

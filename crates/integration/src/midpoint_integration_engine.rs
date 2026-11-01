@@ -8,8 +8,8 @@ use lib_jsl_core::ErrorsJSL;
 /// The composite midpoint rule: `∫ₐᵇ f ≈ h Σ f(a + (i + ½) h)` over `n` panels of width
 /// `h = (b − a)/n`, sampling `f` at the centre of each panel.
 ///
-/// Second order (error `−(b − a) h² f''(ξ) / 24`, half that of the trapezoid rule and of opposite
-/// sign), exact for straight lines, and *open*: it never evaluates `f` at the endpoints, so it
+/// Second order (the rule minus the integral is `−(b − a) h² f''(ξ) / 24`: half the trapezoid
+/// rule's error, with the opposite sign), exact for straight lines, and *open*: it never evaluates `f` at the endpoints, so it
 /// tolerates integrable endpoint singularities (slowly).
 pub struct MidpointIntegrationEngine {
     number_of_points: usize,

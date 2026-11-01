@@ -519,7 +519,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Nonlinear conjugate gradient
 [ ] Constrained optimization (SQP, augmented Lagrangian)
 [x] Differential evolution
-[ ] Particle swarm optimization
+[x] Particle swarm optimization
 
 # Random (`random`)
 [x] Histogram

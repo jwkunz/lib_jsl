@@ -6,6 +6,7 @@ pub mod gradient_descent;
 pub mod least_squares;
 pub mod line_search;
 pub mod nelder_mead_method;
+pub mod particle_swarm;
 pub mod newton_raphson_method;
 pub mod optimization_traits;
 pub mod simulated_annealing;

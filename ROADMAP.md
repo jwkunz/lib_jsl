@@ -214,7 +214,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Smith chart
 
 ## Propagation and systems
-[ ] Friis transmission and path loss
+[x] Friis transmission and path loss
 [ ] Multipath and two-ray models
 [ ] Atmospheric attenuation
 [ ] Radar equation

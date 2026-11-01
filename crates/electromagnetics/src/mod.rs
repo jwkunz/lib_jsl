@@ -10,3 +10,4 @@ pub mod fields;
 pub mod signal_models;
 pub mod linalg;
 pub mod networks;
+pub mod propagation;

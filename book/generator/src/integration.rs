@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    bvp_figures();
     stiff_figures();
     runge_kutta_figures();
     monte_carlo_figures();
@@ -619,4 +620,56 @@ fn stiff_figures() {
     let mut plot = Plot::new("Van der Pol (μ = 100): slow drift and sudden jumps", "t", "y₁(t)");
     plot.series.push(Series::new("", ros.t.iter().zip(&ros.y).map(|(&t, y)| (t, y[0])).collect(), Style::Line, 1));
     write(CHAPTER, "van_der_pol.svg", &plot.render());
+}
+
+fn bvp_figures() {
+    use lib_jsl_integration::boundary_value_problems::{BvpOptions, solve_bvp_collocation, solve_bvp_shooting};
+    // Shooting against collocation on y'' = λ² y, y(0) = y(1) = 1.
+    let mut table = String::from("| $\\lambda$ | growth $e^{\\lambda}$ | shooting: error at $x = \\tfrac12$ | collocation: error at $x = \\tfrac12$ | collocation nodes |\n|---:|---:|---:|---:|---:|\n");
+    for lambda in [5.0f64, 15.0, 25.0, 35.0, 45.0] {
+        let f = move |_: f64, y: &[f64]| vec![y[1], lambda * lambda * y[0]];
+        let bc = |ya: &[f64], yb: &[f64]| vec![ya[0] - 1.0, yb[0] - 1.0];
+        let exact = 1.0 / (lambda / 2.0).cosh();
+        let shooting = match solve_bvp_shooting(f, bc, 0.0, 1.0, vec![1.0, -lambda], BvpOptions { tolerance: 1e-8, ..Default::default() }) {
+            Ok(sol) if sol.converged => format!("{:.1e}", (sol.evaluate(0.5)[0] - exact).abs()),
+            Ok(sol) => format!("not converged (residual {:.0e})", sol.max_residual),
+            Err(_) => "fails".to_string(),
+        };
+        let x: Vec<f64> = (0..=10).map(|i| i as f64 / 10.0).collect();
+        let y: Vec<Vec<f64>> = x.iter().map(|_| vec![1.0, 0.0]).collect();
+        let col = solve_bvp_collocation(f, bc, x, y, BvpOptions { tolerance: 1e-8, ..Default::default() }).unwrap();
+        table.push_str(&format!("| {lambda} | {:.1e} | {shooting} | {:.1e} | {} |\n", lambda.exp(), (col.evaluate(0.5)[0] - exact).abs(), col.x.len()));
+    }
+    write(CHAPTER, "bvp_shooting_vs_collocation.md", &table);
+
+    // Bratu's problem has two solutions; the starting guess decides which one Newton finds.
+    let bratu = |_: f64, y: &[f64]| vec![y[1], -y[0].exp()];
+    let bc = |ya: &[f64], yb: &[f64]| vec![ya[0], yb[0]];
+    let mut plot = Plot::new("Bratu's problem u'' + eᵘ = 0, u(0) = u(1) = 0: two solutions", "x", "u(x)");
+    plot.legend = Legend::TopRight;
+    for (k, amplitude) in [0.5f64, 16.0].iter().enumerate() {
+        let x: Vec<f64> = (0..=10).map(|i| i as f64 / 10.0).collect();
+        let y: Vec<Vec<f64>> = x.iter().map(|&t| vec![amplitude * t * (1.0 - t), amplitude * (1.0 - 2.0 * t)]).collect();
+        let sol = solve_bvp_collocation(bratu, bc, x, y, BvpOptions { tolerance: 1e-4, ..Default::default() }).unwrap();
+        let curve: Vec<(f64, f64)> = (0..=200).map(|i| { let x = i as f64 / 200.0; (x, sol.evaluate(x)[0]) }).collect();
+        let peak = sol.evaluate(0.5)[0];
+        plot.series.push(Series::new(&format!("from guess {amplitude}·x(1 − x): u(½) = {peak:.6}"), curve, Style::Line, k));
+        plot.series.push(Series::new("", sol.x.iter().zip(&sol.y).map(|(&x, y)| (x, y[0])).collect(), Style::Markers, k));
+    }
+    write(CHAPTER, "bratu_branches.svg", &plot.render());
+
+    // A boundary layer: ε y'' + y' = 0 with ε = 10⁻³.
+    let eps = 1e-3;
+    let layer = move |_: f64, y: &[f64]| vec![y[1], -y[1] / eps];
+    let bc1 = |ya: &[f64], yb: &[f64]| vec![ya[0], yb[0] - 1.0];
+    let x: Vec<f64> = (0..=10).map(|i| i as f64 / 10.0).collect();
+    let y: Vec<Vec<f64>> = x.iter().map(|&t| vec![t, 1.0]).collect();
+    let sol = solve_bvp_collocation(layer, bc1, x, y, BvpOptions { tolerance: 1e-6, ..Default::default() }).unwrap();
+    let mut plot = Plot::new(&format!("Boundary layer ε y'' + y' = 0, ε = 10⁻³: {} mesh points after refinement", sol.x.len()), "x (logarithmic)", "y(x)");
+    plot.log_x = true;
+    plot.legend = Legend::BottomRight;
+    let curve: Vec<(f64, f64)> = (0..=400).map(|i| { let x = 10f64.powf(-6.0 + 6.0 * i as f64 / 400.0); (x, sol.evaluate(x)[0]) }).collect();
+    plot.series.push(Series::new("collocation solution", curve, Style::Line, 0));
+    plot.series.push(Series::new("mesh points", sol.x.iter().zip(&sol.y).filter(|(x, _)| **x > 0.0).map(|(&x, y)| (x, y[0])).collect(), Style::Markers, 1));
+    write(CHAPTER, "bvp_boundary_layer.svg", &plot.render());
 }

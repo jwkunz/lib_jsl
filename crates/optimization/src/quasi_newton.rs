@@ -40,6 +40,7 @@ macro_rules! unbounded_controls {
         }
     };
 }
+pub(crate) use unbounded_controls;
 
 /// Checks the shared preconditions and returns the starting value and gradient.
 pub(crate) fn start<T: ObjectiveFunction, U: GradientFunction>(

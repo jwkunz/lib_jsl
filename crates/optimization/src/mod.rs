@@ -1,3 +1,4 @@
+pub mod conjugate_gradient;
 pub mod dynamic_programming;
 pub mod golden_section_search;
 pub mod gradient_descent;

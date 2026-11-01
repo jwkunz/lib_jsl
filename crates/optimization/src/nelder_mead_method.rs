@@ -88,16 +88,21 @@ where T: ObjectiveFunction {
         let sigma = 0.5;
 
         let mut simplex: Vec<Vec<f64>> = Vec::with_capacity(dimension + 1);
-        simplex.push(project_to_bounds(&initial_parameters, bounds.as_deref()));
+        let start = project_to_bounds(&initial_parameters, bounds.as_deref());
+        simplex.push(start.clone());
         for i in 0..dimension {
-            let mut vertex = initial_parameters.clone();
-            let step = if initial_parameters[i].abs() > 1e-12 {
-                0.05 * initial_parameters[i].abs()
-            } else {
-                2.5e-4
-            };
+            // The initial simplex steps 5% of each coordinate (or 2.5e-4 from zero), as MATLAB's
+            // fminsearch does; at an upper bound it steps down instead, since a step projected
+            // back onto the bound would give a degenerate (flat) simplex.
+            let step = if start[i].abs() > 1e-12 { 0.05 * start[i].abs() } else { 2.5e-4 };
+            let mut vertex = start.clone();
             vertex[i] += step;
-            simplex.push(project_to_bounds(&vertex, bounds.as_deref()));
+            let mut vertex = project_to_bounds(&vertex, bounds.as_deref());
+            if vertex[i] == start[i] {
+                vertex[i] -= step;
+                vertex = project_to_bounds(&vertex, bounds.as_deref());
+            }
+            simplex.push(vertex);
         }
 
         let mut values: Vec<f64> = simplex.iter().map(|x| objective_function.evaluate(x)).collect();
@@ -281,5 +286,15 @@ mod tests {
         assert!((result.parameters[0] - 2.0).abs() < 1e-3);
         assert!((result.parameters[1] + 1.0).abs() < 1e-3);
         assert!((result.objective_value - 3.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn a_start_on_the_upper_bound_does_not_flatten_the_simplex() {
+        // Minimum at (2, −1) inside the box; the start x = 3 is on the upper bound. The step to
+        // x = 3.15 was projected back to 3, so the simplex never left the line x = 3.
+        let mut nm = NelderMeadMethod::new();
+        nm.set_bounds(Some(vec![(0.0, 3.0), (-5.0, 5.0)]));
+        let r = nm.gradient_free_minimize(&TestObjectiveFunction, vec![3.0, 1.0]).unwrap();
+        assert!((r.parameters[0] - 2.0).abs() < 1e-3 && (r.parameters[1] + 1.0).abs() < 1e-3, "{r:?}");
     }
 }

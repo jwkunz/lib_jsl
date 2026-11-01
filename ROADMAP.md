@@ -480,7 +480,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [ ] Multilayer perceptron with backpropagation
 
 ## Ensembles and model selection
-[ ] Gradient boosting
+[x] Gradient boosting
 [x] Cross-validation and grid search
 
 ## Sequence models

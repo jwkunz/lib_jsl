@@ -3,6 +3,7 @@
 //!
 //! - [`common`]: the model traits ([`common::Regressor`], [`common::Classifier`],
 //!   [`common::Clusterer`], [`common::Transformer`]) and a seeded random helper
+//! - [`ensembles`]: gradient-boosted trees for regression and classification
 //! - [`datasets`]: reproducible synthetic data (blobs, moons, circles, Swiss roll, ...)
 //! - [`preprocessing`]: scalers, train/test splitting, polynomial features
 //! - [`kernels`]: linear, polynomial, RBF and sigmoid kernels
@@ -13,6 +14,7 @@
 
 pub mod common;
 pub mod datasets;
+pub mod ensembles;
 pub mod kernels;
 pub mod metrics;
 pub mod model_selection;

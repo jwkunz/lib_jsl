@@ -122,7 +122,7 @@ impl Ord for ByError {
 ///
 /// Each panel is integrated with the 15-point Kronrod rule, which contains the 7-point Gauss rule;
 /// their difference, calibrated as in QUADPACK, estimates the error of the (far more accurate)
-/// Kronrod value. The rule is exact for polynomials of degree 22 on each panel, so smooth
+/// Kronrod value. The rule is exact for polynomials of degree 23 on each panel, so smooth
 /// integrands need very few panels, while kinks, peaks and integrable endpoint singularities
 /// draw the bisections towards themselves.
 ///
@@ -217,12 +217,14 @@ mod test {
 
     #[test]
     fn the_pair_has_the_expected_degrees_of_exactness() {
-        // On [−1, 1]: Kronrod is exact to degree 22 (3·7 + 1), Gauss to degree 13 (2·7 − 1).
+        // On [−1, 1]: Kronrod is exact to degree 23 (3·7 + 2 for odd 7), Gauss to degree 13 (2·7 − 1).
         let exact = |k: i32| if k % 2 == 1 { 0.0 } else { 2.0 / (k + 1) as f64 };
-        for k in 0..=23 {
+        for k in 0..=25 {
             let p = gauss_kronrod(-1.0, 1.0, &|x: f64| x.powi(k)).unwrap();
-            if k <= 22 {
+            if k <= 23 {
                 assert!((p.value - exact(k)).abs() < 2e-16, "Kronrod, degree {k}: {}", p.value - exact(k));
+            } else if k == 24 {
+                assert!((p.value - exact(k)).abs() > 1e-12, "Kronrod is not exact at degree 24");
             }
         }
         let gauss = |k: i32| {

@@ -3,8 +3,9 @@
 //! If `A = U Σ Vᵀ` then `AᵀA = V Σ² Vᵀ`, so the right singular vectors are eigenvectors of `AᵀA`,
 //! the singular values are the square roots of its eigenvalues, and `u_i = A v_i / σ_i`. The trouble
 //! is that forming `AᵀA` squares every singular value: those below `√ε σ_max ≈ 10⁻⁸ σ_max` fall
-//! beneath the rounding error of the largest and are lost. Production SVDs (one-sided Jacobi in
-//! `lib_jsl_linalg`, Golub-Kahan bidiagonalisation in LAPACK) work on `A` itself.
+//! beneath the rounding error of the largest and are lost. Production SVDs work on `A` itself:
+//! Golub-Kahan bidiagonalisation (the default in `lib_jsl_linalg`, as in LAPACK) or one-sided
+//! Jacobi (`lib_jsl_linalg`'s `SvdJacobi`).
 
 use crate::Error;
 use ndarray::{Array1, Array2};

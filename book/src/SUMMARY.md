@@ -26,6 +26,7 @@
 - [Interpolation](interpolation/index.md)
     - [Polynomial interpolation](interpolation/polynomial.md)
     - [Piecewise and spline interpolation](interpolation/splines.md)
+    - [Rational interpolation and approximation](interpolation/rational.md)
 
 ---
 

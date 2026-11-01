@@ -64,6 +64,7 @@ fn polynomial_figures() {
 }
 
 pub fn generate() {
+    rational_figures();
     spline_figures();
     polynomial_figures();
 }
@@ -111,4 +112,53 @@ fn spline_figures() {
         table.push_str(&format!("| {n} | {e_lin:.1e} | {e_spl:.1e} | {e_mid:.1e} | {e_pc:.1e} | {e_ak:.1e} | {e_cr:.1e} |\n"));
     }
     write(CHAPTER, "spline_convergence.md", &table);
+}
+
+fn rational_figures() {
+    use lib_jsl_interpolation::one_d::aaa::AaaApproximation;
+    use lib_jsl_interpolation::one_d::bulirsch_stoer::BulirschStoer;
+    use lib_jsl_interpolation::one_d::floater_hormann::FloaterHormann;
+    use lib_jsl_interpolation::one_d::pade_approximants::PadeApproximant;
+    // The Runge function at equally spaced points: polynomial against rational interpolants.
+    let fine: Vec<f64> = (0..=2000).map(|i| -1.0 + i as f64 / 1000.0).collect();
+    let max_err = |f: &mut dyn FnMut(f64) -> f64| fine.iter().map(|&t| (f(t) - runge(t)).abs()).fold(0.0, f64::max).max(1e-17);
+    let sizes: Vec<usize> = (5..=101).step_by(8).collect();
+    let mut poly = Vec::new();
+    let mut fh = Vec::new();
+    let mut bs = Vec::new();
+    let mut aaa = Vec::new();
+    for &n in &sizes {
+        let nodes = equispaced(n);
+        let (x, y) = (R1D::from_vec(nodes.clone()), R1D::from_vec(nodes.iter().map(|&v| runge(v)).collect()));
+        if n <= 45 {
+            let mut p = LagrangeInterpolant::new(x.view(), y.view()).unwrap();
+            poly.push((n as f64, max_err(&mut |t| p.interpolate_at(t).unwrap())));
+        }
+        let mut f = FloaterHormann::new(x.view(), y.view(), 3).unwrap();
+        fh.push((n as f64, max_err(&mut |t| f.interpolate_at(t).unwrap())));
+        let mut b = BulirschStoer::new(x.view(), y.view()).unwrap();
+        bs.push((n as f64, max_err(&mut |t| b.interpolate_at(t).unwrap_or(f64::NAN)).min(1e6)));
+        let a = AaaApproximation::new(x.view(), y.view(), 1e-13, 100).unwrap();
+        aaa.push((n as f64, max_err(&mut |t| a.evaluate(t))));
+    }
+    let mut plot = Plot::new("1/(1 + 25x²) from equally spaced samples: rational interpolants converge", "number of points n", "maximum error on [−1, 1]");
+    plot.log_y = true;
+    plot.y_range = Some((1e-16, 1e6));
+    plot.legend = Legend::TopRight;
+    plot.series.push(Series::new("polynomial (diverges)", poly, Style::LineMarkers, 0));
+    plot.series.push(Series::new("Floater-Hormann, d = 3", fh, Style::LineMarkers, 1));
+    plot.series.push(Series::new("Bulirsch-Stoer", bs, Style::LineMarkers, 2));
+    plot.series.push(Series::new("AAA", aaa, Style::LineMarkers, 3));
+    write(CHAPTER, "rational_runge.svg", &plot.render());
+
+    // Padé against Taylor for ln(1 + x), whose series converges only for |x| < 1.
+    let taylor: Vec<f64> = (0..=20).map(|k| if k == 0 { 0.0 } else { (if k % 2 == 1 { 1.0 } else { -1.0 }) / k as f64 }).collect();
+    let pade = PadeApproximant::new(&taylor, 10, 10).unwrap();
+    let mut table = String::from("| $x$ | $\\ln(1 + x)$ | Taylor polynomial, degree 20: error | Padé $[10/10]$: error |\n|---:|---:|---:|---:|\n");
+    for x in [0.5f64, 0.9, 1.0, 2.0, 5.0, 20.0] {
+        let t: f64 = taylor.iter().enumerate().map(|(k, c)| c * x.powi(k as i32)).sum();
+        let exact = x.ln_1p();
+        table.push_str(&format!("| {x} | {exact:.10} | {:.1e} | {:.1e} |\n", (t - exact).abs(), (pade.evaluate(x) - exact).abs()));
+    }
+    write(CHAPTER, "pade_log.md", &table);
 }

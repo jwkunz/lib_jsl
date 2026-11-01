@@ -52,6 +52,7 @@ impl AaaApproximation {
                 support.pop();
                 break;
             }
+            // ANCHOR: aaa_step
             // Loewner matrix on the remaining points.
             let a = Array2::from_shape_fn((remaining.len(), k), |(i, j)| {
                 let (r, s) = (remaining[i], support[j]);
@@ -60,6 +61,7 @@ impl AaaApproximation {
             let (_, _, vt) = a.svd(false, true).map_err(|_| ErrorsJSL::RuntimeError("SVD failed"))?;
             let vt = vt.ok_or(ErrorsJSL::RuntimeError("SVD returned no right vectors"))?;
             weights = vt.row(vt.nrows() - 1).to_vec();
+            // ANCHOR_END: aaa_step
             // Fit residual at the remaining points.
             let sz: Vec<f64> = support.iter().map(|&s| z[s]).collect();
             let sf: Vec<f64> = support.iter().map(|&s| f[s]).collect();

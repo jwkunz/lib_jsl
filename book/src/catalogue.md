@@ -84,11 +84,11 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [PCHIP](interpolation/splines.md#cubic-hermite-interpolation)
 - [Akima](interpolation/splines.md#cubic-hermite-interpolation)
 - [Cubic basis (Catmull-Rom)](interpolation/splines.md#cubic-hermite-interpolation)
-- AAA
+- [AAA](interpolation/rational.md#the-aaa-algorithm)
 - Prony's method
-- Padé approximants
-- Floater-Hormann
-- Bulirsch-Stoer rational interpolation
+- [Padé approximants](interpolation/rational.md#padé-approximants)
+- [Floater-Hormann](interpolation/rational.md#floater-hormann-interpolation)
+- [Bulirsch-Stoer rational interpolation](interpolation/rational.md#bulirsch-stoer-rational-interpolation)
 - Fourier 1D
 - [Chebyshev approximations](interpolation/polynomial.md#chebyshev-series)
 - [Lagrange interpolant](interpolation/polynomial.md#the-barycentric-formula)

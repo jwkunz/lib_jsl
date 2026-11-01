@@ -17,6 +17,7 @@ pub use lib_jsl_optimization as optimization;
 pub use lib_jsl_random as random;
 pub use lib_jsl_sorting as sorting;
 pub use lib_jsl_special_functions as special_functions;
+pub use lib_jsl_statistics as statistics;
 pub use lib_jsl_root_finding as root_finding;
 pub use lib_jsl_machine_learning as machine_learning;
 pub use lib_jsl_electromagnetics as electromagnetics;

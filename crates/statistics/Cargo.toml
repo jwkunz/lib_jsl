@@ -1,0 +1,15 @@
+[package]
+name = "lib_jsl_statistics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Descriptive statistics, correlation, hypothesis tests, density estimation and resampling."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+lib_jsl_core = { path = "../core" }
+lib_jsl_random = { path = "../random" }
+lib_jsl_special_functions = { path = "../special_functions" }

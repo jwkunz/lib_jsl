@@ -594,8 +594,8 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Lambert W
 [x] Polylogarithm
 
-# Statistics (`statistics`, planned crate)
-[ ] Descriptive statistics
+# Statistics (`statistics`)
+[x] Descriptive statistics
 [ ] Correlation and covariance
 [ ] Hypothesis tests
 [ ] Kernel density estimation

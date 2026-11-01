@@ -15,6 +15,7 @@ members = [
     "crates/derivatives",
     "crates/sorting",
     "crates/special_functions",
+    "crates/statistics",
     "crates/root_finding",
     "crates/machine_learning",
     "crates/electromagnetics",
@@ -62,6 +63,7 @@ lib_jsl_random = { path = "crates/random" }
 lib_jsl_derivatives = { path = "crates/derivatives" }
 lib_jsl_sorting = { path = "crates/sorting" }
 lib_jsl_special_functions = { path = "crates/special_functions" }
+lib_jsl_statistics = { path = "crates/statistics" }
 lib_jsl_root_finding = { path = "crates/root_finding" }
 lib_jsl_machine_learning = { path = "crates/machine_learning" }
 lib_jsl_electromagnetics = { path = "crates/electromagnetics" }

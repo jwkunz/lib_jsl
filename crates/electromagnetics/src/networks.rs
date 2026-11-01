@@ -5,4 +5,5 @@
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
 
 pub mod s_parameters;
+pub mod smith_chart;
 pub mod transmission_lines;

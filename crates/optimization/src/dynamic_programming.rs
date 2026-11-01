@@ -5,6 +5,8 @@
 //! matrix-chain ordering) each return the optimal value together with a reconstruction of one
 //! optimal solution. The second group, [`FiniteMdp`], solves sequential decision problems by
 //! backward induction (finite horizon) or value iteration (discounted, infinite horizon).
+//!
+//! See the book entry [Dynamic programming](https://jwkunz.github.io/lib_jsl/book/optimization/dynamic-programming.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -17,6 +19,7 @@ pub fn knapsack_01(weights: &[usize], values: &[f64], capacity: usize) -> Result
     }
     let n = weights.len();
     // best[i][w] = best value using the first i items with capacity w.
+    // ANCHOR: knapsack
     let mut best = vec![vec![0.0f64; capacity + 1]; n + 1];
     for i in 1..=n {
         for w in 0..=capacity {
@@ -36,6 +39,7 @@ pub fn knapsack_01(weights: &[usize], values: &[f64], capacity: usize) -> Result
     }
     chosen.reverse();
     Ok((best[n][capacity], chosen))
+    // ANCHOR_END: knapsack
 }
 
 /// The fewest coins (unlimited supply of each denomination) summing to `amount`, as the count of
@@ -293,6 +297,7 @@ impl FiniteMdp {
         if !(0.0..1.0).contains(&discount) {
             return Err(ErrorsJSL::InvalidInputRange("Discount must be in [0, 1)."));
         }
+        // ANCHOR: value_iteration
         let mut values = vec![0.0; self.rewards.len()];
         for _ in 0..max_iterations {
             let sol = self.greedy(&values, discount);
@@ -304,6 +309,7 @@ impl FiniteMdp {
             }
         }
         Err(ErrorsJSL::RuntimeError("Value iteration did not converge."))
+        // ANCHOR_END: value_iteration
     }
 
     /// The expected discounted return of following `policy` forever, by Gauss-Seidel sweeps,

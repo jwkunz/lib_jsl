@@ -1,25 +1,35 @@
+//! Adaptive trapezoid quadrature.
+//!
+//! See the book entry [Newton-Cotes rules](https://jwkunz.github.io/lib_jsl/book/integration/newton-cotes.html#adaptive-trapezoid-rule).
+
 use crate::can_integrate::CanIntegrate1D;
 use lib_jsl_core::ErrorsJSL;
 
-// An struct the integrates a 1D real function f(x) using the trapezoidal rule
-// Note: This is pedagogical and does not converge quickly
+/// Adaptive trapezoid quadrature: each interval is compared with its two halves and split again
+/// wherever they disagree, so samples concentrate where the integrand changes quickly.
+///
+/// An interval `[a, b]` with midpoint `c` is accepted when the one-panel and two-panel trapezoid
+/// values differ by less than its share of the tolerance; that difference is three times the
+/// error of the two-panel value, so the estimate is conservative. The tolerance is halved at each
+/// split, so the total error is bounded by roughly `tolerance` rather than by `tolerance` per
+/// interval. Recursion stops with an error after 50 levels (intervals `2⁻⁵⁰` of the original),
+/// which catches non-finite or non-integrable integrands.
 pub struct AdaptiveTrapezoidIntegrationEngine {
-    tolerance: f64,   // Where to bound error on each subinterval
-    lower_bound: f64, // The lower bound of x
-    upper_bound: f64, // The upper obund of x
+    tolerance: f64,
+    lower_bound: f64,
+    upper_bound: f64,
 }
 
+/// The deepest subdivision allowed.
+const MAX_DEPTH: u32 = 50;
+
 impl AdaptiveTrapezoidIntegrationEngine {
-    // Construct from bounds and number of points
-    // The boolean flag is if you want to cache the x domain points to save speed on repeated calls (true) or recompute the x points each time (false)
+    /// An engine on `[lower_bound, upper_bound]` aiming for an absolute error below `tolerance`.
     pub fn new(tolerance: f64, lower_bound: f64, upper_bound: f64) -> Self {
-        AdaptiveTrapezoidIntegrationEngine {
-            tolerance,
-            lower_bound,
-            upper_bound,
-        }
+        AdaptiveTrapezoidIntegrationEngine { tolerance, lower_bound, upper_bound }
     }
-    // Dynamically sets the number of points.  Will update cache if configured.
+
+    /// Changes the error tolerance.
     pub fn set_tolerance(&mut self, x: f64) {
         self.tolerance = x;
     }
@@ -30,44 +40,40 @@ impl CanIntegrate1D for AdaptiveTrapezoidIntegrationEngine {
     where
         F: Fn(f64) -> f64,
     {
-        // Evaluate bounds
-        let a = self.lower_bound;
-        let f_a = f(a);
-        let b = self.upper_bound;
-        let f_b = f(b);
-        // Recursion
-        Ok(recurse(a, f_a, b, f_b, &f, self.tolerance))
+        let (a, b) = (self.lower_bound, self.upper_bound);
+        recurse(a, f(a), b, f(b), &f, self.tolerance, 0)
     }
 
-    // Dynamically sets the lower bound.  Will update cache if configured.
     fn set_lower_bound(&mut self, x: f64) {
         self.lower_bound = x;
     }
-    // Dynamically sets the upper bound.  Will update cache if configured.
+
     fn set_upper_bound(&mut self, x: f64) {
         self.upper_bound = x;
     }
 }
 
-fn recurse<F>(a: f64, f_a: f64, b: f64, f_b: f64, f: &F, tolerance: f64) -> f64
+// ANCHOR: adaptive_trapezoid
+fn recurse<F>(a: f64, f_a: f64, b: f64, f_b: f64, f: &F, tolerance: f64, depth: u32) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
     let c = 0.5 * (a + b);
     let f_c = f(c);
-    let trap2 = (f_a + f_b) * 0.5 * (b - a);
-    let left = (f_a + f_c) * 0.5 * (c - a);
-    let right = (f_c + f_b) * 0.5 * (b - c);
-    let trap3 = left + right;
-    let difference = (trap3 - trap2).abs();
-    if difference.abs() < tolerance {
-        trap3
-    } else {
-        let left = recurse(a, f_a, c, f_c, f, tolerance);
-        let right = recurse(c, f_c, b, f_b, f, tolerance);
-        left + right
+    let one_panel = 0.5 * (b - a) * (f_a + f_b);
+    let two_panels = 0.25 * (b - a) * (f_a + 2.0 * f_c + f_b);
+    let difference = (two_panels - one_panel).abs();
+    if difference < tolerance {
+        return Ok(two_panels);
     }
+    if depth == MAX_DEPTH || !difference.is_finite() {
+        return Err(ErrorsJSL::RuntimeError("adaptive trapezoid: the integrand is not finite or the tolerance cannot be met"));
+    }
+    let left = recurse(a, f_a, c, f_c, f, 0.5 * tolerance, depth + 1)?;
+    let right = recurse(c, f_c, b, f_b, f, 0.5 * tolerance, depth + 1)?;
+    Ok(left + right)
 }
+// ANCHOR_END: adaptive_trapezoid
 
 #[cfg(test)]
 mod test {
@@ -94,5 +100,17 @@ mod test {
         let error = 0.0 - result;
         dbg!(&error);
         assert!(error.abs() < error_limit);
+    }
+
+    #[test]
+    fn concentrates_samples_where_needed_and_rejects_singularities() {
+        // A narrow peak: the adaptive rule meets the tolerance on the whole interval.
+        let f = |x: f64| 1.0 / (1e-4 + (x - 0.3) * (x - 0.3));
+        let exact = 100.0 * ((0.7f64 / 0.01).atan() + (0.3f64 / 0.01).atan());
+        let dut = AdaptiveTrapezoidIntegrationEngine::new(1e-6, 0.0, 1.0);
+        assert!((dut.integrate(f).unwrap() - exact).abs() < 1e-5);
+        // An infinite sample used to recurse until the stack overflowed.
+        let dut = AdaptiveTrapezoidIntegrationEngine::new(1e-8, 0.0, 1.0);
+        assert!(dut.integrate(|x| 1.0 / x.sqrt()).is_err());
     }
 }

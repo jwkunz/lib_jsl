@@ -1,50 +1,50 @@
-use crate::{
-    calculate_midpoints::calculate_midpoints, can_integrate::CanIntegrate1D,
-};
+//! The composite Simpson's 1/3 rule.
+//!
+//! See the book entry [Newton-Cotes rules](https://jwkunz.github.io/lib_jsl/book/integration/newton-cotes.html).
+
+use crate::{calculate_midpoints::grid_points, can_integrate::CanIntegrate1D};
 use lib_jsl_core::ErrorsJSL;
 
-// An struct the integrates a 1D real function f(x) using the Simpson's 1/3 rule
-// Fourth-order accurate (error O(h⁴)); exact for cubic polynomials.
+/// The composite Simpson's 1/3 rule on `n` equally spaced points (`n − 1` panels of width
+/// `h = (b − a)/(n − 1)`): weights `h/3 · (1, 4, 2, 4, …, 2, 4, 1)`.
+///
+/// Fourth order (error `−(b − a) h⁴ f⁽⁴⁾(ξ) / 180`) and exact for cubics. The 1/3 rule needs an
+/// even number of panels; with an odd number, the last three panels use Simpson's 3/8 rule so the
+/// result stays fourth order. Two points fall back to the trapezoid rule.
 pub struct Simpson13Engine {
-    number_of_points: usize,        // The number of points in to sample
-    lower_bound: f64,               // The lower bound of x
-    upper_bound: f64,               // The upper obund of x
-    cache: Option<(Vec<f64>, f64)>, // Cache x domain samples points for speed on repeated calls
+    number_of_points: usize,
+    lower_bound: f64,
+    upper_bound: f64,
+    /// The sample points and spacing, when caching is enabled.
+    cache: Option<(Vec<f64>, f64)>,
 }
 
 impl Simpson13Engine {
-    // Construct from bounds and number of points
-    // The boolean flag is if you want to cache the x domain points to save speed on repeated calls (true) or recompute the x points each time (false)
-    pub fn new(
-        number_of_points: usize,
-        lower_bound: f64,
-        upper_bound: f64,
-        cache_x_points: bool,
-    ) -> Self {
-        let cache = if cache_x_points {
-            Some(calculate_midpoints(
-                lower_bound,
-                upper_bound,
-                number_of_points,
-            ))
-        } else {
-            None
-        };
-        Simpson13Engine {
-            number_of_points,
-            lower_bound,
-            upper_bound,
-            cache,
-        }
+    /// An engine using `number_of_points` samples on `[lower_bound, upper_bound]`. With
+    /// `cache_x_points`, the sample points are computed once and reused by every call to
+    /// `integrate`.
+    pub fn new(number_of_points: usize, lower_bound: f64, upper_bound: f64, cache_x_points: bool) -> Self {
+        let cache = cache_x_points.then(|| grid_points(lower_bound, upper_bound, number_of_points));
+        Simpson13Engine { number_of_points, lower_bound, upper_bound, cache }
     }
-    // Dynamically sets the number of points.  Will update cache if configured.
+
+    /// Changes the number of samples (refreshing the cache, if enabled).
     pub fn set_number_of_points(&mut self, x: usize) {
         self.number_of_points = x;
-        self.cache = if self.cache.is_some() {
-            Some(calculate_midpoints(self.lower_bound, self.upper_bound, x))
-        } else {
-            None
-        };
+        self.refresh();
+    }
+
+    fn refresh(&mut self) {
+        if self.cache.is_some() {
+            self.cache = Some(grid_points(self.lower_bound, self.upper_bound, self.number_of_points));
+        }
+    }
+
+    fn points(&self) -> std::borrow::Cow<'_, (Vec<f64>, f64)> {
+        match &self.cache {
+            Some(c) => std::borrow::Cow::Borrowed(c),
+            None => std::borrow::Cow::Owned(grid_points(self.lower_bound, self.upper_bound, self.number_of_points)),
+        }
     }
 }
 
@@ -53,16 +53,12 @@ impl CanIntegrate1D for Simpson13Engine {
     where
         F: Fn(f64) -> f64,
     {
-        // Get cached points or compute from scratch
-        let (x_points, dx) = if let Some(x) = &self.cache {
-            x
-        } else {
-            &calculate_midpoints(self.lower_bound, self.upper_bound, self.number_of_points)
-        };
+        // ANCHOR: simpson_rule
+        let points = self.points();
+        let (x_points, dx) = &*points;
+        let dx = *dx;
         if x_points.len() < 2 {
-            return Err(ErrorsJSL::InvalidInputRange(
-                "Must have more than two points for integration",
-            ));
+            return Err(ErrorsJSL::InvalidInputRange("Simpson's rule needs at least two points"));
         }
         let n = x_points.len();
         let y: Vec<f64> = x_points.iter().map(|&x| f(x)).collect();
@@ -83,33 +79,17 @@ impl CanIntegrate1D for Simpson13Engine {
             total += 3.0 * dx / 8.0 * (y[k] + 3.0 * y[k + 1] + 3.0 * y[k + 2] + y[k + 3]);
         }
         Ok(total)
+        // ANCHOR_END: simpson_rule
     }
 
-    // Dynamically sets the lower bound.  Will update cache if configured.
     fn set_lower_bound(&mut self, x: f64) {
         self.lower_bound = x;
-        self.cache = if self.cache.is_some() {
-            Some(calculate_midpoints(
-                self.lower_bound,
-                self.upper_bound,
-                self.number_of_points,
-            ))
-        } else {
-            None
-        };
+        self.refresh();
     }
-    // Dynamically sets the upper bound.  Will update cache if configured.
+
     fn set_upper_bound(&mut self, x: f64) {
         self.upper_bound = x;
-        self.cache = if self.cache.is_some() {
-            Some(calculate_midpoints(
-                self.lower_bound,
-                self.upper_bound,
-                self.number_of_points,
-            ))
-        } else {
-            None
-        };
+        self.refresh();
     }
 }
 

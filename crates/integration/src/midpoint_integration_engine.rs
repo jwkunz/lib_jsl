@@ -1,103 +1,100 @@
-use crate::{calculate_midpoints::calculate_midpoints, can_integrate::CanIntegrate1D};
+//! The composite midpoint rule.
+//!
+//! See the book entry [Newton-Cotes rules](https://jwkunz.github.io/lib_jsl/book/integration/newton-cotes.html).
+
+use crate::{calculate_midpoints::panel_midpoints, can_integrate::CanIntegrate1D};
 use lib_jsl_core::ErrorsJSL;
 
-// An struct the integrates a 1D real function f(x) using the midpoint rule
-// Note: This is pedagogical and does not converge quickly
+/// The composite midpoint rule: `∫ₐᵇ f ≈ h Σ f(a + (i + ½) h)` over `n` panels of width
+/// `h = (b − a)/n`, sampling `f` at the centre of each panel.
+///
+/// Second order (error `−(b − a) h² f''(ξ) / 24`, half that of the trapezoid rule and of opposite
+/// sign), exact for straight lines, and *open*: it never evaluates `f` at the endpoints, so it
+/// tolerates integrable endpoint singularities (slowly).
 pub struct MidpointIntegrationEngine {
-    number_of_points: usize, // The number of points in to sample
-    lower_bound: f64, // The lower bound of x
-    upper_bound: f64, // The upper obund of x
-    cache: Option<(Vec<f64>,f64)>, // Cache x domain samples points for speed on repeated calls
+    number_of_points: usize,
+    lower_bound: f64,
+    upper_bound: f64,
+    /// The sample points and spacing, when caching is enabled.
+    cache: Option<(Vec<f64>, f64)>,
 }
 
 impl MidpointIntegrationEngine {
-    // Construct from bounds and number of points
-    // The boolean flag is if you want to cache the x domain points to save speed on repeated calls (true) or recompute the x points each time (false)
-    pub fn new(number_of_points: usize, lower_bound: f64, upper_bound: f64, cache_x_points : bool) -> Self {
-        let cache = if cache_x_points{
-            Some( calculate_midpoints(lower_bound, upper_bound, number_of_points))
-        }else{
-            None
-        };
-        MidpointIntegrationEngine {
-            number_of_points,
-            lower_bound,
-            upper_bound,
-            cache
-        }
+    /// An engine using `number_of_points` samples on `[lower_bound, upper_bound]` (the number of panels). With
+    /// `cache_x_points`, the sample points are computed once and reused by every call to
+    /// `integrate`.
+    pub fn new(number_of_points: usize, lower_bound: f64, upper_bound: f64, cache_x_points: bool) -> Self {
+        let cache = cache_x_points.then(|| panel_midpoints(lower_bound, upper_bound, number_of_points));
+        MidpointIntegrationEngine { number_of_points, lower_bound, upper_bound, cache }
     }
-    // Dynamically sets the number of points.  Will update cache if configured.
+
+    /// Changes the number of samples (refreshing the cache, if enabled).
     pub fn set_number_of_points(&mut self, x: usize) {
         self.number_of_points = x;
-        self.cache = if self.cache.is_some(){
-            Some( calculate_midpoints(self.lower_bound, self.upper_bound, x))
-        }else{
-            None
-        };
+        self.refresh();
+    }
+
+    fn refresh(&mut self) {
+        if self.cache.is_some() {
+            self.cache = Some(panel_midpoints(self.lower_bound, self.upper_bound, self.number_of_points));
+        }
+    }
+
+    fn points(&self) -> std::borrow::Cow<'_, (Vec<f64>, f64)> {
+        match &self.cache {
+            Some(c) => std::borrow::Cow::Borrowed(c),
+            None => std::borrow::Cow::Owned(panel_midpoints(self.lower_bound, self.upper_bound, self.number_of_points)),
+        }
     }
 }
 
 impl CanIntegrate1D for MidpointIntegrationEngine {
-    fn integrate<F>(&self, f: F) -> Result<f64,ErrorsJSL>
+    fn integrate<F>(&self, f: F) -> Result<f64, ErrorsJSL>
     where
         F: Fn(f64) -> f64,
     {
-        // Get cached points or compute from scratch
-        let (x_points, dx) = if let Some(x) = &self.cache{
-            x
-        } 
-        else{
-            &calculate_midpoints(self.lower_bound, self.upper_bound, self.number_of_points)
-        };
-        // Simple integration and scaling
-        Ok(x_points.iter().map(|&x| f(x)).sum::<f64>() * dx)
+        // ANCHOR: midpoint_rule
+        let points = self.points();
+        let (x, h) = &*points;
+        if x.is_empty() {
+            return Err(ErrorsJSL::InvalidInputRange("the midpoint rule needs at least one panel"));
+        }
+        Ok(h * x.iter().map(|&x| f(x)).sum::<f64>())
+        // ANCHOR_END: midpoint_rule
     }
 
-    // Dynamically sets the lower bound.  Will update cache if configured.
     fn set_lower_bound(&mut self, x: f64) {
         self.lower_bound = x;
-        self.cache = if self.cache.is_some(){
-            Some( calculate_midpoints(self.lower_bound, self.upper_bound, self.number_of_points))
-        }else{
-            None
-        };
+        self.refresh();
     }
-    // Dynamically sets the upper bound.  Will update cache if configured.
+
     fn set_upper_bound(&mut self, x: f64) {
         self.upper_bound = x;
-        self.cache = if self.cache.is_some(){
-            Some( calculate_midpoints(self.lower_bound, self.upper_bound, self.number_of_points))
-        }else{
-            None
-        };
+        self.refresh();
     }
 }
 
-
 #[cfg(test)]
-mod test{  
+mod test {
+    use super::*;
     use std::f64::consts::PI;
 
-    use super::*;
     #[test]
-    fn test_midpoint_integration(){
-        let error_limit = 1E-3;
-        let upper_bound = 0.0;
-        let lower_bound = PI/2.0;
-        let number_of_points = 10000;
-        let dut = MidpointIntegrationEngine::new(number_of_points, lower_bound, upper_bound,false);
-        let result = dut.integrate(|x| x.sin()).unwrap();
-        let error = -1.0-result;
-        dbg!(&error);
-        assert!(error.abs() < error_limit);
+    fn test_midpoint_integration() {
+        let dut = MidpointIntegrationEngine::new(1000, 0.0, PI / 2.0, false);
+        assert!((dut.integrate(f64::sin).unwrap() - 1.0).abs() < 1e-6);
+        let dut = MidpointIntegrationEngine::new(1000, PI / 2.0, 0.0, true);
+        assert!((dut.integrate(f64::sin).unwrap() + 1.0).abs() < 1e-6);
+        // Exact for straight lines with a single panel.
+        let one = MidpointIntegrationEngine::new(1, 1.0, 3.0, false);
+        assert!((one.integrate(|x| 3.0 * x + 1.0).unwrap() - 14.0).abs() < 1e-14);
+        assert!(MidpointIntegrationEngine::new(0, 0.0, 1.0, false).integrate(f64::sin).is_err());
+    }
 
-        let upper_bound = PI/2.0;
-        let lower_bound = -PI/2.0;
-        let number_of_points = 10000;
-        let dut = MidpointIntegrationEngine::new(number_of_points, lower_bound, upper_bound,false);
-        let result = dut.integrate(|x| x.sin()).unwrap();
-        let error = 0.0-result;
-        dbg!(&error);
-        assert!(error.abs() < error_limit);
+    #[test]
+    fn midpoint_error_falls_by_four_when_h_halves() {
+        let err = |n| (MidpointIntegrationEngine::new(n, 0.0, 1.0, false).integrate(f64::exp).unwrap() - (std::f64::consts::E - 1.0)).abs();
+        let ratio = err(64) / err(128);
+        assert!((ratio - 4.0).abs() < 0.01, "{ratio}");
     }
 }

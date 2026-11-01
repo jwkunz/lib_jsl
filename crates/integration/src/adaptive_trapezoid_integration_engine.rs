@@ -12,8 +12,9 @@ use lib_jsl_core::ErrorsJSL;
 /// values differ by less than its share of the tolerance; that difference is three times the
 /// error of the two-panel value, so the estimate is conservative. The tolerance is halved at each
 /// split, so the total error is bounded by roughly `tolerance` rather than by `tolerance` per
-/// interval. Recursion stops with an error after 50 levels (intervals `2⁻⁵⁰` of the original),
-/// which catches non-finite or non-integrable integrands.
+/// interval. Intervals that reach 50 levels of subdivision (`2⁻⁵⁰` of the original) are accepted
+/// as they are, which resolves jumps, where the difference shrinks only as fast as the tolerance;
+/// a non-finite sample is an error.
 pub struct AdaptiveTrapezoidIntegrationEngine {
     tolerance: f64,
     lower_bound: f64,
@@ -63,11 +64,14 @@ where
     let one_panel = 0.5 * (b - a) * (f_a + f_b);
     let two_panels = 0.25 * (b - a) * (f_a + 2.0 * f_c + f_b);
     let difference = (two_panels - one_panel).abs();
-    if difference < tolerance {
-        return Ok(two_panels);
+    if !difference.is_finite() {
+        return Err(ErrorsJSL::RuntimeError("adaptive trapezoid: the integrand is not finite at a sample point"));
     }
-    if depth == MAX_DEPTH || !difference.is_finite() {
-        return Err(ErrorsJSL::RuntimeError("adaptive trapezoid: the integrand is not finite or the tolerance cannot be met"));
+    // At the depth limit the interval is 2⁻⁵⁰ of the original, so accepting it costs nothing
+    // measurable; this is how jumps, where the difference shrinks only as fast as the
+    // tolerance, are resolved.
+    if difference < tolerance || depth == MAX_DEPTH {
+        return Ok(two_panels);
     }
     let left = recurse(a, f_a, c, f_c, f, 0.5 * tolerance, depth + 1)?;
     let right = recurse(c, f_c, b, f_b, f, 0.5 * tolerance, depth + 1)?;
@@ -112,5 +116,9 @@ mod test {
         // An infinite sample used to recurse until the stack overflowed.
         let dut = AdaptiveTrapezoidIntegrationEngine::new(1e-8, 0.0, 1.0);
         assert!(dut.integrate(|x| 1.0 / x.sqrt()).is_err());
+        // A jump is resolved by subdividing only the interval that contains it.
+        let c = 1.0 / std::f64::consts::PI;
+        let step = dut.integrate(|x| if x < c { 0.0 } else { 1.0 }).unwrap();
+        assert!((step - (1.0 - c)).abs() < 1e-12, "{step}");
     }
 }

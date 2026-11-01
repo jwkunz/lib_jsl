@@ -592,7 +592,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Associated Legendre functions and spherical harmonics
 [x] Riemann zeta
 [x] Lambert W
-[ ] Polylogarithm
+[x] Polylogarithm
 
 # Statistics (`statistics`, planned crate)
 [ ] Descriptive statistics

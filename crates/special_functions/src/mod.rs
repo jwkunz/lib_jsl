@@ -23,6 +23,7 @@ pub mod fermi_dirac_integrals;
 pub mod inverse_x_log_x;
 pub mod lambert_w;
 pub mod zeta;
+pub mod polylogarithm;
 pub mod elliptic_integrals;
 pub mod jacobian_elliptic_functions;
 pub mod hypergeometric_functions;
@@ -159,3 +160,4 @@ pub use zeta::{
     zeta,
     hurwitz_zeta,
 };
+pub use polylogarithm::polylog;

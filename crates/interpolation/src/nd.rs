@@ -1,5 +1,7 @@
 //! N-dimensional interpolation on rectilinear grids.
 //!
+//! See the book entry [Interpolation on grids](https://jwkunz.github.io/lib_jsl/book/interpolation/grids.html).
+//!
 //! A grid is given by one strictly increasing axis per dimension and a value array whose shape is
 //! the axis lengths. Queries are slices with one coordinate per dimension.
 

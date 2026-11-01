@@ -1,5 +1,7 @@
 //! Two-dimensional interpolation.
 //!
+//! See the book entry [Interpolation on grids](https://jwkunz.github.io/lib_jsl/book/interpolation/grids.html).
+//!
 //! Gridded interpolators take axes `x` (length `nx`), `y` (length `ny`) and a value matrix `z` of
 //! shape `(nx, ny)` with `z[[i, j]] = f(x[i], y[j])`.
 

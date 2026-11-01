@@ -31,6 +31,7 @@ impl InterpolationND for GridData {
             cell.push(i);
             t.push((p - axis[i]) / (axis[i + 1] - axis[i]));
         }
+        // ANCHOR: multilinear
         let mut idx = vec![0usize; dims];
         let mut sum = 0.0;
         for corner in 0..(1usize << dims) {
@@ -44,6 +45,7 @@ impl InterpolationND for GridData {
                 sum += weight * self.values[&idx[..]];
             }
         }
+        // ANCHOR_END: multilinear
         Ok(sum)
     }
 }

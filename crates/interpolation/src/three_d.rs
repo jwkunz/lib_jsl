@@ -1,5 +1,7 @@
 //! Three-dimensional interpolation.
 //!
+//! See the book entry [Interpolation on grids](https://jwkunz.github.io/lib_jsl/book/interpolation/grids.html).
+//!
 //! Gridded interpolators take axes `x`, `y`, `z` and a value array of shape `(nx, ny, nz)` with
 //! `v[[i, j, k]] = f(x[i], y[j], z[k])`.
 

@@ -6,8 +6,8 @@ All crates in the workspace share one version. The format follows
 
 ## [1.0.0] - 2026-11-01
 
-The first stable release: every item of the [roadmap](ROADMAP.md) (457 algorithms across 23
-library crates) is implemented and tested.
+The first stable release: every planned algorithm (457 items across 23 library crates, listed
+in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html)) is implemented and tested.
 
 ### Added
 
@@ -25,6 +25,9 @@ library crates) is implemented and tested.
   pilot, published to GitHub Pages with the API reference.
 
 ### Changed
+
+- The book's catalogue of algorithms replaces `ROADMAP.md` as the list of what the library
+  implements and what it does not cover.
 
 - Dependencies are pinned once in the workspace manifest; `num` was replaced by `num-complex`
   and `num-traits`, and `ndarray-linalg` by `lib_jsl_linalg`.

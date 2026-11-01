@@ -147,7 +147,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Linear predictive coding
 [x] Wavelet transform
 [x] Welch power spectral density
-[ ] Short-time Fourier transform and spectrogram
+[x] Short-time Fourier transform and spectrogram
 [ ] Hilbert transform and analytic signal
 [ ] Goertzel algorithm
 

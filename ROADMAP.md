@@ -261,7 +261,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Lossless images (PNG, PPM)
 
 ## Data
-[ ] CSV files
+[x] CSV files
 [ ] NumPy .npy files
 
 # Geometry (`geometry`)

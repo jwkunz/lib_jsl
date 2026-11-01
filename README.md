@@ -11,14 +11,14 @@ work as well as use them.
   they do, who devised them, why they work, how they are implemented), written for advanced
   undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
-- **Roadmap:** [ROADMAP.md](ROADMAP.md) tracks every algorithm (447 implemented).
+- **Roadmap:** [ROADMAP.md](ROADMAP.md) tracks every algorithm (457 implemented).
 
 ## Status
 
 | | |
 |---|---|
-| Algorithms | 447 roadmap items across 22 library crates, all implemented |
-| Tests | 1,240 unit tests, doctests and example builds; `cargo clippy` clean |
+| Algorithms | 457 roadmap items across 23 library crates, all implemented |
+| Tests | 1,254 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` |
 | Documentation | API reference for every crate; the book's integration chapter is the pilot, with the other chapters in progress |
 | Publishing | Not yet on crates.io; use a path or git dependency |
@@ -32,6 +32,7 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 |---|---|
 | `lib_jsl_core` | Shared types, array aliases, traits, errors and physical constants |
 | `lib_jsl_linalg` | Dense linear algebra for real and complex matrices: LU, Cholesky, eigensolvers, SVD, least squares |
+| `lib_jsl_linalg_reference` | Readable textbook linear algebra (Gaussian elimination, Gram-Schmidt, power iteration, Jacobi, the QR algorithm) for study, each paired with a test showing why production code does something else |
 | `lib_jsl_integration` | Quadrature (Gauss, Romberg, tanh-sinh, adaptive, cubature, quasi-Monte Carlo), ODE solvers (Runge-Kutta, Rosenbrock, BDF), boundary value problems, PDEs (finite difference, finite element, spectral) |
 | `lib_jsl_optimization` | Line searches, BFGS and L-BFGS, conjugate gradient, Levenberg-Marquardt, SQP and augmented Lagrangian, Nelder-Mead, Powell, simulated annealing, differential evolution, particle swarm, linear and dynamic programming |
 | `lib_jsl_root_finding` | Bracketing methods, Brent, Newton, polynomial roots, nonlinear systems (Newton, Broyden) |
@@ -98,6 +99,9 @@ cargo bench --manifest-path crates/linalg_bench/Cargo.toml --bench linalg_vs_lap
 ```
 
 (this standalone package needs the system OpenBLAS library; the library itself does not).
+
+The textbook algorithms in `lib_jsl_linalg_reference` race the production crate with
+`cargo bench -p lib_jsl_linalg_reference`.
 
 ## Development
 

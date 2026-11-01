@@ -11,6 +11,7 @@ members = [
     "crates/file_io",
     "crates/interpolation",
     "crates/linalg",
+    "crates/linalg_reference",
     "crates/number_theory",
     "crates/optimization",
     "crates/random",

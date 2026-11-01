@@ -440,6 +440,18 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Least squares (pivoted QR, SVD for rank-deficient systems)
 [x] Benchmarks against LAPACK (`ndarray-linalg`)
 
+# Linear algebra reference (`linalg_reference`)
+[x] Gaussian elimination without and with partial pivoting
+[x] Doolittle LU: solves, determinant, inverse
+[x] Cholesky-Banachiewicz
+[x] Classical and modified Gram-Schmidt, Householder QR
+[x] Power, inverse and Rayleigh quotient iteration
+[x] Cyclic Jacobi eigenvalue method
+[x] Unshifted and Wilkinson-shifted QR algorithm with deflation
+[x] SVD from the eigenproblem of AᵀA
+[x] Least squares by normal equations and by QR
+[x] Linear algebra race benchmark
+
 # Machine learning (`machine_learning`)
 
 ## Foundations

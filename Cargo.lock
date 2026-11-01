@@ -421,6 +421,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_jsl_linalg_reference"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "lib_jsl_linalg",
+ "ndarray",
+]
+
+[[package]]
 name = "lib_jsl_machine_learning"
 version = "0.1.0"
 dependencies = [

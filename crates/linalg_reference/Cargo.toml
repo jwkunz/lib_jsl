@@ -1,0 +1,21 @@
+[package]
+name = "lib_jsl_linalg_reference"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+readme = "../../README.md"
+description = "Readable textbook linear algebra algorithms for study, plus a benchmark comparing them with lib_jsl_linalg."
+
+[lib]
+path = "src/mod.rs"
+
+[dependencies]
+ndarray.workspace = true
+
+[dev-dependencies]
+lib_jsl_linalg = { path = "../linalg" }
+criterion.workspace = true
+
+[[bench]]
+name = "linalg_race"
+harness = false

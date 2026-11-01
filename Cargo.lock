@@ -734,6 +734,7 @@ name = "lib_jsl_special_functions"
 version = "0.1.0"
 dependencies = [
  "lib_jsl_core",
+ "num",
 ]
 
 [[package]]

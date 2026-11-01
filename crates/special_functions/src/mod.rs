@@ -26,6 +26,7 @@ pub mod jacobian_elliptic_functions;
 pub mod hypergeometric_functions;
 pub mod statistical_functions;
 pub mod orthogonal_polynomials;
+pub mod spherical_harmonics;
 
 pub use gamma::{
     gamma,
@@ -144,4 +145,10 @@ pub use orthogonal_polynomials::{
     hermite_he,
     laguerre,
     jacobi,
+};
+pub use spherical_harmonics::{
+    associated_legendre,
+    normalized_associated_legendre,
+    spherical_harmonic,
+    real_spherical_harmonic,
 };

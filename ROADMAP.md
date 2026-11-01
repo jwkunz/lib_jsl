@@ -589,7 +589,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Hypergeometric functions
 [x] Statistical functions
 [x] Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)
-[ ] Associated Legendre functions and spherical harmonics
+[x] Associated Legendre functions and spherical harmonics
 [ ] Riemann zeta
 [ ] Lambert W
 [ ] Polylogarithm

@@ -100,7 +100,10 @@ impl LinearProgram {
         Ok(())
     }
 
-    /// Solves the program.
+    /// Solves the program. Infeasible and unbounded programs are reported through
+    /// [`LpSolution::status`]; an error means invalid input, or (only conceivably, through
+    /// rounding) that 50 000 pivots passed without termination, which used to be reported as
+    /// optimal.
     pub fn solve(&self) -> Result<LpSolution, ErrorsJSL> {
         self.validate()?;
         let n = self.objective.len();
@@ -185,7 +188,7 @@ impl LinearProgram {
         // Phase one: minimise the sum of artificials.
         let mut cost1 = vec![0.0; total];
         cost1[structural + slacks..].iter_mut().for_each(|c| *c = 1.0);
-        let status = simplex(&mut t, &mut basis, &cost1, total, &mut iterations, None);
+        let status = simplex(&mut t, &mut basis, &cost1, total, &mut iterations, None).ok_or(PIVOT_LIMIT)?;
         debug_assert!(status != LpStatus::Unbounded, "phase one is bounded below by zero");
         let infeasibility: f64 = basis.iter().enumerate().filter(|(_, b)| **b >= structural + slacks).map(|(i, _)| t[i][total]).sum();
         let scale = 1.0 + rows.iter().map(|r| r.1.abs()).fold(0.0, f64::max);
@@ -216,7 +219,7 @@ impl LinearProgram {
                 cost2[mi] -= self.objective[i];
             }
         }
-        let status = simplex(&mut t, &mut basis, &cost2, total, &mut iterations, Some(structural + slacks));
+        let status = simplex(&mut t, &mut basis, &cost2, total, &mut iterations, Some(structural + slacks)).ok_or(PIVOT_LIMIT)?;
         if status == LpStatus::Unbounded {
             return Ok(LpSolution { status, x: vec![], objective: f64::NAN, iterations });
         }
@@ -229,6 +232,8 @@ impl LinearProgram {
         Ok(LpSolution { status: LpStatus::Optimal, x, objective, iterations })
     }
 }
+
+const PIVOT_LIMIT: ErrorsJSL = ErrorsJSL::RuntimeError("The simplex method reached its limit of 50 000 pivots.");
 
 fn pivot(t: &mut [Vec<f64>], basis: &mut [usize], row: usize, col: usize, total: usize) {
     let p = t[row][col];
@@ -250,7 +255,9 @@ fn pivot(t: &mut [Vec<f64>], basis: &mut [usize], row: usize, col: usize, total:
 
 /// Runs the simplex method on the tableau for the cost vector `cost`, restricting entering
 /// columns to `0..limit` (all columns when `None`).
-fn simplex(t: &mut [Vec<f64>], basis: &mut [usize], cost: &[f64], total: usize, iterations: &mut usize, limit: Option<usize>) -> LpStatus {
+/// Returns `None` if the pivot limit is reached, which Bland's rule rules out in exact
+/// arithmetic but rounding could in principle cause.
+fn simplex(t: &mut [Vec<f64>], basis: &mut [usize], cost: &[f64], total: usize, iterations: &mut usize, limit: Option<usize>) -> Option<LpStatus> {
     let limit = limit.unwrap_or(total);
     let eps = 1e-9;
     for _ in 0..50_000 {
@@ -259,7 +266,7 @@ fn simplex(t: &mut [Vec<f64>], basis: &mut [usize], cost: &[f64], total: usize, 
             let reduced = cost[j] - basis.iter().enumerate().map(|(i, &b)| cost[b] * t[i][j]).sum::<f64>();
             reduced < -eps
         });
-        let Some(col) = entering else { return LpStatus::Optimal };
+        let Some(col) = entering else { return Some(LpStatus::Optimal) };
         // Ratio test with Bland's tie-break (lowest basic variable index).
         let mut best: Option<(f64, usize, usize)> = None;
         for (i, row) in t.iter().enumerate() {
@@ -274,11 +281,11 @@ fn simplex(t: &mut [Vec<f64>], basis: &mut [usize], cost: &[f64], total: usize, 
                 }
             }
         }
-        let Some((_, row, _)) = best else { return LpStatus::Unbounded };
+        let Some((_, row, _)) = best else { return Some(LpStatus::Unbounded) };
         pivot(t, basis, row, col, total);
         *iterations += 1;
     }
-    LpStatus::Optimal
+    None
 }
 
 #[cfg(test)]

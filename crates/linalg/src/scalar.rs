@@ -44,6 +44,27 @@ pub trait Scalar:
     fn to_complex(self) -> Complex<f64>;
     /// From a complex number (the real part, for reals).
     fn from_complex(z: Complex<f64>) -> Self;
+
+    /// `C ← C − A B` for an `m × k` matrix `A`, a `k × n` matrix `B` and an `m × n` matrix `C`,
+    /// each given by a pointer to its first element and its row and column strides.
+    ///
+    /// # Safety
+    /// The pointers and strides must describe valid matrices, and `C` must not overlap `A` or `B`.
+    #[allow(clippy::too_many_arguments)]
+    unsafe fn gemm_sub(
+        m: usize,
+        k: usize,
+        n: usize,
+        a: *const Self,
+        rsa: isize,
+        csa: isize,
+        b: *const Self,
+        rsb: isize,
+        csb: isize,
+        c: *mut Self,
+        rsc: isize,
+        csc: isize,
+    );
 }
 
 impl Scalar for f64 {
@@ -84,6 +105,22 @@ impl Scalar for f64 {
     fn from_complex(z: Complex<f64>) -> Self {
         z.re
     }
+    unsafe fn gemm_sub(
+        m: usize,
+        k: usize,
+        n: usize,
+        a: *const Self,
+        rsa: isize,
+        csa: isize,
+        b: *const Self,
+        rsb: isize,
+        csb: isize,
+        c: *mut Self,
+        rsc: isize,
+        csc: isize,
+    ) {
+        unsafe { matrixmultiply::dgemm(m, k, n, -1.0, a, rsa, csa, b, rsb, csb, 1.0, c, rsc, csc) }
+    }
 }
 
 impl Scalar for Complex<f64> {
@@ -123,5 +160,42 @@ impl Scalar for Complex<f64> {
     }
     fn from_complex(z: Complex<f64>) -> Self {
         z
+    }
+    unsafe fn gemm_sub(
+        m: usize,
+        k: usize,
+        n: usize,
+        a: *const Self,
+        rsa: isize,
+        csa: isize,
+        b: *const Self,
+        rsb: isize,
+        csb: isize,
+        c: *mut Self,
+        rsc: isize,
+        csc: isize,
+    ) {
+        use matrixmultiply::CGemmOption::Standard;
+        // `Complex<f64>` is `#[repr(C)]` with fields (re, im), the layout of matrixmultiply's `c64`.
+        unsafe {
+            matrixmultiply::zgemm(
+                Standard,
+                Standard,
+                m,
+                k,
+                n,
+                [-1.0, 0.0],
+                a.cast(),
+                rsa,
+                csa,
+                b.cast(),
+                rsb,
+                csb,
+                [1.0, 0.0],
+                c.cast(),
+                rsc,
+                csc,
+            )
+        }
     }
 }

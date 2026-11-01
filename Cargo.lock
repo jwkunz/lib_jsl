@@ -415,6 +415,7 @@ dependencies = [
 name = "lib_jsl_linalg"
 version = "0.1.0"
 dependencies = [
+ "matrixmultiply",
  "ndarray",
  "num-complex",
  "num-traits",

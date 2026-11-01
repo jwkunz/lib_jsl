@@ -10,6 +10,7 @@ description = "Dense linear algebra in pure Rust: LU, Cholesky, QR-based eigenso
 path = "src/mod.rs"
 
 [dependencies]
+matrixmultiply.workspace = true
 ndarray.workspace = true
 num-complex.workspace = true
 num-traits.workspace = true

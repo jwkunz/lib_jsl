@@ -43,7 +43,7 @@ fn identity_error<T: Scalar>(q: &Array2<T>) -> f64 {
 #[test]
 fn lu_solves_inverts_and_computes_determinants() {
     let mut rng = Lcg(1);
-    for n in [1, 2, 7, 40] {
+    for n in [1, 2, 7, 40, 150] {
         let a = rng.real(n, n);
         let b = Array1::from_shape_fn(n, |_| rng.next());
         let x = a.solve(&b).unwrap();
@@ -74,7 +74,7 @@ fn lu_solves_inverts_and_computes_determinants() {
 #[test]
 fn cholesky_and_triangular_solves() {
     let mut rng = Lcg(2);
-    for n in [1, 5, 30] {
+    for n in [1, 5, 30, 150] {
         let g = rng.complex(n, n);
         let a = matmul(&g, &adjoint(&g)) + Array2::from_diag(&Array1::from_elem(n, C::new(n as f64, 0.0)));
         let l = a.cholesky(UPLO::Lower).unwrap();

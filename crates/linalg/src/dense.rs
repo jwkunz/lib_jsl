@@ -79,6 +79,52 @@ impl<T: Scalar> Mat<T> {
     }
 }
 
+/// The block size of the blocked factorisations: large enough for the matrix-multiply kernel to
+/// run efficiently, small enough for the unblocked panel work to stay in cache.
+pub(crate) const BLOCK: usize = 32;
+
+/// `C ← C − A B` for row-major blocks (`A` is `m × k`, `B` is `k × n`, `C` is `m × n`), each given
+/// by a pointer to its first element and its row stride.
+///
+/// # Safety
+/// The blocks must lie inside live allocations, and `C` must not overlap `A` or `B`. They may lie
+/// in the same buffer.
+#[allow(clippy::too_many_arguments)]
+pub(crate) unsafe fn sub_matmul<T: Scalar>(m: usize, k: usize, n: usize, a: *const T, lda: usize, b: *const T, ldb: usize, c: *mut T, ldc: usize) {
+    if m == 0 || k == 0 || n == 0 {
+        return;
+    }
+    unsafe { T::gemm_sub(m, k, n, a, lda as isize, 1, b, ldb as isize, 1, c, ldc as isize, 1) }
+}
+
+/// `Σ x_i conj(y_i)` with four independent accumulators, so the additions pipeline.
+#[inline]
+pub(crate) fn dot_conj<T: Scalar>(x: &[T], y: &[T]) -> T {
+    let n = x.len().min(y.len());
+    let (x, y) = (&x[..n], &y[..n]);
+    let mut acc = [T::zero(); 4];
+    let chunks = n / 4;
+    for c in 0..chunks {
+        let (xs, ys) = (&x[4 * c..4 * c + 4], &y[4 * c..4 * c + 4]);
+        for l in 0..4 {
+            acc[l] += xs[l] * ys[l].conj();
+        }
+    }
+    let mut tail = T::zero();
+    for i in 4 * chunks..n {
+        tail += x[i] * y[i].conj();
+    }
+    (acc[0] + acc[1]) + (acc[2] + acc[3]) + tail
+}
+
+/// `y ← y − a x`.
+#[inline]
+pub(crate) fn axpy_sub<T: Scalar>(y: &mut [T], a: T, x: &[T]) {
+    for (yi, &xi) in y.iter_mut().zip(x) {
+        *yi -= a * xi;
+    }
+}
+
 pub(crate) fn require_square(rows: usize, cols: usize) -> Result<()> {
     if rows != cols {
         return Err(LinalgError::NotSquare { rows, cols });

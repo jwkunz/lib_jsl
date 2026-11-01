@@ -500,7 +500,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Polynomial
 [x] Text coded integer
 [x] Prime sieves
-[ ] Primality testing (Miller-Rabin)
+[x] Primality testing (Miller-Rabin)
 [ ] Integer factorization
 [ ] Chinese remainder theorem
 

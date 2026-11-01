@@ -305,6 +305,7 @@ version = "1.0.0"
 dependencies = [
  "lib_jsl_integration",
  "lib_jsl_special_functions",
+ "num-complex",
 ]
 
 [[package]]

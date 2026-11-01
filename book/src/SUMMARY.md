@@ -12,7 +12,7 @@
     - [Gaussian quadrature](integration/gaussian-quadrature.md)
     - [Adaptive Gauss-Kronrod quadrature](integration/gauss-kronrod.md)
     - [Tanh-sinh quadrature](integration/tanh-sinh.md)
-    - [Complex contour integration]()
+    - [Complex contour integration](integration/contour-integration.md)
     - [Multidimensional cubature]()
     - [Monte Carlo and quasi-Monte Carlo integration]()
     - [Runge-Kutta methods]()

@@ -53,7 +53,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - Runge-Kutta
 - [Simpson's 1/3 rule](integration/newton-cotes.md#simpsons-rules)
 - [Trapezoidal](integration/newton-cotes.md#the-trapezoid-rule)
-- Complex path integrals
+- [Complex path integrals](integration/contour-integration.md)
 - [Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature](integration/gaussian-quadrature.md)
 - [Tanh-sinh quadrature](integration/tanh-sinh.md)
 - [Romberg integration](integration/romberg.md)

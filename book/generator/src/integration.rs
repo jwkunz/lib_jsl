@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    contour_figures();
     gauss_kronrod_figures();
     newton_cotes_figures();
     convergence_figures();
@@ -337,4 +338,53 @@ fn gauss_kronrod_figures() {
         table.push_str(&format!("| {label} | {n} | {:.1e} | {est:.1e} | {trap} |\n", (v - exact).abs()));
     }
     write(CHAPTER, "gauss_kronrod_table.md", &table);
+}
+
+fn contour_figures() {
+    use lib_jsl_integration::complex_path_integrals::{C64, Contour, PathSegment, cauchy_derivative, contour_integral};
+    // ∮ e^z / z³ dz around the unit circle = 2πi · ½: trapezoid against adaptive Gauss-Kronrod.
+    let f = |z: C64| z.exp() / (z * z * z);
+    let exact = C64::new(0.0, PI);
+    let trapezoid: Vec<(f64, f64)> = (1..=24).map(|n| {
+        let sum: C64 = (0..n).map(|k| { let z = C64::from_polar(1.0, 2.0 * PI * k as f64 / n as f64); f(z) * C64::new(0.0, 1.0) * z }).sum();
+        (n as f64, ((sum * (2.0 * PI / n as f64)) - exact).norm().max(1e-17))
+    }).collect();
+    let circle = Contour::circle(C64::new(0.0, 0.0), 1.0);
+    let gk: Vec<(f64, f64)> = [1e-2, 1e-4, 1e-6, 1e-8, 1e-10, 1e-12, 1e-14].iter().map(|&tol| {
+        let r = contour_integral(f, &circle, tol).unwrap();
+        (r.evaluations as f64, (r.value - exact).norm().max(1e-17))
+    }).collect();
+    let mut plot = Plot::new("∮ eᶻ/z³ dz around the unit circle: the periodic trapezoid rule wins", "function evaluations", "absolute error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.y_range = Some((1e-17, 10.0));
+    plot.series.push(Series::new("trapezoid rule (equally spaced angles)", trapezoid, Style::LineMarkers, 0));
+    plot.series.push(Series::new("adaptive Gauss-Kronrod (varying tolerance)", gk, Style::LineMarkers, 1));
+    write(CHAPTER, "contour_trapezoid_vs_gk.svg", &plot.render());
+
+    // Cauchy's formula for f^(n)(0) with f = e^z: the error as a function of the radius.
+    let mut plot = Plot::new("Derivatives of eᶻ at 0 by Cauchy's formula: the radius matters", "radius r of the circle", "absolute error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.y_range = Some((1e-17, 1e3));
+    plot.legend = Legend::TopRight;
+    for (k, n) in [1u32, 4, 8, 12].iter().enumerate() {
+        let pts: Vec<(f64, f64)> = (0..=40).map(|i| 10f64.powf(-3.0 + 4.5 * i as f64 / 40.0)).map(|r| {
+            let d = cauchy_derivative(|z| z.exp(), C64::new(0.0, 0.0), *n, r, 1e-14).unwrap();
+            (r, (d - C64::new(1.0, 0.0)).norm().max(1e-17))
+        }).collect();
+        plot.series.push(Series::new(&format!("n = {n}"), pts, Style::Line, k));
+    }
+    write(CHAPTER, "cauchy_derivative_radius.svg", &plot.render());
+
+    // A real integral from a closed contour: ∫ dx/(1 + x²) over the real line = π.
+    let g = |z: C64| (z * z + 1.0).inv();
+    let mut table = String::from("| radius $R$ | segment $[-R, R]$ | arc $\\lvert z \\rvert = R$ | closed contour | $\\pi$ |\n|---:|---:|---:|---:|---:|\n");
+    for r in [2.0, 10.0, 100.0, 1000.0] {
+        let line = contour_integral(g, &Contour::new(vec![PathSegment::line(C64::new(-r, 0.0), C64::new(r, 0.0))]), 1e-13).unwrap().value;
+        let arc = contour_integral(g, &Contour::new(vec![PathSegment::arc(C64::new(0.0, 0.0), r, 0.0, PI)]), 1e-13).unwrap().value;
+        let total = line + arc;
+        table.push_str(&format!("| {r} | {:.12} | {:+.3e} | {:.12} | {:.12} |\n", line.re, arc.re, total.re, PI));
+    }
+    write(CHAPTER, "contour_semicircle.md", &table);
 }

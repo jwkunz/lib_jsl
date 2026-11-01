@@ -514,7 +514,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Powell's method
 [x] Linear programming
 [x] Dynamic programming
-[ ] Nonlinear least squares and curve fitting (Levenberg-Marquardt)
+[x] Nonlinear least squares and curve fitting (Levenberg-Marquardt)
 [ ] Quasi-Newton methods (BFGS, L-BFGS)
 [ ] Nonlinear conjugate gradient
 [ ] Constrained optimization (SQP, augmented Lagrangian)

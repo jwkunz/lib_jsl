@@ -501,7 +501,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Text coded integer
 [x] Prime sieves
 [x] Primality testing (Miller-Rabin)
-[ ] Integer factorization
+[x] Integer factorization
 [ ] Chinese remainder theorem
 
 # Optimization (`optimization`)

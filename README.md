@@ -18,8 +18,8 @@ work as well as use them.
 | | |
 |---|---|
 | Algorithms | 457 roadmap items across 23 library crates, all implemented |
-| Tests | 1,254 unit tests, doctests and example builds; `cargo clippy` clean |
-| Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` |
+| Tests | 1,256 unit tests, doctests and example builds; `cargo clippy` clean |
+| Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; the book's integration chapter is the pilot, with the other chapters in progress |
 | Publishing | Not yet on crates.io; use a path or git dependency |
 
@@ -75,24 +75,25 @@ Optional features: `serde` enables serialisation of geometry types.
 
 ## Linear algebra performance
 
-`lib_jsl_linalg` replaces the LAPACK bindings the library used to depend on, trading some speed
-for portability (no system libraries) and readability. Its traits mirror `ndarray-linalg`'s
-names, so code ports by changing an import. Mean times from the criterion benchmarks against
-`ndarray-linalg` with OpenBLAS (Intel Core i7-7600U, real matrices; the last figure in each cell
-is our time relative to LAPACK):
+`lib_jsl_linalg` replaces the LAPACK bindings the library used to depend on, with no system
+libraries. Its traits mirror `ndarray-linalg`'s names, so code ports by changing an import. The
+factorisations are blocked around a matrix-multiply kernel (`matrixmultiply`, already a
+dependency of ndarray), real eigenproblems use Francis double-shift QR, and the SVD is a
+QR-preconditioned one-sided Jacobi method. Mean times from the criterion benchmarks against
+`ndarray-linalg` with OpenBLAS (Intel Core i7-7600U, real matrices, single-threaded; the last
+figure in each cell is our time relative to LAPACK, below 1 meaning faster):
 
 | Operation | n = 16 | n = 64 | n = 256 |
 |---|---:|---:|---:|
-| Solve (LU) | 2.68 µs vs 3.37 µs (0.8×) | 62.4 µs vs 36.9 µs (1.7×) | 3.07 ms vs 1.07 ms (2.9×) |
-| Inverse | 5.23 µs vs 7.34 µs (0.7×) | 183 µs vs 103 µs (1.8×) | 9.2 ms vs 1.83 ms (5.0×) |
-| Cholesky | 2.17 µs vs 1.83 µs (1.2×) | 77.5 µs vs 22 µs (3.5×) | 4.12 ms vs 1.34 ms (3.1×) |
-| Symmetric eigenproblem | 42.5 µs vs 31.4 µs (1.4×) | 1.68 ms vs 1.14 ms (1.5×) | 135 ms vs 50.4 ms (2.7×) |
-| General eigenproblem | 152 µs vs 103 µs (1.5×) | 5.96 ms vs 2.43 ms (2.5×) | 458 ms vs 78.1 ms (5.9×) |
-| SVD with vectors | 73.6 µs vs 57.7 µs (1.3×) | 5.66 ms vs 1.2 ms (4.7×) | 418 ms vs 111 ms (3.8×) |
-| Least squares (2n × n) | 41.7 µs vs 61.9 µs (0.7×) | 1.07 ms vs 1.01 ms (1.1×) | 68.2 ms vs 28.7 ms (2.4×) |
+| Solve (LU) | 2.6 µs vs 3.6 µs (0.7×) | 52.2 µs vs 39.0 µs (1.3×) | 1.28 ms vs 1.07 ms (1.2×) |
+| Inverse | 4.7 µs vs 6.8 µs (0.7×) | 99.6 µs vs 90.5 µs (1.1×) | 3.01 ms vs 2.52 ms (1.2×) |
+| Cholesky | 2.3 µs vs 2.0 µs (1.2×) | 39.1 µs vs 23.7 µs (1.7×) | 0.86 ms vs 1.69 ms (0.5×) |
+| Symmetric eigenproblem | 28.4 µs vs 32.0 µs (0.9×) | 643 µs vs 1.17 ms (0.5×) | 25.5 ms vs 53.0 ms (0.5×) |
+| General eigenproblem | 73.4 µs vs 120 µs (0.6×) | 2.69 ms vs 2.37 ms (1.1×) | 141 ms vs 84.5 ms (1.7×) |
+| SVD with vectors | 50.8 µs vs 58.0 µs (0.9×) | 2.26 ms vs 1.20 ms (1.9×) | 132 ms vs 122 ms (1.1×) |
+| Least squares (2n × n) | 35.6 µs vs 63.7 µs (0.6×) | 680 µs vs 977 µs (0.7×) | 24.0 ms vs 27.4 ms (0.9×) |
 
-Small problems run as fast as LAPACK or faster; at a few hundred rows the gap is a factor of 2
-to 6, the expected cost of unblocked, single-threaded code. Reproduce with
+Every operation is within a factor of 2 of OpenBLAS, and several are faster. Reproduce with
 
 ```console
 cargo bench --manifest-path crates/linalg_bench/Cargo.toml --bench linalg_vs_lapack

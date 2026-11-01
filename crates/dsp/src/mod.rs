@@ -77,6 +77,10 @@ pub mod discrete {
         pub mod non_linearity_transformers;
     }
 
+    pub mod radar {
+        pub mod pulse_compression;
+    }
+
     pub mod resampling {
         pub mod cic;
         pub mod half_band;

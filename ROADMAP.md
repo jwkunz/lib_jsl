@@ -169,7 +169,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 ### Multirate and radar
 [x] CIC filters
 [x] Half-band filters
-[ ] Pulse compression (matched filtering, chirps)
+[x] Pulse compression (matched filtering, chirps)
 
 # Electromagnetics (`electromagnetics`)
 Design and conventions: `crates/electromagnetics/DESIGN.md`

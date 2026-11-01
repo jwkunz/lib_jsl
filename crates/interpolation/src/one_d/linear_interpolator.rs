@@ -1,7 +1,10 @@
 use crate::interpolation_trait::InterpolationTrait;
 use lib_jsl_core::*;
 
-/// This struct implements simple linear interpolation for y = f(x)
+/// Piecewise linear interpolation through `(x, y)`, with `x` in non-decreasing order; outside the
+/// data the end segments are extended.
+///
+/// See the book entry [Piecewise and spline interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/splines.html).
 
 #[derive(Debug)]
 pub struct LinearInterpolator<'a>{
@@ -56,6 +59,11 @@ impl<'a> LinearInterpolator<'a>{
             location : None
         };
         result.verify_sizes(2)?;
+        // Repeated abscissas are tolerated (the left value is used), but the order must not decrease:
+        // the interval search assumes ascending data.
+        if x_values.iter().zip(x_values.iter().skip(1)).any(|(a, b)| b < a || a.is_nan() || b.is_nan()) {
+            return Err(ErrorsJSL::InvalidInputRange("x values must be in non-decreasing order"));
+        }
         Ok(result)
     }
 }

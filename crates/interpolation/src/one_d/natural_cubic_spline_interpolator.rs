@@ -1,7 +1,10 @@
 use crate::interpolation_trait::InterpolationTrait;
 use lib_jsl_core::*;
 
-/// This struct implements the natural cubic spline interpolation for y = f(x)
+/// The natural cubic spline through `(x, y)`: piecewise cubic with continuous first and second
+/// derivatives, and zero second derivative at both ends. `x` must be strictly increasing.
+///
+/// See the book entry [Piecewise and spline interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/splines.html#cubic-splines).
 
 #[derive(Debug)]
 pub struct NaturalCubicSplineInterpolator<'a> {
@@ -34,7 +37,7 @@ impl<'a> InterpolationTrait<'a> for NaturalCubicSplineInterpolator<'a> {
         self.location = Some(x)
     }
 
-    /// This is the logic of the linear interpolator
+    /// Evaluates the cubic piece of interval `jlo`.
     fn raw_interpolate(&mut self, jlo: usize, x: f64) -> Result<f64, ErrorsJSL> {
         let dx = x - self.x_values[jlo];
         let dx2 = dx*dx;
@@ -50,6 +53,7 @@ impl<'a> NaturalCubicSplineInterpolator<'a> {
         /// `S_i(x) = a[i] + b[i]*(x - x_i) + c[i]*(x - x_i)^2 + d[i]*(x - x_i)^3`
         /// for x in [x_i, x_{i+1}].
         pub fn init_natural_cubic_spline(&mut self){
+        // ANCHOR: natural_spline
         let n = self.x_values.len();
         let a = self.y_values.to_owned();
         let mut b = R1D::zeros(n - 1);
@@ -94,6 +98,7 @@ impl<'a> NaturalCubicSplineInterpolator<'a> {
             d[j] = (c[j + 1] - c[j]) / (3.0 * h[j]);
         }
 
+        // ANCHOR_END: natural_spline
         self.a = a;
         self.b = b;
         self.c = c;
@@ -113,6 +118,9 @@ impl<'a> NaturalCubicSplineInterpolator<'a> {
             d: R1D::default(0),
         };
         result.verify_sizes(3)?;
+        if x_values.iter().zip(x_values.iter().skip(1)).any(|(a, b)| b <= a || a.is_nan() || b.is_nan()) {
+            return Err(ErrorsJSL::InvalidInputRange("x values must be strictly increasing"));
+        }
         result.init_natural_cubic_spline();
         Ok(result)
     }
@@ -128,7 +136,7 @@ mod test {
     }
 
     #[test]
-    fn tb_linear_interpolator() -> Result<(), ErrorsJSL> {
+    fn natural_spline_values() -> Result<(), ErrorsJSL> {
         let x = R1D::from_vec(vec![0.0, 1.0, 2.0, 3.0]);
         let y = R1D::from_vec(vec![1.0, 2.0, 0.0, -1.0]);
 
@@ -156,5 +164,13 @@ mod test {
         let y_interp = dut.interpolate_at(-1.0)?;
         assert!(approx_eq(y_interp,0.0,1E-9));
         Ok(())
+    }
+
+    #[test]
+    fn rejects_unordered_abscissas() {
+        let x = R1D::from_vec(vec![0.0, 2.0, 1.0]);
+        let y = R1D::from_vec(vec![0.0, 1.0, 2.0]);
+        assert!(NaturalCubicSplineInterpolator::new(x.view(), y.view()).is_err());
+        assert!(crate::one_d::linear_interpolator::LinearInterpolator::new(x.view(), y.view()).is_err());
     }
 }

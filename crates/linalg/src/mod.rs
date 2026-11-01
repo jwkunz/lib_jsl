@@ -25,6 +25,7 @@ mod eig;
 mod eigh;
 mod error;
 mod lu;
+mod qr;
 mod scalar;
 mod svd;
 
@@ -129,8 +130,12 @@ pub struct LeastSquaresResult<T> {
     pub residual_sum_of_squares: Option<f64>,
 }
 
-/// The minimum-norm least-squares solution of `A x ≈ b` via the SVD (robust to rank
-/// deficiency).
+/// The minimum-norm least-squares solution of `A x ≈ b`, robust to rank deficiency.
+///
+/// Overdetermined systems are first factorised by Householder QR with column pivoting; when that
+/// shows full column rank, the solution follows by back-substitution and the singular values from
+/// the eigenvalues of `RᴴR`. Rank-deficient and underdetermined systems use the SVD, which gives
+/// the minimum-norm solution.
 pub trait LeastSquaresSvd<T> {
     fn least_squares<S: Data<Elem = T>>(&self, b: &ArrayBase<S, Ix1>) -> Result<LeastSquaresResult<T>>;
 }
@@ -220,7 +225,7 @@ impl<T: Scalar, S: Data<Elem = T>> Eigh<T> for ArrayBase<S, Ix2> {
 
 impl<T: Scalar, S: Data<Elem = T>> EigValsh for ArrayBase<S, Ix2> {
     fn eigvalsh(&self, uplo: UPLO) -> Result<Array1<f64>> {
-        Ok(self.eigh(uplo)?.0)
+        Ok(Array1::from_vec(eigh::eigvalsh(&Mat::from_array(self)?, uplo)?))
     }
 }
 
@@ -259,6 +264,34 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
         }
         let a = Mat::from_array(self)?;
         let rhs = vector(b)?;
+        if m >= n && n > 0 {
+            let qr = qr::pivoted_qr(&a, &rhs);
+            let r00 = qr.r.at(0, 0).abs();
+            let tolerance = r00 * f64::EPSILON * m.max(n) as f64;
+            if r00 > 0.0 && (0..n).all(|i| qr.r.at(i, i).abs() > tolerance * 1e3) {
+                // Full column rank: back-substitute R z = (Qᴴ b)[..n], then undo the pivoting.
+                let mut z = qr.qtb[..n].to_vec();
+                for i in (0..n).rev() {
+                    let s = (i + 1..n).fold(T::zero(), |s, k| s + qr.r.at(i, k) * z[k]);
+                    z[i] = (z[i] - s) / qr.r.at(i, i);
+                }
+                let mut x = vec![T::zero(); n];
+                for (j, &p) in qr.permutation.iter().enumerate() {
+                    x[p] = z[j];
+                }
+                let mut rr = Mat::<T>::zeros(n, n);
+                for i in 0..n {
+                    for j in i..n {
+                        *rr.at_mut(i, j) = qr.r.at(i, j);
+                    }
+                }
+                let mut eigen = eigh::eigvalsh(&rr.adjoint().matmul(&rr), UPLO::Lower)?;
+                eigen.reverse();
+                let singular_values = Array1::from_iter(eigen.iter().map(|&l| l.max(0.0).sqrt()));
+                let residual = (m > n).then(|| qr.qtb[n..].iter().map(|v| v.abs_sqr()).sum::<f64>());
+                return Ok(LeastSquaresResult { solution: to_array1(x), singular_values, rank: n, residual_sum_of_squares: residual });
+            }
+        }
         let thin = svd::thin_svd(&a)?;
         let threshold = thin.sigma.first().copied().unwrap_or(0.0) * f64::EPSILON * m.max(n) as f64;
         let rank = thin.sigma.iter().filter(|&&s| s > threshold).count();

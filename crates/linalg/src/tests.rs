@@ -207,6 +207,13 @@ fn least_squares_solutions() {
     let normal = a.t().dot(&a).solve(&a.t().dot(&b)).unwrap();
     let r = a.least_squares(&b).unwrap();
     assert!((r.solution - normal).iter().all(|v| v.abs() < 1e-10));
+    // The fast QR path reports the same singular values as the SVD.
+    let sigma = a.svd(false, false).unwrap().1;
+    assert!((r.singular_values - sigma).iter().all(|v| v.abs() < 1e-10));
+    let complex = Lcg(7).complex(30, 4);
+    let cb = Array1::from_shape_fn(30, |i| C::new(i as f64, 1.0));
+    let normal = matmul(&adjoint(&complex), &complex).solve(&adjoint(&complex).dot(&cb)).unwrap();
+    assert!((complex.least_squares(&cb).unwrap().solution - normal).iter().all(|v| v.norm() < 1e-9));
     // Rank-deficient and underdetermined systems give the minimum-norm solution.
     let deficient = array![[1.0, 1.0], [1.0, 1.0], [1.0, 1.0]];
     let r = deficient.least_squares(&array![2.0, 2.0, 2.0]).unwrap();

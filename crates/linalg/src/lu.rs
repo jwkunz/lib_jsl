@@ -70,20 +70,46 @@ impl<T: Scalar> LuFactorization<T> {
         x
     }
 
-    /// The inverse, column by column.
-    pub(crate) fn inverse(&self) -> Mat<T> {
-        let n = self.lu.rows;
-        let mut inv = Mat::zeros(n, n);
-        let mut e = vec![T::zero(); n];
-        for j in 0..n {
-            e.iter_mut().for_each(|v| *v = T::zero());
-            e[j] = T::one();
-            let col = self.solve_vec(&e);
-            for i in 0..n {
-                *inv.at_mut(i, j) = col[i];
+    /// Solves `A X = B` for all columns of `B` at once. The substitutions run along contiguous
+    /// rows of `X`, which is far more cache-friendly than solving column by column.
+    pub(crate) fn solve_matrix(&self, b: &Mat<T>) -> Mat<T> {
+        let (n, m) = (self.lu.rows, b.cols);
+        let mut x = Mat::zeros(n, m);
+        for (i, &p) in self.pivots.iter().enumerate() {
+            x.data[i * m..(i + 1) * m].copy_from_slice(&b.data[p * m..(p + 1) * m]);
+        }
+        for i in 0..n {
+            let (done, rest) = x.data.split_at_mut(i * m);
+            let row = &mut rest[..m];
+            for k in 0..i {
+                let l = self.lu.at(i, k);
+                if l != T::zero() {
+                    for (r, &v) in row.iter_mut().zip(&done[k * m..(k + 1) * m]) {
+                        *r -= l * v;
+                    }
+                }
             }
         }
-        inv
+        for i in (0..n).rev() {
+            let (head, tail) = x.data.split_at_mut((i + 1) * m);
+            let row = &mut head[i * m..];
+            for k in i + 1..n {
+                let u = self.lu.at(i, k);
+                if u != T::zero() {
+                    for (r, &v) in row.iter_mut().zip(&tail[(k - i - 1) * m..(k - i) * m]) {
+                        *r -= u * v;
+                    }
+                }
+            }
+            let d = self.lu.at(i, i);
+            row.iter_mut().for_each(|r| *r /= d);
+        }
+        x
+    }
+
+    /// The inverse.
+    pub(crate) fn inverse(&self) -> Mat<T> {
+        self.solve_matrix(&Mat::identity(self.lu.rows))
     }
 
     /// The determinant.

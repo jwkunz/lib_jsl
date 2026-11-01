@@ -13,10 +13,20 @@ use crate::scalar::Scalar;
 
 /// Eigenvalues in ascending order and the matching orthonormal eigenvectors as columns.
 pub(crate) fn eigh<T: Scalar>(input: &Mat<T>, uplo: UPLO) -> Result<(Vec<f64>, Mat<T>)> {
+    let (values, vectors) = eigh_impl(input, uplo, true)?;
+    Ok((values, vectors.expect("vectors requested")))
+}
+
+/// Eigenvalues only, in ascending order (skips accumulating the transformations).
+pub(crate) fn eigvalsh<T: Scalar>(input: &Mat<T>, uplo: UPLO) -> Result<Vec<f64>> {
+    Ok(eigh_impl(input, uplo, false)?.0)
+}
+
+fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Result<(Vec<f64>, Option<Mat<T>>)> {
     require_square(input.rows, input.cols)?;
     let n = input.rows;
     if n == 0 {
-        return Ok((Vec::new(), Mat::zeros(0, 0)));
+        return Ok((Vec::new(), want_vectors.then(|| Mat::zeros(0, 0))));
     }
     // Build the full Hermitian matrix from the requested triangle.
     let mut a = Mat::zeros(n, n);
@@ -67,6 +77,9 @@ pub(crate) fn eigh<T: Scalar>(input: &Mat<T>, uplo: UPLO) -> Result<(Vec<f64>, M
             *a.at_mut(k, r) = T::zero();
         }
         // Q ← Q (I − 2 v vᴴ) on columns k+1..n.
+        if !want_vectors {
+            continue;
+        }
         for row in 0..n {
             let base = row * n + k + 1;
             let s = (0..m).fold(T::zero(), |s, c| s + q.data[base + c] * v[c]).scale(2.0);
@@ -90,8 +103,13 @@ pub(crate) fn eigh<T: Scalar>(input: &Mat<T>, uplo: UPLO) -> Result<(Vec<f64>, M
             q.data[row * n + c] *= *ph;
         }
     }
+    if !want_vectors {
+        tql(&mut d, &mut e, None)?;
+        d.sort_by(f64::total_cmp);
+        return Ok((d, None));
+    }
     let mut z = Mat::<f64>::identity(n);
-    tql(&mut d, &mut e, &mut z)?;
+    tql(&mut d, &mut e, Some(&mut z))?;
     // Sort ascending and form Q D Z.
     let mut order: Vec<usize> = (0..n).collect();
     order.sort_by(|&i, &j| d[i].total_cmp(&d[j]));
@@ -106,13 +124,13 @@ pub(crate) fn eigh<T: Scalar>(input: &Mat<T>, uplo: UPLO) -> Result<(Vec<f64>, M
             *vectors.at_mut(row, out_col) = s;
         }
     }
-    Ok((values, vectors))
+    Ok((values, Some(vectors)))
 }
 
 /// Implicit QL with shifts on the symmetric tridiagonal matrix with diagonal `d` and
 /// sub-diagonal `e` (`e[i]` couples `i` and `i+1`; `e[n−1]` is unused), accumulating the
 /// rotations into the columns of `z` (Numerical Recipes `tqli`).
-fn tql(d: &mut [f64], e: &mut [f64], z: &mut Mat<f64>) -> Result<()> {
+fn tql(d: &mut [f64], e: &mut [f64], mut z: Option<&mut Mat<f64>>) -> Result<()> {
     let n = d.len();
     for l in 0..n {
         let mut iterations = 0;
@@ -157,11 +175,13 @@ fn tql(d: &mut [f64], e: &mut [f64], z: &mut Mat<f64>) -> Result<()> {
                 p = s * r;
                 d[i + 1] = g + p;
                 g = c * r - b;
-                for k in 0..n {
-                    let f = z.at(k, i + 1);
-                    let zi = z.at(k, i);
-                    *z.at_mut(k, i + 1) = s * zi + c * f;
-                    *z.at_mut(k, i) = c * zi - s * f;
+                if let Some(z) = z.as_deref_mut() {
+                    for k in 0..n {
+                        let f = z.at(k, i + 1);
+                        let zi = z.at(k, i);
+                        *z.at_mut(k, i + 1) = s * zi + c * f;
+                        *z.at_mut(k, i) = c * zi - s * f;
+                    }
                 }
             }
             if underflow {

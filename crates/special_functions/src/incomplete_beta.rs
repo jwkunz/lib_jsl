@@ -1,10 +1,13 @@
 //! Incomplete beta function.
+//!
+//! See the book entry [Incomplete gamma and beta functions and the error function](https://jwkunz.github.io/lib_jsl/book/special_functions/incomplete.html#the-incomplete-beta-function).
 
 use crate::gamma::ln_gamma;
 
 const EPS: f64 = 1e-16;
 const FPMIN: f64 = f64::MIN_POSITIVE / EPS;
 
+// ANCHOR: beta_cf
 /// Continued fraction for the incomplete beta function (modified Lentz).
 fn beta_cf(a: f64, b: f64, x: f64) -> f64 {
     let qab = a + b;
@@ -50,6 +53,7 @@ fn beta_cf(a: f64, b: f64, x: f64) -> f64 {
     }
     h
 }
+// ANCHOR_END: beta_cf
 
 /// The regularized incomplete beta function I_x(a, b) for `a, b > 0` and `0 <= x <= 1`.
 ///

@@ -1,4 +1,6 @@
 //! Error function.
+//!
+//! See the book entry [Incomplete gamma and beta functions and the error function](https://jwkunz.github.io/lib_jsl/book/special_functions/incomplete.html#the-error-function).
 
 use crate::incomplete_gamma::{incomplete_gamma, incomplete_gamma_upper};
 use std::f64::consts::PI;

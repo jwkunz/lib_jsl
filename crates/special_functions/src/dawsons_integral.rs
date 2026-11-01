@@ -1,4 +1,6 @@
 //! Dawson's integral.
+//!
+//! See the book entry [Incomplete gamma and beta functions and the error function](https://jwkunz.github.io/lib_jsl/book/special_functions/incomplete.html#dawsons-integral).
 
 use std::f64::consts::PI;
 use std::sync::OnceLock;

@@ -1,4 +1,6 @@
 //! Incomplete gamma function.
+//!
+//! See the book entry [Incomplete gamma and beta functions and the error function](https://jwkunz.github.io/lib_jsl/book/special_functions/incomplete.html#the-incomplete-gamma-function).
 
 use crate::gamma::ln_gamma;
 
@@ -25,6 +27,7 @@ fn series(a: f64, x: f64) -> f64 {
     sum * (-x + a * x.ln() - ln_gamma(a)).exp()
 }
 
+// ANCHOR: gamma_cf
 /// Continued fraction (modified Lentz) for the regularized upper function Q(a, x); `x >= a + 1`.
 fn continued_fraction(a: f64, x: f64) -> f64 {
     let mut b = x + 1.0 - a;
@@ -51,6 +54,7 @@ fn continued_fraction(a: f64, x: f64) -> f64 {
     }
     (-x + a * x.ln() - ln_gamma(a)).exp() * h
 }
+// ANCHOR_END: gamma_cf
 
 /// The regularized lower incomplete gamma function P(a, x) = γ(a, x) / Γ(a), for `a > 0`, `x >= 0`.
 ///

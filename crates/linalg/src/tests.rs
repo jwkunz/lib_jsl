@@ -266,3 +266,32 @@ fn real_schur_path_stress() {
     blocks[[4, 5]] = 1e-3;
     check(&blocks, "blocks");
 }
+
+#[test]
+fn preconditioned_svd_edge_cases() {
+    let mut rng = Lcg(11);
+    let check = |a: &Array2<f64>, label: &str| -> Array1<f64> {
+        let (m, n) = a.dim();
+        let (u, s, vt) = a.svd(true, true).unwrap();
+        let (u, vt) = (u.unwrap(), vt.unwrap());
+        assert!(identity_error(&u) < 1e-11 && identity_error(&vt) < 1e-11, "{label}: orthogonality");
+        let mut sigma = Array2::<f64>::zeros((m, n));
+        s.iter().enumerate().for_each(|(i, &v)| sigma[[i, i]] = v);
+        assert!(max_abs(&(u.dot(&sigma).dot(&vt) - a)) < 1e-11 * max_abs(a).max(1.0), "{label}: reconstruction");
+        assert!(s.windows(2).into_iter().all(|p| p[0] >= p[1]), "{label}: order");
+        s
+    };
+    check(&rng.real(150, 150), "square");
+    check(&rng.real(20, 45), "wide");
+    // Rank 10 in a 40 × 30 matrix: twenty singular values vanish.
+    let low = rng.real(40, 10).dot(&rng.real(10, 30));
+    let s = check(&low, "rank-deficient");
+    assert!(s[9] > 1e-3 && s[10] < 1e-12 * s[0], "{s}");
+    // Graded singular values 10⁰ … 10⁻¹² are found to high relative accuracy.
+    let (q1, _, q2) = rng.real(24, 24).svd(true, true).unwrap();
+    let graded: Vec<f64> = (0..24).map(|i| 10f64.powf(-12.0 * i as f64 / 23.0)).collect();
+    let a = q1.unwrap().dot(&Array2::from_diag(&Array1::from(graded.clone()))).dot(&q2.unwrap());
+    let s = check(&a, "graded");
+    let worst = s.iter().zip(&graded).fold(0.0f64, |m, (x, y)| m.max((x - y).abs() / y));
+    assert!(worst < 1e-3, "relative error {worst:e}");
+}

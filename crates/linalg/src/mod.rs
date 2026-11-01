@@ -261,12 +261,14 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
         let a = Mat::from_array(self)?;
         let rhs = vector(b)?;
         if m >= n && n > 0 {
-            let qr = qr::pivoted_qr(&a, &rhs);
+            let qr = qr::householder_pivoted(&a);
+            let mut qtb = rhs.clone();
+            qr.apply_adjoint(&mut qtb);
             let r00 = qr.r.at(0, 0).abs();
             let tolerance = r00 * f64::EPSILON * m.max(n) as f64;
             if r00 > 0.0 && (0..n).all(|i| qr.r.at(i, i).abs() > tolerance * 1e3) {
                 // Full column rank: back-substitute R z = (Qᴴ b)[..n], then undo the pivoting.
-                let mut z = qr.qtb[..n].to_vec();
+                let mut z = qtb[..n].to_vec();
                 for i in (0..n).rev() {
                     let s = (i + 1..n).fold(T::zero(), |s, k| s + qr.r.at(i, k) * z[k]);
                     z[i] = (z[i] - s) / qr.r.at(i, i);
@@ -275,16 +277,17 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
                 for (j, &p) in qr.permutation.iter().enumerate() {
                     x[p] = z[j];
                 }
-                let mut rr = Mat::<T>::zeros(n, n);
-                for i in 0..n {
-                    for j in i..n {
-                        *rr.at_mut(i, j) = qr.r.at(i, j);
-                    }
-                }
-                let mut eigen = eigh::eigvalsh(&rr.adjoint().matmul(&rr), UPLO::Lower)?;
+                // The singular values of A are those of R: the square roots of eig(RᴴR).
+                let rr = qr.upper();
+                let mut minus_rh = rr.adjoint();
+                minus_rh.data.iter_mut().for_each(|v| *v = -*v);
+                let mut gram = Mat::<T>::zeros(n, n);
+                // SAFETY: three distinct n × n buffers.
+                unsafe { dense::sub_matmul(n, n, n, minus_rh.data.as_ptr(), n, rr.data.as_ptr(), n, gram.data.as_mut_ptr(), n) };
+                let mut eigen = eigh::eigvalsh(&gram, UPLO::Lower)?;
                 eigen.reverse();
                 let singular_values = Array1::from_iter(eigen.iter().map(|&l| l.max(0.0).sqrt()));
-                let residual = (m > n).then(|| qr.qtb[n..].iter().map(|v| v.abs_sqr()).sum::<f64>());
+                let residual = (m > n).then(|| qtb[n..].iter().map(|v| v.abs_sqr()).sum::<f64>());
                 return Ok(LeastSquaresResult { solution: to_array1(x), singular_values, rank: n, residual_sum_of_squares: residual });
             }
         }

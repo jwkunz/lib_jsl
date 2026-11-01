@@ -58,26 +58,8 @@ impl<T: Scalar> Mat<T> {
         }
         t
     }
-
-    /// `self · other`.
-    pub fn matmul(&self, other: &Self) -> Self {
-        let mut out = Self::zeros(self.rows, other.cols);
-        for i in 0..self.rows {
-            for k in 0..self.cols {
-                let a = self.at(i, k);
-                if a == T::zero() {
-                    continue;
-                }
-                let row = &other.data[k * other.cols..(k + 1) * other.cols];
-                let dst = &mut out.data[i * other.cols..(i + 1) * other.cols];
-                for (d, &b) in dst.iter_mut().zip(row) {
-                    *d += a * b;
-                }
-            }
-        }
-        out
-    }
 }
+
 
 /// The block size of the blocked factorisations: large enough for the matrix-multiply kernel to
 /// run efficiently, small enough for the unblocked panel work to stay in cache.

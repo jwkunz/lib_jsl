@@ -5,8 +5,9 @@
 //! and the accumulated rotations the right singular vectors. The method is simple and highly
 //! accurate (small singular values are found to high relative accuracy).
 
-use crate::dense::Mat;
+use crate::dense::{Mat, dot_conj};
 use crate::error::{LinalgError, Result};
+use crate::qr::householder_pivoted;
 use crate::scalar::Scalar;
 
 /// A thin SVD `A = U Σ Vᴴ` with `U` of size `m × k`, `V` of size `n × k`, `k = min(m, n)` and the
@@ -27,11 +28,12 @@ fn jacobi_tall<T: Scalar>(a: &Mat<T>) -> Result<ThinSvd<T>> {
     let mut converged = false;
     for _sweep in 0..60 {
         let mut rotated = false;
+        // Squared column norms, recomputed each sweep and updated exactly through each rotation.
+        let mut norms2: Vec<f64> = cols.iter().map(|c| dot_conj(c, c).re()).collect();
         for p in 0..n {
             for q in p + 1..n {
-                let alpha: f64 = cols[p].iter().map(|x| x.abs_sqr()).sum();
-                let beta: f64 = cols[q].iter().map(|x| x.abs_sqr()).sum();
-                let gamma = cols[p].iter().zip(&cols[q]).fold(T::zero(), |s, (&x, &y)| s + x.conj() * y);
+                let (alpha, beta) = (norms2[p], norms2[q]);
+                let gamma = dot_conj(&cols[q], &cols[p]); // Σ conj(a_p) a_q
                 let g = gamma.abs();
                 if g == 0.0 || g <= tol * (alpha * beta).sqrt() {
                     continue;
@@ -45,15 +47,27 @@ fn jacobi_tall<T: Scalar>(a: &Mat<T>) -> Result<ThinSvd<T>> {
                 let t = sign / (zeta.abs() + (1.0 + zeta * zeta).sqrt());
                 let c = 1.0 / (1.0 + t * t).sqrt();
                 let s = c * t;
+                norms2[p] = alpha - t * g;
+                norms2[q] = beta + t * g;
                 let phase_conj = phase.conj();
                 for x in [&mut cols, &mut v] {
                     let (left, right) = x.split_at_mut(q);
                     let (cp, cq) = (&mut left[p], &mut right[0]);
-                    for (u, w) in cp.iter_mut().zip(cq.iter_mut()) {
-                        let wq = *w * phase_conj;
-                        let up = *u;
-                        *u = up.scale(c) - wq.scale(s);
-                        *w = up.scale(s) + wq.scale(c);
+                    if T::IS_COMPLEX {
+                        for (u, w) in cp.iter_mut().zip(cq.iter_mut()) {
+                            let wq = *w * phase_conj;
+                            let up = *u;
+                            *u = up.scale(c) - wq.scale(s);
+                            *w = up.scale(s) + wq.scale(c);
+                        }
+                    } else {
+                        // Real data: the phase φ is ±1, folded into the coefficients of w.
+                        let (s_phi, c_phi) = (s * phase.re(), c * phase.re());
+                        for (u, w) in cp.iter_mut().zip(cq.iter_mut()) {
+                            let (up, wp) = (*u, *w);
+                            *u = up.scale(c) - wp.scale(s_phi);
+                            *w = up.scale(s) + wp.scale(c_phi);
+                        }
                     }
                 }
             }
@@ -113,14 +127,32 @@ pub(crate) fn complete_columns<T: Scalar>(q: &mut Mat<T>, valid: usize) {
     }
 }
 
+/// Below this many columns the QR preconditioning costs more than it saves.
+const PRECONDITION_FROM: usize = 16;
+
 /// The thin SVD of any matrix (wide matrices are handled through their adjoint).
+///
+/// Larger matrices are first factorised as `A P = Q R` with column pivoting; one-sided Jacobi
+/// then runs on `Rᴴ`, whose columns are already close to orthogonal, so it converges in a few
+/// sweeps (the preconditioning of Drmač and Veselić). With `Rᴴ = U₁ Σ W₁ᴴ`,
+/// `A = (Q W₁) Σ (P U₁)ᴴ`.
 pub(crate) fn thin_svd<T: Scalar>(a: &Mat<T>) -> Result<ThinSvd<T>> {
-    if a.rows >= a.cols {
-        jacobi_tall(a)
-    } else {
-        let ThinSvd { u, sigma, v } = jacobi_tall(&a.adjoint())?;
-        Ok(ThinSvd { u: v, sigma, v: u })
+    if a.rows < a.cols {
+        let ThinSvd { u, sigma, v } = thin_svd(&a.adjoint())?;
+        return Ok(ThinSvd { u: v, sigma, v: u });
     }
+    let n = a.cols;
+    if n < PRECONDITION_FROM {
+        return jacobi_tall(a);
+    }
+    let qr = householder_pivoted(a);
+    let ThinSvd { u: u1, sigma, v: w1 } = jacobi_tall(&qr.upper().adjoint())?;
+    let u = qr.apply_to_top(&w1);
+    let mut v = Mat::<T>::zeros(n, n);
+    for (j, &p) in qr.permutation.iter().enumerate() {
+        v.data[p * n..(p + 1) * n].copy_from_slice(&u1.data[j * n..(j + 1) * n]);
+    }
+    Ok(ThinSvd { u, sigma, v })
 }
 
 /// Extends an `r × k` matrix with orthonormal columns to a square unitary `r × r` matrix.

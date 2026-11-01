@@ -49,7 +49,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - Dormand-Prince
 - [Midpoint](integration/newton-cotes.md#the-midpoint-rule)
 - [Sample-point helpers (grid points, panel midpoints)](integration/newton-cotes.md#implementation)
-- Monte Carlo
+- [Monte Carlo](integration/monte-carlo.md)
 - Runge-Kutta
 - [Simpson's 1/3 rule](integration/newton-cotes.md#simpsons-rules)
 - [Trapezoidal](integration/newton-cotes.md#the-trapezoid-rule)
@@ -58,7 +58,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Tanh-sinh quadrature](integration/tanh-sinh.md)
 - [Romberg integration](integration/romberg.md)
 - [Multidimensional cubature](integration/cubature.md)
-- Quasi-Monte Carlo integration
+- [Quasi-Monte Carlo integration](integration/monte-carlo.md#randomised-quasi-monte-carlo)
 - Stiff ODE solvers (BDF, Rosenbrock)
 - Boundary value problems (shooting, collocation)
 

@@ -39,3 +39,15 @@ main blockquote {
 .catalogue li {
     break-inside: avoid;
 }
+/* A row of figures side by side, laid out with a header-less table. */
+.figure-row table {
+    width: 100%;
+}
+.figure-row thead {
+    display: none;
+}
+.figure-row td {
+    padding: 0.2em;
+    border: none;
+    background: none;
+}

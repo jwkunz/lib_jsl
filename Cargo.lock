@@ -304,6 +304,7 @@ name = "lib_jsl_book_generator"
 version = "1.0.0"
 dependencies = [
  "lib_jsl_integration",
+ "lib_jsl_random",
  "lib_jsl_special_functions",
  "num-complex",
 ]

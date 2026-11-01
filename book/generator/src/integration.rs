@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    monte_carlo_figures();
     cubature_figures();
     contour_figures();
     gauss_kronrod_figures();
@@ -455,4 +456,62 @@ fn cubature_figures() {
     plot.series.push(Series::new("tensor Gauss", tensor, Style::LineMarkers, 0));
     plot.series.push(Series::new("adaptive Genz-Malik", adaptive, Style::LineMarkers, 1));
     write(CHAPTER, "cubature_singular.svg", &plot.render());
+}
+
+fn monte_carlo_figures() {
+    use lib_jsl_integration::monte_carlo_integration::monte_carlo;
+    use lib_jsl_integration::quasi_monte_carlo::{QuasiRandomSequence, quasi_monte_carlo_integration};
+    use lib_jsl_random::quasi_random::{HaltonSequence, SobolSequence};
+    use lib_jsl_random::uniform_generator::{UniformGenerator, UniformRNG};
+
+    // 256 points in the unit square: random, Sobol, Halton.
+    let n = 256;
+    let mut rng = UniformRNG::from_seed(5);
+    let random: Vec<(f64, f64)> = (0..n).map(|_| (rng.next_f64(), rng.next_f64())).collect();
+    let mut sobol = SobolSequence::new(2).unwrap();
+    let sobol_pts: Vec<(f64, f64)> = (0..n).map(|_| { let p = sobol.next_point(); (p[0], p[1]) }).collect();
+    let mut halton = HaltonSequence::new(2).unwrap();
+    let halton_pts: Vec<(f64, f64)> = (0..n).map(|_| { let p = halton.next_point(); (p[0], p[1]) }).collect();
+    for (name, pts, colour) in [("random", random, 0), ("sobol", sobol_pts, 1), ("halton", halton_pts, 2)] {
+        let title = match name { "random" => "256 pseudo-random points", "sobol" => "256 Sobol points", _ => "256 Halton points" };
+        let mut plot = Plot::new(title, "x₁", "x₂");
+        plot.x_range = Some((0.0, 1.0));
+        plot.y_range = Some((0.0, 1.0));
+        plot.series.push(Series::new("", pts, Style::Markers, colour));
+        write(CHAPTER, &format!("points_{name}.svg"), &plot.render());
+    }
+
+    // RMS error over seeds against N in five dimensions.
+    let product = |x: &[f64]| x.iter().map(|&v| 0.5 * PI * (PI * v).sin()).product::<f64>();
+    let bounds = vec![(0.0, 1.0); 5];
+    let seeds = 20u64;
+    let rms = |errors: Vec<f64>| (errors.iter().map(|e| e * e).sum::<f64>() / errors.len() as f64).sqrt();
+    let sizes: Vec<usize> = (6..=16).map(|k| 1usize << k).collect();
+    let mc: Vec<(f64, f64)> = sizes.iter().map(|&n| (n as f64, rms((0..seeds).map(|s| monte_carlo(product, &bounds, n, s).unwrap().value - 1.0).collect()))).collect();
+    let qmc = |sequence| -> Vec<(f64, f64)> { sizes.iter().map(|&n| (n as f64, rms((0..seeds).map(|s| quasi_monte_carlo_integration(product, &bounds, n, 1, sequence, s).unwrap().value - 1.0).collect()))).collect() };
+    let mut plot = Plot::new("∫ Π (π/2) sin(πxᵢ) over [0, 1]⁵: RMS error over 20 random seeds", "number of points N", "RMS error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.legend = Legend::BottomLeft;
+    let first = mc[0].1;
+    plot.series.push(Series::new("Monte Carlo", mc, Style::LineMarkers, 0));
+    plot.series.push(Series::new("randomised Sobol", qmc(QuasiRandomSequence::Sobol), Style::LineMarkers, 1));
+    plot.series.push(Series::new("randomised Halton", qmc(QuasiRandomSequence::Halton), Style::LineMarkers, 2));
+    plot.series.push(Series::new("N^(−1/2)", sizes.iter().map(|&n| (n as f64, first * (64.0 / n as f64).sqrt())).collect(), Style::Dashed, 6));
+    plot.series.push(Series::new("N^(−1)", sizes.iter().map(|&n| (n as f64, first * 64.0 / n as f64)).collect(), Style::Dashed, 5));
+    write(CHAPTER, "monte_carlo_convergence.svg", &plot.render());
+
+    // The error does not depend on the dimension, only on the variance.
+    let mut table = String::from("| dimension $d$ | $\\sigma$ | Monte Carlo error ($N = 10^5$) | standard error | randomised Halton error ($N = 10^5$) | tensor rule with 2 points per axis |\n|---:|---:|---:|---:|---:|---:|\n");
+    for d in [1usize, 5, 20, 50] {
+        // f = Π (1 + c (x_i − ½)) with c chosen so that Var f = 1/4 in every dimension; ∫ f = 1.
+        let c = (12.0 * (1.25f64.powf(1.0 / d as f64) - 1.0)).sqrt();
+        let f = move |x: &[f64]| x.iter().map(|&v| 1.0 + c * (v - 0.5)).product::<f64>();
+        let b = vec![(0.0, 1.0); d];
+        let mc = monte_carlo(f, &b, 100_000, 1).unwrap();
+        let q = quasi_monte_carlo_integration(f, &b, 100_000, 1, QuasiRandomSequence::Halton, 1).unwrap();
+        let tensor = if d <= 20 { format!("{}", 1u64 << d) } else { format!("{:.1e}", 2f64.powi(d as i32)) };
+        table.push_str(&format!("| {d} | 0.5 | {:.1e} | {:.1e} | {:.1e} | {tensor} evaluations |\n", (mc.value - 1.0).abs(), mc.standard_error, (q.value - 1.0).abs()));
+    }
+    write(CHAPTER, "monte_carlo_dimensions.md", &table);
 }

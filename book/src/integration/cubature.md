@@ -25,7 +25,7 @@ one-dimensional Gauss rule along every axis; it is simple and extremely accurate
 integrands in a few dimensions. **Adaptive cubature** with the Genz-Malik rule uses a cleverly
 symmetric set of points that grows much more slowly with the dimension, estimates its own error,
 and subdivides the box where the integrand is difficult. Beyond about ten dimensions, both give
-way to the [Monte Carlo methods](index.md#choosing-a-method) of the next entry.
+way to the [Monte Carlo methods](monte-carlo.md) of the next entry.
 
 ## History
 

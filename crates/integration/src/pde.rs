@@ -5,3 +5,4 @@
 
 pub mod finite_differences;
 pub mod finite_elements;
+pub mod spectral;

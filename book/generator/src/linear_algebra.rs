@@ -2,7 +2,7 @@
 
 use crate::svg::{Legend, Plot, Series, Style};
 use crate::write;
-use lib_jsl_linalg::{Cholesky, Inverse, LeastSquaresSvd, Solve, UPLO};
+use lib_jsl_linalg::{Cholesky, Eig, EigVals, EigValsh, Eigh, Inverse, LeastSquaresSvd, Solve, UPLO};
 use lib_jsl_linalg_reference as reference;
 use ndarray::{Array1, Array2, array};
 use std::time::Instant;
@@ -230,6 +230,114 @@ fn rank_deficient_table() {
     write(CHAPTER, "rank_deficient.md", &table);
 }
 
+/// A symmetric matrix Q diag(λ) Qᵀ with a random orthogonal Q.
+fn symmetric_with_spectrum(lambda: &[f64], seed: u64) -> Array2<f64> {
+    let n = lambda.len();
+    let q = orthonormal(reference::random_matrix(n, n, seed));
+    q.dot(&Array2::from_diag(&Array1::from(lambda.to_vec()))).dot(&q.t())
+}
+
+fn eigen_iteration_tables() {
+    use reference::power_iteration::{inverse_iteration, power_iteration, rayleigh_quotient_iteration};
+    let mut table = String::from("| spectrum of the $30 \\times 30$ matrix | power iteration | inverse iteration, shift 10.2 | Rayleigh quotient iteration |\n|---|---:|---:|---:|\n");
+    for (name, top) in [("$10, 5, \\ldots$ (ratio 0.5)", 5.0), ("$10, 9, \\ldots$ (ratio 0.9)", 9.0), ("$10, 9.9, \\ldots$ (ratio 0.99)", 9.9)] {
+        let mut lambda: Vec<f64> = (0..28).map(|i| 4.0 * i as f64 / 27.0 - 2.0).collect();
+        lambda.push(top);
+        lambda.push(10.0);
+        let a = symmetric_with_spectrum(&lambda, 21);
+        let start = Array1::from_shape_fn(30, |i| 1.0 + 0.1 * (i as f64).sin());
+        let cell = |r: Result<reference::power_iteration::EigenEstimate, &str>| match r {
+            Ok(e) => format!("{} (λ = {:.10})", e.iterations, e.value),
+            Err(_) => "no convergence in 5000".to_string(),
+        };
+        table.push_str(&format!(
+            "| {name} | {} | {} | {} |\n",
+            cell(power_iteration(&a, &start, 1e-10, 5000)),
+            cell(inverse_iteration(&a, 10.2, &start, 1e-10, 5000)),
+            cell(rayleigh_quotient_iteration(&a, &start, 1e-10, 5000))
+        ));
+    }
+    write(CHAPTER, "power_iteration.md", &table);
+
+    let mut table = String::from("| order $n$ | Jacobi sweeps | unshifted QR steps | Wilkinson-shifted QR steps | steps per eigenvalue (shifted) |\n|---:|---:|---:|---:|---:|\n");
+    for n in [10usize, 20, 40, 80] {
+        let a = reference::random_symmetric(n, 31);
+        let jac = reference::jacobi_eigenvalue::jacobi_eigen(&a, 1e-14).unwrap();
+        let unshifted = match reference::qr_algorithm::unshifted_qr(&a, 1e-12, 20_000) {
+            Ok(r) => format!("{}", r.iterations),
+            Err(_) => "> 20 000".to_string(),
+        };
+        let shifted = reference::qr_algorithm::shifted_qr(&a, 1e-14, 20_000).unwrap();
+        table.push_str(&format!("| {n} | {} | {unshifted} | {} | {:.2} |\n", jac.sweeps, shifted.iterations, shifted.iterations as f64 / n as f64));
+    }
+    write(CHAPTER, "jacobi_qr.md", &table);
+}
+
+fn eigen_accuracy_and_speed() {
+    let frob = |a: &Array2<f64>| a.iter().map(|v| v * v).sum::<f64>().sqrt();
+    let mut table = String::from("| order $n$ | symmetric: $\\|AV - V\\Lambda\\|_F / \\|A\\|_F$ | symmetric: $\\|V^{\\mathsf T}V - I\\|_F$ | general: $\\|AV - V\\Lambda\\|_F / \\|A\\|_F$ |\n|---:|---:|---:|---:|\n");
+    for n in [50usize, 200, 500] {
+        let s = reference::random_symmetric(n, 41);
+        let (w, v) = s.eigh(UPLO::Lower).unwrap();
+        let res = frob(&(s.dot(&v) - &v * &w)) / frob(&s);
+        let orth = frob(&(v.t().dot(&v) - Array2::<f64>::eye(n)));
+        let g = reference::random_matrix(n, n, 42);
+        let (wc, vc) = g.eig().unwrap();
+        let gc = g.mapv(|x| num_complex::Complex::new(x, 0.0));
+        let r = gc.dot(&vc) - &vc * &wc;
+        let resg = r.iter().map(|z| z.norm_sqr()).sum::<f64>().sqrt() / frob(&g);
+        table.push_str(&format!("| {n} | {res:.1e} | {orth:.1e} | {resg:.1e} |\n"));
+    }
+    write(CHAPTER, "eigen_accuracy.md", &table);
+
+    let mut plot = Plot::new("Time for all eigenvalues of a symmetric matrix (one core)", "order n", "seconds");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.legend = Legend::TopLeft;
+    let (mut jac, mut qr, mut prod, mut prodv, mut general) = (vec![], vec![], vec![], vec![], vec![]);
+    for n in [16usize, 32, 64, 128, 256, 512] {
+        let a = reference::random_symmetric(n, 51);
+        if n <= 128 {
+            jac.push((n as f64, time(|| { std::hint::black_box(reference::jacobi_eigenvalue::jacobi_eigen(&a, 1e-14).unwrap()); })));
+            qr.push((n as f64, time(|| { std::hint::black_box(reference::qr_algorithm::shifted_qr(&a, 1e-14, 100_000).unwrap()); })));
+        }
+        prod.push((n as f64, time(|| { std::hint::black_box(lib_jsl_linalg::EigValsh::eigvalsh(&a, UPLO::Lower).unwrap()); })));
+        prodv.push((n as f64, time(|| { std::hint::black_box(a.eigh(UPLO::Lower).unwrap()); })));
+        general.push((n as f64, time(|| { std::hint::black_box(a.eigvals().unwrap()); })));
+    }
+    plot.series.push(Series::new("reference: cyclic Jacobi (with vectors)", jac, Style::Dashed, 0));
+    plot.series.push(Series::new("reference: shifted QR on the full matrix", qr, Style::Dashed, 1));
+    plot.series.push(Series::new("production eigvalsh: tridiagonal + QL", prod, Style::LineMarkers, 2));
+    plot.series.push(Series::new("production eigh: with eigenvectors", prodv, Style::LineMarkers, 3));
+    plot.series.push(Series::new("production eigvals: general (Hessenberg + Francis QR)", general, Style::LineMarkers, 4));
+    write(CHAPTER, "eigen_speed.svg", &plot.render());
+}
+
+fn nonnormal_figure() {
+    // The Grcar matrix: −1 on the subdiagonal, 1 on the diagonal and the first three superdiagonals.
+    let n = 100;
+    let g = Array2::from_shape_fn((n, n), |(i, j)| if i == j + 1 { -1.0 } else if j >= i && j <= i + 3 { 1.0 } else { 0.0 });
+    let sym = &g + &g.t();
+    let mut plot = Plot::new("Eigenvalues of the 100 × 100 Grcar matrix and of perturbations of size 10⁻¹⁰", "Re λ", "Im λ");
+    plot.legend = Legend::TopLeft;
+    plot.x_range = Some((-1.5, 3.5));
+    plot.y_range = Some((-4.0, 5.0));
+    let mut perturbed = vec![];
+    for seed in 0..20u64 {
+        let e = reference::random_matrix(n, n, 100 + seed) * 1e-10;
+        perturbed.extend((&g + &e).eigvals().unwrap().iter().map(|z| (z.re, z.im)));
+    }
+    plot.series.push(Series::new("20 perturbations of size 10⁻¹⁰", perturbed, Style::Markers, 7));
+    plot.series.push(Series::new("computed eigenvalues of A", g.eigvals().unwrap().iter().map(|z| (z.re, z.im)).collect(), Style::Markers, 1));
+    let mut sym_pts = vec![];
+    for seed in 0..20u64 {
+        let e = reference::random_symmetric(n, 200 + seed) * 0.5e-10;
+        sym_pts.extend((&sym + &e).eigvalsh(UPLO::Lower).unwrap().iter().map(|&x| (x / 2.0, -3.0)));
+    }
+    plot.series.push(Series::new("symmetric (A + Aᵀ)/2 perturbed: eigenvalues stay put (shown at Im = −3)", sym_pts, Style::Markers, 0));
+    write(CHAPTER, "grcar.svg", &plot.render());
+}
+
 pub fn generate() {
     pivoting_tables();
     conditioning_figure();
@@ -237,5 +345,8 @@ pub fn generate() {
     orthogonality_figure();
     least_squares_figure();
     rank_deficient_table();
+    eigen_iteration_tables();
+    nonnormal_figure();
+    eigen_accuracy_and_speed();
     speed_figure();
 }

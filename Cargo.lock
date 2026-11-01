@@ -453,6 +453,7 @@ dependencies = [
  "criterion",
  "lib_jsl_linalg",
  "ndarray",
+ "num-complex",
 ]
 
 [[package]]

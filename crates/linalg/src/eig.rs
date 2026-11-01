@@ -14,6 +14,8 @@
 //!
 //! The accumulated transformation is stored transposed (`Zᵀ`), so that the rotations, which
 //! combine columns of `Z`, update contiguous rows.
+//!
+//! See the book entry [Symmetric and general eigensolvers](https://jwkunz.github.io/lib_jsl/book/linear_algebra/eigensolvers.html#general-matrices-hessenberg-reduction-and-franciss-algorithm).
 
 use crate::dense::{Mat, axpy_sub, dot_conj, require_square};
 use crate::error::{LinalgError, Result};
@@ -417,6 +419,7 @@ fn complexify(a: &Mat<f64>, pair: &[bool], zt: Option<&Mat<f64>>) -> (Mat<C>, Op
 /// The Schur form, `Zᵀ` if requested, and the balancing scale factors.
 type BalancedSchur = (Mat<C>, Option<Mat<C>>, Vec<f64>);
 
+// ANCHOR: balance
 /// Balances `a` in place by a diagonal similarity `D⁻¹ A D` (Parlett and Reinsch, 1969, as in
 /// LAPACK's `gebal`), so that each row and the matching column have similar norms; returns `D`.
 /// The scale factors are powers of two, so the eigenvalues are unchanged exactly, while the
@@ -459,6 +462,7 @@ fn balance<T: Scalar>(a: &mut Mat<T>) -> Vec<f64> {
     }
     d
 }
+// ANCHOR_END: balance
 
 /// The complex Schur form `T` (upper triangular) of the balanced matrix, `Zᵀ` if requested, and
 /// the balancing scale factors.

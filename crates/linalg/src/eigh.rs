@@ -6,6 +6,8 @@
 //!    tridiagonal matrix, accumulating rotations `Z`.
 //!
 //! The eigenvectors are the columns of `Q D Z`. Cost is about `9n³` flops with vectors.
+//!
+//! See the book entry [Symmetric and general eigensolvers](https://jwkunz.github.io/lib_jsl/book/linear_algebra/eigensolvers.html#hermitian-matrices-tridiagonalisation-and-ql).
 
 use crate::dense::{Mat, axpy_sub, dot_conj, require_square, sub_matmul};
 use crate::error::{LinalgError, Result, UPLO};
@@ -128,6 +130,7 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
     Ok((values, Some(vectors)))
 }
 
+// ANCHOR: tql
 /// Implicit QL with shifts on the symmetric tridiagonal matrix with diagonal `d` and
 /// sub-diagonal `e` (`e[i]` couples `i` and `i+1`; `e[n−1]` is unused), accumulating the
 /// rotations into the *rows* of `zt` (the transpose of the eigenvector matrix; Numerical Recipes
@@ -196,3 +199,4 @@ fn tql(d: &mut [f64], e: &mut [f64], mut zt: Option<&mut Mat<f64>>) -> Result<()
     }
     Ok(())
 }
+// ANCHOR_END: tql

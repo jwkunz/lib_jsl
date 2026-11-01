@@ -72,3 +72,6 @@ blocking and bidiagonalisation buy. `cargo bench -p lib_jsl_linalg_reference` ra
 | Determinant or inverse | `det`, `inv` (prefer solving to inverting) | [Gaussian elimination and LU](lu.md#lu-factorisation) |
 | An orthonormal basis, or a rank-revealing factorisation | Householder QR (with column pivoting) | [QR factorisation](qr.md) |
 | Overdetermined, underdetermined or rank-deficient $A\mathbf x \approx \mathbf b$ | `least_squares` | [Linear least squares](least-squares.md) |
+| All eigenvalues (and vectors) of a symmetric or Hermitian matrix | `eigh`, `eigvalsh` | [Symmetric and general eigensolvers](eigensolvers.md) |
+| All eigenvalues (and vectors) of a general matrix | `eig`, `eigvals` | [Symmetric and general eigensolvers](eigensolvers.md#general-matrices-hessenberg-reduction-and-franciss-algorithm) |
+| One eigenpair, near a known value | inverse or Rayleigh quotient iteration | [Eigenvalue algorithms](eigen-iterations.md) |

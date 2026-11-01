@@ -65,6 +65,8 @@
     - [Cholesky factorisation](linear_algebra/cholesky.md)
     - [QR factorisation](linear_algebra/qr.md)
     - [Linear least squares](linear_algebra/least-squares.md)
+    - [Eigenvalue algorithms: power iteration, Jacobi and the QR algorithm](linear_algebra/eigen-iterations.md)
+    - [Symmetric and general eigensolvers](linear_algebra/eigensolvers.md)
 
 ---
 

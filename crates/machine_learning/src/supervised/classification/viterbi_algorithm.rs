@@ -1,5 +1,6 @@
-//! The Viterbi algorithm and hidden Markov models.
+//! The Viterbi algorithm and hidden Markov models, with Baum-Welch training.
 
+use crate::common::MlRng;
 use lib_jsl_core::{ErrorsJSL, R2D};
 
 /// The most likely state path through a trellis, by dynamic programming in log space.
@@ -139,6 +140,175 @@ impl HiddenMarkovModel {
     }
 }
 
+/// The outcome of Baum-Welch training.
+#[derive(Debug, Clone)]
+pub struct BaumWelchResult {
+    pub model: HiddenMarkovModel,
+    /// Total log-likelihood of the training sequences after each iteration (non-decreasing).
+    pub log_likelihood: Vec<f64>,
+    pub converged: bool,
+}
+
+impl HiddenMarkovModel {
+    pub fn initial(&self) -> &[f64] {
+        &self.initial
+    }
+
+    pub fn transition(&self) -> &R2D {
+        &self.transition
+    }
+
+    pub fn emission(&self) -> &R2D {
+        &self.emission
+    }
+
+    /// A random model with `states` states and `symbols` symbols (rows drawn uniformly from the
+    /// simplex and kept away from zero), as a starting point for [`HiddenMarkovModel::baum_welch`].
+    pub fn random(states: usize, symbols: usize, seed: u64) -> Result<Self, ErrorsJSL> {
+        if states == 0 || symbols == 0 {
+            return Err(ErrorsJSL::InvalidInputRange("Need at least one state and one symbol."));
+        }
+        let mut rng = MlRng::new(seed);
+        let mut row = |k: usize| {
+            let v: Vec<f64> = (0..k).map(|_| 0.5 + rng.uniform()).collect();
+            let total: f64 = v.iter().sum();
+            v.into_iter().map(|p| p / total).collect::<Vec<f64>>()
+        };
+        let initial = row(states);
+        let transition = R2D::from_shape_vec((states, states), (0..states).flat_map(|_| row(states)).collect()).expect("shape");
+        let emission = R2D::from_shape_vec((states, symbols), (0..states).flat_map(|_| row(symbols)).collect()).expect("shape");
+        HiddenMarkovModel::new(initial, transition, emission)
+    }
+
+    /// Samples a hidden state path and its observations of the given length.
+    pub fn sample(&self, steps: usize, seed: u64) -> (Vec<usize>, Vec<usize>) {
+        let mut rng = MlRng::new(seed);
+        let mut draw = |p: &mut dyn Iterator<Item = f64>| {
+            let u = rng.uniform();
+            let mut acc = 0.0;
+            let mut last = 0;
+            for (i, pi) in p.enumerate() {
+                acc += pi;
+                last = i;
+                if u < acc {
+                    return i;
+                }
+            }
+            last
+        };
+        let (mut states, mut symbols) = (Vec::with_capacity(steps), Vec::with_capacity(steps));
+        for t in 0..steps {
+            let s = if t == 0 { draw(&mut self.initial.iter().copied()) } else { draw(&mut self.transition.row(states[t - 1]).iter().copied()) };
+            states.push(s);
+            symbols.push(draw(&mut self.emission.row(s).iter().copied()));
+        }
+        (states, symbols)
+    }
+
+    /// Scaled forward-backward pass: returns `α̂`, `β̂` (rescaled per step) and the scale factors
+    /// `c_t`, with `log P(O) = Σ log c_t`.
+    #[allow(clippy::type_complexity, clippy::needless_range_loop)]
+    fn scaled_forward_backward(&self, o: &[usize]) -> (Vec<Vec<f64>>, Vec<Vec<f64>>, Vec<f64>) {
+        let (n, steps) = (self.states(), o.len());
+        let mut alpha = vec![vec![0.0; n]; steps];
+        let mut scale = vec![0.0; steps];
+        for s in 0..n {
+            alpha[0][s] = self.initial[s] * self.emission[[s, o[0]]];
+        }
+        for t in 0..steps {
+            if t > 0 {
+                for to in 0..n {
+                    alpha[t][to] = (0..n).map(|f| alpha[t - 1][f] * self.transition[[f, to]]).sum::<f64>() * self.emission[[to, o[t]]];
+                }
+            }
+            scale[t] = alpha[t].iter().sum::<f64>();
+            let c = if scale[t] > 0.0 { scale[t] } else { 1.0 };
+            alpha[t].iter_mut().for_each(|a| *a /= c);
+        }
+        let mut beta = vec![vec![1.0; n]; steps];
+        for t in (0..steps - 1).rev() {
+            let c = if scale[t + 1] > 0.0 { scale[t + 1] } else { 1.0 };
+            for f in 0..n {
+                beta[t][f] = (0..n).map(|to| self.transition[[f, to]] * self.emission[[to, o[t + 1]]] * beta[t + 1][to]).sum::<f64>() / c;
+            }
+        }
+        (alpha, beta, scale)
+    }
+
+    /// Fits the model to observation sequences by the Baum-Welch (expectation-maximisation)
+    /// algorithm, starting from `self`. Each iteration runs a scaled forward-backward pass per
+    /// sequence, accumulates expected transition and emission counts, and re-estimates the
+    /// parameters; the likelihood never decreases. Stops when the log-likelihood improves by less
+    /// than `tolerance` (relative) or after `max_iterations`. EM finds a local optimum, so several
+    /// random starts ([`HiddenMarkovModel::random`]) may be worth trying.
+    #[allow(clippy::needless_range_loop)]
+    pub fn baum_welch(&self, sequences: &[Vec<usize>], max_iterations: usize, tolerance: f64) -> Result<BaumWelchResult, ErrorsJSL> {
+        if sequences.is_empty() {
+            return Err(ErrorsJSL::InvalidInputRange("Need at least one training sequence."));
+        }
+        for o in sequences {
+            self.check(o)?;
+        }
+        let (n, m) = (self.states(), self.emission.ncols());
+        let mut model = self.clone();
+        let mut history = Vec::new();
+        let mut converged = false;
+        for _ in 0..max_iterations {
+            let mut initial = vec![0.0; n];
+            let mut transitions = R2D::zeros((n, n));
+            let mut emissions = R2D::zeros((n, m));
+            let mut log_likelihood = 0.0;
+            for o in sequences {
+                let (alpha, beta, scale) = model.scaled_forward_backward(o);
+                if scale.iter().any(|&c| c <= 0.0) {
+                    return Err(ErrorsJSL::RuntimeError("A training sequence has zero probability under the model."));
+                }
+                log_likelihood += scale.iter().map(|c| c.ln()).sum::<f64>();
+                for t in 0..o.len() {
+                    // γ_t(s) = α̂_t(s) β̂_t(s) (already normalised by the scaling).
+                    for s in 0..n {
+                        let gamma = alpha[t][s] * beta[t][s];
+                        if t == 0 {
+                            initial[s] += gamma;
+                        }
+                        emissions[[s, o[t]]] += gamma;
+                    }
+                    if t + 1 < o.len() {
+                        for f in 0..n {
+                            for to in 0..n {
+                                transitions[[f, to]] += alpha[t][f] * model.transition[[f, to]] * model.emission[[to, o[t + 1]]] * beta[t + 1][to] / scale[t + 1];
+                            }
+                        }
+                    }
+                }
+            }
+            let improved = history.last().is_none_or(|&last: &f64| log_likelihood - last > tolerance * last.abs().max(1.0));
+            history.push(log_likelihood);
+            // M-step: normalise the expected counts (rows with no mass keep their old values).
+            let total: f64 = initial.iter().sum();
+            let new_initial: Vec<f64> = initial.iter().map(|v| v / total).collect();
+            let normalise = |counts: &R2D, old: &R2D| {
+                let mut out = counts.clone();
+                for (r, mut row) in out.rows_mut().into_iter().enumerate() {
+                    let s: f64 = row.sum();
+                    if s > 0.0 {
+                        row.mapv_inplace(|v| v / s);
+                    } else {
+                        row.assign(&old.row(r));
+                    }
+                }
+                out
+            };
+            model = HiddenMarkovModel { initial: new_initial, transition: normalise(&transitions, &model.transition), emission: normalise(&emissions, &model.emission) };
+            if !improved {
+                converged = true;
+                break;
+            }
+        }
+        Ok(BaumWelchResult { model, log_likelihood: history, converged })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -204,5 +374,33 @@ mod tests {
         assert!(HiddenMarkovModel::new(vec![1.0], arr2(&[[0.5, 0.5]]), arr2(&[[1.0]])).is_err());
         // The generic trellis function handles a degenerate empty input.
         assert_eq!(viterbi_path(&[], 3, |_, _| 0.0, |_, _| 0.0), (vec![], 0.0));
+    }
+
+    #[test]
+    fn baum_welch_recovers_a_generating_model() {
+        let truth = HiddenMarkovModel::new(vec![0.8, 0.2], arr2(&[[0.9, 0.1], [0.2, 0.8]]), arr2(&[[0.7, 0.2, 0.1], [0.05, 0.25, 0.7]])).unwrap();
+        let sequences: Vec<Vec<usize>> = (0..20).map(|k| truth.sample(500, k).1).collect();
+        let start = HiddenMarkovModel::random(2, 3, 11).unwrap();
+        let fit = start.baum_welch(&sequences, 500, 1e-10).unwrap();
+        assert!(fit.converged);
+        // EM never decreases the likelihood.
+        assert!(fit.log_likelihood.windows(2).all(|w| w[1] >= w[0] - 1e-6), "{:?}", &fit.log_likelihood[..5]);
+        // Match the learned states to the true ones (EM may swap labels).
+        let m = &fit.model;
+        let swap = m.emission()[[0, 2]] > m.emission()[[1, 2]];
+        let perm = |s: usize| if swap { 1 - s } else { s };
+        for f in 0..2 {
+            for t in 0..2 {
+                assert!((m.transition()[[perm(f), perm(t)]] - truth.transition()[[f, t]]).abs() < 0.03, "transition {f}->{t}");
+            }
+            for o in 0..3 {
+                assert!((m.emission()[[perm(f), o]] - truth.emission()[[f, o]]).abs() < 0.03, "emission {f}:{o}");
+            }
+        }
+        // The fitted model explains the data at least as well as the truth (it is the MLE).
+        let total = |h: &HiddenMarkovModel| sequences.iter().map(|o| h.log_likelihood(o).unwrap()).sum::<f64>();
+        assert!(total(m) >= total(&truth) - 1e-6);
+        assert!((total(m) - fit.log_likelihood.last().unwrap()).abs() < 1.0);
+        assert!(start.baum_welch(&[], 5, 1e-6).is_err() && start.baum_welch(&[vec![5]], 5, 1e-6).is_err());
     }
 }

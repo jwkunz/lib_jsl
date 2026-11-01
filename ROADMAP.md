@@ -484,7 +484,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [ ] Cross-validation and grid search
 
 ## Sequence models
-[ ] HMM training (Baum-Welch)
+[x] HMM training (Baum-Welch)
 
 ## Demonstrations
 [x] Clustering

@@ -25,6 +25,7 @@
     - [Spectral methods](integration/spectral-methods.md)
 - [Interpolation](interpolation/index.md)
     - [Polynomial interpolation](interpolation/polynomial.md)
+    - [Piecewise and spline interpolation](interpolation/splines.md)
 
 ---
 

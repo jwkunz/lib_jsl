@@ -78,12 +78,12 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 #### 1D
 
-- Linear
-- Natural cubic spline
+- [Linear](interpolation/splines.md#linear-interpolation)
+- [Natural cubic spline](interpolation/splines.md#cubic-splines)
 - [Polynomial](interpolation/polynomial.md#newtons-divided-differences)
-- PCHIP
-- Akima
-- Cubic basis
+- [PCHIP](interpolation/splines.md#cubic-hermite-interpolation)
+- [Akima](interpolation/splines.md#cubic-hermite-interpolation)
+- [Cubic basis (Catmull-Rom)](interpolation/splines.md#cubic-hermite-interpolation)
 - AAA
 - Prony's method
 - Padé approximants

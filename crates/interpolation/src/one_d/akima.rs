@@ -1,4 +1,6 @@
 //! Akima interpolation: a locally determined piecewise cubic that avoids the wiggles of a global spline.
+//!
+//! See the book entry [Piecewise and spline interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/splines.html).
 
 use super::hermite::{PiecewiseHermite, secants};
 use lib_jsl_core::*;

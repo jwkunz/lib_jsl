@@ -2,6 +2,8 @@
 //!
 //! The interpolant is monotone wherever the data are monotone and never overshoots the data, at
 //! the price of only first-derivative continuity.
+//!
+//! See the book entry [Piecewise and spline interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/splines.html).
 
 use super::hermite::{PiecewiseHermite, secants};
 use lib_jsl_core::*;

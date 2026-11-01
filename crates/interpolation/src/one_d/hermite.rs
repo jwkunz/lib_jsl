@@ -1,4 +1,6 @@
 //! Shared piecewise cubic Hermite machinery used by PCHIP, Akima and the cubic basis interpolators.
+//!
+//! See the book entry [Piecewise and spline interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/splines.html).
 
 use crate::interpolation_trait::InterpolationTrait;
 use lib_jsl_core::*;

@@ -2,6 +2,8 @@
 //!
 //! Each interval is a cubic Hermite segment whose node slopes come from a tension-scaled central
 //! difference of the neighbouring points. With `tension = 0` this is the Catmull-Rom spline.
+//!
+//! See the book entry [Piecewise and spline interpolation](https://jwkunz.github.io/lib_jsl/book/interpolation/splines.html).
 
 use super::hermite::PiecewiseHermite;
 use lib_jsl_core::*;

@@ -64,5 +64,51 @@ fn polynomial_figures() {
 }
 
 pub fn generate() {
+    spline_figures();
     polynomial_figures();
+}
+
+fn spline_figures() {
+    use lib_jsl_interpolation::one_d::akima::akima;
+    use lib_jsl_interpolation::one_d::cubic_basis::cubic_basis;
+    use lib_jsl_interpolation::one_d::linear_interpolator::LinearInterpolator;
+    use lib_jsl_interpolation::one_d::natural_cubic_spline_interpolator::NaturalCubicSplineInterpolator;
+    use lib_jsl_interpolation::one_d::pchip::pchip;
+    // Akima's (1970) test data: flat, then a steep rise.
+    let xs = R1D::from_vec(vec![0.0, 2.0, 3.0, 5.0, 6.0, 8.0, 9.0, 11.0, 12.0, 14.0, 15.0]);
+    let ys = R1D::from_vec(vec![10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.5, 15.0, 50.0, 60.0, 85.0]);
+    let grid: Vec<f64> = (0..=600).map(|i| 15.0 * i as f64 / 600.0).collect();
+    let mut plot = Plot::new("Akima's data: a global spline overshoots, local methods do not", "x", "y");
+    plot.legend = Legend::TopLeft;
+    plot.y_range = Some((0.0, 90.0));
+    let mut spline = NaturalCubicSplineInterpolator::new(xs.view(), ys.view()).unwrap();
+    plot.series.push(Series::new("natural cubic spline", grid.iter().map(|&x| (x, spline.interpolate_at(x).unwrap())).collect(), Style::Line, 0));
+    let mut p = pchip(xs.view(), ys.view()).unwrap();
+    plot.series.push(Series::new("PCHIP", grid.iter().map(|&x| (x, p.interpolate_at(x).unwrap())).collect(), Style::Line, 1));
+    let mut a = akima(xs.view(), ys.view()).unwrap();
+    plot.series.push(Series::new("Akima", grid.iter().map(|&x| (x, a.interpolate_at(x).unwrap())).collect(), Style::Line, 2));
+    plot.series.push(Series::new("data", xs.iter().zip(ys.iter()).map(|(&x, &y)| (x, y)).collect(), Style::Markers, 6));
+    write(CHAPTER, "akima_data.svg", &plot.render());
+
+    // Convergence on e^x over [0, 1], where f'' does not vanish at the ends.
+    let mut table = String::from("| points | linear | natural spline | natural spline, middle half only | PCHIP | Akima | Catmull-Rom |\n|---:|---:|---:|---:|---:|---:|---:|\n");
+    for n in [6usize, 11, 21, 41, 81] {
+        let x = R1D::from_vec((0..n).map(|i| i as f64 / (n - 1) as f64).collect());
+        let y = R1D::from_vec(x.iter().map(|v| v.exp()).collect());
+        let fine: Vec<f64> = (0..=4000).map(|i| i as f64 / 4000.0).collect();
+        let err = |f: &mut dyn FnMut(f64) -> f64, lo: f64, hi: f64| fine.iter().filter(|&&t| t >= lo && t <= hi).map(|&t| (f(t) - t.exp()).abs()).fold(0.0, f64::max);
+        let mut lin = LinearInterpolator::new(x.view(), y.view()).unwrap();
+        let mut spl = NaturalCubicSplineInterpolator::new(x.view(), y.view()).unwrap();
+        let mut pc = pchip(x.view(), y.view()).unwrap();
+        let mut ak = akima(x.view(), y.view()).unwrap();
+        let mut cr = cubic_basis(x.view(), y.view(), 0.0).unwrap();
+        let e_lin = err(&mut |t| lin.interpolate_at(t).unwrap(), 0.0, 1.0);
+        let e_spl = err(&mut |t| spl.interpolate_at(t).unwrap(), 0.0, 1.0);
+        let e_mid = err(&mut |t| spl.interpolate_at(t).unwrap(), 0.25, 0.75);
+        let e_pc = err(&mut |t| pc.interpolate_at(t).unwrap(), 0.0, 1.0);
+        let e_ak = err(&mut |t| ak.interpolate_at(t).unwrap(), 0.0, 1.0);
+        let e_cr = err(&mut |t| cr.interpolate_at(t).unwrap(), 0.0, 1.0);
+        table.push_str(&format!("| {n} | {e_lin:.1e} | {e_spl:.1e} | {e_mid:.1e} | {e_pc:.1e} | {e_ak:.1e} | {e_cr:.1e} |\n"));
+    }
+    write(CHAPTER, "spline_convergence.md", &table);
 }

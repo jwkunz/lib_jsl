@@ -174,7 +174,8 @@ fn trigonometric_figures() {
     let grid: Vec<f64> = (0..=600).map(|i| i as f64 / 600.0).collect();
     let mut plot = Plot::new("Trigonometric interpolation from 16 samples on [0, 1)", "x", "y");
     plot.legend = Legend::BottomLeft;
-    let cases: [(&str, &dyn Fn(f64) -> f64, usize); 2] = [
+    type Case<'a> = (&'a str, &'a dyn Fn(f64) -> f64, usize);
+    let cases: [Case; 2] = [
         ("periodic: exp(sin 2πx)", &|x: f64| (2.0 * PI * x).sin().exp(), 0),
         ("not periodic: x", &|x: f64| x, 1),
     ];

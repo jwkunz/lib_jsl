@@ -83,18 +83,12 @@ mod test{
         let mut dut = Histogram::new(0.0, 10.0, 10);
         let n_samples = 1_000_000;
         gaussian_distribution_box_muller_vec(n_samples,&mut rng, 5.0, 1.0).iter().for_each(|&x| {let _ = dut.count(x);});
-        let golden = vec![        2.7999944000112e-5,
-        0.001378997242005516,
-        0.021566956866086267,
-        0.13605772788454423,
-        0.3408473183053634,
-        0.3416533166933666,
-        0.13587972824054353,
-        0.021267957464085073,
-        0.00127999744000512,
-        3.999992000016e-5];
+        // The probabilities of N(5, 1) falling in each unit bin (Φ(k − 4) − Φ(k − 5)); the
+        // sampling error with 10⁶ samples is below 5e-4 per bin.
+        let expected = [3.17e-5, 1.3499e-3, 2.1400e-2, 1.35905e-1, 3.41345e-1, 3.41345e-1, 1.35905e-1, 2.1400e-2, 1.3499e-3, 3.17e-5];
         let counts_norm = dut.get_counts_normalized().unwrap();
-        assert_eq!(golden,counts_norm);
+        assert!(counts_norm.iter().zip(expected).all(|(c, e)| (c - e).abs() < 1e-3), "{counts_norm:?}");
+        assert!((counts_norm.iter().sum::<f64>() - 1.0).abs() < 1e-4);
         dbg!(_ = dut.get_counts_normalized_paired());
     }   
 }

@@ -167,7 +167,7 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Costas loop
 
 ### Multirate and radar
-[ ] CIC filters
+[x] CIC filters
 [ ] Half-band filters
 [ ] Pulse compression (matched filtering, chirps)
 

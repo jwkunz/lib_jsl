@@ -78,6 +78,7 @@ pub mod discrete {
     }
 
     pub mod resampling {
+        pub mod cic;
         pub mod polyphase_arbitrary_resampling;
         pub mod polyphase_integer_resampling;
     }

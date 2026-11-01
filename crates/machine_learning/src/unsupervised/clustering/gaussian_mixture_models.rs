@@ -4,7 +4,7 @@ use crate::common::{Clusterer, argmax, check_features};
 use crate::unsupervised::clustering::k_means::KMeans;
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR2D};
 use ndarray::Array2;
-use ndarray_linalg::{Cholesky, Diag, SolveTriangular, UPLO};
+use lib_jsl_linalg::{Cholesky, Diag, SolveTriangular, UPLO};
 
 /// The shape of each component's covariance matrix.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -4,7 +4,7 @@ use crate::conventions::C64;
 use crate::linalg::{check_hermitian, hermitian_transpose};
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::{Factorize, Solve};
+use lib_jsl_linalg::{Factorize, Solve};
 
 /// The weights minimising the output power `wᴴ R w` subject to the linear constraints
 /// `wᴴ c_k = f_k`: the beamformer's response to each constraint vector `c_k` (a column of `C`,

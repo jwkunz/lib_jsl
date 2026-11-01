@@ -3,7 +3,7 @@
 use super::Interpolation2D;
 use lib_jsl_core::*;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::Solve;
+use lib_jsl_linalg::Solve;
 
 /// Radial kernel `φ(r)`; `epsilon` is the shape parameter where one is used.
 #[derive(Debug, Clone, Copy, PartialEq)]

@@ -3,7 +3,7 @@
 use crate::common::{Regressor, check_xy};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
 use ndarray::{Array1, Array2, Axis};
-use ndarray_linalg::LeastSquaresSvd;
+use lib_jsl_linalg::LeastSquaresSvd;
 
 /// `y ≈ X w + b`, fitted by minimum-norm least squares through the SVD, so rank-deficient designs
 /// (collinear features, more features than samples) are handled gracefully.

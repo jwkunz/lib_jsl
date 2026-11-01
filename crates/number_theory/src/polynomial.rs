@@ -1,5 +1,5 @@
 use ndarray::{Array1, Array2};
-use ndarray_linalg::Eig;
+use lib_jsl_linalg::Eig;
 use num_complex::Complex;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};

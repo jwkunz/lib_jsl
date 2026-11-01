@@ -24,6 +24,3 @@ pub mod preprocessing;
 pub mod supervised;
 pub mod unsupervised;
 
-// ndarray is built with BLAS support; referencing ndarray-linalg makes sure the BLAS/LAPACK
-// libraries it links in are always pulled into dependents.
-use ndarray_linalg as _;

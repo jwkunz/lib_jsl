@@ -3,7 +3,7 @@
 use crate::common::{Classifier, argmax, check_features, check_xy, class_count};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR2D};
 use ndarray::Array2;
-use ndarray_linalg::{Cholesky, Diag, Eigh, SolveTriangular, UPLO};
+use lib_jsl_linalg::{Cholesky, Diag, Eigh, SolveTriangular, UPLO};
 
 /// Fisher's linear discriminant analysis: a *supervised* projection that maximises the ratio of
 /// between-class to within-class scatter, so classes are pulled apart while each is kept compact.

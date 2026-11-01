@@ -41,7 +41,11 @@ pub fn normalize(weights: &Array1<C64>) -> Result<Array1<C64>, ErrorsJSL> {
     if norm.is_nan() || norm <= 0.0 {
         return Err(ErrorsJSL::InvalidInputRange("Cannot normalise a zero weight vector."));
     }
-    let big = weights.iter().copied().fold(C64::new(0.0, 0.0), |m, v| if v.norm() > m.norm() { v } else { m });
+    // The reference element is the first whose magnitude is within a relative 1e-9 of the
+    // largest, so equal-magnitude weights (steering vectors) get a phase reference that does not
+    // depend on rounding noise.
+    let largest = weights.iter().fold(0.0f64, |m, v| m.max(v.norm()));
+    let big = weights.iter().copied().find(|v| v.norm() >= largest * (1.0 - 1e-9)).expect("non-zero weights");
     let phase = big.conj() / big.norm();
     Ok(weights.mapv(|v| v * phase / norm))
 }

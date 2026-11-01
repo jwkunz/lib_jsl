@@ -3,7 +3,7 @@
 use crate::common::{Clusterer, check_features, pairwise_distances};
 use crate::unsupervised::clustering::k_means::KMeans;
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
-use ndarray_linalg::{Eigh, UPLO};
+use lib_jsl_linalg::{Eigh, UPLO};
 
 /// How the similarity graph between points is built.
 #[derive(Debug, Clone, Copy, PartialEq)]

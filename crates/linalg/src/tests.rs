@@ -55,6 +55,10 @@ fn lu_solves_inverts_and_computes_determinants() {
         let xc = ac.solve(&bc).unwrap();
         assert!((ac.dot(&xc) - &bc).iter().all(|v| v.norm() < 1e-10));
         // A factorisation is reusable.
+        let xt = ac.solve_t(&bc).unwrap();
+        assert!((ac.t().dot(&xt) - &bc).iter().all(|v| v.norm() < 1e-10));
+        let xh = ac.solve_h_into(bc.clone()).unwrap();
+        assert!((ac.t().mapv(|v| v.conj()).dot(&xh) - &bc).iter().all(|v| v.norm() < 1e-10));
         let lu = ac.factorize().unwrap();
         assert!((lu.solve(&bc).unwrap() - &xc).iter().all(|v| v.norm() < 1e-12));
     }

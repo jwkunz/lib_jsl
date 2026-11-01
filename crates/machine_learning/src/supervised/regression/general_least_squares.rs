@@ -4,7 +4,7 @@ use super::least_squares::with_ones;
 use crate::common::{Regressor, check_xy};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
 use ndarray::Array1;
-use ndarray_linalg::{Cholesky, LeastSquaresSvd, SolveTriangular, UPLO};
+use lib_jsl_linalg::{Cholesky, LeastSquaresSvd, SolveTriangular, UPLO};
 
 /// Least squares with a known error structure: minimise `(y - Xw)ᵀ Σ⁻¹ (y - Xw)` where `Σ` is the
 /// covariance of the errors (generalised least squares), or the special case of independent errors
@@ -57,8 +57,8 @@ impl Regressor for GeneralLeastSquares {
                 return Err(ErrorsJSL::IncompatibleArraySizes((cov.nrows(), n)));
             }
             let l = cov.cholesky(UPLO::Lower).map_err(|_| ErrorsJSL::InvalidInputRange("The covariance must be symmetric positive definite."))?;
-            let wd = l.solve_triangular(UPLO::Lower, ndarray_linalg::Diag::NonUnit, &design).map_err(|_| ErrorsJSL::RuntimeError("Whitening failed."))?;
-            let wy = l.solve_triangular(UPLO::Lower, ndarray_linalg::Diag::NonUnit, &y.to_owned()).map_err(|_| ErrorsJSL::RuntimeError("Whitening failed."))?;
+            let wd = l.solve_triangular(UPLO::Lower, lib_jsl_linalg::Diag::NonUnit, &design).map_err(|_| ErrorsJSL::RuntimeError("Whitening failed."))?;
+            let wy = l.solve_triangular(UPLO::Lower, lib_jsl_linalg::Diag::NonUnit, &y.to_owned()).map_err(|_| ErrorsJSL::RuntimeError("Whitening failed."))?;
             (wd, wy)
         } else {
             let w = self.weights_per_sample.as_ref().ok_or(ErrorsJSL::Misconfiguration("No error model was given."))?;

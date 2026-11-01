@@ -3,7 +3,7 @@
 use crate::conventions::C64;
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::{Eigh, UPLO};
+use lib_jsl_linalg::{Eigh, UPLO};
 
 /// `‖R v - λ v‖` summed over the eigenpairs.
 fn residual(r: &Array2<C64>, vals: &[f64], vecs: &Array2<C64>) -> f64 {
@@ -15,8 +15,7 @@ fn residual(r: &Array2<C64>, vals: &[f64], vecs: &Array2<C64>) -> f64 {
 }
 
 /// Eigen-decomposition of a Hermitian matrix: eigenvalues in *descending* order and the matching
-/// orthonormal eigenvectors as columns. The result is verified (`R v = λ v`); some LAPACK builds
-/// return conjugated vectors through `ndarray-linalg`, which is detected and corrected.
+/// orthonormal eigenvectors as columns, verified against `R v = λ v`.
 pub(crate) fn hermitian_eigen(r: &Array2<C64>) -> Result<(Vec<f64>, Array2<C64>), ErrorsJSL> {
     let n = r.nrows();
     if r.ncols() != n || n == 0 {
@@ -25,13 +24,10 @@ pub(crate) fn hermitian_eigen(r: &Array2<C64>) -> Result<(Vec<f64>, Array2<C64>)
     let (vals, vecs) = r.eigh(UPLO::Lower).map_err(|_| ErrorsJSL::RuntimeError("Hermitian eigendecomposition failed."))?;
     let order: Vec<usize> = (0..n).rev().collect();
     let sorted: Vec<f64> = order.iter().map(|&i| vals[i]).collect();
-    let mut vectors = Array2::from_shape_fn((n, n), |(i, c)| vecs[[i, order[c]]]);
+    let vectors = Array2::from_shape_fn((n, n), |(i, c)| vecs[[i, order[c]]]);
     let scale = sorted.iter().fold(0.0f64, |m, v| m.max(v.abs())).max(1e-300);
     if residual(r, &sorted, &vectors) > 1e-8 * scale * n as f64 {
-        vectors.mapv_inplace(|v| v.conj());
-        if residual(r, &sorted, &vectors) > 1e-8 * scale * n as f64 {
-            return Err(ErrorsJSL::RuntimeError("The eigendecomposition did not satisfy R v = λ v."));
-        }
+        return Err(ErrorsJSL::RuntimeError("The eigendecomposition did not satisfy R v = λ v."));
     }
     Ok((sorted, vectors))
 }

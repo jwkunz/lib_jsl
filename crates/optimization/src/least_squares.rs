@@ -10,7 +10,7 @@
 use crate::optimization_traits::MinimizationControls;
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::{Inverse, Solve};
+use lib_jsl_linalg::{Inverse, Solve};
 
 /// The outcome of a least-squares solve.
 #[derive(Debug, Clone)]

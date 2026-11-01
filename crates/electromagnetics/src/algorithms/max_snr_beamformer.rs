@@ -5,7 +5,7 @@ use crate::conventions::C64;
 use crate::linalg::{check_hermitian, hermitian_eigen, hermitian_transpose};
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::{Cholesky, Diag, SolveTriangular, UPLO};
+use lib_jsl_linalg::{Cholesky, Diag, SolveTriangular, UPLO};
 
 /// The weights maximising `wᴴ R_s w / wᴴ R_n w`: the dominant generalised eigenvector of
 /// `R_s w = λ R_n w`, returned (unit norm) with the achieved SNR `λ`.

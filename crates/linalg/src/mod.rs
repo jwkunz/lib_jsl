@@ -43,6 +43,18 @@ pub trait Solve<T> {
     fn solve_into(&self, b: Array1<T>) -> Result<Array1<T>> {
         self.solve(&b)
     }
+    /// Solves `Aᵀ x = b` (transpose, without conjugation).
+    fn solve_t<S: Data<Elem = T>>(&self, b: &ArrayBase<S, Ix1>) -> Result<Array1<T>>;
+    /// As [`Solve::solve_t`], consuming the right-hand side.
+    fn solve_t_into(&self, b: Array1<T>) -> Result<Array1<T>> {
+        self.solve_t(&b)
+    }
+    /// Solves `Aᴴ x = b` (conjugate transpose).
+    fn solve_h<S: Data<Elem = T>>(&self, b: &ArrayBase<S, Ix1>) -> Result<Array1<T>>;
+    /// As [`Solve::solve_h`], consuming the right-hand side.
+    fn solve_h_into(&self, b: Array1<T>) -> Result<Array1<T>> {
+        self.solve_h(&b)
+    }
 }
 
 /// The inverse of a square matrix.
@@ -127,6 +139,12 @@ impl<T: Scalar, S: Data<Elem = T>> Solve<T> for ArrayBase<S, Ix2> {
     fn solve<S2: Data<Elem = T>>(&self, b: &ArrayBase<S2, Ix1>) -> Result<Array1<T>> {
         let lu = self.factorize()?;
         lu.solve(b)
+    }
+    fn solve_t<S2: Data<Elem = T>>(&self, b: &ArrayBase<S2, Ix1>) -> Result<Array1<T>> {
+        self.t().solve(b)
+    }
+    fn solve_h<S2: Data<Elem = T>>(&self, b: &ArrayBase<S2, Ix1>) -> Result<Array1<T>> {
+        self.t().mapv(|v| v.conj()).solve(b)
     }
 }
 

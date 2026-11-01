@@ -2,7 +2,7 @@
 
 use lib_jsl_core::*;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::Solve;
+use lib_jsl_linalg::Solve;
 
 /// The `[L/M]` Padé approximant `P(x)/Q(x)` with `deg P <= L`, `deg Q <= M`, `Q(0) = 1`, whose
 /// Taylor series matches the given one through order `L + M`.

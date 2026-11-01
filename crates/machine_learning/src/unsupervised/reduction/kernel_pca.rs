@@ -3,7 +3,7 @@
 use crate::common::{Transformer, check_features};
 use crate::kernels::Kernel;
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR2D};
-use ndarray_linalg::{Eigh, UPLO};
+use lib_jsl_linalg::{Eigh, UPLO};
 
 /// PCA in the feature space of a kernel: eigendecomposes the centred Gram matrix, so it finds
 /// nonlinear structure (concentric rings become separable along the first component with an RBF

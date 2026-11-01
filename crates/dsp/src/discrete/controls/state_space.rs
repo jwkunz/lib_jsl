@@ -1,5 +1,5 @@
 use ndarray::s;
-use ndarray_linalg::{Eig, SVD};
+use lib_jsl_linalg::{Eig, SVD};
 
 use crate::{
     dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement},

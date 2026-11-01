@@ -2,7 +2,7 @@
 
 use lib_jsl_core::*;
 use ndarray::Array2;
-use ndarray_linalg::Inverse;
+use lib_jsl_linalg::Inverse;
 
 /// Convolution coefficients of a Savitzky-Golay filter.
 ///

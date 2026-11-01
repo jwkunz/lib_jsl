@@ -18,7 +18,7 @@ use crate::conventions::{C64, TimeConvention};
 use crate::linalg::{check_hermitian, hermitian_eigen, hermitian_transpose};
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2, s};
-use ndarray_linalg::{Eig, Inverse};
+use lib_jsl_linalg::{Eig, Inverse};
 
 fn steering(array: &SensorArray, direction: (f64, f64), polarization: [C64; 2]) -> Result<Array1<C64>, ErrorsJSL> {
     array.steering_vector(direction.0, direction.1, polarization)

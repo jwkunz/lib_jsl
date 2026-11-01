@@ -4,7 +4,7 @@ use super::least_squares::column_means;
 use crate::common::{Regressor, check_xy};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
 use ndarray::Array2;
-use ndarray_linalg::Solve;
+use lib_jsl_linalg::Solve;
 
 /// Minimises `‖y - Xw - b‖² + α ‖w‖²`. The penalty shrinks the weights, trading a little bias for a
 /// large drop in variance when features are correlated or samples are few. The intercept is never

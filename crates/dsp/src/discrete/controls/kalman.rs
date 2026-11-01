@@ -1,5 +1,5 @@
 use ndarray::{Array1, Array2};
-use ndarray_linalg::Solve;
+use lib_jsl_linalg::Solve;
 use num_complex::Complex;
 
 use crate::{

@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use lib_jsl_core::ErrorsJSL;
-use ndarray_linalg::Inverse;
+use lib_jsl_linalg::Inverse;
 pub struct NewtonRaphsonMethod {
     max_iterations: Option<usize>,
     tolerance: Option<f64>,

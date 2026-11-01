@@ -13,7 +13,7 @@ path = "src/mod.rs"
 lib_jsl_core = { path = "../core" }
 lib_jsl_random = { path = "../random" }
 ndarray.workspace = true
-ndarray-linalg.workspace = true
+lib_jsl_linalg = { path = "../linalg" }
 
 [dev-dependencies]
 lib_jsl_utils = { path = "../utils" }

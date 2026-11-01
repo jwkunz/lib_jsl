@@ -18,7 +18,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
-use ndarray_linalg::{Eigh, UPLO};
+use lib_jsl_linalg::{Eigh, UPLO};
 use num_complex::Complex;
 use std::f64::consts::TAU;
 
@@ -76,23 +76,17 @@ fn eigen_residual(r: &Array2<Complex<f64>>, values: &[f64], vectors: &Array2<Com
         .fold(0.0, f64::max)
 }
 
-/// Eigenvalues (descending) and the matching eigenvectors (columns) of a Hermitian matrix.
-///
-/// `ndarray-linalg` may hand a row-major array to LAPACK as its transpose, which for a Hermitian
-/// matrix is its complex conjugate, returning the conjugated eigenvectors. The result is therefore
-/// checked against `R v = λ v` and conjugated if that is what fixes it.
+/// Eigenvalues (descending) and the matching eigenvectors (columns) of a Hermitian matrix,
+/// verified against `R v = λ v`.
 fn hermitian_eigen(r: &Array2<Complex<f64>>) -> Result<(Vec<f64>, Array2<Complex<f64>>), ErrorsJSL> {
     let (vals, vecs) = r.eigh(UPLO::Lower).map_err(|_| ErrorsJSL::RuntimeError("Hermitian eigendecomposition failed"))?;
     let m = vals.len();
     let order: Vec<usize> = (0..m).rev().collect(); // eigh returns ascending order
     let sorted: Vec<f64> = order.iter().map(|&i| vals[i]).collect();
-    let mut vectors = Array2::from_shape_fn((m, m), |(r_, c)| vecs[(r_, order[c])]);
+    let vectors = Array2::from_shape_fn((m, m), |(r_, c)| vecs[(r_, order[c])]);
     let scale = sorted.iter().fold(0.0f64, |a, v| a.max(v.abs())).max(1e-300);
     if eigen_residual(r, &sorted, &vectors) > 1e-8 * scale {
-        vectors.mapv_inplace(|v| v.conj());
-        if eigen_residual(r, &sorted, &vectors) > 1e-8 * scale {
-            return Err(ErrorsJSL::RuntimeError("Eigendecomposition did not satisfy R v = lambda v"));
-        }
+        return Err(ErrorsJSL::RuntimeError("Eigendecomposition did not satisfy R v = lambda v"));
     }
     Ok((sorted, vectors))
 }

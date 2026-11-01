@@ -2,7 +2,7 @@
 
 use lib_jsl_core::*;
 use ndarray::Array2;
-use ndarray_linalg::SVD;
+use lib_jsl_linalg::SVD;
 
 /// A barycentric rational approximant `r(x) = Σ w_k f_k / (x - z_k) / Σ w_k / (x - z_k)` chosen
 /// greedily from the sample points to reach a target accuracy.

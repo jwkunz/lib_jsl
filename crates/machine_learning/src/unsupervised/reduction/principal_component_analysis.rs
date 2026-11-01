@@ -2,7 +2,7 @@
 
 use crate::common::{Transformer, check_features};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR2D};
-use ndarray_linalg::{Eigh, UPLO};
+use lib_jsl_linalg::{Eigh, UPLO};
 
 /// PCA: finds orthogonal directions (principal components) of greatest variance and projects the
 /// data onto the first `components` of them. Computed from the eigendecomposition of the

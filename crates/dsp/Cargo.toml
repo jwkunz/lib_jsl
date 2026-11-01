@@ -16,5 +16,5 @@ lib_jsl_number_theory = { path = "../number_theory" }
 lib_jsl_random = { path = "../random" }
 num-complex.workspace = true
 ndarray.workspace = true
-ndarray-linalg.workspace = true
+lib_jsl_linalg = { path = "../linalg" }
 

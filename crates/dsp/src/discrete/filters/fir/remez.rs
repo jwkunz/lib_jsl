@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 
 use ndarray::Array1;
-use ndarray_linalg::Solve;
+use lib_jsl_linalg::Solve;
 use num_complex::Complex;
 
 use lib_jsl_core::{C2D, ErrorsJSL, R2D};

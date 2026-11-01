@@ -15,7 +15,7 @@ lib_jsl_geometry = { path = "../geometry" }
 num-complex.workspace = true
 num-traits.workspace = true
 ndarray.workspace = true
-ndarray-linalg.workspace = true
+lib_jsl_linalg = { path = "../linalg" }
 lib_jsl_special_functions = { path = "../special_functions" }
 lib_jsl_random = { path = "../random" }
 

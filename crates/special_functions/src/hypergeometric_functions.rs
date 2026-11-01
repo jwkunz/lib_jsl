@@ -1,4 +1,6 @@
 //! Hypergeometric functions.
+//!
+//! See the book entry [Hypergeometric functions](https://jwkunz.github.io/lib_jsl/book/special_functions/hypergeometric.html).
 
 use crate::bessel_functions_fractional::bessel_fractional;
 use crate::gamma::gamma;
@@ -90,6 +92,7 @@ pub fn hypergeometric(a: f64, b: f64, c: f64, z: f64) -> f64 {
     series_2f1(a, b, c, z, 5_000_000)
 }
 
+// ANCHOR: kummer
 /// Kummer's confluent hypergeometric function ₁F₁(a; b; x) = M(a, b, x), for real arguments.
 ///
 /// Uses Kummer's transformation `M(a,b,x) = e^x M(b-a,b,-x)` for `x < 0` to avoid cancellation.
@@ -116,6 +119,7 @@ pub fn hypergeometric_1f1(a: f64, b: f64, x: f64) -> f64 {
     }
     sum
 }
+// ANCHOR_END: kummer
 
 /// The confluent hypergeometric limit function ₀F₁(; b; x).
 ///

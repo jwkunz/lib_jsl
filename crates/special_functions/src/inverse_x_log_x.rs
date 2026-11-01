@@ -1,6 +1,8 @@
 //! Inverse of x log(x).
 //!
 //! Solutions of `x ln x = y` are `x = e^W(y)`, where `W` is the Lambert W function.
+//!
+//! See the book entry [The Lambert W function](https://jwkunz.github.io/lib_jsl/book/special_functions/lambert-w.html#the-inverse-of-x-ln-x).
 
 const INV_E: f64 = 0.367_879_441_171_442_33;
 
@@ -22,6 +24,7 @@ fn halley(y: f64, mut w: f64) -> f64 {
     w
 }
 
+// ANCHOR: lambert_w0
 /// The principal branch W₀(y) of the Lambert W function, for `y >= -1/e`.
 pub fn lambert_w0(y: f64) -> f64 {
     if y.is_nan() || y < -INV_E {
@@ -46,6 +49,7 @@ pub fn lambert_w0(y: f64) -> f64 {
     };
     halley(y, guess)
 }
+// ANCHOR_END: lambert_w0
 
 /// The lower branch W₋₁(y) of the Lambert W function, for `-1/e <= y < 0`.
 pub fn lambert_w_m1(y: f64) -> f64 {

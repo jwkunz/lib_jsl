@@ -5,6 +5,8 @@
 //! `(−∞, −1/e]`, and the real interval of `W_{−1}` is reached from the upper half plane (so
 //! `W_{−1}(x + 0i)` is real there, matching [`crate::lambert_w_m1`]). For real arguments,
 //! [`crate::lambert_w0`] and [`crate::lambert_w_m1`] are faster.
+//!
+//! See the book entry [The Lambert W function](https://jwkunz.github.io/lib_jsl/book/special_functions/lambert-w.html#the-lambert-w-function).
 
 use num_complex::Complex;
 use std::f64::consts::{E, PI};

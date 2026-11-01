@@ -6,8 +6,11 @@ use crate::same_sign;
 /// secant and bisection). Requires a sign change over the interval.
 ///
 /// Returns when the bracket around the best estimate has half-width below `tol / 2 + 2ε|x|`, so
-/// the root is located to within about `tol`. Never takes more than a few times the evaluations
-/// of bisection, and converges superlinearly for smooth `f`.
+/// the root is located to within about `tol`. Converges superlinearly near a simple root. At a
+/// multiple root the interpolation steps converge only linearly, and Brent's safeguard forces a
+/// bisection only every few steps, so it can need several times the evaluations of bisection
+/// (131 against 46 for `(x − 1/3)³` on `[0, 1]`); its guaranteed worst case is about the square
+/// of bisection's count.
 pub fn brent_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,

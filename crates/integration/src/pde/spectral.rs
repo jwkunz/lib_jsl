@@ -33,6 +33,7 @@ pub fn chebyshev_differentiation_matrix(n: usize) -> Vec<Vec<f64>> {
     if n == 0 {
         return vec![vec![0.0]];
     }
+    // ANCHOR: cheb_matrix
     let c: Vec<f64> = (0..=n).map(|i| if i == 0 || i == n { 2.0 } else { 1.0 } * if i % 2 == 0 { 1.0 } else { -1.0 }).collect();
     let mut d = vec![vec![0.0; n + 1]; n + 1];
     for i in 0..=n {
@@ -43,6 +44,7 @@ pub fn chebyshev_differentiation_matrix(n: usize) -> Vec<Vec<f64>> {
         }
         d[i][i] = -d[i].iter().sum::<f64>();
     }
+    // ANCHOR_END: cheb_matrix
     d
 }
 

@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    spectral_figures();
     finite_element_figures();
     finite_difference_figures();
     bvp_figures();
@@ -770,4 +771,50 @@ fn finite_element_figures() {
         previous = Some(err);
     }
     write(CHAPTER, "fem_2d_convergence.md", &table);
+}
+
+fn spectral_figures() {
+    use lib_jsl_integration::pde::finite_elements::{EndCondition, fem_1d};
+    use lib_jsl_integration::pde::spectral::{chebyshev_bvp, fourier_derivative};
+    // u'' = f on [−1, 1] with u = eˣ cos 4x: Chebyshev collocation against linear finite elements.
+    let u = |x: f64| x.exp() * (4.0 * x).cos();
+    let upp = |x: f64| x.exp() * ((4.0 * x).cos() * (1.0 - 16.0) - 8.0 * (4.0 * x).sin());
+    let cheb: Vec<(f64, f64)> = (4..=40).step_by(2).map(|n| {
+        let (xs, v) = chebyshev_bvp(|_| 0.0, |_| 0.0, upp, -1.0, 1.0, u(-1.0), u(1.0), n).unwrap();
+        ((n + 1) as f64, xs.iter().zip(&v).map(|(&x, &y)| (y - u(x)).abs()).fold(0.0, f64::max).max(1e-17))
+    }).collect();
+    let fem: Vec<(f64, f64)> = [8usize, 16, 32, 64, 128, 256, 512, 1024].iter().map(|&m| {
+        let nodes: Vec<f64> = (0..=m).map(|i| -1.0 + 2.0 * i as f64 / m as f64).collect();
+        let v = fem_1d(|_| 1.0, |_| 0.0, |x| -upp(x), &nodes, EndCondition::Dirichlet(u(-1.0)), EndCondition::Dirichlet(u(1.0))).unwrap();
+        ((m + 1) as f64, nodes.iter().zip(&v).map(|(&x, &y)| (y - u(x)).abs()).fold(0.0, f64::max).max(1e-17))
+    }).collect();
+    let mut plot = Plot::new("u'' = f on [−1, 1] with u = eˣ cos 4x: spectral against second order", "number of points", "maximum error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.y_range = Some((1e-16, 10.0));
+    plot.legend = Legend::TopRight;
+    plot.series.push(Series::new("Chebyshev collocation", cheb, Style::LineMarkers, 0));
+    plot.series.push(Series::new("linear finite elements", fem, Style::LineMarkers, 1));
+    write(CHAPTER, "spectral_convergence.svg", &plot.render());
+
+    // Fourier differentiation of a smooth and a non-smooth periodic function.
+    let mut plot = Plot::new("Fourier differentiation on [0, 2π]: smoothness decides the rate", "number of points N", "maximum error in u'");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.y_range = Some((1e-16, 10.0));
+    plot.legend = Legend::BottomLeft;
+    let smooth: Vec<(f64, f64)> = (2..=7).map(|k| 1usize << k).map(|n| {
+        let xs: Vec<f64> = (0..n).map(|i| 2.0 * PI * i as f64 / n as f64).collect();
+        let d = fourier_derivative(&xs.iter().map(|x| x.sin().exp()).collect::<Vec<_>>(), 1, 2.0 * PI).unwrap();
+        (n as f64, xs.iter().zip(&d).map(|(x, v)| (v - x.cos() * x.sin().exp()).abs()).fold(0.0, f64::max).max(1e-17))
+    }).collect();
+    // |sin x|³ has a third derivative with jumps: algebraic convergence.
+    let rough: Vec<(f64, f64)> = (3..=12).map(|k| 1usize << k).map(|n| {
+        let xs: Vec<f64> = (0..n).map(|i| 2.0 * PI * i as f64 / n as f64).collect();
+        let d = fourier_derivative(&xs.iter().map(|x| x.sin().abs().powi(3)).collect::<Vec<_>>(), 1, 2.0 * PI).unwrap();
+        (n as f64, xs.iter().zip(&d).map(|(x, v)| (v - 3.0 * x.sin().abs() * x.sin() * x.cos()).abs()).fold(0.0, f64::max).max(1e-17))
+    }).collect();
+    plot.series.push(Series::new("u = e^(sin x) (analytic)", smooth, Style::LineMarkers, 0));
+    plot.series.push(Series::new("u = |sin x|³ (three derivatives)", rough, Style::LineMarkers, 1));
+    write(CHAPTER, "fourier_derivative.svg", &plot.render());
 }

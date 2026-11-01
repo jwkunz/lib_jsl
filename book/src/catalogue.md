@@ -66,7 +66,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 - [Finite difference methods](integration/finite-differences.md)
 - [Finite element methods](integration/finite-elements.md)
-- Spectral methods
+- [Spectral methods](integration/spectral-methods.md)
 
 ### Interpolation
 

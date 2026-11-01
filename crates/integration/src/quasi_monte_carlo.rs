@@ -1,4 +1,6 @@
 //! Randomized quasi-Monte Carlo integration over boxes.
+//!
+//! See the book entry [Monte Carlo and quasi-Monte Carlo integration](https://jwkunz.github.io/lib_jsl/book/integration/monte-carlo.html).
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_random::quasi_random::{HaltonSequence, SobolSequence, random_shift};
@@ -16,9 +18,11 @@ pub enum QuasiRandomSequence {
 /// The outcome of [`quasi_monte_carlo_integration`].
 #[derive(Debug, Clone)]
 pub struct QuasiMonteCarloResult {
+    /// The mean of the replicate estimates.
     pub value: f64,
     /// Standard error from the spread of the replicates (NaN with a single replicate).
     pub standard_error: f64,
+    /// The number of integrand evaluations (`points × replicates`).
     pub evaluations: usize,
 }
 

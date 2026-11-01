@@ -1,6 +1,9 @@
 //! Bisection method.
 
-/// Finds a root of `f` in `[a, b]` by bisection. Requires `f(a)` and `f(b)` to have opposite signs.
+use crate::same_sign;
+
+/// Finds a root of `f` in `[a, b]` by bisection. Requires `f(a)` and `f(b)` to have opposite signs
+/// (a NaN at either end is an error); stops when the bracket is narrower than `2 tol`.
 pub fn bisection<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,
@@ -13,7 +16,7 @@ where
     if fb == 0.0 {
         return Ok(b);
     }
-    if fa * fb > 0.0 {
+    if !(fa < 0.0 && fb > 0.0 || fa > 0.0 && fb < 0.0) {
         return Err("bisection: f(a) and f(b) must have opposite signs".to_string());
     }
     for _ in 0..200 {
@@ -22,7 +25,7 @@ where
         if fm == 0.0 || 0.5 * (b - a).abs() < tol {
             return Ok(m);
         }
-        if fa * fm < 0.0 {
+        if !same_sign(fa, fm) {
             b = m;
         } else {
             a = m;

@@ -1,6 +1,6 @@
-//! Ridder's method.
+//! Ridders' method.
 
-/// Finds a root of `f` in `[a, b]` using Ridder's method. Requires a sign change over the interval.
+/// Finds a root of `f` in `[a, b]` using Ridders' method (C. Ridders, 1979). Requires a sign change over the interval.
 pub fn ridders_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
 where
     F: Fn(f64) -> f64,
@@ -13,14 +13,16 @@ where
     if f2 == 0.0 {
         return Ok(x2);
     }
-    if f1 * f2 > 0.0 {
+    if !(f1 < 0.0 && f2 > 0.0 || f1 > 0.0 && f2 < 0.0) {
         return Err("ridders_method: f(a) and f(b) must have opposite signs".to_string());
     }
     let mut ans = f64::NAN;
     for _ in 0..100 {
         let xm = 0.5 * (x1 + x2);
         let fm = f(xm);
-        let s = (fm * fm - f1 * f2).sqrt();
+        // √(fm² − f1 f2), scaled to avoid overflow and underflow.
+        let scale = fm.abs().max(f1.abs()).max(f2.abs());
+        let s = scale * ((fm / scale).powi(2) - (f1 / scale) * (f2 / scale)).sqrt();
         if s == 0.0 {
             return Ok(xm);
         }

@@ -1,5 +1,7 @@
 //! Root bracketing.
 
+use crate::same_sign;
+
 /// Searches outward from the interval `[a, b]` for a sign change of `f`.
 ///
 /// The interval is expanded geometrically (by a factor of 1.6 per step, on the side with the
@@ -16,7 +18,7 @@ where
     let (mut a, mut b) = if a < b { (a, b) } else { (b, a) };
     let (mut fa, mut fb) = (f(a), f(b));
     for _ in 0..MAX_ITER {
-        if fa * fb <= 0.0 {
+        if !same_sign(fa, fb) {
             return Ok((a, b));
         }
         if fa.abs() < fb.abs() {
@@ -30,7 +32,9 @@ where
     Err("bracket_root failed to find a sign change".to_string())
 }
 
-/// Divides `[a, b]` into `n` subintervals and returns every one containing a sign change.
+/// Divides `[a, b]` into `n` subintervals and returns every one containing a sign change (or a
+/// zero at an end, so a root exactly on a grid point is reported by both neighbouring intervals).
+/// Pairs of roots closer together than the spacing can cancel and go unnoticed.
 pub fn bracket_roots_scan<F>(f: F, a: f64, b: f64, n: usize) -> Vec<(f64, f64)>
 where
     F: Fn(f64) -> f64,
@@ -45,7 +49,7 @@ where
     for i in 1..=n {
         let x1 = if i == n { b } else { a + dx * i as f64 };
         let f1 = f(x1);
-        if f0 * f1 <= 0.0 {
+        if !same_sign(f0, f1) {
             out.push((x0, x1));
         }
         x0 = x1;

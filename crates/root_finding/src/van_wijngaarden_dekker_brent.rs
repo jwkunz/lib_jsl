@@ -1,5 +1,7 @@
 //! Van Wijngaarden-Dekker-Brent method.
 
+use crate::same_sign;
+
 /// Finds a root of `f` in `[a, b]` using Brent's method (inverse quadratic interpolation,
 /// secant and bisection). Requires a sign change over the interval.
 pub fn brent_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
@@ -14,14 +16,14 @@ where
     if fb == 0.0 {
         return Ok(b);
     }
-    if fa * fb > 0.0 {
+    if !(fa < 0.0 && fb > 0.0 || fa > 0.0 && fb < 0.0) {
         return Err("brent_method: f(a) and f(b) must have opposite signs".to_string());
     }
     let (mut c, mut fc) = (a, fa);
     let mut d = b - a;
     let mut e = d;
     for _ in 0..200 {
-        if fb * fc > 0.0 {
+        if same_sign(fb, fc) {
             c = a;
             fc = fa;
             d = b - a;

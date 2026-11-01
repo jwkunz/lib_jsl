@@ -376,7 +376,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Trapezoidal
 [x] Complex path integrals
 [x] Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
-[ ] Tanh-sinh quadrature
+[x] Tanh-sinh quadrature
 [ ] Romberg integration
 [ ] Multidimensional cubature
 [ ] Quasi-Monte Carlo integration

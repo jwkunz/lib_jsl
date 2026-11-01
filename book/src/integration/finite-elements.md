@@ -82,8 +82,9 @@ error $O(h)$ and value error $O(h^2)$. For $-u'' + u = (\pi^2 + 1)\sin\pi x$:
 
 {{#include ../generated/integration/fem_1d_convergence.md}}
 
-The error at the element midpoints falls by four per refinement. The nodal values are about fifteen
-times more accurate still, an instance of **superconvergence**.
+The error at the element midpoints falls by four per refinement. The nodal values converge at the
+same rate but are about fifteen times more accurate; with $q = 0$ they would be exact, as the next
+section shows.
 
 ### Discontinuous coefficients
 

@@ -17,5 +17,5 @@ pub use false_position_method::false_position;
 pub use ridders_method::ridders_method;
 pub use van_wijngaarden_dekker_brent::brent_method;
 pub use newton_raphson::newton_raphson;
-pub use polynomial_roots::polynomial_roots;
+pub use polynomial_roots::{polynomial_roots, polynomial_roots_complex};
 pub use nonlinear_systems::{SystemOptions, SystemRootResult, broyden_system, newton_system};

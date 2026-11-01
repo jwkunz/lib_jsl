@@ -1,4 +1,6 @@
 //! Line searches for gradient-based minimizers.
+//!
+//! See the book entry [One-dimensional minimisation and line searches](https://jwkunz.github.io/lib_jsl/book/optimization/one-dimensional.html#line-searches-and-the-wolfe-conditions).
 
 use crate::optimization_traits::{GradientFunction, ObjectiveFunction};
 
@@ -91,6 +93,7 @@ where
         (lo.0.value < f0).then_some(lo.0)
     };
 
+    // ANCHOR: wolfe_bracket
     let start = LineSearchPoint { alpha: 0.0, x: x0.to_vec(), value: f0, gradient: g0.to_vec() };
     let mut prev = (start, slope0);
     let mut alpha = initial_step;
@@ -114,6 +117,7 @@ where
         prev = (p, slope);
     }
     (prev.0.value < f0).then_some(prev.0)
+    // ANCHOR_END: wolfe_bracket
 }
 
 #[cfg(test)]

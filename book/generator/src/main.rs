@@ -6,6 +6,8 @@
 mod derivatives;
 mod integration;
 mod interpolation;
+mod optimization;
+mod optimization_more;
 mod root_finding;
 mod svg;
 
@@ -28,4 +30,6 @@ fn main() {
     interpolation::generate();
     integration::generate();
     root_finding::generate();
+    optimization::generate();
+    optimization_more::generate();
 }

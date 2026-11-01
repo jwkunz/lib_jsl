@@ -5,6 +5,8 @@
 //! one end; the surviving interior point is exactly where one of the next pair must be, so each
 //! iteration costs one new evaluation and shrinks the interval by `1/φ ≈ 0.618`. No derivatives
 //! are used. For a function that is not unimodal on `[a, b]` it finds a local minimum.
+//!
+//! See the book entry [One-dimensional minimisation and line searches](https://jwkunz.github.io/lib_jsl/book/optimization/one-dimensional.html#golden-section-search).
 use crate::optimization_traits::{
     GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult,
 };

@@ -3,7 +3,7 @@
 use std::fmt::Write;
 
 /// Okabe-Ito colours, distinguishable with common colour-vision deficiencies.
-pub const PALETTE: [&str; 7] = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#000000"];
+pub const PALETTE: [&str; 8] = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#000000", "#AAAAAA"];
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Style {

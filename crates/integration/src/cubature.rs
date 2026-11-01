@@ -1,4 +1,7 @@
-//! Multidimensional integration over hyperrectangles.
+//! Multidimensional integration over hyperrectangles: tensor-product Gauss-Legendre rules and
+//! globally adaptive Genz-Malik cubature.
+//!
+//! See the book entry [Multidimensional cubature](https://jwkunz.github.io/lib_jsl/book/integration/cubature.html).
 
 use crate::gaussian_quadrature::gauss_legendre;
 use lib_jsl_core::ErrorsJSL;
@@ -8,9 +11,11 @@ use std::collections::BinaryHeap;
 /// The outcome of a cubature.
 #[derive(Debug, Clone)]
 pub struct CubatureResult {
+    /// The estimated integral.
     pub value: f64,
     /// Estimated absolute error.
     pub error: f64,
+    /// The number of integrand evaluations.
     pub evaluations: usize,
     /// Whether the requested tolerance was met within the evaluation budget.
     pub converged: bool,
@@ -88,6 +93,7 @@ impl Ord for Region {
 
 /// Applies the Genz-Malik degree-7 rule with its embedded degree-5 rule on one box. Returns
 /// `(value, error, split_axis)` and the number of evaluations.
+// ANCHOR: genz_malik
 fn genz_malik<F: Fn(&[f64]) -> f64>(f: &F, centre: &[f64], half: &[f64]) -> (f64, f64, usize, usize) {
     let n = centre.len();
     let nf = n as f64;
@@ -153,12 +159,16 @@ fn genz_malik<F: Fn(&[f64]) -> f64>(f: &F, centre: &[f64], half: &[f64]) -> (f64
     let fifth = volume * (w5[0] * f0 + w5[1] * s2 + w5[2] * s3 + w5[3] * s4);
     (seventh, (seventh - fifth).abs(), split_axis, evaluations)
 }
+// ANCHOR_END: genz_malik
 
 /// Options for [`adaptive_cubature`].
 #[derive(Debug, Clone, Copy)]
 pub struct CubatureOptions {
+    /// Absolute error target.
     pub absolute_tolerance: f64,
+    /// Error target relative to the integral; the larger of the two targets applies.
     pub relative_tolerance: f64,
+    /// The evaluation budget.
     pub max_evaluations: usize,
 }
 

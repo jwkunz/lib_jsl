@@ -7,7 +7,7 @@
 //!
 //! The eigenvectors are the columns of `Q D Z`. Cost is about `9n³` flops with vectors.
 
-use crate::dense::{Mat, require_square};
+use crate::dense::{Mat, axpy_sub, dot_conj, require_square, sub_matmul};
 use crate::error::{LinalgError, Result, UPLO};
 use crate::scalar::Scalar;
 
@@ -37,12 +37,14 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
             *a.at_mut(i, j) = if i == j { T::from_real(v.re()) } else { v };
         }
     }
-    let mut q = Mat::<T>::identity(n);
-    // Householder tridiagonalisation.
+    // Householder tridiagonalisation; the reflectors are kept to form Q afterwards.
+    let mut reflectors: Vec<Vec<T>> = Vec::new();
     for k in 0..n.saturating_sub(2) {
         let x: Vec<T> = (k + 1..n).map(|i| a.at(i, k)).collect();
         let norm = x.iter().map(|v| v.abs_sqr()).sum::<f64>().sqrt();
+        let m = n - k - 1;
         if norm == 0.0 {
+            reflectors.push(vec![T::zero(); m]);
             continue;
         }
         // α = −e^{i arg x₀} ‖x‖ avoids cancellation in v = x − α e₁.
@@ -52,23 +54,20 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
         v[0] -= alpha;
         let vnorm = v.iter().map(|z| z.abs_sqr()).sum::<f64>().sqrt();
         if vnorm == 0.0 {
+            reflectors.push(vec![T::zero(); m]);
             continue;
         }
         v.iter_mut().for_each(|z| *z = z.scale(1.0 / vnorm));
-        let m = n - k - 1;
         // p = A₂₂ v, μ = vᴴ p, w = p − μ v; A₂₂ ← A₂₂ − 2 v wᴴ − 2 w vᴴ.
-        let mut p = vec![T::zero(); m];
-        for (r, pr) in p.iter_mut().enumerate() {
-            let row = &a.data[(k + 1 + r) * n + k + 1..(k + 2 + r) * n];
-            *pr = row.iter().zip(&v).fold(T::zero(), |s, (&ar, &vv)| s + ar * vv);
-        }
-        let mu = v.iter().zip(&p).fold(T::zero(), |s, (&vv, &pp)| s + vv.conj() * pp);
-        let w: Vec<T> = p.iter().zip(&v).map(|(&pp, &vv)| pp - mu * vv).collect();
+        let v_conj: Vec<T> = v.iter().map(|z| z.conj()).collect();
+        let p: Vec<T> = (0..m).map(|r| dot_conj(&a.data[(k + 1 + r) * n + k + 1..(k + 2 + r) * n], &v_conj)).collect();
+        let mu = dot_conj(&p, &v);
+        let w2: Vec<T> = p.iter().zip(&v).map(|(&pp, &vv)| (pp - mu * vv).scale(2.0)).collect();
+        let w2_conj: Vec<T> = w2.iter().map(|z| z.conj()).collect();
         for r in 0..m {
-            for c in 0..m {
-                let delta = (v[r] * w[c].conj() + w[r] * v[c].conj()).scale(2.0);
-                *a.at_mut(k + 1 + r, k + 1 + c) -= delta;
-            }
+            let row = &mut a.data[(k + 1 + r) * n + k + 1..(k + 2 + r) * n];
+            axpy_sub(row, v[r], &w2_conj);
+            axpy_sub(row, w2[r], &v_conj);
         }
         *a.at_mut(k + 1, k) = alpha;
         *a.at_mut(k, k + 1) = alpha.conj();
@@ -76,17 +75,7 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
             *a.at_mut(r, k) = T::zero();
             *a.at_mut(k, r) = T::zero();
         }
-        // Q ← Q (I − 2 v vᴴ) on columns k+1..n.
-        if !want_vectors {
-            continue;
-        }
-        for row in 0..n {
-            let base = row * n + k + 1;
-            let s = (0..m).fold(T::zero(), |s, c| s + q.data[base + c] * v[c]).scale(2.0);
-            for c in 0..m {
-                q.data[base + c] -= s * v[c].conj();
-            }
-        }
+        reflectors.push(v);
     }
     // Real tridiagonal via the phase scaling D.
     let mut d: Vec<f64> = (0..n).map(|i| a.at(i, i).re()).collect();
@@ -98,39 +87,55 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
         e[k] = m;
         phases[k + 1] = if m > 0.0 { phases[k] * sub.scale(1.0 / m) } else { phases[k] };
     }
-    for row in 0..n {
-        for (c, ph) in phases.iter().enumerate() {
-            q.data[row * n + c] *= *ph;
-        }
-    }
     if !want_vectors {
         tql(&mut d, &mut e, None)?;
         d.sort_by(f64::total_cmp);
         return Ok((d, None));
     }
-    let mut z = Mat::<f64>::identity(n);
-    tql(&mut d, &mut e, Some(&mut z))?;
-    // Sort ascending and form Q D Z.
+    // Q = H₀ H₁ ⋯ H_{n−3}, accumulated backwards so each reflector touches only the trailing
+    // block: Q₂₂ ← (I − 2 v vᴴ) Q₂₂ = Q₂₂ − 2 v (vᴴ Q₂₂), a row operation in row-major storage.
+    let mut q = Mat::<T>::identity(n);
+    let mut t = vec![T::zero(); n];
+    for (k, v) in reflectors.iter().enumerate().rev() {
+        let lo = k + 1;
+        let t = &mut t[..n - lo];
+        t.fill(T::zero());
+        for (r, &vr) in v.iter().enumerate() {
+            axpy_sub(t, -vr.conj(), &q.data[(lo + r) * n + lo..(lo + r + 1) * n]);
+        }
+        for (r, &vr) in v.iter().enumerate() {
+            axpy_sub(&mut q.data[(lo + r) * n + lo..(lo + r + 1) * n], vr.scale(2.0), t);
+        }
+    }
+    for row in 0..n {
+        for (c, ph) in phases.iter().enumerate() {
+            q.data[row * n + c] *= *ph;
+        }
+    }
+    // The QL rotations act on columns of Z; storing Zᵀ makes each rotation a pair of rows.
+    let mut zt = Mat::<f64>::identity(n);
+    tql(&mut d, &mut e, Some(&mut zt))?;
+    // Sort ascending and form Q D Z with the matrix-multiply kernel.
     let mut order: Vec<usize> = (0..n).collect();
     order.sort_by(|&i, &j| d[i].total_cmp(&d[j]));
     let values: Vec<f64> = order.iter().map(|&i| d[i]).collect();
-    let mut vectors = Mat::<T>::zeros(n, n);
-    for row in 0..n {
-        for (out_col, &col) in order.iter().enumerate() {
-            let mut s = T::zero();
-            for k in 0..n {
-                s += q.at(row, k).scale(z.at(k, col));
-            }
-            *vectors.at_mut(row, out_col) = s;
+    let mut minus_z = Mat::<T>::zeros(n, n);
+    for (out_col, &col) in order.iter().enumerate() {
+        for k in 0..n {
+            minus_z.data[k * n + out_col] = T::from_real(-zt.data[col * n + k]);
         }
     }
+    let mut vectors = Mat::<T>::zeros(n, n);
+    // SAFETY: three distinct n × n buffers.
+    unsafe { sub_matmul(n, n, n, q.data.as_ptr(), n, minus_z.data.as_ptr(), n, vectors.data.as_mut_ptr(), n) };
     Ok((values, Some(vectors)))
 }
 
 /// Implicit QL with shifts on the symmetric tridiagonal matrix with diagonal `d` and
 /// sub-diagonal `e` (`e[i]` couples `i` and `i+1`; `e[n−1]` is unused), accumulating the
-/// rotations into the columns of `z` (Numerical Recipes `tqli`).
-fn tql(d: &mut [f64], e: &mut [f64], mut z: Option<&mut Mat<f64>>) -> Result<()> {
+/// rotations into the *rows* of `zt` (the transpose of the eigenvector matrix; Numerical Recipes
+/// `tqli`).
+fn tql(d: &mut [f64], e: &mut [f64], mut zt: Option<&mut Mat<f64>>) -> Result<()> {
     let n = d.len();
     for l in 0..n {
         let mut iterations = 0;
@@ -175,12 +180,12 @@ fn tql(d: &mut [f64], e: &mut [f64], mut z: Option<&mut Mat<f64>>) -> Result<()>
                 p = s * r;
                 d[i + 1] = g + p;
                 g = c * r - b;
-                if let Some(z) = z.as_deref_mut() {
-                    for k in 0..n {
-                        let f = z.at(k, i + 1);
-                        let zi = z.at(k, i);
-                        *z.at_mut(k, i + 1) = s * zi + c * f;
-                        *z.at_mut(k, i) = c * zi - s * f;
+                if let Some(zt) = zt.as_deref_mut() {
+                    let (row_i, row_next) = zt.data[i * n..(i + 2) * n].split_at_mut(n);
+                    for (zi, f) in row_i.iter_mut().zip(row_next.iter_mut()) {
+                        let (a, b) = (*zi, *f);
+                        *f = s * a + c * b;
+                        *zi = c * a - s * b;
                     }
                 }
             }

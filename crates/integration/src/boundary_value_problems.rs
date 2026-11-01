@@ -8,6 +8,8 @@
 //!   (Lobatto IIIA) scheme, solved by damped Newton on the whole mesh, with mesh refinement where
 //!   the defect of the cubic interpolant is large (the method of SciPy's `solve_bvp`). Robust for
 //!   stiff and boundary-layer problems.
+//!
+//! See the book entry [Boundary value problems](https://jwkunz.github.io/lib_jsl/book/integration/boundary-value-problems.html).
 
 use crate::stiff_ode::Lu;
 use lib_jsl_core::ErrorsJSL;
@@ -20,6 +22,7 @@ pub struct BvpOptions {
     pub tolerance: f64,
     /// Largest mesh allowed by refinement (collocation).
     pub max_nodes: usize,
+    /// The largest number of Newton iterations (per mesh, for collocation).
     pub max_newton_iterations: usize,
 }
 
@@ -32,10 +35,13 @@ impl Default for BvpOptions {
 /// A solution on a mesh, with derivatives for cubic Hermite interpolation.
 #[derive(Debug, Clone)]
 pub struct BvpSolution {
+    /// The mesh (collocation) or the accepted integration steps (shooting).
     pub x: Vec<f64>,
+    /// The state at each point of `x`.
     pub y: Vec<Vec<f64>>,
     /// `f(x_i, y_i)` at each mesh point.
     pub derivative: Vec<Vec<f64>>,
+    /// Whether the tolerance was met.
     pub converged: bool,
     /// The largest relative defect (collocation) or boundary residual (shooting).
     pub max_residual: f64,
@@ -116,6 +122,7 @@ where
         if converged {
             break;
         }
+        // ANCHOR: shooting_newton
         // Finite-difference Jacobian of the boundary residual with respect to y(a).
         let mut jac = vec![vec![0.0; n]; n];
         for k in 0..n {
@@ -147,12 +154,14 @@ where
             }
         }
         converged = inf_norm(&g) <= options.tolerance;
+        // ANCHOR_END: shooting_newton
     }
     let (x, y) = trajectory;
     let derivative = x.iter().zip(&y).map(|(&xi, yi)| f(xi, yi)).collect();
     Ok(BvpSolution { x, y, derivative, converged, max_residual: inf_norm(&g) })
 }
 
+// ANCHOR: hermite_simpson
 /// Hermite-Simpson collocation residual `y₁ − y₀ − h/6 (f₀ + 4 f_m + f₁)` of one interval.
 fn interval_residual<F: Fn(f64, &[f64]) -> Vec<f64>>(f: &F, x0: f64, h: f64, y0: &[f64], f0: &[f64], y1: &[f64], f1: &[f64]) -> Result<Vec<f64>, ErrorsJSL> {
     let n = y0.len();
@@ -160,6 +169,7 @@ fn interval_residual<F: Fn(f64, &[f64]) -> Vec<f64>>(f: &F, x0: f64, h: f64, y0:
     let fm = eval(f, x0 + 0.5 * h, &ym)?;
     Ok((0..n).map(|k| y1[k] - y0[k] - h / 6.0 * (f0[k] + 4.0 * fm[k] + f1[k])).collect())
 }
+// ANCHOR_END: hermite_simpson
 
 /// Solves the collocation equations on a fixed mesh by damped Newton, from the guess `y`.
 fn newton_on_mesh<F, G>(f: &F, boundary: &G, x: &[f64], y: &mut [Vec<f64>], options: &BvpOptions) -> Result<Vec<Vec<f64>>, ErrorsJSL>

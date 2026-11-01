@@ -1,16 +1,19 @@
-/// This file contains the implementation of the golden section search algorithm for optimization. 
-/// The golden section search is a method for finding the minimum of a unimodal function by successively narrowing the range of values inside which the minimum is known to exist. 
-/// It is a simple and efficient method that does not require the use of derivatives, making it suitable for optimizing functions that are not differentiable or have noisy gradients.    
-/// The algorithm works by maintaining a bracket of three points (a, b, c) such that the function values at these points satisfy f(a) > f(b) < f(c). 
-/// The algorithm then evaluates the function at two new points (x1 and x2) that are determined by the golden ratio, and updates the bracket based on the function values at these points. 
-/// This process is repeated until the desired level of precision is achieved.  
-/// The golden section search is guaranteed to converge to the minimum of a unimodal function, and it has a convergence rate of O(log(n)), where n is the number of iterations. 
-/// It is a popular choice for optimization problems where the objective function is expensive to evaluate, as it requires fewer function evaluations than other methods such as grid search or random search.  
+//! Golden section search for the minimum of a unimodal function of one variable.
+//!
+//! The search keeps an interval `[a, b]` known to contain the minimum and two interior points at
+//! the golden-ratio positions `b − (b − a)/φ` and `a + (b − a)/φ`. Comparing `f` at them discards
+//! one end; the surviving interior point is exactly where one of the next pair must be, so each
+//! iteration costs one new evaluation and shrinks the interval by `1/φ ≈ 0.618`. No derivatives
+//! are used. For a function that is not unimodal on `[a, b]` it finds a local minimum.
 use crate::optimization_traits::{
     GradientFreeMinimizationEngine, MinimizationControls, ObjectiveFunction, OptimizationResult,
 };
 use lib_jsl_core::ErrorsJSL;
 
+/// Golden section search on the interval given by `bounds` (required, one pair). The initial
+/// parameters are ignored apart from their length, which must be 1. Stops when the interval is
+/// shorter than the tolerance (default 1e-5) or after `max_iterations` (default 1000) iterations,
+/// and returns the midpoint of the final interval; `iterations` counts evaluations of `f`.
 pub struct GoldenSectionSearch {
     max_iterations: Option<usize>,
     tolerance: Option<f64>,
@@ -61,56 +64,49 @@ where T: ObjectiveFunction {
         objective_function: &T,
         initial_parameters: Vec<f64>,
     ) -> Result<OptimizationResult, ErrorsJSL> {
-        // Here is the implementation of the golden section search algorithm. It assumes that the objective function is unimodal and that the initial parameters are a bracket of three points (a, b, c) such that f(a) > f(b) < f(c).
-        let mut result = OptimizationResult {
-            parameters: initial_parameters.clone(),
-            objective_value: objective_function.evaluate(&initial_parameters),
-            iterations: 1,
-            converged: false,
-        };
-        if initial_parameters.len() > 1 {
+        if initial_parameters.len() != 1 {
             return Err(ErrorsJSL::Misconfiguration("Golden section search only supports one-dimensional optimization.  That is, the initial parameters must be a single value."));
         }
-        let bounds = self.get_bounds();
-        if let Some(bounds) = bounds.as_ref() {
-            if bounds.len() != initial_parameters.len() {
-                return Err(ErrorsJSL::Misconfiguration(
-                    "Bounds length must match the number of parameters.",
-                ));
-            }            
-            if bounds.iter().any(|(lower, upper)| lower > upper) {
-                return Err(ErrorsJSL::Misconfiguration(
-                    "Lower bound must be less than or equal to upper bound.",
-                ));
-            }
+        let Some(bounds) = self.get_bounds() else {
+            return Err(ErrorsJSL::Misconfiguration("Golden section search needs bounds giving the interval to search."));
+        };
+        if bounds.len() != 1 {
+            return Err(ErrorsJSL::Misconfiguration("Bounds length must match the number of parameters."));
         }
-        // We will use the bounds as the initial bracket for the golden section search.  The initial parameters are ignored in this implementation, but they could be used to set the initial bracket if desired.
-        let mut a = bounds.as_ref().unwrap()[0].0;
-        let mut b = bounds.as_ref().unwrap()[0].1;
+        let (mut a, mut b) = bounds[0];
+        if a > b || !a.is_finite() || !b.is_finite() {
+            return Err(ErrorsJSL::Misconfiguration("The bounds must be finite, with lower ≤ upper."));
+        }
         let tolerance = self.tolerance.unwrap_or(1e-5);
         let max_iterations = self.max_iterations.unwrap_or(1000);
-        // The golden ratio is used to determine the new points to evaluate the objective function at.  It is defined as (1 + sqrt(5)) / 2.
-        let phi = (1.0 + 5.0_f64.sqrt()) / 2.0;
-        // The main loop of the golden section search algorithm. It continues until the desired level of precision is achieved or the maximum number of iterations is reached.
-        while b-a > tolerance && result.iterations < max_iterations {
-            // The new points to evaluate the objective function at are determined by the golden ratio.  The point c is closer to a than b, and the point d is closer to b than a.
-            let c = b - (b - a) / phi;
-            let d = a + (b - a) / phi;
-            //  The function values at the new points are evaluated, and the bracket is updated based on the function values.  If f(c) < f(d), then the minimum is in the interval [a, d], so we update b to d.  Otherwise, the minimum is in the interval [c, b], so we update a to c.
-            let fc = objective_function.evaluate(&[c]);
-            let fd = objective_function.evaluate(&[d]);
+        // ANCHOR: golden
+        let inv_phi = (5.0_f64.sqrt() - 1.0) / 2.0; // 1/φ ≈ 0.618
+        let mut c = b - inv_phi * (b - a);
+        let mut d = a + inv_phi * (b - a);
+        let (mut fc, mut fd) = (objective_function.evaluate(&[c]), objective_function.evaluate(&[d]));
+        let mut evaluations = 2;
+        while b - a > tolerance && evaluations < max_iterations {
             if fc < fd {
-                b = d;
+                // The minimum is in [a, d]; the old c becomes the new d.
+                (b, d, fd) = (d, c, fc);
+                c = b - inv_phi * (b - a);
+                fc = objective_function.evaluate(&[c]);
             } else {
-                a = c;
+                // The minimum is in [c, b]; the old d becomes the new c.
+                (a, c, fc) = (c, d, fd);
+                d = a + inv_phi * (b - a);
+                fd = objective_function.evaluate(&[d]);
             }
-            // The number of iterations is incremented, and the loop continues until the desired level of precision is achieved or the maximum number of iterations is reached.
-            result.iterations += 1;
+            evaluations += 1;
         }
-        // After the loop, the optimal parameters are set to the midpoint of the final bracket, and the objective value at those parameters is evaluated.  The convergence status is determined based on whether the final bracket is smaller than the specified tolerance.
-        result.parameters = vec![(a + b) / 2.0];
-        result.objective_value = objective_function.evaluate(&result.parameters);
-        result.converged = b - a <= tolerance;
+        // ANCHOR_END: golden
+        let x = 0.5 * (a + b);
+        let result = OptimizationResult {
+            parameters: vec![x],
+            objective_value: objective_function.evaluate(&[x]),
+            iterations: evaluations,
+            converged: b - a <= tolerance,
+        };
         Ok(result)
     }
 
@@ -140,5 +136,28 @@ mod test {
         assert!((result.parameters[0] - 2.0).abs() < 1e-3);
         assert!((result.objective_value - 1.0).abs() < 1e-3);
         assert!(result.converged);
+    }
+
+    #[test]
+    fn one_evaluation_per_iteration_and_errors_without_bounds() {
+        use std::cell::Cell;
+        struct Counting(Cell<usize>);
+        impl ObjectiveFunction for Counting {
+            fn evaluate(&self, p: &[f64]) -> f64 {
+                self.0.set(self.0.get() + 1);
+                (p[0] - 0.3).abs()
+            }
+        }
+        let f = Counting(Cell::new(0));
+        let mut gs = GoldenSectionSearch::new();
+        gs.set_tolerance(Some(1e-8));
+        gs.set_bounds(Some(vec![(0.0, 1.0)]));
+        let r = gs.gradient_free_minimize(&f, vec![0.5]).unwrap();
+        // 0.618^k < 1e-8 needs k = 39 reductions: 2 + 38 evaluations, plus one at the answer.
+        // The old version evaluated both interior points every time.
+        assert!(r.converged && (r.parameters[0] - 0.3).abs() < 1e-8, "{r:?}");
+        assert!(f.0.get() <= 42, "{} evaluations", f.0.get());
+        // Missing bounds once panicked on an unwrap.
+        assert!(GoldenSectionSearch::new().gradient_free_minimize(&f, vec![0.5]).is_err());
     }
 }

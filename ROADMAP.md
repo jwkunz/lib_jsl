@@ -384,7 +384,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Boundary value problems (shooting, collocation)
 
 ## Partial differential equations
-[ ] Finite difference methods
+[x] Finite difference methods
 [ ] Finite element methods
 [ ] Spectral methods
 

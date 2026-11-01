@@ -9,6 +9,7 @@ pub mod dormand_prince;
 pub mod gaussian_quadrature;
 pub mod midpoint_integration_engine;
 pub mod monte_carlo_integration;
+pub mod pde;
 pub mod quasi_monte_carlo;
 pub mod romberg;
 pub mod runge_kutta_4;

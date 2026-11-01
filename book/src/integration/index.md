@@ -54,7 +54,7 @@ singularities, keeps its exponential rate.
 | Singular or infinitely steep at an endpoint | Tanh-sinh quadrature | [Tanh-sinh quadrature](tanh-sinh.md) |
 | Localised peaks, kinks or discontinuities inside the interval, or unknown behaviour | Adaptive Gauss-Kronrod | [Adaptive Gauss-Kronrod quadrature](gauss-kronrod.md) |
 | Periodic over its interval | Trapezoid rule | [Newton-Cotes rules](newton-cotes.md#the-trapezoid-rule-on-periodic-functions) |
-| Several dimensions | Cubature, then quasi-Monte Carlo above about ten | *(entries in preparation)* |
+| Several dimensions | Cubature, then quasi-Monte Carlo above about ten | [Multidimensional cubature](cubature.md); quasi-Monte Carlo *(entry in preparation)* |
 
 ## Beyond quadrature
 

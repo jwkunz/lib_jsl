@@ -57,7 +57,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature](integration/gaussian-quadrature.md)
 - [Tanh-sinh quadrature](integration/tanh-sinh.md)
 - [Romberg integration](integration/romberg.md)
-- Multidimensional cubature
+- [Multidimensional cubature](integration/cubature.md)
 - Quasi-Monte Carlo integration
 - Stiff ODE solvers (BDF, Rosenbrock)
 - Boundary value problems (shooting, collocation)

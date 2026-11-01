@@ -13,7 +13,7 @@
     - [Adaptive Gauss-Kronrod quadrature](integration/gauss-kronrod.md)
     - [Tanh-sinh quadrature](integration/tanh-sinh.md)
     - [Complex contour integration](integration/contour-integration.md)
-    - [Multidimensional cubature]()
+    - [Multidimensional cubature](integration/cubature.md)
     - [Monte Carlo and quasi-Monte Carlo integration]()
     - [Runge-Kutta methods]()
     - [Stiff ODE solvers: Rosenbrock and BDF]()

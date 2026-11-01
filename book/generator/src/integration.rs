@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    cubature_figures();
     contour_figures();
     gauss_kronrod_figures();
     newton_cotes_figures();
@@ -387,4 +388,71 @@ fn contour_figures() {
         table.push_str(&format!("| {r} | {:.12} | {:+.3e} | {:.12} | {:.12} |\n", line.re, arc.re, total.re, PI));
     }
     write(CHAPTER, "contour_semicircle.md", &table);
+}
+
+fn cubature_figures() {
+    use lib_jsl_integration::cubature::{CubatureOptions, adaptive_cubature, tensor_gauss_legendre};
+    // Points per degree-7 rule against dimension.
+    let mut table = String::from("| dimension $n$ | monomials of degree $\\le 7$ | Genz-Malik, degree 7 | tensor Gauss, 4 points per axis |\n|---:|---:|---:|---:|\n");
+    for n in [1u64, 2, 3, 4, 5, 6, 8, 10, 15, 20] {
+        let monomials: u64 = (1..=7).fold(1u64, |acc, k| acc * (n + k) / k);
+        let gm = (1u64 << n) + 2 * n * n + 2 * n + 1;
+        table.push_str(&format!("| {n} | {monomials} | {gm} | {} |\n", 4u64.pow(n as u32)));
+    }
+    write(CHAPTER, "cubature_points.md", &table);
+
+    // Where adaptive cubature samples a peaked 2D integrand.
+    let samples = RefCell::new(Vec::new());
+    let s = 0.05;
+    let peak = |x: &[f64]| (-((x[0] - 0.3).powi(2) + (x[1] + 0.2).powi(2)) / (2.0 * s * s)).exp();
+    let r = adaptive_cubature(|x: &[f64]| { samples.borrow_mut().push((x[0], x[1])); peak(x) }, &[-1.0, -1.0], &[1.0, 1.0], CubatureOptions { absolute_tolerance: 1e-8, relative_tolerance: 1e-8, ..Default::default() }).unwrap();
+    let pts = samples.into_inner();
+    let mut plot = Plot::new(&format!("Adaptive Genz-Malik samples for a Gaussian peak at (0.3, −0.2): {} evaluations", r.evaluations), "x", "y");
+    plot.series.push(Series::new("", pts, Style::Markers, 0));
+    plot.x_range = Some((-1.0, 1.0));
+    plot.y_range = Some((-1.0, 1.0));
+    write(CHAPTER, "cubature_samples.svg", &plot.render());
+
+    // Convergence on a smooth integrand in 3 and 6 dimensions.
+    let erf1 = 1.0 - lib_jsl_special_functions::error_function::erfc(1.0);
+    let mut plot = Plot::new("∫ exp(−|x|²) over [0, 1]ⁿ: adaptive Genz-Malik against tensor Gauss", "function evaluations", "relative error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.y_range = Some((1e-16, 1.0));
+    plot.legend = Legend::BottomLeft;
+    for (k, n) in [3usize, 6].iter().enumerate() {
+        let exact = (0.5 * PI.sqrt() * erf1).powi(*n as i32);
+        let f = |x: &[f64]| (-x.iter().map(|v| v * v).sum::<f64>()).exp();
+        let tensor: Vec<(f64, f64)> = (1..=12).filter(|&p| (p as f64).powi(*n as i32) < 3e6).map(|p| {
+            let v = tensor_gauss_legendre(f, &vec![0.0; *n], &vec![1.0; *n], p).unwrap();
+            ((p as f64).powi(*n as i32), ((v - exact) / exact).abs().max(1e-17))
+        }).collect();
+        let adaptive: Vec<(f64, f64)> = [1e-2, 1e-4, 1e-6, 1e-8, 1e-10, 1e-12].iter().map(|&tol| {
+            let r = adaptive_cubature(f, &vec![0.0; *n], &vec![1.0; *n], CubatureOptions { absolute_tolerance: 0.0, relative_tolerance: tol, max_evaluations: 3_000_000 }).unwrap();
+            (r.evaluations as f64, ((r.value - exact) / exact).abs().max(1e-17))
+        }).collect();
+        plot.series.push(Series::new(&format!("tensor Gauss, n = {n}"), tensor, Style::LineMarkers, 2 * k));
+        plot.series.push(Series::new(&format!("adaptive Genz-Malik, n = {n}"), adaptive, Style::LineMarkers, 2 * k + 1));
+    }
+    write(CHAPTER, "cubature_convergence.svg", &plot.render());
+
+    // A corner singularity in 2D: here adaptivity pays.
+    let singular = |x: &[f64]| 1.0 / (x[0] * x[0] + x[1] * x[1]).sqrt();
+    let exact = 2.0 * (1.0 + 2f64.sqrt()).ln();
+    let mut plot = Plot::new("A corner singularity: ∫∫ 1/√(x² + y²) over [0, 1]²", "function evaluations", "relative error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.y_range = Some((1e-16, 10.0));
+    plot.legend = Legend::BottomLeft;
+    let tensor: Vec<(f64, f64)> = [2usize, 4, 8, 16, 32, 64, 128, 256, 512, 1024].iter().map(|&p| {
+        let v = tensor_gauss_legendre(singular, &[0.0, 0.0], &[1.0, 1.0], p).unwrap();
+        ((p * p) as f64, ((v - exact) / exact).abs().max(1e-17))
+    }).collect();
+    let adaptive: Vec<(f64, f64)> = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10].iter().map(|&tol| {
+        let r = adaptive_cubature(singular, &[0.0, 0.0], &[1.0, 1.0], CubatureOptions { absolute_tolerance: 0.0, relative_tolerance: tol, max_evaluations: 3_000_000 }).unwrap();
+        (r.evaluations as f64, ((r.value - exact) / exact).abs().max(1e-17))
+    }).collect();
+    plot.series.push(Series::new("tensor Gauss", tensor, Style::LineMarkers, 0));
+    plot.series.push(Series::new("adaptive Genz-Malik", adaptive, Style::LineMarkers, 1));
+    write(CHAPTER, "cubature_singular.svg", &plot.render());
 }

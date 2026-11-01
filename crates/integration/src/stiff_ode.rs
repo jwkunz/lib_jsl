@@ -12,6 +12,8 @@
 //!   efficient at tight tolerances.
 //!
 //! The Jacobian `∂f/∂y` may be supplied; otherwise it is formed by forward differences.
+//!
+//! See the book entry [Stiff ODE solvers](https://jwkunz.github.io/lib_jsl/book/integration/stiff-ode.html).
 
 use lib_jsl_core::ErrorsJSL;
 use std::collections::VecDeque;
@@ -210,6 +212,7 @@ where
         }
         h = h.min((t1 - t).abs());
         let hs = h * direction;
+        // ANCHOR: rosenbrock_step
         let jac = sys.jacobian(t, &y, &f0)?;
         let dt = f64::EPSILON.sqrt() * t.abs().max(1.0);
         let f_t = sys.eval(t + dt, &y)?;
@@ -226,8 +229,11 @@ where
         let k3 = lu.solve(&rhs);
         let err: Vec<f64> = (0..n).map(|i| hs / 6.0 * (k1[i] - 2.0 * k2[i] + k3[i])).collect();
         let error = weighted_max(&err, &y, &y_new, &options);
+        // ANCHOR_END: rosenbrock_step
         if error <= 1.0 && y_new.iter().all(|v| v.is_finite()) {
-            t += hs;
+            // Land exactly on t1 at the last step: t + (t1 − t) need not equal t1 in floating
+            // point, and a leftover sliver would trip the step-size underflow check.
+            t = if (t1 - t).abs() <= h { t1 } else { t + hs };
             y = y_new;
             f0 = f2;
             solution.t.push(t);
@@ -313,6 +319,7 @@ where
         } else {
             (0..n).map(|i| y[i] + (t_new - t) * f_last[i]).collect()
         };
+        // ANCHOR: bdf_corrector
         // Corrector: α₀ y + Σ α_j y_{n+1−j} = f(t_new, y), solved by Newton's method.
         let mut nodes = vec![t_new];
         nodes.extend(history.iter().rev().take(order).map(|p| p.0));
@@ -345,6 +352,7 @@ where
             }
             continue;
         }
+        // ANCHOR_END: bdf_corrector
         let scale = if history.len() >= 2 { 1.0 / (order as f64 + 2.0) } else { 0.5 };
         let err: Vec<f64> = (0..n).map(|i| scale * (y_new[i] - y_pred[i])).collect();
         let error = weighted_max(&err, &y, &y_new, &options);

@@ -13,6 +13,8 @@
 //!   but converges more slowly.
 //!
 //! Problems implement [`ConstrainedProblem`]; derivatives default to central differences.
+//!
+//! See the book entry [Constrained optimisation](https://jwkunz.github.io/lib_jsl/book/optimization/constrained.html).
 
 use crate::optimization_traits::{GradientBasedMinimizationEngine, GradientFunction, MinimizationControls, ObjectiveFunction};
 use crate::quasi_newton::Lbfgs;
@@ -211,12 +213,14 @@ pub fn sqp<P: ConstrainedProblem>(problem: &P, x0: Vec<f64>, options: Constraine
         let solve_b = |v: &[f64]| solve_dense(b.clone(), v.to_vec());
         let binv_g = solve_b(&grad).ok_or(ErrorsJSL::RuntimeError("The Hessian approximation became singular."))?;
         let binv_a: Vec<Vec<f64>> = a.iter().map(|row| solve_b(row)).collect::<Option<_>>().ok_or(ErrorsJSL::RuntimeError("The Hessian approximation became singular."))?;
+        // ANCHOR: sqp_subproblem
         // Dual QP: min ½ yᵀ(A B⁻¹ Aᵀ)y + (A B⁻¹ ∇f − c)ᵀ y, inequality multipliers ≥ 0.
         let dual_m: Vec<Vec<f64>> = (0..m).map(|i| (0..m).map(|j| dot(a[i], &binv_a[j])).collect()).collect();
         let dual_q: Vec<f64> = (0..m).map(|i| dot(a[i], &binv_g) - c[i]).collect();
         let y = bound_constrained_qp(&dual_m, &dual_q, me).ok_or(ErrorsJSL::RuntimeError("The QP subproblem failed (inconsistent linearised constraints?)."))?;
         // d = −B⁻¹(∇f + Aᵀy).
         let d: Vec<f64> = (0..n).map(|k| -(binv_g[k] + (0..m).map(|i| y[i] * binv_a[i][k]).sum::<f64>())).collect();
+        // ANCHOR_END: sqp_subproblem
         lambda = y[..me].to_vec();
         mu = y[me..].to_vec();
         let gl_old: Vec<f64> = (0..n).map(|k| grad[k] + (0..m).map(|i| y[i] * a[i][k]).sum::<f64>()).collect();
@@ -328,6 +332,7 @@ pub fn augmented_lagrangian<P: ConstrainedProblem>(problem: &P, x0: Vec<f64>, op
     while iterations < options.max_iterations {
         iterations += 1;
         inner.set_tolerance(Some((options.tolerance * 0.1).max(1e-12)));
+        // ANCHOR: multiplier_update
         let al = AugmentedLagrangian { problem, lambda: &lambda, mu: &mu, rho };
         x = inner.gradient_based_minimize(&al, &al, x.clone())?.parameters;
         let (h, g) = (problem.equalities(&x), problem.inequalities(&x));
@@ -335,6 +340,7 @@ pub fn augmented_lagrangian<P: ConstrainedProblem>(problem: &P, x0: Vec<f64>, op
         let v = h.iter().map(|v| v.abs()).chain(g.iter().zip(&mu).map(|(gj, mj)| gj.max(-mj / rho).abs())).fold(0.0, f64::max);
         lambda.iter_mut().zip(&h).for_each(|(l, hi)| *l += rho * hi);
         mu.iter_mut().zip(&g).for_each(|(m, gj)| *m = (*m + rho * gj).max(0.0));
+        // ANCHOR_END: multiplier_update
         if v <= options.tolerance {
             converged = true;
             break;

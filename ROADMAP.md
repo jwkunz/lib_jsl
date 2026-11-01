@@ -220,7 +220,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Radar equation
 
 ## Advanced algorithms
-[ ] Spherical wave expansion
+[x] Spherical wave expansion
 [ ] Near-field to far-field transformation
 [x] Direction-of-arrival estimation on sensor arrays
 [x] Method of moments (wire antennas)

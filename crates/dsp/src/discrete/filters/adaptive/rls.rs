@@ -1,7 +1,7 @@
 //! Recursive least-squares adaptive FIR filter.
 
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 type C64 = Complex<f64>;
 

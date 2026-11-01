@@ -3,7 +3,7 @@
 use lib_jsl_core::*;
 use ndarray::{Array1, Array2};
 use ndarray_linalg::{Eig, LeastSquaresSvd};
-use num::Complex;
+use num_complex::Complex;
 
 /// `y(x) = Re Σ_i c_i z_i^((x - x0)/dx)` fitted to samples at `x0 + k dx`. Each `z_i` is a
 /// discrete-time pole (`|z|` is the per-sample decay, `arg z` the per-sample phase advance), which

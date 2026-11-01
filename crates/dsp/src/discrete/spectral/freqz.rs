@@ -21,7 +21,7 @@
 use std::f64::consts::PI;
 
 use ndarray::Array1;
-use num::Complex;
+use num_complex::Complex;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic, R1D};
 

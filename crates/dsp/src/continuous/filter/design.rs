@@ -1,5 +1,5 @@
 use ndarray::Array1;
-use num::Complex;
+use num_complex::Complex;
 
 pub use super::bessel::{BesselNorm, besselap};
 pub use super::butterworth::buttap;

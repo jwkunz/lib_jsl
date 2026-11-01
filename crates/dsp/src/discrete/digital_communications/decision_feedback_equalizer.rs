@@ -30,7 +30,7 @@
 use super::constellations::Constellation;
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 /// How the equalizer adapts its weights.
 #[derive(Clone, Debug)]

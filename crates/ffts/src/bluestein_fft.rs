@@ -3,7 +3,7 @@
 //! The implementation includes planning and execution methods, and supports different scaling factors and input orderings.   
 //! The `BluesteinFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, convolution size, precomputed chirp factors, and the FFT engines used for the convolution step. 
 //! The `execute` method performs the FFT computation using Bluestein's algorithm, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
-use num::Complex;
+use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
 use crate::{

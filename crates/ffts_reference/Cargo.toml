@@ -12,7 +12,7 @@ path = "src/mod.rs"
 [dependencies]
 lib_jsl_core = { path = "../core" }
 lib_jsl_ffts = { path = "../ffts" }
-num.workspace = true
+num-complex.workspace = true
 
 [dev-dependencies]
 criterion.workspace = true

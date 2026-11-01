@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn test_correlate_fft_matches_direct_complex() {
-        use num::Complex;
+        use num_complex::Complex;
         let in1 = [
             Complex::new(1.0, 1.0),
             Complex::new(2.0, -1.0),

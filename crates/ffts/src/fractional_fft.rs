@@ -15,7 +15,7 @@
 use std::f64::consts::PI;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     bluestein_fft::BluesteinFft,

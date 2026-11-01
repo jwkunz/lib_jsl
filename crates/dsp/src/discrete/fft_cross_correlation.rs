@@ -52,7 +52,7 @@ mod tests {
     use super::*;
     use crate::discrete::convolve::ConvolveMethod;
     use crate::discrete::cross_correlation::cross_correlate;
-    use num::Complex;
+    use num_complex::Complex;
 
     fn lcg(seed: &mut u64) -> f64 {
         *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);

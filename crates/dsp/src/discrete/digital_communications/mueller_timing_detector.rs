@@ -22,7 +22,7 @@
 use super::{constellations::Constellation, farrow_filter::FarrowFilter};
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 /// The Mueller & Müller timing error for consecutive symbol-rate samples `y_prev`, `y_curr` with
 /// decisions `d_prev`, `d_curr`. The sign convention is that of the loop in this module: a positive

@@ -20,7 +20,7 @@
 use crate::discrete::fft_cross_correlation::fft_cross_correlate;
 use crate::discrete::cross_correlation::CorrelationMode;
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 /// A located pulse.
 #[derive(Clone, Copy, Debug, PartialEq)]

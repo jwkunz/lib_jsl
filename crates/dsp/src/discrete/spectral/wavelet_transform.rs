@@ -20,7 +20,7 @@ use crate::discrete::cross_correlation::CorrelationMode;
 use crate::discrete::fft_cross_correlation::fft_cross_correlate;
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 /// Daubechies scaling (low-pass reconstruction) filters `db1 … db10`, normalised so that the taps

@@ -4,7 +4,7 @@
 //! `Y_l^m(θ, φ) = √((2l+1)/(4π) · (l−m)!/(l+m)!) P_l^m(cos θ) e^{imφ}` is orthonormal on the unit
 //! sphere, with `Y_l^{−m} = (−1)^m conj(Y_l^m)` (the physics and quantum-mechanics convention).
 
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 /// The associated Legendre function `P_l^m(x)` for `|x| ≤ 1` and `|m| ≤ l` (zero otherwise),

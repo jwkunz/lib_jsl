@@ -20,7 +20,7 @@
 
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::fmt::Debug;
 
 /// `2^64` as a float: one full cycle of the phase accumulator.

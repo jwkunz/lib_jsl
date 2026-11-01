@@ -6,7 +6,7 @@ use crate::{
     },
     prelude::ErrorsJSL,
 };
-use num::Complex;
+use num_complex::Complex;
 
 fn interp(x: f64, xp: &[f64], fp: &[f64]) -> f64 {
     if x <= xp[0] {

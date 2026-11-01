@@ -21,7 +21,7 @@ use crate::discrete::{
     stream_operator::{StreamOperator, StreamOperatorManagement},
 };
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 fn check_params(sample_rate: f64, sensitivity: f64) -> Result<(), ErrorsJSL> {

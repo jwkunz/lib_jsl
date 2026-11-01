@@ -202,7 +202,7 @@ impl StreamOperator<C1D, C1D> for StateSpace {
 mod tests {
     use super::*;
     use ndarray::Array1;
-    use num::Complex;
+    use num_complex::Complex;
 
     fn c(re: f64) -> Complex<f64> {
         Complex::new(re, 0.0)

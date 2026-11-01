@@ -20,7 +20,7 @@ use crate::{
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
-use num::Complex;
+use num_complex::Complex;
 use std::marker::PhantomData;
 
 /// A streaming FIR filter that applies its taps in the frequency domain (overlap-save).

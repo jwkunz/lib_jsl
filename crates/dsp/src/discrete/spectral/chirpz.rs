@@ -15,7 +15,7 @@
 /// computed via FFT-based convolution instead of a direct `O(N*M)` sum.
 use std::f64::consts::PI;
 
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     ffts::{

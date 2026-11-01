@@ -1,6 +1,4 @@
-use num::{
-    traits::{CheckedAdd, CheckedDiv, CheckedMul, CheckedSub, Num, One, Signed, Zero},
-};
+use num_traits::{CheckedAdd, CheckedDiv, CheckedMul, CheckedSub, Num, One, Signed, Zero};
 use std::ops::{Add, Div, Mul, Sub};
 use std::{
     fmt,

@@ -9,7 +9,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{ArrayD, IxDyn, ShapeBuilder};
-use num::Complex;
+use num_complex::Complex;
 use std::path::Path;
 
 /// The element data of an array, in C order.

@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     dsp::continuous::filter::bilinear::BilinearResult,

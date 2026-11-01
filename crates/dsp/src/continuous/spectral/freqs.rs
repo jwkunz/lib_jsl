@@ -7,7 +7,7 @@
 ///
 /// Plotting support from SciPy is intentionally omitted here.
 use ndarray::Array1;
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     number_theory::polynomial::{polynomial_eval, polynomial_roots},

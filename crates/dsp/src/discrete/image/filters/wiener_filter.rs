@@ -18,7 +18,7 @@ use crate::discrete::fft_convolution::fft2d;
 use crate::discrete::image::convolution::{separable_convolve, Border};
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;
-use num::Complex;
+use num_complex::Complex;
 
 /// Adaptive (local) Wiener denoising with a `window × window` neighbourhood (odd, at least 3).
 /// `noise_variance` is the variance of the additive noise; `None` estimates it as the mean of the

@@ -62,4 +62,4 @@ lib_jsl_ffts = { path = "crates/ffts" }
 
 ## Dependencies
 
-The workspace intentionally keeps its dependency set fairly small. Core building blocks include `num`, `ndarray`, `ndarray-linalg`, `serde`, and `serde_json`, plus `criterion` and `rustfft` for benchmarking and comparison work.
+The workspace intentionally keeps its dependency set small, with versions pinned in the workspace manifest. The runtime dependencies are `num-complex` and `num-traits` (complex numbers and numeric traits), `ndarray` (arrays) and `ndarray-linalg` (dense linear algebra through the system OpenBLAS). Serialization of geometry types with `serde` is optional: enable the `serde` feature. `criterion` and `rustfft` are development-only dependencies used for benchmarks and as a reference for the FFTs.

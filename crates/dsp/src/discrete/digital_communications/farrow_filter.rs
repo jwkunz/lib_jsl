@@ -177,7 +177,7 @@ pub fn farrow_filter<T: IsAnalytic>(x: &[T], delay: f64, order: usize) -> Result
 #[cfg(test)]
 mod tests {
     use super::*;
-    use num::Complex;
+    use num_complex::Complex;
     use std::f64::consts::TAU;
 
     #[test]

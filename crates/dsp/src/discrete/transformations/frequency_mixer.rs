@@ -6,7 +6,7 @@
 
 use std::f64::consts::PI;
 
-use num::Complex;
+use num_complex::Complex;
 use lib_jsl_core::{ErrorsJSL};
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 

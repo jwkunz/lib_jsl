@@ -10,7 +10,7 @@
 
 use crate::adaptive_gl7k15_integration_engine::{GAUSS_LEGENDRE_WEIGHTS_7, KRONROD_NODES_15, KRONROD_WEIGHTS_15};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 use std::fmt;
 use std::rc::Rc;

@@ -1,7 +1,7 @@
 //! A digital phase-locked loop with a second-order (proportional-integral) loop filter.
 
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::{PI, TAU};
 
 type C64 = Complex<f64>;

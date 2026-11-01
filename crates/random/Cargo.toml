@@ -11,4 +11,3 @@ path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core = { path = "../core" }
-num.workspace = true

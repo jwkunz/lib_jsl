@@ -1,6 +1,6 @@
 use ndarray::{Array1, Array2};
 use ndarray_linalg::Solve;
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement},

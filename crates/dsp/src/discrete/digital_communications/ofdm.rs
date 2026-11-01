@@ -24,7 +24,7 @@ use crate::{
     },
     prelude::ErrorsJSL,
 };
-use num::Complex;
+use num_complex::Complex;
 
 /// The subcarrier layout of an OFDM system. Subcarriers are numbered by signed index `k` in
 /// `-N/2 .. N/2` (index 0 is DC and is never used); negative indices are the upper half of the FFT.

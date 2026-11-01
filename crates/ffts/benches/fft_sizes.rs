@@ -16,7 +16,7 @@ use lib_jsl_ffts::{
     Fft,
     fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor},
 };
-use num::Complex;
+use num_complex::Complex;
 use rust_fft_wrapper::RustFftWrapper;
 
 const LOG2_SIZES: [u32; 9] = [6, 8, 10, 12, 14, 15, 16, 18, 20];

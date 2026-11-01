@@ -24,7 +24,7 @@ pub enum FftOrdering {
 }
 
 
-use num::Complex;
+use num_complex::Complex;
 
 use lib_jsl_core::{ErrorsJSL};
 pub trait FftEngine1D {

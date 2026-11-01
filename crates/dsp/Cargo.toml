@@ -14,9 +14,7 @@ lib_jsl_core = { path = "../core" }
 lib_jsl_ffts = { path = "../ffts" }
 lib_jsl_number_theory = { path = "../number_theory" }
 lib_jsl_random = { path = "../random" }
-num.workspace = true
+num-complex.workspace = true
 ndarray.workspace = true
 ndarray-linalg.workspace = true
 
-[dev-dependencies]
-serde.workspace = true

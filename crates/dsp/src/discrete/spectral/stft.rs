@@ -4,7 +4,7 @@ use super::welch::SpectralScaling;
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_ffts::RealFft;
 use ndarray::Array2;
-use num::Complex;
+use num_complex::Complex;
 
 /// The one-sided STFT of a real signal: row `t` holds the spectrum (`window.len()/2 + 1` bins)
 /// of the frame starting at sample `t · hop`, windowed by `window`. Frames run while they fit

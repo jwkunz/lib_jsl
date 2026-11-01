@@ -10,7 +10,7 @@ signal models and beamformer solvers consume them.
 | Item | Choice |
 |------|--------|
 | Units | SI throughout |
-| Numerics | `f64` and `num::Complex<f64>` |
+| Numerics | `f64` and `num_complex::Complex<f64>` |
 | Time convention | Configurable per harmonic field: `TimeConvention::PlusJ` (`e^{+jωt}`, default) or `TimeConvention::MinusI` (`e^{-iωt}`). Converting between them is complex conjugation. Operations on two harmonic fields require the same convention (or convert explicitly). |
 | Consequences of the default | Outgoing waves `e^{-jkr}`; far-field steering phase `e^{+jk r̂·p}` |
 | Phasor amplitude | Peak (not RMS); time-averaged quantities carry the factor ½ (e.g. `S = ½ E × H*`) |
@@ -142,7 +142,7 @@ electromagnetics/src/
 ## 9. Dependencies
 
 `lib_jsl_core`, `lib_jsl_geometry` (rotations), `lib_jsl_special_functions` (Bessel functions),
-`num`, `ndarray`, `ndarray-linalg` (eigen solves); `lib_jsl_utils` as a dev-dependency for demo
+`num-complex`, `num-traits`, `ndarray`, `ndarray-linalg` (eigen solves); `lib_jsl_utils` as a dev-dependency for demo
 plots (a small polar/dB plot addition is planned there). Interpolation is implemented in-crate,
 since periodic and pole-aware stencils on these domains do not fit the interpolation crate.
 

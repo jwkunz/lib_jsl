@@ -10,7 +10,7 @@
 //! convention used by the LDPC and polar decoders in the `information` crate.
 
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 /// A symbol constellation with a bit labelling.

@@ -19,7 +19,7 @@ use crate::fields::domain::Domain;
 use crate::fields::field_container::{FieldQuantity, HarmonicField, Rank, TimeField};
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array2, Array3};
-use num::Zero;
+use num_traits::Zero;
 use std::ops::{Add, Mul, Sub};
 
 /// Values the operators work on: real (time domain) or complex (harmonic).

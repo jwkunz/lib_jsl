@@ -9,7 +9,7 @@ use crate::{
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
-use num::Complex;
+use num_complex::Complex;
 
 #[derive(Clone, Copy, Debug)]
 pub enum ConvolveMode {
@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_convolve_generic_complex_fft_matches_direct() {
-        use num::Complex;
+        use num_complex::Complex;
         let in1 = [
             Complex::new(1.0, 1.0),
             Complex::new(2.0, -1.0),

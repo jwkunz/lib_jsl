@@ -18,7 +18,7 @@
 use crate::fft::Fft;
 use crate::fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 type C64 = Complex<f64>;

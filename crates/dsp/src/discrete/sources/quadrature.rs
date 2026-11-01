@@ -4,7 +4,7 @@ use super::nco::{Nco, NcoSource, Phase, Waveform};
 use super::sinusoid::SineKernel;
 use super::cordic::{Cordic32, Cordic64};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 /// The sense in which the quadrature output rotates, i.e. the sign of its imaginary (sine) part.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -19,7 +19,7 @@
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
 use ndarray_linalg::{Eigh, UPLO};
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 /// Estimates the `m × m` covariance matrix of a time series from its overlapping length-`m`

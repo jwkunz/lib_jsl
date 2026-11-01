@@ -162,7 +162,7 @@ mod tests {
         dsp::discrete::spectral::freqz::{freqz, FreqzWorN},
         prelude::C1D,
     };
-    use num::Complex;
+    use num_complex::Complex;
 
     fn response_mag_db(result: &BilinearResult, w: f64, fs: f64) -> f64 {
         let fr = freqz(

@@ -5,19 +5,20 @@ use std::{
 };
 
 use ndarray::prelude::*;
-use num::{Complex, One, Zero};
+use num_complex::Complex;
+use num_traits::{One, Zero};
 
 /// These are 1D vector types for real and complex data, along with their view types. They provide convenient aliases for working with 1D arrays of real and complex numbers throughout the library, allowing us to write more concise and readable code when dealing with these common data structures.
 pub type R1D = Array1<f64>;
 pub type C1D = Array1<Complex<f64>>;
 pub type VR1D<'a> = ArrayView1<'a, f64>;
-pub type VC1D<'a> = ArrayView1<'a, num::Complex<f64>>;
+pub type VC1D<'a> = ArrayView1<'a, num_complex::Complex<f64>>;
 
 /// These are 2D array types for real and complex data, along with their view types. They provide convenient aliases for working with 2D arrays of real and complex numbers throughout the library, allowing us to write more concise and readable code when dealing with these common data structures.
 pub type R2D = Array2<f64>;
 pub type C2D = Array2<Complex<f64>>;
 pub type VR2D<'a> = ArrayView2<'a, f64>;
-pub type VC2D<'a> = ArrayView2<'a, num::Complex<f64>>;
+pub type VC2D<'a> = ArrayView2<'a, num_complex::Complex<f64>>;
 
 /// The `IsLinearOperatable` trait defines a set of operations that must be supported by any type that can be used in linear operations, such as addition, subtraction, multiplication, division, and negation. This trait is implemented for common numeric types such as `f64`, `f32`, `Complex<f64>`, `Complex<f32>`, and various integer types, allowing them to be used in linear operations throughout the library.
 pub trait IsLinearOperatable:

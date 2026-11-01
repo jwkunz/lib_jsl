@@ -2,7 +2,7 @@
 //! It is lightweight and does not require any external dependencies, but it is not optimized for performance. It is intended for educational purposes and for small input sizes, and should not be used for large input sizes or for performance-critical applications. 
 //! For larger input sizes or performance-critical applications, it is recommended to use a more optimized FFT implementation, such as the RustFFT library, which is also included in this codebase as an alternative FFT engine. 
 //! The simple cooley tukey implementation can be useful for understanding the basic principles of the FFT algorithm and for testing purposes, but it may not be suitable for all applications.
-use num::Complex;
+use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
 use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};

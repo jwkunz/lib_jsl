@@ -15,7 +15,7 @@
 //! All routines cost `O(N · F)` (samples times frequencies).
 
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 fn check_inputs(t: &[f64], y: &[f64]) -> Result<(), ErrorsJSL> {

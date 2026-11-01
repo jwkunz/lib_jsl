@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     dsp::discrete::{

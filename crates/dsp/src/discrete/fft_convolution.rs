@@ -14,7 +14,7 @@ use crate::{
     prelude::{ErrorsJSL, IsAnalytic},
 };
 use ndarray::Array2;
-use num::Complex;
+use num_complex::Complex;
 
 /// 1D convolution of `in1` and `in2` computed with FFTs.
 ///

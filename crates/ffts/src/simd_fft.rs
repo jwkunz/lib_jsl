@@ -4,7 +4,7 @@
 //! The `execute` method performs the FFT computation using an iterative approach, while the `plan` method prepares the necessary precomputations based on the specified parameters. The implementation includes architecture-specific optimizations for x86, ARM, and RISC-V platforms to leverage SIMD instructions for improved performance.
 //! The `radix2_pass_arch` function dispatches to the appropriate architecture-specific implementation of the radix-2 butterfly operation, while the `radix2_pass_scalar` function provides a fallback scalar implementation. The tests validate the correctness of the FFT output against known golden data for both standard and bit-reversed input orderings.    
 //! The implementation is designed to be flexible and efficient, making it suitable for a wide range of applications that require fast Fourier transforms on power-of-two input sizes.
-use num::Complex;
+use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
 use crate::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};

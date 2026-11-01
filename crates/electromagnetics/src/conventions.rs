@@ -4,7 +4,7 @@
 //! factor ½ (for example `S = ½ E × H*`).
 
 use lib_jsl_core::constants::em::{C0, EPS_0, MU_0};
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 pub type C64 = Complex<f64>;

@@ -3,7 +3,7 @@
 /// The `process` method allows for processing a block of samples at once, and the `reset` method clears the internal state of the filter.
 use std::collections::VecDeque;
 
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement},

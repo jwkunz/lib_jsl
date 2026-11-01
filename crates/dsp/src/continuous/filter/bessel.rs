@@ -1,5 +1,5 @@
 use ndarray::Array1;
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{number_theory::polynomial::polynomial_roots, prelude::ErrorsJSL};
 

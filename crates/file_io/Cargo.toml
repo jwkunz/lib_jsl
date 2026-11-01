@@ -12,7 +12,7 @@ path = "src/mod.rs"
 [dependencies]
 lib_jsl_core = { path = "../core" }
 ndarray.workspace = true
-num.workspace = true
+num-complex.workspace = true
 
 [dev-dependencies]
 lib_jsl_information = { path = "../information" }

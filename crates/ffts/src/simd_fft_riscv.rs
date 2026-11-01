@@ -1,4 +1,4 @@
-use num::Complex;
+use num_complex::Complex;
 
 #[inline]
 pub(crate) fn radix2_pass(buffer: &mut [Complex<f64>], twiddles: &[Complex<f64>], size: usize, m: usize) {

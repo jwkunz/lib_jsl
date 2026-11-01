@@ -2,7 +2,7 @@
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_ffts::{Fft, FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::{PI, TAU};
 
 /// The analytic signal `x + i H{x}` of a real signal, by the FFT: negative-frequency bins are

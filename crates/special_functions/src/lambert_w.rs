@@ -6,7 +6,7 @@
 //! `W_{−1}(x + 0i)` is real there, matching [`crate::lambert_w_m1`]). For real arguments,
 //! [`crate::lambert_w0`] and [`crate::lambert_w_m1`] are faster.
 
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::{E, PI};
 
 type C64 = Complex<f64>;

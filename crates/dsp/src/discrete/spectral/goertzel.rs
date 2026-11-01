@@ -1,7 +1,7 @@
 //! The Goertzel algorithm for single DFT bins.
 
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 /// The DFT of `x` at one (possibly non-integer) bin `k`, `X(k) = Σ x_n e^{−2πi k n / N}`, by the

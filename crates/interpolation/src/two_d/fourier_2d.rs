@@ -2,7 +2,7 @@
 
 use super::Interpolation2D;
 use lib_jsl_core::*;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 /// The band-limited doubly periodic trigonometric interpolant through `z[[i, j]] = f(x0 + i px/nx,

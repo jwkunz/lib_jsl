@@ -1,7 +1,7 @@
 //! Least-mean-squares adaptive FIR filters.
 
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 type C64 = Complex<f64>;
 

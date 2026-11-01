@@ -4,7 +4,7 @@ use crate::best_fft::BestFft;
 use crate::bluestein_fft::BluesteinFft;
 use crate::fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 
 #[derive(Debug)]
 enum Backend {
@@ -22,7 +22,7 @@ enum Backend {
 ///
 /// ```
 /// use lib_jsl_ffts::{Fft, FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
-/// use num::Complex;
+/// use num_complex::Complex;
 ///
 /// let mut fft = Fft::new();
 /// fft.plan(6, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard).unwrap();

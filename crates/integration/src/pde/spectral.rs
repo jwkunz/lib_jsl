@@ -12,7 +12,7 @@
 use crate::stiff_ode::Lu;
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_ffts::{Fft, FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::{PI, TAU};
 
 /// The `n + 1` Chebyshev-Gauss-Lobatto points `x_j = cos(πj/n)`, from 1 down to −1.

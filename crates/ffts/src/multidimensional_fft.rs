@@ -4,7 +4,7 @@ use crate::fft::Fft;
 use crate::fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array2, Array3, ArrayD, Axis};
-use num::Complex;
+use num_complex::Complex;
 
 type C64 = Complex<f64>;
 

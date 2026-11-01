@@ -6,7 +6,7 @@
 //!
 //! ```
 //! use lib_jsl_ffts::{Fft, FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
-//! use num::Complex;
+//! use num_complex::Complex;
 //!
 //! let mut fft = Fft::new();
 //! fft.plan(1024, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard).unwrap();

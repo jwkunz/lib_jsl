@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use rustfft::{Fft, FftPlanner};
 
 pub struct RustFftWrapper {

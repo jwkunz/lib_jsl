@@ -1,7 +1,7 @@
 //! Trigonometric (Fourier) interpolation of uniformly sampled periodic data.
 
 use lib_jsl_core::*;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 /// Interpolates `n` equally spaced samples of a periodic function with the band-limited

@@ -3,7 +3,7 @@
 use super::Interpolation3D;
 use lib_jsl_core::*;
 use ndarray::{Array3, Axis};
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 /// The band-limited triply periodic trigonometric interpolant through

@@ -8,7 +8,8 @@
 //! The use of Criterion provides a robust framework for conducting and analyzing benchmarks, making it easier to draw meaningful conclusions from the results.
 //! Overall, this benchmarking code serves as a valuable tool for evaluating the performance of different FFT implementations and guiding decisions about which implementation to use in different contexts.
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use std::hint::black_box;
 #[path = "../../ffts/benches/rust_fft_wrapper.rs"]
 mod rust_fft_wrapper;
 use lib_jsl_ffts::{
@@ -21,7 +22,7 @@ use lib_jsl_ffts_reference::{
     optimized_radix2::OptimizedRadix2FFT, optimized_split_radix::OptimizedSplitRadixFFT,
     simple_cooley_tukey::SimpleCooleyTukeyFFT,
 };
-use num::Complex;
+use num_complex::Complex;
 use rust_fft_wrapper::RustFftWrapper;
 
 fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {

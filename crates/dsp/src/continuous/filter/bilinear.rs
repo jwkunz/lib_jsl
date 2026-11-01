@@ -11,7 +11,7 @@
 ///
 /// without pre-warping, matching SciPy's `bilinear`.
 use ndarray::Array1;
-use num::Complex;
+use num_complex::Complex;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};
 

@@ -6,7 +6,7 @@
 //! The implementation is designed to be flexible and efficient, making it suitable for a wide range of applications that require fast Fourier transforms on power-of-two input sizes, while also serving as a reference for understanding the trade-offs involved in aggressive unrolling and optimization techniques in FFT implementations.  
 //! The `OptimizedSplitRadixFFT` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
 //! The `execute` method performs the FFT computation using an iterative approach with aggressive unrolling for the initial stages, while the `plan` method prepares the necessary precomputations based on the specified parameters. The implementation includes detailed comments explaining the logic and structure of the algorithm, making it a valuable resource for learning and experimentation with FFT optimization techniques. 
-use num::Complex;
+use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
 use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};

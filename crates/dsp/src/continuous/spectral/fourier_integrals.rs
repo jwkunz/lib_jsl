@@ -7,7 +7,7 @@
 //! samples over the support. A chirp-z transform evaluates the requested
 //! evenly spaced frequencies using the crate's `Fft` implementation.
 
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::TAU;
 
 use crate::{

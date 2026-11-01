@@ -1,4 +1,4 @@
-use num::Complex;
+use num_complex::Complex;
 
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;

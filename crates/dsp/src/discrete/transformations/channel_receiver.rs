@@ -1,5 +1,5 @@
 //! Receiver front-end that mixes a channel to baseband and then resamples.
-use num::Complex;
+use num_complex::Complex;
 
 use crate::{
     dsp::discrete::{

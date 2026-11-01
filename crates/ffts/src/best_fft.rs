@@ -21,7 +21,7 @@
 //!
 //! Twiddle factors are computed once at planning time from exact angles (no recurrences), and laid
 //! out per pass in exactly the order the kernels read them.
-use num::Complex;
+use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
 use crate::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};
@@ -349,7 +349,7 @@ fn radix4_pass_compact_scalar(data: &mut [Complex<f64>], tw: &[Complex<f64>], l:
 
 #[cfg(target_arch = "x86_64")]
 mod avx {
-    use num::Complex;
+    use num_complex::Complex;
     use std::arch::x86_64::*;
 
     /// Complex product of two pairs of complex values with FMA.

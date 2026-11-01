@@ -2,7 +2,7 @@
 //! The non-linearity is applied element-wise to the input signal, and the output is of the same length as the input. 
 //! The specific non-linear function can be defined by the user, allowing for flexibility in how the transformation is applied to the signal.
 
-use num::Complex;
+use num_complex::Complex;
 
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::{ErrorsJSL, IsAnalytic, IsLinearOperatable};

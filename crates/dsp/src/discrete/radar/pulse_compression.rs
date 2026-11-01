@@ -8,7 +8,7 @@
 use crate::discrete::convolve::ConvolveMode;
 use crate::discrete::fft_convolution::fft_convolve;
 use lib_jsl_core::ErrorsJSL;
-use num::Complex;
+use num_complex::Complex;
 use std::f64::consts::PI;
 
 type C64 = Complex<f64>;

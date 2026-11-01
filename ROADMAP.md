@@ -146,6 +146,10 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Maximum entropy
 [x] Linear predictive coding
 [x] Wavelet transform
+[ ] Welch power spectral density
+[ ] Short-time Fourier transform and spectrogram
+[ ] Hilbert transform and analytic signal
+[ ] Goertzel algorithm
 
 ### Transformations
 [x] Channel impairment
@@ -153,6 +157,19 @@ alphabetical order. `[x]` marks implemented items, `[ ]` planned ones.
 [x] Channel transmitter
 [x] Frequency mixer
 [x] Non-linearity transformer
+
+### Adaptive filters
+[ ] LMS and normalized LMS
+[ ] RLS
+
+### Synchronization
+[ ] Phase-locked loop
+[ ] Costas loop
+
+### Multirate and radar
+[ ] CIC filters
+[ ] Half-band filters
+[ ] Pulse compression (matched filtering, chirps)
 
 # Electromagnetics (`electromagnetics`)
 Design and conventions: `crates/electromagnetics/DESIGN.md`
@@ -191,6 +208,24 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Max-SNR beamformer
 [x] LCMV and MVDR beamformers
 
+## Transmission lines and networks
+[ ] Transmission lines (impedance transformation, standing waves)
+[ ] S-parameters and network conversions
+[ ] Smith chart
+
+## Propagation and systems
+[ ] Friis transmission and path loss
+[ ] Multipath and two-ray models
+[ ] Atmospheric attenuation
+[ ] Radar equation
+
+## Advanced algorithms
+[ ] Spherical wave expansion
+[ ] Near-field to far-field transformation
+[ ] Direction-of-arrival estimation on sensor arrays
+[ ] Method of moments (wire antennas)
+[ ] FDTD solver
+
 ## Demonstrations
 [x] Antenna patterns
 [x] Field containers
@@ -203,6 +238,9 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Fractional FFT
 [x] SIMD FFT (generic, x86, ARM, RISC-V)
 [x] FFT engine trait
+[ ] Real-input FFT
+[ ] Multidimensional FFT (2D, 3D)
+[ ] Discrete cosine and sine transforms
 [x] Size-sweep benchmark
 
 # FFT reference (`ffts_reference`)
@@ -220,6 +258,11 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 ## Image
 [x] JPEG
 [x] JPEG files
+[ ] Lossless images (PNG, PPM)
+
+## Data
+[ ] CSV files
+[ ] NumPy .npy files
 
 # Geometry (`geometry`)
 [x] Common
@@ -279,6 +322,17 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] k-d trees
 [x] Octrees
 [x] Quadtrees
+[ ] Voronoi diagrams
+[ ] Mesh smoothing and decimation
+[ ] Polygon boolean operations
+
+# Graph (`graph`, planned crate)
+[ ] Graph representation helpers (edge lists, adjacency)
+[ ] Shortest paths (Dijkstra, Bellman-Ford, A*)
+[ ] All-pairs shortest paths (Floyd-Warshall)
+[ ] Minimum spanning trees (Kruskal, Prim)
+[ ] Maximum flow (Edmonds-Karp, Dinic)
+[ ] Topological sort and strongly connected components
 
 # Information (`information`)
 
@@ -321,6 +375,18 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Simpson's 1/3 rule
 [x] Trapezoidal
 [x] Complex path integrals
+[ ] Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature
+[ ] Tanh-sinh quadrature
+[ ] Romberg integration
+[ ] Multidimensional cubature
+[ ] Quasi-Monte Carlo integration
+[ ] Stiff ODE solvers (BDF, Rosenbrock)
+[ ] Boundary value problems (shooting, collocation)
+
+## Partial differential equations
+[ ] Finite difference methods
+[ ] Finite element methods
+[ ] Spectral methods
 
 # Interpolation (`interpolation`)
 [x] Interpolation trait
@@ -410,6 +476,16 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] UMAP
 [x] Linear discriminant analysis
 
+## Neural networks
+[ ] Multilayer perceptron with backpropagation
+
+## Ensembles and model selection
+[ ] Gradient boosting
+[ ] Cross-validation and grid search
+
+## Sequence models
+[ ] HMM training (Baum-Welch)
+
 ## Demonstrations
 [x] Clustering
 [x] Regression
@@ -423,6 +499,10 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Multiplicative inverse modulo
 [x] Polynomial
 [x] Text coded integer
+[ ] Prime sieves
+[ ] Primality testing (Miller-Rabin)
+[ ] Integer factorization
+[ ] Chinese remainder theorem
 
 # Optimization (`optimization`)
 [x] Optimization traits
@@ -434,12 +514,20 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Powell's method
 [x] Linear programming
 [x] Dynamic programming
+[ ] Nonlinear least squares and curve fitting (Levenberg-Marquardt)
+[ ] Quasi-Newton methods (BFGS, L-BFGS)
+[ ] Nonlinear conjugate gradient
+[ ] Constrained optimization (SQP, augmented Lagrangian)
+[ ] Differential evolution
+[ ] Particle swarm optimization
 
 # Random (`random`)
 [x] Histogram
 [x] Uniform RNG
 [x] xoshiro256++
 [x] SplitMix64
+[ ] Quasi-random sequences (Sobol, Halton)
+[ ] Markov chain Monte Carlo (Metropolis-Hastings)
 
 ## Distributions
 [x] Exponential
@@ -453,6 +541,11 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Student's t
 [x] Gamma
 [x] Beta
+[ ] Log-normal
+[ ] Cauchy
+[ ] Binomial
+[ ] Multivariate normal
+[ ] Dirichlet
 
 # Root finding (`root_finding`)
 [x] Bracketing
@@ -463,6 +556,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Van Wijngaarden-Dekker-Brent
 [x] Newton-Raphson
 [x] Polynomial roots
+[ ] Nonlinear systems (Newton, Broyden)
 
 # Sorting and selection (`sorting`)
 [x] Quicksort
@@ -494,6 +588,18 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 [x] Jacobian elliptic functions
 [x] Hypergeometric functions
 [x] Statistical functions
+[ ] Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev, Jacobi)
+[ ] Associated Legendre functions and spherical harmonics
+[ ] Riemann zeta
+[ ] Lambert W
+[ ] Polylogarithm
+
+# Statistics (`statistics`, planned crate)
+[ ] Descriptive statistics
+[ ] Correlation and covariance
+[ ] Hypothesis tests
+[ ] Kernel density estimation
+[ ] Bootstrap
 
 # Utils (`utils`)
 [x] Terminal plots (Cartesian and polar)

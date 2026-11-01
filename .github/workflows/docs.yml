@@ -1,0 +1,67 @@
+name: Documentation
+
+# Builds the book (mdBook) and the API reference (rustdoc) and publishes them to GitHub Pages:
+#   https://jwkunz.github.io/lib_jsl/        landing page
+#   https://jwkunz.github.io/lib_jsl/book/   the book
+#   https://jwkunz.github.io/lib_jsl/api/    the API reference
+# Requires Settings → Pages → Source: "GitHub Actions".
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  MDBOOK_VERSION: 0.5.4
+  MDBOOK_KATEX_VERSION: 0.10.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopenblas-dev pkg-config gfortran
+      - name: Cache cargo tools and build output
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/mdbook
+            ~/.cargo/bin/mdbook-katex
+            ~/.cargo/registry
+            target
+          key: docs-${{ runner.os }}-${{ env.MDBOOK_VERSION }}-${{ env.MDBOOK_KATEX_VERSION }}-${{ hashFiles('Cargo.lock') }}
+      - name: Install mdBook and mdbook-katex
+        run: |
+          command -v mdbook >/dev/null || cargo install --locked mdbook --version "$MDBOOK_VERSION"
+          command -v mdbook-katex >/dev/null || cargo install --locked mdbook-katex --version "$MDBOOK_KATEX_VERSION"
+      - name: Build the site (regenerates figures, checks doc links and examples)
+        run: book/build-site.sh
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

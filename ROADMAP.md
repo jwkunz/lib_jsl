@@ -385,7 +385,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 ## Partial differential equations
 [x] Finite difference methods
-[ ] Finite element methods
+[x] Finite element methods
 [ ] Spectral methods
 
 # Interpolation (`interpolation`)

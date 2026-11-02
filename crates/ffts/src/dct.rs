@@ -14,6 +14,8 @@
 //! `2(N∓1)` and `2N`. [`TrigNormalization::Ortho`] scales each transform to an orthogonal matrix,
 //! so the inverse is the transpose (type II ↔ III, types I and IV self-inverse). Every transform
 //! is an O(N log N) FFT of a symmetric extension or twiddled zero-padding of length about 2N.
+//!
+//! See the book entry [Discrete cosine and sine transforms](https://jwkunz.github.io/lib_jsl/book/fft/dct.html).
 
 use crate::fft::Fft;
 use crate::fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
@@ -75,6 +77,7 @@ fn type_four_core(x: &[f64]) -> Result<Vec<C64>, ErrorsJSL> {
     Ok((0..n).map(|k| C64::from_polar(2.0, -PI * (2 * k + 1) as f64 / (4 * n) as f64) * big[k]).collect())
 }
 
+// ANCHOR: dct_raw
 fn dct_raw(x: &[f64], kind: TrigTransformType) -> Result<Vec<f64>, ErrorsJSL> {
     let n = x.len();
     Ok(match kind {
@@ -98,6 +101,7 @@ fn dct_raw(x: &[f64], kind: TrigTransformType) -> Result<Vec<f64>, ErrorsJSL> {
         IV => type_four_core(x)?.iter().map(|v| v.re).collect(),
     })
 }
+// ANCHOR_END: dct_raw
 
 fn dst_raw(x: &[f64], kind: TrigTransformType) -> Result<Vec<f64>, ErrorsJSL> {
     let n = x.len();

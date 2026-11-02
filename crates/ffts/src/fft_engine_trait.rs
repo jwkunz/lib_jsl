@@ -1,5 +1,7 @@
 //! The interface shared by the one-dimensional FFT engines: plan once for a size, scaling,
 //! direction and input ordering, then execute repeatedly.
+//!
+//! See the book entry [Fast Fourier transforms](https://jwkunz.github.io/lib_jsl/book/fft/index.html#two-crates).
 
 /// The sign of the exponent: `Forward` computes `X_k = Σ x_n e^{−2πi kn/N}`, `Inverse` uses `e^{+2πi kn/N}`.
 #[derive(Clone,Copy,Debug)]

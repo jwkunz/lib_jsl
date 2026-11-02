@@ -6,6 +6,8 @@
 //! directly; each multiplication adds a rounding error, so the error grows like `n ε` instead of
 //! `ε log n` (about 1e-11 relative at n = 2²⁰, against 6e-16 for [`crate::optimized_radix2`], which
 //! precomputes exact twiddles). That is a lesson, not something to copy.
+//!
+//! See the book entry [The fast Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/fft.html#the-radix-2-cooley-tukey-algorithm).
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
@@ -75,6 +77,7 @@ impl FftEngine1D for SimpleCooleyTukeyFFT {
             }
         }
         // Do in place radix-2 Cooley-Tukey FFT with bit reversal
+        // ANCHOR: radix2_stages
         for s in 1..=log2n {
             // m = 2^s is the size of the sub-FFTs being combined
             let m = 1 << s;
@@ -102,6 +105,7 @@ impl FftEngine1D for SimpleCooleyTukeyFFT {
                 }
             }
         }
+        // ANCHOR_END: radix2_stages
         // Scale the output if necessary according to the planned scale factor
         Ok(match self.scale {
             FftScaleFactor::None => buffer,

@@ -21,6 +21,8 @@
 //!
 //! Twiddle factors are computed once at planning time from exact angles (no recurrences), and laid
 //! out per pass in exactly the order the kernels read them.
+//!
+//! See the book entry [The fast Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/fft.html#the-production-engines).
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
@@ -297,6 +299,7 @@ fn radix4_first(data: &mut [Complex<f64>], inverse: bool) {
     }
 }
 
+// ANCHOR: radix4_pass
 /// A radix-4 pass combining four length-`l` sub-transforms in every block of `4l` points.
 ///
 /// With `W = exp(∓2πi / 4l)` and the block's four quarters `A, B, C, D` (sub-transforms of the
@@ -323,6 +326,7 @@ fn radix4_pass_scalar(data: &mut [Complex<f64>], tw: &[Complex<f64>], l: usize, 
         }
     }
 }
+// ANCHOR_END: radix4_pass
 
 /// `radix4_pass_scalar` with only `W^j` stored; `W^2j` and `W^3j` are computed on the fly.
 fn radix4_pass_compact_scalar(data: &mut [Complex<f64>], tw: &[Complex<f64>], l: usize, inverse: bool) {

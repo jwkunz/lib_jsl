@@ -4,6 +4,8 @@
 //! time to SIMD kernels for x86-64 (AVX2), ARM (NEON) and RISC-V where available, with a scalar
 //! fallback. [`crate::BestFft`] is faster on x86-64; this engine provides vectorised kernels on the
 //! other architectures.
+//!
+//! See the book entry [The fast Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/fft.html#the-production-engines).
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 

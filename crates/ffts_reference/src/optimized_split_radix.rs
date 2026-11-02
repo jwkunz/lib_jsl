@@ -15,6 +15,8 @@
 //! This engine is a plain recursion over strided views of the input, with an exact twiddle table.
 //! Replacing an earlier engine of the same name, which (despite its name) was not a split-radix
 //! algorithm and returned wrong results; its tests computed the error without checking it.
+//!
+//! See the book entry [The fast Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/fft.html#split-radix).
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 

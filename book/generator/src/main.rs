@@ -5,6 +5,7 @@
 //! names) to regenerate only some chapters.
 
 mod derivatives;
+mod fft;
 mod integration;
 mod interpolation;
 mod linear_algebra;
@@ -32,7 +33,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 8] = [
+    let chapters: [(&str, fn()); 9] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -41,6 +42,7 @@ fn main() {
         ("optimization_more", optimization_more::generate),
         ("special_functions", special_functions::generate),
         ("linear_algebra", linear_algebra::generate),
+        ("fft", fft::generate),
     ];
     for (name, generate) in chapters {
         if wanted(name) {

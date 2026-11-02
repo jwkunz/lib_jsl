@@ -3,6 +3,8 @@
 //! The same algorithm as [`crate::simple_cooley_tukey`], with the twiddle factors of every stage
 //! computed once at planning time from exact angles and stored in the order the butterflies read
 //! them, and a precomputed bit-reversal map. Accurate to `O(ε log n)`.
+//!
+//! See the book entry [The fast Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/fft.html#twiddle-factors-and-accuracy).
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 

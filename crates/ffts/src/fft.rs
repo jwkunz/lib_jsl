@@ -1,4 +1,6 @@
 //! [`Fft`]: the default FFT engine. Plan it once, then call [`FftEngine1D::execute`] repeatedly.
+//!
+//! See the book entry [The fast Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/fft.html#the-production-engines).
 
 use crate::best_fft::BestFft;
 use crate::bluestein_fft::BluesteinFft;

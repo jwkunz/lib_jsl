@@ -17,7 +17,7 @@
 The **QR factorisation** writes a matrix as an orthogonal factor times a triangular one. Its
 columns of $Q$ are an orthonormal basis for the column space of $A$, built so that the first $k$ columns
 of $Q$ span the first $k$ columns of $A$. It is the tool of choice for linear least squares, the first step
-of the SVD and of eigenvalue algorithms, and the core of the QR algorithm for eigenvalues.
+of the [SVD](svd.md) and of eigenvalue algorithms, and the core of the QR algorithm for eigenvalues.
 
 Orthogonal matrices are the perfectly conditioned transformations: they preserve lengths, so they
 never amplify errors. That is the source of QR's stability, but only if the computed $Q$ really is
@@ -83,7 +83,7 @@ $R$ then decreases, $|r_{11}| \ge |r_{22}| \ge \cdots$, and a sharp drop reveals
 rank $r$, then $|r_{r+1,r+1}|$ is small. The column norms are **downdated** after each step rather than recomputed,
 with a recomputation when cancellation makes the downdated value unreliable (the safeguard used in LAPACK's
 `geqp3`). The production library uses pivoted QR for [least squares](least-squares.md) and to precondition
-the Jacobi SVD.
+the [Jacobi SVD](svd.md#one-sided-jacobi).
 
 ## Algorithm
 

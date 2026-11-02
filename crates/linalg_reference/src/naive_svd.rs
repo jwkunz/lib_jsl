@@ -6,6 +6,8 @@
 //! beneath the rounding error of the largest and are lost. Production SVDs work on `A` itself:
 //! Golub-Kahan bidiagonalisation (the default in `lib_jsl_linalg`, as in LAPACK) or one-sided
 //! Jacobi (`lib_jsl_linalg`'s `SvdJacobi`).
+//!
+//! See the book entry [The singular value decomposition](https://jwkunz.github.io/lib_jsl/book/linear_algebra/svd.html#the-decomposition).
 
 use crate::Error;
 use ndarray::{Array1, Array2};
@@ -19,6 +21,7 @@ pub struct Svd {
     pub v: Array2<f64>,
 }
 
+// ANCHOR: naive_svd
 /// The SVD via the Jacobi eigenvalue method applied to `AᵀA`.
 pub fn svd_via_normal_matrix(a: &Array2<f64>) -> Result<Svd, Error> {
     let (m, n) = a.dim();
@@ -33,6 +36,7 @@ pub fn svd_via_normal_matrix(a: &Array2<f64>) -> Result<Svd, Error> {
     });
     Ok(Svd { u, singular_values, v })
 }
+// ANCHOR_END: naive_svd
 
 #[cfg(test)]
 mod tests {

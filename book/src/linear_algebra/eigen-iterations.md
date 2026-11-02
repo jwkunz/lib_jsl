@@ -69,7 +69,7 @@ to a diagonal matrix of eigenvalues; the product of the rotations holds the eige
 quadratic once the off-diagonal part is small, and 6 to 10 sweeps suffice whatever the order (table below).
 Jacobi's method is slower than the QR algorithm, but simple, naturally parallel, and accurate: it determines
 small eigenvalues of graded matrices to high relative accuracy (Demmel and Veselić, 1992), which is why its
-one-sided form is used for the SVD.
+one-sided form is used for the [SVD](svd.md#one-sided-jacobi).
 
 ### The QR algorithm
 

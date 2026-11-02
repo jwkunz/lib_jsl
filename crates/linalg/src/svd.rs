@@ -8,6 +8,8 @@
 //!   singular values, the normalised columns the left singular vectors, and the accumulated
 //!   rotations the right singular vectors. Slower, but small singular values of graded matrices
 //!   are found to high *relative* accuracy. Pivoted QR preconditions it.
+//!
+//! See the book entry [The singular value decomposition](https://jwkunz.github.io/lib_jsl/book/linear_algebra/svd.html).
 
 use crate::dense::{Mat, axpy_sub, dot_conj};
 use crate::error::{LinalgError, Result};
@@ -22,6 +24,7 @@ pub(crate) struct ThinSvd<T> {
     pub v: Mat<T>,
 }
 
+// ANCHOR: jacobi_tall
 /// One-sided Jacobi on a tall (`m ≥ n`) matrix.
 fn jacobi_tall<T: Scalar>(a: &Mat<T>) -> Result<ThinSvd<T>> {
     let (m, n) = (a.rows, a.cols);
@@ -103,6 +106,7 @@ fn jacobi_tall<T: Scalar>(a: &Mat<T>) -> Result<ThinSvd<T>> {
     complete_columns(&mut u, sigma.iter().filter(|&&s| s > 0.0).count());
     Ok(ThinSvd { u, sigma, v: vm })
 }
+// ANCHOR_END: jacobi_tall
 
 /// Replaces columns `valid..` of `q` (whose first `valid` columns are orthonormal) with further
 /// orthonormal columns, by Gram-Schmidt on the standard basis.
@@ -149,6 +153,7 @@ pub(crate) fn singular_values<T: Scalar>(a: &Mat<T>) -> Result<Vec<f64>> {
     Ok(sigma)
 }
 
+// ANCHOR: thin_svd_jacobi
 /// The thin SVD by one-sided Jacobi (wide matrices through their adjoint): slower than
 /// Golub-Kahan, but it finds small singular values to high *relative* accuracy.
 ///
@@ -174,6 +179,7 @@ pub(crate) fn thin_svd_jacobi<T: Scalar>(a: &Mat<T>) -> Result<ThinSvd<T>> {
     }
     Ok(ThinSvd { u, sigma, v })
 }
+// ANCHOR_END: thin_svd_jacobi
 
 /// Extends an `r × k` matrix with orthonormal columns to a square unitary `r × r` matrix.
 pub(crate) fn complete_square<T: Scalar>(q: &Mat<T>) -> Mat<T> {
@@ -331,6 +337,7 @@ fn rotate<T: Scalar>(x: &mut Mat<T>, i: usize, j: usize, c: f64, s: f64) {
     }
 }
 
+// ANCHOR: bidiagonal_qr
 /// Implicit-shift QR on the real upper bidiagonal with diagonal `d` and super-diagonal `e`,
 /// accumulating the left rotations into the rows of `ut` and the right ones into the rows of `vt`.
 fn bidiagonal_qr<T: Scalar>(d: &mut [f64], e: &mut [f64], mut ut: Option<&mut Mat<T>>, mut vt: Option<&mut Mat<T>>) -> Result<()> {
@@ -432,3 +439,4 @@ fn bidiagonal_qr<T: Scalar>(d: &mut [f64], e: &mut [f64], mut ut: Option<&mut Ma
     }
     Ok(())
 }
+// ANCHOR_END: bidiagonal_qr

@@ -2,7 +2,7 @@
 
 use crate::svg::{Legend, Plot, Series, Style};
 use crate::write;
-use lib_jsl_linalg::{Cholesky, Eig, EigVals, EigValsh, Eigh, Inverse, LeastSquaresSvd, Solve, UPLO};
+use lib_jsl_linalg::{Cholesky, Eig, EigVals, EigValsh, Eigh, Inverse, LeastSquaresSvd, SVD, Solve, SvdJacobi, UPLO};
 use lib_jsl_linalg_reference as reference;
 use ndarray::{Array1, Array2, array};
 use std::time::Instant;
@@ -338,6 +338,78 @@ fn nonnormal_figure() {
     write(CHAPTER, "grcar.svg", &plot.render());
 }
 
+const SVD_REFERENCE: &str = include_str!("../data/svd_reference.csv");
+
+fn svd_accuracy_figure() {
+    // A = B D with B random (40 × 20, well conditioned) and D = diag(2^−k), k = round(50 i / 19) in
+    // the scrambled order i = 7 j mod 20: every entry is an exact double, and data/make_svd_ref.py
+    // computes the singular values with mpmath at 50 digits.
+    let (m, n) = (40, 20);
+    let b = reference::random_matrix(m, n, 61);
+    let d = Array1::from_shape_fn(n, |j| 2f64.powi(-((50.0 * ((7 * j) % n) as f64 / 19.0).round() as i32)));
+    let a = &b * &d;
+    let exact: Vec<f64> = SVD_REFERENCE.lines().filter(|l| !l.starts_with('#')).map(|l| l.parse().unwrap()).collect();
+    let rel = |s: &[f64]| -> Vec<(f64, f64)> { exact.iter().zip(s).map(|(&t, &v)| (t, ((v - t) / t).abs().clamp(1e-17, 1e2))).collect() };
+    let gk = a.svd(false, false).unwrap().1.to_vec();
+    let jac = a.svd_jacobi(false, false).unwrap().1.to_vec();
+    let naive = reference::naive_svd::svd_via_normal_matrix(&a).unwrap().singular_values.to_vec();
+    let mut plot = Plot::new("Relative error of each singular value of a column-scaled matrix A = B D", "singular value σᵢ", "relative error");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.legend = Legend::TopRight;
+    plot.y_range = Some((1e-17, 1e2));
+    plot.series.push(Series::new("eigenvalues of AᵀA (reference)", rel(&naive), Style::LineMarkers, 0));
+    plot.series.push(Series::new("Golub-Kahan (production svd)", rel(&gk), Style::LineMarkers, 1));
+    plot.series.push(Series::new("one-sided Jacobi (production svd_jacobi)", rel(&jac), Style::LineMarkers, 2));
+    plot.series.push(Series::new("ε σ₁ / σᵢ", exact.iter().map(|&t| (t, (f64::EPSILON * exact[0] / t).min(1e2))).collect(), Style::Dashed, 1));
+    write(CHAPTER, "svd_accuracy.svg", &plot.render());
+}
+
+fn low_rank_figure() {
+    // f(x, y) = 1 / (1 + x + y) on a 100 × 100 grid of [0, 1]²: a smooth function, numerically of low rank.
+    let n = 100;
+    let a = Array2::from_shape_fn((n, n), |(i, j)| 1.0 / (1.0 + i as f64 / 99.0 + j as f64 / 99.0) + 0.3 * ((6.0 * (i as f64 / 99.0)).sin() * (j as f64 / 99.0)).cos());
+    let (u, s, vt) = a.svd(true, true).unwrap();
+    let (u, vt) = (u.unwrap(), vt.unwrap());
+    let norm2 = s[0];
+    let mut errors = vec![];
+    for k in 1..=30usize {
+        let ak = u.slice(ndarray::s![.., ..k]).dot(&Array2::from_diag(&s.slice(ndarray::s![..k]).to_owned())).dot(&vt.slice(ndarray::s![..k, ..]));
+        // The spectral norm of the error, as the largest singular value of A − A_k.
+        let err = (&a - &ak).svd(false, false).unwrap().1[0];
+        errors.push((k as f64, (err / norm2).max(1e-17)));
+    }
+    let mut plot = Plot::new("Best rank-k approximation of a sampled smooth function (Eckart-Young)", "rank k", "relative to σ₁");
+    plot.log_y = true;
+    plot.legend = Legend::TopRight;
+    plot.y_range = Some((1e-17, 2.0));
+    plot.series.push(Series::new("singular values σₖ₊₁ / σ₁", (1..=30).map(|k| (k as f64, (s[k] / norm2).max(1e-17))).collect(), Style::Markers, 0));
+    plot.series.push(Series::new("‖A − Aₖ‖₂ / σ₁ for the truncated SVD Aₖ", errors, Style::Line, 1));
+    write(CHAPTER, "low_rank.svg", &plot.render());
+}
+
+fn svd_speed_figure() {
+    let mut plot = Plot::new("Time for the SVD with vectors of an n × n matrix (one core)", "order n", "seconds");
+    plot.log_x = true;
+    plot.log_y = true;
+    plot.legend = Legend::TopLeft;
+    let (mut naive, mut gk, mut gkv, mut jac) = (vec![], vec![], vec![], vec![]);
+    for n in [16usize, 32, 64, 128, 256, 512] {
+        let a = reference::random_matrix(n, n, 71);
+        if n <= 128 {
+            naive.push((n as f64, time(|| { std::hint::black_box(reference::naive_svd::svd_via_normal_matrix(&a).unwrap()); })));
+        }
+        gk.push((n as f64, time(|| { std::hint::black_box(a.svd(false, false).unwrap()); })));
+        gkv.push((n as f64, time(|| { std::hint::black_box(a.svd(true, true).unwrap()); })));
+        jac.push((n as f64, time(|| { std::hint::black_box(a.svd_jacobi(true, true).unwrap()); })));
+    }
+    plot.series.push(Series::new("reference: Jacobi eigenvectors of AᵀA", naive, Style::Dashed, 0));
+    plot.series.push(Series::new("Golub-Kahan, values only", gk, Style::LineMarkers, 1));
+    plot.series.push(Series::new("Golub-Kahan, with vectors", gkv, Style::LineMarkers, 2));
+    plot.series.push(Series::new("one-sided Jacobi, with vectors", jac, Style::LineMarkers, 3));
+    write(CHAPTER, "svd_speed.svg", &plot.render());
+}
+
 pub fn generate() {
     pivoting_tables();
     conditioning_figure();
@@ -348,5 +420,8 @@ pub fn generate() {
     eigen_iteration_tables();
     nonnormal_figure();
     eigen_accuracy_and_speed();
+    svd_accuracy_figure();
+    low_rank_figure();
+    svd_speed_figure();
     speed_figure();
 }

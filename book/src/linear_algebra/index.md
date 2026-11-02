@@ -75,3 +75,4 @@ blocking and bidiagonalisation buy. `cargo bench -p lib_jsl_linalg_reference` ra
 | All eigenvalues (and vectors) of a symmetric or Hermitian matrix | `eigh`, `eigvalsh` | [Symmetric and general eigensolvers](eigensolvers.md) |
 | All eigenvalues (and vectors) of a general matrix | `eig`, `eigvals` | [Symmetric and general eigensolvers](eigensolvers.md#general-matrices-hessenberg-reduction-and-franciss-algorithm) |
 | One eigenpair, near a known value | inverse or Rayleigh quotient iteration | [Eigenvalue algorithms](eigen-iterations.md) |
+| Singular values, rank, condition number, low-rank approximation | `svd` (`svd_jacobi` for graded matrices) | [The singular value decomposition](svd.md) |

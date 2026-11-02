@@ -206,7 +206,7 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
 - [Hermitian eigenproblem (Householder tridiagonalisation, implicit QL)](linear_algebra/eigensolvers.md#hermitian-matrices-tridiagonalisation-and-ql)
 - [General eigenproblem (Hessenberg reduction, shifted QR, complex Schur form)](linear_algebra/eigensolvers.md#general-matrices-hessenberg-reduction-and-franciss-algorithm)
-- Singular value decomposition (one-sided Jacobi)
+- [Singular value decomposition (Golub-Kahan; one-sided Jacobi)](linear_algebra/svd.md)
 - [Least squares (pivoted QR, SVD for rank-deficient systems)](linear_algebra/least-squares.md)
 - [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 
@@ -223,7 +223,7 @@ Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_referenc
 - [Power, inverse and Rayleigh quotient iteration](linear_algebra/eigen-iterations.md#power-iteration-inverse-iteration-and-the-rayleigh-quotient)
 - [Cyclic Jacobi eigenvalue method](linear_algebra/eigen-iterations.md#the-jacobi-method)
 - [Unshifted and Wilkinson-shifted QR algorithm with deflation](linear_algebra/eigen-iterations.md#the-qr-algorithm)
-- SVD from the eigenproblem of AᵀA
+- [SVD from the eigenproblem of AᵀA](linear_algebra/svd.md#the-decomposition)
 - [Least squares by normal equations and by QR](linear_algebra/least-squares.md)
 - [Linear algebra race benchmark](linear_algebra/index.md#the-reference-crate)
 

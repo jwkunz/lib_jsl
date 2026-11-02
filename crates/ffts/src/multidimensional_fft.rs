@@ -1,4 +1,6 @@
 //! Multidimensional FFTs: transforms along one axis, or over every axis of a 2D, 3D or N-D array.
+//!
+//! See the book entry [Real and multidimensional FFTs](https://jwkunz.github.io/lib_jsl/book/fft/real-multidimensional.html#multidimensional-transforms).
 
 use crate::fft::Fft;
 use crate::fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
@@ -8,6 +10,7 @@ use num_complex::Complex;
 
 type C64 = Complex<f64>;
 
+// ANCHOR: fft_axis
 /// Transforms every 1D lane of `data` along `axis` in place. Inverse transforms are scaled by
 /// `1 / len`, so a forward and inverse pass along the same axis is the identity.
 pub fn fft_axis(data: &mut ArrayD<C64>, axis: usize, direction: FftDirection) -> Result<(), ErrorsJSL> {
@@ -29,6 +32,7 @@ pub fn fft_axis(data: &mut ArrayD<C64>, axis: usize, direction: FftDirection) ->
     }
     Ok(())
 }
+// ANCHOR_END: fft_axis
 
 /// The N-dimensional DFT `X[k] = Σ x[n] e^{∓2πi Σ_d k_d n_d / N_d}` over every axis (the inverse
 /// is scaled by `1 / Π N_d`). Any lengths are supported.

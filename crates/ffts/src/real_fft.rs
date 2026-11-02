@@ -1,4 +1,6 @@
 //! FFTs of real-valued signals.
+//!
+//! See the book entry [Real and multidimensional FFTs](https://jwkunz.github.io/lib_jsl/book/fft/real-multidimensional.html#the-real-fft-by-half-length-packing).
 
 use crate::fft::Fft;
 use crate::fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
@@ -52,6 +54,7 @@ impl RealFft {
         self.n / 2 + 1
     }
 
+    // ANCHOR: real_forward
     /// The bins `X_0 ..= X_{n/2}` of the unscaled DFT `X_k = Σ x_m e^{-2πi km/n}`.
     pub fn forward(&mut self, x: &[f64]) -> Result<Vec<C64>, ErrorsJSL> {
         if x.len() != self.n {
@@ -82,6 +85,7 @@ impl RealFft {
         }
         Ok(out)
     }
+    // ANCHOR_END: real_forward
 
     /// The real signal whose spectrum bins are `spectrum` (`n/2 + 1` values; the imaginary parts
     /// of `X_0`, and of `X_{n/2}` for even `n`, are ignored as they must vanish).

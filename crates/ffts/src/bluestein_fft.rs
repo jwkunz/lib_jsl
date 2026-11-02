@@ -137,17 +137,20 @@ impl FftEngine1D for BluesteinFft {
             FftDirection::Forward => -1.0_f64,
             FftDirection::Inverse => 1.0_f64,
         };
-        // Precompute the chirp factors and the FFT of b for the convolution step   
+        // The chirp exp(±iπ k²/n). Its angle is reduced exactly first: exp(iπ m/n) has period 2n in
+        // m, so k² is taken mod 2n in integers. (Forming π k²/n in floating point gave angles up to
+        // π n radians, and errors of 1e-11 at n = 1e5 and 3e-10 at n = 2^20.)
+        let chirp_angle = |k: usize| std::f64::consts::PI * ((k as u128 * k as u128) % (2 * size as u128)) as f64 / size as f64;
         self.chirp = (0..size)
             .map(|k| {
-                let theta = sign * std::f64::consts::PI * (k as f64) * (k as f64) / size as f64;
+                let theta = sign * chirp_angle(k);
                 Complex::new(theta.cos(), theta.sin())
             })
             .collect();
         // Prepare the b sequence for convolution, which is the chirp sequence extended to the convolution size with appropriate symmetry  
         let mut b = vec![Complex::new(0.0, 0.0); self.conv_size];
         for n in 0..size {
-            let theta = -sign * std::f64::consts::PI * (n as f64) * (n as f64) / size as f64;
+            let theta = -sign * chirp_angle(n);
             let val = Complex::new(theta.cos(), theta.sin());
             b[n] = val;
             if n != 0 {
@@ -227,5 +230,25 @@ mod tests {
         for (actual, expected) in output.iter().zip(expected.iter()) {
             assert_complex_close(*actual, *expected, 1e-8);
         }
+    }
+
+    #[test]
+    fn large_prime_lengths_keep_full_accuracy() {
+        // x_k = exp(2πi f k / n) transforms to n at bin f. The chirp angle π k²/n was once formed in
+        // floating point, which cost about five digits at n = 100 003.
+        let n = 100_003usize;
+        let f = 12_345usize;
+        let x: Vec<Complex<f64>> = (0..n)
+            .map(|k| {
+                let a = 2.0 * std::f64::consts::PI * ((f * k) % n) as f64 / n as f64;
+                Complex::new(a.cos(), a.sin())
+            })
+            .collect();
+        let mut fft = BluesteinFft::new();
+        fft.plan(n, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard).unwrap();
+        let y = fft.execute(&x).unwrap();
+        let err = y.iter().enumerate().map(|(k, v)| (v - Complex::new(if k == f { n as f64 } else { 0.0 }, 0.0)).norm_sqr()).sum::<f64>().sqrt();
+        // ‖X‖ = n; the old chirp gave a relative error of 2.5e-11 here, the new one about 1e-15.
+        assert!(err / (n as f64) < 1e-14, "relative error {:e}", err / n as f64);
     }
 }

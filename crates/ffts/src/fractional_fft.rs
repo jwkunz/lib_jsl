@@ -18,6 +18,8 @@
 //! well-sampled signals (the Gaussian `e^{−πt²}`, an eigenfunction of every order, is reproduced in
 //! magnitude to 1e-3 near the quarter turns and 6e-2 at `alpha = 0.5`), and energy is preserved to
 //! about 1%.
+//!
+//! See the book entry [Bluestein's algorithm and the fractional Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/bluestein-fractional.html#the-fractional-fourier-transform).
 use std::f64::consts::PI;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};

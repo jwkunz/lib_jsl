@@ -4,6 +4,8 @@
 //! `e^{iπ k²/n}`, which is computed with power-of-two FFTs of length at least `2n − 1`. The chirp
 //! angles are reduced exactly (`k² mod 2n` in integers) before taking cosines and sines, so the
 //! transform is accurate to rounding at every length.
+//!
+//! See the book entry [Bluestein's algorithm and the fractional Fourier transform](https://jwkunz.github.io/lib_jsl/book/fft/bluestein-fractional.html#bluesteins-algorithm).
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 
@@ -60,6 +62,7 @@ fn bit_reverse(mut n: usize, bits: usize) -> usize {
 }
 
 impl FftEngine1D for BluesteinFft {
+    // ANCHOR: bluestein
     fn execute(&mut self, input: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         if input.len() != self.size {
             return Err(ErrorsJSL::InvalidInputRange(
@@ -109,6 +112,7 @@ impl FftEngine1D for BluesteinFft {
             FftScaleFactor::N => out.into_iter().map(|x| x / self.size as f64).collect(),
         })
     }
+    // ANCHOR_END: bluestein
 
     fn plan(
         &mut self,

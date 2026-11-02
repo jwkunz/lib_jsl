@@ -11,7 +11,13 @@
 //! - `alpha = 2` gives time reversal
 //! - `alpha = 3` gives the unitary inverse DFT
 //!
-//! Intermediate values of `alpha` interpolate continuously between these cases.
+//! Intermediate values of `alpha` interpolate continuously between these cases. They sample the
+//! continuous FRFT's chirp-convolution-chirp decomposition at spacing `1/√N` (so the signal should
+//! occupy the central `√N`-wide interval of time and frequency), without the oversampling step of
+//! Ozaktas's algorithm: the result approximates the continuous transform to about 1e-2 for
+//! well-sampled signals (the Gaussian `e^{−πt²}`, an eigenfunction of every order, is reproduced in
+//! magnitude to 1e-3 near the quarter turns and 6e-2 at `alpha = 0.5`), and energy is preserved to
+//! about 1%.
 use std::f64::consts::PI;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};
@@ -190,12 +196,16 @@ impl FractionalFft {
             .map(|(a, b)| *a * *b)
             .collect::<Vec<_>>();
         let ifft = unitary_fft(&mut self.ifft_engine, &product)?;
+        // With unitary transforms (each scaled by 1/√N) the product of two forward and one inverse
+        // transform is the circular convolution divided by √N; multiply it back. (Without this the
+        // non-quarter-turn orders returned 1/N of the input energy.)
+        let convolution_scale = (self.size as f64).sqrt();
 
         Ok(C1D::from_vec(
             chirp1
                 .iter()
                 .zip(ifft.iter())
-                .map(|(c, y)| scale * *c * *y)
+                .map(|(c, y)| scale * convolution_scale * *c * *y)
                 .collect(),
         ))
     }
@@ -296,6 +306,28 @@ mod tests {
 
         for (actual, expected) in y0.iter().zip(y1.iter()) {
             assert_complex_close(*actual, *expected, 1e-6);
+        }
+    }
+
+    #[test]
+    fn intermediate_orders_preserve_energy_and_the_gaussian() {
+        // The Gaussian e^{−πt²} sampled at t = c/√N is an eigenfunction of every order. The
+        // non-quarter-turn path once returned 1/N of the input energy; no test looked at it.
+        let n = 256;
+        let s = (n as f64).sqrt();
+        let g: Vec<Complex<f64>> = (0..n)
+            .map(|k| {
+                let t = wrapped_center_coordinate(k, n) / s;
+                Complex::new((-PI * t * t).exp(), 0.0)
+            })
+            .collect();
+        let energy = |v: &[Complex<f64>]| v.iter().map(|z| z.norm_sqr()).sum::<f64>();
+        let mut f = FractionalFft::new();
+        for alpha in [0.1, 0.3, 0.5, 0.8, 1.4, 2.7] {
+            let y = f.execute(&g, alpha).unwrap();
+            assert!((energy(y.as_slice().unwrap()) / energy(&g) - 1.0).abs() < 0.01, "alpha = {alpha}");
+            let worst = y.iter().zip(&g).map(|(a, b)| (a.norm() - b.norm()).abs()).fold(0.0, f64::max);
+            assert!(worst < 0.1, "alpha = {alpha}: magnitude error {worst}");
         }
     }
 }

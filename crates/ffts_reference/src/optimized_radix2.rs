@@ -1,7 +1,8 @@
-/// Optimized radix-2 FFT implementation for power-of-two sizes.
-/// This implementation uses an iterative Cooley-Tukey algorithm with precomputed twiddle factors and bit-reversal indexing for efficient in-place computation. 
-/// The `OptimizedRadix2FFT` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, stage offsets for twiddle factors, and the twiddle factors themselves. 
-/// The `execute` method performs the FFT computation using an iterative approach, while the `plan` method prepares the necessary precomputations based on the specified parameters.            
+//! The iterative radix-2 Cooley-Tukey FFT with precomputed twiddle factors, for study.
+//!
+//! The same algorithm as [`crate::simple_cooley_tukey`], with the twiddle factors of every stage
+//! computed once at planning time from exact angles and stored in the order the butterflies read
+//! them, and a precomputed bit-reversal map. Accurate to `O(ε log n)`.
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 

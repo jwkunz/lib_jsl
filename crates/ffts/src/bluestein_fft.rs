@@ -1,8 +1,9 @@
-//! Bluestein's algorithm (chirp-z transform) implementation for 1D FFTs of arbitrary size. 
-//! This algorithm allows us to compute the DFT of sequences whose length is not a power of two by transforming the problem into a convolution, which can be efficiently computed using FFTs. 
-//! The implementation includes planning and execution methods, and supports different scaling factors and input orderings.   
-//! The `BluesteinFft` struct maintains the necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, convolution size, precomputed chirp factors, and the FFT engines used for the convolution step. 
-//! The `execute` method performs the FFT computation using Bluestein's algorithm, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
+//! Bluestein's algorithm (the chirp-z transform) for FFTs of any length.
+//!
+//! The identity `jk = (j² + k² − (k − j)²)/2` turns the DFT into a convolution with the chirp
+//! `e^{iπ k²/n}`, which is computed with power-of-two FFTs of length at least `2n − 1`. The chirp
+//! angles are reduced exactly (`k² mod 2n` in integers) before taking cosines and sines, so the
+//! transform is accurate to rounding at every length.
 use num_complex::Complex;
 use lib_jsl_core::ErrorsJSL;
 

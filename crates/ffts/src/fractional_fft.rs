@@ -1,17 +1,17 @@
-/// Fractional Fourier transform (FRFT) utilities.
-///
-/// This module provides a fast one-dimensional FRFT implementation for slices
-/// of data implementing [`IsAnalytic`]. The implementation follows a chirp-FFT-
-/// chirp scheme, so the nontrivial cases run in `O(N log N)` time rather than
-/// the `O(N^2)` cost of a direct fractional-transform matrix multiply.
-///
-/// The order parameter `alpha` is measured in quarter-turns:
-/// - `alpha = 0` gives the identity transform
-/// - `alpha = 1` gives the unitary forward DFT
-/// - `alpha = 2` gives time reversal
-/// - `alpha = 3` gives the unitary inverse DFT
-///
-/// Intermediate values of `alpha` interpolate continuously between these cases.
+//! Fractional Fourier transform (FRFT) utilities.
+//!
+//! This module provides a fast one-dimensional FRFT implementation for slices
+//! of data implementing [`IsAnalytic`]. The implementation follows a chirp-FFT-
+//! chirp scheme, so the nontrivial cases run in `O(N log N)` time rather than
+//! the `O(N^2)` cost of a direct fractional-transform matrix multiply.
+//!
+//! The order parameter `alpha` is measured in quarter-turns:
+//! - `alpha = 0` gives the identity transform
+//! - `alpha = 1` gives the unitary forward DFT
+//! - `alpha = 2` gives time reversal
+//! - `alpha = 3` gives the unitary inverse DFT
+//!
+//! Intermediate values of `alpha` interpolate continuously between these cases.
 use std::f64::consts::PI;
 
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};

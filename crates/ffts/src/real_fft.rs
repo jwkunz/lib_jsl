@@ -13,8 +13,10 @@ type C64 = Complex<f64>;
 ///
 /// For even `n` the signal is packed into a complex sequence of half the length (even samples as
 /// real parts, odd samples as imaginary parts), transformed, and untangled with one twiddle per
-/// bin, about twice as fast as a complex FFT of the full length. Odd lengths use a full complex
-/// transform. The forward transform is unscaled; [`RealFft::inverse`] divides by `n`, so it
+/// bin. For `n` of a few thousand or more this takes a quarter to a third less time than a complex
+/// FFT of the real data; for `n` up to about a thousand the O(n) packing and untangling cost as
+/// much as the shorter FFT saves (and more for very short signals). Odd lengths use a full
+/// complex transform. The forward transform is unscaled; [`RealFft::inverse`] divides by `n`, so it
 /// exactly inverts [`RealFft::forward`].
 #[derive(Debug)]
 pub struct RealFft {
@@ -62,17 +64,23 @@ impl RealFft {
         let m = self.n / 2;
         let packed: Vec<C64> = (0..m).map(|j| C64::new(x[2 * j], x[2 * j + 1])).collect();
         let z = self.forward.execute(&packed)?;
-        let half = C64::new(0.5, 0.0);
-        let minus_half_i = C64::new(0.0, -0.5);
-        Ok((0..=m)
-            .map(|k| {
-                let a = z[k % m];
-                let b = z[(m - k) % m].conj();
-                let even = half * (a + b);
-                let odd = minus_half_i * (a - b);
-                even + self.twiddles[k] * odd
-            })
-            .collect())
+        // X_k = ½[(Z_k + conj Z_{m−k}) − i w_k (Z_k − conj Z_{m−k})], w_k = e^{−2πik/n}. The bins k and
+        // m − k use the same two values of Z and are computed together; only k = 0 and k = m wrap
+        // around (Z_m = Z_0). (An earlier version took two integer moduli per bin to handle the
+        // wrap-around, which cost more than the half-length FFT itself.)
+        let mut out = vec![C64::new(0.0, 0.0); m + 1];
+        out[0] = C64::new(z[0].re + z[0].im, 0.0);
+        out[m] = C64::new(z[0].re - z[0].im, 0.0);
+        for k in 1..=m / 2 {
+            let (a, b) = (z[k], z[m - k]);
+            let (sum, difference) = (a + b.conj(), a - b.conj());
+            let wd = self.twiddles[k] * difference;
+            out[k] = C64::new(0.5 * (sum.re + wd.im), 0.5 * (sum.im - wd.re));
+            let (sum, difference) = (b + a.conj(), b - a.conj());
+            let wd = self.twiddles[m - k] * difference;
+            out[m - k] = C64::new(0.5 * (sum.re + wd.im), 0.5 * (sum.im - wd.re));
+        }
+        Ok(out)
     }
 
     /// The real signal whose spectrum bins are `spectrum` (`n/2 + 1` values; the imaginary parts

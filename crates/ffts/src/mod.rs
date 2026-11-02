@@ -29,6 +29,8 @@
 //!
 //! Readable textbook implementations (recursive radix-2, iterative radix-2, split radix) live in
 //! the separate `lib_jsl_ffts_reference` crate, so they stay out of the way here.
+//!
+//! See the book chapter [Fast Fourier transforms](https://jwkunz.github.io/lib_jsl/book/fft/index.html).
 
 pub mod fft;
 pub mod fft_engine_trait;

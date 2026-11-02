@@ -231,29 +231,29 @@ Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_referenc
 
 Fast Fourier transform engines and related spectral transforms.
 
-Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · 10 items
+Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book chapter](fft/index.md) · 10 items
 
-- FFT (default engine: picks the algorithm by size)
-- Best FFT
-- Bluestein FFT
-- Fractional FFT
-- SIMD FFT (generic, x86, ARM, RISC-V)
-- FFT engine trait
-- Real-input FFT
-- Multidimensional FFT (2D, 3D)
-- Discrete cosine and sine transforms
-- Size-sweep benchmark
+- [FFT (default engine: picks the algorithm by size)](fft/fft.md#the-production-engines)
+- [Best FFT](fft/fft.md#the-production-engines)
+- [Bluestein FFT](fft/bluestein-fractional.md#bluesteins-algorithm)
+- [Fractional FFT](fft/bluestein-fractional.md#the-fractional-fourier-transform)
+- [SIMD FFT (generic, x86, ARM, RISC-V)](fft/fft.md#the-production-engines)
+- [FFT engine trait](fft/index.md#two-crates)
+- [Real-input FFT](fft/real-multidimensional.md#the-real-fft-by-half-length-packing)
+- [Multidimensional FFT (2D, 3D)](fft/real-multidimensional.md#multidimensional-transforms)
+- [Discrete cosine and sine transforms](fft/dct.md)
+- [Size-sweep benchmark](fft/index.md#two-crates)
 
 ### FFT reference
 
 Readable reference FFT implementations for study, plus a benchmark comparing them with the production engines.
 
-Crate `lib_jsl_ffts_reference`: [API reference](../api/lib_jsl_ffts_reference/index.html) · 4 items
+Crate `lib_jsl_ffts_reference`: [API reference](../api/lib_jsl_ffts_reference/index.html) · [book chapter](fft/index.md#two-crates) · 4 items
 
-- Simple Cooley-Tukey
-- Optimized radix-2
-- Optimized split radix
-- FFT race benchmark
+- [Simple Cooley-Tukey](fft/fft.md#the-radix-2-cooley-tukey-algorithm)
+- [Optimized radix-2](fft/fft.md#twiddle-factors-and-accuracy)
+- [Optimized split radix](fft/fft.md#split-radix)
+- [FFT race benchmark](fft/index.md#two-crates)
 
 ## Probability, statistics and learning
 

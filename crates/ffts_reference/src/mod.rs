@@ -13,6 +13,8 @@
 //! They all implement [`lib_jsl_ffts::fft_engine_trait::FftEngine1D`], so they are drop-in
 //! interchangeable with the production engines. Run `cargo bench -p lib_jsl_ffts_reference` to
 //! see how much the production engines gain from vectorization, radix-4 passes and cache blocking.
+//!
+//! See the book chapter [Fast Fourier transforms](https://jwkunz.github.io/lib_jsl/book/fft/index.html).
 
 pub mod optimized_radix2;
 pub mod optimized_split_radix;

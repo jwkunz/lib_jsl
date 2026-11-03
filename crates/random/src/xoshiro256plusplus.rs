@@ -1,3 +1,7 @@
+//! The xoshiro256++ generator of Blackman and Vigna.
+//!
+//! See the book entry [Pseudo-random number generators](https://jwkunz.github.io/lib_jsl/book/random/generators.html#xoshiro256).
+
 use crate::split_mix_64::SplitMix64;
 use crate::uniform_generator::UniformGenerator;
 use lib_jsl_core::ErrorsJSL;
@@ -81,6 +85,7 @@ impl Xoshiro256PlusPlus {
 }
 
 impl UniformGenerator for Xoshiro256PlusPlus{
+    // ANCHOR: xoshiro
     /// Generate next random u64.
     fn next_u64(&mut self) -> u64 {
         let result = Self::rotl(self.s[0].wrapping_add(self.s[3]), 23)
@@ -98,6 +103,7 @@ impl UniformGenerator for Xoshiro256PlusPlus{
 
         result
     }
+    // ANCHOR_END: xoshiro
 
     /// Generate a floating-point value in [0, 1).
     ///

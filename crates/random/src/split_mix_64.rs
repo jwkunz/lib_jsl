@@ -1,3 +1,7 @@
+//! SplitMix64, used to seed larger generators.
+//!
+//! See the book entry [Pseudo-random number generators](https://jwkunz.github.io/lib_jsl/book/random/generators.html#seeding-with-splitmix64).
+
 /// SplitMix64 — used only for seeding.
 /// Prevents zero seeds
 pub struct SplitMix64 {
@@ -9,6 +13,7 @@ impl SplitMix64 {
         Self { state: seed }
     }
 
+    // ANCHOR: splitmix
     pub fn next_u64(&mut self) -> u64 {
         let mut z = {
             self.state = self.state.wrapping_add(0x9E3779B97F4A7C15);
@@ -24,4 +29,5 @@ impl SplitMix64 {
             result
         }
     }
+    // ANCHOR_END: splitmix
 }

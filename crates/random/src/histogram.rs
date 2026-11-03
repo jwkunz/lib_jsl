@@ -1,3 +1,7 @@
+//! Fixed-width histograms.
+//!
+//! See the book entry [Pseudo-random number generators](https://jwkunz.github.io/lib_jsl/book/random/generators.html#histograms).
+
 use lib_jsl_core::ErrorsJSL;
 /// The histogram will take incoming data, place it into discrete bins, and count the hits in each bin
 /// The bin_labels are labeled by the minimum boundary of the bin

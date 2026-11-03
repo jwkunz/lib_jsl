@@ -162,7 +162,12 @@ impl Classifier for MultinomialNaiveBayes {
         Ok(x.rows()
             .into_iter()
             .map(|r| {
-                let scores: Vec<f64> = (0..self.log_prior.len()).map(|c| self.log_prior[c] + r.iter().zip(&self.log_likelihood[c]).map(|(v, l)| v * l).sum::<f64>()).collect();
+                let scores: Vec<f64> = (0..self.log_prior.len()).map(|c| {
+                        // Absent features contribute nothing: with alpha = 0 an unseen feature has a
+                        // log-likelihood of -inf, and 0 * -inf would be NaN.
+                        self.log_prior[c] + r.iter().zip(&self.log_likelihood[c]).filter(|(v, _)| **v != 0.0).map(|(v, l)| v * l).sum::<f64>()
+                    })
+                    .collect();
                 argmax(&scores).unwrap_or(0)
             })
             .collect())
@@ -215,6 +220,10 @@ mod tests {
         assert_eq!(m.predict(arr2(&[[1.0, 3.0, 0.0, 0.0], [0.0, 0.0, 2.0, 5.0]]).view()).unwrap(), vec![0, 1]);
         assert!(MultinomialNaiveBayes::new(1.0).fit(arr2(&[[-1.0]]).view(), &[0]).is_err());
         assert!(MultinomialNaiveBayes::new(1.0).predict(x.view()).is_err());
+        // Without smoothing, a word never seen in a class rules that class out only when it occurs.
+        let mut unsmoothed = MultinomialNaiveBayes::new(0.0);
+        unsmoothed.fit(x.view(), &[0, 0, 1, 1]).unwrap();
+        assert_eq!(unsmoothed.predict(arr2(&[[1.0, 3.0, 0.0, 0.0], [0.0, 0.0, 2.0, 5.0]]).view()).unwrap(), vec![0, 1]);
     }
 
     #[test]

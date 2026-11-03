@@ -1,6 +1,6 @@
 use crate::uniform_generator::UniformGenerator;
 
-/// Bernoulli X = 1 for x < p, 0 else
+/// A Bernoulli sample: 1 with probability `p` (a uniform below `p`), 0 otherwise.
 pub fn bernoulli_distribution<U>(uniform_generator: &mut U, p: f64) -> f64
 where
     U: UniformGenerator,

@@ -1,7 +1,9 @@
 use crate::{distributions::gaussian::gaussian_distribution_box_muller, uniform_generator::UniformGenerator};
 use lib_jsl_core::ErrorsJSL;
 
-/// Generate a Gamma(alpha, beta) random variable using Marsaglia-Tsang
+/// A gamma sample with shape `alpha` and **scale** `beta` (mean `αβ`, variance `αβ²`), by the
+/// Marsaglia-Tsang method (2000): a squeeze-accelerated rejection from a transformed normal, for
+/// `α ≥ 1`; for `α < 1`, `Gamma(α) = Gamma(α + 1) · U^{1/α}`.
 pub fn gamma_distribution<U>(uniform_generator: &mut U, alpha: f64, beta: f64) -> Result<f64,ErrorsJSL> where U : UniformGenerator{
     if alpha <= 0.0 || beta <= 0.0 {
         return Err(ErrorsJSL::InvalidInputRange("alpha and beta must be positive"));

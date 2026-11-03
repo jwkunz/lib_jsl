@@ -385,33 +385,33 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · 116 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md) · 116 items
 
 #### Continuous
 
 ##### Filters
 
-- Bilinear transform
-- Bilinear transform (zero-pole-gain form)
-- Filter design types and band transforms (Zpk, Tf, lp2lp, lp2hp, lp2bp, lp2bs)
-- Bessel
-- Butterworth
-- Chebyshev type I and II
-- Elliptic
+- [Bilinear transform](filters/iir-design.md#the-bilinear-transform)
+- [Bilinear transform (zero-pole-gain form)](filters/iir-design.md#the-bilinear-transform)
+- [Filter design types and band transforms (Zpk, Tf, lp2lp, lp2hp, lp2bp, lp2bs)](filters/analog-prototypes.md#frequency-transformations)
+- [Bessel](filters/analog-prototypes.md#where-the-poles-are)
+- [Butterworth](filters/analog-prototypes.md#where-the-poles-are)
+- [Chebyshev type I and II](filters/analog-prototypes.md#where-the-poles-are)
+- [Elliptic](filters/analog-prototypes.md#where-the-poles-are)
 
 ##### Spectral
 
-- freqs
+- [freqs](filters/analog-prototypes.md#the-magnitude-squared-function)
 - Fourier integrals
 
 #### Discrete
 
-- Stream operators
-- Sinc
-- Cross-correlation
-- FFT cross-correlation
-- Convolution
-- FFT convolution
+- [Stream operators](filters/convolution.md#implementation)
+- [Sinc](filters/fir-design.md#the-window-method)
+- [Cross-correlation](filters/convolution.md#cross-correlation-and-delay-estimation)
+- [FFT cross-correlation](filters/convolution.md#cross-correlation-and-delay-estimation)
+- [Convolution](filters/convolution.md#output-lengths-and-modes)
+- [FFT convolution](filters/convolution.md#fast-convolution)
 
 ##### Windows
 
@@ -497,26 +497,26 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · 116 items
 
 ###### FIR
 
-- Boxcar integrator
-- Derivative filters
-- firwin
-- firwin2
-- Overlap-add FIR
-- Remez exchange algorithm
-- FFT FIR
+- [Boxcar integrator](filters/fir-design.md#differentiators-and-integrators)
+- [Derivative filters](filters/fir-design.md#differentiators-and-integrators)
+- [firwin](filters/fir-design.md#the-window-method)
+- [firwin2](filters/fir-design.md#frequency-sampling)
+- [Overlap-add FIR](filters/convolution.md#streams-overlap-add-and-overlap-save)
+- [Remez exchange algorithm](filters/fir-design.md#parks-mcclellan-equiripple-design)
+- [FFT FIR](filters/convolution.md#streams-overlap-add-and-overlap-save)
 
 ###### IIR
 
-- Bessel
-- Biquad
-- Butterworth
-- Chebyshev type I
-- Chebyshev type II
-- Discrete linear filter (direct forms)
-- Elliptic
-- Comb
-- Notch
-- Peak
+- [Bessel](filters/iir-design.md#the-design-recipe)
+- [Biquad](filters/iir-structures.md#coefficient-sensitivity)
+- [Butterworth](filters/iir-design.md#the-design-recipe)
+- [Chebyshev type I](filters/iir-design.md#the-design-recipe)
+- [Chebyshev type II](filters/iir-design.md#the-design-recipe)
+- [Discrete linear filter (direct forms)](filters/iir-structures.md#direct-forms)
+- [Elliptic](filters/iir-design.md#the-design-recipe)
+- [Comb](filters/iir-structures.md#comb-filters)
+- [Notch](filters/iir-structures.md#notch-and-peak-filters)
+- [Peak](filters/iir-structures.md#notch-and-peak-filters)
 
 ##### Resampling
 
@@ -526,7 +526,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · 116 items
 ##### Spectral
 
 - Chirp-z transform
-- freqz
+- [freqz](filters/iir-design.md#evaluating-the-response)
 - Critically sampled polyphase filter bank
 - Oversampled polyphase filter bank
 - Non-uniformly sampled spectra
@@ -549,8 +549,8 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · 116 items
 
 ##### Adaptive filters
 
-- LMS and normalized LMS
-- RLS
+- [LMS and normalized LMS](filters/adaptive.md#lms-stochastic-gradient-descent)
+- [RLS](filters/adaptive.md#rls-exact-recursive-least-squares)
 
 ##### Synchronization
 

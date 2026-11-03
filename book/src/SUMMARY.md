@@ -110,6 +110,16 @@
     - [Cross-validation and grid search](learning/model-selection.md)
     - [Hidden Markov models: Viterbi, forward-backward and Baum-Welch](learning/hidden-markov-models.md)
 
+# Signals, information and fields
+
+- [DSP: filter design, FIR and IIR filters, adaptive filters](filters/index.md)
+    - [Convolution and correlation](filters/convolution.md)
+    - [Analogue prototypes: Butterworth, Chebyshev, elliptic and Bessel](filters/analog-prototypes.md)
+    - [Digital IIR design by the bilinear transform](filters/iir-design.md)
+    - [IIR structures: direct forms, biquads, notch, peak and comb filters](filters/iir-structures.md)
+    - [FIR design: windows, frequency sampling and Parks-McClellan](filters/fir-design.md)
+    - [Adaptive filters: LMS, NLMS and RLS](filters/adaptive.md)
+
 ---
 
 [Writing an entry](writing-an-entry.md)

@@ -8,7 +8,7 @@
 | **Devised by** | Window method: James Kaiser (1966, 1974), the Kaiser window and design formulas; frequency sampling: Lawrence Rabiner, Bernard Gold and C. A. McGonegal (1970); equiripple design: Thomas Parks and James McClellan (1972), with Lawrence Rabiner (1973), after Evgeny Remez (1934) |
 | **Accuracy** | `firwin`, `firwin2` and `remez` agree with SciPy to $10^{-15}$, $10^{-16}$ and $10^{-6}$ (`remez` stops on a grid, as SciPy's does) |
 | **Cost** | Window and frequency sampling: $O(N)$ and $O(N\log N)$. Parks-McClellan: $O(N^2)$ per exchange for a grid of $O(N)$ points, typically under ten exchanges |
-| **API** | [`firwin`](../../api/lib_jsl_dsp/discrete/filters/firwin/fn.firwin.html), [`firwin2`](../../api/lib_jsl_dsp/discrete/filters/firwin2/fn.firwin2.html), [`remez`](../../api/lib_jsl_dsp/discrete/filters/remez/fn.remez.html) ([`RemezFilterType`](../../api/lib_jsl_dsp/discrete/filters/remez/enum.RemezFilterType.html)), [`kaiser_beta`](../../api/lib_jsl_dsp/discrete/windows/kaiser/fn.kaiser_beta.html), [`kaiser_atten`](../../api/lib_jsl_dsp/discrete/windows/kaiser/fn.kaiser_atten.html), [`kaiser_estimate_numtaps`](../../api/lib_jsl_dsp/discrete/windows/kaiser/fn.kaiser_estimate_numtaps.html), [`generate_derivative_taps`](../../api/lib_jsl_dsp/discrete/filters/derivative_filter/fn.generate_derivative_taps.html), [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/boxcar_integrator/struct.BoxcarIntegrator.html) |
+| **API** | [`firwin`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin/fn.firwin.html), [`firwin2`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin2/fn.firwin2.html), [`remez`](../../api/lib_jsl_dsp/discrete/filters/fir/remez/fn.remez.html) ([`RemezFilterType`](../../api/lib_jsl_dsp/discrete/filters/fir/remez/enum.RemezFilterType.html)), [`kaiser_beta`](../../api/lib_jsl_dsp/discrete/windows/kaiser/fn.kaiser_beta.html), [`kaiser_atten`](../../api/lib_jsl_dsp/discrete/windows/kaiser/fn.kaiser_atten.html), [`kaiser_estimate_numtaps`](../../api/lib_jsl_dsp/discrete/windows/kaiser/fn.kaiser_estimate_numtaps.html), [`generate_derivative_taps`](../../api/lib_jsl_dsp/discrete/filters/fir/derivative_filter/fn.generate_derivative_taps.html), [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/fir/boxcar_integrator/struct.BoxcarIntegrator.html) |
 
 </div>
 
@@ -55,7 +55,7 @@ whatever $N$) and side lobes only 21 dB down. Multiplying by a smoother **window
 
 ![Window-method filters](../generated/filters/fir_windows.svg)
 
-[`firwin`](../../api/lib_jsl_dsp/discrete/filters/firwin/fn.firwin.html) builds the ideal response from sinc functions, one difference of two per band, applies the window, and scales the result to unit gain at the
+[`firwin`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin/fn.firwin.html) builds the ideal response from sinc functions, one difference of two per band, applies the window, and scales the result to unit gain at the
 centre of the first passband. Its window can be any of the library's window functions, which a later chapter treats in detail.
 
 ### Kaiser's formulas
@@ -75,7 +75,7 @@ The passband ripple of a window design equals its stopband ripple, so a 60 dB fi
 
 ### Frequency sampling
 
-[`firwin2`](../../api/lib_jsl_dsp/discrete/filters/firwin2/fn.firwin2.html) takes a piecewise-linear desired gain, given at a list of frequencies (with repeated frequencies for jumps). It interpolates it onto a dense grid,
+[`firwin2`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin2/fn.firwin2.html) takes a piecewise-linear desired gain, given at a list of frequencies (with repeated frequencies for jumps). It interpolates it onto a dense grid,
 attaches the linear-phase factor, inverse-transforms by FFT, and windows the result. Any shape can be specified:
 
 ![Frequency sampling](../generated/filters/firwin2.svg)
@@ -115,13 +115,13 @@ implementation follows Parks, McClellan and Rabiner for all four types and match
 ### Differentiators and integrators
 
 An ideal differentiator has $A(\omega) = \omega$. `remez` with `RemezFilterType::Differentiator` designs one up to a chosen band edge, weighting the error by $1/\omega$ so that it is relative;
-its desired value is a slope per cycle per sample, as in SciPy. [`generate_derivative_taps`](../../api/lib_jsl_dsp/discrete/filters/derivative_filter/fn.generate_derivative_taps.html) instead smooths a central difference, for derivatives of noisy
+its desired value is a slope per cycle per sample, as in SciPy. [`generate_derivative_taps`](../../api/lib_jsl_dsp/discrete/filters/fir/derivative_filter/fn.generate_derivative_taps.html) instead smooths a central difference, for derivatives of noisy
 data. It is accurate at low frequencies only, and suppresses the rest:
 
 ![Differentiators](../generated/filters/differentiators.svg)
 
 Writing this chapter also fixed `generate_derivative_taps`. Every order above one returned first-derivative taps, and the gain
-was 0.995 instead of 1. The [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/boxcar_integrator/struct.BoxcarIntegrator.html) is the opposite case, a moving sum of the last $N$ samples computed with one addition and
+was 0.995 instead of 1. The [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/fir/boxcar_integrator/struct.BoxcarIntegrator.html) is the opposite case, a moving sum of the last $N$ samples computed with one addition and
 one subtraction per sample, whatever $N$.
 
 ## Algorithm

@@ -8,7 +8,7 @@
 | **Devised by** | The direct forms and their transposes date from the first digital filters (James Kaiser, 1960s); Leland Jackson (1970), roundoff analysis; Robert Bristow-Johnson (1990s), the "audio EQ cookbook" biquads; Sophocles Orfanidis (1996), the notch, peak and comb designs used by SciPy |
 | **Accuracy** | Notch, peak and comb coefficients agree with SciPy exactly; filtering agrees with SciPy's `lfilter` to $10^{-13}$ |
 | **Cost** | $O(n)$ multiply-adds per sample for order $n$ |
-| **API** | [`DiscreteLinearFilter`](../../api/lib_jsl_dsp/discrete/filters/discrete_linear_filter/struct.DiscreteLinearFilter.html) (`new(b, a)`, `step`, `StreamOperator`), [`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/biquad/struct.BiquadFilter.html), [`BiquadCoefficients`](../../api/lib_jsl_dsp/discrete/filters/biquad/struct.BiquadCoefficients.html) (`lowpass`), [`iirnotch`](../../api/lib_jsl_dsp/discrete/filters/iir_notch/fn.iirnotch.html), [`iirpeak`](../../api/lib_jsl_dsp/discrete/filters/iir_peak/fn.iirpeak.html), [`iircomb`](../../api/lib_jsl_dsp/discrete/filters/iir_comb/fn.iircomb.html) |
+| **API** | [`DiscreteLinearFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/discrete_linear_filter/struct.DiscreteLinearFilter.html) (`new(b, a)`, `step`, `StreamOperator`), [`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadFilter.html), [`BiquadCoefficients`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadCoefficients.html) (`lowpass`), [`iirnotch`](../../api/lib_jsl_dsp/discrete/filters/iir/iir_notch/fn.iirnotch.html), [`iirpeak`](../../api/lib_jsl_dsp/discrete/filters/iir/iir_peak/fn.iirpeak.html), [`iircomb`](../../api/lib_jsl_dsp/discrete/filters/iir/iir_comb/fn.iircomb.html) |
 
 </div>
 
@@ -39,7 +39,7 @@ y[n] = \sum_{k=0}^Mb_kx[n - k] - \sum_{k=1}^Na_ky[n - k] \qquad (a_0 = 1)
 $$
 
 can be computed literally, with delay lines for past inputs and past outputs (**direct form I**), or by sharing a single delay line of length
-$\max(M, N)$ (**direct form II**). [`DiscreteLinearFilter`](../../api/lib_jsl_dsp/discrete/filters/discrete_linear_filter/struct.DiscreteLinearFilter.html) uses the **transposed direct form II**, the structure of SciPy's `lfilter`, which keeps $\max(M, N)$ state
+$\max(M, N)$ (**direct form II**). [`DiscreteLinearFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/discrete_linear_filter/struct.DiscreteLinearFilter.html) uses the **transposed direct form II**, the structure of SciPy's `lfilter`, which keeps $\max(M, N)$ state
 variables and updates them as
 
 $$
@@ -60,7 +60,7 @@ A narrow eighth-order filter becomes unstable from rounding in the seventh signi
 precision for higher orders: NumPy's `roots` puts a pole of the 16th-order design at radius 1.07, outside the unit circle, from the
 exact double-precision coefficients. The remedy is to factor the filter into **second-order sections** $H = \prod_iH_i$, each with two poles, so that every
 pole is set by a quadratic, whose roots are well conditioned. The library designs filters in zero-pole-gain form, but it has no
-second-order-section filter; [`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/biquad/struct.BiquadFilter.html) runs one section in direct form I, and only its low-pass coefficients are provided.
+second-order-section filter; [`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadFilter.html) runs one section in direct form I, and only its low-pass coefficients are provided.
 For high-order or narrow-band IIR filters, cascade biquads built from the zeros and poles rather than filtering with `b` and `a`.
 
 ### Notch and peak filters

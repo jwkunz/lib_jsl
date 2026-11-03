@@ -1,42 +1,56 @@
-//! This function generates the taps for a derivative filter by convolving a derivative kernel (e.g. [-0.5,0,0.5]) with a low-pass filter designed using `firwin`. 
-//! The `ftype` parameter controls the type of derivative filter (0 for first derivative, 1 for second derivative, etc.). The resulting taps are returned as a vector of f64 values.
-//! The `cutoff` parameter allows you to control the frequency response of the generated derivative filter, which can be useful for designing filters that are tailored to specific applications or signal characteristics. 
-//! The `numtaps` parameter specifies the number of taps in the resulting filter, which can affect the filter's performance and computational complexity. 
-//! A larger number of taps can provide better frequency response but may also increase the computational cost of applying the filter to a signal. 
+//! FIR differentiators: smoothed central differences of any order.
 
 use crate::{
     dsp::discrete::{convolve::{ConvolveMethod, ConvolveMode, convolve}, sinc::generate_centered_sinc},
-    prelude::{ErrorsJSL, IsAnalytic},
+    prelude::ErrorsJSL,
 };
 
+/// Taps of a smoothed `derivative_order`-th derivative filter of length `numtaps`.
+///
+/// A smoothing kernel of `numtaps − 2·derivative_order` points (a sinc taper from
+/// [`generate_centered_sinc`] with parameter `cutoff`, default 0.9, normalised to unit sum) is
+/// convolved `derivative_order` times with the central difference `[1/2, 0, −1/2]`. The taps are
+/// for convolution (`y = h ∗ x`); for a polynomial input of degree `derivative_order` the output is
+/// its exact derivative, delayed by `(numtaps − 1)/2` samples, in units of the sample spacing.
 pub fn generate_derivative_taps(numtaps: usize, derivative_order: usize, cutoff: Option<f64>) -> Result<Vec<f64>, ErrorsJSL> {
-    if numtaps < 3  {
-        return Err(ErrorsJSL::InvalidInputRange("numtaps must be greater than or equal to 3"));
+    if derivative_order == 0 {
+        return Err(ErrorsJSL::InvalidInputRange("derivative_order must be at least 1"));
     }
-
-    let cutoff = cutoff.unwrap_or(0.9); // Use a cutoff slightly below Nyquist to avoid aliasing
-    let sinc_taps = generate_centered_sinc(numtaps-2, cutoff);
-    let scale = 1.0/(sinc_taps.iter().map(|x| x.f_abs2()).sum::<f64>()*sinc_taps.len() as f64).sqrt(); // Normalize the sinc taps to have unit energy
-    let sinc_taps: Vec<f64> = sinc_taps.into_iter().map(|x| x * scale).collect(); // Apply the normalization to the sinc taps
-    let derivative_kernel = vec![0.5,0.0,-0.5]; // First derivative kernel (central difference)
-    let mut result = Vec::new();
+    if numtaps < 2 * derivative_order + 1 {
+        return Err(ErrorsJSL::InvalidInputRange("numtaps must be at least 2 * derivative_order + 1"));
+    }
+    let smoothing = generate_centered_sinc(numtaps - 2 * derivative_order, cutoff.unwrap_or(0.9));
+    let total: f64 = smoothing.iter().sum();
+    let mut taps: Vec<f64> = smoothing.into_iter().map(|v| v / total).collect();
+    let central_difference = [0.5, 0.0, -0.5];
     for _ in 0..derivative_order {
-        result = convolve(&sinc_taps, &derivative_kernel,ConvolveMode::Full, ConvolveMethod::Direct)?;
+        taps = convolve(&taps, &central_difference, ConvolveMode::Full, ConvolveMethod::Direct)?;
     }
-    Ok(result)
+    Ok(taps)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// The filter output at the end of a long polynomial input.
+    fn apply(taps: &[f64], x: impl Fn(f64) -> f64) -> f64 {
+        taps.iter().enumerate().map(|(k, &h)| h * x(100.0 - k as f64)).sum()
+    }
+
     #[test]
-    fn test_generate_derivative_taps() {
-        let n_taps = 13;
-        let taps = generate_derivative_taps(13, 1, None).unwrap();
-        let test_vector = (0..n_taps*2).map(|x| x as f64).collect::<Vec<f64>>();
-        let convolved = convolve(&test_vector, &taps, ConvolveMode::Full, ConvolveMethod::Direct).unwrap();
-        let middle_value = convolved[convolved.len()/2];
-        assert!(middle_value.abs()-1.0 < 0.1, "The middle value of the convolved result should be near 1.0 for the first derivative kernel, got {middle_value}");
+    fn differentiates_polynomials_exactly() {
+        for numtaps in [13, 31] {
+            let first = generate_derivative_taps(numtaps, 1, None).unwrap();
+            assert_eq!(first.len(), numtaps);
+            assert!((apply(&first, |t| 3.0 * t + 2.0) - 3.0).abs() < 1e-12);
+            assert!(apply(&first, |_| 5.0).abs() < 1e-12);
+            let second = generate_derivative_taps(numtaps, 2, None).unwrap();
+            assert_eq!(second.len(), numtaps);
+            assert!((apply(&second, |t| 0.5 * t * t - t) - 1.0).abs() < 1e-9);
+            assert!(apply(&second, |t| 2.0 * t).abs() < 1e-12);
+        }
+        assert!(generate_derivative_taps(13, 0, None).is_err());
+        assert!(generate_derivative_taps(4, 2, None).is_err());
     }
 }

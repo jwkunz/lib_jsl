@@ -1,4 +1,6 @@
 //! Covariance and correlation: Pearson, Spearman and Kendall.
+//!
+//! See the book entry [Correlation and covariance](https://jwkunz.github.io/lib_jsl/book/statistics/correlation.html).
 
 use crate::descriptive::mean;
 use lib_jsl_core::ErrorsJSL;
@@ -87,6 +89,7 @@ pub fn spearman(x: &[f64], y: &[f64]) -> Result<Correlation, ErrorsJSL> {
     Ok(Correlation { coefficient: r, p_value: t_test_of_r(r, x.len()) })
 }
 
+// ANCHOR: kendall
 /// Kendall's τ_b, `(C − D) / √((n₀ − n₁)(n₀ − n₂))` over concordant and discordant pairs with
 /// tie corrections, and a two-sided p-value from the normal approximation to `S = C − D` with
 /// the tie-corrected variance. `O(n²)`.
@@ -140,6 +143,7 @@ pub fn kendall(x: &[f64], y: &[f64]) -> Result<Correlation, ErrorsJSL> {
     let z = s as f64 / variance.sqrt();
     Ok(Correlation { coefficient: tau, p_value: 2.0 * normal_cdf(-z.abs(), 0.0, 1.0) })
 }
+// ANCHOR_END: kendall
 
 /// The covariance matrix of the columns `variables[k]` (each a sample of one variable).
 pub fn covariance_matrix(variables: &[Vec<f64>], ddof: usize) -> Result<Vec<Vec<f64>>, ErrorsJSL> {

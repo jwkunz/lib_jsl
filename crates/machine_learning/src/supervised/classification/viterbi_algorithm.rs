@@ -144,7 +144,9 @@ impl HiddenMarkovModel {
 #[derive(Debug, Clone)]
 pub struct BaumWelchResult {
     pub model: HiddenMarkovModel,
-    /// Total log-likelihood of the training sequences after each iteration (non-decreasing).
+    /// Total log-likelihood of the training sequences at the start of each iteration, before its
+    /// re-estimation (non-decreasing). The returned `model` has been re-estimated once more, so its
+    /// likelihood is at least the last entry.
     pub log_likelihood: Vec<f64>,
     pub converged: bool,
 }
@@ -385,6 +387,9 @@ mod tests {
         assert!(fit.converged);
         // EM never decreases the likelihood.
         assert!(fit.log_likelihood.windows(2).all(|w| w[1] >= w[0] - 1e-6), "{:?}", &fit.log_likelihood[..5]);
+        // The returned model is at least as good as the last recorded likelihood.
+        let final_ll: f64 = sequences.iter().map(|o| fit.model.log_likelihood(o).unwrap()).sum();
+        assert!(final_ll >= fit.log_likelihood.last().unwrap() - 1e-6);
         // Match the learned states to the true ones (EM may swap labels).
         let m = &fit.model;
         let swap = m.emission()[[0, 2]] > m.emission()[[1, 2]];

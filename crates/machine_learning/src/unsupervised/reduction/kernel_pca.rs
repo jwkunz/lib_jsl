@@ -39,6 +39,7 @@ impl Transformer for KernelPca {
         if self.components == 0 || self.components > n {
             return Err(ErrorsJSL::InvalidInputRange("Need 1 <= components <= samples."));
         }
+        // ANCHOR: kpca_fit
         let k = self.kernel.gram(x);
         self.row_means = k.mean_axis(ndarray::Axis(1)).expect("non-empty");
         self.total_mean = self.row_means.sum() / n as f64;
@@ -51,6 +52,7 @@ impl Transformer for KernelPca {
             let lambda = vals[order[c]];
             if lambda > 1e-12 { vecs[[i, order[c]]] / lambda.sqrt() } else { 0.0 }
         });
+        // ANCHOR_END: kpca_fit
         // Sign convention: first non-negligible loading positive, for reproducibility.
         for mut col in self.alphas.columns_mut() {
             if let Some(&first) = col.iter().find(|v| v.abs() > 1e-12)
@@ -123,11 +125,11 @@ mod tests {
         let z = kp.fit_transform(x.view()).unwrap();
         let mut p = Pca::new(2);
         let zp = p.fit_transform(x.view()).unwrap();
-        // Same scores up to sign (kernel PCA uses the 1/n covariance scaling: sqrt(λ_K) = sqrt(n λ_C)).
+        // Identical scores up to sign: both equal sqrt(λ) v, with λ an eigenvalue of the centred Gram
+        // matrix (n - 1 times the covariance eigenvalue) and v its unit eigenvector.
         for c in 0..2 {
-            let scale = zp.column(c).iter().map(|v| v * v).sum::<f64>().sqrt() / z.column(c).iter().map(|v| v * v).sum::<f64>().sqrt();
             let sign = z.column(c).dot(&zp.column(c)).signum();
-            assert!((0..x.nrows()).all(|i| (z[[i, c]] * sign * scale - zp[[i, c]]).abs() < 1e-6), "component {c}");
+            assert!((0..x.nrows()).all(|i| (z[[i, c]] * sign - zp[[i, c]]).abs() < 1e-8), "component {c}");
         }
         // Transforming the training data again reproduces the fit-time scores.
         let again = kp.transform(x.view()).unwrap();

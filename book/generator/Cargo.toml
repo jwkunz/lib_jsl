@@ -17,6 +17,7 @@ lib_jsl_special_functions.workspace = true
 num-complex.workspace = true
 lib_jsl_random.workspace = true
 lib_jsl_statistics.workspace = true
+lib_jsl_machine_learning.workspace = true
 lib_jsl_root_finding.workspace = true
 lib_jsl_optimization.workspace = true
 lib_jsl_linalg.workspace = true

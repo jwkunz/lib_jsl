@@ -168,8 +168,11 @@ impl Standardizer {
         Standardizer { mean, scale }
     }
 
-    fn apply(&self, x: VR2D) -> R2D {
-        (&x - &self.mean) / &self.scale
+    fn apply(&self, x: VR2D) -> Result<R2D, ErrorsJSL> {
+        if x.ncols() != self.mean.len() {
+            return Err(ErrorsJSL::IncompatibleArraySizes((x.ncols(), self.mean.len())));
+        }
+        Ok((&x - &self.mean) / &self.scale)
     }
 }
 
@@ -234,7 +237,7 @@ impl Regressor for MlpRegressor {
         self.target_mean = y.mean().expect("non-empty");
         self.target_scale = y.std(0.0).max(1e-12);
         let targets = y.mapv(|v| (v - self.target_mean) / self.target_scale).insert_axis(Axis(1));
-        let (net, history) = train(&self.parameters, &standardizer.apply(x), &targets, Output::Linear)?;
+        let (net, history) = train(&self.parameters, &standardizer.apply(x)?, &targets, Output::Linear)?;
         self.network = Some(net);
         self.inputs = Some(standardizer);
         self.training_loss = history;
@@ -243,7 +246,7 @@ impl Regressor for MlpRegressor {
 
     fn predict(&self, x: VR2D) -> Result<R1D, ErrorsJSL> {
         let (net, standardizer) = self.network.as_ref().zip(self.inputs.as_ref()).ok_or(ErrorsJSL::RuntimeError("The model has not been fitted."))?;
-        let output = net.forward(&standardizer.apply(x)).pop().expect("output layer");
+        let output = net.forward(&standardizer.apply(x)?).pop().expect("output layer");
         Ok(output.column(0).mapv(|v| v * self.target_scale + self.target_mean))
     }
 }
@@ -266,7 +269,7 @@ impl MlpClassifier {
     /// Class probabilities, one row per sample.
     pub fn predict_proba(&self, x: VR2D) -> Result<R2D, ErrorsJSL> {
         let (net, standardizer) = self.network.as_ref().zip(self.inputs.as_ref()).ok_or(ErrorsJSL::RuntimeError("The model has not been fitted."))?;
-        Ok(net.forward(&standardizer.apply(x)).pop().expect("output layer"))
+        Ok(net.forward(&standardizer.apply(x)?).pop().expect("output layer"))
     }
 }
 
@@ -276,7 +279,7 @@ impl Classifier for MlpClassifier {
         let k = class_count(labels).max(2);
         let targets = R2D::from_shape_fn((labels.len(), k), |(i, c)| f64::from(u8::from(labels[i] == c)));
         let standardizer = Standardizer::fit(x);
-        let (net, history) = train(&self.parameters, &standardizer.apply(x), &targets, Output::Softmax)?;
+        let (net, history) = train(&self.parameters, &standardizer.apply(x)?, &targets, Output::Softmax)?;
         self.network = Some(net);
         self.inputs = Some(standardizer);
         self.training_loss = history;
@@ -359,5 +362,11 @@ mod tests {
         let mut bad = MlpRegressor::new(MlpParameters { hidden: vec![0], ..Default::default() });
         assert!(bad.fit(x.view(), y.view()).is_err());
         assert!(MlpClassifier::new(MlpParameters::default()).predict(x.view()).is_err());
+        // A different number of features is an error, not a silent broadcast.
+        assert!(mlp.predict(R2D::zeros((3, 2)).view()).is_err());
+        let (xm, lm) = make_moons(20, 0.1, 1);
+        let mut c = MlpClassifier::new(MlpParameters { epochs: 2, ..Default::default() });
+        c.fit(xm.view(), &lm).unwrap();
+        assert!(c.predict(R2D::zeros((2, 1)).view()).is_err());
     }
 }

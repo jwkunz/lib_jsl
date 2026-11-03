@@ -128,6 +128,7 @@ impl BoostingParameters {
 #[derive(Debug, Clone)]
 pub struct GradientBoostingRegressor {
     pub parameters: BoostingParameters,
+    features: usize,
     base: f64,
     trees: Vec<RegressionTree>,
     importances: Vec<f64>,
@@ -137,7 +138,7 @@ pub struct GradientBoostingRegressor {
 
 impl GradientBoostingRegressor {
     pub fn new(parameters: BoostingParameters) -> Self {
-        GradientBoostingRegressor { parameters, base: 0.0, trees: Vec::new(), importances: Vec::new(), training_loss: Vec::new() }
+        GradientBoostingRegressor { parameters, features: 0, base: 0.0, trees: Vec::new(), importances: Vec::new(), training_loss: Vec::new() }
     }
 
     /// Relative feature importances (normalised squared-error reductions).
@@ -154,6 +155,7 @@ impl Regressor for GradientBoostingRegressor {
         let p = &self.parameters;
         let data = rows(x);
         let n = data.len();
+        self.features = x.ncols();
         self.base = y.iter().sum::<f64>() / n as f64;
         let mut prediction = vec![self.base; n];
         let ones = vec![1.0; n];
@@ -175,9 +177,7 @@ impl Regressor for GradientBoostingRegressor {
     }
 
     fn predict(&self, x: VR2D) -> Result<R1D, ErrorsJSL> {
-        if self.trees.is_empty() {
-            return Err(ErrorsJSL::RuntimeError("The model has not been fitted."));
-        }
+        check_fitted(self.trees.is_empty(), self.features, x)?;
         Ok(x.rows().into_iter().map(|row| {
             let r = row.to_vec();
             self.base + self.parameters.learning_rate * self.trees.iter().map(|t| t.predict_row(&r)).sum::<f64>()
@@ -190,10 +190,22 @@ impl Regressor for GradientBoostingRegressor {
 #[derive(Debug, Clone)]
 pub struct GradientBoostingClassifier {
     pub parameters: BoostingParameters,
+    features: usize,
     base: Vec<f64>,
     trees: Vec<Vec<RegressionTree>>,
     /// Mean training deviance (cross-entropy) after each stage.
     pub training_loss: Vec<f64>,
+}
+
+/// Errors for an unfitted model or a feature count different from training.
+fn check_fitted(unfitted: bool, features: usize, x: VR2D) -> Result<(), ErrorsJSL> {
+    if unfitted {
+        return Err(ErrorsJSL::RuntimeError("The model has not been fitted."));
+    }
+    if x.ncols() != features {
+        return Err(ErrorsJSL::IncompatibleArraySizes((x.ncols(), features)));
+    }
+    Ok(())
 }
 
 fn softmax(scores: &[f64]) -> Vec<f64> {
@@ -205,7 +217,7 @@ fn softmax(scores: &[f64]) -> Vec<f64> {
 
 impl GradientBoostingClassifier {
     pub fn new(parameters: BoostingParameters) -> Self {
-        GradientBoostingClassifier { parameters, base: Vec::new(), trees: Vec::new(), training_loss: Vec::new() }
+        GradientBoostingClassifier { parameters, features: 0, base: Vec::new(), trees: Vec::new(), training_loss: Vec::new() }
     }
 
     fn scores(&self, row: &[f64]) -> Vec<f64> {
@@ -220,9 +232,7 @@ impl GradientBoostingClassifier {
 
     /// Class probabilities, one row per sample.
     pub fn predict_proba(&self, x: VR2D) -> Result<R2D, ErrorsJSL> {
-        if self.trees.is_empty() {
-            return Err(ErrorsJSL::RuntimeError("The model has not been fitted."));
-        }
+        check_fitted(self.trees.is_empty(), self.features, x)?;
         let k = self.base.len();
         let mut out = R2D::zeros((x.nrows(), k));
         for (i, row) in x.rows().into_iter().enumerate() {
@@ -243,6 +253,7 @@ impl Classifier for GradientBoostingClassifier {
         let k = class_count(labels).max(2);
         let data = rows(x);
         let n = data.len();
+        self.features = x.ncols();
         // Start from the log class priors (smoothed so absent classes stay finite).
         self.base = (0..k).map(|c| ((labels.iter().filter(|&&l| l == c).count() as f64 + 0.5) / (n as f64 + 0.5 * k as f64)).ln()).collect();
         let mut scores: Vec<Vec<f64>> = vec![self.base.clone(); n];
@@ -329,5 +340,12 @@ mod tests {
         let mut bad = GradientBoostingClassifier::new(BoostingParameters { learning_rate: 0.0, ..Default::default() });
         let (x, l) = make_moons(20, 0.1, 1);
         assert!(bad.fit(x.view(), &l).is_err());
+        // Predicting with the wrong number of features is an error, not a panic.
+        let mut gb = GradientBoostingClassifier::new(BoostingParameters { stages: 3, ..Default::default() });
+        gb.fit(x.view(), &l).unwrap();
+        assert!(gb.predict(R2D::zeros((2, 1)).view()).is_err());
+        let mut gr = GradientBoostingRegressor::new(BoostingParameters { stages: 3, ..Default::default() });
+        gr.fit(x.view(), x.column(0)).unwrap();
+        assert!(gr.predict(R2D::zeros((2, 3)).view()).is_err());
     }
 }

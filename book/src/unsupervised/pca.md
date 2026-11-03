@@ -32,12 +32,12 @@ Klaus-Robert Müller (1998) expressed PCA through inner products only, so that a
 
 ### Directions of greatest variance
 
-Centre the data, $\tilde{\mathbf x}_i = \mathbf x_i - \bar{\mathbf x}$, and form the sample covariance $C = \frac{1}{n - 1}\sum_i\tilde{\mathbf x}_i\tilde{\mathbf x}_i^{\mathsf T}$. The variance of the projections onto a unit vector $\mathbf u$ is $\mathbf u^{\mathsf T}C\mathbf u$, and
+Centre the data, $\widetilde{\mathbf x}_i = \mathbf x_i - \bar{\mathbf x}$, and form the sample covariance $C = \frac{1}{n - 1}\sum_i\widetilde{\mathbf x}_i\widetilde{\mathbf x}_i^{\mathsf T}$. The variance of the projections onto a unit vector $\mathbf u$ is $\mathbf u^{\mathsf T}C\mathbf u$, and
 maximising this Rayleigh quotient gives the eigenvector of $C$ with the largest eigenvalue. The next direction, constrained to be orthogonal to the first,
 is the next eigenvector. So
 
 $$
-C = U\Lambda U^{\mathsf T}, \qquad \text{scores } \mathbf z_i = U_q^{\mathsf T}\tilde{\mathbf x}_i,
+C = U\Lambda U^{\mathsf T}, \qquad \text{scores } \mathbf z_i = U_q^{\mathsf T}\widetilde{\mathbf x}_i,
 $$
 
 where $U_q$ holds the first $q$ eigenvectors and $\lambda_j$ is the variance along the $j$-th axis. The scores are uncorrelated.
@@ -78,10 +78,10 @@ each point to features $\varphi(\mathbf x)$ and performs PCA there, using only i
 mapped training points, $\mathbf v = \sum_i\alpha_i\varphi(\mathbf x_i)$, and the coefficients solve an eigenproblem of the **centred Gram matrix**
 
 $$
-\tilde K = K - \mathbf 1_nK - K\mathbf 1_n + \mathbf 1_nK\mathbf 1_n, \qquad \tilde K\boldsymbol\alpha = \lambda\boldsymbol\alpha,
+\widetilde K = K - \mathbf 1_nK - K\mathbf 1_n + \mathbf 1_nK\mathbf 1_n, \qquad \widetilde K\boldsymbol\alpha = \lambda\boldsymbol\alpha,
 $$
 
-where $\mathbf 1_n$ is the matrix with every entry $1/n$, which centres the features. The scores of a new point are $\sum_i\alpha_i\tilde k(\mathbf x, \mathbf x_i)$, with $\boldsymbol\alpha$ scaled to $1/\sqrt\lambda$ so that the axis has
+where $\mathbf 1_n$ is the matrix with every entry $1/n$, which centres the features. The scores of a new point are $\sum_i\alpha_i\widetilde k(\mathbf x, \mathbf x_i)$, with $\boldsymbol\alpha$ scaled to $1/\sqrt\lambda$ so that the axis has
 unit length in feature space.
 
 | | |
@@ -99,7 +99,7 @@ chapter was written.
 
 ## Algorithm
 
-1. **PCA**: subtract the column means; form $C = \tilde X^{\mathsf T}\tilde X/(n - 1)$; compute its eigendecomposition; keep the eigenvectors of the $q$ largest
+1. **PCA**: subtract the column means; form $C = \widetilde X^{\mathsf T}\widetilde X/(n - 1)$; compute its eigendecomposition; keep the eigenvectors of the $q$ largest
    eigenvalues, with the largest entry of each made positive.
 2. **Kernel PCA**: form the Gram matrix $K$ and double-centre it; compute its eigendecomposition; keep the $q$ largest, scaling each
    eigenvector by $1/\sqrt\lambda$. To transform new points, centre their kernel rows with the stored training means.
@@ -117,7 +117,7 @@ chapter was written.
 - PCA works through the $p \times p$ covariance matrix, which is efficient when $n \gg p$. For wide data ($p > n$), or for the best accuracy, the SVD of
   the centred data matrix is preferable: forming $C$ squares the condition number.
 - Kernel PCA stores the training data and needs a cross-kernel row per new point. With the linear kernel its scores equal `Pca`'s up
-  to sign: both are $\sqrt\lambda\,\mathbf v$ for the eigenpairs of $\tilde X\tilde X^{\mathsf T}$.
+  to sign: both are $\sqrt\lambda\,\mathbf v$ for the eigenpairs of $\widetilde X\widetilde X^{\mathsf T}$.
 
 ## In practice
 
@@ -152,7 +152,7 @@ that lies in the two-dimensional subspace is kept.
 2. Show that the principal axes are the right singular vectors of the centred data matrix, and relate the singular values to the eigenvalues of $C$.
 3. Prove that the reconstruction error with $q$ components is $\frac{n - 1}{n}\sum_{j > q}\lambda_j$ per point.
 4. Show that kernel PCA with the linear kernel reproduces the PCA scores exactly, up to sign.
-5. Derive the double-centring formula from $\tilde\varphi(\mathbf x) = \varphi(\mathbf x) - \frac1n\sum_j\varphi(\mathbf x_j)$.
+5. Derive the double-centring formula from $\widetilde\varphi(\mathbf x) = \varphi(\mathbf x) - \frac1n\sum_j\varphi(\mathbf x_j)$.
 
 ## Further reading
 

@@ -1,4 +1,6 @@
 //! Weighted and generalised least squares.
+//!
+//! See the book entry [Linear regression](https://jwkunz.github.io/lib_jsl/book/machine_learning/linear-regression.html#weighted-and-generalised-least-squares).
 
 use super::least_squares::with_ones;
 use crate::common::{Regressor, check_xy};
@@ -52,6 +54,7 @@ impl Regressor for GeneralLeastSquares {
         check_xy(x, y.len())?;
         let n = x.nrows();
         let design = if self.fit_intercept { with_ones(x) } else { x.to_owned() };
+        // ANCHOR: whitening
         let (wd, wy): (R2D, R1D) = if let Some(cov) = &self.covariance {
             if cov.dim() != (n, n) {
                 return Err(ErrorsJSL::IncompatibleArraySizes((cov.nrows(), n)));
@@ -71,6 +74,7 @@ impl Regressor for GeneralLeastSquares {
             let s: Array1<f64> = w.mapv(f64::sqrt);
             (R2D::from_shape_fn(design.dim(), |(i, j)| design[[i, j]] * s[i]), R1D::from_iter(y.iter().zip(&s).map(|(a, b)| a * b)))
         };
+        // ANCHOR_END: whitening
         let sol = wd.least_squares(&wy).map_err(|_| ErrorsJSL::RuntimeError("The least-squares solve failed."))?.solution;
         if self.fit_intercept {
             self.intercept = sol[sol.len() - 1];

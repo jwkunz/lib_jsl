@@ -1,4 +1,6 @@
 //! Ordinary least squares linear regression.
+//!
+//! See the book entry [Linear regression](https://jwkunz.github.io/lib_jsl/book/machine_learning/linear-regression.html#least-squares).
 
 use crate::common::{Regressor, check_xy};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
@@ -50,6 +52,7 @@ pub(crate) fn with_ones(x: VR2D) -> R2D {
 }
 
 impl Regressor for LinearRegression {
+    // ANCHOR: ols_fit
     fn fit(&mut self, x: VR2D, y: VR1D) -> Result<(), ErrorsJSL> {
         check_xy(x, y.len())?;
         let design = if self.fit_intercept { with_ones(x) } else { x.to_owned() };
@@ -65,6 +68,7 @@ impl Regressor for LinearRegression {
         self.fitted = true;
         Ok(())
     }
+    // ANCHOR_END: ols_fit
 
     fn predict(&self, x: VR2D) -> Result<R1D, ErrorsJSL> {
         if !self.fitted {

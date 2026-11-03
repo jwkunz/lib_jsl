@@ -1,4 +1,6 @@
 //! Elastic net regression (lasso and ridge combined), by cyclic coordinate descent.
+//!
+//! See the book entry [Linear regression](https://jwkunz.github.io/lib_jsl/book/machine_learning/linear-regression.html#the-lasso-and-the-elastic-net).
 
 use super::least_squares::column_means;
 use crate::common::{Regressor, check_xy};
@@ -75,6 +77,7 @@ impl Regressor for ElasticNet {
         let mut w = vec![0.0; p];
         let mut resid: Vec<f64> = y.iter().map(|v| v - y_mean).collect();
         self.iterations = 0;
+        // ANCHOR: coordinate_descent
         for sweep in 1..=self.max_iterations {
             let mut max_change: f64 = 0.0;
             for j in 0..p {
@@ -96,6 +99,7 @@ impl Regressor for ElasticNet {
                 break;
             }
         }
+        // ANCHOR_END: coordinate_descent
         self.weights = R1D::from(w);
         self.intercept = y_mean - x_mean.dot(&self.weights);
         self.fitted = true;

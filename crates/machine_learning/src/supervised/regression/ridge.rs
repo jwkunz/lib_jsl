@@ -1,4 +1,6 @@
 //! Ridge (L2-regularised) regression.
+//!
+//! See the book entry [Linear regression](https://jwkunz.github.io/lib_jsl/book/machine_learning/linear-regression.html#ridge-regression).
 
 use super::least_squares::column_means;
 use crate::common::{Regressor, check_xy};
@@ -34,6 +36,7 @@ impl Ridge {
 }
 
 impl Regressor for Ridge {
+    // ANCHOR: ridge_fit
     fn fit(&mut self, x: VR2D, y: VR1D) -> Result<(), ErrorsJSL> {
         check_xy(x, y.len())?;
         if self.alpha.is_nan() || self.alpha < 0.0 {
@@ -51,6 +54,7 @@ impl Regressor for Ridge {
         self.fitted = true;
         Ok(())
     }
+    // ANCHOR_END: ridge_fit
 
     fn predict(&self, x: VR2D) -> Result<R1D, ErrorsJSL> {
         if !self.fitted {

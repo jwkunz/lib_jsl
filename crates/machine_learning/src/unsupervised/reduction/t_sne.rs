@@ -1,4 +1,6 @@
 //! t-distributed stochastic neighbour embedding.
+//!
+//! See the book entry [Nonlinear embeddings: t-SNE and UMAP](https://jwkunz.github.io/lib_jsl/book/unsupervised/embeddings.html#t-sne).
 
 use crate::common::{Transformer, check_features, squared_distance};
 use crate::unsupervised::reduction::principal_component_analysis::Pca;
@@ -105,6 +107,7 @@ impl Tsne {
             if it == exaggeration_steps {
                 p /= self.early_exaggeration;
             }
+            // ANCHOR: tsne_gradient
             // Student-t similarities in the embedding.
             let mut num = R2D::zeros((n, n));
             let mut total = 0.0;
@@ -140,6 +143,7 @@ impl Tsne {
             }
             let mean = y.mean_axis(ndarray::Axis(0)).expect("non-empty");
             y -= &mean;
+            // ANCHOR_END: tsne_gradient
         }
         // Final KL divergence against the un-exaggerated P.
         if self.iterations <= exaggeration_steps {

@@ -1,4 +1,6 @@
 //! UMAP: uniform manifold approximation and projection.
+//!
+//! See the book entry [Nonlinear embeddings: t-SNE and UMAP](https://jwkunz.github.io/lib_jsl/book/unsupervised/embeddings.html#umap).
 
 use crate::common::{MlRng, Transformer, check_features, pairwise_distances};
 use crate::unsupervised::reduction::principal_component_analysis::Pca;
@@ -151,6 +153,7 @@ impl Umap {
         y.mapv_inplace(|v| v / span * 10.0 + rng.gaussian(0.0, 1e-4));
         let max_w = edges.iter().map(|e| e.2).fold(0.0, f64::max);
         let clip = |v: f64| v.clamp(-4.0, 4.0);
+        // ANCHOR: umap_sgd
         for epoch in 0..self.epochs {
             let alpha = self.learning_rate * (1.0 - epoch as f64 / self.epochs as f64);
             for &(i, j, w) in &edges {
@@ -180,6 +183,7 @@ impl Umap {
                 }
             }
         }
+        // ANCHOR_END: umap_sgd
         Ok(y)
     }
 }

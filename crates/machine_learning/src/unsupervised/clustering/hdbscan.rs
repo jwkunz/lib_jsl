@@ -1,4 +1,6 @@
 //! HDBSCAN hierarchical density-based clustering.
+//!
+//! See the book entry [Density-based clustering: DBSCAN and HDBSCAN](https://jwkunz.github.io/lib_jsl/book/unsupervised/density.html#hdbscan-every-density-at-once).
 
 use crate::common::{Clusterer, check_features, pairwise_distances};
 use lib_jsl_core::{ErrorsJSL, VR2D};
@@ -70,6 +72,7 @@ impl Clusterer for Hdbscan {
             return Ok(vec![None; n]);
         }
         let d = pairwise_distances(x);
+        // ANCHOR: mutual_reachability
         // 1. Core distances and mutual reachability.
         let core: Vec<f64> = (0..n)
             .map(|i| {
@@ -99,6 +102,7 @@ impl Clusterer for Hdbscan {
             }
         }
         edges.sort_by(|a, b| a.0.total_cmp(&b.0));
+        // ANCHOR_END: mutual_reachability
         // 3. Single-linkage tree: node ids 0..n are points, n.. are merges.
         let mut uf: Vec<usize> = (0..2 * n).collect();
         fn find(uf: &mut [usize], mut x: usize) -> usize {
@@ -179,6 +183,7 @@ impl Clusterer for Hdbscan {
                 }
             }
         }
+        // ANCHOR: excess_of_mass
         // 5. Excess-of-mass selection, bottom-up (children have larger ids than their parents).
         let m = clusters.len();
         let mut selected = vec![false; m];
@@ -203,6 +208,7 @@ impl Clusterer for Hdbscan {
             }
         }
         selected[0] = false; // the root is the whole data set, never a cluster by itself
+        // ANCHOR_END: excess_of_mass
         // 6. Label the points by the selected cluster above (or at) where they fell out.
         let mut label_of = vec![None; m];
         self.stabilities.clear();

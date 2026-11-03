@@ -1,4 +1,6 @@
 //! DBSCAN density-based clustering.
+//!
+//! See the book entry [Density-based clustering: DBSCAN and HDBSCAN](https://jwkunz.github.io/lib_jsl/book/unsupervised/density.html).
 
 use crate::common::{Clusterer, check_features, pairwise_distances};
 use lib_jsl_core::{ErrorsJSL, VR2D};
@@ -35,6 +37,7 @@ impl Clusterer for Dbscan {
         }
         let n = x.nrows();
         let d = pairwise_distances(x);
+        // ANCHOR: dbscan
         let neighbours: Vec<Vec<usize>> = (0..n).map(|i| (0..n).filter(|&j| d[[i, j]] <= self.eps).collect()).collect();
         let is_core: Vec<bool> = neighbours.iter().map(|nb| nb.len() >= self.min_samples).collect();
         let mut labels: Vec<Option<usize>> = vec![None; n];
@@ -57,6 +60,7 @@ impl Clusterer for Dbscan {
             }
             next += 1;
         }
+        // ANCHOR_END: dbscan
         self.core_points = (0..n).filter(|&i| is_core[i]).collect();
         Ok(labels)
     }

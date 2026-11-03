@@ -1,4 +1,5 @@
-/// This module provides implementations of the sinc function and its normalized version, as well as functions to generate centered sinc windows. The sinc function is defined as sin(pi * x) / (pi * x) for x != 0 and is equal to 1 at x = 0. The normalized sinc function is defined similarly but with a factor of 2 in the argument. The centered sinc window functions generate a vector of sinc values that are centered around zero, which can be used in various signal processing applications, such as interpolation and filter design.
+//! This module provides implementations of the sinc function and its normalized version, as well as functions to generate centered sinc windows. The sinc function is defined as sin(pi * x) / (pi * x) for x != 0 and is equal to 1 at x = 0. The normalized sinc function is defined similarly but with a factor of 2 in the argument. The centered sinc window functions generate a vector of sinc values that are centered around zero, which can be used in various signal processing applications, such as interpolation and filter design.
+
 use std::f64::consts::PI;
 pub fn sinc(x: f64) -> f64 {
     if x.abs() < 1e-15 {

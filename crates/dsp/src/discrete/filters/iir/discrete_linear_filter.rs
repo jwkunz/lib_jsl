@@ -1,6 +1,7 @@
-/// This is Direct Form II Transposed IIR Filter implementation. It is a common structure for implementing IIR filters, where the feed-forward (numerator) coefficients are applied directly to the input samples, and the feedback (denominator) coefficients are applied to the output samples.
-/// The implementation uses a delay line to store intermediate values, and the `step` method processes each input sample to produce the corresponding output sample.
-/// The `process` method allows for processing a block of samples at once, and the `reset` method clears the internal state of the filter.
+//! This is Direct Form II Transposed IIR Filter implementation. It is a common structure for implementing IIR filters, where the feed-forward (numerator) coefficients are applied directly to the input samples, and the feedback (denominator) coefficients are applied to the output samples.
+//! The implementation uses a delay line to store intermediate values, and the `step` method processes each input sample to produce the corresponding output sample.
+//! The `process` method allows for processing a block of samples at once, and the `reset` method clears the internal state of the filter.
+
 use std::collections::VecDeque;
 
 use num_complex::Complex;
@@ -34,6 +35,7 @@ impl<T : IsLinearOperatable> DiscreteLinearFilter<T> {
     }
 
     /// Process a single sample
+    // ANCHOR: direct_form
     pub fn step(&mut self, sample: &T) -> T {
         let order = self.delay.len();
         // d[0] is added directly to output
@@ -69,6 +71,7 @@ impl<T : IsLinearOperatable> DiscreteLinearFilter<T> {
         }
         y
     }
+    // ANCHOR_END: direct_form
 
     pub fn longest_buffer_length(&self) -> usize {
         self.delay.len()

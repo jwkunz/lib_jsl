@@ -1,6 +1,7 @@
-/// This module implements various window functions commonly used in signal processing applications. 
-/// Window functions are used to mitigate spectral leakage when performing Fourier analysis on finite-length signals, by tapering the edges of the signal to reduce discontinuities.
-/// The module includes implementations of standard window functions such as Hanning, Hamming, Blackman, and Kaiser windows, as well as more general functions that allow for custom parameters and shapes.
+//! This module implements various window functions commonly used in signal processing applications. 
+//! Window functions are used to mitigate spectral leakage when performing Fourier analysis on finite-length signals, by tapering the edges of the signal to reduce discontinuities.
+//! The module includes implementations of standard window functions such as Hanning, Hamming, Blackman, and Kaiser windows, as well as more general functions that allow for custom parameters and shapes.
+
 pub mod boxcar;
 pub mod triang;
 pub mod parzen;

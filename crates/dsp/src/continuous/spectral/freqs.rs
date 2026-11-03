@@ -1,15 +1,14 @@
-//! The frequency response of an analogue filter.
+//! Analog frequency-response utility similar to `scipy.signal.freqs`.
+//!
+//! This evaluates the transfer function of a continuous-time linear filter:
+//!
+//! `H(jw) = (b[0] (jw)^M + b[1] (jw)^(M-1) + ... + b[M]) /`
+//! `        (a[0] (jw)^N + a[1] (jw)^(N-1) + ... + a[N])`
+//!
+//! Plotting support from SciPy is intentionally omitted here.
 //!
 //! See the book entry [Analogue prototypes: Butterworth, Chebyshev, elliptic and Bessel](https://jwkunz.github.io/lib_jsl/book/filters/analog-prototypes.html).
 
-/// Analog frequency-response utility similar to `scipy.signal.freqs`.
-///
-/// This evaluates the transfer function of a continuous-time linear filter:
-///
-/// `H(jw) = (b[0] (jw)^M + b[1] (jw)^(M-1) + ... + b[M]) /`
-/// `        (a[0] (jw)^N + a[1] (jw)^(N-1) + ... + a[N])`
-///
-/// Plotting support from SciPy is intentionally omitted here.
 use ndarray::Array1;
 use num_complex::Complex;
 

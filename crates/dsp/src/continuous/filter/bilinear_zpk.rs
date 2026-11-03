@@ -1,12 +1,13 @@
-/// Bilinear transform in zero-pole-gain form, similar to
-/// `scipy.signal.bilinear_zpk`.
-///
-/// This maps analog zeros and poles from the `s`-plane into the digital
-/// `z`-plane using Tustin's substitution:
-///
-/// `s = 2 fs (z - 1) / (z + 1)`
-///
-/// No pre-warping is performed, matching SciPy's `bilinear_zpk`.
+//! Bilinear transform in zero-pole-gain form, similar to
+//! `scipy.signal.bilinear_zpk`.
+//!
+//! This maps analog zeros and poles from the `s`-plane into the digital
+//! `z`-plane using Tustin's substitution:
+//!
+//! `s = 2 fs (z - 1) / (z + 1)`
+//!
+//! No pre-warping is performed, matching SciPy's `bilinear_zpk`.
+
 use ndarray::Array1;
 use num_complex::Complex;
 
@@ -63,6 +64,7 @@ pub fn bilinear_zpk<T: IsAnalytic, U: IsAnalytic>(
 ) -> Result<BilinearZpkResult, ErrorsJSL> {
     validate_inputs(z, p, k, fs)?;
 
+    // ANCHOR: bilinear_zpk
     let fs2 = 2.0 * fs;
     let fs2c = Complex::new(fs2, 0.0);
 
@@ -98,6 +100,7 @@ pub fn bilinear_zpk<T: IsAnalytic, U: IsAnalytic>(
         ));
     }
     let k_d = k.to_complex() * num / den;
+    // ANCHOR_END: bilinear_zpk
 
     Ok(BilinearZpkResult {
         z: Array1::from_vec(z_out),

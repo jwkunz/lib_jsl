@@ -1,12 +1,13 @@
-/// Transmitter front-end that resamples then frequency shifts.
-///
-/// Processing order:
-/// 1) Arbitrary polyphase resample (`PolyphaseArbitraryResampler`)
-/// 2) Frequency shift (`FrequencyMixer`)
-///
-/// The internal path is always complex and output is always complex.
-/// The input can be either real or complex, but will be converted to complex if it is real. 
-/// This allows the transmitter to handle both real and complex baseband inputs, while still providing a consistent complex output that can be directly fed into the channel model and receiver front-end.
+//! Transmitter front-end that resamples then frequency shifts.
+//!
+//! Processing order:
+//! 1) Arbitrary polyphase resample (`PolyphaseArbitraryResampler`)
+//! 2) Frequency shift (`FrequencyMixer`)
+//!
+//! The internal path is always complex and output is always complex.
+//! The input can be either real or complex, but will be converted to complex if it is real. 
+//! This allows the transmitter to handle both real and complex baseband inputs, while still providing a consistent complex output that can be directly fed into the channel model and receiver front-end.
+
 use num_complex::Complex;
 
 use crate::{

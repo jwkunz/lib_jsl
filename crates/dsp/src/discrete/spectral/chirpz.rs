@@ -1,18 +1,19 @@
-/// Efficient chirp-z transform (CZT) for one-dimensional analytic data.
-///
-/// The chirp-z transform evaluates the z-transform of a finite sequence along
-/// a geometric contour in the complex plane:
-///
-/// `X[k] = sum_{n=0}^{N-1} x[n] * A^{-n} * W^{n k}`
-///
-/// for `k = 0..M-1`, where:
-/// - `N` is the input length
-/// - `M` is the number of output points
-/// - `A` is the complex starting point on the contour
-/// - `W` is the complex step ratio between successive contour points
-///
-/// This implementation uses the Bluestein/Rabiner reformulation so the CZT is
-/// computed via FFT-based convolution instead of a direct `O(N*M)` sum.
+//! Efficient chirp-z transform (CZT) for one-dimensional analytic data.
+//!
+//! The chirp-z transform evaluates the z-transform of a finite sequence along
+//! a geometric contour in the complex plane:
+//!
+//! `X[k] = sum_{n=0}^{N-1} x[n] * A^{-n} * W^{n k}`
+//!
+//! for `k = 0..M-1`, where:
+//! - `N` is the input length
+//! - `M` is the number of output points
+//! - `A` is the complex starting point on the contour
+//! - `W` is the complex step ratio between successive contour points
+//!
+//! This implementation uses the Bluestein/Rabiner reformulation so the CZT is
+//! computed via FFT-based convolution instead of a direct `O(N*M)` sum.
+
 use std::f64::consts::PI;
 
 use num_complex::Complex;

@@ -1,15 +1,16 @@
-/// A wrapper around the RustFFT library to conform to our FftEngine1D trait, allowing us to benchmark RustFFT against our own implementations.
-/// This wrapper provides a way to use the RustFFT library within our benchmarking framework, allowing us to compare its performance against our own FFT implementations. The `RustFftWrapper` struct maintains the
-/// necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, and the FFT plan and scratch space required by RustFFT. 
-/// The `execute` method performs the FFT computation using RustFFT, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
-/// This wrapper allows us to evaluate the performance of RustFFT in a consistent manner alongside our own implementations, providing valuable insights into the trade-offs between different FFT algorithms and optimizations.
-/// The implementation includes error handling to ensure that the input size matches the planned size and that the FFT plan is properly initialized before execution. 
-/// It also handles different input orderings (standard vs. bit-reversed) and applies the appropriate scaling factor to the output based on the specified parameters.
-/// Overall, this wrapper serves as a bridge between the RustFFT library and our benchmarking framework, enabling us to conduct comprehensive performance comparisons across multiple FFT implementations.
-/// The `RustFftWrapper` is designed to be flexible and efficient, making it a valuable tool for evaluating the performance of RustFFT in various contexts and guiding decisions about which FFT implementation to use for different applications.
-/// By integrating RustFFT into our benchmarking suite, we can gain a deeper understanding of the performance characteristics of different FFT implementations and make informed choices about which one to use based on our specific requirements and constraints.
-/// The use of RustFFT in our benchmarks allows us to leverage a well-established and optimized FFT library, providing a strong baseline for comparison against our own implementations and helping us identify areas for potential optimization in our codebase.
-/// In summary, the `RustFftWrapper` provides a seamless integration of the RustFFT library into our benchmarking framework, enabling us to evaluate its performance alongside our own FFT implementations and make informed decisions about which implementation to use in different contexts.
+//! A wrapper around the RustFFT library to conform to our FftEngine1D trait, allowing us to benchmark RustFFT against our own implementations.
+//! This wrapper provides a way to use the RustFFT library within our benchmarking framework, allowing us to compare its performance against our own FFT implementations. The `RustFftWrapper` struct maintains the
+//! necessary state for the FFT computation, including the size of the transform, direction, scaling factor, ordering, bit-reversal map, and the FFT plan and scratch space required by RustFFT. 
+//! The `execute` method performs the FFT computation using RustFFT, while the `plan` method prepares the necessary precomputations based on the specified parameters. 
+//! This wrapper allows us to evaluate the performance of RustFFT in a consistent manner alongside our own implementations, providing valuable insights into the trade-offs between different FFT algorithms and optimizations.
+//! The implementation includes error handling to ensure that the input size matches the planned size and that the FFT plan is properly initialized before execution. 
+//! It also handles different input orderings (standard vs. bit-reversed) and applies the appropriate scaling factor to the output based on the specified parameters.
+//! Overall, this wrapper serves as a bridge between the RustFFT library and our benchmarking framework, enabling us to conduct comprehensive performance comparisons across multiple FFT implementations.
+//! The `RustFftWrapper` is designed to be flexible and efficient, making it a valuable tool for evaluating the performance of RustFFT in various contexts and guiding decisions about which FFT implementation to use for different applications.
+//! By integrating RustFFT into our benchmarking suite, we can gain a deeper understanding of the performance characteristics of different FFT implementations and make informed choices about which one to use based on our specific requirements and constraints.
+//! The use of RustFFT in our benchmarks allows us to leverage a well-established and optimized FFT library, providing a strong baseline for comparison against our own implementations and helping us identify areas for potential optimization in our codebase.
+//! In summary, the `RustFftWrapper` provides a seamless integration of the RustFFT library into our benchmarking framework, enabling us to evaluate its performance alongside our own FFT implementations and make informed decisions about which implementation to use in different contexts.
+
 use std::sync::Arc;
 
 use lib_jsl_ffts::fft_engine_trait::{FftEngine1D, FftDirection, FftOrdering, FftScaleFactor};

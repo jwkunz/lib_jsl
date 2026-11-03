@@ -1,6 +1,7 @@
-/// Test bench data for validating FFT implementations against known inputs and outputs.
-/// This module provides functions to load precomputed input and golden output data for FFT tests, allowing us to verify the correctness of our FFT implementations against established benchmarks. 
-/// The data is stored in binary format, with each complex number represented as 16 bytes (8 bytes for the real part and 8 bytes for the imaginary part) in little-endian format. The functions in this module parse the binary 
+//! Test bench data for validating FFT implementations against known inputs and outputs.
+//! This module provides functions to load precomputed input and golden output data for FFT tests, allowing us to verify the correctness of our FFT implementations against established benchmarks. 
+//! The data is stored in binary format, with each complex number represented as 16 bytes (8 bytes for the real part and 8 bytes for the imaginary part) in little-endian format. The functions in this module parse the binary 
+
 use num_complex::Complex;
 
 fn parse_complex_bin(bytes: &[u8]) -> Vec<Complex<f64>> {

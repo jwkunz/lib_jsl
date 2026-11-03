@@ -1,15 +1,16 @@
-/// Bilinear transform utility similar to `scipy.signal.bilinear`.
-///
-/// This converts an analog transfer function
-///
-/// `H_a(s) = (b[0] s^Q + b[1] s^(Q-1) + ... + b[Q]) /`
-/// `         (a[0] s^P + a[1] s^(P-1) + ... + a[P])`
-///
-/// into a digital IIR transfer function by substituting
-///
-/// `s = 2 fs (z - 1) / (z + 1)`
-///
-/// without pre-warping, matching SciPy's `bilinear`.
+//! Bilinear transform utility similar to `scipy.signal.bilinear`.
+//!
+//! This converts an analog transfer function
+//!
+//! `H_a(s) = (b[0] s^Q + b[1] s^(Q-1) + ... + b[Q]) /`
+//! `         (a[0] s^P + a[1] s^(P-1) + ... + a[P])`
+//!
+//! into a digital IIR transfer function by substituting
+//!
+//! `s = 2 fs (z - 1) / (z + 1)`
+//!
+//! without pre-warping, matching SciPy's `bilinear`.
+
 use ndarray::Array1;
 use num_complex::Complex;
 

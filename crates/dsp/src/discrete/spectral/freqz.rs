@@ -1,23 +1,24 @@
-/// Frequency-response utility similar to `scipy.signal.freqz`.
-///
-/// This implementation computes the complex frequency response of a digital
-/// filter described by numerator coefficients `b` and denominator coefficients
-/// `a`:
-///
-/// `H(e^{jw}) = (b[0] + b[1] e^{-jw} + ... + b[M] e^{-jwM}) /`
-/// `            (a[0] + a[1] e^{-jw} + ... + a[N] e^{-jwN})`
-///
-/// The public API follows the most commonly used parts of SciPy's `freqz`:
-/// - integer `worN` for an automatically generated grid
-/// - explicit frequency arrays
-/// - `whole`
-/// - `fs`
-/// - `include_nyquist`
-///
-/// Unlike the current SciPy `whole=True` behavior, this implementation returns
-/// the full-circle frequency axis in ascending order from `-fs/2` to values
-/// just below `fs/2`. This keeps the frequency axis sorted from lowest to
-/// highest while still covering the whole unit circle.
+//! Frequency-response utility similar to `scipy.signal.freqz`.
+//!
+//! This implementation computes the complex frequency response of a digital
+//! filter described by numerator coefficients `b` and denominator coefficients
+//! `a`:
+//!
+//! `H(e^{jw}) = (b[0] + b[1] e^{-jw} + ... + b[M] e^{-jwM}) /`
+//! `            (a[0] + a[1] e^{-jw} + ... + a[N] e^{-jwN})`
+//!
+//! The public API follows the most commonly used parts of SciPy's `freqz`:
+//! - integer `worN` for an automatically generated grid
+//! - explicit frequency arrays
+//! - `whole`
+//! - `fs`
+//! - `include_nyquist`
+//!
+//! Unlike the current SciPy `whole=True` behavior, this implementation returns
+//! the full-circle frequency axis in ascending order from `-fs/2` to values
+//! just below `fs/2`. This keeps the frequency axis sorted from lowest to
+//! highest while still covering the whole unit circle.
+
 use std::f64::consts::PI;
 
 use ndarray::Array1;

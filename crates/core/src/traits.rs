@@ -1,4 +1,5 @@
-/// This module defines common types, traits, and error handling for the library.
+//! This module defines common types, traits, and error handling for the library.
+
 use std::{
     fmt::Debug,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},

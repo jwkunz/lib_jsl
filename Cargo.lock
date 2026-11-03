@@ -305,6 +305,7 @@ version = "1.0.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_derivatives",
+ "lib_jsl_dsp",
  "lib_jsl_ffts",
  "lib_jsl_ffts_reference",
  "lib_jsl_integration",

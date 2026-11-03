@@ -24,3 +24,4 @@ lib_jsl_linalg.workspace = true
 lib_jsl_ffts.workspace = true
 lib_jsl_ffts_reference.workspace = true
 lib_jsl_linalg_reference.workspace = true
+lib_jsl_dsp.workspace = true

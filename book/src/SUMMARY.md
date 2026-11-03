@@ -87,6 +87,14 @@
     - [Hypothesis tests](statistics/hypothesis-tests.md)
     - [Kernel density estimation](statistics/kernel-density.md)
     - [The bootstrap](statistics/bootstrap.md)
+- [Machine learning: regression and classification](machine_learning/index.md)
+    - [Foundations: models, data, preprocessing and metrics](machine_learning/foundations.md)
+    - [Linear regression: least squares, ridge, lasso and elastic net](machine_learning/linear-regression.md)
+    - [Logistic regression](machine_learning/logistic-regression.md)
+    - [Naive Bayes](machine_learning/naive-bayes.md)
+    - [k-nearest neighbours](machine_learning/nearest-neighbours.md)
+    - [Decision trees and random forests](machine_learning/decision-trees.md)
+    - [Support vector machines and kernels](machine_learning/support-vector-machines.md)
 
 ---
 

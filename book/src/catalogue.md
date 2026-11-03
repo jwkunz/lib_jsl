@@ -307,35 +307,35 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 
 Machine learning: regression, classification, clustering, dimensionality reduction, neural networks and boosting.
 
-Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · 37 items
+Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · [book chapter](machine_learning/index.md) · 37 items
 
 #### Foundations
 
-- Model traits (regressor, classifier, clusterer, transformer)
-- Metrics
-- Synthetic datasets
-- Preprocessing
-- Kernels
+- [Model traits (regressor, classifier, clusterer, transformer)](machine_learning/foundations.md#the-model-traits)
+- [Metrics](machine_learning/foundations.md#metrics)
+- [Synthetic datasets](machine_learning/foundations.md#synthetic-data-sets)
+- Preprocessing ([scaling](machine_learning/foundations.md#scaling), [train/test split](machine_learning/foundations.md#training-and-test-data))
+- [Kernels](machine_learning/support-vector-machines.md#the-dual-problem-and-kernels)
 
 #### Supervised
 
 ##### Regression
 
-- Least squares
-- General least squares
-- Ridge
-- Elastic net
-- Support vector regression
+- [Least squares](machine_learning/linear-regression.md#least-squares)
+- [General least squares](machine_learning/linear-regression.md#weighted-and-generalised-least-squares)
+- [Ridge](machine_learning/linear-regression.md#ridge-regression)
+- [Elastic net](machine_learning/linear-regression.md#the-lasso-and-the-elastic-net) ([coordinate descent](machine_learning/linear-regression.md#coordinate-descent))
+- [Support vector regression](machine_learning/support-vector-machines.md#support-vector-regression)
 
 ##### Classification
 
-- k-nearest neighbors
+- [k-nearest neighbors](machine_learning/nearest-neighbours.md)
 - Phylogenetic trees
 - Viterbi algorithm
-- Decision trees and random forests
-- Support vector machine
-- Logistic regression
-- Naive Bayes
+- [Decision trees](machine_learning/decision-trees.md#growing-a-tree-by-gini-impurity) and [random forests](machine_learning/decision-trees.md#bagging-and-random-features)
+- [Support vector machine](machine_learning/support-vector-machines.md#the-maximal-margin-hyperplane) ([SMO](machine_learning/support-vector-machines.md#sequential-minimal-optimisation))
+- [Logistic regression](machine_learning/logistic-regression.md)
+- Naive Bayes ([Gaussian](machine_learning/naive-bayes.md#gaussian-naive-bayes), [multinomial](machine_learning/naive-bayes.md#multinomial-naive-bayes-for-counts))
 
 #### Unsupervised
 

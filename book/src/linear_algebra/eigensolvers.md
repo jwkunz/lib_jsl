@@ -111,7 +111,7 @@ through $Z$ and the balancing; normalise.
 
 The implicit QL algorithm for the tridiagonal matrix (after Numerical Recipes' `tqli`, with the norm-relative deflation test of
 EISPACK's `tql2`, without which the iteration failed on rank-deficient matrices such as the centred kernel matrices of
-[kernel PCA](../machine_learning/index.md)):
+[kernel PCA](../unsupervised/pca.md#kernel-pca)):
 
 ```rust,ignore
 {{#include ../../../crates/linalg/src/eigh.rs:tql}}

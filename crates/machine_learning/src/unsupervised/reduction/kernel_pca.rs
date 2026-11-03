@@ -1,4 +1,6 @@
 //! Kernel principal component analysis.
+//!
+//! See the book entry [Principal component analysis and kernel PCA](https://jwkunz.github.io/lib_jsl/book/unsupervised/pca.html#kernel-pca).
 
 use crate::common::{Transformer, check_features};
 use crate::kernels::Kernel;

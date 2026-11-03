@@ -1,4 +1,6 @@
 //! Principal component analysis.
+//!
+//! See the book entry [Principal component analysis and kernel PCA](https://jwkunz.github.io/lib_jsl/book/unsupervised/pca.html).
 
 use crate::common::{Transformer, check_features};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR2D};
@@ -63,6 +65,7 @@ impl Transformer for Pca {
         if n < 2 || self.components == 0 || self.components > p {
             return Err(ErrorsJSL::InvalidInputRange("Need at least two samples and 1 <= components <= features."));
         }
+        // ANCHOR: pca_fit
         self.mean = x.mean_axis(ndarray::Axis(0)).expect("non-empty");
         let centred = &x - &self.mean;
         let cov = centred.t().dot(&centred) / (n as f64 - 1.0);
@@ -72,6 +75,7 @@ impl Transformer for Pca {
         self.variances = order.iter().map(|&i| vals[i].max(0.0)).collect();
         self.total_variance = vals.iter().map(|v| v.max(0.0)).sum();
         self.axes = R2D::from_shape_fn((self.components, p), |(c, j)| vecs[[j, order[c]]]);
+        // ANCHOR_END: pca_fit
         // Sign convention: make the largest-magnitude loading of each axis positive, so results
         // are reproducible.
         for mut axis in self.axes.rows_mut() {

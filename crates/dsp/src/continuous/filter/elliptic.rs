@@ -1,3 +1,7 @@
+//! The elliptic (Cauer) analogue prototype and the elliptic functions it needs.
+//!
+//! See the book entry [Analogue prototypes: Butterworth, Chebyshev, elliptic and Bessel](https://jwkunz.github.io/lib_jsl/book/filters/analog-prototypes.html#where-the-poles-are).
+
 use ndarray::Array1;
 use num_complex::Complex;
 

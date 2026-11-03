@@ -1,3 +1,7 @@
+//! The Butterworth analogue prototype.
+//!
+//! See the book entry [Analogue prototypes: Butterworth, Chebyshev, elliptic and Bessel](https://jwkunz.github.io/lib_jsl/book/filters/analog-prototypes.html#where-the-poles-are).
+
 use ndarray::Array1;
 use num_complex::Complex;
 
@@ -14,6 +18,7 @@ pub fn buttap(order: usize) -> Result<Zpk, ErrorsJSL> {
     // Butterworth poles lie uniformly on the left-half unit semicircle. The
     // resulting prototype has maximally flat magnitude at DC and a -3 dB
     // cutoff at 1 rad/s.
+    // ANCHOR: buttap
     let poles = (0..order)
         .map(|k| {
             let theta = std::f64::consts::PI * (2.0 * k as f64 + order as f64 + 1.0)
@@ -21,6 +26,7 @@ pub fn buttap(order: usize) -> Result<Zpk, ErrorsJSL> {
             Complex::new(theta.cos(), theta.sin())
         })
         .collect::<Vec<_>>();
+    // ANCHOR_END: buttap
 
     Ok(Zpk {
         z: Array1::from_vec(vec![]),

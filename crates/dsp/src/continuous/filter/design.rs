@@ -1,3 +1,7 @@
+//! Zero-pole-gain and transfer-function forms, and the analogue frequency transformations.
+//!
+//! See the book entry [Analogue prototypes: Butterworth, Chebyshev, elliptic and Bessel](https://jwkunz.github.io/lib_jsl/book/filters/analog-prototypes.html#frequency-transformations).
+
 use ndarray::Array1;
 use num_complex::Complex;
 

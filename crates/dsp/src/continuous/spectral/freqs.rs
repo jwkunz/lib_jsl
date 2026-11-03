@@ -1,3 +1,7 @@
+//! The frequency response of an analogue filter.
+//!
+//! See the book entry [Analogue prototypes: Butterworth, Chebyshev, elliptic and Bessel](https://jwkunz.github.io/lib_jsl/book/filters/analog-prototypes.html).
+
 /// Analog frequency-response utility similar to `scipy.signal.freqs`.
 ///
 /// This evaluates the transfer function of a continuous-time linear filter:

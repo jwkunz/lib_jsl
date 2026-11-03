@@ -5,6 +5,8 @@
 //! current predictions, and its leaves take the Newton step `Σ(−g) / Σh` of the loss restricted to
 //! the leaf. The learning rate `ν` (shrinkage) and row subsampling (stochastic boosting)
 //! regularise the fit.
+//!
+//! See the book entry [Gradient boosting](https://jwkunz.github.io/lib_jsl/book/learning/gradient-boosting.html).
 
 use crate::common::{Classifier, MlRng, Regressor, check_xy, class_count, rows};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
@@ -163,6 +165,7 @@ impl Regressor for GradientBoostingRegressor {
         self.importances = vec![0.0; x.ncols()];
         self.trees.clear();
         self.training_loss.clear();
+        // ANCHOR: boost_regression
         for _ in 0..p.stages {
             let residual: Vec<f64> = (0..n).map(|i| y[i] - prediction[i]).collect();
             let mut tree = RegressionTree::new(p.max_depth, p.min_samples_leaf);
@@ -173,6 +176,7 @@ impl Regressor for GradientBoostingRegressor {
             self.trees.push(tree);
             self.training_loss.push((0..n).map(|i| (y[i] - prediction[i]).powi(2)).sum::<f64>() / n as f64);
         }
+        // ANCHOR_END: boost_regression
         Ok(())
     }
 
@@ -265,6 +269,7 @@ impl Classifier for GradientBoostingClassifier {
             let probabilities: Vec<Vec<f64>> = scores.iter().map(|s| softmax(s)).collect();
             let sample = p.sample(n, &mut rng);
             let mut stage = Vec::with_capacity(k);
+            // ANCHOR: boost_classification
             for c in 0..k {
                 let residual: Vec<f64> = (0..n).map(|i| f64::from(u8::from(labels[i] == c)) - probabilities[i][c]).collect();
                 let hessian: Vec<f64> = (0..n).map(|i| probabilities[i][c] * (1.0 - probabilities[i][c])).collect();
@@ -279,6 +284,7 @@ impl Classifier for GradientBoostingClassifier {
                 }
                 stage.push(tree);
             }
+            // ANCHOR_END: boost_classification
             for (i, row) in data.iter().enumerate() {
                 for (c, tree) in stage.iter().enumerate() {
                     scores[i][c] += p.learning_rate * tree.predict_row(row);

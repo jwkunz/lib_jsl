@@ -295,13 +295,13 @@ Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [bo
 
 Descriptive statistics, correlation, hypothesis tests, density estimation and resampling.
 
-Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · 5 items
+Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 5 items
 
-- Descriptive statistics
-- Correlation and covariance
-- Hypothesis tests
-- Kernel density estimation
-- Bootstrap
+- [Descriptive statistics](statistics/descriptive.md)
+- Correlation and covariance ([Pearson](statistics/correlation.md#pearsons-correlation), [Spearman](statistics/correlation.md#spearmans-rank-correlation), [Kendall](statistics/correlation.md#kendalls-tau))
+- Hypothesis tests ([t tests](statistics/hypothesis-tests.md#students-and-welchs-t-tests), [chi-square](statistics/hypothesis-tests.md#chi-square-tests-for-counts), [ANOVA](statistics/hypothesis-tests.md#one-way-analysis-of-variance), [Kolmogorov-Smirnov](statistics/hypothesis-tests.md#kolmogorov-smirnov-tests), [Mann-Whitney](statistics/hypothesis-tests.md#the-mann-whitney-u-test))
+- [Kernel density estimation](statistics/kernel-density.md)
+- Bootstrap ([percentile](statistics/bootstrap.md#percentile-intervals), [BCa](statistics/bootstrap.md#the-bca-interval))
 
 ### Machine learning
 

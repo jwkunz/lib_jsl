@@ -81,6 +81,12 @@
     - [Sampling from probability distributions](random/distributions.md)
     - [Quasi-random sequences](random/quasi-random.md)
 - [Markov chain Monte Carlo](random/mcmc.md)
+- [Statistics](statistics/index.md)
+    - [Descriptive statistics](statistics/descriptive.md)
+    - [Correlation and covariance](statistics/correlation.md)
+    - [Hypothesis tests](statistics/hypothesis-tests.md)
+    - [Kernel density estimation](statistics/kernel-density.md)
+    - [The bootstrap](statistics/bootstrap.md)
 
 ---
 

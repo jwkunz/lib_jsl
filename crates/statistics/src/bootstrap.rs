@@ -1,4 +1,6 @@
 //! The nonparametric bootstrap: standard errors and confidence intervals by resampling.
+//!
+//! See the book entry [The bootstrap](https://jwkunz.github.io/lib_jsl/book/statistics/bootstrap.html).
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_random::uniform_generator::{UniformGenerator, UniformRNG};
@@ -23,6 +25,7 @@ fn quantile_of_sorted(sorted: &[f64], p: f64) -> f64 {
     if lo + 1 < sorted.len() { sorted[lo] + frac * (sorted[lo + 1] - sorted[lo]) } else { sorted[lo] }
 }
 
+// ANCHOR: bootstrap
 /// Resamples `data` with replacement `resamples` times and evaluates `statistic` on each.
 pub fn bootstrap<S: Fn(&[f64]) -> f64>(data: &[f64], statistic: S, resamples: usize, seed: u64) -> Result<BootstrapResult, ErrorsJSL> {
     if data.len() < 2 || resamples < 2 {
@@ -44,6 +47,7 @@ pub fn bootstrap<S: Fn(&[f64]) -> f64>(data: &[f64], statistic: S, resamples: us
     let standard_error = (replicates.iter().map(|r| (r - m).powi(2)).sum::<f64>() / (resamples - 1) as f64).sqrt();
     Ok(BootstrapResult { estimate, replicates, standard_error, bias: m - estimate })
 }
+// ANCHOR_END: bootstrap
 
 impl BootstrapResult {
     fn sorted(&self) -> Vec<f64> {
@@ -59,6 +63,7 @@ impl BootstrapResult {
         (quantile_of_sorted(&s, alpha), quantile_of_sorted(&s, 1.0 - alpha))
     }
 
+// ANCHOR: bca
     /// The bias-corrected and accelerated (BCa) interval of Efron: the percentile levels are
     /// shifted by the bias correction `z₀ = Φ⁻¹(#{θ* < θ̂}/B)` and the acceleration `a` from the
     /// jackknife skewness of `statistic` on `data` (the same data and statistic as the
@@ -76,6 +81,7 @@ impl BootstrapResult {
         let z = normal_quantile((1.0 + confidence) / 2.0, 0.0, 1.0);
         (quantile_of_sorted(&s, level(-z)), quantile_of_sorted(&s, level(z)))
     }
+// ANCHOR_END: bca
 }
 
 #[cfg(test)]

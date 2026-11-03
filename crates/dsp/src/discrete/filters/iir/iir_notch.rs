@@ -1,3 +1,7 @@
+//! Second-order notch filters, as SciPy's `iirnotch`.
+//!
+//! See the book entry [IIR structures: direct forms, biquads, notch, peak and comb filters](https://jwkunz.github.io/lib_jsl/book/filters/iir-structures.html#notch-and-peak-filters).
+
 use std::f64::consts::PI;
 
 use num_complex::Complex;
@@ -37,6 +41,7 @@ pub fn iirnotch(w0: f64, q: f64, fs: Option<f64>) -> Result<BilinearResult, Erro
 
     // SciPy first converts the user-facing frequency into its normalized
     // half-cycle/sample form and derives the bandwidth from `Q = w0 / bw`.
+    // ANCHOR: iirnotch
     let normalized_w0 = 2.0 * w0 / fs;
     let normalized_bw = normalized_w0 / q;
 
@@ -62,6 +67,7 @@ pub fn iirnotch(w0: f64, q: f64, fs: Option<f64>) -> Result<BilinearResult, Erro
         Complex::new(-2.0 * gain * w0_rad.cos(), 0.0),
         Complex::new(2.0 * gain - 1.0, 0.0),
     ];
+    // ANCHOR_END: iirnotch
 
     Ok(BilinearResult {
         beta: ndarray::Array1::from_vec(beta_coeffs),

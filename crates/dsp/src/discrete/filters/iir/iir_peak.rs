@@ -1,3 +1,7 @@
+//! Second-order peak (resonator) filters, as SciPy's `iirpeak`.
+//!
+//! See the book entry [IIR structures: direct forms, biquads, notch, peak and comb filters](https://jwkunz.github.io/lib_jsl/book/filters/iir-structures.html#notch-and-peak-filters).
+
 use std::f64::consts::PI;
 
 use num_complex::Complex;

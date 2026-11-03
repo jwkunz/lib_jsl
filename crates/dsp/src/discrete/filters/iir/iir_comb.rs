@@ -1,3 +1,7 @@
+//! Comb notch and peak filters, as SciPy's `iircomb`.
+//!
+//! See the book entry [IIR structures: direct forms, biquads, notch, peak and comb filters](https://jwkunz.github.io/lib_jsl/book/filters/iir-structures.html#comb-filters).
+
 use std::f64::consts::PI;
 
 use num_complex::Complex;

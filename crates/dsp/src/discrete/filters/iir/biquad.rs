@@ -10,6 +10,8 @@
 //! let output = biquad.process(&input).unwrap().unwrap();
 //! assert_eq!(output.len(), 256);
 //! ```
+//!
+//! See the book entry [IIR structures: direct forms, biquads, notch, peak and comb filters](https://jwkunz.github.io/lib_jsl/book/filters/iir-structures.html#coefficient-sensitivity).
 
 use std::f64::consts::PI;
 

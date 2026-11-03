@@ -1,4 +1,6 @@
 //! Logistic (softmax) regression.
+//!
+//! See the book entry [Logistic regression](https://jwkunz.github.io/lib_jsl/book/machine_learning/logistic-regression.html).
 
 use crate::common::{Classifier, argmax, check_features, check_xy, class_count};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -68,6 +70,7 @@ fn softmax_rows(w: &R2D, x: VR2D) -> R2D {
     out
 }
 
+// ANCHOR: logistic_objective
 /// Penalised mean negative log-likelihood and its gradient with respect to the flattened weights.
 fn objective(theta: &[f64], x: VR2D, labels: &[usize], classes: usize, l2: f64) -> (f64, Vec<f64>) {
     let (n, p) = x.dim();
@@ -95,6 +98,7 @@ fn objective(theta: &[f64], x: VR2D, labels: &[usize], classes: usize, l2: f64) 
     }
     (loss, grad.into_raw_vec_and_offset().0)
 }
+// ANCHOR_END: logistic_objective
 
 /// Minimises `f` from `x0` with L-BFGS (memory 10) and a backtracking Armijo line search.
 /// Returns the solution and the iteration count.

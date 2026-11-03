@@ -15,7 +15,7 @@ use num_complex::Complex;
 pub enum ConvolveMode {
     /// 'full' returns the convolution at each point of overlap, with an output size of in1.len() + in2.len() - 1.
     Full,
-    /// 'same' returns the convolution at points where the signals overlap completely, with an output size of in1.len() (the same as the first input).
+    /// 'same' returns the central part of the full convolution, with an output size of in1.len() (the same as the first input).
     Same,
     /// 'valid' returns the convolution at points where the signals overlap completely without zero-padding, with an output size of max(in1.len(), in2.len()) - min(in1.len(), in2.len()) + 1.
     Valid,

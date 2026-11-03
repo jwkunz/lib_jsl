@@ -1,3 +1,7 @@
+//! Streaming FIR filtering by FFT overlap-add.
+//!
+//! See the book entry [Convolution and correlation](https://jwkunz.github.io/lib_jsl/book/filters/convolution.html#streams-overlap-add-and-overlap-save).
+
 use std::collections::VecDeque;
 
 use num_complex::Complex;

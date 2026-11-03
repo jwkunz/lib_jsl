@@ -11,6 +11,8 @@
 //! output appears one whole block at a time, and [`flush`](StreamOperator::flush) emits the rest
 //! plus the filter's `taps - 1` sample tail, so the total output is the full convolution
 //! (`input length + taps - 1` samples).
+//!
+//! See the book entry [Convolution and correlation](https://jwkunz.github.io/lib_jsl/book/filters/convolution.html#streams-overlap-add-and-overlap-save).
 
 use crate::{
     discrete::stream_operator::{StreamOperator, StreamOperatorManagement},
@@ -86,6 +88,7 @@ impl<T: IsAnalytic> FftFir<T> {
 
     /// Filters one block of `new` (at most `block_len` samples, zero-padded) and returns the first
     /// `valid` outputs.
+    // ANCHOR: overlap_save
     fn run_block(&mut self, new: &[Complex<f64>], valid: usize) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         let mut x = vec![Complex::new(0.0, 0.0); self.fft_len];
         x[..self.taps_len - 1].copy_from_slice(&self.history);
@@ -101,6 +104,7 @@ impl<T: IsAnalytic> FftFir<T> {
         }
         Ok(y[self.taps_len - 1..self.taps_len - 1 + valid].to_vec())
     }
+    // ANCHOR_END: overlap_save
 }
 
 impl<T: IsAnalytic> StreamOperatorManagement for FftFir<T> {

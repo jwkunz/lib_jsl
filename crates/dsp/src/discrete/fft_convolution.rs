@@ -4,6 +4,8 @@
 //! signal convolved with a length-`M` kernel costs `O((N + M) log(N + M))` instead of `O(N M)`.
 //! The 1D routine works for any [`IsAnalytic`] sample type (real or complex); the 2D routine works
 //! on real images and is the basis for frequency-domain image filtering.
+//!
+//! See the book entry [Convolution and correlation](https://jwkunz.github.io/lib_jsl/book/filters/convolution.html#fast-convolution).
 
 use crate::{
     discrete::convolve::{apply_mode, fft_full, ConvolveMode},

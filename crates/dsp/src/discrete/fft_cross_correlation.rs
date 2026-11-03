@@ -1,4 +1,6 @@
 //! FFT-based cross-correlation, similar to `scipy.signal.correlate(..., method="fft")`.
+//!
+//! See the book entry [Convolution and correlation](https://jwkunz.github.io/lib_jsl/book/filters/convolution.html#cross-correlation-and-delay-estimation).
 
 use crate::{
     discrete::{

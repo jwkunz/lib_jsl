@@ -1,3 +1,7 @@
+//! The streaming interface shared by filters and other block processors.
+//!
+//! See the book entry [Convolution and correlation](https://jwkunz.github.io/lib_jsl/book/filters/convolution.html#implementation).
+
 use lib_jsl_core::ErrorsJSL;
 
 /// A stream operator trait indicates a standard interface for processing streams of data, such as audio or video streams. It defines a set of methods that can be implemented by different types of stream operators, allowing them to be used interchangeably in a streaming pipeline. 

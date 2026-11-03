@@ -1,3 +1,7 @@
+//! Cross-correlation, similar to `scipy.signal.correlate`.
+//!
+//! See the book entry [Convolution and correlation](https://jwkunz.github.io/lib_jsl/book/filters/convolution.html#cross-correlation-and-delay-estimation).
+
 use crate::{
     dsp::discrete::convolve::{convolve, ConvolveMethod, ConvolveMode},
     prelude::{ErrorsJSL, IsAnalytic},

@@ -18,7 +18,7 @@ fn main() {
     let probe = arr2(&[[0.0, 0.0], [2.0, 0.5], [10.0, 10.0]]);
     let p = g.predict_proba(probe.view()).unwrap();
     let density = g.score_samples(probe.view()).unwrap();
-    for i in 0..3 {
-        println!("point {:?}: memberships {:.3}, log density {:.2}", probe.row(i).to_vec(), p.row(i), density[i]);
+    for (i, d) in density.iter().enumerate() {
+        println!("point {:?}: memberships {:.3}, log density {d:.2}", probe.row(i).to_vec(), p.row(i));
     }
 }

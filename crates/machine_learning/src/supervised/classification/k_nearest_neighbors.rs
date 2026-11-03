@@ -1,4 +1,6 @@
 //! k-nearest-neighbours classification.
+//!
+//! See the book entry [k-nearest neighbours](https://jwkunz.github.io/lib_jsl/book/machine_learning/nearest-neighbours.html).
 
 use crate::common::{Classifier, argmax, check_features, check_xy, class_count, squared_distance};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -37,6 +39,7 @@ impl KNearestNeighbors {
         Ok(())
     }
 
+    // ANCHOR: knn
     /// The `(index, distance)` of the `k` nearest training points to `query`, nearest first.
     pub fn neighbours(&self, query: &[f64]) -> Vec<(usize, f64)> {
         let mut d: Vec<(usize, f64)> = self.train.rows().into_iter().enumerate().map(|(i, r)| (i, squared_distance(&r.to_vec(), query))).collect();
@@ -69,6 +72,7 @@ impl KNearestNeighbors {
         }
         Ok(out)
     }
+    // ANCHOR_END: knn
 }
 
 impl Classifier for KNearestNeighbors {

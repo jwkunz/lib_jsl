@@ -1,4 +1,6 @@
 //! Support vector regression (ε-SVR) with kernels.
+//!
+//! See the book entry [Support vector machines and kernels](https://jwkunz.github.io/lib_jsl/book/machine_learning/support-vector-machines.html#support-vector-regression).
 
 use crate::common::{Regressor, check_xy};
 use crate::kernels::Kernel;
@@ -50,6 +52,7 @@ impl Regressor for SupportVectorRegression {
         let k = self.kernel.gram(x) + 1.0; // fold the bias term into the kernel
         let mut beta = vec![0.0; n];
         let mut f = vec![0.0; n]; // f[j] = Σ_i k[i][j] β_i
+        // ANCHOR: svr_dual
         for _ in 0..self.max_iterations {
             let mut max_change: f64 = 0.0;
             for i in 0..n {
@@ -70,6 +73,7 @@ impl Regressor for SupportVectorRegression {
                 break;
             }
         }
+        // ANCHOR_END: svr_dual
         let keep: Vec<usize> = (0..n).filter(|&i| beta[i] != 0.0).collect();
         self.support = R2D::from_shape_fn((keep.len(), x.ncols()), |(a, j)| x[[keep[a], j]]);
         self.beta = R1D::from_iter(keep.iter().map(|&i| beta[i]));

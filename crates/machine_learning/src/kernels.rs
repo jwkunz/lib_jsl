@@ -1,5 +1,7 @@
 //! Kernel functions and Gram matrices, shared by the kernel methods (SVR, SVM, kernel PCA,
 //! spectral clustering).
+//!
+//! See the book entry [Support vector machines and kernels](https://jwkunz.github.io/lib_jsl/book/machine_learning/support-vector-machines.html).
 
 use crate::common::squared_distance;
 use lib_jsl_core::{R2D, VR2D};

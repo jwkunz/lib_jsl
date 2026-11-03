@@ -1,4 +1,6 @@
 //! Support vector machine classification with kernels.
+//!
+//! See the book entry [Support vector machines and kernels](https://jwkunz.github.io/lib_jsl/book/machine_learning/support-vector-machines.html).
 
 use crate::common::{Classifier, check_features, check_xy, class_count};
 use crate::kernels::Kernel;
@@ -89,6 +91,7 @@ impl SupportVectorMachine {
         let q = |i: usize, j: usize| y[i] * y[j] * k[[i, j]];
         let in_up = |t: usize, a: &[f64]| (y[t] > 0.0 && a[t] < c) || (y[t] < 0.0 && a[t] > 0.0);
         let in_low = |t: usize, a: &[f64]| (y[t] > 0.0 && a[t] > 0.0) || (y[t] < 0.0 && a[t] < c);
+        // ANCHOR: smo
         for _ in 0..self.max_iterations {
             // Select i: the maximal violator in I_up of -y G.
             let mut gmax = f64::NEG_INFINITY;
@@ -152,6 +155,7 @@ impl SupportVectorMachine {
                 grad[t] += q(t, i) * di + q(t, j) * dj;
             }
         }
+        // ANCHOR_END: smo
         // Bias: average of y G over free support vectors, else the midpoint of the feasible range.
         let free: Vec<f64> = (0..l).filter(|&t| alpha[t] > 0.0 && alpha[t] < c).map(|t| y[t] * grad[t]).collect();
         let rho = if free.is_empty() {

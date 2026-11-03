@@ -261,7 +261,20 @@ mod tests {
             let best = (0..3).map(|k| ((g.means()[[k, 0]] - c[0]).powi(2) + (g.means()[[k, 1]] - c[1]).powi(2)).sqrt()).fold(f64::INFINITY, f64::min);
             assert!(best < 0.2, "{best}");
         }
-        assert!(g.covariances().iter().all(|c| (c[[0, 0]] - 0.49).abs() < 0.12));
+        // The clusters barely overlap, so each fitted covariance is the sample covariance (divisor n)
+        // of the points generated from the matching centre.
+        for k in 0..3 {
+            let c = (0..3).min_by(|&a, &b| {
+                let d = |c: usize| (g.means()[[k, 0]] - centres[c][0]).powi(2) + (g.means()[[k, 1]] - centres[c][1]).powi(2);
+                d(a).total_cmp(&d(b))
+            }).unwrap();
+            let idx: Vec<usize> = (0..x.nrows()).filter(|&i| l[i] == c).collect();
+            let m: Vec<f64> = (0..2).map(|j| idx.iter().map(|&i| x[[i, j]]).sum::<f64>() / idx.len() as f64).collect();
+            for (a, b) in [(0, 0), (0, 1), (1, 1)] {
+                let sample = idx.iter().map(|&i| (x[[i, a]] - m[a]) * (x[[i, b]] - m[b])).sum::<f64>() / idx.len() as f64;
+                assert!((g.covariances()[k][[a, b]] - sample).abs() < 1e-3, "{} vs {sample}", g.covariances()[k][[a, b]]);
+            }
+        }
         assert!(g.iterations() >= 1 && g.mean_log_likelihood().is_finite());
     }
 
@@ -278,7 +291,10 @@ mod tests {
         let mut gm = GaussianMixture::new(2, CovarianceType::Full, 3);
         let gl = gm.fit_predict(x.view()).unwrap();
         let km = KMeans::new(2, 3).fit_predict(x.view()).unwrap();
-        assert!(adjusted_rand_index(&gl, &t).unwrap() > 0.9);
+        // The best possible labelling is the optimal rule for the true model, y > 2; the mixture
+        // should match it (the classes overlap, so neither is perfect).
+        let optimal: Vec<Option<usize>> = (0..400).map(|i| Some(usize::from(x[[i, 1]] > 2.0))).collect();
+        assert!(adjusted_rand_index(&gl, &t).unwrap() >= adjusted_rand_index(&optimal, &t).unwrap() - 0.02);
         assert!(adjusted_rand_index(&gl, &t).unwrap() > adjusted_rand_index(&km, &t).unwrap());
         // BIC is minimised at the true number of components on well-separated blobs.
         let (bx, _) = make_blobs(100, &[vec![0.0, 0.0], vec![8.0, 0.0], vec![0.0, 8.0]], 0.8, 6);

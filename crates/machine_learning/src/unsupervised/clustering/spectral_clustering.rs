@@ -1,4 +1,6 @@
 //! Spectral clustering.
+//!
+//! See the book entry [Spectral clustering](https://jwkunz.github.io/lib_jsl/book/unsupervised/spectral.html).
 
 use crate::common::{Clusterer, check_features, pairwise_distances};
 use crate::unsupervised::clustering::k_means::KMeans;
@@ -76,6 +78,7 @@ impl Clusterer for SpectralClustering {
             return Err(ErrorsJSL::InvalidInputRange("k must be between 1 and the number of samples."));
         }
         let w = self.affinity_matrix(x)?;
+        // ANCHOR: spectral
         let deg: Vec<f64> = (0..n).map(|i| w.row(i).sum()).collect();
         let inv_sqrt: Vec<f64> = deg.iter().map(|&d| if d > 1e-12 { 1.0 / d.sqrt() } else { 0.0 }).collect();
         let lap = R2D::from_shape_fn((n, n), |(i, j)| f64::from(i == j) - inv_sqrt[i] * w[[i, j]] * inv_sqrt[j]);
@@ -90,6 +93,7 @@ impl Clusterer for SpectralClustering {
             }
         }
         KMeans::new(self.k, self.seed).with_restarts(10).fit_predict(embedding.view())
+        // ANCHOR_END: spectral
     }
 }
 

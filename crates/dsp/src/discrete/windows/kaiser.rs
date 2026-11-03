@@ -1,29 +1,27 @@
 use super::{extend, len_guard, truncate};
 
-/// The modified Bessel function of the first kind, order 0, is used in the computation of the Kaiser window coefficients. It is defined as an infinite series and can be computed using a numerical approximation for practical purposes.
-fn i0(x: f64) -> f64 {
+/// The modified Bessel function of the first kind of order zero, to full double precision: the
+/// power series `Σ (x²/4)^k / (k!)²` for `|x| < 30`, and above it the asymptotic series
+/// `eˣ / √(2πx) · Σ ((2k − 1)!!)² / (k! (8x)^k)`, whose terms shrink until `k ≈ 2x`.
+pub(crate) fn i0(x: f64) -> f64 {
     let ax = x.abs();
-    if ax < 3.75 {
-        let t = x / 3.75;
-        let t2 = t * t;
-        1.0 + t2
-            * (3.515_622_9
-                + t2
-                    * (3.089_942_4
-                        + t2
-                            * (1.206_749_2
-                                + t2 * (0.265_973_2 + t2 * (0.036_076_8 + t2 * 0.004_581_3)))))
+    if ax < 30.0 {
+        let q = 0.25 * ax * ax;
+        let (mut term, mut sum, mut k) = (1.0f64, 1.0f64, 0.0f64);
+        while term > 1e-17 * sum {
+            k += 1.0;
+            term *= q / (k * k);
+            sum += term;
+        }
+        sum
     } else {
-        let t = 3.75 / ax;
-        (ax.exp() / ax.sqrt())
-            * (0.398_942_28
-                + t * (0.013_285_92
-                    + t * (0.002_253_19
-                        + t * (-0.001_575_65
-                            + t * (0.009_162_81
-                                + t * (-0.020_577_06
-                                    + t * (0.026_355_37
-                                        + t * (-0.016_476_33 + t * 0.003_923_77))))))))
+        let (mut term, mut sum, mut k) = (1.0f64, 1.0f64, 0.0f64);
+        while term.abs() > 1e-17 * sum && k < 60.0 {
+            k += 1.0;
+            term *= (2.0 * k - 1.0).powi(2) / (k * 8.0 * ax);
+            sum += term;
+        }
+        ax.exp() / (2.0 * std::f64::consts::PI * ax).sqrt() * sum
     }
 }
 
@@ -44,7 +42,8 @@ pub fn kaiser(m: usize, beta: f64, sym: bool) -> Vec<f64> {
     truncate(w, needs_trunc)
 }
 
-/// This function is used to compute the beta parameter for the Kaiser window based on the desired attenuation in decibels. The beta parameter controls the shape of the window and its spectral properties, with higher values leading to a narrower main lobe and lower side lobes in the frequency response.
+/// Kaiser's empirical `β` giving a stopband attenuation of `a` dB in a window-method FIR filter
+/// (as SciPy's `kaiser_beta`). Larger `β` lowers the side lobes and widens the main lobe.
 pub fn kaiser_beta(a: f64) -> f64 {
     if a > 50.0 {
         0.1102 * (a - 8.7)
@@ -55,12 +54,16 @@ pub fn kaiser_beta(a: f64) -> f64 {
     }
 }
 
-/// This function is used to compute the attenuation in decibels for the Kaiser window based on the desired beta parameter. The attenuation in decibels is a measure of how much the side lobes of the window are suppressed compared to the main lobe, with higher values indicating better suppression of side lobes.
+/// Kaiser's estimate of the stopband attenuation in dB reached by a Kaiser-window FIR filter with
+/// `numtaps` taps and a transition `width` given as a fraction of the Nyquist frequency (as
+/// SciPy's `kaiser_atten`).
 pub fn kaiser_atten(numtaps: usize, width: f64) -> f64 {
     2.285 * (numtaps as f64 - 1.0) * std::f64::consts::PI * width + 7.95
 }
 
-/// This is a method to estimate the number of taps needed for a Kaiser window based on the desired attenuation in decibels and the width of the main lobe. The number of taps determines the length of the window and its spectral properties, with more taps leading to a narrower main lobe and better suppression of side lobes.
+/// The number of taps Kaiser's formula predicts for an attenuation of `at` dB with a transition
+/// `width` given as a fraction of the Nyquist frequency (the inverse of [`kaiser_atten`]; the tap
+/// count of SciPy's `kaiserord`).
 pub fn kaiser_estimate_numtaps(at: f64, width: f64) -> usize {
     ((at - 7.95) / (2.285 * std::f64::consts::PI * width)).ceil() as usize + 1
 }
@@ -69,6 +72,14 @@ pub fn kaiser_estimate_numtaps(at: f64, width: f64) -> usize {
 mod tests {
     use super::*;
     use crate::discrete::windows::test_support::assert_window;
+
+    #[test]
+    fn bessel_i0_is_accurate_across_the_switch_to_the_asymptotic_series() {
+        // Values of I0 from mpmath to 17 digits.
+        for (x, want) in [(0.5, 1.0634833707413236), (6.0, 67.23440697647797), (29.9, 708478330489.0145), (30.1, 862432920031.7792), (60.0, 5.894077055609801e24)] {
+            assert!((i0(x) / want - 1.0).abs() < 4e-15, "{x}: {} against {want}", i0(x));
+        }
+    }
 
     #[test]
     fn test_kaiser() {

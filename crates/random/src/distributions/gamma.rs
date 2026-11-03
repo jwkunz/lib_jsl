@@ -1,6 +1,7 @@
 use crate::{distributions::gaussian::gaussian_distribution_box_muller, uniform_generator::UniformGenerator};
 use lib_jsl_core::ErrorsJSL;
 
+// ANCHOR: marsaglia_tsang
 /// A gamma sample with shape `alpha` and **scale** `beta` (mean `αβ`, variance `αβ²`), by the
 /// Marsaglia-Tsang method (2000): a squeeze-accelerated rejection from a transformed normal, for
 /// `α ≥ 1`; for `α < 1`, `Gamma(α) = Gamma(α + 1) · U^{1/α}`.
@@ -31,6 +32,7 @@ pub fn gamma_distribution<U>(uniform_generator: &mut U, alpha: f64, beta: f64) -
         }
     }
 }
+// ANCHOR_END: marsaglia_tsang
 
 #[cfg(test)]
 mod tests {

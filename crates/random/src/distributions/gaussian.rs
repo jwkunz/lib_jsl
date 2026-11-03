@@ -2,6 +2,7 @@ use std::{f64::consts::PI, ops::Mul};
 
 use crate::uniform_generator::UniformGenerator;
 
+// ANCHOR: box_muller
 /// Gaussian distribution (via Box - Muller transform)
 /// Yields two independent samples
 pub fn gaussian_distribution_box_muller<U>(
@@ -20,6 +21,7 @@ where
     let z2 = a * uniform_sample_1.mul(2.0 * PI).sin();
     (z1 * sd + mean, z2 * sd + mean)
 }
+// ANCHOR_END: box_muller
 
 // Utility for efficiently creating a vector of gaussian random variables
 pub fn gaussian_distribution_box_muller_vec<U>(

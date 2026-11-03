@@ -1,5 +1,7 @@
 //! Transformations of uniform floating point samples [0,1) into the desired distribution,
 //! e.g. `let sample = distribution(&mut rng, other args...)`. One module per distribution.
+//!
+//! See the book entry [Sampling from probability distributions](https://jwkunz.github.io/lib_jsl/book/random/distributions.html).
 
 pub mod uniform;
 pub mod exponential;

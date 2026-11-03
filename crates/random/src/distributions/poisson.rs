@@ -17,6 +17,7 @@ fn poisson_small<U: UniformGenerator>(rng: &mut U, lambda: f64) -> u64 {
     k
 }
 
+// ANCHOR: poisson
 /// A Poisson(`lambda`) sample (returned as `f64`), for `lambda ≥ 0`.
 ///
 /// Small `λ` (below 16) uses Knuth's multiplication method, a fresh uniform per step. Larger `λ`
@@ -46,6 +47,7 @@ where
     }
     (offset + poisson_small(uniform_generator, lambda)) as f64
 }
+// ANCHOR_END: poisson
 
 #[cfg(test)]
 mod tests {

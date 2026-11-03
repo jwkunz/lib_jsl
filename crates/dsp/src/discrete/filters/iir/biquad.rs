@@ -30,7 +30,7 @@ pub struct BiquadCoefficients {
 impl BiquadCoefficients {
     /// RBJ cookbook low-pass coefficients with normalized cutoff in (0, 0.5).
     pub fn lowpass(cutoff_normalized: f64, q: f64) -> Result<Self, ErrorsJSL> {
-        if !(0.0..0.5).contains(&cutoff_normalized) {
+        if !(cutoff_normalized > 0.0 && cutoff_normalized < 0.5) {
             return Err(ErrorsJSL::InvalidInputRange(
                 "cutoff_normalized must be in (0, 0.5)",
             ));

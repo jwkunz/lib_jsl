@@ -1,4 +1,6 @@
 //! Clustering.
+//!
+//! See the book entry [Machine learning: clustering and dimensionality reduction](https://jwkunz.github.io/lib_jsl/book/unsupervised/index.html).
 
 pub mod k_means;
 pub mod k_medoids;

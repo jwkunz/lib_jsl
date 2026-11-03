@@ -95,6 +95,15 @@
     - [k-nearest neighbours](machine_learning/nearest-neighbours.md)
     - [Decision trees and random forests](machine_learning/decision-trees.md)
     - [Support vector machines and kernels](machine_learning/support-vector-machines.md)
+- [Machine learning: clustering and dimensionality reduction](unsupervised/index.md)
+    - [k-means and k-medoids](unsupervised/k-means.md)
+    - [Hierarchical clustering and phylogenetic trees](unsupervised/hierarchical.md)
+    - [Density-based clustering: DBSCAN and HDBSCAN](unsupervised/density.md)
+    - [Gaussian mixture models](unsupervised/gaussian-mixtures.md)
+    - [Spectral clustering](unsupervised/spectral.md)
+    - [Principal component analysis and kernel PCA](unsupervised/pca.md)
+    - [Linear discriminant analysis](unsupervised/lda.md)
+    - [Nonlinear embeddings: t-SNE and UMAP](unsupervised/embeddings.md)
 
 ---
 

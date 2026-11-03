@@ -307,7 +307,7 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 
 Machine learning: regression, classification, clustering, dimensionality reduction, neural networks and boosting.
 
-Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · [book chapter](machine_learning/index.md) · 37 items
+Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · book chapters: [regression and classification](machine_learning/index.md), [clustering and dimensionality reduction](unsupervised/index.md) · 37 items
 
 #### Foundations
 
@@ -330,7 +330,7 @@ Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learnin
 ##### Classification
 
 - [k-nearest neighbors](machine_learning/nearest-neighbours.md)
-- Phylogenetic trees
+- Phylogenetic trees ([UPGMA](unsupervised/hierarchical.md#upgma-and-the-molecular-clock), [neighbour joining](unsupervised/hierarchical.md#neighbour-joining))
 - Viterbi algorithm
 - [Decision trees](machine_learning/decision-trees.md#growing-a-tree-by-gini-impurity) and [random forests](machine_learning/decision-trees.md#bagging-and-random-features)
 - [Support vector machine](machine_learning/support-vector-machines.md#the-maximal-margin-hyperplane) ([SMO](machine_learning/support-vector-machines.md#sequential-minimal-optimisation))
@@ -341,21 +341,21 @@ Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learnin
 
 ##### Clustering
 
-- k-means
-- k-medoids
-- Hierarchical clustering
-- DBSCAN
-- HDBSCAN
-- Gaussian mixture models
-- Spectral clustering
+- [k-means](unsupervised/k-means.md#lloyds-algorithm) ([k-means++](unsupervised/k-means.md#k-means-seeding-and-restarts))
+- [k-medoids](unsupervised/k-means.md#k-medoids)
+- [Hierarchical clustering](unsupervised/hierarchical.md#linkage-criteria)
+- [DBSCAN](unsupervised/density.md#dbscan-core-border-and-noise-points)
+- [HDBSCAN](unsupervised/density.md#hdbscan-every-density-at-once)
+- [Gaussian mixture models](unsupervised/gaussian-mixtures.md#expectation-maximisation)
+- [Spectral clustering](unsupervised/spectral.md#normalised-cuts-and-the-embedding)
 
 ##### Reduction
 
-- Principal component analysis
-- Kernel PCA
-- t-SNE
-- UMAP
-- Linear discriminant analysis
+- [Principal component analysis](unsupervised/pca.md#directions-of-greatest-variance)
+- [Kernel PCA](unsupervised/pca.md#kernel-pca)
+- [t-SNE](unsupervised/embeddings.md#t-sne)
+- [UMAP](unsupervised/embeddings.md#umap)
+- [Linear discriminant analysis](unsupervised/lda.md#fishers-criterion)
 
 #### Neural networks
 

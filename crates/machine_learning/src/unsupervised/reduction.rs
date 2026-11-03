@@ -1,4 +1,6 @@
 //! Dimensionality reduction.
+//!
+//! See the book entry [Machine learning: clustering and dimensionality reduction](https://jwkunz.github.io/lib_jsl/book/unsupervised/index.html).
 
 pub mod principal_component_analysis;
 pub mod kernel_pca;

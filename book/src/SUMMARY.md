@@ -74,6 +74,14 @@
     - [Real and multidimensional FFTs](fft/real-multidimensional.md)
     - [Discrete cosine and sine transforms](fft/dct.md)
 
+# Probability, statistics and learning
+
+- [Random numbers](random/index.md)
+    - [Pseudo-random number generators](random/generators.md)
+    - [Sampling from probability distributions](random/distributions.md)
+    - [Quasi-random sequences](random/quasi-random.md)
+- [Markov chain Monte Carlo](random/mcmc.md)
+
 ---
 
 [Writing an entry](writing-an-entry.md)

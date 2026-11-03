@@ -263,33 +263,33 @@ Random numbers, statistical inference and machine learning.
 
 Random number generators, quasi-random sequences, distributions and MCMC.
 
-Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · 22 items
+Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [book chapter](random/index.md) · 22 items
 
-- Histogram
-- Uniform RNG
-- xoshiro256++
-- SplitMix64
-- Quasi-random sequences (Sobol, Halton)
-- Markov chain Monte Carlo (Metropolis-Hastings)
+- [Histogram](random/generators.md#histograms)
+- [Uniform RNG](random/generators.md#xoshiro256)
+- [xoshiro256++](random/generators.md#xoshiro256)
+- [SplitMix64](random/generators.md#seeding-with-splitmix64)
+- Quasi-random sequences ([Sobol](random/quasi-random.md#the-sobol-sequence), [Halton](random/quasi-random.md#the-radical-inverse-and-the-halton-sequence))
+- Markov chain Monte Carlo ([Metropolis-Hastings](random/mcmc.md#the-metropolis-hastings-algorithm))
 
 #### Distributions
 
-- Exponential
-- Uniform (float)
-- Bernoulli
-- Geometric
-- Weibull
-- Poisson
-- Gaussian
-- Chi-squared
-- Student's t
-- Gamma
-- Beta
-- Log-normal
-- Cauchy
-- Binomial
-- Multivariate normal
-- Dirichlet
+- [Exponential](random/distributions.md#inversion)
+- [Uniform (float)](random/generators.md#xoshiro256)
+- [Bernoulli](random/distributions.md#inversion)
+- [Geometric](random/distributions.md#inversion)
+- [Weibull](random/distributions.md#inversion)
+- [Poisson](random/distributions.md#discrete-distributions-poisson-and-binomial)
+- [Gaussian](random/distributions.md#the-normal-distribution-box-muller)
+- [Chi-squared](random/distributions.md#the-normal-distribution-box-muller)
+- [Student's t](random/distributions.md#the-normal-distribution-box-muller)
+- [Gamma](random/distributions.md#rejection-the-gamma-distribution)
+- [Beta](random/distributions.md#rejection-the-gamma-distribution)
+- [Log-normal](random/distributions.md#the-normal-distribution-box-muller)
+- [Cauchy](random/distributions.md#inversion)
+- [Binomial](random/distributions.md#discrete-distributions-poisson-and-binomial)
+- [Multivariate normal](random/distributions.md#multivariate-normal)
+- [Dirichlet](random/distributions.md#rejection-the-gamma-distribution)
 
 ### Statistics
 

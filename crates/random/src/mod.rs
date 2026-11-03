@@ -1,3 +1,7 @@
+//! Random number generation: uniform generators, distribution samplers, quasi-random sequences and Markov chain Monte Carlo.
+//!
+//! See the book chapter [Random numbers](https://jwkunz.github.io/lib_jsl/book/random/index.html).
+
 pub mod distributions;
 pub mod histogram;
 pub mod mcmc;

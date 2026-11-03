@@ -1,4 +1,6 @@
 //! Decision trees and random forests.
+//!
+//! See the book entry [Decision trees and random forests](https://jwkunz.github.io/lib_jsl/book/machine_learning/decision-trees.html).
 
 use crate::common::{Classifier, MlRng, argmax, check_features, check_xy, class_count};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -66,6 +68,7 @@ impl DecisionTree {
             Some(m) => rng.sample_indices(self.features, m.clamp(1, self.features)),
             None => (0..self.features).collect(),
         };
+        // ANCHOR: cart_split
         let mut best: Option<(f64, usize, f64)> = None; // (impurity decrease, feature, threshold)
         for &f in &candidates {
             let mut order: Vec<usize> = idx.to_vec();
@@ -95,6 +98,7 @@ impl DecisionTree {
             }
             _ => leaf(&counts),
         }
+        // ANCHOR_END: cart_split
     }
 
     fn distribution(&self, row: &[f64]) -> &[f64] {
@@ -210,6 +214,7 @@ impl Classifier for RandomForest {
         self.forest.clear();
         let mut oob_votes = vec![vec![0.0; classes]; n];
         let mut oob_seen = vec![false; n];
+        // ANCHOR: forest
         for t in 0..self.trees {
             let sample: Vec<usize> = (0..n).map(|_| rng.below(n)).collect();
             let mut in_bag = vec![false; n];
@@ -223,6 +228,7 @@ impl Classifier for RandomForest {
             }
             self.forest.push(tree);
         }
+        // ANCHOR_END: forest
         self.classes = classes;
         self.oob_accuracy = oob_seen.iter().all(|&s| s).then(|| (0..n).filter(|&i| argmax(&oob_votes[i]) == Some(labels[i])).count() as f64 / n as f64);
         let mut counts = vec![0.0; p];

@@ -1,4 +1,6 @@
 //! Naive Bayes classifiers.
+//!
+//! See the book entry [Naive Bayes](https://jwkunz.github.io/lib_jsl/book/machine_learning/naive-bayes.html).
 
 use crate::common::{Classifier, argmax, check_features, check_xy, class_count};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -31,6 +33,7 @@ impl GaussianNaiveBayes {
         &self.mean
     }
 
+    // ANCHOR: gaussian_nb
     /// Joint log-likelihood `log P(class) + Σ log P(x_j | class)` as a `(rows, classes)` matrix.
     pub fn joint_log_likelihood(&self, x: VR2D) -> Result<R2D, ErrorsJSL> {
         if self.mean.is_empty() {
@@ -48,6 +51,7 @@ impl GaussianNaiveBayes {
                         .sum::<f64>()
         }))
     }
+    // ANCHOR_END: gaussian_nb
 
     /// Posterior class probabilities.
     pub fn predict_proba(&self, x: VR2D) -> Result<R2D, ErrorsJSL> {

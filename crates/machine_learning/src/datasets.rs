@@ -2,6 +2,8 @@
 //!
 //! Every generator takes a seed, so results are reproducible. Feature matrices have one sample per
 //! row.
+//!
+//! See the book entry [Foundations](https://jwkunz.github.io/lib_jsl/book/machine_learning/foundations.html#synthetic-data-sets).
 
 use crate::common::MlRng;
 use lib_jsl_core::{R1D, R2D};

@@ -1,4 +1,6 @@
 //! Feature scaling, splitting and expansion.
+//!
+//! See the book entry [Foundations](https://jwkunz.github.io/lib_jsl/book/machine_learning/foundations.html#scaling).
 
 use crate::common::{MlRng, Transformer, check_features};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};

@@ -1,4 +1,6 @@
 //! Evaluation metrics for regression, classification and clustering.
+//!
+//! See the book entry [Foundations](https://jwkunz.github.io/lib_jsl/book/machine_learning/foundations.html#metrics).
 
 use crate::common::{class_count, squared_distance};
 use lib_jsl_core::{ErrorsJSL, VR1D, VR2D};

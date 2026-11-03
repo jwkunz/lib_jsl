@@ -2,12 +2,15 @@
 //!
 //! Data is stored as `ndarray` arrays: a feature matrix `x` of shape `(samples, features)` (a
 //! [`VR2D`] view) and targets as a [`VR1D`] (regression) or `&[usize]` class labels (classification).
+//!
+//! See the book entry [Foundations](https://jwkunz.github.io/lib_jsl/book/machine_learning/foundations.html).
 
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
 use lib_jsl_random::distributions::gaussian::gaussian_distribution_box_muller;
 use lib_jsl_random::uniform_generator::UniformGenerator;
 use lib_jsl_random::xoshiro256plusplus::Xoshiro256PlusPlus;
 
+// ANCHOR: traits
 /// A model mapping feature rows to real-valued predictions.
 pub trait Regressor {
     fn fit(&mut self, x: VR2D, y: VR1D) -> Result<(), ErrorsJSL>;
@@ -34,6 +37,7 @@ pub trait Transformer {
         self.transform(x)
     }
 }
+// ANCHOR_END: traits
 
 /// A small seeded random-number helper used by the stochastic algorithms.
 #[derive(Debug, Clone)]

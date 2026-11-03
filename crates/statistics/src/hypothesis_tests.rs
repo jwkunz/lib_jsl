@@ -168,8 +168,10 @@ pub fn ks_test_one_sample<F: Fn(f64) -> f64>(x: &[f64], cdf: F) -> Result<TestRe
     Ok(TestResult { statistic: d, p_value: kolmogorov_survival((en + 0.12 + 0.11 / en) * d), degrees_of_freedom: f64::NAN })
 }
 
-/// The two-sample Kolmogorov-Smirnov test, with the asymptotic p-value using the effective
-/// size `nm / (n + m)`.
+/// The two-sample Kolmogorov-Smirnov test. The p-value is the asymptotic
+/// `Q((√nₑ + 0.12 + 0.11/√nₑ) D)` with the effective size `nₑ = nm / (n + m)`, borrowing
+/// Stephens' one-sample correction; for small samples it can differ from the exact p-value by
+/// several per cent (7% for samples of 15 and 25).
 pub fn ks_test_two_sample(x: &[f64], y: &[f64]) -> Result<TestResult, ErrorsJSL> {
     if x.is_empty() || y.is_empty() || x.iter().chain(y).any(|v| v.is_nan()) {
         return Err(ErrorsJSL::InvalidInputRange("Both samples must be non-empty and free of NaN."));

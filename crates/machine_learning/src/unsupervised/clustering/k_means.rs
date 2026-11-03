@@ -3,14 +3,14 @@
 use crate::common::{Clusterer, MlRng, check_features, squared_distance};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
 
+/// One Lloyd run: final centres, labels, inertia and iteration count.
+type LloydRun = (Vec<Vec<f64>>, Vec<usize>, f64, usize);
+
 /// Lloyd's k-means with k-means++ seeding: alternately assign each point to its nearest centroid
 /// and move each centroid to the mean of its points, minimising the within-cluster sum of squared
 /// distances (the inertia). The run is repeated `n_init` times from different seedings and the
 /// lowest-inertia result kept, because the algorithm only finds a local optimum. A cluster that
 /// loses all its points is re-seeded at the point farthest from its centroid.
-/// One Lloyd run: final centres, labels, inertia and iteration count.
-type LloydRun = (Vec<Vec<f64>>, Vec<usize>, f64, usize);
-
 #[derive(Debug, Clone)]
 pub struct KMeans {
     k: usize,

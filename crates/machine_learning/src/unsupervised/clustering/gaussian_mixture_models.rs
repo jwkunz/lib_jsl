@@ -1,4 +1,6 @@
 //! Gaussian mixture models fitted by expectation-maximisation.
+//!
+//! See the book entry [Gaussian mixture models](https://jwkunz.github.io/lib_jsl/book/unsupervised/gaussian-mixtures.html).
 
 use crate::common::{Clusterer, argmax, check_features};
 use crate::unsupervised::clustering::k_means::KMeans;
@@ -211,6 +213,7 @@ impl Clusterer for GaussianMixture {
         self.maximise(x, &resp)?;
         let mut previous = f64::NEG_INFINITY;
         self.iterations = 0;
+        // ANCHOR: em
         for it in 1..=self.max_iterations {
             self.iterations = it;
             // E-step.
@@ -235,6 +238,7 @@ impl Clusterer for GaussianMixture {
                 self.log_likelihood = self.score_samples(x)?.iter().sum::<f64>() / n as f64;
             }
         }
+        // ANCHOR_END: em
         Ok(self.predict(x)?.into_iter().map(Some).collect())
     }
 }

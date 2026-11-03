@@ -125,7 +125,13 @@ impl Network {
         let mut gw = vec![R2D::zeros((0, 0)); layers];
         let mut gb = vec![R1D::zeros(0); layers];
         for l in (0..layers).rev() {
-            gw[l] = delta.t().dot(&a[l]) + &(weight_decay * &self.w[l]);
+            // Assigned into a row-major array: the product can come back column-major (for example
+            // when an activation matrix has a single column), and the Adam step reads the gradient
+            // as a flat slice in the same order as the weights.
+            let mut g = R2D::zeros(self.w[l].dim());
+            g.assign(&delta.t().dot(&a[l]));
+            g.scaled_add(weight_decay, &self.w[l]);
+            gw[l] = g;
             gb[l] = delta.sum_axis(Axis(0));
             if l > 0 {
                 let back = delta.dot(&self.w[l]);
@@ -359,6 +365,11 @@ mod tests {
         let truth = grid.column(0).mapv(f64::sin);
         let mse = mean_squared_error(truth.view(), mlp.predict(grid.view()).unwrap().view()).unwrap();
         assert!(mse < 0.01, "{mse}");
+        // One input feature through two hidden layers (a product that comes out column-major).
+        let mut deep = MlpRegressor::new(MlpParameters { hidden: vec![16, 16], epochs: 300, batch_size: 16, ..Default::default() });
+        deep.fit(x.view(), y.view()).unwrap();
+        let deep_mse = mean_squared_error(truth.view(), deep.predict(grid.view()).unwrap().view()).unwrap();
+        assert!(deep_mse < 0.02, "{deep_mse}");
         let mut bad = MlpRegressor::new(MlpParameters { hidden: vec![0], ..Default::default() });
         assert!(bad.fit(x.view(), y.view()).is_err());
         assert!(MlpClassifier::new(MlpParameters::default()).predict(x.view()).is_err());

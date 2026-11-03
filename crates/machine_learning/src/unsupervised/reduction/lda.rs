@@ -1,4 +1,6 @@
 //! Linear discriminant analysis.
+//!
+//! See the book entry [Linear discriminant analysis](https://jwkunz.github.io/lib_jsl/book/unsupervised/lda.html).
 
 use crate::common::{Classifier, argmax, check_features, check_xy, class_count};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR2D};
@@ -89,6 +91,7 @@ impl Lda {
         for j in 0..p {
             sw[[j, j]] += ridge.max(1e-12);
         }
+        // ANCHOR: lda_whiten
         // Whiten: Sw = L Lᵀ, M = L⁻¹ Sb L⁻ᵀ (symmetric), directions w = L⁻ᵀ v.
         let l = sw.cholesky(UPLO::Lower).map_err(|_| ErrorsJSL::RuntimeError("The within-class scatter is not positive definite (try more shrinkage)."))?;
         let left = l.solve_triangular(UPLO::Lower, Diag::NonUnit, &sb).map_err(|_| ErrorsJSL::RuntimeError("Whitening failed."))?;
@@ -106,6 +109,7 @@ impl Lda {
             let big = w.iter().copied().fold(0.0f64, |m, x| if x.abs() > m.abs() { x } else { m });
             dirs.column_mut(c).assign(&(w * (big.signum() / norm)));
         }
+        // ANCHOR_END: lda_whiten
         self.directions = dirs;
         self.class_means = class_mean.dot(&self.directions) - self.mean.dot(&self.directions);
         self.log_priors = counts.iter().map(|&c| (c as f64 / n as f64).ln()).collect();

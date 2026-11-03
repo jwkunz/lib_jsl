@@ -1,4 +1,6 @@
 //! The Viterbi algorithm and hidden Markov models, with Baum-Welch training.
+//!
+//! See the book entry [Hidden Markov models: Viterbi, forward-backward and Baum-Welch](https://jwkunz.github.io/lib_jsl/book/learning/hidden-markov-models.html).
 
 use crate::common::MlRng;
 use lib_jsl_core::{ErrorsJSL, R2D};
@@ -19,6 +21,7 @@ pub fn viterbi_path(
     if n == 0 || steps == 0 {
         return (Vec::new(), 0.0);
     }
+    // ANCHOR: viterbi
     let mut score: Vec<f64> = (0..n).map(|s| log_initial[s] + log_emission(s, 0)).collect();
     let mut back: Vec<Vec<usize>> = Vec::with_capacity(steps);
     for t in 1..steps {
@@ -39,6 +42,7 @@ pub fn viterbi_path(
         state = back[t - 1][state];
         path[t - 1] = state;
     }
+    // ANCHOR_END: viterbi
     (path, best)
 }
 
@@ -260,6 +264,7 @@ impl HiddenMarkovModel {
             let mut transitions = R2D::zeros((n, n));
             let mut emissions = R2D::zeros((n, m));
             let mut log_likelihood = 0.0;
+            // ANCHOR: baum_welch
             for o in sequences {
                 let (alpha, beta, scale) = model.scaled_forward_backward(o);
                 if scale.iter().any(|&c| c <= 0.0) {
@@ -284,6 +289,7 @@ impl HiddenMarkovModel {
                     }
                 }
             }
+            // ANCHOR_END: baum_welch
             let improved = history.last().is_none_or(|&last: &f64| log_likelihood - last > tolerance * last.abs().max(1.0));
             history.push(log_likelihood);
             // M-step: normalise the expected counts (rows with no mass keep their old values).

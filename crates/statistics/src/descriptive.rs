@@ -1,4 +1,6 @@
 //! Descriptive statistics of a sample.
+//!
+//! See the book entry [Descriptive statistics](https://jwkunz.github.io/lib_jsl/book/statistics/descriptive.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -9,6 +11,7 @@ fn non_empty(x: &[f64]) -> Result<(), ErrorsJSL> {
     Ok(())
 }
 
+// ANCHOR: mean_variance
 /// The arithmetic mean.
 pub fn mean(x: &[f64]) -> Result<f64, ErrorsJSL> {
     non_empty(x)?;
@@ -33,6 +36,7 @@ pub fn variance(x: &[f64], ddof: usize) -> Result<f64, ErrorsJSL> {
     // The second term corrects the rounding left in the mean.
     Ok((sum_sq - sum * sum / x.len() as f64) / (x.len() - ddof) as f64)
 }
+// ANCHOR_END: mean_variance
 
 /// The standard deviation with `ddof` delta degrees of freedom.
 pub fn standard_deviation(x: &[f64], ddof: usize) -> Result<f64, ErrorsJSL> {
@@ -84,11 +88,13 @@ fn sorted(x: &[f64]) -> Result<Vec<f64>, ErrorsJSL> {
     Ok(s)
 }
 
+// ANCHOR: quantile
 fn quantile_sorted(s: &[f64], p: f64) -> f64 {
     let h = (s.len() - 1) as f64 * p;
     let (lo, frac) = (h.floor() as usize, h - h.floor());
     if lo + 1 < s.len() { s[lo] + frac * (s[lo + 1] - s[lo]) } else { s[lo] }
 }
+// ANCHOR_END: quantile
 
 /// The `p`-quantile (`0 ≤ p ≤ 1`) by linear interpolation between order statistics at
 /// `h = (n − 1)p` (Hyndman and Fan type 7, the default of R and NumPy).

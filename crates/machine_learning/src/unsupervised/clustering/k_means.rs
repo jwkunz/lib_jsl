@@ -1,4 +1,6 @@
 //! k-means clustering.
+//!
+//! See the book entry [k-means and k-medoids](https://jwkunz.github.io/lib_jsl/book/unsupervised/k-means.html).
 
 use crate::common::{Clusterer, MlRng, check_features, squared_distance};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -68,6 +70,7 @@ impl KMeans {
 
     /// k-means++: the first centre uniformly, each next with probability proportional to the
     /// squared distance to the closest chosen centre.
+    // ANCHOR: kmeanspp
     fn seed_centres(&self, pts: &[Vec<f64>], rng: &mut MlRng) -> Vec<Vec<f64>> {
         let mut centres = vec![pts[rng.below(pts.len())].clone()];
         let mut d2: Vec<f64> = pts.iter().map(|p| squared_distance(p, &centres[0])).collect();
@@ -94,7 +97,9 @@ impl KMeans {
         }
         centres
     }
+    // ANCHOR_END: kmeanspp
 
+    // ANCHOR: lloyd
     fn lloyd(&self, pts: &[Vec<f64>], mut centres: Vec<Vec<f64>>) -> LloydRun {
         let (n, dims) = (pts.len(), pts[0].len());
         let mut labels = vec![0usize; n];
@@ -138,6 +143,7 @@ impl KMeans {
         }
         (centres, labels, inertia, iterations)
     }
+    // ANCHOR_END: lloyd
 }
 
 /// The nearest centre's index and squared distance.

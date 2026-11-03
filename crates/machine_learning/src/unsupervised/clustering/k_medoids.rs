@@ -1,4 +1,6 @@
 //! k-medoids clustering (Partitioning Around Medoids).
+//!
+//! See the book entry [k-means and k-medoids](https://jwkunz.github.io/lib_jsl/book/unsupervised/k-means.html#k-medoids).
 
 use crate::common::{Clusterer, check_features, squared_distance};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -41,6 +43,7 @@ impl KMedoids {
         if d.iter().any(|v| !v.is_finite() || *v < 0.0) {
             return Err(ErrorsJSL::InvalidInputRange("Distances must be finite and non-negative."));
         }
+        // ANCHOR: pam
         // BUILD: first the point with the smallest total distance, then greedily the point that
         // most reduces the total cost.
         let mut medoids = vec![(0..n).min_by(|&a, &b| d.row(a).sum().total_cmp(&d.row(b).sum())).expect("n > 0")];
@@ -76,6 +79,7 @@ impl KMedoids {
                 None => break,
             }
         }
+        // ANCHOR_END: pam
         self.labels = (0..n).map(|i| (0..self.k).min_by(|&a, &b| d[[i, medoids[a]]].total_cmp(&d[[i, medoids[b]]])).expect("k > 0")).collect();
         self.medoids = medoids;
         self.cost = cost;

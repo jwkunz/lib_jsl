@@ -230,6 +230,10 @@ impl Clusterer for GaussianMixture {
             }
             previous = self.log_likelihood;
             self.maximise(x, &resp)?;
+            if it == self.max_iterations {
+                // Stopped at the limit after an M-step: report the likelihood of the final parameters.
+                self.log_likelihood = self.score_samples(x)?.iter().sum::<f64>() / n as f64;
+            }
         }
         Ok(self.predict(x)?.into_iter().map(Some).collect())
     }
@@ -244,6 +248,17 @@ mod tests {
 
     fn truth(l: &[usize]) -> Vec<Option<usize>> {
         l.iter().map(|&c| Some(c)).collect()
+    }
+
+    #[test]
+    fn reported_likelihood_matches_the_final_parameters_even_at_the_iteration_limit() {
+        let (x, _) = make_blobs(60, &[vec![0.0, 0.0], vec![3.0, 1.0]], 1.0, 2);
+        for limit in [1, 2, 5] {
+            let mut g = GaussianMixture::new(2, CovarianceType::Full, 1).with_limits(limit, 0.0);
+            g.fit_predict(x.view()).unwrap();
+            let mean = g.score_samples(x.view()).unwrap().iter().sum::<f64>() / x.nrows() as f64;
+            assert!((g.mean_log_likelihood() - mean).abs() < 1e-12, "limit {limit}");
+        }
     }
 
     #[test]

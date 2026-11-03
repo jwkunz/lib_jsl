@@ -1,4 +1,6 @@
 //! Classical hypothesis tests.
+//!
+//! See the book entry [Hypothesis tests](https://jwkunz.github.io/lib_jsl/book/statistics/hypothesis-tests.html).
 
 use crate::correlation::rank;
 use crate::descriptive::{mean, variance};
@@ -40,6 +42,7 @@ pub fn t_test_one_sample(x: &[f64], mu: f64, alternative: Alternative) -> Result
     Ok(TestResult { statistic: t, p_value: tail(|v| student_t_cdf(v, df), t, alternative), degrees_of_freedom: df })
 }
 
+// ANCHOR: t_two_sample
 /// Two-sample t-test of equal means: Student's pooled-variance test with `equal_variance`,
 /// otherwise Welch's test with the Welch-Satterthwaite degrees of freedom.
 pub fn t_test_two_sample(x: &[f64], y: &[f64], equal_variance: bool, alternative: Alternative) -> Result<TestResult, ErrorsJSL> {
@@ -55,6 +58,7 @@ pub fn t_test_two_sample(x: &[f64], y: &[f64], equal_variance: bool, alternative
     };
     Ok(TestResult { statistic: t, p_value: tail(|v| student_t_cdf(v, df), t, alternative), degrees_of_freedom: df })
 }
+// ANCHOR_END: t_two_sample
 
 /// Paired t-test: the one-sample test on the differences `x − y`.
 pub fn t_test_paired(x: &[f64], y: &[f64], alternative: Alternative) -> Result<TestResult, ErrorsJSL> {
@@ -195,6 +199,7 @@ pub fn ks_test_two_sample(x: &[f64], y: &[f64]) -> Result<TestResult, ErrorsJSL>
     Ok(TestResult { statistic: d, p_value: kolmogorov_survival((en + 0.12 + 0.11 / en) * d), degrees_of_freedom: f64::NAN })
 }
 
+// ANCHOR: mann_whitney
 /// The Mann-Whitney U test (Wilcoxon rank-sum) for a location shift between two samples. The
 /// statistic is `U` of the first sample; the p-value uses the normal approximation with tie and
 /// continuity corrections (adequate for samples above about 10 each).
@@ -232,6 +237,7 @@ pub fn mann_whitney_u(x: &[f64], y: &[f64], alternative: Alternative) -> Result<
     };
     Ok(TestResult { statistic: u, p_value: p, degrees_of_freedom: f64::NAN })
 }
+// ANCHOR_END: mann_whitney
 
 #[cfg(test)]
 mod tests {

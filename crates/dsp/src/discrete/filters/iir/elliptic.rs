@@ -7,7 +7,7 @@ use crate::{
             bilinear_zpk::{bilinear_zpk, BilinearZpkResult},
             design::{
                 complete_elliptic_k, complete_elliptic_km1, ellipap, lp2bp_zpk, lp2bs_zpk,
-                lp2hp_zpk, lp2lp_zpk, zpk_to_tf, IirFilterBandType, Zpk,
+                lp2hp_zpk, lp2lp_zpk, optimize_bandstop_passband, zpk_to_tf, IirFilterBandType, Zpk,
             },
         },
         discrete::{
@@ -163,58 +163,6 @@ fn ellip_order_from_nat(nat: f64, gpass: f64, gstop: f64) -> Result<f64, ErrorsJ
     Ok(d0.0 * d1.1 / (d0.1 * d1.0))
 }
 
-fn golden_section_search<F>(mut a: f64, mut b: f64, f: F) -> f64
-where
-    F: Fn(f64) -> f64,
-{
-    let phi = (1.0 + 5.0_f64.sqrt()) * 0.5;
-    let resphi = 2.0 - phi;
-
-    let mut c = b - resphi * (b - a);
-    let mut d = a + resphi * (b - a);
-    let mut fc = f(c);
-    let mut fd = f(d);
-
-    for _ in 0..80 {
-        if fc < fd {
-            b = d;
-            d = c;
-            fd = fc;
-            c = b - resphi * (b - a);
-            fc = f(c);
-        } else {
-            a = c;
-            c = d;
-            fc = fd;
-            d = a + resphi * (b - a);
-            fd = f(d);
-        }
-    }
-
-    if fc < fd { c } else { d }
-}
-
-fn optimize_bandstop_passband(
-    passb: &[f64],
-    stopb: &[f64],
-    gpass: f64,
-    gstop: f64,
-) -> Result<Vec<f64>, ErrorsJSL> {
-    // Mirror SciPy's bandstop behavior: nudge the passband edges inward to the
-    // locations that minimize the required order before the final backsolve.
-    let order_for_edge = |candidate: f64, index: usize| -> f64 {
-        let mut varied = passb.to_vec();
-        varied[index] = candidate;
-        let nat = ellipord_natural_frequency(&varied, stopb, IirFilterBandType::Bandstop)
-            .unwrap_or(1.0);
-        ellip_order_from_nat(nat, gpass, gstop).unwrap_or(f64::INFINITY)
-    };
-
-    let low = golden_section_search(passb[0], stopb[0] - 1e-12, |w| order_for_edge(w, 0));
-    let high = golden_section_search(stopb[1] + 1e-12, passb[1], |w| order_for_edge(w, 1));
-    Ok(vec![low, high])
-}
-
 /// Design a digital elliptic filter in a style similar to SciPy's `ellip`.
 ///
 /// `wn` is the passband critical frequency. When `fs` is omitted, the digital
@@ -313,7 +261,7 @@ pub fn ellipord(
     let stopb = ws.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
 
     if matches!(filter_type, IirFilterBandType::Bandstop) {
-        passb = optimize_bandstop_passband(&passb, &stopb, gpass, gstop)?;
+        passb = optimize_bandstop_passband(&passb, &stopb, |nat| ellip_order_from_nat(nat, gpass, gstop).unwrap_or(f64::INFINITY));
     }
 
     let nat = ellipord_natural_frequency(&passb, &stopb, filter_type)?;

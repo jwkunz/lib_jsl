@@ -66,6 +66,46 @@ fn relative_degree(zpk: &Zpk) -> Result<usize, ErrorsJSL> {
 /// This is the last step after prototype and frequency transformations. It is
 /// intentionally kept separate because many design steps are cleaner and more
 /// stable in ZPK form than in polynomial form.
+/// The minimum of `f` on `[a, b]` by golden-section search, assuming `f` is unimodal there.
+fn golden_section_minimum(mut a: f64, mut b: f64, f: impl Fn(f64) -> f64) -> f64 {
+    let r = 0.5 * (5.0_f64.sqrt() - 1.0);
+    // Interior points c < d; each step keeps the bracket around the smaller value.
+    let mut c = b - r * (b - a);
+    let mut d = a + r * (b - a);
+    let (mut fc, mut fd) = (f(c), f(d));
+    for _ in 0..100 {
+        if fc <= fd {
+            b = d;
+            d = c;
+            fd = fc;
+            c = b - r * (b - a);
+            fc = f(c);
+        } else {
+            a = c;
+            c = d;
+            fc = fd;
+            d = a + r * (b - a);
+            fd = f(d);
+        }
+    }
+    if fc <= fd { c } else { d }
+}
+
+/// SciPy's passband refinement for band-stop order selection (`buttord`, `cheb1ord`, `cheb2ord`,
+/// `ellipord`): each passband edge is moved, between its given value and the neighbouring stopband
+/// edge, to where the fractional order `order_of_nat(nat)` is smallest, first the lower edge and then,
+/// with it fixed, the upper one. Edges are prewarped analog frequencies; `nat` is the band-stop
+/// natural-frequency ratio `min |ws (p0 - p1) / (ws² - p0 p1)|` over both stopband edges.
+pub(crate) fn optimize_bandstop_passband(passb: &[f64], stopb: &[f64], order_of_nat: impl Fn(f64) -> f64) -> Vec<f64> {
+    let order = |p0: f64, p1: f64| {
+        let nat = stopb.iter().map(|&s| (s * (p0 - p1) / (s * s - p0 * p1)).abs()).fold(f64::INFINITY, f64::min);
+        if nat.is_finite() && nat > 1.0 { order_of_nat(nat) } else { f64::INFINITY }
+    };
+    let low = golden_section_minimum(passb[0], stopb[0] - 1e-12, |w| order(w, passb[1]));
+    let high = golden_section_minimum(stopb[1] + 1e-12, passb[1], |w| order(low, w));
+    vec![low, high]
+}
+
 pub fn zpk_to_tf(zpk: &Zpk) -> Result<Tf, ErrorsJSL> {
     let b = polynomial_from_roots(zpk.z.as_slice().unwrap_or(&[])).mapv(|x| x * zpk.k);
     let a = polynomial_from_roots(zpk.p.as_slice().unwrap_or(&[]));

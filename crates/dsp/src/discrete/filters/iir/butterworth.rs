@@ -6,8 +6,8 @@ use crate::{
             bilinear::BilinearResult,
             bilinear_zpk::{bilinear_zpk, BilinearZpkResult},
             design::{
-                buttap, lp2bp_zpk, lp2bs_zpk, lp2hp_zpk, lp2lp_zpk, zpk_to_tf, IirFilterBandType,
-                Zpk,
+                buttap, lp2bp_zpk, lp2bs_zpk, lp2hp_zpk, lp2lp_zpk, optimize_bandstop_passband, zpk_to_tf,
+                IirFilterBandType, Zpk,
             },
         },
     },
@@ -291,8 +291,13 @@ pub fn buttord(
         }
     }
 
-    let wp_warped = wp.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
+    let mut wp_warped = wp.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
     let ws_warped = ws.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
+    let gpass_lin = 10.0_f64.powf(0.1 * gpass) - 1.0;
+    let gstop_lin = 10.0_f64.powf(0.1 * gstop) - 1.0;
+    if filter_type == IirFilterBandType::Bandstop {
+        wp_warped = optimize_bandstop_passband(&wp_warped, &ws_warped, |nat| (gstop_lin / gpass_lin).log10() / (2.0 * nat.log10()));
+    }
 
     let nat = buttord_natural_frequency(&wp_warped, &ws_warped, filter_type)?;
     if !nat.is_finite() || nat <= 1.0 {
@@ -301,8 +306,6 @@ pub fn buttord(
         ));
     }
 
-    let gpass_lin = 10.0_f64.powf(0.1 * gpass) - 1.0;
-    let gstop_lin = 10.0_f64.powf(0.1 * gstop) - 1.0;
     let order = ((gstop_lin / gpass_lin).log10() / (2.0 * nat.log10())).ceil() as usize;
     let wn_analog = buttord_critical_wn(order, &wp_warped, filter_type, gpass)?;
     let wn_digital = wn_analog
@@ -319,6 +322,23 @@ pub fn buttord(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bandstop_order_selection_matches_scipy() {
+        use crate::discrete::filters::{chebyshev1::cheb1ord, chebyshev2::cheb2ord, elliptic::ellipord};
+        // scipy.signal.*ord([0.1, 0.6], [0.2, 0.5], 1, 40) with SciPy 1.17.1. SciPy moves the
+        // passband edges to minimise the order; its bounded minimiser stops within about 1e-5.
+        let (wp, ws, band) = ([0.1, 0.6], [0.2, 0.5], IirFilterBandType::Bandstop);
+        let close = |got: &[f64], want: [f64; 2]| got.iter().zip(want).all(|(g, w)| (g - w).abs() < 1e-4);
+        let b = buttord(&wp, &ws, 1.0, 40.0, band, None).unwrap();
+        assert!(b.order == 11 && close(&b.wn, [0.15378706346220905, 0.5869714708500121]), "{b:?}");
+        let c1 = cheb1ord(&wp, &ws, 1.0, 40.0, band, None).unwrap();
+        assert!(c1.order == 6 && close(&c1.wn, [0.14758232569947782, 0.5999987080915622]), "{c1:?}");
+        let c2 = cheb2ord(&wp, &ws, 1.0, 40.0, band, None).unwrap();
+        assert!(c2.order == 6 && close(&c2.wn, [0.1909319599511327, 0.5157296181340452]), "{c2:?}");
+        let e = ellipord(&wp, &ws, 1.0, 40.0, band, None).unwrap();
+        assert!(e.order == 4 && close(&e.wn, [0.14758235223075672, 0.5999987080915622]), "{e:?}");
+    }
     use crate::discrete::spectral::freqz::{freqz, FreqzWorN};
     use num_complex::Complex;
 

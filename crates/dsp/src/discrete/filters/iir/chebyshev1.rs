@@ -6,7 +6,7 @@ use crate::{
             bilinear::BilinearResult,
             bilinear_zpk::{bilinear_zpk, BilinearZpkResult},
             design::{
-                cheb1ap, lp2bp_zpk, lp2bs_zpk, lp2hp_zpk, lp2lp_zpk, zpk_to_tf,
+                cheb1ap, lp2bp_zpk, lp2bs_zpk, lp2hp_zpk, lp2lp_zpk, optimize_bandstop_passband, zpk_to_tf,
                 IirFilterBandType, Zpk,
             },
         },
@@ -236,8 +236,14 @@ pub fn cheb1ord(
     // Order selection is done in the analog domain because the Chebyshev
     // formulas are stated there. The digital frequencies are only a user-facing
     // interface layer around that calculation.
-    let wp_warped = wp.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
+    let mut wp_warped = wp.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
     let ws_warped = ws.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
+    let gp = 10.0_f64.powf(0.1 * gpass) - 1.0;
+    let gs = 10.0_f64.powf(0.1 * gstop) - 1.0;
+    let bandstop = filter_type == IirFilterBandType::Bandstop;
+    if bandstop {
+        wp_warped = optimize_bandstop_passband(&wp_warped, &ws_warped, |nat| (gs / gp).sqrt().acosh() / nat.acosh());
+    }
     let nat = cheb1ord_natural_frequency(&wp_warped, &ws_warped, filter_type)?;
     if !nat.is_finite() || nat <= 1.0 {
         return Err(ErrorsJSL::RuntimeError(
@@ -245,14 +251,11 @@ pub fn cheb1ord(
         ));
     }
 
-    let gp = 10.0_f64.powf(0.1 * gpass) - 1.0;
-    let gs = 10.0_f64.powf(0.1 * gstop) - 1.0;
     let order = ((gs / gp).sqrt().acosh() / nat.acosh()).ceil() as usize;
+    // The critical frequencies are the passband edges, refined for band-stop filters.
+    let wn = if bandstop { wp_warped.iter().map(|&w| fs * (w / (2.0 * fs)).atan() / std::f64::consts::PI).collect() } else { wp.to_vec() };
 
-    Ok(Cheb1ordResult {
-        order,
-        wn: wp.to_vec(),
-    })
+    Ok(Cheb1ordResult { order, wn })
 }
 
 #[cfg(test)]

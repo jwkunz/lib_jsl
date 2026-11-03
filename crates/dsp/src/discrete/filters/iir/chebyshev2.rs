@@ -6,7 +6,7 @@ use crate::{
             bilinear::BilinearResult,
             bilinear_zpk::{bilinear_zpk, BilinearZpkResult},
             design::{
-                cheb2ap, lp2bp_zpk, lp2bs_zpk, lp2hp_zpk, lp2lp_zpk, zpk_to_tf,
+                cheb2ap, lp2bp_zpk, lp2bs_zpk, lp2hp_zpk, lp2lp_zpk, optimize_bandstop_passband, zpk_to_tf,
                 IirFilterBandType, Zpk,
             },
         },
@@ -160,66 +160,6 @@ fn cheby_order_from_nat(nat: f64, gpass: f64, gstop: f64) -> f64 {
     ((gstop_lin - 1.0) / (gpass_lin - 1.0)).sqrt().acosh() / nat.acosh()
 }
 
-// Small standalone 1-D minimizer used to emulate SciPy's passband-edge search
-// for bandstop order selection without pulling in an optimization dependency.
-fn golden_section_search<F>(mut a: f64, mut b: f64, f: F) -> f64
-where
-    F: Fn(f64) -> f64,
-{
-    let phi = (1.0 + 5.0_f64.sqrt()) * 0.5;
-    let resphi = 2.0 - phi;
-
-    let mut c = b - resphi * (b - a);
-    let mut d = a + resphi * (b - a);
-    let mut fc = f(c);
-    let mut fd = f(d);
-
-    for _ in 0..80 {
-        if fc < fd {
-            b = d;
-            d = c;
-            fd = fc;
-            c = b - resphi * (b - a);
-            fc = f(c);
-        } else {
-            a = c;
-            c = d;
-            fc = fd;
-            d = a + resphi * (b - a);
-            fd = f(d);
-        }
-    }
-
-    if fc < fd { c } else { d }
-}
-
-fn optimize_bandstop_passband(
-    passb: &[f64],
-    stopb: &[f64],
-    gpass: f64,
-    gstop: f64,
-) -> Result<Vec<f64>, ErrorsJSL> {
-    // For bandstop order selection, SciPy adjusts the passband edges before the
-    // final order calculation so the worst-case prototype ratio is minimized.
-    // That keeps the returned order closer to the true minimum than simply
-    // freezing the user-supplied passband edges.
-    let order_for_edge = |candidate: f64, index: usize| -> f64 {
-        let mut varied = passb.to_vec();
-        varied[index] = candidate;
-        let nat = cheb2ord_natural_frequency(&varied, stopb, IirFilterBandType::Bandstop)
-            .unwrap_or(1.0);
-        if !nat.is_finite() || nat <= 1.0 {
-            f64::INFINITY
-        } else {
-            cheby_order_from_nat(nat, gpass, gstop)
-        }
-    };
-
-    let low = golden_section_search(passb[0], stopb[0] - 1e-12, |w| order_for_edge(w, 0));
-    let high = golden_section_search(stopb[1] + 1e-12, passb[1], |w| order_for_edge(w, 1));
-    Ok(vec![low, high])
-}
-
 /// Design a digital Chebyshev type II filter in a style similar to SciPy's
 /// `cheby2`.
 ///
@@ -315,7 +255,7 @@ pub fn cheb2ord(
     let stopb = ws.iter().map(|&w| prewarp_frequency(w, fs)).collect::<Vec<_>>();
 
     if matches!(filter_type, IirFilterBandType::Bandstop) {
-        passb = optimize_bandstop_passband(&passb, &stopb, gpass, gstop)?;
+        passb = optimize_bandstop_passband(&passb, &stopb, |nat| cheby_order_from_nat(nat, gpass, gstop));
     }
 
     let nat = cheb2ord_natural_frequency(&passb, &stopb, filter_type)?;

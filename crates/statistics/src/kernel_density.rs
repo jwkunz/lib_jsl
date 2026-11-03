@@ -1,4 +1,6 @@
 //! Kernel density estimation with a Gaussian kernel.
+//!
+//! See the book entry [Kernel density estimation](https://jwkunz.github.io/lib_jsl/book/statistics/kernel-density.html).
 
 use crate::descriptive::{interquartile_range, standard_deviation};
 use lib_jsl_core::ErrorsJSL;
@@ -27,6 +29,7 @@ pub struct GaussianKde {
 }
 
 impl GaussianKde {
+    // ANCHOR: kde_new
     pub fn new(data: &[f64], bandwidth: Bandwidth) -> Result<Self, ErrorsJSL> {
         if data.len() < 2 || data.iter().any(|v| !v.is_finite()) {
             return Err(ErrorsJSL::InvalidInputRange("Need at least two finite observations."));
@@ -46,6 +49,7 @@ impl GaussianKde {
         }
         Ok(GaussianKde { data: data.to_vec(), bandwidth: h })
     }
+    // ANCHOR_END: kde_new
 
     pub fn bandwidth(&self) -> f64 {
         self.bandwidth

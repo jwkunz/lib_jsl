@@ -7,6 +7,8 @@
 //! `s = 2 fs (z - 1) / (z + 1)`
 //!
 //! No pre-warping is performed, matching SciPy's `bilinear_zpk`.
+//!
+//! See the book entry [Digital IIR design by the bilinear transform](https://jwkunz.github.io/lib_jsl/book/filters/iir-design.html#the-bilinear-transform).
 
 use ndarray::Array1;
 use num_complex::Complex;

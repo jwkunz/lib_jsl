@@ -18,6 +18,8 @@
 //! the full-circle frequency axis in ascending order from `-fs/2` to values
 //! just below `fs/2`. This keeps the frequency axis sorted from lowest to
 //! highest while still covering the whole unit circle.
+//!
+//! See the book entry [Digital IIR design by the bilinear transform](https://jwkunz.github.io/lib_jsl/book/filters/iir-design.html#evaluating-the-response).
 
 use std::f64::consts::PI;
 

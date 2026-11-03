@@ -1,3 +1,7 @@
+//! Digital elliptic filters and their order selection.
+//!
+//! See the book entry [Digital IIR design by the bilinear transform](https://jwkunz.github.io/lib_jsl/book/filters/iir-design.html).
+
 use std::f64::consts::PI;
 
 use crate::{

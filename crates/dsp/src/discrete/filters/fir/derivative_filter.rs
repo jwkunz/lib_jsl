@@ -1,4 +1,6 @@
 //! FIR differentiators: smoothed central differences of any order.
+//!
+//! See the book entry [FIR design: windows, frequency sampling and Parks-McClellan](https://jwkunz.github.io/lib_jsl/book/filters/fir-design.html#differentiators-and-integrators).
 
 use crate::{
     dsp::discrete::{convolve::{ConvolveMethod, ConvolveMode, convolve}, sinc::generate_centered_sinc},

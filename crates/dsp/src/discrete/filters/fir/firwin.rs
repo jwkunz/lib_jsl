@@ -1,3 +1,7 @@
+//! Window-method FIR design, as SciPy's `firwin`.
+//!
+//! See the book entry [FIR design: windows, frequency sampling and Parks-McClellan](https://jwkunz.github.io/lib_jsl/book/filters/fir-design.html#the-window-method).
+
 use crate::{
     dsp::discrete::{sinc::sinc, windows::{self, WindowType, kaiser_atten}},
     prelude::ErrorsJSL,
@@ -62,6 +66,7 @@ pub fn firwin(
         c.push(1.0);
     }
 
+    // ANCHOR: firwin
     let mut h = vec![0.0; numtaps];
     let alpha = 0.5 * (numtaps as f64 - 1.0);
     for band in c.as_chunks::<2>().0 {
@@ -82,6 +87,7 @@ pub fn firwin(
     for (hn, wn) in h.iter_mut().zip(win.iter()) {
         *hn *= *wn;
     }
+    // ANCHOR_END: firwin
 
     if scale {
         let first_left = c[0];

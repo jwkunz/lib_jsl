@@ -1,3 +1,7 @@
+//! Frequency-sampling FIR design, as SciPy's `firwin2`.
+//!
+//! See the book entry [FIR design: windows, frequency sampling and Parks-McClellan](https://jwkunz.github.io/lib_jsl/book/filters/fir-design.html#frequency-sampling).
+
 use crate::{
     dsp::discrete::windows::{self, WindowType},
     ffts::{

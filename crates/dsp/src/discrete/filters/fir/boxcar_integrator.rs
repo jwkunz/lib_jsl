@@ -1,3 +1,7 @@
+//! A moving-sum (boxcar) integrator with constant cost per sample.
+//!
+//! See the book entry [FIR design: windows, frequency sampling and Parks-McClellan](https://jwkunz.github.io/lib_jsl/book/filters/fir-design.html#differentiators-and-integrators).
+
 use std::collections::VecDeque;
 
 use crate::{dsp::discrete::stream_operator::{StreamOperator, StreamOperatorManagement}, prelude::{ErrorsJSL, IsLinearOperatable}};

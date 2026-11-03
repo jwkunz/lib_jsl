@@ -1,3 +1,7 @@
+//! Equiripple FIR design by the Parks-McClellan algorithm, as SciPy's `remez`.
+//!
+//! See the book entry [FIR design: windows, frequency sampling and Parks-McClellan](https://jwkunz.github.io/lib_jsl/book/filters/fir-design.html#parks-mcclellan-equiripple-design).
+
 use std::f64::consts::PI;
 
 use num_complex::Complex;

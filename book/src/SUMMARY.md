@@ -104,6 +104,11 @@
     - [Principal component analysis and kernel PCA](unsupervised/pca.md)
     - [Linear discriminant analysis](unsupervised/lda.md)
     - [Nonlinear embeddings: t-SNE and UMAP](unsupervised/embeddings.md)
+- [Neural networks, ensembles, model selection and sequence models](learning/index.md)
+    - [Multilayer perceptrons and backpropagation](learning/neural-networks.md)
+    - [Gradient boosting](learning/gradient-boosting.md)
+    - [Cross-validation and grid search](learning/model-selection.md)
+    - [Hidden Markov models: Viterbi, forward-backward and Baum-Welch](learning/hidden-markov-models.md)
 
 ---
 

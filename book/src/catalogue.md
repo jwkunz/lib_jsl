@@ -307,7 +307,7 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 
 Machine learning: regression, classification, clustering, dimensionality reduction, neural networks and boosting.
 
-Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · book chapters: [regression and classification](machine_learning/index.md), [clustering and dimensionality reduction](unsupervised/index.md) · 37 items
+Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · book chapters: [regression and classification](machine_learning/index.md), [clustering and dimensionality reduction](unsupervised/index.md), [neural networks, ensembles, model selection and sequence models](learning/index.md) · 37 items
 
 #### Foundations
 
@@ -331,7 +331,7 @@ Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learnin
 
 - [k-nearest neighbors](machine_learning/nearest-neighbours.md)
 - Phylogenetic trees ([UPGMA](unsupervised/hierarchical.md#upgma-and-the-molecular-clock), [neighbour joining](unsupervised/hierarchical.md#neighbour-joining))
-- Viterbi algorithm
+- [Viterbi algorithm](learning/hidden-markov-models.md#the-viterbi-algorithm)
 - [Decision trees](machine_learning/decision-trees.md#growing-a-tree-by-gini-impurity) and [random forests](machine_learning/decision-trees.md#bagging-and-random-features)
 - [Support vector machine](machine_learning/support-vector-machines.md#the-maximal-margin-hyperplane) ([SMO](machine_learning/support-vector-machines.md#sequential-minimal-optimisation))
 - [Logistic regression](machine_learning/logistic-regression.md)
@@ -359,23 +359,23 @@ Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learnin
 
 #### Neural networks
 
-- Multilayer perceptron with backpropagation
+- [Multilayer perceptron with backpropagation](learning/neural-networks.md#backpropagation)
 
 #### Ensembles and model selection
 
-- Gradient boosting
-- Cross-validation and grid search
+- [Gradient boosting](learning/gradient-boosting.md#functional-gradient-descent)
+- [Cross-validation](learning/model-selection.md#k-fold-cross-validation) and [grid search](learning/model-selection.md#grid-search)
 
 #### Sequence models
 
-- HMM training (Baum-Welch)
+- [HMM training (Baum-Welch)](learning/hidden-markov-models.md#baum-welch)
 
 #### Demonstrations
 
-- Clustering
-- Regression
-- Classification
-- Embedding
+- [Clustering](learning/index.md#demonstration-programs)
+- [Regression](learning/index.md#demonstration-programs)
+- [Classification](learning/index.md#demonstration-programs)
+- [Embedding](learning/index.md#demonstration-programs)
 
 ## Signals, information and fields
 

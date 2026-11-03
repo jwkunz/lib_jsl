@@ -5,6 +5,8 @@
 //! classification. Gradients come from backpropagation; weights are updated by mini-batch Adam
 //! (Kingma and Ba) with L2 weight decay. Inputs (and regression targets) are standardised
 //! internally, and weights start from He (ReLU) or Glorot (tanh, sigmoid) initialisation.
+//!
+//! See the book entry [Multilayer perceptrons and backpropagation](https://jwkunz.github.io/lib_jsl/book/learning/neural-networks.html).
 
 use crate::common::{Classifier, MlRng, Regressor, argmax, check_xy, class_count};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
@@ -109,6 +111,7 @@ impl Network {
         activations
     }
 
+    // ANCHOR: backprop
     /// The mean loss over the batch (plus the weight penalty) and its gradients.
     fn loss_and_gradient(&self, x: &R2D, targets: &R2D, weight_decay: f64) -> (f64, Vec<R2D>, Vec<R1D>) {
         let a = self.forward(x);
@@ -140,6 +143,7 @@ impl Network {
         }
         (data_loss + penalty, gw, gb)
     }
+    // ANCHOR_END: backprop
 }
 
 /// Adam optimiser state for one parameter tensor.
@@ -149,6 +153,7 @@ struct Adam {
 }
 
 impl Adam {
+    // ANCHOR: adam
     fn step(&mut self, parameters: &mut [f64], gradient: &[f64], rate: f64, t: i32) {
         let (b1, b2, eps) = (0.9f64, 0.999f64, 1e-8);
         let (c1, c2) = (1.0 - b1.powi(t), 1.0 - b2.powi(t));
@@ -158,6 +163,7 @@ impl Adam {
             parameters[i] -= rate * (self.m[i] / c1) / ((self.v[i] / c2).sqrt() + eps);
         }
     }
+    // ANCHOR_END: adam
 }
 
 /// Feature standardisation learned from the training data.

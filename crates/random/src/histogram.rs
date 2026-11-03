@@ -3,6 +3,7 @@ use lib_jsl_core::ErrorsJSL;
 /// The bin_labels are labeled by the minimum boundary of the bin
 /// e.g. bin_value = 1, with a bin width of 1, corresponds to hits in  the interval [1,2).
 pub struct Histogram{
+    bin_min : f64,
     bin_labels : Vec<f64>,
     bin_counts : Vec<usize>,
     total : usize,
@@ -10,31 +11,37 @@ pub struct Histogram{
 }
 
 impl Histogram{
-    /// Creates a new histogram that spans `[bin_min, bin_max]` with `n_bins`
-    /// Note the bin labels represent the lower edge, so bin_max is not represented in the bin_labels
+    /// Creates a new histogram that spans `[bin_min, bin_max]` with `n_bins` equal bins.
+    /// The bin labels are the lower edges, `bin_min + i · width`; `bin_max` itself is counted in the
+    /// last bin.
     pub fn new(bin_min : f64, bin_max : f64, n_bins : usize)->Self{
         let span = bin_max-bin_min;
         let bin_width = span / (n_bins) as f64;
-        let bin_labels = (0..n_bins).map(|x| x as f64*bin_width).collect();
+        // (The labels once started at 0 whatever bin_min was, which shifted every bin.)
+        let bin_labels = (0..n_bins).map(|x| bin_min + x as f64*bin_width).collect();
         let bin_counts = (0..n_bins).map(|_| 0).collect();
         let total = 0;
-        Histogram { bin_labels, bin_counts, total, bin_width}
+        Histogram { bin_min, bin_labels, bin_counts, total, bin_width}
     }
     /// Reset the counts in each bin
     pub fn reset(&mut self){
         self.bin_counts.iter_mut().for_each(|x| *x = 0);
+        self.total = 0;
     }
     /// Find the bin of the value and increment the count
     /// Will fail if the sample exceeds the bin_min and bin_max
     pub fn count(&mut self, value : f64) -> Result<(),ErrorsJSL>{
-        let bin_index_raw = (value-self.bin_labels.first().expect("")) / self.bin_width;
-        if bin_index_raw < 0.0{
+        let n_bins = self.bin_counts.len();
+        let bin_index_raw = (value - self.bin_min) / self.bin_width;
+        if bin_index_raw.is_nan() || bin_index_raw < 0.0{
             return Err(ErrorsJSL::InvalidInputRange("Input value is less than minimum bin value"));
         }
-        else if bin_index_raw >= (self.bin_labels.len()+1) as f64{
+        else if bin_index_raw > n_bins as f64{
             return Err(ErrorsJSL::InvalidInputRange("Input value is greater than maximum bin value"));
         }
-        self.bin_counts[bin_index_raw.floor() as usize] += 1;
+        // bin_max itself (index n_bins) belongs to the last bin; the bound once allowed index
+        // n_bins through to a panic.
+        self.bin_counts[(bin_index_raw.floor() as usize).min(n_bins - 1)] += 1;
         self.total += 1;
         Ok(())
     }
@@ -90,5 +97,20 @@ mod test{
         assert!(counts_norm.iter().zip(expected).all(|(c, e)| (c - e).abs() < 1e-3), "{counts_norm:?}");
         assert!((counts_norm.iter().sum::<f64>() - 1.0).abs() < 1e-4);
         dbg!(_ = dut.get_counts_normalized_paired());
-    }   
+    }
+
+    #[test]
+    fn bins_start_at_bin_min_and_cover_the_closed_range() {
+        // Labels once started at 0 whatever bin_min was; values at bin_max panicked.
+        let mut h = Histogram::new(-4.0, 8.0, 12);
+        assert_eq!(h.get_bin_labels()[0], -4.0);
+        for v in [-4.0, -3.5, 0.2, 7.99, 8.0] {
+            h.count(v).unwrap();
+        }
+        let c = h.get_counts_raw();
+        assert_eq!((c[0], c[4], c[11]), (2, 1, 2));
+        assert!(h.count(-4.1).is_err() && h.count(8.1).is_err() && h.count(f64::NAN).is_err());
+        h.reset();
+        assert_eq!(h.get_total(), 0);
+    }
 }

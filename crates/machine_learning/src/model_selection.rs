@@ -1,5 +1,7 @@
 //! Model selection: k-fold and stratified cross-validation, and grid search over
 //! hyperparameters.
+//!
+//! See the book entry [Cross-validation and grid search](https://jwkunz.github.io/lib_jsl/book/learning/model-selection.html).
 
 use crate::common::{Classifier, MlRng, Regressor};
 use lib_jsl_core::{ErrorsJSL, R1D, R2D, VR1D, VR2D};
@@ -30,6 +32,7 @@ pub fn k_fold(samples: usize, folds: usize, shuffle_seed: Option<u64>) -> Result
 
 /// Stratified k-fold: each class is dealt round-robin across the folds (after a seeded shuffle
 /// within the class), so every fold has nearly the overall class proportions.
+// ANCHOR: stratified
 pub fn stratified_k_fold(labels: &[usize], folds: usize, seed: u64) -> Result<Vec<Split>, ErrorsJSL> {
     if folds < 2 || folds > labels.len() {
         return Err(ErrorsJSL::InvalidInputRange("Need 2 <= folds <= samples."));
@@ -48,6 +51,7 @@ pub fn stratified_k_fold(labels: &[usize], folds: usize, seed: u64) -> Result<Ve
     }
     Ok((0..folds).map(|f| ((0..labels.len()).filter(|&i| assignment[i] != f).collect(), (0..labels.len()).filter(|&i| assignment[i] == f).collect())).collect())
 }
+// ANCHOR_END: stratified
 
 fn rows(x: VR2D, idx: &[usize]) -> R2D {
     x.select(Axis(0), idx)
@@ -117,6 +121,7 @@ pub struct GridSearchResult<P> {
 /// Evaluates every candidate (typically by the mean of a cross-validation) and keeps the best,
 /// by largest score with `greater_is_better` or smallest otherwise. Candidates whose evaluation
 /// fails or returns NaN are skipped.
+// ANCHOR: grid_search
 pub fn grid_search<P: Clone, E: Fn(&P) -> Result<f64, ErrorsJSL>>(candidates: &[P], evaluate: E, greater_is_better: bool) -> Result<GridSearchResult<P>, ErrorsJSL> {
     let scores: Vec<(P, f64)> = candidates.iter().filter_map(|c| evaluate(c).ok().filter(|s| !s.is_nan()).map(|s| (c.clone(), s))).collect();
     let better = |a: f64, b: f64| if greater_is_better { a > b } else { a < b };
@@ -126,6 +131,7 @@ pub fn grid_search<P: Clone, E: Fn(&P) -> Result<f64, ErrorsJSL>>(candidates: &[
     }).ok_or(ErrorsJSL::RuntimeError("No candidate could be evaluated."))?;
     Ok(GridSearchResult { best, best_score, scores })
 }
+// ANCHOR_END: grid_search
 
 /// The mean of a slice of scores.
 pub fn mean_score(scores: &[f64]) -> f64 {

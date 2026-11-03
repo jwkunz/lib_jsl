@@ -3,6 +3,8 @@
 //! Quasi-random points fill the unit cube far more evenly than pseudo-random ones, so averages
 //! over them converge like `(log N)^d / N` instead of `N^{−1/2}`. They are deterministic; for
 //! error estimates, apply independent random shifts (randomized quasi-Monte Carlo).
+//!
+//! See the book entry [Quasi-random sequences](https://jwkunz.github.io/lib_jsl/book/random/quasi-random.html).
 
 use crate::uniform_generator::UniformGenerator;
 use lib_jsl_core::ErrorsJSL;
@@ -82,6 +84,7 @@ impl SobolSequence {
         self.directions.len()
     }
 
+    // ANCHOR: sobol_next
     /// The next point in `[0, 1)^d`.
     pub fn next_point(&mut self) -> Vec<f64> {
         let point = self.state.iter().map(|&x| (x >> 11) as f64 * (1.0 / (1u64 << 53) as f64)).collect();
@@ -93,6 +96,7 @@ impl SobolSequence {
         self.index += 1;
         point
     }
+    // ANCHOR_END: sobol_next
 
     /// Skips `count` points.
     pub fn skip(&mut self, count: u64) {
@@ -109,6 +113,7 @@ const PRIMES: [u64; 100] = [
     467, 479, 487, 491, 499, 503, 509, 521, 523, 541,
 ];
 
+// ANCHOR: radical_inverse
 /// The van der Corput radical inverse of `n` in base `b`: the base-b digits of `n` mirrored about
 /// the radix point.
 pub fn radical_inverse(mut n: u64, base: u64) -> f64 {
@@ -121,6 +126,7 @@ pub fn radical_inverse(mut n: u64, base: u64) -> f64 {
     }
     value
 }
+// ANCHOR_END: radical_inverse
 
 /// The Halton sequence: coordinate `k` is the radical inverse in the k-th prime base. Simple and
 /// extensible to any number of points; uniformity degrades in high dimensions (large bases), where

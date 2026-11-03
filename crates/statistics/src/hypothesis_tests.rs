@@ -3,7 +3,7 @@
 use crate::correlation::rank;
 use crate::descriptive::{mean, variance};
 use lib_jsl_core::ErrorsJSL;
-use lib_jsl_special_functions::{chi_square_survival, f_cdf, normal_cdf, student_t_cdf};
+use lib_jsl_special_functions::{chi_square_survival, incomplete_beta, normal_cdf, student_t_cdf};
 
 /// The alternative hypothesis.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -132,7 +132,10 @@ pub fn anova_one_way(groups: &[Vec<f64>]) -> Result<(TestResult, f64), ErrorsJSL
     }
     let (df1, df2) = ((k - 1) as f64, (n - k) as f64);
     let f = (between / df1) / (within / df2);
-    Ok((TestResult { statistic: f, p_value: 1.0 - f_cdf(f, df1, df2), degrees_of_freedom: df1 }, df2))
+    // The upper tail P(F > f) = I_{d2/(d2 + d1 f)}(d2/2, d1/2) directly: 1 − CDF would lose every
+    // digit of a small p-value.
+    let p_value = if f.is_finite() { incomplete_beta(0.5 * df2, 0.5 * df1, df2 / (df2 + df1 * f)) } else { 0.0 };
+    Ok((TestResult { statistic: f, p_value, degrees_of_freedom: df1 }, df2))
 }
 
 /// The Kolmogorov distribution's survival function `Q(λ) = 2 Σ (−1)^{k−1} e^{−2k²λ²}`.
@@ -231,6 +234,7 @@ pub fn mann_whitney_u(x: &[f64], y: &[f64], alternative: Alternative) -> Result<
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lib_jsl_special_functions::f_cdf;
 
     #[test]
     fn t_tests_reach_textbook_critical_values() {
@@ -275,6 +279,12 @@ mod tests {
         assert!(anova_one_way(&critical).unwrap().0.p_value > 0.99);
         assert!((1.0 - f_cdf(3.885, 2.0, 12.0) - 0.05).abs() < 1e-3);
         assert!(f.p_value < 0.01);
+        // Small p-values keep their relative precision: here F = 20 000 on (2, 12), and
+        // p = (1 + 2F/12)^{−6} is about 7e-22, which 1 − CDF would round to zero.
+        let separated = vec![vec![0.0, 0.1, 0.2, 0.3, 0.4], vec![10.0, 10.1, 10.2, 10.3, 10.4], vec![20.0, 20.1, 20.2, 20.3, 20.4]];
+        let (far, _) = anova_one_way(&separated).unwrap();
+        let exact = (1.0 + 2.0 * far.statistic / 12.0).powi(-6);
+        assert!((far.p_value / exact - 1.0).abs() < 1e-10, "{} vs {exact}", far.p_value);
         assert!(chi_square_goodness_of_fit(&[1.0], None).is_err() && chi_square_independence(&[vec![1.0, 2.0]]).is_err());
     }
 

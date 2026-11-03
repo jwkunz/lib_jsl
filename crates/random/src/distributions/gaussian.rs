@@ -14,7 +14,8 @@ where
 {
     let uniform_sample_0: f64 = uniform_generator.next_f64();
     let uniform_sample_1: f64 = uniform_generator.next_f64();
-    let a = uniform_sample_0.ln().mul(-2.0).sqrt();
+    // 1 − u lies in (0, 1], so the logarithm is finite (u itself can be exactly 0).
+    let a = (1.0 - uniform_sample_0).ln().mul(-2.0).sqrt();
     let z1 = a * uniform_sample_1.mul(2.0 * PI).cos();
     let z2 = a * uniform_sample_1.mul(2.0 * PI).sin();
     (z1 * sd + mean, z2 * sd + mean)

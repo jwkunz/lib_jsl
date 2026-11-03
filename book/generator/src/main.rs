@@ -17,6 +17,7 @@ mod root_finding;
 mod special_functions;
 mod statistics;
 mod svg;
+mod unsupervised;
 
 use std::path::{Path, PathBuf};
 
@@ -36,7 +37,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 12] = [
+    let chapters: [(&str, fn()); 13] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -49,6 +50,7 @@ fn main() {
         ("random", random::generate),
         ("statistics", statistics::generate),
         ("machine_learning", machine_learning::generate),
+        ("unsupervised", unsupervised::generate),
     ];
     for (name, generate) in chapters {
         if wanted(name) {

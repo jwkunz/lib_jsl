@@ -1,4 +1,6 @@
 //! Least-mean-squares adaptive FIR filters.
+//!
+//! See the book entry [Adaptive filters: LMS, NLMS and RLS](https://jwkunz.github.io/lib_jsl/book/filters/adaptive.html#lms-stochastic-gradient-descent).
 
 use lib_jsl_core::ErrorsJSL;
 use num_complex::Complex;
@@ -34,6 +36,7 @@ impl LmsFilter {
     }
 
     /// Filters one sample against the desired response, adapts, and returns `(y, e)`.
+    // ANCHOR: lms
     pub fn adapt(&mut self, x: C64, desired: C64) -> (C64, C64) {
         self.regressor.rotate_right(1);
         self.regressor[0] = x;
@@ -47,6 +50,7 @@ impl LmsFilter {
         self.weights.iter_mut().zip(&self.regressor).for_each(|(w, u)| *w += mu * e.conj() * u);
         (y, e)
     }
+    // ANCHOR_END: lms
 
     /// Filters one sample without adapting.
     pub fn filter(&mut self, x: C64) -> C64 {

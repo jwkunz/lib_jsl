@@ -1,4 +1,6 @@
 //! Recursive least-squares adaptive FIR filter.
+//!
+//! See the book entry [Adaptive filters: LMS, NLMS and RLS](https://jwkunz.github.io/lib_jsl/book/filters/adaptive.html#rls-exact-recursive-least-squares).
 
 use lib_jsl_core::ErrorsJSL;
 use num_complex::Complex;
@@ -38,6 +40,7 @@ impl RlsFilter {
 
     /// Filters one sample against the desired response, adapts, and returns `(y, e)` (the a
     /// priori output and error).
+    // ANCHOR: rls
     pub fn adapt(&mut self, x: C64, desired: C64) -> (C64, C64) {
         self.regressor.rotate_right(1);
         self.regressor[0] = x;
@@ -59,6 +62,7 @@ impl RlsFilter {
         }
         (y, e)
     }
+    // ANCHOR_END: rls
 
     /// Runs [`RlsFilter::adapt`] over a block.
     pub fn adapt_block(&mut self, x: &[C64], desired: &[C64]) -> Result<(Vec<C64>, Vec<C64>), ErrorsJSL> {

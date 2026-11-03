@@ -125,6 +125,23 @@ fn hermitian_eigenproblems() {
     // Repeated eigenvalues still give an orthonormal basis.
     let (w, v) = Array2::<f64>::eye(4).eigh(UPLO::Lower).unwrap();
     assert!(w.iter().all(|&x| (x - 1.0).abs() < 1e-15) && identity_error(&v) < 1e-14);
+
+    // Low rank: a double-centred Gram matrix of points in 3D has n − 2 eigenvalues that are zero up
+    // to rounding. A deflation test relative only to neighbouring diagonal entries never accepts
+    // that rounding noise as negligible, and the QL iteration used to fail to converge.
+    for (seed, n) in [(1, 100), (2, 110), (3, 120), (4, 80)] {
+        let mut rng = Lcg(seed);
+        let x = rng.real(n, 3).mapv(|v| 4.0 * v + 1.0);
+        let k = x.dot(&x.t());
+        let mean: Vec<f64> = (0..n).map(|i| k.row(i).sum() / n as f64).collect();
+        let total = mean.iter().sum::<f64>() / n as f64;
+        let kc = Array2::from_shape_fn((n, n), |(i, j)| k[[i, j]] - mean[i] - mean[j] + total);
+        let (w, v) = kc.eigh(UPLO::Lower).unwrap_or_else(|e| panic!("seed {seed}, n = {n}: {e:?}"));
+        let scale = max_abs(&kc);
+        assert!(max_abs(&(kc.dot(&v) - &v * &w)) < 1e-12 * scale * n as f64, "seed {seed}");
+        assert!(identity_error(&v) < 1e-12);
+        assert!(w.iter().take(n - 3).all(|x| x.abs() < 1e-12 * scale * n as f64));
+    }
 }
 
 #[test]

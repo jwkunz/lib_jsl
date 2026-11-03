@@ -137,13 +137,19 @@ fn eigh_impl<T: Scalar>(input: &Mat<T>, uplo: UPLO, want_vectors: bool) -> Resul
 /// `tqli`).
 fn tql(d: &mut [f64], e: &mut [f64], mut zt: Option<&mut Mat<f64>>) -> Result<()> {
     let n = d.len();
+    // A sub-diagonal entry is negligible when it is below rounding relative to its neighbours or
+    // to the norm of the part already processed (EISPACK tql2's `tst1`). The purely local test
+    // never deflates a block of eigenvalues that are zero up to rounding, as in a rank-deficient
+    // matrix, where the diagonal and sub-diagonal entries are all rounding noise.
+    let mut norm: f64 = 0.0;
     for l in 0..n {
+        norm = norm.max(d[l].abs() + e[l].abs());
         let mut iterations = 0;
         loop {
             let mut m = l;
             while m + 1 < n {
                 let dd = d[m].abs() + d[m + 1].abs();
-                if e[m].abs() <= f64::EPSILON * dd {
+                if e[m].abs() <= f64::EPSILON * dd.max(norm) {
                     break;
                 }
                 m += 1;

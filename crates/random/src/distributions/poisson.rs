@@ -29,7 +29,7 @@ pub fn poisson_distribution_knuth<U>(uniform_generator: &mut U, lambda: f64) -> 
 where
     U: UniformGenerator,
 {
-    if !(lambda >= 0.0) || lambda.is_infinite() {
+    if lambda.is_nan() || lambda < 0.0 || lambda.is_infinite() {
         return f64::NAN;
     }
     let (mut lambda, mut offset) = (lambda, 0u64);

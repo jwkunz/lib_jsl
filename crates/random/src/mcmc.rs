@@ -1,4 +1,6 @@
 //! Markov chain Monte Carlo: random-walk Metropolis-Hastings.
+//!
+//! See the book entry [Markov chain Monte Carlo](https://jwkunz.github.io/lib_jsl/book/random/mcmc.html).
 
 use crate::distributions::gaussian::gaussian_distribution_box_muller;
 use crate::uniform_generator::UniformGenerator;
@@ -51,6 +53,7 @@ impl MarkovChain {
     }
 }
 
+// ANCHOR: metropolis
 /// Samples from the density proportional to `exp(log_density(x))` by random-walk
 /// Metropolis-Hastings: propose `x' = x + σ ⊙ z` with `z` standard normal, accept with
 /// probability `min(1, p(x')/p(x))`. Only an unnormalised log-density is needed; returning
@@ -109,6 +112,7 @@ where
     }
     Ok(MarkovChain { samples, acceptance_rate: accepted as f64 / (options.samples * options.thin) as f64, proposal_scale: scale })
 }
+// ANCHOR_END: metropolis
 
 #[cfg(test)]
 mod tests {

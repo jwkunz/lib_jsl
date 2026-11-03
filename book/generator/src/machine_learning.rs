@@ -115,26 +115,31 @@ fn add_classes(plot: &mut Plot, x: &R2D, labels: &[usize], names: [&str; 2]) {
 }
 
 /// `P(class 1) − 1/2` of a probabilistic classifier, for contouring.
-fn proba_minus_half(proba: R2D) -> Vec<f64> {
+pub(crate) fn proba_minus_half(proba: R2D) -> Vec<f64> {
     proba.column(1).iter().map(|p| p - 0.5).collect()
 }
 
 fn boundary_plot(title: &str, x: &R2D, labels: &[usize], score: &dyn Fn(&R2D) -> Vec<f64>, xr: (f64, f64), yr: (f64, f64), file: &str) {
+    write(CHAPTER, file, &boundary_figure(title, x, labels, score, xr, yr).render());
+}
+
+/// A two-class scatter with the zero contour of `score` drawn as the decision boundary.
+pub(crate) fn boundary_figure(title: &str, x: &R2D, labels: &[usize], score: &dyn Fn(&R2D) -> Vec<f64>, xr: (f64, f64), yr: (f64, f64)) -> Plot {
     let mut plot = Plot::new(title, "x₁", "x₂");
     plot.x_range = Some(xr);
     plot.y_range = Some(yr);
     add_classes(&mut plot, x, labels, ["class 0", "class 1"]);
     add_contour(&mut plot, contour(score, xr, yr, 120), "decision boundary", Style::Line, 6);
     plot.legend = Legend::BottomRight;
-    write(CHAPTER, file, &plot.render());
+    plot
 }
 
-fn moons(n: usize, seed: u64) -> (R2D, Vec<usize>) {
+pub(crate) fn moons(n: usize, seed: u64) -> (R2D, Vec<usize>) {
     make_moons(n, 0.25, seed)
 }
 
-const MOON_X: (f64, f64) = (-1.8, 2.8);
-const MOON_Y: (f64, f64) = (-1.3, 1.8);
+pub(crate) const MOON_X: (f64, f64) = (-1.8, 2.8);
+pub(crate) const MOON_Y: (f64, f64) = (-1.3, 1.8);
 
 // ------------------------------------------------------------------ linear models
 

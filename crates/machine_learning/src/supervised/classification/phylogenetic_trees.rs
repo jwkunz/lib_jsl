@@ -1,4 +1,6 @@
 //! Phylogenetic tree construction from a distance matrix: UPGMA and neighbor joining.
+//!
+//! See the book entry [Hierarchical clustering and phylogenetic trees](https://jwkunz.github.io/lib_jsl/book/unsupervised/hierarchical.html#neighbour-joining).
 
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
 
@@ -167,6 +169,7 @@ pub fn neighbor_joining(distances: VR2D, labels: &[&str]) -> Result<Phylogenetic
     let mut active: Vec<usize> = (0..n).collect();
     let mut edges = Vec::new();
     let mut next = n;
+    // ANCHOR: neighbor_joining
     while active.len() > 2 {
         let m = active.len();
         let r: Vec<f64> = (0..m).map(|i| (0..m).map(|j| d[i][j]).sum()).collect();
@@ -198,6 +201,7 @@ pub fn neighbor_joining(distances: VR2D, labels: &[&str]) -> Result<Phylogenetic
         next += 1;
     }
     edges.push((active[0], active[1], d[0][1]));
+    // ANCHOR_END: neighbor_joining
     Ok(PhylogeneticTree { labels: labels.iter().map(|s| s.to_string()).collect(), edges, root: None, nodes: next })
 }
 

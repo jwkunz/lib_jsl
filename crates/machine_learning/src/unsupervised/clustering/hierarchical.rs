@@ -1,4 +1,6 @@
 //! Agglomerative hierarchical clustering and dendrograms.
+//!
+//! See the book entry [Hierarchical clustering and phylogenetic trees](https://jwkunz.github.io/lib_jsl/book/unsupervised/hierarchical.html).
 
 use crate::common::{Clusterer, check_features, pairwise_distances};
 use lib_jsl_core::{ErrorsJSL, R2D, VR2D};
@@ -49,6 +51,7 @@ pub fn agglomerate(distances: VR2D, linkage: Linkage) -> Result<Dendrogram, Erro
     let mut ids: Vec<usize> = (0..n).collect(); // cluster id of each active row
     let mut sizes = vec![1usize; n];
     let mut merges = Vec::with_capacity(n.saturating_sub(1));
+    // ANCHOR: lance_williams
     while ids.len() > 1 {
         let m = ids.len();
         let (mut bi, mut bj, mut best) = (0, 1, f64::INFINITY);
@@ -86,6 +89,7 @@ pub fn agglomerate(distances: VR2D, linkage: Linkage) -> Result<Dendrogram, Erro
         ids[bi] = n + merges.len() - 1;
         ids.remove(bj);
     }
+    // ANCHOR_END: lance_williams
     Ok(Dendrogram { points: n, merges })
 }
 

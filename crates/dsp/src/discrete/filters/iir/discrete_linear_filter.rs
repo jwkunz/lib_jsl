@@ -15,7 +15,7 @@ pub struct DiscreteLinearFilter<T : IsLinearOperatable> {
     /// Feed-forward (numerator) coefficients
     b: Vec<T>,
 
-    /// Feedback (denominator) coefficients; a[0] must be 1
+    /// Feedback (denominator) coefficients, normalised so that a[0] = 1
     a: Vec<T>,
 
     /// Delay line of size = max(b.len(), a.len()) - 1
@@ -23,13 +23,14 @@ pub struct DiscreteLinearFilter<T : IsLinearOperatable> {
 }
 
 impl<T : IsLinearOperatable> DiscreteLinearFilter<T> {
-    /// Create a new IIR DF2 filter from b[] and a[] taps.
-    /// `a[0]` must equal 1.0.
+    /// Creates a filter `B(z)/A(z)` from the coefficients of `b` and `a` in powers of `z⁻¹`. Both are
+    /// divided by `a[0]` (which must be non-zero), as in SciPy's `lfilter`; an empty `a` means `[1]`.
     pub fn new(b: &[T], a: &[T]) -> Self {
         let order = usize::max(b.len(), a.len()).saturating_sub(1);
+        let a0 = a.first().copied().unwrap_or_else(T::one);
         Self {
-            b: b.to_vec(),
-            a: a.to_vec(),
+            b: b.iter().map(|&v| v / a0).collect(),
+            a: if a.is_empty() { vec![T::one()] } else { a.iter().map(|&v| v / a0).collect() },
             delay: VecDeque::from(vec![T::zero(); order]),
         }
     }
@@ -134,6 +135,19 @@ impl StreamOperator<Complex<f64>, Complex<f64>> for DiscreteLinearFilter<Complex
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn coefficients_are_normalised_by_a0() {
+        // 2y[n] - 0.6y[n-1] = x[n] + 0.5x[n-1] is the same filter as y[n] - 0.3y[n-1] = 0.5x[n] + 0.25x[n-1].
+        let mut scaled = DiscreteLinearFilter::<f64>::new(&[1.0, 0.5], &[2.0, -0.6]);
+        let mut unit = DiscreteLinearFilter::new(&[0.5, 0.25], &[1.0, -0.3]);
+        for x in [1.0, 0.0, -2.0, 3.5, 0.25] {
+            assert!((scaled.step(&x) - unit.step(&x)).abs() < 1e-15);
+        }
+        // An empty denominator is a pure FIR filter.
+        let mut fir = DiscreteLinearFilter::<f64>::new(&[1.0, 2.0], &[]);
+        assert_eq!([1.0, 0.0, 0.0].map(|x| fir.step(&x)), [1.0, 2.0, 0.0]);
+    }
 
     /// Simple smoke test: identity-like filter (tap = [1]) with L=1, M=1 should forward samples.
     #[test]

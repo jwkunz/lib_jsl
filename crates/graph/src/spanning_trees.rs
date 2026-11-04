@@ -1,4 +1,6 @@
 //! Minimum spanning trees (forests) of undirected graphs: Kruskal and Prim.
+//!
+//! See the book entry [Minimum spanning trees and union-find](https://jwkunz.github.io/lib_jsl/book/graph/spanning-trees.html).
 
 use crate::graph::{Edge, Graph, UnionFind};
 use lib_jsl_core::ErrorsJSL;
@@ -23,10 +25,12 @@ fn undirected(g: &Graph) -> Result<(), ErrorsJSL> {
 /// (union-find). `O(E log E)`.
 pub fn kruskal(g: &Graph) -> Result<SpanningForest, ErrorsJSL> {
     undirected(g)?;
+    // ANCHOR: kruskal
     let mut edges = g.edges();
     edges.sort_by(|a, b| a.weight.total_cmp(&b.weight));
     let mut sets = UnionFind::new(g.vertex_count());
     let chosen: Vec<Edge> = edges.into_iter().filter(|e| sets.union(e.from, e.to)).collect();
+    // ANCHOR_END: kruskal
     let weight = chosen.iter().map(|e| e.weight).sum();
     Ok(SpanningForest { edges: chosen, weight })
 }

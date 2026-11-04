@@ -18,7 +18,8 @@
 //! - 2-byte little-endian symbol count
 //! - repeated `symbol_count` times:
 //!   - 1 byte: symbol value
-//!   - 4 bytes little-endian: symbol frequency
+//!   - 4 bytes little-endian: symbol frequency (the symbol's count, or for inputs over 1 GiB,
+//!     the count rescaled so that the frequencies sum to at most 2^30)
 //! - 8-byte little-endian payload bit length
 //! - packed arithmetic-code bits in most-significant-bit-first order
 //!
@@ -35,6 +36,10 @@ const TOP_VALUE: u64 = (1u64 << CODE_VALUE_BITS) - 1;
 const FIRST_QTR: u64 = TOP_VALUE / 4 + 1;
 const HALF: u64 = 2 * FIRST_QTR;
 const THIRD_QTR: u64 = 3 * FIRST_QTR;
+/// The largest model total the coder handles exactly. After renormalisation the coding range is
+/// always more than a quarter of the full range, so with totals up to `FIRST_QTR` every symbol's
+/// sub-interval stays non-empty. Larger models (inputs over 1 GiB) are rescaled to fit.
+const MAX_TOTAL: u64 = FIRST_QTR;
 
 #[derive(Clone, Debug)]
 struct Model {
@@ -50,6 +55,11 @@ pub fn arithmetic_compress(input: &[u8]) -> Vec<u8> {
 
 /// Fallible variant of [`arithmetic_compress`].
 pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
+    compress_with_limit(input, MAX_TOTAL)
+}
+
+/// Compresses with the model's total frequency limited to `limit` (at most [`MAX_TOTAL`]).
+fn compress_with_limit(input: &[u8], limit: u64) -> Result<Vec<u8>, ErrorsJSL> {
     // We store the original length in the header, so the encoder first makes
     // sure that length fits into the chosen 64-bit field.
     if input.len() > u64::MAX as usize {
@@ -58,7 +68,7 @@ pub fn try_arithmetic_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
 
     // Build the static order-0 model once. Every later interval calculation is
     // driven by these cumulative symbol counts.
-    let model = build_model(input)?;
+    let model = fit_model(build_model(input)?, limit)?;
     let symbol_count = model.frequencies.iter().filter(|&&count| count > 0).count();
 
     let mut output = Vec::new();
@@ -226,7 +236,10 @@ pub fn try_arithmetic_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     }
 
     let model = build_model_from_frequencies(frequencies)?;
-    if model.total as usize != original_len {
+    // The stored frequencies are the symbol counts, so they sum to the original length, unless
+    // the encoder rescaled them to fit the coder's precision.
+    let rescaled = model.total < original_len as u64 && model.total <= MAX_TOTAL;
+    if model.total as usize != original_len && !rescaled {
         return Err(ErrorsJSL::InvalidInputRange("Arithmetic coder frequency table does not match the stored original length."));
     }
 
@@ -302,6 +315,27 @@ fn build_model(input: &[u8]) -> Result<Model, ErrorsJSL> {
             .ok_or(ErrorsJSL::InvalidInputRange("Arithmetic coder frequency overflowed while counting symbols."))?;
     }
     build_model_from_frequencies(frequencies)
+}
+
+/// Rescales a model whose total exceeds `limit` so that it does not, keeping every symbol that
+/// occurs (each keeps a frequency of at least 1).
+fn fit_model(model: Model, limit: u64) -> Result<Model, ErrorsJSL> {
+    if model.total <= limit {
+        return Ok(model);
+    }
+    let present = model.frequencies.iter().filter(|&&f| f > 0).count() as u64;
+    if present > limit {
+        return Err(ErrorsJSL::InvalidInputRange("Arithmetic coder frequency limit is below the number of symbols."));
+    }
+    // Each symbol gets 1 plus its share of the remaining budget, so the total is at most `limit`.
+    let budget = (limit - present) as u128;
+    let mut scaled = [0u32; 256];
+    for (s, &f) in model.frequencies.iter().enumerate() {
+        if f > 0 {
+            scaled[s] = (1 + f as u128 * budget / model.total as u128) as u32;
+        }
+    }
+    build_model_from_frequencies(scaled)
 }
 
 fn build_model_from_frequencies(frequencies: [u32; 256]) -> Result<Model, ErrorsJSL> {
@@ -461,6 +495,19 @@ mod tests {
         let decompressed = try_arithmetic_decompress(&compressed).unwrap();
 
         assert_eq!(decompressed, payload);
+    }
+
+    #[test]
+    fn a_model_too_large_for_the_coder_is_rescaled() {
+        // Inputs over 1 GiB exceed the coder's precision; test the same path with a small limit.
+        let payload = include_bytes!("../../test_assets/kjv.txt");
+        let compressed = compress_with_limit(payload, 1000).unwrap();
+        let symbol_count = u16::from_le_bytes([compressed[12], compressed[13]]) as usize;
+        let total: u64 = (0..symbol_count).map(|k| u32::from_le_bytes(compressed[15 + 5 * k..19 + 5 * k].try_into().unwrap()) as u64).sum();
+        assert!(total <= 1000, "stored total {total}");
+        assert_eq!(try_arithmetic_decompress(&compressed).unwrap(), payload);
+        // The coarser model costs a little compression.
+        assert!(compressed.len() > try_arithmetic_compress(payload).unwrap().len());
     }
 
     #[test]

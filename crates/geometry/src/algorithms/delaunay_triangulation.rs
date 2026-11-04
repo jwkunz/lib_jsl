@@ -1,6 +1,6 @@
 //! Delaunay triangulation of 2D point sets.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 fn orient(a: [f64; 2], b: [f64; 2], c: [f64; 2]) -> f64 {
     (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
@@ -21,15 +21,39 @@ pub struct Triangulation {
     pub triangles: Vec<[usize; 3]>,
 }
 
-/// Triangulates `points` with the Bowyer-Watson algorithm (`O(n²)` worst case, fast in practice
-/// for the sizes this library targets).
+/// Orientation with a rounding-error bound: the determinant and the sum of its terms' magnitudes.
+fn orient_bound(a: [f64; 2], b: [f64; 2], c: [f64; 2]) -> (f64, f64) {
+    let (l, r) = ((b[0] - a[0]) * (c[1] - a[1]), (b[1] - a[1]) * (c[0] - a[0]));
+    (l - r, l.abs() + r.abs())
+}
+
+/// The in-circle determinant and the sum of its terms' magnitudes (its rounding-error scale).
+fn in_circle_bound(a: [f64; 2], b: [f64; 2], c: [f64; 2], d: [f64; 2]) -> (f64, f64) {
+    let (ax, ay, bx, by, cx, cy) = (a[0] - d[0], a[1] - d[1], b[0] - d[0], b[1] - d[1], c[0] - d[0], c[1] - d[1]);
+    let (a2, b2, c2) = (ax * ax + ay * ay, bx * bx + by * by, cx * cx + cy * cy);
+    let det = in_circle(a, b, c, d);
+    let scale = a2 * ((bx * cy).abs() + (cx * by).abs()) + b2 * ((ax * cy).abs() + (cx * ay).abs()) + c2 * ((ax * by).abs() + (bx * ay).abs());
+    (det, scale)
+}
+
+/// Relative slack for the predicates: determinants smaller than this times their term scale are
+/// treated as zero (collinear or cocircular), which keeps rounding from creating slivers or
+/// flipping an edge back and forth.
+const EPS: f64 = 1e-12;
+
+// ANCHOR: sweep
+/// Triangulates `points` by a sweep with Lawson flips (`O(n log n)` typical): points are inserted
+/// in lexicographic order, so each lies outside the triangulation so far and is joined to the hull
+/// edges it can see; every new edge is then checked against the empty-circle test and flipped
+/// until the triangulation is Delaunay again.
 ///
 /// Duplicate points are ignored (they appear in no triangle). Returns `None` for fewer than three
-/// distinct finite points or when all points are collinear.
+/// distinct finite points or when all points are collinear. Points cocircular to rounding are
+/// triangulated in either valid way.
 pub fn delaunay_triangulation(points: &[[f64; 2]]) -> Option<Triangulation> {
     let mut seen: HashSet<(u64, u64)> = HashSet::new();
-    let ids: Vec<usize> = (0..points.len())
-        .filter(|&i| points[i].iter().all(|v| v.is_finite()) && seen.insert((points[i][0].to_bits(), points[i][1].to_bits())))
+    let mut ids: Vec<usize> = (0..points.len())
+        .filter(|&i| points[i].iter().all(|v| v.is_finite()) && seen.insert(((points[i][0] + 0.0).to_bits(), (points[i][1] + 0.0).to_bits())))
         .collect();
     if ids.len() < 3 {
         return None;
@@ -43,43 +67,121 @@ pub fn delaunay_triangulation(points: &[[f64; 2]]) -> Option<Triangulation> {
         }
     }
     let span = (hi[0] - lo[0]).max(hi[1] - lo[1]);
-    if span == 0.0 {
+    ids.sort_by(|&i, &j| points[i][0].total_cmp(&points[j][0]).then(points[i][1].total_cmp(&points[j][1])));
+    let p: Vec<[f64; 2]> = ids.iter().map(|&i| [(points[i][0] - lo[0]) / span, (points[i][1] - lo[1]) / span]).collect();
+    let n = p.len();
+    let left = |a: usize, b: usize, c: usize| {
+        let (d, s) = orient_bound(p[a], p[b], p[c]);
+        if d > EPS * s { 1 } else if d < -EPS * s { -1 } else { 0 }
+    };
+
+    // The first points may be collinear; the first point off their line closes a fan over them.
+    let mut k = 2;
+    while k < n && left(0, 1, k) == 0 {
+        k += 1;
+    }
+    if k == n {
         return None;
     }
-    let mut p: Vec<[f64; 2]> = ids.iter().map(|&i| [(points[i][0] - lo[0]) / span, (points[i][1] - lo[1]) / span]).collect();
-    let n = p.len();
-    // A far-away super-triangle containing every point.
-    p.push([-50.0, -50.0]);
-    p.push([50.0, -50.0]);
-    p.push([0.5, 50.0]);
-    let mut tris: Vec<[usize; 3]> = vec![[n, n + 1, n + 2]];
-
-    for i in 0..n {
-        let bad: Vec<usize> = (0..tris.len()).filter(|&t| in_circle(p[tris[t][0]], p[tris[t][1]], p[tris[t][2]], p[i]) > 0.0).collect();
-        let mut directed: HashSet<(usize, usize)> = HashSet::new();
-        for &t in &bad {
-            for k in 0..3 {
-                directed.insert((tris[t][k], tris[t][(k + 1) % 3]));
-            }
+    let mut tris: Vec<[usize; 3]> = Vec::with_capacity(2 * n);
+    let mut edge: HashMap<(usize, usize), usize> = HashMap::with_capacity(6 * n);
+    let add = |tris: &mut Vec<[usize; 3]>, edge: &mut HashMap<(usize, usize), usize>, t: [usize; 3]| {
+        for j in 0..3 {
+            edge.insert((t[j], t[(j + 1) % 3]), tris.len());
         }
-        let boundary: Vec<(usize, usize)> = directed.iter().copied().filter(|&(a, b)| !directed.contains(&(b, a))).collect();
-        let bad_set: HashSet<usize> = bad.into_iter().collect();
-        let mut next: Vec<[usize; 3]> = tris.iter().enumerate().filter(|(t, _)| !bad_set.contains(t)).map(|(_, &t)| t).collect();
-        for (a, b) in boundary {
-            if orient(p[a], p[b], p[i]) > 0.0 {
-                next.push([a, b, i]);
-            }
-        }
-        tris = next;
+        tris.push(t);
+    };
+    // The hull is a counter-clockwise cycle of vertices.
+    let (mut next, mut prev) = (vec![usize::MAX; n], vec![usize::MAX; n]);
+    let side = left(0, 1, k);
+    let mut cycle: Vec<usize> = Vec::with_capacity(k + 1);
+    for j in 0..k - 1 {
+        add(&mut tris, &mut edge, if side > 0 { [j, j + 1, k] } else { [j + 1, j, k] });
+    }
+    if side > 0 {
+        cycle.extend(0..=k);
+    } else {
+        cycle.push(0);
+        cycle.push(k);
+        cycle.extend((1..k).rev());
+    }
+    for j in 0..cycle.len() {
+        next[cycle[j]] = cycle[(j + 1) % cycle.len()];
+        prev[cycle[(j + 1) % cycle.len()]] = cycle[j];
     }
 
-    let triangles: Vec<[usize; 3]> = tris
-        .into_iter()
-        .filter(|t| t.iter().all(|&v| v < n))
-        .map(|t| [ids[t[0]], ids[t[1]], ids[t[2]]])
-        .collect();
-    (!triangles.is_empty()).then_some(Triangulation { triangles })
+    let mut stack: Vec<(usize, usize)> = Vec::new();
+    let mut last = k;
+    for i in k + 1..n {
+        // Find a hull edge a -> next[a] that sees p_i (p_i to its right), near the last insertion.
+        let sees = |a: usize, next: &[usize]| left(a, next[a], i) < 0;
+        let start = if sees(last, &next) {
+            Some(last)
+        } else if sees(prev[last], &next) {
+            Some(prev[last])
+        } else {
+            let mut a = next[last];
+            loop {
+                if sees(a, &next) {
+                    break Some(a);
+                }
+                if a == last {
+                    break None;
+                }
+                a = next[a];
+            }
+        };
+        let Some(start) = start else { continue };
+        // Extend to the whole visible chain first..=end (edges first -> ... -> end -> next[end]).
+        let (mut first, mut end) = (start, start);
+        while prev[first] != end && sees(prev[first], &next) {
+            first = prev[first];
+        }
+        while next[end] != first && sees(next[end], &next) {
+            end = next[end];
+        }
+        let mut a = first;
+        loop {
+            let b = next[a];
+            add(&mut tris, &mut edge, [b, a, i]);
+            stack.push((b, a));
+            if a == end {
+                break;
+            }
+            a = b;
+        }
+        let after = next[end];
+        next[first] = i;
+        prev[i] = first;
+        next[i] = after;
+        prev[after] = i;
+        last = i;
+
+        // Lawson flips: edge (a, b) of triangle (a, b, c) is illegal if the triangle (b, a, d)
+        // across it has d inside the circle through a, b, c.
+        while let Some((a, b)) = stack.pop() {
+            let (Some(&t), Some(&u)) = (edge.get(&(a, b)), edge.get(&(b, a))) else { continue };
+            let c = tris[t].into_iter().find(|&v| v != a && v != b).unwrap();
+            let d = tris[u].into_iter().find(|&v| v != a && v != b).unwrap();
+            let (det, scale) = in_circle_bound(p[a], p[b], p[c], p[d]);
+            if det <= EPS * scale || left(c, a, d) <= 0 || left(c, d, b) <= 0 {
+                continue;
+            }
+            edge.remove(&(a, b));
+            edge.remove(&(b, a));
+            tris[t] = [c, a, d];
+            tris[u] = [c, d, b];
+            for (x, y, tri) in [(c, a, t), (a, d, t), (d, c, t), (c, d, u), (d, b, u), (b, c, u)] {
+                edge.insert((x, y), tri);
+            }
+            stack.push((a, d));
+            stack.push((d, b));
+        }
+    }
+    let triangles = tris.into_iter().map(|t| [ids[t[0]], ids[t[1]], ids[t[2]]]).collect();
+    Some(Triangulation { triangles })
 }
+// ANCHOR_END: sweep
 
 impl Triangulation {
     /// The unique undirected edges as `(low, high)` index pairs, sorted.
@@ -173,6 +275,47 @@ mod tests {
         assert!((t.area(&pts) - 25.0).abs() < 1e-9);
         assert!(t.triangles.iter().flatten().all(|&i| i != 36));
         assert!(t.is_delaunay(&pts, 1e-9));
+    }
+
+    fn assert_tiles_hull(pts: &[[f64; 2]]) {
+        let t = delaunay_triangulation(pts).unwrap();
+        let hull = convex_hull_2d(pts);
+        let hull_area = polygon_area_2d(pts, &hull);
+        assert!((t.area(pts) - hull_area).abs() < 1e-9 * hull_area, "{} vs {}", t.area(pts), hull_area);
+        assert!(t.triangles.iter().all(|tr| orient(pts[tr[0]], pts[tr[1]], pts[tr[2]]) > 0.0));
+        assert!(t.is_delaunay(pts, 1e-9));
+    }
+
+    #[test]
+    fn nearly_cocircular_points_do_not_overlap() {
+        // Forty points on a shallow arc and one near its centre: almost every quadruple is
+        // cocircular, which made the earlier Bowyer-Watson version produce overlapping triangles.
+        let mut pts: Vec<[f64; 2]> = (0..40)
+            .map(|i| {
+                let t = -0.3 + 0.6 * i as f64 / 39.0;
+                [10.0 * f64::sin(t), 10.0 * f64::cos(t) - 9.0]
+            })
+            .collect();
+        pts.push([0.0, 0.0]);
+        assert_tiles_hull(&pts);
+        let circle: Vec<[f64; 2]> = (0..100).map(|i| [f64::cos(i as f64 * 0.0628), f64::sin(i as f64 * 0.0628)]).collect();
+        assert_tiles_hull(&circle);
+    }
+
+    #[test]
+    fn thin_point_sets_keep_their_hull_triangles() {
+        // Points close to a line: a finite super-triangle used to cut off the hull's sliver triangles.
+        let mut rnd = lcg(3);
+        let pts: Vec<[f64; 2]> = (0..100)
+            .map(|i| {
+                let x = i as f64 / 99.0;
+                [x, 1e-3 * x * (1.0 - x) + 1e-4 * rnd()]
+            })
+            .collect();
+        assert_tiles_hull(&pts);
+        let mut fan: Vec<[f64; 2]> = (0..10).map(|i| [0.0, i as f64]).collect();
+        fan.push([-1.0, 3.0]);
+        assert_tiles_hull(&fan);
     }
 
     #[test]

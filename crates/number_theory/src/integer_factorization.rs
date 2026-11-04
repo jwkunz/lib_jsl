@@ -55,10 +55,14 @@ pub fn pollard_rho(n: u64) -> u64 {
 }
 
 /// The prime factorization of `n ≥ 1` as `(prime, exponent)` pairs in increasing order (empty
-/// for 1). Small factors are removed by trial division, the remainder is split recursively
+/// for 1, and for 0, which has no factorization). Small factors are removed by trial division, the remainder is split recursively
 /// with Pollard's rho and certified by deterministic Miller-Rabin. Any `u64` factors in
 /// milliseconds.
 pub fn factorize(n: u64) -> Vec<(u64, u32)> {
+    // 0 is divisible by every trial prime: without this the trial division never ends.
+    if n == 0 {
+        return Vec::new();
+    }
     let mut factors = Vec::new();
     let mut n = n;
     for p in [2u64, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47] {
@@ -117,6 +121,12 @@ mod tests {
 
     fn product(f: &[(u64, u32)]) -> u128 {
         f.iter().map(|&(p, e)| (p as u128).pow(e)).product()
+    }
+
+    #[test]
+    fn zero_has_no_factorization_and_returns_at_once() {
+        assert!(factorize(0).is_empty());
+        assert!(factorize(1).is_empty());
     }
 
     #[test]

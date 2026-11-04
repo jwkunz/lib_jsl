@@ -16,6 +16,7 @@ mod optimization;
 mod optimization_more;
 mod random;
 mod root_finding;
+mod spectral;
 mod special_functions;
 mod statistics;
 mod svg;
@@ -39,7 +40,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 15] = [
+    let chapters: [(&str, fn()); 16] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -55,6 +56,7 @@ fn main() {
         ("unsupervised", unsupervised::generate),
         ("learning", learning::generate),
         ("filters", filters::generate),
+        ("spectral", spectral::generate),
     ];
     for (name, generate) in chapters {
         if wanted(name) {

@@ -48,11 +48,32 @@ pub struct Plot {
     pub x_range: Option<(f64, f64)>,
     pub y_range: Option<(f64, f64)>,
     pub series: Vec<Series>,
+    /// An optional colour map drawn under the series.
+    pub heatmap: Option<Heatmap>,
+}
+
+/// A grid of values drawn as coloured cells: `values[row][col]`, rows spanning `y` (first row at
+/// `y.0`) and columns spanning `x`, coloured from dark (at `range.0`) to light (at `range.1`).
+pub struct Heatmap {
+    pub x: (f64, f64),
+    pub y: (f64, f64),
+    pub values: Vec<Vec<f64>>,
+    pub range: (f64, f64),
+}
+
+/// A perceptually ordered dark-blue to yellow colour ramp (approximating viridis).
+fn ramp(t: f64) -> String {
+    const STOPS: [(f64, f64, f64); 5] = [(68.0, 1.0, 84.0), (59.0, 82.0, 139.0), (33.0, 145.0, 140.0), (94.0, 201.0, 98.0), (253.0, 231.0, 37.0)];
+    let t = t.clamp(0.0, 1.0) * 4.0;
+    let i = (t.floor() as usize).min(3);
+    let f = t - i as f64;
+    let (a, b) = (STOPS[i], STOPS[i + 1]);
+    format!("rgb({:.0},{:.0},{:.0})", a.0 + f * (b.0 - a.0), a.1 + f * (b.1 - a.1), a.2 + f * (b.2 - a.2))
 }
 
 impl Plot {
     pub fn new(title: &str, x_label: &str, y_label: &str) -> Self {
-        Plot { legend: Legend::TopRight, title: title.into(), x_label: x_label.into(), y_label: y_label.into(), log_x: false, log_y: false, x_range: None, y_range: None, series: Vec::new() }
+        Plot { legend: Legend::TopRight, title: title.into(), x_label: x_label.into(), y_label: y_label.into(), log_x: false, log_y: false, x_range: None, y_range: None, series: Vec::new(), heatmap: None }
     }
 }
 
@@ -82,7 +103,8 @@ impl Plot {
         let (pw, ph) = (w - left - right, h - top - bottom);
         let tx = |v: f64| if self.log_x { v.log10() } else { v };
         let ty = |v: f64| if self.log_y { v.log10() } else { v };
-        let finite: Vec<(f64, f64)> = self.series.iter().flat_map(|s| s.points.iter().copied()).filter(|&(x, y)| x.is_finite() && y.is_finite() && (!self.log_x || x > 0.0) && (!self.log_y || y > 0.0)).collect();
+        let corners: Vec<(f64, f64)> = self.heatmap.iter().flat_map(|h| [(h.x.0, h.y.0), (h.x.1, h.y.1)]).collect();
+        let finite: Vec<(f64, f64)> = self.series.iter().flat_map(|s| s.points.iter().copied()).chain(corners).filter(|&(x, y)| x.is_finite() && y.is_finite() && (!self.log_x || x > 0.0) && (!self.log_y || y > 0.0)).collect();
         let span = |vals: Vec<f64>| vals.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(a, b), &v| (a.min(v), b.max(v)));
         let (mut x0, mut x1) = self.x_range.map(|(a, b)| (tx(a), tx(b))).unwrap_or_else(|| span(finite.iter().map(|p| tx(p.0)).collect()));
         let (mut y0, mut y1) = self.y_range.map(|(a, b)| (ty(a), ty(b))).unwrap_or_else(|| span(finite.iter().map(|p| ty(p.1)).collect()));
@@ -146,6 +168,18 @@ impl Plot {
         let _ = write!(s, r##"<text x="{}" y="{}" text-anchor="middle" fill="#222">{}</text>"##, left + pw / 2.0, h - 14.0, escape(&self.x_label));
         let _ = write!(s, r##"<text transform="translate(18 {}) rotate(-90)" text-anchor="middle" fill="#222">{}</text>"##, top + ph / 2.0, escape(&self.y_label));
         let _ = write!(s, r#"<clipPath id="plot"><rect x="{left}" y="{top}" width="{pw}" height="{ph}"/></clipPath><g clip-path="url(#plot)">"#);
+        if let Some(hm) = &self.heatmap {
+            let rows = hm.values.len();
+            let cols = hm.values.first().map_or(0, Vec::len);
+            let (cw, ch) = ((hm.x.1 - hm.x.0) / cols as f64, (hm.y.1 - hm.y.0) / rows as f64);
+            for (r, row) in hm.values.iter().enumerate() {
+                for (c, &v) in row.iter().enumerate() {
+                    let (xa, xb) = (px(hm.x.0 + c as f64 * cw), px(hm.x.0 + (c + 1) as f64 * cw));
+                    let (ya, yb) = (py(hm.y.0 + (r + 1) as f64 * ch), py(hm.y.0 + r as f64 * ch));
+                    let _ = write!(s, r#"<rect x="{:.2}" y="{:.2}" width="{:.2}" height="{:.2}" fill="{}"/>"#, xa, ya, (xb - xa) + 0.3, (yb - ya) + 0.3, ramp((v - hm.range.0) / (hm.range.1 - hm.range.0)));
+                }
+            }
+        }
         for series in &self.series {
             let pts: Vec<(f64, f64)> = series.points.iter().copied().filter(|&(x, y)| x.is_finite() && y.is_finite() && (!self.log_x || x > 0.0) && (!self.log_y || y > 0.0)).collect();
             let path: String = pts.iter().enumerate().map(|(i, &(x, y))| format!("{}{:.2},{:.2}", if i == 0 { "M" } else { "L" }, px(x), py(y))).collect();

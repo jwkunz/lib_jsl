@@ -1,0 +1,1 @@
+The text has 4606957 bytes and an order-0 entropy of 4.621 bits per byte.

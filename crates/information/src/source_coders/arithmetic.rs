@@ -100,6 +100,7 @@ fn compress_with_limit(input: &[u8], limit: u64) -> Result<Vec<u8>, ErrorsJSL> {
         // cum_high)` inside the model. Arithmetic coding does not jump to a
         // codeword; it shrinks the active numeric interval to this slice.
         let symbol_index = symbol as usize;
+        // ANCHOR: arithmetic_encode
         let range = (high - low + 1) as u128;
         let cum_low = model.cumulative[symbol_index] as u128;
         let cum_high = model.cumulative[symbol_index + 1] as u128;
@@ -140,6 +141,7 @@ fn compress_with_limit(input: &[u8], limit: u64) -> Result<Vec<u8>, ErrorsJSL> {
             low = low.saturating_mul(2);
             high = high.saturating_mul(2).saturating_add(1);
         }
+        // ANCHOR_END: arithmetic_encode
     }
 
     // Emit one final disambiguating bit plus any pending opposite bits so the

@@ -297,6 +297,7 @@ fn build_tree_from_frequencies(frequencies: &[u32; 256]) -> Result<HuffmanNode, 
         return Err(ErrorsJSL::InvalidInputRange("Cannot build a Huffman tree from an empty frequency table."));
     }
 
+    // ANCHOR: huffman_tree
     while heap.len() > 1 {
         // Repeatedly merge the two lightest subtrees. That greedy step is the
         // core of the Huffman construction.
@@ -312,6 +313,7 @@ fn build_tree_from_frequencies(frequencies: &[u32; 256]) -> Result<HuffmanNode, 
             },
         });
     }
+    // ANCHOR_END: huffman_tree
 
     heap.pop()
         .map(|entry| entry.node)

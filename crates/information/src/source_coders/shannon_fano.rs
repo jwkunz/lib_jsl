@@ -330,6 +330,7 @@ fn assign_codes_recursive(symbols: &mut [SymbolFrequency], codes: &mut [Vec<bool
         return;
     }
 
+    // ANCHOR: shannon_fano_split
     let split_index = choose_split_index(symbols);
 
     // Every symbol in the left half gains a `0` at this recursion depth.
@@ -344,6 +345,7 @@ fn assign_codes_recursive(symbols: &mut [SymbolFrequency], codes: &mut [Vec<bool
     let (left, right) = symbols.split_at_mut(split_index);
     assign_codes_recursive(left, codes);
     assign_codes_recursive(right, codes);
+    // ANCHOR_END: shannon_fano_split
 }
 
 fn choose_split_index(symbols: &[SymbolFrequency]) -> usize {

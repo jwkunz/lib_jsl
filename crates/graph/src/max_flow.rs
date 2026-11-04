@@ -1,4 +1,6 @@
 //! Maximum flow and minimum cut: Edmonds-Karp and Dinic.
+//!
+//! See the book entry [Maximum flow and minimum cut](https://jwkunz.github.io/lib_jsl/book/graph/max-flow.html).
 
 use lib_jsl_core::ErrorsJSL;
 use std::collections::VecDeque;
@@ -143,6 +145,7 @@ impl FlowNetwork {
             if level[sink] == usize::MAX {
                 return Ok(self.result(source));
             }
+            // ANCHOR: dinic_phase
             let mut current = vec![0usize; n];
             // Iterative DFS for blocking flow.
             loop {
@@ -183,6 +186,7 @@ impl FlowNetwork {
                     self.push(a, bottleneck);
                 }
             }
+            // ANCHOR_END: dinic_phase
         }
     }
 }

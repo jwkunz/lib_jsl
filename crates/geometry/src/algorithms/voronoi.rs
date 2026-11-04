@@ -1,4 +1,6 @@
 //! Voronoi diagrams of 2D point sets, as the dual of the Delaunay triangulation.
+//!
+//! See the book entry [Delaunay triangulations and Voronoi diagrams](https://jwkunz.github.io/lib_jsl/book/geometry/delaunay-voronoi.html#voronoi-diagrams).
 
 use crate::algorithms::delaunay_triangulation::{Triangulation, delaunay_triangulation};
 use std::collections::BTreeSet;

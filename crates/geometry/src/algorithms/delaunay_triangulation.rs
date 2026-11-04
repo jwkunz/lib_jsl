@@ -1,4 +1,6 @@
 //! Delaunay triangulation of 2D point sets.
+//!
+//! See the book entry [Delaunay triangulations and Voronoi diagrams](https://jwkunz.github.io/lib_jsl/book/geometry/delaunay-voronoi.html#delaunay-triangulation).
 
 use std::collections::{HashMap, HashSet};
 
@@ -41,7 +43,6 @@ fn in_circle_bound(a: [f64; 2], b: [f64; 2], c: [f64; 2], d: [f64; 2]) -> (f64, 
 /// flipping an edge back and forth.
 const EPS: f64 = 1e-12;
 
-// ANCHOR: sweep
 /// Triangulates `points` by a sweep with Lawson flips (`O(n log n)` typical): points are inserted
 /// in lexicographic order, so each lies outside the triangulation so far and is joined to the hull
 /// edges it can see; every new edge is then checked against the empty-circle test and flipped
@@ -157,6 +158,7 @@ pub fn delaunay_triangulation(points: &[[f64; 2]]) -> Option<Triangulation> {
         prev[after] = i;
         last = i;
 
+        // ANCHOR: lawson
         // Lawson flips: edge (a, b) of triangle (a, b, c) is illegal if the triangle (b, a, d)
         // across it has d inside the circle through a, b, c.
         while let Some((a, b)) = stack.pop() {
@@ -177,11 +179,11 @@ pub fn delaunay_triangulation(points: &[[f64; 2]]) -> Option<Triangulation> {
             stack.push((a, d));
             stack.push((d, b));
         }
+        // ANCHOR_END: lawson
     }
     let triangles = tris.into_iter().map(|t| [ids[t[0]], ids[t[1]], ids[t[2]]]).collect();
     Some(Triangulation { triangles })
 }
-// ANCHOR_END: sweep
 
 impl Triangulation {
     /// The unique undirected edges as `(low, high)` index pairs, sorted.

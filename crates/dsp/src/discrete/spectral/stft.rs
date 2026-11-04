@@ -1,4 +1,6 @@
 //! The short-time Fourier transform, its inverse and the spectrogram.
+//!
+//! See the book entry [Power spectra: periodogram, Welch, spectrogram and Lomb-Scargle](https://jwkunz.github.io/lib_jsl/book/spectral/power-spectra.html#the-short-time-fourier-transform-and-the-spectrogram).
 
 use super::welch::SpectralScaling;
 use lib_jsl_core::ErrorsJSL;

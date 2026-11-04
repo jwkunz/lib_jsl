@@ -1,4 +1,6 @@
 //! Power spectral density estimation by Welch's method of averaged, windowed periodograms.
+//!
+//! See the book entry [Power spectra: periodogram, Welch, spectrogram and Lomb-Scargle](https://jwkunz.github.io/lib_jsl/book/spectral/power-spectra.html#variance-welch-averaging).
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_ffts::RealFft;
@@ -70,6 +72,7 @@ pub fn welch(x: &[f64], fs: f64, window: &[f64], overlap: usize, detrend: Detren
     if fs.is_nan() || fs <= 0.0 {
         return Err(ErrorsJSL::InvalidInputRange("The sampling rate must be positive."));
     }
+    // ANCHOR: welch
     let step = m - overlap;
     let segments = (x.len() - m) / step + 1;
     let mut fft = RealFft::new(m)?;
@@ -91,6 +94,7 @@ pub fn welch(x: &[f64], fs: f64, window: &[f64], overlap: usize, detrend: Detren
     for (k, p) in power.iter_mut().enumerate() {
         *p *= scale * if k > 0 && k < last_doubled { 2.0 } else { 1.0 };
     }
+    // ANCHOR_END: welch
     let frequencies = (0..bins).map(|k| k as f64 * fs / m as f64).collect();
     Ok(PowerSpectrum { frequencies, power, segments })
 }

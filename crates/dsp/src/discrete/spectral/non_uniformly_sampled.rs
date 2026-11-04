@@ -13,6 +13,8 @@
 //!   phase at one frequency.
 //!
 //! All routines cost `O(N · F)` (samples times frequencies).
+//!
+//! See the book entry [Power spectra: periodogram, Welch, spectrogram and Lomb-Scargle](https://jwkunz.github.io/lib_jsl/book/spectral/power-spectra.html#unevenly-sampled-data-lomb-scargle).
 
 use lib_jsl_core::ErrorsJSL;
 use num_complex::Complex;

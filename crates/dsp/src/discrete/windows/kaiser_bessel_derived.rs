@@ -1,6 +1,10 @@
 use super::kaiser::kaiser;
 
-/// The Kaiser-Bessel derived window is defined by a specific mathematical formula that combines the Kaiser window with a cumulative sum to create a window with specific spectral properties. The coefficients are computed based on the position within the window, the total length, and the beta parameter, which controls the shape of the window and its spectral properties.
+/// The Kaiser-Bessel derived window of even length `m`: the square root of the normalised running
+/// sum of a Kaiser window of length `m/2 + 1`, mirrored. It satisfies the Princen-Bradley
+/// condition `w[n]² + w[n + m/2]² = 1`, which makes it suitable for the MDCT. Only the symmetric
+/// form exists (`sym = false` returns an empty vector). SciPy rejects odd lengths; here an odd
+/// `m` gives the window of length `m + 1` with its last sample dropped, which is not symmetric.
 pub fn kaiser_bessel_derived(m: usize, beta: f64, sym: bool) -> Vec<f64> {
     if !sym {
         return vec![];
@@ -36,6 +40,6 @@ mod tests {
 
     #[test]
     fn test_kaiser_bessel_derived() {
-        assert_window(include_str!("../test_data/kaiser_bessel_derived.csv"), kaiser_bessel_derived(7, 14.0, true));
+        assert_window(include_str!("../test_data/kaiser_bessel_derived.csv"), kaiser_bessel_derived(8, 14.0, true));
     }
 }

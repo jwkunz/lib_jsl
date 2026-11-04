@@ -25,6 +25,8 @@
 //!
 //! Compared with the original paper, the image is not upsampled first (so the finest features, below
 //! about 2 pixels, are missed).
+//!
+//! See the book entry [Local features](https://jwkunz.github.io/lib_jsl/book/image/features.html#sift).
 
 use crate::discrete::image::filters::gaussian_blur::gaussian_blur;
 use lib_jsl_core::ErrorsJSL;

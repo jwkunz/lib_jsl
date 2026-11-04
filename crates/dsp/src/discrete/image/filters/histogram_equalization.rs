@@ -7,6 +7,8 @@
 //!
 //! With `cdf(v)` the number of pixels at or below `v`, `cdf_min` the first nonzero `cdf` value and
 //! `N` the pixel count, level `v` maps to `round(255 · (cdf(v) − cdf_min) / (N − cdf_min))`.
+//!
+//! See the book entry [Contrast and restoration](https://jwkunz.github.io/lib_jsl/book/image/restoration.html#histogram-equalisation).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;

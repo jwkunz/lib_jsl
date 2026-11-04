@@ -135,6 +135,12 @@
     - [Channels and equalisation](comms/equalisation.md)
     - [Pulse compression, Barker codes and pulse tracking](comms/radar.md)
     - [Control: state-space models, PID controllers and the Kalman filter](comms/controls.md)
+- [DSP: image processing](image/index.md)
+    - [Image filtering: convolution, Gaussian blur, Sobel gradients and sharpening](image/filtering.md)
+    - [Contrast and restoration: histogram equalisation and Wiener filtering](image/restoration.md)
+    - [Segmentation: Otsu's threshold, Canny edges and the watershed](image/segmentation.md)
+    - [The Hough transform: lines and circles](image/hough.md)
+    - [Local features: blobs, SIFT and SURF](image/features.md)
 
 ---
 

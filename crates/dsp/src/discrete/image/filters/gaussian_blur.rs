@@ -6,6 +6,8 @@
 //! pixel instead of `O(r²)` for a radius-`r` kernel. Gaussian blurs also compose: blurring by
 //! `σ₁` and then `σ₂` equals one blur of `√(σ₁² + σ₂²)`, which is what scale-space methods such
 //! as SIFT rely on.
+//!
+//! See the book entry [Image filtering](https://jwkunz.github.io/lib_jsl/book/image/filtering.html#gaussian-blur).
 
 use crate::discrete::image::convolution::{gaussian_kernel_1d, separable_convolve, Border};
 use lib_jsl_core::ErrorsJSL;

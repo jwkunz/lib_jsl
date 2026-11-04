@@ -8,6 +8,8 @@
 //! `sigma` sets the scale of detail that is boosted and `amount` the strength (0 does nothing, 1 is
 //! a typical moderate setting). Edges gain overshoot ("halos") on either side, which is what makes
 //! them look crisper. An optional threshold leaves low-contrast areas (mostly noise) untouched.
+//!
+//! See the book entry [Image filtering](https://jwkunz.github.io/lib_jsl/book/image/filtering.html#unsharp-masking).
 
 use crate::discrete::image::filters::gaussian_blur::gaussian_blur;
 use lib_jsl_core::ErrorsJSL;

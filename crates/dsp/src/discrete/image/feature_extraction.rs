@@ -1,4 +1,6 @@
 //! Image feature extraction.
+//!
+//! See the book entry [Local features](https://jwkunz.github.io/lib_jsl/book/image/features.html#matching).
 
 pub mod sift;
 pub mod surf;

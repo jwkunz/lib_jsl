@@ -10,6 +10,8 @@
 //!
 //! When several thresholds tie (as for an image with only two gray levels), the middle of the
 //! tied range is returned.
+//!
+//! See the book entry [Segmentation](https://jwkunz.github.io/lib_jsl/book/image/segmentation.html#otsus-threshold).
 
 use crate::discrete::image::filters::histogram_equalization::histogram;
 use lib_jsl_core::ErrorsJSL;

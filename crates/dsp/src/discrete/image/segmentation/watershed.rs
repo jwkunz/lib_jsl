@@ -11,6 +11,8 @@
 //! Ties (equal elevation) are broken first-in-first-out so flooding spreads evenly across plateaus.
 //! The result labels every pixel reachable from a marker; use [`label_boundaries`] to extract the
 //! lines between regions.
+//!
+//! See the book entry [Segmentation](https://jwkunz.github.io/lib_jsl/book/image/segmentation.html#the-watershed).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;

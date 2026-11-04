@@ -9,6 +9,8 @@
 //!   pixels of a line vote for the same `(ρ, θ)` cell.
 //! - **Circles** of a known radius: each pixel votes for every possible centre on the circle of that
 //!   radius around it; a true circle's pixels all vote for its centre.
+//!
+//! See the book entry [The Hough transform](https://jwkunz.github.io/lib_jsl/book/image/hough.html).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;

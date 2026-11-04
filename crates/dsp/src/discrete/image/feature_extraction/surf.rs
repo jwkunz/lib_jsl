@@ -18,6 +18,8 @@
 //! The image is normalised to `[0, 1]` first, so the detection threshold is relative to its dynamic
 //! range. The sign of the Laplacian (`Dxx + Dyy`) is stored so bright blobs on dark and dark on
 //! bright are never matched.
+//!
+//! See the book entry [Local features](https://jwkunz.github.io/lib_jsl/book/image/features.html#surf-and-the-integral-image).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;

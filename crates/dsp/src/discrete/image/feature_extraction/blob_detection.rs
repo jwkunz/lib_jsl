@@ -13,6 +13,8 @@
 //! Only *bright* blobs are detected. A dark blob on a bright background gives a negative response
 //! at its centre but, as with any LoG, weak positive sidelobes in a ring around it (about 13% of
 //! the response of an equal-contrast bright blob), so use a `threshold` comfortably above that.
+//!
+//! See the book entry [Local features](https://jwkunz.github.io/lib_jsl/book/image/features.html#blobs-and-the-normalised-laplacian).
 
 use crate::discrete::image::convolution::{correlate2d, Border};
 use crate::discrete::image::filters::gaussian_blur::gaussian_blur;

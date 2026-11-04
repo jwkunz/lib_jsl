@@ -4,6 +4,8 @@
 //! on the output pixel. Pixels outside the image are supplied according to a [`Border`] mode.
 //! Direct (spatial) evaluation is used; for large kernels see
 //! [`fft_convolve_2d`](crate::discrete::fft_convolution::fft_convolve_2d).
+//!
+//! See the book entry [Image filtering](https://jwkunz.github.io/lib_jsl/book/image/filtering.html#convolution-and-border-modes).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::Array2;

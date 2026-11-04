@@ -385,7 +385,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md) · 116 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 116 items
 
 #### Continuous
 
@@ -474,24 +474,24 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ###### Filters
 
-- Sobel
-- Gaussian blur
-- Histogram equalization
-- Sharpening
-- Wiener filtering
+- [Sobel](image/filtering.md#gradients-the-sobel-operator)
+- [Gaussian blur](image/filtering.md#gaussian-blur)
+- [Histogram equalization](image/restoration.md#histogram-equalisation)
+- [Sharpening](image/filtering.md#unsharp-masking)
+- [Wiener filtering](image/restoration.md#the-adaptive-wiener-filter)
 
 ###### Segmentation
 
-- Otsu's method
-- Canny edge detection
-- Watershed
+- [Otsu's method](image/segmentation.md#otsus-threshold)
+- [Canny edge detection](image/segmentation.md#canny-edges)
+- [Watershed](image/segmentation.md#the-watershed)
 
 ###### Feature extraction
 
-- SIFT (scale-invariant feature transform)
-- SURF (speeded-up robust features)
-- Hough transform
-- Blob detection
+- [SIFT (scale-invariant feature transform)](image/features.md#sift)
+- [SURF (speeded-up robust features)](image/features.md#surf-and-the-integral-image)
+- [Hough transform](image/hough.md#lines-in-normal-form)
+- [Blob detection](image/features.md#blobs-and-the-normalised-laplacian)
 
 ##### Filters
 

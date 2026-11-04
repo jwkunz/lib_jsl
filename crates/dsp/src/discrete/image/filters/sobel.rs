@@ -13,6 +13,8 @@
 //! `Gx` responds to intensity increasing to the right (along the column index) and `Gy` to
 //! intensity increasing downward (along the row index). Their raw output is the gradient times 8;
 //! pass `normalize = true` to get the gradient in intensity units per pixel.
+//!
+//! See the book entry [Image filtering](https://jwkunz.github.io/lib_jsl/book/image/filtering.html#gradients-the-sobel-operator).
 
 use crate::discrete::image::convolution::{correlate2d, Border};
 use lib_jsl_core::ErrorsJSL;

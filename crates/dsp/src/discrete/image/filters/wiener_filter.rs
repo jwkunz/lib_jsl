@@ -13,6 +13,8 @@
 //!   `F̂ = conj(H) / (|H|² + K) · G`, where `K` is the noise-to-signal power ratio. With `K → 0` this
 //!   is plain inverse filtering (which explodes wherever `H` is small); `K > 0` rolls the gain off
 //!   there, trading residual blur for noise suppression.
+//!
+//! See the book entry [Contrast and restoration](https://jwkunz.github.io/lib_jsl/book/image/restoration.html#the-adaptive-wiener-filter).
 
 use crate::discrete::fft_convolution::fft2d;
 use crate::discrete::image::convolution::{separable_convolve, Border};

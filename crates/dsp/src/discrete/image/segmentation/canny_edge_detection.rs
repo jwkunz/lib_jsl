@@ -12,6 +12,8 @@
 //!
 //! Thresholds are on the gradient magnitude in intensity units per pixel. The outermost pixel
 //! border is never marked.
+//!
+//! See the book entry [Segmentation](https://jwkunz.github.io/lib_jsl/book/image/segmentation.html#canny-edges).
 
 use crate::discrete::image::filters::{gaussian_blur::gaussian_blur, sobel::sobel};
 use lib_jsl_core::ErrorsJSL;

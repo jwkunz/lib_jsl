@@ -2,41 +2,48 @@ use std::f64::consts::PI;
 
 use super::{extend, len_guard, truncate};
 
-/// The Chebyshev window is defined by a specific mathematical formula that involves the hyperbolic cosine function and the inverse hyperbolic cosine function. The coefficients are computed based on the position within the window, the total length, and the attenuation parameter `at`, which controls the shape of the window and its spectral properties.
+/// The Dolph-Chebyshev window of length `m` with side lobes `at` dB below the main lobe.
+///
+/// Its transform is the Chebyshev polynomial `T_{m−1}(β cos(πk/m))`, with
+/// `β = cosh(acosh(10^{at/20}) / (m − 1))`, which has all side lobes at the same level and the
+/// narrowest main lobe for that level. The window is obtained from it by a DFT, centred and
+/// normalised to a peak of 1, following SciPy's `chebwin`.
 pub fn chebwin(m: usize, at: f64, sym: bool) -> Vec<f64> {
     if let Some(w) = len_guard(m) {
         return w;
     }
     let (m2, needs_trunc) = extend(m, sym);
-    let beta = ((10_f64.powf(at / 20.0)).acosh() / m2 as f64).cosh();
-    let den = (m2 as f64 * beta.acosh()).cosh();
-    let mut wf = vec![0.0; m2];
-    for (k, v) in wf.iter_mut().enumerate() {
-        let x = beta * (PI * k as f64 / m2 as f64).cos();
-        *v = if x.abs() <= 1.0 {
-            (m2 as f64 * x.acos()).cos() / den
-        } else if x > 1.0 {
-            (m2 as f64 * x.acosh()).cosh() / den
-        } else {
-            let s = if m2 % 2 == 0 { 1.0 } else { -1.0 };
-            s * (m2 as f64 * (-x).acosh()).cosh() / den
-        };
-    }
-    let mut w = vec![0.0; m2];
-    for (n, wn) in w.iter_mut().enumerate() {
-        let mut acc = 0.0;
-        for (k, wk) in wf.iter().enumerate() {
-            let phase = 2.0 * PI * k as f64 * (n as f64 - (m2 as f64 - 1.0) / 2.0) / m2 as f64;
-            acc += *wk * phase.cos();
-        }
-        *wn = acc / m2 as f64;
-    }
-    let maxv = w.iter().fold(0.0_f64, |a, &b| a.max(b.abs()));
-    if maxv > 0.0 {
-        for v in &mut w {
-            *v /= maxv;
-        }
-    }
+    let order = m2 as f64 - 1.0;
+    let beta = ((10_f64.powf(at.abs() / 20.0)).acosh() / order).cosh();
+    let p: Vec<f64> = (0..m2)
+        .map(|k| {
+            let x = beta * (PI * k as f64 / m2 as f64).cos();
+            if x > 1.0 {
+                (order * x.acosh()).cosh()
+            } else if x < -1.0 {
+                let sign = if m2 % 2 == 1 { 1.0 } else { -1.0 };
+                sign * (order * (-x).acosh()).cosh()
+            } else {
+                (order * x.acos()).cos()
+            }
+        })
+        .collect();
+    // The real part of the DFT of p (with a half-sample shift for even lengths).
+    let shift = if m2 % 2 == 1 { 0.0 } else { PI / m2 as f64 };
+    let dft = |n: usize| -> f64 {
+        p.iter().enumerate().map(|(k, &pk)| pk * (shift * k as f64 - 2.0 * PI * (k * n) as f64 / m2 as f64).cos()).sum()
+    };
+    let mut w: Vec<f64> = if m2 % 2 == 1 {
+        let half = m2.div_ceil(2);
+        let tail: Vec<f64> = (0..half).map(dft).collect();
+        tail[1..].iter().rev().chain(tail.iter()).copied().collect()
+    } else {
+        let half = m2 / 2 + 1;
+        let tail: Vec<f64> = (0..half).map(dft).collect();
+        tail[1..].iter().rev().chain(tail[1..].iter()).copied().collect()
+    };
+    let maxv = w.iter().fold(0.0_f64, |a, &b| a.max(b));
+    w.iter_mut().for_each(|v| *v /= maxv);
     truncate(w, needs_trunc)
 }
 

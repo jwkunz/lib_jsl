@@ -1,18 +1,14 @@
-//! Information theory routines for the `lib_jsl` workspace.
+//! Information theory and coding for the `lib_jsl` workspace.
 //!
-//! The crate currently exposes three classic dictionary-based compression
-//! families.
+//! - [`source_coders`]: lossless compression. The entropy coders [`huffman`], [`shannon_fano`]
+//!   and [`arithmetic`] and the dictionary coders [`lz77`], [`lz78`] and [`lzw`] share the
+//!   [`source_coder::SourceCoder`] trait; Gray codes are here too.
+//! - [`lfsr`]: linear feedback shift registers, maximum-length (primitive) polynomials and Gold
+//!   codes.
+//! - [`operators`]: entropy and related measures, the CRC-32 checksums and SHA-256.
+//! - [`forward_error_correction`]: error-correcting codes.
 //!
-//! - [`arithmetic`] for entropy coding with a static arithmetic interval model
-//! - [`huffman`] for entropy coding with a prefix-free binary tree
-//! - [`lz77`] for the sliding-window back-reference variant
-//! - [`lz78`] for explicit dictionary entry emission
-//! - [`lzw`] for the Welch-style evolving code table
-//! - [`shannon_fano`] for top-down probability splitting into prefix codes
-//!
-//! The implementation files now live under [`source_coders`], but the
-//! individual codec modules and the shared [`source_coder`] trait layer are
-//! re-exported at the crate root for convenience.
+//! The source coder modules and the [`source_coder`] trait are also re-exported at the crate root.
 
 pub mod forward_error_correction;
 pub mod lfsr;

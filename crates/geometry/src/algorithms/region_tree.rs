@@ -1,4 +1,6 @@
 //! A point region tree: the shared engine behind quad trees (`D = 2`) and oct trees (`D = 3`).
+//!
+//! See the book entry [Spatial trees](https://jwkunz.github.io/lib_jsl/book/geometry/spatial-trees.html#quadtrees-and-octrees).
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;

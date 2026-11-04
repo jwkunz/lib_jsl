@@ -1,4 +1,6 @@
 //! k-d trees for nearest-neighbour and range queries in `D` dimensions.
+//!
+//! See the book entry [Spatial trees](https://jwkunz.github.io/lib_jsl/book/geometry/spatial-trees.html#k-d-trees).
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
@@ -84,6 +86,7 @@ impl<const D: usize> KdTree<D> {
         out.into_iter().map(|c| (c.index, c.dist2.sqrt())).collect()
     }
 
+    // ANCHOR: k_nearest
     fn search_k(&self, slice: &[usize], depth: usize, q: &[f64; D], k: usize, heap: &mut BinaryHeap<Candidate>) {
         if slice.is_empty() {
             return;
@@ -106,6 +109,7 @@ impl<const D: usize> KdTree<D> {
             self.search_k(far, depth + 1, q, k, heap);
         }
     }
+    // ANCHOR_END: k_nearest
 
     /// Indices of all points within `radius` of `query` (inclusive), in unspecified order.
     pub fn within_radius(&self, query: [f64; D], radius: f64) -> Vec<usize> {

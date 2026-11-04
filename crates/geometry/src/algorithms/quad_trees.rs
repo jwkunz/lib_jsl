@@ -1,4 +1,6 @@
 //! Quad trees: point region trees in the plane.
+//!
+//! See the book entry [Spatial trees](https://jwkunz.github.io/lib_jsl/book/geometry/spatial-trees.html#quadtrees-and-octrees).
 
 use super::region_tree::RegionTree;
 

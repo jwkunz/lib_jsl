@@ -29,6 +29,7 @@ pub fn equalization_lut(hist: &[usize; 256]) -> [u8; 256] {
         running += h;
         cdf[i] = running;
     }
+    // ANCHOR: equalize
     let cdf_min = cdf.iter().copied().find(|&c| c > 0).unwrap_or(0);
     let mut lut = [0u8; 256];
     if total == cdf_min {
@@ -42,6 +43,7 @@ pub fn equalization_lut(hist: &[usize; 256]) -> [u8; 256] {
         let scaled = (cdf[i].saturating_sub(cdf_min)) as f64 / (total - cdf_min) as f64;
         lut[i] = (255.0 * scaled).round().clamp(0.0, 255.0) as u8;
     }
+    // ANCHOR_END: equalize
     lut
 }
 

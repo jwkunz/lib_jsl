@@ -31,6 +31,7 @@ pub fn wiener_filter(image: &Array2<f64>, window: usize, noise_variance: Option<
         && (!(v >= 0.0) || !v.is_finite()) {
             return Err(ErrorsJSL::InvalidInputRange("Noise variance must be non-negative and finite"));
         }
+    // ANCHOR: wiener_local
     let box_kernel = vec![1.0 / window as f64; window];
     let mean = separable_convolve(image, &box_kernel, &box_kernel, Border::Reflect)?;
     let squares = image.mapv(|v| v * v);
@@ -44,6 +45,7 @@ pub fn wiener_filter(image: &Array2<f64>, window: usize, noise_variance: Option<
             mean[i]
         }
     }))
+    // ANCHOR_END: wiener_local
 }
 
 /// Wiener deconvolution of `image` blurred by `psf`, with noise-to-signal power ratio
@@ -75,6 +77,7 @@ pub fn wiener_deconvolution(image: &Array2<f64>, psf: &Array2<f64>, noise_to_sig
         let cc2 = (c + n_cols - cc) % n_cols;
         h[(rr, cc2)] += Complex::new(v, 0.0);
     }
+    // ANCHOR: wiener_deconvolution
     let g = fft2d(&padded, false)?;
     let hf = fft2d(&h, false)?;
     let restored_f = Array2::from_shape_fn((n_rows, n_cols), |i| {
@@ -82,6 +85,7 @@ pub fn wiener_deconvolution(image: &Array2<f64>, psf: &Array2<f64>, noise_to_sig
         if denom < 1e-24 { Complex::new(0.0, 0.0) } else { hf[i].conj() / denom * g[i] }
     });
     let restored = fft2d(&restored_f, true)?;
+    // ANCHOR_END: wiener_deconvolution
     Ok(Array2::from_shape_fn((rows, cols), |(r, c)| restored[(r, c)].re))
 }
 

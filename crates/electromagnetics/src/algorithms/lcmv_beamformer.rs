@@ -1,4 +1,6 @@
 //! Linearly constrained minimum variance (LCMV) and MVDR beamformers.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 use crate::conventions::C64;
 use crate::linalg::{check_hermitian, hermitian_transpose};
@@ -21,6 +23,7 @@ pub fn lcmv_beamformer(covariance: &Array2<C64>, constraints: &Array2<C64>, resp
     if constraints.nrows() != n || m == 0 || m > n || response.len() != m {
         return Err(ErrorsJSL::InvalidInputRange("Need an N×M constraint matrix with 1 <= M <= N and M responses."));
     }
+    // ANCHOR: lcmv
     let lu = covariance.factorize().map_err(|_| ErrorsJSL::InvalidInputRange("The covariance is singular."))?;
     let mut rinv_c = Array2::<C64>::zeros((n, m));
     for k in 0..m {
@@ -30,6 +33,7 @@ pub fn lcmv_beamformer(covariance: &Array2<C64>, constraints: &Array2<C64>, resp
     let gram = hermitian_transpose(constraints).dot(&rinv_c);
     let g = gram.solve(&response.mapv(|v| v.conj())).map_err(|_| ErrorsJSL::InvalidInputRange("The constraints are linearly dependent."))?;
     Ok(rinv_c.dot(&g))
+    // ANCHOR_END: lcmv
 }
 
 /// The minimum-variance distortionless response beamformer: LCMV with the single constraint

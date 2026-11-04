@@ -1,4 +1,6 @@
 //! Arrays of sensors, each with a position and its own (embedded) far-field pattern.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 use crate::antenna_models::Antenna;
 use crate::conventions::{C64, Medium, TimeConvention};
@@ -190,10 +192,12 @@ impl SensorArray {
                 }
             }
         };
+        // ANCHOR: geometric_phase
         let r = dir.to_cartesian();
         let p = el.position;
         let phase = (self.convention.unit() * self.wavenumber() * (r[0] * p[0] + r[1] * p[1] + r[2] * p[2])).exp();
         Ok([g[0] * phase, g[1] * phase])
+        // ANCHOR_END: geometric_phase
     }
 
     /// The `N × 2` response matrix `A(Ω)` whose rows are the element responses.

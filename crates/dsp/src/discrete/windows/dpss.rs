@@ -1,3 +1,7 @@
+//! The discrete prolate spheroidal sequence (Slepian) window.
+//!
+//! See the book entry [Window functions](https://jwkunz.github.io/lib_jsl/book/spectral/windows.html#the-dolph-chebyshev-and-dpss-windows).
+
 use std::f64::consts::PI;
 
 use super::{extend, len_guard, truncate};
@@ -34,6 +38,7 @@ pub fn dpss(m: usize, nw: f64, sym: bool) -> Vec<f64> {
     let d: Vec<f64> = (0..m2).map(|n| ((m2 as f64 - 1.0 - 2.0 * n as f64) / 2.0).powi(2) * c).collect();
     let e: Vec<f64> = (1..m2).map(|n| (n as f64) * (m2 as f64 - n as f64) / 2.0).collect();
 
+    // ANCHOR: dpss_bisection
     // Gershgorin bounds, then bisection for the largest eigenvalue.
     let radius = |i: usize| (if i > 0 { e[i - 1].abs() } else { 0.0 }) + (if i + 1 < m2 { e[i].abs() } else { 0.0 });
     let (mut lo, mut hi) = (0..m2).fold((f64::INFINITY, f64::NEG_INFINITY), |(l, h), i| (l.min(d[i] - radius(i)), h.max(d[i] + radius(i))));
@@ -73,6 +78,7 @@ pub fn dpss(m: usize, nw: f64, sym: bool) -> Vec<f64> {
         let norm = x.iter().map(|t| t * t).sum::<f64>().sqrt();
         v = x.into_iter().map(|t| t / norm).collect();
     }
+    // ANCHOR_END: dpss_bisection
 
     // Match scipy Kmax=None style normalization.
     let maxv = v.iter().fold(0.0_f64, |a, &b| a.max(b.abs()));

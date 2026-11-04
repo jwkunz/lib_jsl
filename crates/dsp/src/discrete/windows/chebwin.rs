@@ -1,3 +1,7 @@
+//! The Dolph-Chebyshev window.
+//!
+//! See the book entry [Window functions](https://jwkunz.github.io/lib_jsl/book/spectral/windows.html#the-dolph-chebyshev-and-dpss-windows).
+
 use std::f64::consts::PI;
 
 use super::{extend, len_guard, truncate};

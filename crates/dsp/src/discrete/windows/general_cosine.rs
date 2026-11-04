@@ -1,3 +1,7 @@
+//! The general cosine-sum window.
+//!
+//! See the book entry [Window functions](https://jwkunz.github.io/lib_jsl/book/spectral/windows.html#families).
+
 use std::f64::consts::PI;
 
 use super::{extend, len_guard, linspace, truncate};
@@ -8,6 +12,7 @@ pub fn general_cosine(m: usize, a: &[f64], sym: bool) -> Vec<f64> {
         return w;
     }
     let (m2, needs_trunc) = extend(m, sym);
+    // ANCHOR: general_cosine
     let fac = linspace(-PI, PI, m2);
     let mut w = vec![0.0; m2];
     for (k, ak) in a.iter().enumerate() {
@@ -16,6 +21,7 @@ pub fn general_cosine(m: usize, a: &[f64], sym: bool) -> Vec<f64> {
         }
     }
     truncate(w, needs_trunc)
+    // ANCHOR_END: general_cosine
 }
 
 #[cfg(test)]

@@ -1,56 +1,38 @@
-/// Computes the greatest common divisor (GCD) of two unsigned 64-bit integers
-/// using the classical Euclidean algorithm.
+/// Computes the greatest common divisor (GCD) of two integers using the
+/// classical Euclidean algorithm.
 ///
 /// # Overview
 /// The greatest common divisor of two integers is the largest positive integer
 /// that divides both numbers without leaving a remainder. This implementation
-/// uses the Euclidean algorithm, which is based on the mathematical principle
-/// that:
+/// uses the Euclidean algorithm, based on
 ///
 /// ```text
 /// gcd(a, b) = gcd(b, a mod b)
 /// ```
 ///
-/// This process is repeated until the second operand becomes zero. At that
-/// point, the first operand contains the GCD.
-///
-/// # Algorithm
-/// 1. Accept two `u64` values, `a` and `b`.
-/// 2. While `b` is non-zero:
-///    - Compute the remainder of `a` divided by `b`.
-///    - Assign `b` to `a`.
-///    - Assign the remainder to `b`.
-/// 3. When `b` reaches zero, return `a`.
+/// repeated until the second operand becomes zero; the first operand is then
+/// the GCD up to sign, and its absolute value is returned.
 ///
 /// # Properties
-/// - **Time Complexity:** O(log(min(a, b)))
+/// - **Time Complexity:** O(log(min(|a|, |b|)))
 /// - **Space Complexity:** O(1)
-/// - **Deterministic:** Always produces the same result for the same inputs
-/// - **Safe:** Uses only safe Rust constructs and does not allocate memory
 ///
 /// # Edge Cases
-/// - If one of the inputs is zero, the function returns the other input.
-/// - If both inputs are zero, the function returns zero. While mathematically
-///   the GCD of (0, 0) is undefined, returning zero is a common and practical
-///   convention in software systems.
-///
-/// # Parameters
-/// - `a`: The first unsigned integer.
-/// - `b`: The second unsigned integer.
-///
-/// # Returns
-/// The greatest common divisor of `a` and `b` .
+/// - The result is never negative: `gcd(4, -6) = 2`.
+/// - If one of the inputs is zero, the function returns the absolute value of the other.
+/// - If both inputs are zero, the function returns zero (a common convention).
+/// - `i128::MIN` with zero (or with itself) has no representable GCD and overflows.
 pub fn gcd(mut a: i128, mut b: i128) -> i128 {
     while b != 0 {
         let remainder = a % b;
         a = b;
         b = remainder;
     }
-    a
+    a.abs()
 }
 
-/// Computes the greatest common divisor (GCD) of two unsigned 64-bit integers
-/// and finds integer coefficients `x` and `y` such that:
+/// Computes the greatest common divisor (GCD) of two integers and finds
+/// integer coefficients `x` and `y` such that:
 ///
 /// ```text
 /// a·x + b·y = gcd(a, b)
@@ -59,45 +41,18 @@ pub fn gcd(mut a: i128, mut b: i128) -> i128 {
 /// # Overview
 /// This function implements the **Extended Euclidean Algorithm**, which extends
 /// the classical Euclidean algorithm by additionally computing the Bézout
-/// coefficients. These coefficients are frequently used in number theory,
-/// cryptography, and modular arithmetic (e.g., computing modular inverses).
-///
-/// While the inputs `a` and `b` are `u64`, the coefficients `x` and `y` may be
-/// negative. Therefore, they are returned as signed 128-bit integers (`i128`)
-/// to ensure sufficient range and avoid overflow during intermediate
-/// calculations.
-///
-/// # Algorithm
-/// The extended Euclidean algorithm is based on the recursive relationship:
-///
-/// ```text
-/// gcd(a, b) = gcd(b, a mod b)
-/// ```
-///
-/// Along with the invariant:
-///
-/// ```text
-/// a·x + b·y = gcd(a, b)
-/// ```
-///
-/// The algorithm proceeds iteratively, updating the coefficients until the
-/// remainder becomes zero.
+/// coefficients, as used for modular inverses and the Chinese remainder theorem.
+/// The algorithm keeps the invariant `a·s + b·t = r` for each remainder `r`
+/// while running the Euclidean recurrence `gcd(a, b) = gcd(b, a mod b)`.
 ///
 /// # Properties
-/// - **Time Complexity:** O(log(min(a, b)))
+/// - **Time Complexity:** O(log(min(|a|, |b|)))
 /// - **Space Complexity:** O(1)
-/// - **Deterministic:** Produces consistent results for identical inputs
-/// - **Safe:** Uses only safe Rust constructs and does not allocate memory
 ///
 /// # Edge Cases
-/// - If `b == 0`, the function returns `(a, 1, 0)`, since `a·1 + 0·0 = a`.
-/// - If `a == 0`, the function returns `(b, 0, 1)`, since `0·0 + b·1 = b`.
-/// - If both inputs are zero, the function returns `(0, 0, 0)`. Although
-///   mathematically undefined, this is a pragmatic convention.
-///
-/// # Parameters
-/// - `a`: The first unsigned 64-bit integer.
-/// - `b`: The second unsigned 64-bit integer.
+/// - The returned `g` is never negative (the coefficients' signs are adjusted to match).
+/// - If `b == 0`, the function returns `(|a|, ±1, 0)`.
+/// - If both inputs are zero, the function returns `(0, 0, 0)`.
 ///
 /// # Returns
 /// A tuple `(g, x, y)` where:
@@ -135,15 +90,29 @@ pub fn extended_gcd(a: i128, b: i128) -> (i128, i128, i128) {
         t = temp_t;
     }
 
-    // At this point:
-    // old_r is the GCD
-    // old_s and old_t are the Bézout coefficients
-    (old_r, old_s, old_t)
+    // At this point old_r is the GCD up to sign, and old_s and old_t are the Bézout
+    // coefficients; make the GCD non-negative.
+    if old_r < 0 {
+        (-old_r, -old_s, -old_t)
+    } else {
+        (old_r, old_s, old_t)
+    }
 }
 
 #[cfg(test)]
 mod test{
     use super::*;
+
+    #[test]
+    fn the_gcd_is_never_negative() {
+        assert_eq!(gcd(4, -6), 2);
+        assert_eq!(gcd(-4, -6), 2);
+        assert_eq!(gcd(-5, 0), 5);
+        for (a, b) in [(4i128, -6i128), (-4, 6), (-4, -6), (-35, 0), (0, -9), (240, -46)] {
+            let (g, x, y) = extended_gcd(a, b);
+            assert!(g >= 0 && a * x + b * y == g && g == gcd(a, b), "({a}, {b}) -> ({g}, {x}, {y})");
+        }
+    }
 
     #[test]
     fn test_gcd(){

@@ -12,6 +12,8 @@
 //!   functions gives the spherical wave amplitudes, hence the far field in every direction.
 //!
 //! The engineering convention `e^{+jωt}` is used internally; inputs and outputs are converted.
+//!
+//! See the book entry [Spherical waves and near-field to far-field transformation](https://jwkunz.github.io/lib_jsl/book/em-waves/near-to-far.html).
 
 use crate::conventions::{C64, TimeConvention};
 use crate::fields::spherical_waves::{SphericalWaveExpansion, gauss_legendre, hankel, vector_spherical_harmonics};
@@ -52,6 +54,7 @@ pub fn planar_near_to_far(xs: &[f64], ys: &[f64], ex: &Array2<C64>, ey: &Array2<
     Ok(directions
         .iter()
         .map(|&(theta, phi)| {
+            // ANCHOR: planar_spectrum
             let (kx, ky, kz) = (k * theta.sin() * phi.cos(), k * theta.sin() * phi.sin(), k * theta.cos());
             // Separable phase factors.
             let px: Vec<C64> = xs.iter().map(|&x| C64::from_polar(1.0, kx * x)).collect();
@@ -69,6 +72,7 @@ pub fn planar_near_to_far(xs: &[f64], ys: &[f64], ex: &Array2<C64>, ey: &Array2<
             let (s, c) = phi.sin_cos();
             let f_theta = j * k / TAU * (ax * c + ay * s);
             let f_phi = j * k * theta.cos() / TAU * (ay * c - ax * s);
+            // ANCHOR_END: planar_spectrum
             [f_theta, f_phi].map(|v| TimeConvention::PlusJ.convert(v, convention))
         })
         .collect())

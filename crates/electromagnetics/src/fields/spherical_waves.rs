@@ -12,6 +12,8 @@
 //! so projecting a pattern onto `Φ_nm` and `Ψ_nm` gives the wave amplitudes, from which the
 //! field follows at any radius outside the minimum sphere. A source of electrical radius
 //! `k r₀` needs degrees up to about `k r₀ + 10`.
+//!
+//! See the book entry [Spherical waves and near-field to far-field transformation](https://jwkunz.github.io/lib_jsl/book/em-waves/near-to-far.html).
 
 use crate::conventions::{C64, Medium, TimeConvention};
 use lib_jsl_core::ErrorsJSL;
@@ -98,6 +100,7 @@ impl SphericalWaveExpansion {
         let (mut a, mut b) = (vec![C64::new(0.0, 0.0); size], vec![C64::new(0.0, 0.0); size]);
         let thetas = gauss_legendre(max_degree as usize + 2);
         let phis = 2 * max_degree as usize + 2;
+        // ANCHOR: swe_projection
         for &(x, w) in &thetas {
             let theta = x.acos();
             for p in 0..phis {
@@ -114,6 +117,7 @@ impl SphericalWaveExpansion {
                 }
             }
         }
+        // ANCHOR_END: swe_projection
         let k = TAU * frequency / C0;
         let j = C64::new(0.0, 1.0);
         let mut te = vec![C64::new(0.0, 0.0); size];

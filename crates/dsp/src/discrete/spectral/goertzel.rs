@@ -1,4 +1,6 @@
 //! The Goertzel algorithm for single DFT bins.
+//!
+//! See the book entry [Spectra at chosen frequencies: Goertzel, chirp-z and Fourier integrals](https://jwkunz.github.io/lib_jsl/book/spectral/chosen-frequencies.html#goertzels-recursion).
 
 use lib_jsl_core::ErrorsJSL;
 use num_complex::Complex;
@@ -13,6 +15,7 @@ pub fn goertzel(x: &[f64], k: f64) -> Result<Complex<f64>, ErrorsJSL> {
     if n == 0 || !k.is_finite() {
         return Err(ErrorsJSL::InvalidInputRange("Need a non-empty signal and a finite bin."));
     }
+    // ANCHOR: goertzel
     let omega = TAU * k / n as f64;
     let coefficient = 2.0 * omega.cos();
     let (mut s1, mut s2) = (0.0, 0.0);
@@ -24,6 +27,7 @@ pub fn goertzel(x: &[f64], k: f64) -> Result<Complex<f64>, ErrorsJSL> {
     // y_{N−1} = s_{N−1} − e^{−iω} s_{N−2} = e^{iω(N−1)} X(k); undo the phase.
     let y = Complex::new(s1, 0.0) - Complex::from_polar(1.0, -omega) * s2;
     Ok(y * Complex::from_polar(1.0, -omega * (n - 1) as f64))
+    // ANCHOR_END: goertzel
 }
 
 /// `|X(k)|²` at bin `k` without the final complex rotation:

@@ -13,6 +13,8 @@
 //!
 //! This implementation uses the Bluestein/Rabiner reformulation so the CZT is
 //! computed via FFT-based convolution instead of a direct `O(N*M)` sum.
+//!
+//! See the book entry [Spectra at chosen frequencies: Goertzel, chirp-z and Fourier integrals](https://jwkunz.github.io/lib_jsl/book/spectral/chosen-frequencies.html#the-chirp-z-transform).
 
 use std::f64::consts::PI;
 
@@ -86,6 +88,7 @@ pub fn chirpz<T: IsAnalytic>(
         return Err(ErrorsJSL::InvalidInputRange("w must be non-zero"));
     }
 
+    // ANCHOR: chirpz
     let g_len = m + n - 1;
     let conv_len = n + g_len - 1;
     let fft_len = conv_len.next_power_of_two();
@@ -103,6 +106,7 @@ pub fn chirpz<T: IsAnalytic>(
         let qf = q as f64;
         v[(q + (n as isize - 1)) as usize] = complex_powf(w, -0.5 * qf * qf)?;
     }
+    // ANCHOR_END: chirpz
 
     let mut fft = Fft::new();
     fft.plan(

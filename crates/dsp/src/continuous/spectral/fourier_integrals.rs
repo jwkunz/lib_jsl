@@ -6,6 +6,8 @@
 //! The integral is approximated by the trapezoidal rule on `M` evenly spaced
 //! samples over the support. A chirp-z transform evaluates the requested
 //! evenly spaced frequencies using the crate's `Fft` implementation.
+//!
+//! See the book entry [Spectra at chosen frequencies: Goertzel, chirp-z and Fourier integrals](https://jwkunz.github.io/lib_jsl/book/spectral/chosen-frequencies.html#fourier-integrals).
 
 use num_complex::Complex;
 use std::f64::consts::TAU;

@@ -50,7 +50,7 @@ fn main() {
         patch.inset_for_resistance(f, 50.0).unwrap() * 1e3
     );
     let dish = Dish::new(10.0 * lambda);
-    println!("  dish: half-power beamwidth {:.2}° (≈ 1.02 λ/D = {:.2}°)\n", dish.half_power_beamwidth(f).to_degrees(), (1.02 / 10.0f64).to_degrees());
+    println!("  dish: half-power beamwidth {:.2}° (uniform circular aperture: 1.029 λ/D = {:.2}°)\n", dish.half_power_beamwidth(f).to_degrees(), (1.029 / 10.0f64).to_degrees());
 
     for (title, antenna, phi) in [
         ("half-wave dipole, E-plane (relative dB, floor -30)", &models[2].1, 0.0),

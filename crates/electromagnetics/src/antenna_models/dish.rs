@@ -123,7 +123,7 @@ mod tests {
         let numeric = radiated_power(&e, &crate::conventions::Medium::VACUUM).unwrap();
         // The Huygens far field is approximate off boresight; agreement is close for D ≫ λ.
         assert!((numeric - dish.radiated_power(f)).abs() < 0.03 * numeric, "{numeric} vs {}", dish.radiated_power(f));
-        // Uniform illumination: HPBW ≈ 1.02 λ/D. Tapering widens it.
+        // Uniform illumination: HPBW = 1.029 λ/D. Tapering widens it.
         let uniform = Dish::new(20.0 * lambda);
         let hpbw = uniform.half_power_beamwidth(f);
         assert!((hpbw - 1.029 * lambda / (20.0 * lambda)).abs() < 2e-3 * hpbw.max(1.0), "{hpbw}");

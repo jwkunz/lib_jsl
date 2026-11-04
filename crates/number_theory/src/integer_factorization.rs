@@ -1,4 +1,6 @@
 //! Factorization of 64-bit integers.
+//!
+//! See the book entry [Primes: sieves, Miller–Rabin and factorisation](https://jwkunz.github.io/lib_jsl/book/number-theory/primes.html).
 
 use crate::primality::{is_prime, mul_mod};
 
@@ -18,6 +20,7 @@ pub fn pollard_rho(n: u64) -> u64 {
     for c in 1..n {
         // x² mod n + c can exceed u64::MAX when n is within c of 2^64; add in u128.
         let f = |x: u64| ((mul_mod(x, x, n) as u128 + c as u128) % n as u128) as u64;
+        // ANCHOR: brent_rho
         let (mut y, mut r, mut q) = (2u64, 1u64, 1u64);
         let (mut x, mut ys, mut g) = (0, 0, 1);
         const BATCH: u64 = 128;
@@ -38,6 +41,7 @@ pub fn pollard_rho(n: u64) -> u64 {
             }
             r *= 2;
         }
+        // ANCHOR_END: brent_rho
         if g == n {
             // The batch overshot: step back one at a time.
             loop {

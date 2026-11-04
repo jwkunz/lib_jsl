@@ -1,4 +1,6 @@
 //! Prime sieves.
+//!
+//! See the book entry [Primes: sieves, Miller–Rabin and factorisation](https://jwkunz.github.io/lib_jsl/book/number-theory/primes.html).
 
 /// All primes `≤ n` by the sieve of Eratosthenes over odd numbers only (`n/16` bytes of
 /// work space as a bit set), in `O(n log log n)` time.
@@ -9,6 +11,7 @@ pub fn sieve_of_eratosthenes(n: u64) -> Vec<u64> {
     // Bit i represents the odd number 2i + 1.
     let count = n.div_ceil(2) as usize;
     let mut composite = vec![0u64; count.div_ceil(64)];
+    // ANCHOR: eratosthenes
     let mut i = 1usize;
     while (2 * i + 1) * (2 * i + 1) <= n as usize {
         if composite[i / 64] >> (i % 64) & 1 == 0 {
@@ -21,6 +24,7 @@ pub fn sieve_of_eratosthenes(n: u64) -> Vec<u64> {
         }
         i += 1;
     }
+    // ANCHOR_END: eratosthenes
     let mut primes = vec![2];
     primes.extend((1..count).filter(|&i| composite[i / 64] >> (i % 64) & 1 == 0).map(|i| (2 * i + 1) as u64));
     primes

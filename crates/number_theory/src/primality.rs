@@ -1,4 +1,6 @@
 //! Deterministic primality testing for 64-bit integers.
+//!
+//! See the book entry [Primes: sieves, Miller–Rabin and factorisation](https://jwkunz.github.io/lib_jsl/book/number-theory/primes.html).
 
 /// `a · b mod m` without overflow.
 pub fn mul_mod(a: u64, b: u64, m: u64) -> u64 {
@@ -31,6 +33,7 @@ pub fn is_strong_probable_prime(n: u64, a: u64) -> bool {
     if a == 0 {
         return true;
     }
+    // ANCHOR: miller_rabin
     let s = (n - 1).trailing_zeros();
     let d = (n - 1) >> s;
     let mut x = pow_mod(a, d, n);
@@ -44,6 +47,7 @@ pub fn is_strong_probable_prime(n: u64, a: u64) -> bool {
         }
     }
     false
+    // ANCHOR_END: miller_rabin
 }
 
 /// Deterministic primality for every `u64`: Miller-Rabin with the first twelve prime bases,

@@ -4,6 +4,8 @@
 //! about it, `H(f) + H(½ − f) = 1`. Its impulse response is then zero at every even offset from
 //! the centre except the centre itself (`½`), so nearly half the taps vanish, and a decimator
 //! or interpolator by two needs only about `N/4` multiplies per output.
+//!
+//! See the book entry [Resampling: polyphase, half-band and CIC filters](https://jwkunz.github.io/lib_jsl/book/spectral/resampling.html#half-band-filters).
 
 use crate::discrete::windows::kaiser::kaiser;
 use lib_jsl_core::ErrorsJSL;

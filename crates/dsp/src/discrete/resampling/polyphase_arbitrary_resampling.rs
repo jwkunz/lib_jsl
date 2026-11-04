@@ -1,3 +1,7 @@
+//! Streaming resampling by an integer up rate and a real down rate.
+//!
+//! See the book entry [Resampling: polyphase, half-band and CIC filters](https://jwkunz.github.io/lib_jsl/book/spectral/resampling.html#arbitrary-ratios).
+
 
 use crate::{
     dsp::discrete::{

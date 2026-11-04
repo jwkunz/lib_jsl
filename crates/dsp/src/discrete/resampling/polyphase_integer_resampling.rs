@@ -1,3 +1,7 @@
+//! Streaming rational-ratio resampling by polyphase filtering.
+//!
+//! See the book entry [Resampling: polyphase, half-band and CIC filters](https://jwkunz.github.io/lib_jsl/book/spectral/resampling.html#polyphase-resampling).
+
 use std::collections::VecDeque;
 
 use crate::{
@@ -41,6 +45,7 @@ impl<T: IsAnalytic> PolyphaseEngine<T> {
     }
 
     /// Emits every output whose inputs are all available, considering only positions below `end`.
+    // ANCHOR: polyphase
     fn drain(&mut self, end: usize, out: &mut Vec<T>) {
         let len = self.taps.len();
         loop {
@@ -58,6 +63,7 @@ impl<T: IsAnalytic> PolyphaseEngine<T> {
             out.push(acc);
             self.next += 1;
         }
+    // ANCHOR_END: polyphase
         // Forget inputs that no future output can reach.
         let p = self.position(self.next);
         let needed_from = if p + 1 > len { (p + 1 - len).div_ceil(self.up) } else { 0 };

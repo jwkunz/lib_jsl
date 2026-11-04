@@ -1,0 +1,145 @@
+# Resampling: polyphase, half-band and CIC filters
+
+<div class="entry-summary">
+
+| | |
+|---|---|
+| **Problem** | Change a signal's sampling rate by a rational or arbitrary factor without aliasing or imaging, at the lowest cost per sample |
+| **Devised by** | Ronald Schafer and Lawrence Rabiner (1973), digital interpolation; Maurice Bellanger, Georges Bonnerot and M. Coudreuse (1976), polyphase decomposition; Ronald Crochiere and Lawrence Rabiner (1983), the standard text; Eugene Hogenauer (1981), the cascaded integrator-comb (CIC) filter |
+| **Accuracy** | The polyphase resampler equals SciPy's `upfirdn` exactly, including its length; the CIC impulse response matches its closed form to $10^{-16}$ |
+| **Cost** | Polyphase: $L/U$ multiplies per output for a filter of $L$ taps and upsampling $U$. Half-band: about $L/4$ per output. CIC: no multiplies |
+| **API** | [`PolyphaseIntegerResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_integer_resampling/struct.PolyphaseIntegerResampler.html), [`PolyphaseArbitraryResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_arbitrary_resampling/struct.PolyphaseArbitraryResampler.html), [`halfband_lowpass`](../../api/lib_jsl_dsp/discrete/resampling/half_band/fn.halfband_lowpass.html), [`HalfBandDecimator`](../../api/lib_jsl_dsp/discrete/resampling/half_band/struct.HalfBandDecimator.html), [`HalfBandInterpolator`](../../api/lib_jsl_dsp/discrete/resampling/half_band/struct.HalfBandInterpolator.html), [`CicDecimator`](../../api/lib_jsl_dsp/discrete/resampling/cic/struct.CicDecimator.html), [`CicInterpolator`](../../api/lib_jsl_dsp/discrete/resampling/cic/struct.CicInterpolator.html), [`cic_magnitude_response`](../../api/lib_jsl_dsp/discrete/resampling/cic/fn.cic_magnitude_response.html) |
+
+</div>
+
+## Overview
+
+Audio moves between 44.1 and 48 kHz, radios decimate from megasamples to kilosamples per second, and images are scaled. Changing a sampling rate by $U/D$
+means conceptually: insert $U - 1$ zeros between samples (**upsampling**, which creates spectral **images**), low-pass filter, and keep every $D$-th sample (**downsampling**, which **aliases** anything above the new Nyquist). Done literally,
+most of the multiplications are by the inserted zeros or produce samples that are thrown away. **Polyphase** filtering computes only the outputs that are kept, from only the
+nonzero inputs. Two special filters push the cost down further: **half-band** filters, with almost half their taps zero, for factors of two, and **CIC** filters,
+which need no multiplications at all, for large factors.
+
+## History
+
+Ronald Schafer and Lawrence Rabiner (1973) set out the theory of digital interpolation by an integer factor. Maurice Bellanger, Georges
+Bonnerot and M. Coudreuse (1976) introduced the polyphase decomposition, splitting a filter into $U$ subfilters that run at the low rate.
+Eugene Hogenauer (1981) designed the cascaded integrator-comb filter for hardware decimators. It is now in nearly every digital radio
+receiver. Ronald Crochiere and Lawrence Rabiner's *Multirate Digital Signal Processing* (1983) and P. P. Vaidyanathan's *Multirate Systems and Filter Banks* (1993) are the standard texts.
+
+## The idea
+
+### Polyphase resampling
+
+Write the upsampled signal as $u[j] = x[j/U]$ when $U$ divides $j$, and 0 otherwise. Filtering with $h$ and keeping every $D$-th sample gives
+
+$$
+y[m] = \sum_kh[k]\,u[mD - k] = \sum_jh[mD - jU]\,x[j],
+$$
+
+the sum running over the inputs $j$ whose tap index $mD - jU$ lies in $[0, L)$. Only $\lceil L/U\rceil$ terms appear, using one **phase** $\{h[p], h[p + U], \ldots\}$ of the filter, with $p = mD \bmod U$. This is SciPy's `upfirdn`, and
+[`PolyphaseIntegerResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_integer_resampling/struct.PolyphaseIntegerResampler.html) computes it as a stream, multiplying the taps by $U$ so that interpolation keeps unit gain (as `resample_poly` does).
+Without taps, it designs a Kaiser-window low-pass with cutoff $1/\max(U, D)$ of the high-rate Nyquist and 60 dB attenuation.
+
+![Interpolation by 4](../generated/spectral/interpolation.svg)
+
+Writing this chapter fixed both polyphase resamplers. They pushed an input and its $U - 1$ stuffed zeros into the history and then computed every
+output due for that input from the same history. All outputs between two inputs were therefore equal: upsampling by 3 turned $0, 3, 6$ into
+$0, 0, 0, 3, 3, 3, 6, 6, 6$. They also applied asymmetric filters reversed. The tests used a single unit tap, for which neither error shows.
+
+### Arbitrary ratios
+
+[`PolyphaseArbitraryResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_arbitrary_resampling/struct.PolyphaseArbitraryResampler.html) allows a real $D$. Output $m$ takes the filtered upsampled signal at position $\lfloor mD\rfloor$, so output times are rounded to the
+nearest point below on a grid $U$ times finer than the input. The error in time is less than $1/U$ input samples:
+
+{{#include ../generated/spectral/arbitrary_resampling.md}}
+
+Against the rounded times the output is accurate to the filter's stopband; against the exact times the rounding error falls in proportion to $1/U$. A
+large $U$ costs only memory for the filter, not computation, because each output uses one phase.
+
+### Half-band filters
+
+A **half-band** filter has its cutoff at a quarter of the sampling rate and a response symmetric about it, $H(f) + H(\frac12 - f) = 1$. Its impulse response, $h[n] = \frac12\operatorname{sinc}(n/2)$ windowed, is zero at every even offset from the centre except the centre itself,
+where it is $\frac12$:
+
+![Half-band filter](../generated/spectral/halfband.svg)
+
+{{#include ../generated/spectral/halfband_facts.md}}
+
+Decimating by two needs only every other output, and of those only the nonzero taps: about $L/4$ multiplies per output. Cascades of half-band stages
+are the usual way to decimate by powers of two.
+
+### CIC filters
+
+A moving sum of length $RM$, $H(z) = \frac{1 - z^{-RM}}{1 - z^{-1}}$, can be built from an **integrator** $1/(1 - z^{-1})$ at the high rate and a **comb** $1 - z^{-M}$ at the low rate, with the rate change in between. $N$ cascaded integrators
+and $N$ combs give
+
+$$
+|H(f)| = \left|\frac{\sin(\pi RMf)}{\sin(\pi f)}\right|^N,
+$$
+
+with nulls at every multiple of the output rate, where aliases would land, and no multiplications at all:
+
+![CIC response](../generated/spectral/cic_response.svg)
+
+More stages deepen the nulls and widen the attenuation around them, but also increase the **droop**, the falling gain across the passband, which a short compensating FIR filter at
+the low rate corrects. The integrators' registers overflow by design. In two's complement arithmetic the wrap-around cancels exactly in the
+combs, as long as the output fits, which is why the library's CIC filters work on `i64`. {{#include ../generated/spectral/cic_facts.md}}
+
+## Algorithm
+
+1. **Polyphase stream**: keep the recent inputs; for the next output position $p = \lfloor mD\rfloor$, once input $\lfloor p/U\rfloor$ has arrived, sum $h[p - jU]x[j]$ over the
+   inputs in range; drop inputs no future output needs. `flush` appends zeros until position $(N - 1)U + L$.
+2. **Half-band decimator**: per pair of inputs, the centre tap times the delayed sample plus the odd-offset taps.
+3. **CIC decimator**: $N$ wrapping integrators per input; every $R$-th input, $N$ combs of delay $M$.
+
+## Implementation
+
+```rust,ignore
+{{#include ../../../crates/dsp/src/discrete/resampling/polyphase_integer_resampling.rs:polyphase}}
+```
+
+```rust,ignore
+{{#include ../../../crates/dsp/src/discrete/resampling/cic.rs:cic}}
+```
+
+- Both polyphase resamplers share one engine and implement [`StreamOperator`](../../api/lib_jsl_dsp/discrete/stream_operator/trait.StreamOperator.html). The integer resampler reduces $U/D$ to lowest terms.
+- The output is delayed by the filter's group delay, $(L - 1)/2$ high-rate samples for a linear-phase filter, as with `upfirdn`. Unlike `resample_poly`, no samples are trimmed.
+
+## In practice
+
+```rust,ignore
+{{#include ../../../crates/dsp/examples/dsp_resampling.rs}}
+```
+
+```text
+44.1 → 48 kHz: 4410 samples in, 4816 out; RMS 0.7070 (sine: 0.7071)
+arbitrary 1/1.25: 3528 outputs from 4410
+half-band: 23 taps, 10 zero; 2205 outputs
+CIC R = 16, N = 4: steady output 6553600 = 100 × gain 65536
+```
+
+**Strengths**
+
+- Exact rational resampling at the low rate's cost; any ratio with bounded timing error.
+- Half-band and CIC filters make large power-of-two and integer factors cheap.
+
+**Weaknesses**
+
+- The arbitrary resampler rounds output times; a fractional-delay interpolator (such as a Farrow filter) is needed for exact timing with a small $U$.
+- CIC filters droop and alias near the band edges, and need integer arithmetic and compensation.
+
+## Exercises
+
+1. Show that upsampling by $U$ compresses the spectrum by $U$ and creates $U - 1$ images, and that downsampling by $D$ aliases the spectrum $D - 1$ times.
+2. Show that the polyphase sum uses only $\lceil L/U\rceil$ taps per output.
+3. Prove that the half-band impulse response vanishes at even nonzero offsets, and that $H(f) + H(\frac12 - f) = 1$.
+4. Show that $N$ integrators followed by $N$ combs compute the $N$-fold moving sum even when the integrators overflow in two's complement arithmetic.
+5. Find how many bits a CIC decimator with $R = 64$, $M = 1$, $N = 5$ and 16-bit input needs in its registers (Hogenauer's rule).
+
+## Further reading
+
+- R. E. Crochiere and L. R. Rabiner, *Multirate Digital Signal Processing*, Prentice Hall, 1983.
+- E. B. Hogenauer, "An economical class of digital filters for decimation and interpolation", *IEEE Transactions on Acoustics, Speech, and Signal Processing* 29 (1981) 155–162.
+- P. P. Vaidyanathan, *Multirate Systems and Filter Banks*, Prentice Hall, 1993.
+- R. W. Schafer and L. R. Rabiner, "A digital signal processing approach to interpolation", *Proceedings of the IEEE* 61 (1973) 692–702.

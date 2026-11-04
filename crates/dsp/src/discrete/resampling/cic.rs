@@ -5,6 +5,8 @@
 //! `H(z) = ((1 − z^{−RM}) / (1 − z^{−1}))^N`, magnitude `|sin(πRMf) / sin(πf)|^N` and DC gain
 //! `(RM)^N`. Integer (two's complement) arithmetic is required: the integrators overflow by
 //! design, and the wrap-around cancels exactly in the combs as long as the output itself fits.
+//!
+//! See the book entry [Resampling: polyphase, half-band and CIC filters](https://jwkunz.github.io/lib_jsl/book/spectral/resampling.html#cic-filters).
 
 use lib_jsl_core::ErrorsJSL;
 use std::collections::VecDeque;
@@ -61,6 +63,7 @@ impl CicDecimator {
     }
 
     /// Consumes input samples and returns the decimated outputs produced (one per `R` inputs).
+    // ANCHOR: cic
     pub fn process(&mut self, x: &[i64]) -> Vec<i64> {
         let mut out = Vec::with_capacity(x.len() / self.rate + 1);
         for &v in x {
@@ -77,6 +80,7 @@ impl CicDecimator {
         }
         out
     }
+    // ANCHOR_END: cic
 }
 
 /// A CIC interpolator by `R`: combs at the input rate, zero-stuffing, integrators at the output

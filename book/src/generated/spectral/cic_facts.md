@@ -1,0 +1,1 @@
+The impulse response of a 3-stage CIC with RM = 4 matches |sin(4πf)/sin(πf)|³ to 4.4e-16. A 5-stage decimator by 64 turns a constant input of 1000 into 1073741824000 (gain 64⁵ = 1073741824), with integrator registers that wrap around without corrupting the output.

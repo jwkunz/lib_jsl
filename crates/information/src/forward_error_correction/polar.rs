@@ -7,6 +7,8 @@
 //! chosen design erasure probability.
 //!
 //! Bits are `u8` values 0 or 1. Soft inputs are log-likelihood ratios `ln P(0)/P(1)`.
+//!
+//! See the book entry [Polar codes](https://jwkunz.github.io/lib_jsl/book/coding/polar.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -121,6 +123,7 @@ impl PolarCode {
 
     /// Recursive SC decoder. Decodes the next `llr.len()` input bits into `u[*pos..]` and returns
     /// the re-encoded partial sums for this sub-block.
+    // ANCHOR: sc_decode
     fn sc(&self, llr: &[f64], pos: &mut usize, u: &mut [u8]) -> Vec<u8> {
         let n = llr.len();
         if n == 1 {
@@ -146,6 +149,7 @@ impl PolarCode {
         out.extend(right);
         out
     }
+    // ANCHOR_END: sc_decode
 }
 
 #[cfg(test)]

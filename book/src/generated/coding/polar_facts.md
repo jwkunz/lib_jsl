@@ -1,0 +1,1 @@
+Of the 1024 bit channels, 344 have erasure probability below 0.001 and 344 above 0.999; the capacity of the BEC(0.5) is 512 bits per 1024 uses.

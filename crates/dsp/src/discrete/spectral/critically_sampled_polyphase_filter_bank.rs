@@ -97,8 +97,9 @@ impl CriticallySampledPolyphaseAnalysisFilterBank {
         for (k, pk) in poly.iter_mut().enumerate().take(self.channels) {
             let mut acc = Complex::new(0.0, 0.0);
             for r in 0..self.phases {
-                let t_idx = r * self.channels + k;
                 let s_off = r * self.channels + (self.channels - 1 - k);
+                // The prototype tap for the sample s_off places before the newest one.
+                let t_idx = s_off;
                 let s_idx = l - 1 - s_off;
                 acc += self.history[s_idx] * self.taps[t_idx];
             }
@@ -308,6 +309,24 @@ mod tests {
         assert_eq!(output.len(), input.len());
         for (y, x) in output.iter().zip(input.iter()) {
             assert!((y.re - x.re).abs() < 1e-9 && (y.im - x.im).abs() < 1e-9);
+        }
+    }
+
+    #[test]
+    fn channels_have_the_prototype_selectivity() {
+        // A tone at channel 4's centre appears in channel 4 and is rejected by the 60 dB
+        // prototype in channel 0 (the taps used to be reversed within each block of M).
+        let m = 16;
+        let x: Vec<Complex<f64>> = (0..2048).map(|n| Complex::from_polar(1.0, 2.0 * std::f64::consts::PI * 4.0 / m as f64 * n as f64)).collect();
+        for oversampled in [false, true] {
+            let frames = if oversampled {
+                crate::discrete::spectral::oversampled_polyphase_filter_bank::OversampledPolyphaseAnalysisFilterBank::new(m, 2, None).unwrap().process(&x).unwrap().unwrap()
+            } else {
+                CriticallySampledPolyphaseAnalysisFilterBank::new(m, None).unwrap().process(&x).unwrap().unwrap()
+            };
+            let f = &frames[frames.len() / 2];
+            assert!(10.0 * (f[0].norm_sqr() / f[4].norm_sqr()).log10() < -55.0, "{oversampled}");
+            assert!(10.0 * (f[3].norm_sqr() / f[4].norm_sqr()).log10() < -55.0, "{oversampled}");
         }
     }
 

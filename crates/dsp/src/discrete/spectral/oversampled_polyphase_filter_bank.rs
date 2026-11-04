@@ -113,8 +113,9 @@ impl OversampledPolyphaseAnalysisFilterBank {
         for (k, pk) in poly.iter_mut().enumerate().take(self.channels) {
             let mut acc = Complex::new(0.0, 0.0);
             for r in 0..self.phases {
-                let t_idx = r * self.channels + k;
                 let s_off = r * self.channels + (self.channels - 1 - k);
+                // The prototype tap for the sample s_off places before the newest one.
+                let t_idx = s_off;
                 let s_idx = l - 1 - s_off;
                 acc += self.history[s_idx] * self.taps[t_idx];
             }

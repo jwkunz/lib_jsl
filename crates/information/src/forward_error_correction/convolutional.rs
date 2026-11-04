@@ -4,6 +4,8 @@
 //! generator for output `j` is a `K`-bit mask whose most significant bit multiplies the newest
 //! input bit, so the classic `K = 3` code with generators `(7, 5)` octal is `[0b111, 0b101]`.
 //! Bits are `u8` values 0 or 1; coded bits for each input bit are emitted in generator order.
+//!
+//! See the book entry [Convolutional codes and the Viterbi algorithm](https://jwkunz.github.io/lib_jsl/book/coding/convolutional.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -84,6 +86,7 @@ impl ConvolutionalCode {
             let obs = &llr[t * n..(t + 1) * n];
             let mut next = vec![f64::INFINITY; num_states];
             let mut surv = vec![(0u32, 0u8); num_states];
+            // ANCHOR: viterbi
             for (state, &m) in metric.iter().enumerate() {
                 if !m.is_finite() {
                     continue;
@@ -99,6 +102,7 @@ impl ConvolutionalCode {
                     }
                 }
             }
+            // ANCHOR_END: viterbi
             metric = next;
             survivors.push(surv);
         }

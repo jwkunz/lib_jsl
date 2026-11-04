@@ -1,0 +1,1 @@
+Soft Viterbi decoding of the K = 7 code (64 states) ran at 0.38 Mbit/s here.

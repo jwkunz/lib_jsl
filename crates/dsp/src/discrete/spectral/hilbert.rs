@@ -1,4 +1,6 @@
 //! The Hilbert transform and the analytic signal.
+//!
+//! See the book entry [The Hilbert transform and the analytic signal](https://jwkunz.github.io/lib_jsl/book/spectral/hilbert.html).
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_ffts::{Fft, FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
@@ -14,6 +16,7 @@ pub fn analytic_signal(x: &[f64]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
     if n == 0 {
         return Err(ErrorsJSL::InvalidInputRange("The signal must not be empty."));
     }
+    // ANCHOR: analytic_signal
     let input: Vec<Complex<f64>> = x.iter().map(|&v| Complex::new(v, 0.0)).collect();
     let mut spectrum = Fft::with_plan(n, FftScaleFactor::None, FftDirection::Forward, FftOrdering::Standard)?.execute(&input)?;
     let half = n.div_ceil(2);
@@ -24,6 +27,7 @@ pub fn analytic_signal(x: &[f64]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         *s *= if k < half { 2.0 } else { 0.0 };
     }
     Fft::with_plan(n, FftScaleFactor::N, FftDirection::Inverse, FftOrdering::Standard)?.execute(&spectrum)
+    // ANCHOR_END: analytic_signal
 }
 
 /// The Hilbert transform `H{x}` (the imaginary part of the analytic signal): `cos → sin`,

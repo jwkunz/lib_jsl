@@ -59,7 +59,7 @@ the −22.3 dB peak sidelobe in the table, the best a binary code of that length
 both with an **α-β filter**:
 
 $$
-\hat d_k = \tilde d_k + \alpha(m_k - \tilde d_k), \qquad \hat r_k = \hat r_{k-1} + \beta(m_k - \tilde d_k), \qquad \tilde d_{k+1} = \hat d_k + \hat r_k,
+\hat d_k = \widetilde d_k + \alpha(m_k - \widetilde d_k), \qquad \hat r_k = \hat r_{k-1} + \beta(m_k - \widetilde d_k), \qquad \widetilde d_{k+1} = \hat d_k + \hat r_k,
 $$
 
 where $m_k$ is the measured delay. If the normalised correlation in the gate falls below a threshold, it coasts on the prediction, and after too many misses it drops the track:

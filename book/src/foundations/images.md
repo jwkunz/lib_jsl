@@ -73,7 +73,11 @@ A Netpbm header is a magic number (`P1` to `P6`), the width, height and (except 
 
 ### Reading and writing other programs' files
 
+Files written by Python's libraries, read by this one:
+
 {{#include ../generated/foundations/reading_images.md}}
+
+Files written by this library, read by Python's:
 
 {{#include ../generated/foundations/interop_images.md}}
 

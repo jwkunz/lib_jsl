@@ -44,7 +44,11 @@ The reader handles booleans, signed and unsigned integers of 1 to 8 bytes, 32- a
 
 ### Reading and writing other programs' files
 
+Files written by Python's libraries, read by this one:
+
 {{#include ../generated/foundations/reading_data.md}}
+
+Files written by this library, read by Python's:
 
 {{#include ../generated/foundations/interop_data.md}}
 

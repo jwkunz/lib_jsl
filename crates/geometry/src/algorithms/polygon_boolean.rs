@@ -5,8 +5,10 @@
 //! and the result is traced by following one polygon until the next intersection, then
 //! switching to the other. Degenerate configurations (a vertex on the other polygon's boundary,
 //! overlapping collinear edges) are resolved by perturbing the clip polygon by a relative 1e-9,
-//! so results are exact up to that tolerance. Results are counter-clockwise outer boundaries;
-//! a hole (only produced by a difference with a polygon strictly inside) is clockwise.
+//! so results are exact up to that tolerance. Results are counter-clockwise outer boundaries
+//! and clockwise holes. Holes arise in a difference when the clip polygon lies strictly inside
+//! the subject, and in a union when the two polygons enclose a region between them; areas add
+//! up correctly when the holes' negative signed areas are included.
 
 /// The boolean operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -257,6 +259,18 @@ mod tests {
         // Orientation of the inputs does not matter.
         let reversed: Vec<P> = b.iter().rev().copied().collect();
         assert!((area(&polygon_boolean(&a, &reversed, Intersection)) - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn a_union_can_enclose_a_hole() {
+        // A "C" open to the right, closed off by a rectangle: the gap between them is a hole.
+        let c = vec![[0.0, 0.0], [3.0, 0.0], [3.0, 1.0], [1.0, 1.0], [1.0, 2.0], [3.0, 2.0], [3.0, 3.0], [0.0, 3.0]];
+        let bar = vec![[2.0, 0.5], [4.0, 0.5], [4.0, 2.5], [2.0, 2.5]];
+        let u = polygon_boolean(&c, &bar, Union);
+        let holes: Vec<&Vec<P>> = u.iter().filter(|p| signed_area(p) < 0.0).collect();
+        assert_eq!((u.len(), holes.len()), (2, 1));
+        assert!((signed_area(holes[0]) + 1.0).abs() < 1e-9);
+        assert!((area(&u) - 10.0).abs() < 1e-9);
     }
 
     #[test]

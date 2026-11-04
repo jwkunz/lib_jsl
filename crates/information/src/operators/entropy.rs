@@ -6,6 +6,7 @@ pub fn entropy(data: &[u8]) -> f64 {
     if data.is_empty() {
         return 0.0;
     }
+    // ANCHOR: entropy
     let mut counts = [0u64; 256];
     for &b in data {
         counts[b as usize] += 1;
@@ -20,6 +21,7 @@ pub fn entropy(data: &[u8]) -> f64 {
             p * (1.0 / p).log2()
         })
         .sum()
+    // ANCHOR_END: entropy
 }
 
 /// The Shannon entropy in bits of a probability distribution. Probabilities should sum to 1;

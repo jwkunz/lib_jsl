@@ -1,6 +1,7 @@
 //! Gray codes (reflected binary codes), in which consecutive values differ in exactly one bit.
 
 /// Returns the reflected binary Gray code of `n`.
+// ANCHOR: gray
 pub fn gray_code(n: u64) -> u64 {
     n ^ (n >> 1)
 }
@@ -15,6 +16,7 @@ pub fn gray_decode(g: u64) -> u64 {
     }
     n
 }
+// ANCHOR_END: gray
 
 /// Returns the full `bits`-bit Gray code sequence of length `2^bits` (`bits <= 32`).
 ///

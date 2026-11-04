@@ -203,6 +203,19 @@ impl EulerSequence {
         if odd == 0 {
             res = res.map(|a| -a);
         }
+        // Bring the middle angle into its documented range with the equivalent decomposition
+        // (α + π, π − β, γ + π) for Tait-Bryan sequences or (α + π, −β, γ + π) for proper ones,
+        // then wrap the outer angles into (−π, π].
+        if a0 == a2 {
+            if res[1] < 0.0 {
+                res = [res[0] + PI, -res[1], res[2] + PI];
+            }
+        } else if res[1].abs() > PI / 2.0 {
+            res = [res[0] + PI, PI.copysign(res[1]) - res[1], res[2] + PI];
+        }
+        for k in [0, 2] {
+            res[k] = PI - (PI - res[k]).rem_euclid(2.0 * PI);
+        }
         Some(res)
     }
 }
@@ -366,10 +379,20 @@ mod tests {
             EulerSequence::XYX, EulerSequence::XZX, EulerSequence::YXY, EulerSequence::YZY, EulerSequence::ZXZ, EulerSequence::ZYZ,
         ];
         for seq in seqs {
-            for angles in [[0.3, 0.5, -1.2], [-2.0, 1.2, 2.5], [3.0, -0.7, 0.1], [0.0, 0.0, 0.0], [1.0, 2.5, -3.0]] {
+            for angles in [[0.3, 0.5, -1.2], [-2.0, 1.2, 2.5], [3.0, -0.7, 0.1], [0.0, 0.0, 0.0], [1.0, 2.5, -3.0], [-2.5, -1.0, 2.0], [0.3, 2.0, 0.5], [-0.3, -1.0, -0.5]] {
                 let m = seq.to_matrix(angles);
                 let back = seq.from_matrix(&m).unwrap();
                 assert!(close(&seq.to_matrix(back), &m, 1e-9), "{seq:?} {angles:?} -> {back:?}");
+                // The documented ranges: outer angles in (−π, π], the middle one in [0, π] for
+                // proper sequences and [−π/2, π/2] for Tait-Bryan ones.
+                let proper = seq.0[0] == seq.0[2];
+                let middle_ok = if proper { (0.0..=PI).contains(&back[1]) } else { back[1].abs() <= FRAC_PI_2 };
+                assert!(middle_ok && back[0].abs() <= PI && back[2].abs() <= PI, "{seq:?} {angles:?} -> {back:?}");
+                // Within those ranges the decomposition is unique away from gimbal lock.
+                let canonical = if proper { (0.0..=PI).contains(&angles[1]) } else { angles[1].abs() <= FRAC_PI_2 };
+                if canonical && angles[1] != 0.0 {
+                    assert!((0..3).all(|k| (back[k] - angles[k]).abs() < 1e-9), "{seq:?} {angles:?} -> {back:?}");
+                }
             }
         }
         assert!(EulerSequence([Axis::X, Axis::X, Axis::Z]).from_matrix(&IDENTITY3).is_none());

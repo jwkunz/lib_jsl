@@ -26,12 +26,13 @@ pub trait CanRotate: GeometricPrimitive + Sized {
         L: IsLine<'a, Self::Point>;
 }
 
-/// Shears a primitive using a line-defined shear direction.
+/// Shears a primitive parallel to the x axis: every vertex moves by `x ← x + k·y`, where the shear
+/// factor `k` is the length of the supplied line. The line's position and direction are ignored.
 pub trait CanShear: GeometricPrimitive + Sized {
     /// Point type used by the shear line.
     type Point: IsPoint;
 
-    /// Mutates `self` according to the supplied shear line.
+    /// Mutates `self` by the shear `x ← x + k·y`, with `k = shear_line.length()`.
     fn shear<'a, L>(&mut self, shear_line: &L)
     where
         L: IsLine<'a, Self::Point>;

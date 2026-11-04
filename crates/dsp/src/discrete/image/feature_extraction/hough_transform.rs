@@ -112,7 +112,9 @@ pub struct HoughCircle {
     pub radius: usize,
     /// Votes received.
     pub votes: u32,
-    /// Votes as a fraction of the circle's circumference in pixels (about 1 for a complete circle).
+    /// Votes as a fraction of the circle's circumference `2πr`. A complete circle scores between
+    /// about 0.9 and 1.3, depending on how it was drawn: an 8-connected digital circle has about
+    /// `0.9 · 2πr` pixels, a 4-connected one `8r ≈ 1.27 · 2πr`.
     pub support: f64,
 }
 

@@ -31,3 +31,5 @@ lib_jsl_electromagnetics.workspace = true
 lib_jsl_number_theory.workspace = true
 lib_jsl_graph.workspace = true
 lib_jsl_geometry.workspace = true
+lib_jsl_sorting.workspace = true
+lib_jsl_utils.workspace = true

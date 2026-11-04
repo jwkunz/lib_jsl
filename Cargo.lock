@@ -322,8 +322,10 @@ dependencies = [
  "lib_jsl_optimization",
  "lib_jsl_random",
  "lib_jsl_root_finding",
+ "lib_jsl_sorting",
  "lib_jsl_special_functions",
  "lib_jsl_statistics",
+ "lib_jsl_utils",
  "ndarray",
  "num-complex",
 ]

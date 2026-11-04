@@ -791,20 +791,20 @@ Shared types, utilities, sorting and file formats.
 
 Shared foundation types, aliases, and traits for the lib_jsl workspace.
 
-Crate `lib_jsl_core`: [API reference](../api/lib_jsl_core/index.html) · 2 items
+Crate `lib_jsl_core`: [API reference](../api/lib_jsl_core/index.html) · book chapter: [foundations](foundations/index.md) · 2 items
 
-- Data types and traits
-- Constants
+- [Data types and traits](foundations/core-utils.md#errors-and-numeric-traits)
+- [Constants](foundations/core-utils.md#constants)
 
 ### Utils
 
 Terminal plots, unit conversion and numerical helpers.
 
-Crate `lib_jsl_utils`: [API reference](../api/lib_jsl_utils/index.html) · 3 items
+Crate `lib_jsl_utils`: [API reference](../api/lib_jsl_utils/index.html) · book chapter: [foundations](foundations/index.md) · 3 items
 
-- Terminal plots (Cartesian and polar)
-- Unit conversion
-- Machine epsilon
+- [Terminal plots (Cartesian and polar)](foundations/core-utils.md#terminal-plots)
+- [Unit conversion](foundations/core-utils.md#unit-conversion)
+- [Machine epsilon](foundations/core-utils.md#machine-epsilon-and-ulps)
 
 ### Sorting and selection
 
@@ -822,23 +822,23 @@ Crate `lib_jsl_sorting`: [API reference](../api/lib_jsl_sorting/index.html) · b
 
 Readers and writers for WAV, MP3, JPEG, PNG, Netpbm, CSV and NumPy .npy files.
 
-Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · 7 items
+Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · book chapter: [foundations](foundations/index.md) · 7 items
 
 #### Audio
 
-- WAV files
-- MP3
+- [WAV files](foundations/audio.md#wav-files)
+- [MP3](foundations/audio.md#a-perceptual-codec)
 
 #### Image
 
-- JPEG
-- JPEG files
-- Lossless images (PNG, PPM)
+- [JPEG](foundations/images.md#baseline-jpeg)
+- [JPEG files](foundations/images.md#baseline-jpeg)
+- [Lossless images (PNG, PPM)](foundations/images.md#png-and-deflate)
 
 #### Data
 
-- CSV files
-- NumPy .npy files
+- [CSV files](foundations/data-files.md#csv)
+- [NumPy .npy files](foundations/data-files.md#numpy-npy)
 
 ## What the library does not cover
 

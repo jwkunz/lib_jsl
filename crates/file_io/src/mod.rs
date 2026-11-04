@@ -7,6 +7,8 @@
 //! - [`csv`] reads and writes delimited text tables, and [`npy`] NumPy `.npy` arrays.
 //! - [`png`] and [`ppm`] are lossless image codecs sharing [`png::RasterImage`]; [`deflate`]
 //!   provides the zlib compression PNG needs.
+//!
+//! See the book entry [Foundations: file formats](https://jwkunz.github.io/lib_jsl/book/foundations/index.html).
 
 pub mod csv;
 pub mod deflate;

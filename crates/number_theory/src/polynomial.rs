@@ -1,3 +1,7 @@
+//! Polynomial evaluation, construction from roots, and roots by companion-matrix eigenvalues.
+//!
+//! See the book entry [Polynomials and decimal-string integers](https://jwkunz.github.io/lib_jsl/book/number-theory/polynomials.html).
+
 use ndarray::{Array1, Array2};
 use lib_jsl_linalg::Eig;
 use num_complex::Complex;
@@ -57,6 +61,7 @@ pub fn polynomial_roots<T: IsAnalytic>(coeffs: &[T]) -> Result<C1D, ErrorsJSL> {
         ));
     }
 
+    // ANCHOR: companion
     let order = coeffs.len() - 1;
     let mut companion = Array2::from_elem((order, order), Complex::new(0.0, 0.0));
     for row in 1..order {
@@ -65,6 +70,7 @@ pub fn polynomial_roots<T: IsAnalytic>(coeffs: &[T]) -> Result<C1D, ErrorsJSL> {
     for row in 0..order {
         companion[[row, order - 1]] = -coeffs[order - row].to_complex() / lead;
     }
+    // ANCHOR_END: companion
 
     let (evals, _) = companion
         .eig()

@@ -1,3 +1,7 @@
+//! Integers of any size stored as decimal digit strings, with schoolbook arithmetic.
+//!
+//! See the book entry [Polynomials and decimal-string integers](https://jwkunz.github.io/lib_jsl/book/number-theory/polynomials.html).
+
 use num_traits::{CheckedAdd, CheckedDiv, CheckedMul, CheckedSub, Num, One, Signed, Zero};
 use std::ops::{Add, Div, Mul, Sub};
 use std::{

@@ -1,4 +1,6 @@
 //! CRC-32 checksums.
+//!
+//! See the book entry [Checksums and hashes](https://jwkunz.github.io/lib_jsl/book/information/checksums.html#crc-division-over-gf2).
 
 use std::sync::OnceLock;
 

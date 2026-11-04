@@ -1,4 +1,6 @@
 //! Linear feedback shift register (LFSR).
+//!
+//! See the book entry [LFSRs and Gold codes](https://jwkunz.github.io/lib_jsl/book/information/lfsr.html#the-recurrence-and-its-polynomial).
 
 /// A Fibonacci-style linear feedback shift register of up to 64 stages.
 ///

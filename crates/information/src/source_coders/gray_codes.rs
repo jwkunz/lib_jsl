@@ -1,4 +1,6 @@
 //! Gray codes (reflected binary codes), in which consecutive values differ in exactly one bit.
+//!
+//! See the book entry [Entropy, divergence and mutual information](https://jwkunz.github.io/lib_jsl/book/information/entropy.html#gray-codes).
 
 /// Returns the reflected binary Gray code of `n`.
 // ANCHOR: gray

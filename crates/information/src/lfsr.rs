@@ -1,4 +1,6 @@
 //! Linear Feedback Shift Registers (LFSRs).
+//!
+//! See the book entry [LFSRs and Gold codes](https://jwkunz.github.io/lib_jsl/book/information/lfsr.html).
 
 pub mod linear_feedback_shift_register;
 pub mod maximum_length_polynomials;

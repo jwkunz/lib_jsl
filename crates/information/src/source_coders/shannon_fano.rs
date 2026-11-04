@@ -23,6 +23,8 @@
 //! As with the Huffman and arithmetic coders in this crate, the decoder is
 //! fully self-contained because it rebuilds the exact same model from the
 //! stored frequency table.
+//!
+//! See the book entry [Entropy coding](https://jwkunz.github.io/lib_jsl/book/information/entropy-coding.html#shannon-fano-coding).
 
 use lib_jsl_core::ErrorsJSL;
 

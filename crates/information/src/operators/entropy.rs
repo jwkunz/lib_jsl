@@ -1,4 +1,6 @@
 //! Entropy and related information measures (in bits).
+//!
+//! See the book entry [Entropy, divergence and mutual information](https://jwkunz.github.io/lib_jsl/book/information/entropy.html).
 
 /// The Shannon entropy of the byte distribution of `data`, in bits per byte (0 to 8).
 /// Empty input has zero entropy.

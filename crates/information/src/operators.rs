@@ -1,4 +1,6 @@
 //! Information operators and hashing/checksums.
+//!
+//! See the book entry [Checksums and hashes](https://jwkunz.github.io/lib_jsl/book/information/checksums.html).
 
 pub mod sha256;
 pub mod crc32;

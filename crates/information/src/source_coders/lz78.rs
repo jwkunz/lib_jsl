@@ -23,6 +23,8 @@
 //!
 //! The optional-suffix form is used so the final phrase can be emitted even if
 //! the input ends exactly on a phrase already present in the dictionary.
+//!
+//! See the book entry [Dictionary coding](https://jwkunz.github.io/lib_jsl/book/information/dictionary-coding.html#lz78-an-explicit-dictionary).
 
 use std::collections::HashMap;
 

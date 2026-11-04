@@ -3,6 +3,8 @@
 //! Keeping the codecs together under one submodule makes it easier to navigate
 //! the growing set of entropy and dictionary coders while still allowing the
 //! crate root to re-export the common entry points.
+//!
+//! See the book entry [Entropy coding](https://jwkunz.github.io/lib_jsl/book/information/entropy-coding.html).
 
 pub mod arithmetic;
 pub mod gray_codes;

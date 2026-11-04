@@ -29,6 +29,8 @@
 //! implementation honest, the fallible decoder logic is exposed as
 //! [`try_lz77_decompress`]. The infallible [`lz77_decompress`] wrapper returns
 //! an empty vector when the payload is malformed.
+//!
+//! See the book entry [Dictionary coding](https://jwkunz.github.io/lib_jsl/book/information/dictionary-coding.html#lz77-a-sliding-window).
 
 use std::collections::HashMap;
 

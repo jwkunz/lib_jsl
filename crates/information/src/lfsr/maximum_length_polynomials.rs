@@ -3,6 +3,8 @@
 //! Polynomials are bit masks: bit `k` is the coefficient of `x^k`, so `x^3 + x + 1` is `0b1011`.
 //! An LFSR with a primitive characteristic polynomial of degree `n` produces a maximum-length
 //! sequence of period `2^n - 1`.
+//!
+//! See the book entry [LFSRs and Gold codes](https://jwkunz.github.io/lib_jsl/book/information/lfsr.html#testing-primitivity).
 
 use std::sync::OnceLock;
 

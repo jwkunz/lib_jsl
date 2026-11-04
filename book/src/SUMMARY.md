@@ -141,6 +141,12 @@
     - [Segmentation: Otsu's threshold, Canny edges and the watershed](image/segmentation.md)
     - [The Hough transform: lines and circles](image/hough.md)
     - [Local features: blobs, SIFT and SURF](image/features.md)
+- [Information theory: source coding, LFSRs, checksums and hashes](information/index.md)
+    - [Entropy, divergence and mutual information](information/entropy.md)
+    - [Entropy coding: Huffman, Shannon-Fano and arithmetic coding](information/entropy-coding.md)
+    - [Dictionary coding: LZ77, LZ78 and LZW](information/dictionary-coding.md)
+    - [Linear feedback shift registers, m-sequences and Gold codes](information/lfsr.md)
+    - [Checksums and hashes: CRC-32 and SHA-256](information/checksums.md)
 
 ---
 

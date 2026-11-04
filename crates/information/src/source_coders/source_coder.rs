@@ -12,6 +12,8 @@
 //! current codecs are stateless. Each implementation is represented by a
 //! zero-sized wrapper type that simply forwards to the existing module-level
 //! functions.
+//!
+//! See the book entry [Entropy coding](https://jwkunz.github.io/lib_jsl/book/information/entropy-coding.html#implementation).
 
 use lib_jsl_core::ErrorsJSL;
 

@@ -5,6 +5,8 @@
 //! shift to the first. Their periodic cross-correlations take only three values,
 //! `-1`, `-t(n)` and `t(n) - 2`, where `t(n) = 1 + 2^((n+1)/2)` for odd `n` and
 //! `1 + 2^((n+2)/2)` for `n ≡ 2 (mod 4)`.
+//!
+//! See the book entry [LFSRs and Gold codes](https://jwkunz.github.io/lib_jsl/book/information/lfsr.html#gold-codes).
 
 use super::linear_feedback_shift_register::Lfsr;
 use super::maximum_length_polynomials::maximum_length_polynomial;

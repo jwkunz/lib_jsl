@@ -9,6 +9,8 @@
 //! - [`forward_error_correction`]: error-correcting codes.
 //!
 //! The source coder modules and the [`source_coder`] trait are also re-exported at the crate root.
+//!
+//! See the book entry [Information theory](https://jwkunz.github.io/lib_jsl/book/information/index.html).
 
 pub mod forward_error_correction;
 pub mod lfsr;

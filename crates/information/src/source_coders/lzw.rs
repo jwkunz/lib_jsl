@@ -14,6 +14,8 @@
 //! encoder emits a code for phrase `W` and then sees the next phrase `WK`, the
 //! new combined phrase is inserted into the dictionary. The decoder mirrors
 //! that same update rule.
+//!
+//! See the book entry [Dictionary coding](https://jwkunz.github.io/lib_jsl/book/information/dictionary-coding.html#lzw-no-explicit-byte).
 
 use std::collections::HashMap;
 

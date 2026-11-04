@@ -21,6 +21,8 @@
 //!
 //! The decoder rebuilds the exact same Huffman tree from the stored frequency
 //! table, so compression and decompression remain fully self-contained.
+//!
+//! See the book entry [Entropy coding](https://jwkunz.github.io/lib_jsl/book/information/entropy-coding.html#huffman-coding).
 
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;

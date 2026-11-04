@@ -27,6 +27,8 @@
 //! with E1/E2/E3 renormalization. The comments in the hot paths explain how the
 //! interval is updated and why bits are emitted or consumed when the interval
 //! moves wholly into the low half, high half, or middle band.
+//!
+//! See the book entry [Entropy coding](https://jwkunz.github.io/lib_jsl/book/information/entropy-coding.html#arithmetic-coding).
 
 use lib_jsl_core::ErrorsJSL;
 

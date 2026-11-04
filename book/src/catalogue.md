@@ -567,30 +567,30 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 Information theory and coding: source coding, LFSRs, CRC and SHA-256, error-correcting codes.
 
-Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.html) · 19 items
+Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.html) · book chapters: [information theory](information/index.md) · 19 items
 
 #### Source coders
 
-- Source coder trait
-- Arithmetic
-- Huffman
-- LZ77
-- LZ78
-- LZW
-- Shannon-Fano
-- Gray codes
+- [Source coder trait](information/entropy-coding.md#implementation)
+- [Arithmetic](information/entropy-coding.md#arithmetic-coding)
+- [Huffman](information/entropy-coding.md#huffman-coding)
+- [LZ77](information/dictionary-coding.md#lz77-a-sliding-window)
+- [LZ78](information/dictionary-coding.md#lz78-an-explicit-dictionary)
+- [LZW](information/dictionary-coding.md#lzw-no-explicit-byte)
+- [Shannon-Fano](information/entropy-coding.md#shannon-fano-coding)
+- [Gray codes](information/entropy.md#gray-codes)
 
 #### LFSRs
 
-- LFSR
-- Maximum length polynomials
-- Gold codes
+- [LFSR](information/lfsr.md#the-recurrence-and-its-polynomial)
+- [Maximum length polynomials](information/lfsr.md#testing-primitivity)
+- [Gold codes](information/lfsr.md#gold-codes)
 
 #### Operators
 
-- SHA-256
-- CRC-32
-- Entropy
+- [SHA-256](information/checksums.md#sha-256)
+- [CRC-32](information/checksums.md#crc-division-over-gf2)
+- [Entropy](information/entropy.md#entropy)
 
 #### Forward error correction
 

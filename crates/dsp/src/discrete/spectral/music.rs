@@ -15,6 +15,8 @@
 //!
 //! The number of sources must be known (or estimated separately), and for sinusoids in a *real*
 //! signal each sinusoid counts as two complex exponentials (at `±f`).
+//!
+//! See the book entry [Parametric spectra: linear prediction, Burg and MUSIC](https://jwkunz.github.io/lib_jsl/book/spectral/parametric.html#music).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{Array1, Array2};
@@ -111,6 +113,7 @@ where
     if num_sources == 0 || num_sources >= m {
         return Err(ErrorsJSL::InvalidInputRange("MUSIC needs 1 <= num_sources < covariance size"));
     }
+    // ANCHOR: music
     let (_, vectors) = hermitian_eigen(covariance)?;
     let noise = vectors.slice(ndarray::s![.., num_sources..]).to_owned();
     grid.iter()
@@ -123,6 +126,7 @@ where
             Ok(1.0 / proj.max(f64::MIN_POSITIVE))
         })
         .collect()
+    // ANCHOR_END: music
 }
 
 /// A MUSIC frequency pseudospectrum.

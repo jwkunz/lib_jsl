@@ -12,6 +12,8 @@
 //! Toeplitz normal equations are solved with the Levinson-Durbin recursion, which also yields the
 //! reflection (PARCOR) coefficients. The autocorrelation method always gives a stable synthesis
 //! filter (all reflection coefficients have magnitude below one).
+//!
+//! See the book entry [Parametric spectra: linear prediction, Burg and MUSIC](https://jwkunz.github.io/lib_jsl/book/spectral/parametric.html#linear-prediction-and-the-yule-walker-equations).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -42,6 +44,7 @@ pub fn levinson_durbin(r: &[f64], order: usize) -> Result<LpcResult, ErrorsJSL> 
     if !(r[0] > 0.0) {
         return Err(ErrorsJSL::InvalidInputRange("Zero-lag autocorrelation must be positive"));
     }
+    // ANCHOR: levinson
     let mut a = vec![0.0; order + 1];
     a[0] = 1.0;
     let mut err = r[0];
@@ -60,6 +63,7 @@ pub fn levinson_durbin(r: &[f64], order: usize) -> Result<LpcResult, ErrorsJSL> 
         reflection.push(k);
         err *= 1.0 - k * k;
     }
+    // ANCHOR_END: levinson
     Ok(LpcResult { coefficients: a, reflection, error_power: err })
 }
 

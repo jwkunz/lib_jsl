@@ -6,6 +6,8 @@
 //! together, stage by stage, without first forming an autocorrelation estimate. Compared with the
 //! periodogram it resolves closely spaced sinusoids from short records and never windows the data,
 //! at the price of needing a model order (and, for high orders, spurious peaks).
+//!
+//! See the book entry [Parametric spectra: linear prediction, Burg and MUSIC](https://jwkunz.github.io/lib_jsl/book/spectral/parametric.html#burgs-method).
 
 use lib_jsl_core::ErrorsJSL;
 use std::f64::consts::TAU;
@@ -31,6 +33,7 @@ pub fn burg(x: &[f64], order: usize) -> Result<BurgResult, ErrorsJSL> {
     if !(variance > 0.0) {
         return Err(ErrorsJSL::InvalidInputRange("Signal must have nonzero power"));
     }
+    // ANCHOR: burg
     let mut f = x.to_vec(); // forward prediction errors
     let mut b = x.to_vec(); // backward prediction errors
     let mut a = vec![1.0];
@@ -57,6 +60,7 @@ pub fn burg(x: &[f64], order: usize) -> Result<BurgResult, ErrorsJSL> {
         reflection.push(k);
         variance *= 1.0 - k * k;
     }
+    // ANCHOR_END: burg
     Ok(BurgResult { coefficients: a, reflection, variance })
 }
 

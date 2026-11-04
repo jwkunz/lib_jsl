@@ -4,6 +4,7 @@
 //! to `book/src/generated/`. Set `GEN_ONLY=linear_algebra` (a comma-separated list of chapter
 //! names) to regenerate only some chapters.
 
+mod comms;
 mod derivatives;
 mod fft;
 mod filters;
@@ -40,7 +41,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 16] = [
+    let chapters: [(&str, fn()); 17] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -57,6 +58,7 @@ fn main() {
         ("learning", learning::generate),
         ("filters", filters::generate),
         ("spectral", spectral::generate),
+        ("comms", comms::generate),
     ];
     for (name, generate) in chapters {
         if wanted(name) {

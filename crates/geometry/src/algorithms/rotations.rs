@@ -6,6 +6,8 @@
 //! Matrices are row-major `[[f64; 3]; 3]` acting on column vectors. Euler sequences are
 //! *intrinsic*: `Rotation3::from_euler(XYZ, [a, b, c])` rotates by `a` about X, then by `b` about
 //! the new Y, then by `c` about the newest Z, i.e. `R = Rx(a) Ry(b) Rz(c)`.
+//!
+//! See the book entry [Rotations, Euler angles and quaternions](https://jwkunz.github.io/lib_jsl/book/geometry/rotations.html).
 
 use super::quaternions::Quaternion;
 use std::f64::consts::PI;

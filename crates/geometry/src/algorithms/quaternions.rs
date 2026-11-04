@@ -3,6 +3,8 @@
 //! A [`Quaternion`] `w + xi + yj + zk` with unit norm encodes a rotation by an angle θ about a unit
 //! axis `n` as `cos(θ/2) + sin(θ/2) (n_x i + n_y j + n_z k)`. Composition is the Hamilton product,
 //! and `q` and `-q` describe the same rotation. Arithmetic is in `f64`.
+//!
+//! See the book entry [Rotations, Euler angles and quaternions](https://jwkunz.github.io/lib_jsl/book/geometry/rotations.html#quaternions).
 
 use crate::three_d::{CoordinateVector3D, FreeVector3D};
 use std::ops::{Add, Div, Mul, Neg, Sub};
@@ -219,6 +221,7 @@ impl Quaternion {
 
     /// Spherical linear interpolation along the shortest arc from `self` (t = 0) to `other` (t = 1),
     /// for unit quaternions. Constant angular velocity.
+    // ANCHOR: slerp
     pub fn slerp(&self, other: &Self, t: f64) -> Self {
         let mut b = *other;
         let mut d = self.dot(&b);
@@ -233,6 +236,7 @@ impl Quaternion {
         let s = theta.sin();
         (*self * (((1.0 - t) * theta).sin() / s) + b * ((t * theta).sin() / s)).normalized()
     }
+    // ANCHOR_END: slerp
 
     /// Normalised linear interpolation: cheaper than [`Quaternion::slerp`], not constant-speed.
     pub fn nlerp(&self, other: &Self, t: f64) -> Self {

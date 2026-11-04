@@ -24,11 +24,13 @@ pub fn sharpening_with_threshold(image: &Array2<f64>, sigma: f64, amount: f64, t
     if !amount.is_finite() || !(threshold >= 0.0) {
         return Err(ErrorsJSL::InvalidInputRange("amount must be finite and threshold non-negative"));
     }
+    // ANCHOR: unsharp
     let blurred = gaussian_blur(image, sigma)?;
     Ok(Array2::from_shape_fn(image.dim(), |i| {
         let detail = image[i] - blurred[i];
         if detail.abs() >= threshold { image[i] + amount * detail } else { image[i] }
     }))
+    // ANCHOR_END: unsharp
 }
 
 #[cfg(test)]

@@ -85,6 +85,7 @@ pub fn separable_convolve(image: &Array2<f64>, row_kernel: &[f64], col_kernel: &
     if rows == 0 || cols == 0 {
         return Err(ErrorsJSL::InvalidInputRange("Image must be non-empty"));
     }
+    // ANCHOR: separable
     let (hr, hc) = ((col_kernel.len() / 2) as isize, (row_kernel.len() / 2) as isize);
     // Horizontal pass: convolution flips the kernel, so tap j pairs with offset (hc - j).
     let horizontal = Array2::from_shape_fn((rows, cols), |(r, c)| {
@@ -101,6 +102,7 @@ pub fn separable_convolve(image: &Array2<f64>, row_kernel: &[f64], col_kernel: &
             .filter_map(|(i, k)| border_index(r as isize + hr - i as isize, rows, border).map(|rr| horizontal[(rr, c)] * k))
             .sum::<f64>()
     }))
+    // ANCHOR_END: separable
 }
 
 /// A normalised 1D Gaussian kernel with standard deviation `sigma` (in pixels), truncated at

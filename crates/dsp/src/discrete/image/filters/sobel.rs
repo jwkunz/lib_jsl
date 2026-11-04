@@ -34,6 +34,7 @@ pub struct SobelResult {
 /// Computes the Sobel gradient of `image` (borders replicated). With `normalize` the result is the
 /// true gradient (the raw kernels' factor of 8 divided out).
 pub fn sobel(image: &Array2<f64>, normalize: bool) -> Result<SobelResult, ErrorsJSL> {
+    // ANCHOR: sobel
     let kx = array![[-1.0, 0.0, 1.0], [-2.0, 0.0, 2.0], [-1.0, 0.0, 1.0]];
     let ky = array![[-1.0, -2.0, -1.0], [0.0, 0.0, 0.0], [1.0, 2.0, 1.0]];
     let mut gx = correlate2d(image, &kx, Border::Replicate)?;
@@ -44,6 +45,7 @@ pub fn sobel(image: &Array2<f64>, normalize: bool) -> Result<SobelResult, Errors
     }
     let magnitude = Array2::from_shape_fn(gx.dim(), |i| gx[i].hypot(gy[i]));
     let direction = Array2::from_shape_fn(gx.dim(), |i| gy[i].atan2(gx[i]));
+    // ANCHOR_END: sobel
     Ok(SobelResult { gx, gy, magnitude, direction })
 }
 

@@ -714,74 +714,74 @@ Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · book 
 
 Geometry: 1D to 4D types, Delaunay and Voronoi, convex hulls, spatial trees, intersections and mesh processing.
 
-Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) · 48 items
+Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) · book chapter: [computational geometry](geometry/index.md) · 48 items
 
-- Common
-- Concrete types
-- Coordinate systems
-- Geometric traits
-- Registry
-- Tables
-- Transformation traits
-- Transform support (2D and 3D helpers)
+- [Common](geometry/types.md#keyed-tables-and-the-registry)
+- [Concrete types](geometry/types.md#points-and-vectors)
+- [Coordinate systems](geometry/types.md#coordinate-systems)
+- [Geometric traits](geometry/types.md#traits-and-transformations)
+- [Registry](geometry/types.md#keyed-tables-and-the-registry)
+- [Tables](geometry/types.md#keyed-tables-and-the-registry)
+- [Transformation traits](geometry/types.md#traits-and-transformations)
+- [Transform support (2D and 3D helpers)](geometry/types.md#traits-and-transformations)
 
 #### 0D
 
-- Points
+- [Points](geometry/types.md#points-and-vectors)
 
 #### 1D
 
-- Coordinate vector 1D
-- Line 1D
-- Plane 1D
-- Unit vector 1D
+- [Coordinate vector 1D](geometry/types.md#points-and-vectors)
+- [Line 1D](geometry/types.md#lines-planes-and-polygons)
+- [Plane 1D](geometry/types.md#lines-planes-and-polygons)
+- [Unit vector 1D](geometry/types.md#points-and-vectors)
 
 #### 2D
 
-- Conversions
-- Coordinate vector 2D
-- Free vector 2D
-- Line 2D
-- Mesh 2D
-- Plane 2D
-- Polygon face 2D
-- Triangle 2D
-- Unit vector 2D
+- [Conversions](geometry/types.md#coordinate-systems)
+- [Coordinate vector 2D](geometry/types.md#points-and-vectors)
+- [Free vector 2D](geometry/types.md#points-and-vectors)
+- [Line 2D](geometry/types.md#lines-planes-and-polygons)
+- [Mesh 2D](geometry/types.md#meshes)
+- [Plane 2D](geometry/types.md#lines-planes-and-polygons)
+- [Polygon face 2D](geometry/types.md#lines-planes-and-polygons)
+- [Triangle 2D](geometry/types.md#lines-planes-and-polygons)
+- [Unit vector 2D](geometry/types.md#points-and-vectors)
 
 #### 3D
 
-- Conversions
-- Coordinate vector 3D
-- Free vector 3D
-- Line 3D
-- Plane 3D
-- Polygon face 3D
-- Surface mesh 3D
-- Tetrahedron 3D
-- Triangle 3D
-- Unit vector 3D
-- Volume mesh 3D
+- [Conversions](geometry/types.md#coordinate-systems)
+- [Coordinate vector 3D](geometry/types.md#points-and-vectors)
+- [Free vector 3D](geometry/types.md#points-and-vectors)
+- [Line 3D](geometry/types.md#lines-planes-and-polygons)
+- [Plane 3D](geometry/types.md#lines-planes-and-polygons)
+- [Polygon face 3D](geometry/types.md#lines-planes-and-polygons)
+- [Surface mesh 3D](geometry/types.md#meshes)
+- [Tetrahedron 3D](geometry/types.md#lines-planes-and-polygons)
+- [Triangle 3D](geometry/types.md#lines-planes-and-polygons)
+- [Unit vector 3D](geometry/types.md#points-and-vectors)
+- [Volume mesh 3D](geometry/types.md#meshes)
 
 #### 4D
 
-- Space-time vector
-- Christoffel symbols
+- [Space-time vector](geometry/spacetime.md#minkowski-space-and-lorentz-boosts)
+- [Christoffel symbols](geometry/spacetime.md#christoffel-symbols-and-geodesics)
 
 #### Algorithms
 
-- Delaunay triangulation
-- Convex hull
-- Slicing
-- Rotations
-- Quaternions
-- Nearest point finding
-- Intersection
-- k-d trees
-- Octrees
-- Quadtrees
-- Voronoi diagrams
-- Mesh smoothing and decimation
-- Polygon boolean operations
+- [Delaunay triangulation](geometry/delaunay-voronoi.md#delaunay-triangulation)
+- [Convex hull](geometry/hulls-booleans.md#the-monotone-chain)
+- [Slicing](geometry/meshes.md#slicing)
+- [Rotations](geometry/rotations.md#rotation-matrices-and-euler-angles)
+- [Quaternions](geometry/rotations.md#quaternions)
+- [Nearest point finding](geometry/intersections.md#closest-points)
+- [Intersection](geometry/intersections.md#intersection-tests)
+- [k-d trees](geometry/spatial-trees.md#k-d-trees)
+- [Octrees](geometry/spatial-trees.md#quadtrees-and-octrees)
+- [Quadtrees](geometry/spatial-trees.md#quadtrees-and-octrees)
+- [Voronoi diagrams](geometry/delaunay-voronoi.md#voronoi-diagrams)
+- [Mesh smoothing and decimation](geometry/meshes.md#laplacian-and-taubin-smoothing)
+- [Polygon boolean operations](geometry/hulls-booleans.md#the-greinerhormann-algorithm)
 
 ## Foundations and input/output
 

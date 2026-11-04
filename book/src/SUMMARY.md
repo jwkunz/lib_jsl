@@ -173,6 +173,15 @@
     - [Shortest paths: Dijkstra, Bellman–Ford, A* and Floyd–Warshall](graph/shortest-paths.md)
     - [Minimum spanning trees and union-find](graph/spanning-trees.md)
     - [Maximum flow and minimum cut: Edmonds–Karp and Dinic](graph/max-flow.md)
+- [Computational geometry: triangulations, hulls, spatial search and meshes](geometry/index.md)
+    - [Geometric types: points, vectors, shapes and shared tables](geometry/types.md)
+    - [Rotations, Euler angles and quaternions](geometry/rotations.md)
+    - [Delaunay triangulations and Voronoi diagrams](geometry/delaunay-voronoi.md)
+    - [Convex hulls and polygon booleans](geometry/hulls-booleans.md)
+    - [Spatial trees: k-d trees, quadtrees and octrees](geometry/spatial-trees.md)
+    - [Intersections and closest points](geometry/intersections.md)
+    - [Triangle meshes: smoothing, decimation and slicing](geometry/meshes.md)
+    - [Space-time: four-vectors, Lorentz boosts and Christoffel symbols](geometry/spacetime.md)
 
 ---
 

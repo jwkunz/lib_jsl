@@ -316,6 +316,7 @@ dependencies = [
  "lib_jsl_linalg",
  "lib_jsl_linalg_reference",
  "lib_jsl_machine_learning",
+ "lib_jsl_number_theory",
  "lib_jsl_optimization",
  "lib_jsl_random",
  "lib_jsl_root_finding",

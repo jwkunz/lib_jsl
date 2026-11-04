@@ -8,6 +8,8 @@
 //!
 //! Fields use the normalised magnetic field `H̃ = η₀ H` so `E` and `H̃` share units, and the time
 //! step is `Δt = S Δ / c` for Courant number `S` (`S ≤ 1` in 1D, `S ≤ 1/√2` in 2D).
+//!
+//! See the book entry [The finite-difference time-domain method](https://jwkunz.github.io/lib_jsl/book/em-waves/fdtd.html).
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_core::constants::em::{C0, EPS_0};
@@ -57,6 +59,7 @@ impl Fdtd1D {
 
     /// Advances one time step; `source` is added to `E_z` at its index (a soft source).
     pub fn step(&mut self, source: Option<(usize, f64)>) {
+        // ANCHOR: fdtd1d
         let s = self.courant;
         let n = self.ez.len();
         for i in 0..n - 1 {
@@ -76,6 +79,7 @@ impl Fdtd1D {
         let (sl, sr) = (s / self.eps_r[0].sqrt(), s / self.eps_r[n - 1].sqrt());
         self.ez[0] = old_left + mur(sl) * (self.ez[1] - self.ez[0]);
         self.ez[n - 1] = old_right + mur(sr) * (self.ez[n - 2] - self.ez[n - 1]);
+        // ANCHOR_END: fdtd1d
         self.steps += 1;
     }
 }

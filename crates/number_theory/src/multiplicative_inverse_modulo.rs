@@ -28,21 +28,6 @@ use lib_jsl_core::ErrorsJSL;
 /// When `gcd(a, m) = 1`, the coefficient `x` is the modular inverse of `a`
 /// modulo `m`.
 ///
-/// # Assumptions
-///
-/// This function assumes the existence of an `extended_gcd` function with
-/// the following signature:
-///
-///
-/// fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64);
-///
-///
-/// which returns `(g, x, y)` such that:
-///
-/// ```text
-/// a·x + b·y = g = gcd(a, b)
-/// ```
-///
 /// # Parameters
 ///
 /// * `a` – The integer whose modular inverse is to be computed.
@@ -51,8 +36,8 @@ use lib_jsl_core::ErrorsJSL;
 /// # Returns
 ///
 /// * `Ok(inv)` – The modular inverse of `a` modulo `m`, normalized to the
-///   range `[0, m - 1]`.
-/// * `Err(&'static str)` – If the modular inverse does not exist.
+///   range `[0, |m| - 1]`.
+/// * `Err(ErrorsJSL)` – If `m` is zero or the modular inverse does not exist.
 ///
 /// # Errors
 ///
@@ -61,8 +46,7 @@ use lib_jsl_core::ErrorsJSL;
 ///
 /// # Complexity
 ///
-/// Runs in **O(log m)** time and **O(1)** space (excluding recursion inside
-/// `extended_gcd`).
+/// Runs in **O(log m)** time and **O(1)** space.
 pub fn multiplicative_inverse_modulo(a: i128, m: i128) -> Result<i128, ErrorsJSL> {
     if m == 0 {
         return Err(ErrorsJSL::InvalidInputRange("m must be non-zero"));
@@ -74,8 +58,8 @@ pub fn multiplicative_inverse_modulo(a: i128, m: i128) -> Result<i128, ErrorsJSL
         return Err(ErrorsJSL::RuntimeError("modular inverse does not exist (inputs are not coprime)"));
     }
 
-    // Normalize the result into the range [0, m - 1]
-    Ok((x % m + m) % m)
+    // Normalize the result into the range [0, |m| - 1]
+    Ok(x.rem_euclid(m.abs()))
 }
 
 #[cfg(test)]
@@ -88,5 +72,12 @@ mod test{
         let m = 25;
         let b = multiplicative_inverse_modulo(a,m).unwrap();
         assert_eq!((a*b)%m,1)
+    }
+
+    #[test]
+    fn negative_moduli_give_inverses_in_range(){
+        let inv = multiplicative_inverse_modulo(3, -7).unwrap();
+        assert!((0..7).contains(&inv) && (3 * inv).rem_euclid(7) == 1);
+        assert!(multiplicative_inverse_modulo(4, 0).is_err() && multiplicative_inverse_modulo(4, 6).is_err());
     }
 }

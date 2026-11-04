@@ -37,10 +37,13 @@ impl PolarCode {
         for _ in 0..log2_n {
             let half = z.len();
             let mut next = vec![0.0; 2 * half];
+            // Each polarization step splits a channel into a worse ("minus") and a better ("plus")
+            // one. With the natural-order transform used here, the earliest step decides the
+            // most significant bit of the channel index, so the new step sets the least.
             for j in 0..half {
                 let t = z[j];
-                next[j] = 2.0 * t - t * t;
-                next[j + half] = t * t;
+                next[2 * j] = 2.0 * t - t * t;
+                next[2 * j + 1] = t * t;
             }
             z = next;
         }
@@ -152,6 +155,17 @@ mod tests {
     fn lcg(seed: &mut u64) -> u64 {
         *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
         *seed >> 33
+    }
+
+    #[test]
+    fn channels_are_ranked_in_the_order_of_the_natural_transform() {
+        // Genie-aided SC erasure probabilities of the 8 bit channels on a BEC(0.5), in index
+        // order: [0.996, 0.879, 0.809, 0.316, 0.684, 0.191, 0.121, 0.004]. The five best are
+        // 3..=7; ranking in bit-reversed order would wrongly take channel 1 (0.879) over 4.
+        let code = PolarCode::new(3, 5, 0.5).unwrap();
+        assert_eq!(code.info_positions(), &[3, 4, 5, 6, 7]);
+        let code = PolarCode::new(3, 2, 0.5).unwrap();
+        assert_eq!(code.info_positions(), &[6, 7]);
     }
 
     #[test]

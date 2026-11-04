@@ -39,8 +39,9 @@ pub fn segmented_sieve(low: u64, high: u64) -> Vec<u64> {
     let width = (high - low + 1) as usize;
     let mut composite = vec![false; width];
     for &p in &base {
-        // First multiple of p in the window, never p itself.
-        let start = (p * p).max(low.div_ceil(p) * p);
+        // First multiple of p in the window, never p itself (none if it would pass u64::MAX).
+        let Some(first) = low.div_ceil(p).checked_mul(p) else { continue };
+        let start = (p * p).max(first);
         let mut m = start;
         while m <= high {
             composite[(m - low) as usize] = true;
@@ -64,6 +65,14 @@ mod tests {
 
     fn trial(n: u64) -> bool {
         n >= 2 && (2..).take_while(|d| d * d <= n).all(|d| !n.is_multiple_of(d))
+    }
+
+    #[test]
+    #[ignore = "slow: sieves the base primes up to 2^32 (about 25 s in release)"]
+    fn the_top_of_the_u64_range_sieves_without_overflow() {
+        // The three largest 64-bit primes are 2^64 − 95, 2^64 − 83 and 2^64 − 59; first multiples
+        // near u64::MAX used to overflow.
+        assert_eq!(segmented_sieve(u64::MAX - 100, u64::MAX), vec![u64::MAX - 94, u64::MAX - 82, u64::MAX - 58]);
     }
 
     #[test]

@@ -263,20 +263,33 @@ fn write_match(writer: &mut BitWriter, length: usize, distance: usize) {
     writer.bits((distance - DIST_BASE[d] as usize) as u32, DIST_EXTRA[d] as u32);
 }
 
+/// The data as stored (uncompressed) DEFLATE blocks.
+fn stored(data: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(data.len() + 5 * (data.len() / 65535 + 1));
+    let blocks: Vec<&[u8]> = if data.is_empty() { vec![&[][..]] } else { data.chunks(65535).collect() };
+    for (i, block) in blocks.iter().enumerate() {
+        out.push(if i + 1 == blocks.len() { 1 } else { 0 });
+        out.extend_from_slice(&(block.len() as u16).to_le_bytes());
+        out.extend_from_slice(&(!(block.len() as u16)).to_le_bytes());
+        out.extend_from_slice(block);
+    }
+    out
+}
+
 /// Compresses to a raw DEFLATE stream. `level` 0 stores the data; any other level runs the LZ77
-/// search, with longer hash chains (more compression, more time) for higher levels up to 9.
+/// search, with longer hash chains (more compression, more time) for higher levels up to 9, and
+/// falls back to stored blocks if the fixed Huffman code would make the data larger (as it does
+/// for random bytes).
 pub fn deflate(data: &[u8], level: u8) -> Vec<u8> {
     if level == 0 {
-        let mut out = Vec::with_capacity(data.len() + 5 * (data.len() / 65535 + 1));
-        let blocks: Vec<&[u8]> = if data.is_empty() { vec![&[][..]] } else { data.chunks(65535).collect() };
-        for (i, block) in blocks.iter().enumerate() {
-            out.push(if i + 1 == blocks.len() { 1 } else { 0 });
-            out.extend_from_slice(&(block.len() as u16).to_le_bytes());
-            out.extend_from_slice(&(!(block.len() as u16)).to_le_bytes());
-            out.extend_from_slice(block);
-        }
-        return out;
+        return stored(data);
     }
+    let compressed = deflate_fixed(data, level);
+    if compressed.len() > data.len() + 5 * (data.len() / 65535 + 1) { stored(data) } else { compressed }
+}
+
+/// LZ77 with hash chains, coded with the fixed Huffman code in a single block.
+fn deflate_fixed(data: &[u8], level: u8) -> Vec<u8> {
     const WINDOW: usize = 32768;
     const HASH_BITS: u32 = 15;
     let max_chain = 4usize << level.min(9);
@@ -364,6 +377,20 @@ pub fn zlib_compress(data: &[u8], level: u8) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn incompressible_data_is_stored_not_expanded() {
+        let mut seed = 7u64;
+        let random: Vec<u8> = (0..5000)
+            .map(|_| {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                (seed >> 56) as u8
+            })
+            .collect();
+        let packed = zlib_compress(&random, 9);
+        assert!(packed.len() <= random.len() + 11, "{} bytes", packed.len());
+        assert_eq!(zlib_decompress(&packed).unwrap(), random);
+    }
 
     /// `zlib.compress(text, 9)` from CPython's zlib (dynamic Huffman blocks), where `text` is the
     /// pangram repeated 20 times followed by the bytes 0..=255.

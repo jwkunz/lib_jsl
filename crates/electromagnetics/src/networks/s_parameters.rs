@@ -2,6 +2,8 @@
 //!
 //! Scattering parameters are referred to a real impedance `z0` on both ports (power waves
 //! `a = (V + z0 I)/(2√z0)`, `b = (V − z0 I)/(2√z0)`). Cascades multiply ABCD (or T) matrices.
+//!
+//! See the book entry [Transmission lines, two-port networks and the Smith chart](https://jwkunz.github.io/lib_jsl/book/em-waves/transmission-lines.html).
 
 use crate::conventions::C64;
 use lib_jsl_core::ErrorsJSL;
@@ -67,11 +69,13 @@ pub fn s_to_abcd(s: &Matrix2, z0: f64) -> Result<Matrix2, ErrorsJSL> {
 
 /// ABCD parameters to S parameters.
 pub fn abcd_to_s(m: &Matrix2, z0: f64) -> Result<Matrix2, ErrorsJSL> {
+    // ANCHOR: abcd_to_s
     let (a, b, cc, d) = (m[0][0], m[0][1], m[1][0] * z0, m[1][1]);
     let b = b / z0;
     let denominator = a + b + cc + d;
     singular(denominator)?;
     Ok([[(a + b - cc - d) / denominator, c(2.0) * det(m) / denominator], [c(2.0) / denominator, (-a + b - cc + d) / denominator]])
+    // ANCHOR_END: abcd_to_s
 }
 
 /// S parameters to scattering transfer (T) parameters, `[b₁, a₁]ᵀ = T [a₂, b₂]ᵀ`, which

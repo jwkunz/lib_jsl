@@ -3,6 +3,8 @@
 //! Phasors use the engineering convention `e^{+jωt}`: a wave travelling towards the load is
 //! `e^{−γz}` with propagation constant `γ = α + jβ`, and lines are characterised per unit length
 //! by `R, L, G, C`, giving `Z₀ = √((R + jωL)/(G + jωC))` and `γ = √((R + jωL)(G + jωC))`.
+//!
+//! See the book entry [Transmission lines, two-port networks and the Smith chart](https://jwkunz.github.io/lib_jsl/book/em-waves/transmission-lines.html).
 
 use crate::conventions::C64;
 use lib_jsl_core::ErrorsJSL;
@@ -65,6 +67,7 @@ impl TransmissionLine {
     /// The impedance seen at the input of a section of `length` metres terminated in `load`
     /// (`Z_in = Z₀ (Z_L + Z₀ tanh γl) / (Z₀ + Z_L tanh γl)`; an infinite load is an open circuit).
     pub fn input_impedance(&self, load: C64, length: f64, frequency: f64) -> C64 {
+        // ANCHOR: input_impedance
         // The cosh/sinh form avoids the poles of tanh at odd multiples of a quarter wave.
         let z0 = self.characteristic_impedance(frequency);
         let gl = self.propagation_constant(frequency) * length;
@@ -73,6 +76,7 @@ impl TransmissionLine {
             return z0 * ch / sh;
         }
         z0 * (load * ch + z0 * sh) / (z0 * ch + load * sh)
+        // ANCHOR_END: input_impedance
     }
 
     /// The ABCD (chain) matrix of a section: `[[cosh γl, Z₀ sinh γl], [sinh γl / Z₀, cosh γl]]`.

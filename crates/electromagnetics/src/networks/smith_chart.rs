@@ -1,5 +1,7 @@
 //! Smith chart geometry: the map between normalised impedance and reflection coefficient, the
 //! constant-resistance and constant-reactance circles, and impedance loci along a line.
+//!
+//! See the book entry [Transmission lines, two-port networks and the Smith chart](https://jwkunz.github.io/lib_jsl/book/em-waves/transmission-lines.html).
 
 use crate::conventions::C64;
 

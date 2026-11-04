@@ -165,8 +165,9 @@ impl EulerSequence {
 
     /// Angles `[α, β, γ]` reproducing the rotation matrix `m` (inverse of [`EulerSequence::to_matrix`]).
     /// The decomposition is not unique; the result has the middle angle in `[0, π]` for proper
-    /// sequences and in `[-π/2, π/2]` for Tait-Bryan ones. At gimbal lock the third angle is
-    /// folded into the first. `None` for an invalid sequence.
+    /// sequences and in `[-π/2, π/2]` for Tait-Bryan ones, and the outer angles in `(-π, π]`.
+    /// At gimbal lock (the middle angle within `1e-10` of a singular value) the third angle is
+    /// folded into the first and returned as zero. `None` for an invalid sequence.
     pub fn from_matrix(&self, m: &Matrix3) -> Option<[f64; 3]> {
         if !self.is_valid() {
             return None;
@@ -212,6 +213,17 @@ impl EulerSequence {
             }
         } else if res[1].abs() > PI / 2.0 {
             res = [res[0] + PI, PI.copysign(res[1]) - res[1], res[2] + PI];
+        }
+        // At gimbal lock only α ± γ is determined, and how it was split between them came from
+        // rounding noise: fold it into α, with whichever sign reproduces the matrix, and set γ = 0.
+        let lock = if a0 == a2 { res[1].min(PI - res[1]) } else { PI / 2.0 - res[1].abs() };
+        if lock < 1e-10 {
+            let fit = |alpha: f64| {
+                let r = self.to_matrix([alpha, res[1], 0.0]);
+                (0..9).map(|k| (r[k / 3][k % 3] - m[k / 3][k % 3]).abs()).fold(0.0, f64::max)
+            };
+            let (plus, minus) = (res[0] + res[2], res[0] - res[2]);
+            res = [if fit(plus) <= fit(minus) { plus } else { minus }, res[1], 0.0];
         }
         for k in [0, 2] {
             res[k] = PI - (PI - res[k]).rem_euclid(2.0 * PI);
@@ -404,6 +416,12 @@ mod tests {
         for pitch in [FRAC_PI_2, -FRAC_PI_2] {
             let m = seq.to_matrix([0.4, pitch, 0.9]);
             assert!(close(&seq.to_matrix(seq.from_matrix(&m).unwrap()), &m, 1e-9));
+        }
+        // The third angle is folded into the first.
+        for (seq, angles) in [(EulerSequence::XYZ, [0.0, FRAC_PI_2, FRAC_PI_2]), (EulerSequence::ZYX, [0.4, -FRAC_PI_2, 0.9]), (EulerSequence::ZXZ, [0.4, PI, 0.9])] {
+            let m = seq.to_matrix(angles);
+            let back = seq.from_matrix(&m).unwrap();
+            assert!(back[2] == 0.0 && close(&seq.to_matrix(back), &m, 1e-9), "{seq:?} {angles:?} -> {back:?}");
         }
         let m = EulerSequence::ZXZ.to_matrix([0.4, 0.0, 0.9]); // proper-Euler singularity at beta = 0
         assert!(close(&EulerSequence::ZXZ.to_matrix(EulerSequence::ZXZ.from_matrix(&m).unwrap()), &m, 1e-9));

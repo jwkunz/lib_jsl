@@ -2,6 +2,8 @@
 //!
 //! Units are SI. Harmonic quantities are complex peak phasors; time-averaged products carry the
 //! factor ½ (for example `S = ½ E × H*`).
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html#conventions).
 
 use lib_jsl_core::constants::em::{C0, EPS_0, MU_0};
 use num_complex::Complex;

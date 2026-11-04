@@ -1,4 +1,6 @@
 //! Complete scenes, their array covariance, and covariance estimation from snapshots.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 use super::distributed::BrightnessScene;
 use super::point_source::PointSource;

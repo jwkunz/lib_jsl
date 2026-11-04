@@ -1,4 +1,6 @@
 //! The maximum-SNR beamformer.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 use super::beamforming::normalize;
 use crate::conventions::C64;

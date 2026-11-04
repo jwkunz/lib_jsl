@@ -8,6 +8,8 @@
 //!   interpolation. On the far-field sphere, positions are directions: a rotation maps directions,
 //!   and a translation by `t` multiplies the pattern by `e^{jk r̂·t}` (the same expression in both
 //!   time conventions, with the convention's imaginary unit).
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::{C64, Medium};
 use crate::coordinates::polarization::PolarizationBasis;

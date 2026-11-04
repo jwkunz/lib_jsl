@@ -14,6 +14,8 @@
 //! Vector fields are interpolated in **Cartesian components**, which are smooth everywhere
 //! (spherical θ̂/φ̂ components flip sign across the poles), and the result is expressed in the
 //! field's basis at the query point.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::C64;
 use crate::coordinates::systems::Position;

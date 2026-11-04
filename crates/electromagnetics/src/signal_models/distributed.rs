@@ -1,4 +1,6 @@
 //! Distributed sources: brightness- or noise-temperature distributions over the sky.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 use super::Coherency;
 use crate::arrays::SensorArray;

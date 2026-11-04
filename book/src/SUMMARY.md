@@ -153,6 +153,11 @@
     - [Convolutional codes and the Viterbi algorithm](coding/convolutional.md)
     - [Low-density parity-check codes](coding/ldpc.md)
     - [Polar codes](coding/polar.md)
+- [Electromagnetics: fields, antennas, arrays and beamforming](em-arrays/index.md)
+    - [Fields on grids: conventions, domains, quadrature and vector calculus](em-arrays/fields.md)
+    - [Antenna models: dipoles, loops, dishes and patches](em-arrays/antennas.md)
+    - [Arrays, scenes and beamformers](em-arrays/beamforming.md)
+    - [Direction finding: Bartlett, Capon, MUSIC and ESPRIT](em-arrays/direction-finding.md)
 
 ---
 

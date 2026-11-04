@@ -1,5 +1,7 @@
 //! Physical operations on fields, with quantity checks: plane waves, the Poynting vector, power
 //! flow, far-field radiation intensity and directivity, fields from potentials, wave impedance.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::{C64, Medium};
 use crate::coordinates::polarization::PolarizationBasis;

@@ -15,6 +15,8 @@
 //! is treated as the unit sphere of directions (angular operators, `h = (1, sin θ)`). Samples where
 //! a scale factor vanishes (the poles of a uniform sphere grid) are returned as NaN; Gauss-Legendre
 //! polar grids avoid them. Vector results are in the linear basis of the domain's system.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::C64;
 use crate::coordinates::polarization::PolarizationBasis;

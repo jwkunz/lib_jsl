@@ -3,6 +3,8 @@
 //!
 //! Polarizations are expressed in the `(θ̂, φ̂)` basis of the arrival direction. Powers are
 //! available powers in watts over the scene bandwidth, so `R` has units of W.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 pub mod covariance;
 pub mod distributed;

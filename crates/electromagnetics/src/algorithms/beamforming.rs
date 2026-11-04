@@ -3,6 +3,8 @@
 //! A beamformer combines array snapshots `x` (length `N`) as `y = wᴴ x`, so a weight vector `w`
 //! passes a signal with steering vector `a` with gain `wᴴ a` and outputs the power `wᴴ R w` for a
 //! covariance `R`.
+//!
+//! See the book entry [Arrays, scenes and beamformers](https://jwkunz.github.io/lib_jsl/book/em-arrays/beamforming.html).
 
 use crate::conventions::C64;
 use crate::linalg::quadratic_form;

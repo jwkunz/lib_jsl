@@ -1,4 +1,6 @@
 //! Circular aperture (reflector dish) antennas.
+//!
+//! See the book entry [Antenna models](https://jwkunz.github.io/lib_jsl/book/em-arrays/antennas.html).
 
 use super::{Antenna, Excitation};
 use crate::conventions::{C64, Medium, TimeConvention};

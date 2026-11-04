@@ -6,6 +6,8 @@
 //! field in V/m for apertures, the edge voltage for patches), in the requested time convention.
 //! Models are defined in their own frame (documented per model); place them with
 //! [`HarmonicField::transformed`] on their pattern containers.
+//!
+//! See the book entry [Antenna models](https://jwkunz.github.io/lib_jsl/book/em-arrays/antennas.html).
 
 pub mod half_wave_dipole;
 pub mod dish;

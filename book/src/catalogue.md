@@ -604,7 +604,7 @@ Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.ht
 
 Electromagnetics: fields, antennas, arrays, beamforming, direction finding, transmission lines, propagation, MoM and FDTD.
 
-Crate `lib_jsl_electromagnetics`: [API reference](../api/lib_jsl_electromagnetics/index.html) · 39 items
+Crate `lib_jsl_electromagnetics`: [API reference](../api/lib_jsl_electromagnetics/index.html) · book chapters: [fields, antennas, arrays and beamforming](em-arrays/index.md) · 39 items
 
 
 Design and conventions: `crates/electromagnetics/DESIGN.md`
@@ -612,42 +612,42 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 #### Foundations
 
-- Conventions (units, configurable time convention, media)
-- Coordinate systems
-- Polarization bases (linear, circular)
-- Rigid transforms (translation, rotation)
+- [Conventions (units, configurable time convention, media)](em-arrays/fields.md#conventions)
+- [Coordinate systems](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
+- [Polarization bases (linear, circular)](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
+- [Rigid transforms (translation, rotation)](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
 
 #### Fields
 
-- Domains and quadrature (surface, volume)
-- Field container (scalar/vector, harmonic/time-varying, quantities)
-- Coordinate conversion
-- Interpolation (nearest, linear, cubic)
-- Vector calculus (volume)
-- Surface vector calculus (gradient, divergence, curl, Laplace-Beltrami)
-- Physics operations (Poynting, power, potentials)
+- [Domains and quadrature (surface, volume)](em-arrays/fields.md#domains-and-quadrature)
+- [Field container (scalar/vector, harmonic/time-varying, quantities)](em-arrays/fields.md#overview)
+- [Coordinate conversion](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
+- [Interpolation (nearest, linear, cubic)](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
+- [Vector calculus (volume)](em-arrays/fields.md#vector-calculus-on-curvilinear-grids)
+- [Surface vector calculus (gradient, divergence, curl, Laplace-Beltrami)](em-arrays/fields.md#vector-calculus-on-curvilinear-grids)
+- [Physics operations (Poynting, power, potentials)](em-arrays/fields.md#physics-on-fields)
 
 #### Antenna models
 
-- Hertzian dipole
-- Magnetic loop
-- Half-wave and finite dipoles
-- Dish
-- Patch antenna
+- [Hertzian dipole](em-arrays/antennas.md#electric-and-magnetic-dipoles)
+- [Magnetic loop](em-arrays/antennas.md#electric-and-magnetic-dipoles)
+- [Half-wave and finite dipoles](em-arrays/antennas.md#thin-wire-dipoles)
+- [Dish](em-arrays/antennas.md#apertures-the-dish)
+- [Patch antenna](em-arrays/antennas.md#microstrip-patches)
 
 #### Arrays and signal models
 
-- Sensor arrays and responses
-- Point source scenes
-- Distributed source and noise temperature scenes
-- Covariance models
+- [Sensor arrays and responses](em-arrays/beamforming.md#arrays-and-steering-vectors)
+- [Point source scenes](em-arrays/beamforming.md#scenes-and-covariance)
+- [Distributed source and noise temperature scenes](em-arrays/beamforming.md#scenes-and-covariance)
+- [Covariance models](em-arrays/beamforming.md#scenes-and-covariance)
 
 #### Algorithms
 
-- Overlap integral
-- CFM beamformer
-- Max-SNR beamformer
-- LCMV and MVDR beamformers
+- [Overlap integral](em-arrays/fields.md#physics-on-fields)
+- [CFM beamformer](em-arrays/beamforming.md#beamformers)
+- [Max-SNR beamformer](em-arrays/beamforming.md#beamformers)
+- [LCMV and MVDR beamformers](em-arrays/beamforming.md#beamformers)
 
 #### Transmission lines and networks
 
@@ -666,15 +666,15 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 - Spherical wave expansion
 - Near-field to far-field transformation
-- Direction-of-arrival estimation on sensor arrays
+- [Direction-of-arrival estimation on sensor arrays](em-arrays/direction-finding.md#beam-scanning-spectra)
 - Method of moments (wire antennas)
 - FDTD solver
 
 #### Demonstrations
 
-- Antenna patterns
-- Field containers
-- Beamforming
+- [Antenna patterns](em-arrays/antennas.md#in-practice)
+- [Field containers](em-arrays/fields.md#in-practice)
+- [Beamforming](em-arrays/beamforming.md#in-practice)
 
 ## Discrete mathematics and geometry
 

@@ -1,4 +1,6 @@
 //! The overlap (coupling) integral between two field distributions.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::C64;
 use crate::fields::field_container::HarmonicField;

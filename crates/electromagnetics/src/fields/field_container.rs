@@ -9,6 +9,8 @@
 //!
 //! Every sample's position comes from the domain, so a field never stores positions itself.
 //! Domains are shared through `Arc`, which makes fields cheap to derive from one another.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::{C64, TimeConvention};
 use crate::coordinates::polarization::PolarizationBasis;

@@ -1,4 +1,6 @@
 //! Electromagnetic fields: structured domains, field containers and the operations on them.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 pub mod domain;
 pub mod field_container;

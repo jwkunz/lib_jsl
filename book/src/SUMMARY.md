@@ -147,6 +147,12 @@
     - [Dictionary coding: LZ77, LZ78 and LZW](information/dictionary-coding.md)
     - [Linear feedback shift registers, m-sequences and Gold codes](information/lfsr.md)
     - [Checksums and hashes: CRC-32 and SHA-256](information/checksums.md)
+- [Error-correcting codes](coding/index.md)
+    - [Linear block codes and Hamming codes](coding/hamming.md)
+    - [Reed-Solomon codes](coding/reed-solomon.md)
+    - [Convolutional codes and the Viterbi algorithm](coding/convolutional.md)
+    - [Low-density parity-check codes](coding/ldpc.md)
+    - [Polar codes](coding/polar.md)
 
 ---
 

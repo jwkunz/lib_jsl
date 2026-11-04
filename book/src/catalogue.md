@@ -567,7 +567,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 Information theory and coding: source coding, LFSRs, CRC and SHA-256, error-correcting codes.
 
-Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.html) · book chapters: [information theory](information/index.md) · 19 items
+Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.html) · book chapters: [information theory](information/index.md), [error-correcting codes](coding/index.md) · 19 items
 
 #### Source coders
 
@@ -594,11 +594,11 @@ Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.ht
 
 #### Forward error correction
 
-- LDPC
-- Polar
-- Hamming
-- Reed-Solomon
-- Convolutional
+- [LDPC](coding/ldpc.md#belief-propagation)
+- [Polar](coding/polar.md#the-polarizing-transform)
+- [Hamming](coding/hamming.md#the-parity-check-matrix)
+- [Reed-Solomon](coding/reed-solomon.md#decoding)
+- [Convolutional](coding/convolutional.md#maximum-likelihood-decoding-on-the-trellis)
 
 ### Electromagnetics
 

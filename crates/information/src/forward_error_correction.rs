@@ -1,4 +1,6 @@
 //! Forward Error Correction (FEC).
+//!
+//! See the book entry [Error-correcting codes](https://jwkunz.github.io/lib_jsl/book/coding/index.html).
 
 pub mod ldpc;
 pub mod polar;

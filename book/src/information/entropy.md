@@ -16,7 +16,7 @@
 
 How much information does a message carry? Shannon's answer is the **entropy**: the average number of bits needed to describe the outcome of a random source, if the description is as efficient as possible. It
 sets the limit for lossless compression, which the [next entries](entropy-coding.md) approach. The **cross entropy** and the **Kullback-Leibler divergence** measure the cost of coding with the wrong distribution, and the **mutual
-information** measures how much one variable tells about another. Mutual information sets the capacity of a noisy channel, which the error-correcting codes of the next chapter approach. This entry also covers **Gray codes**, which order binary numbers so that neighbours differ in one bit.
+information** measures how much one variable tells about another. Mutual information sets the capacity of a noisy channel, which the [error-correcting codes](../coding/index.md) of the next chapter approach. This entry also covers **Gray codes**, which order binary numbers so that neighbours differ in one bit.
 
 ## History
 

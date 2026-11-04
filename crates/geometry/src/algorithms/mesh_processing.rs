@@ -1,4 +1,6 @@
 //! Triangle mesh smoothing and decimation, on indexed meshes (`vertices`, `triangles`).
+//!
+//! See the book entry [Triangle meshes: smoothing, decimation and slicing](https://jwkunz.github.io/lib_jsl/book/geometry/meshes.html).
 
 use std::cmp::Ordering;
 use std::collections::{BTreeSet, BinaryHeap, HashMap};
@@ -48,6 +50,7 @@ pub fn boundary_vertices(vertex_count: usize, triangles: &[[usize; 3]]) -> Vec<b
     boundary
 }
 
+// ANCHOR: taubin
 fn umbrella_step(vertices: &mut [V3], neighbours: &[BTreeSet<usize>], fixed: &[bool], factor: f64) {
     let old = vertices.to_vec();
     for (i, v) in vertices.iter_mut().enumerate() {
@@ -61,6 +64,7 @@ fn umbrella_step(vertices: &mut [V3], neighbours: &[BTreeSet<usize>], fixed: &[b
         }
     }
 }
+// ANCHOR_END: taubin
 
 /// Laplacian (umbrella) smoothing: each vertex moves a fraction `lambda` towards the mean of its
 /// neighbours, `iterations` times. Boundary vertices stay put with `keep_boundary`. Simple but it

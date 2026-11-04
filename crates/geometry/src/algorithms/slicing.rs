@@ -3,6 +3,8 @@
 //! Each triangle crossing the plane contributes one segment ([`triangle_plane`]); the segments are
 //! then chained end to end into polylines, closed where the cut goes all the way round. This is
 //! the core of layer-by-layer slicing for 3D printing and of cross-section views.
+//!
+//! See the book entry [Triangle meshes: smoothing, decimation and slicing](https://jwkunz.github.io/lib_jsl/book/geometry/meshes.html#slicing).
 
 use super::intersection::triangle_plane;
 use std::collections::HashMap;
@@ -68,6 +70,7 @@ impl Contour {
 /// neighbouring triangles), and an edge lying in the plane is reported once even though both of
 /// its triangles cut there, so a plane through a ring of vertices gives one loop. Triangles with
 /// out-of-range indices are skipped.
+// ANCHOR: slice
 pub fn slice_mesh(vertices: &[[f64; 3]], triangles: &[[usize; 3]], plane_point: [f64; 3], normal: [f64; 3], tol: f64) -> Vec<Contour> {
     let tol = tol.max(f64::MIN_POSITIVE);
     // A mesh edge lying in the plane is reported by both triangles that share it; keep one copy.
@@ -86,6 +89,7 @@ pub fn slice_mesh(vertices: &[[f64; 3]], triangles: &[[usize; 3]], plane_point: 
         .collect();
     chain_segments(&segments, tol)
 }
+// ANCHOR_END: slice
 
 /// Slices the mesh at each of `levels` along a coordinate axis (`0` = x, `1` = y, `2` = z),
 /// returning `(level, contours)` for every level, in the order given.

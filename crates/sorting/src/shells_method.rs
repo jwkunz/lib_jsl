@@ -1,6 +1,9 @@
 //! Shell's method.
+//!
+//! See the book entry [Comparison sorting](https://jwkunz.github.io/lib_jsl/book/sorting/comparison-sorts.html#shells-method).
 
 /// Sorts a slice using Shell's method with Ciura's gap sequence extended by a factor of 2.25.
+// ANCHOR: shell
 pub fn shell_sort<T: Ord>(slice: &mut [T]) {
     let n = slice.len();
     let mut gaps: Vec<usize> = vec![1, 4, 10, 23, 57, 132, 301, 701];
@@ -21,6 +24,7 @@ pub fn shell_sort<T: Ord>(slice: &mut [T]) {
         }
     }
 }
+// ANCHOR_END: shell
 
 #[cfg(test)]
 mod tests {

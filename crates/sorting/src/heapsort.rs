@@ -1,6 +1,9 @@
 //! Heapsort.
+//!
+//! See the book entry [Comparison sorting](https://jwkunz.github.io/lib_jsl/book/sorting/comparison-sorts.html#heapsort).
 
 /// Sorts a slice using heapsort (in place, O(n log n) worst case).
+// ANCHOR: heapsort
 pub fn heapsort<T: Ord>(slice: &mut [T]) {
     let n = slice.len();
     if n < 2 {
@@ -31,6 +34,7 @@ fn sift_down<T: Ord>(s: &mut [T], mut root: usize, end: usize) {
         root = child;
     }
 }
+// ANCHOR_END: heapsort
 
 #[cfg(test)]
 mod tests {

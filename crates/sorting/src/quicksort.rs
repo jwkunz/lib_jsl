@@ -1,4 +1,6 @@
 //! Quicksort.
+//!
+//! See the book entry [Comparison sorting](https://jwkunz.github.io/lib_jsl/book/sorting/comparison-sorts.html#quicksort).
 
 /// Sorts a slice using quicksort: a median-of-three pivot, Hoare's partition (whose two scans
 /// both stop at keys equal to the pivot, so runs of equal keys are split evenly rather than piling

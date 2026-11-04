@@ -195,11 +195,13 @@ impl PulseCorrelationTracker {
             } else {
                 0.0
             };
+            // ANCHOR: alpha_beta
             let measured = best as f64 + offset;
             let innovation = measured - predicted;
             self.delay = predicted + self.alpha * innovation;
             self.rate += self.beta * innovation;
             self.misses = 0;
+            // ANCHOR_END: alpha_beta
         } else {
             // Coast on the prediction.
             self.delay = predicted;

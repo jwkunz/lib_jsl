@@ -46,10 +46,12 @@ pub fn pulse_compress(received: &[C64], pulse: &[C64], weights: Option<&[f64]>) 
     if pulse.is_empty() || received.is_empty() {
         return Err(ErrorsJSL::InvalidInputRange("The pulse and the received signal must not be empty."));
     }
+    // ANCHOR: pulse_compress
     let filter = matched_filter(pulse, weights)?;
     let full = fft_convolve(received, &filter, ConvolveMode::Full)?;
     let offset = pulse.len() - 1;
     Ok((0..received.len()).map(|k| full[k + offset]).collect())
+    // ANCHOR_END: pulse_compress
 }
 
 /// The peak sidelobe level (dB relative to the main peak) of a compressed pulse: the largest

@@ -1,0 +1,1 @@
+Of the 10667 simulated codewords that were not recovered, the decoder reported 10667 as uncorrectable and returned a wrong message for 0.

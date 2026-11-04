@@ -5,6 +5,8 @@
 //! used by QR codes). Codes may be shortened to any `n <= 255`. Encoding is systematic: a codeword
 //! is the message bytes followed by `n - k` parity bytes. Decoding corrects up to `(n - k) / 2`
 //! byte errors using Berlekamp-Massey, a Chien search and a direct solve for error magnitudes.
+//!
+//! See the book entry [Reed-Solomon codes](https://jwkunz.github.io/lib_jsl/book/coding/reed-solomon.html).
 
 use lib_jsl_core::ErrorsJSL;
 use std::sync::OnceLock;
@@ -157,6 +159,7 @@ impl ReedSolomon {
         if s.iter().all(|&v| v == 0) {
             return Ok((received.to_vec(), 0));
         }
+        // ANCHOR: berlekamp_massey
         // Berlekamp-Massey for the error locator polynomial (lowest degree first).
         let mut c = vec![1u8];
         let mut b = vec![1u8];
@@ -195,6 +198,7 @@ impl ReedSolomon {
         if l > nsym / 2 {
             return Err(ErrorsJSL::RuntimeError("Reed-Solomon word has too many errors to correct."));
         }
+        // ANCHOR_END: berlekamp_massey
         // Chien search: error at codeword index i has locator X = α^(n-1-i), a root of σ at X^-1.
         let mut positions = Vec::new();
         for i in 0..self.n {

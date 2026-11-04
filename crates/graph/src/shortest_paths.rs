@@ -1,4 +1,6 @@
 //! Single-source shortest paths: Dijkstra, Bellman-Ford and A*.
+//!
+//! See the book entry [Shortest paths](https://jwkunz.github.io/lib_jsl/book/graph/shortest-paths.html).
 
 use crate::graph::Graph;
 use lib_jsl_core::ErrorsJSL;
@@ -69,6 +71,7 @@ pub fn dijkstra(g: &Graph, source: usize) -> Result<ShortestPaths, ErrorsJSL> {
     let mut predecessor = vec![None; n];
     distance[source] = 0.0;
     let mut heap = BinaryHeap::from([State { cost: 0.0, vertex: source }]);
+    // ANCHOR: dijkstra
     while let Some(State { cost, vertex }) = heap.pop() {
         if cost > distance[vertex] {
             continue;
@@ -82,6 +85,7 @@ pub fn dijkstra(g: &Graph, source: usize) -> Result<ShortestPaths, ErrorsJSL> {
             }
         }
     }
+    // ANCHOR_END: dijkstra
     Ok(ShortestPaths { source, distance, predecessor })
 }
 

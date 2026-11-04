@@ -1,4 +1,6 @@
 //! All-pairs shortest paths by the Floyd-Warshall algorithm.
+//!
+//! See the book entry [Shortest paths](https://jwkunz.github.io/lib_jsl/book/graph/shortest-paths.html#floydwarshall).
 
 use crate::graph::Graph;
 use lib_jsl_core::ErrorsJSL;
@@ -45,6 +47,7 @@ pub fn floyd_warshall(g: &Graph) -> Result<AllPairsShortestPaths, ErrorsJSL> {
             }
         }
     }
+    // ANCHOR: floyd
     for k in 0..n {
         for i in 0..n {
             let dik = distance[i][k];
@@ -60,6 +63,7 @@ pub fn floyd_warshall(g: &Graph) -> Result<AllPairsShortestPaths, ErrorsJSL> {
             }
         }
     }
+    // ANCHOR_END: floyd
     if (0..n).any(|i| distance[i][i] < 0.0) {
         return Err(ErrorsJSL::RuntimeError("The graph contains a negative cycle."));
     }

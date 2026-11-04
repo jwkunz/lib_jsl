@@ -1,4 +1,6 @@
 //! Graph algorithms on weighted, directed or undirected graphs with vertices `0..n`.
+//!
+//! See the book entry [Graph algorithms](https://jwkunz.github.io/lib_jsl/book/graph/index.html).
 
 pub mod all_pairs;
 pub mod graph;

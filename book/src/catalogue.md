@@ -701,14 +701,14 @@ Crate `lib_jsl_number_theory`: [API reference](../api/lib_jsl_number_theory/inde
 
 Graph representations and algorithms: shortest paths, spanning trees, flows and orderings.
 
-Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · 6 items
+Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · book chapter: [graph algorithms](graph/index.md) · 6 items
 
-- Graph representation helpers (edge lists, adjacency)
-- Shortest paths (Dijkstra, Bellman-Ford, A*)
-- All-pairs shortest paths (Floyd-Warshall)
-- Minimum spanning trees (Kruskal, Prim)
-- Maximum flow (Edmonds-Karp, Dinic)
-- Topological sort and strongly connected components
+- [Graph representation helpers (edge lists, adjacency)](graph/traversal.md#representation)
+- [Shortest paths (Dijkstra, Bellman-Ford, A*)](graph/shortest-paths.md#dijkstra)
+- [All-pairs shortest paths (Floyd-Warshall)](graph/shortest-paths.md#floydwarshall)
+- [Minimum spanning trees (Kruskal, Prim)](graph/spanning-trees.md#kruskal)
+- [Maximum flow (Edmonds-Karp, Dinic)](graph/max-flow.md#residual-networks-and-augmenting-paths)
+- [Topological sort and strongly connected components](graph/traversal.md#topological-sorting)
 
 ### Geometry
 

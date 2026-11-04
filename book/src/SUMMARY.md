@@ -168,6 +168,11 @@
     - [Divisibility and modular arithmetic](number-theory/modular-arithmetic.md)
     - [Primes: sieves, Miller–Rabin and factorisation](number-theory/primes.md)
     - [Polynomials and decimal-string integers](number-theory/polynomials.md)
+- [Graph algorithms: traversal, shortest paths, spanning trees and flows](graph/index.md)
+    - [Graphs, traversal and orderings](graph/traversal.md)
+    - [Shortest paths: Dijkstra, Bellman–Ford, A* and Floyd–Warshall](graph/shortest-paths.md)
+    - [Minimum spanning trees and union-find](graph/spanning-trees.md)
+    - [Maximum flow and minimum cut: Edmonds–Karp and Dinic](graph/max-flow.md)
 
 ---
 

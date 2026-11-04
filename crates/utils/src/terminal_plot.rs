@@ -4,6 +4,8 @@
 //! four times the vertical and twice the horizontal resolution of one-character-per-point plots.
 //! Axes carry min/mid/max tick labels, and several series can be overlaid (distinguished by a
 //! legend and, optionally, ANSI colour).
+//!
+//! See the book entry [Shared types, constants and utilities](https://jwkunz.github.io/lib_jsl/book/foundations/core-utils.html#terminal-plots).
 
 /// One curve: paired `x` and `y` samples, drawn as connected line segments.
 #[derive(Debug, Clone)]

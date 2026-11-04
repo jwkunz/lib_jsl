@@ -1,4 +1,6 @@
 //! General utilities: terminal plots, unit conversion and floating-point helpers.
+//!
+//! See the book entry [Shared types, constants and utilities](https://jwkunz.github.io/lib_jsl/book/foundations/core-utils.html).
 
 pub mod terminal_plot;
 pub mod unit_conversion;

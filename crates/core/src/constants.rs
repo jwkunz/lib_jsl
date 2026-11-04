@@ -36,6 +36,8 @@
 //! let z0 = em::Z_0;
 //! let tau = math::TAU;
 //! ```
+//!
+//! See the book entry [Shared types, constants and utilities](https://jwkunz.github.io/lib_jsl/book/foundations/core-utils.html#constants).
 
 // =============================================================================
 // Mathematics

@@ -1,5 +1,6 @@
 /// This module defines common error types and traits for the library. The `ErrorsJSL` enum provides a standardized way to represent various error conditions that may arise during the execution of the library's functions, such as invalid input, runtime errors, missing dependencies, and misconfigurations.
 #[derive(Debug)]
+// ANCHOR: errors
 pub enum ErrorsJSL {
     NotImplementedYet,
     IncompatibleArraySizes((usize, usize)),
@@ -9,3 +10,4 @@ pub enum ErrorsJSL {
     Other(&'static str),
     Misconfiguration(&'static str),
 }
+// ANCHOR_END: errors

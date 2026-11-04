@@ -5,6 +5,8 @@
 //! case is ignored if that leaves only one unit (`hz`, `pa` and `kwh` work), and a spelling that
 //! fits several units, such as `mw`, is an error rather than a guess. Conversion is allowed only
 //! within one physical dimension; temperatures use affine conversions.
+//!
+//! See the book entry [Shared types, constants and utilities](https://jwkunz.github.io/lib_jsl/book/foundations/core-utils.html#unit-conversion).
 
 use lib_jsl_core::ErrorsJSL;
 

@@ -1,4 +1,6 @@
 //! Machine epsilon and unit-in-the-last-place helpers.
+//!
+//! See the book entry [Shared types, constants and utilities](https://jwkunz.github.io/lib_jsl/book/foundations/core-utils.html#machine-epsilon-and-ulps).
 
 /// Machine epsilon of `f64`: the gap between 1.0 and the next representable number (2⁻⁵²).
 pub fn machine_epsilon() -> f64 {
@@ -37,6 +39,7 @@ pub fn ulp(x: f64) -> f64 {
 }
 
 /// Number of representable `f64` values between `a` and `b` (0 if equal; `None` if either is NaN).
+// ANCHOR: ulps
 pub fn ulps_between(a: f64, b: f64) -> Option<u64> {
     if a.is_nan() || b.is_nan() {
         return None;
@@ -48,6 +51,7 @@ pub fn ulps_between(a: f64, b: f64) -> Option<u64> {
     };
     Some(key(a).abs_diff(key(b)))
 }
+// ANCHOR_END: ulps
 
 /// Whether `a` and `b` differ by at most `max_ulps` representable values.
 pub fn approx_eq_ulps(a: f64, b: f64, max_ulps: u64) -> bool {

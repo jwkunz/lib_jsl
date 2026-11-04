@@ -4,6 +4,8 @@
 //! with whatever parameterisation is natural for the primitive (a segment parameter, barycentric
 //! coordinates, ...), and distances are Euclidean. For nearest neighbours *within a large point
 //! set*, build a [`KdTree`](super::kd_trees::KdTree) instead.
+//!
+//! See the book entry [Intersections and closest points](https://jwkunz.github.io/lib_jsl/book/geometry/intersections.html#closest-points).
 
 fn sub<const D: usize>(a: [f64; D], b: [f64; D]) -> [f64; D] {
     std::array::from_fn(|k| a[k] - b[k])
@@ -73,6 +75,7 @@ pub fn closest_point_on_plane(p: [f64; 3], plane_point: [f64; 3], normal: [f64; 
 
 /// The closest point on the (filled) triangle `abc` in 3D, with its barycentric coordinates
 /// `[wa, wb, wc]` (non-negative, summing to 1). Works for degenerate triangles too.
+// ANCHOR: closest_triangle
 pub fn closest_point_on_triangle(p: [f64; 3], a: [f64; 3], b: [f64; 3], c: [f64; 3]) -> (Closest<3>, [f64; 3]) {
     // Ericson, Real-Time Collision Detection, 5.1.5: classify p by Voronoi region.
     let (ab, ac, ap) = (sub(b, a), sub(c, a), sub(p, a));
@@ -118,6 +121,7 @@ pub fn closest_point_on_triangle(p: [f64; 3], a: [f64; 3], b: [f64; 3], c: [f64;
     let (v, w) = (vb / denom, vc / denom);
     (Closest::new(p, add_scaled(add_scaled(a, ab, v), ac, w)), [1.0 - v - w, v, w])
 }
+// ANCHOR_END: closest_triangle
 
 /// The closest point in the axis-aligned box `[min, max]` (the point itself if inside).
 pub fn closest_point_on_aabb<const D: usize>(p: [f64; D], min: [f64; D], max: [f64; D]) -> Closest<D> {

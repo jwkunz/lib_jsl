@@ -2,6 +2,8 @@
 //!
 //! Points and vectors are `[f64; 2]` / `[f64; 3]` arrays. Parallel and touching configurations
 //! are handled explicitly; tolerances are absolute and stated per function where they matter.
+//!
+//! See the book entry [Intersections and closest points](https://jwkunz.github.io/lib_jsl/book/geometry/intersections.html#intersection-tests).
 
 fn sub2(a: [f64; 2], b: [f64; 2]) -> [f64; 2] {
     [a[0] - b[0], a[1] - b[1]]

@@ -1,25 +1,22 @@
-use std::collections::VecDeque;
 
 use crate::{
     dsp::discrete::{
         filters::firwin::{FirwinPassZero, firwin},
+        resampling::polyphase_integer_resampling::PolyphaseEngine,
         stream_operator::{StreamOperator, StreamOperatorManagement},
         windows::{WindowType, kaiser_beta, kaiser_estimate_numtaps},
     },
     prelude::{ErrorsJSL, IsAnalytic},
 };
 
-/// Streaming arbitrary-ratio polyphase resampler approximation.
+/// Streaming resampler by an integer `up_rate` and a real `down_rate`.
 ///
-/// The upsampling rate is integer, and the downsampling rate is floating-point.
-/// Internally this uses a floating sample counter, so output timing is an
-/// approximation that improves as `up_rate` increases.
+/// Output `m` is taken from the upsampled, filtered signal at position `⌊m · down_rate⌋`, so the
+/// output times are rounded to the nearest-below point of the `up_rate` grid: the timing error is
+/// at most one upsampled sample, and shrinks as `up_rate` grows. With an integer `down_rate` the
+/// result equals [`PolyphaseIntegerResampler`](super::polyphase_integer_resampling::PolyphaseIntegerResampler)'s.
 pub struct PolyphaseArbitraryResampler<T: IsAnalytic> {
-    up_rate: usize,
-    down_rate: f64,
-    taps: Vec<f64>,
-    history: VecDeque<Option<T>>,
-    counter: f64,
+    engine: PolyphaseEngine<T>,
 }
 
 impl<T: IsAnalytic> PolyphaseArbitraryResampler<T> {
@@ -65,55 +62,13 @@ impl<T: IsAnalytic> PolyphaseArbitraryResampler<T> {
         for h in &mut taps {
             *h *= up_rate as f64;
         }
-
-        let history = VecDeque::from_iter(vec![None; taps.len()]);
-        Ok(Self {
-            up_rate,
-            down_rate,
-            taps,
-            history,
-            counter: 0.0,
-        })
-    }
-
-    fn step(&mut self, input: T) -> Option<Vec<T>> {
-        // Shift in the new sample and update the history and counter.
-        // The history is a sliding window of the most recent input samples, and the counter keeps track of how many samples have been processed since the last output sample.
-        self.history.pop_front();
-        self.history.push_back(Some(input));
-        self.counter += 1.0;
-        // Pad the history with None for the up_rate - 1 samples that would be inserted in a zero-stuffed sequence, and update the counter accordingly.
-        // This simulates the effect of upsampling by inserting zeros between input samples without actually creating a larger intermediate buffer.
-        for _ in 1..self.up_rate {
-            self.history.pop_front();
-            self.history.push_back(None);
-            self.counter += 1.0;
-        }
-        let mut result = Vec::new();
-        // Whenever the counter indicates that enough input has been accumulated to produce an output sample (i.e., counter >= down_rate), we compute the output sample by applying the FIR filter taps to the current history of input samples.
-        // We then decrement the counter by the down_rate to account for the output sample that was just produced, and repeat this process until the counter is less than the down_rate, which means we need to wait for more input samples before producing the next output sample.
-        while self.counter >= self.down_rate {
-            self.counter -= self.down_rate;
-            let mut acc = T::zero();
-            for (h, x) in self.taps.iter().zip(self.history.iter()) {
-                if let Some(x) = x {
-                    acc += x.f_scale(*h);
-                }
-            }
-            result.push(acc);
-        }
-        if result.is_empty() {
-            None
-        } else {
-            Some(result)
-        }
+        Ok(Self { engine: PolyphaseEngine::new(up_rate, down_rate, taps) })
     }
 }
 
 impl<T: IsAnalytic> StreamOperatorManagement for PolyphaseArbitraryResampler<T> {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
-        self.history.iter_mut().for_each(|x| *x = None);
-        self.counter = 0.0;
+        self.engine.reset();
         Ok(())
     }
 
@@ -124,36 +79,44 @@ impl<T: IsAnalytic> StreamOperatorManagement for PolyphaseArbitraryResampler<T> 
 
 impl<T: IsAnalytic> StreamOperator<T, T> for PolyphaseArbitraryResampler<T> {
     fn process(&mut self, data_in: &[T]) -> Result<Option<Vec<T>>, ErrorsJSL> {
-        if data_in.is_empty() {
-            return Ok(None);
-        }
-        let out: Vec<T> = data_in
-            .iter()
-            .filter_map(|&x| self.step(x))
-            .flatten()
-            .collect();
-        if out.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(out))
-        }
+        let out = self.engine.process(data_in);
+        Ok(if out.is_empty() { None } else { Some(out) })
     }
 
     fn flush(&mut self) -> Result<Option<Vec<T>>, ErrorsJSL> {
-        let zeros = vec![T::zero(); self.taps.len()];
-        self.process(&zeros)
+        let out = self.engine.flush();
+        Ok(if out.is_empty() { None } else { Some(out) })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::discrete::resampling::polyphase_integer_resampling::PolyphaseIntegerResampler;
 
     #[test]
-    fn test_polyphase_arbitrary_resampler() {
+    fn decimation_with_a_unit_filter_keeps_every_third_sample() {
         let mut resampler = PolyphaseArbitraryResampler::new(1, 3.0, Some(&[1.0])).unwrap();
         let input = (0..10).map(|x| x as f64).collect::<Vec<f64>>();
-        let output = resampler.process(&input).unwrap().unwrap();
-        assert_eq!(output, vec![0.0, 3.0, 6.0]);
+        assert_eq!(resampler.process(&input).unwrap().unwrap(), vec![0.0, 3.0, 6.0, 9.0]);
+    }
+
+    #[test]
+    fn integer_ratios_agree_with_the_integer_resampler_and_fractional_ones_track_a_sine() {
+        let x: Vec<f64> = (0..400).map(|n| (0.05 * n as f64).sin()).collect();
+        let mut a = PolyphaseArbitraryResampler::new(4, 3.0, None).unwrap();
+        let mut b = PolyphaseIntegerResampler::new(4, 3, None).unwrap();
+        assert_eq!(a.process(&x).unwrap(), b.process(&x).unwrap());
+        // Resample by 32/45.7: output m sits at input time ⌊45.7 m⌋ / 32, minus the filter delay.
+        let up = 32;
+        let down = 45.7;
+        let mut r = PolyphaseArbitraryResampler::new(up, down, None).unwrap();
+        let y = r.process(&x).unwrap().unwrap();
+        let delay = (r.engine.taps.len() - 1) as f64 / 2.0;
+        let worst = y.iter().enumerate().skip(20).take(y.len() - 40).map(|(m, v)| {
+            let t = ((m as f64 * down).floor() - delay) / up as f64;
+            (v - (0.05 * t).sin()).abs()
+        }).fold(0.0, f64::max);
+        assert!(worst < 2e-3, "{worst}");
     }
 }

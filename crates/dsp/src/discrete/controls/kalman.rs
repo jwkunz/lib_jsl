@@ -7,6 +7,17 @@ use crate::{
     prelude::{C1D, C2D, ErrorsJSL},
 };
 
+/// The output of one predict-update cycle of a [`KalmanFilter`].
+#[derive(Clone, Debug, PartialEq)]
+pub struct KalmanResult {
+    /// The updated a-posteriori state estimate after incorporating the current
+    /// measurement.
+    pub next_state: C1D,
+    /// The innovation or residual vector `z[k] - H x_pred[k]` formed from the
+    /// incoming measurement and the predicted observation.
+    pub residual_error: C1D,
+}
+
 /// Streaming discrete-time Kalman filter with complex-valued matrices.
 ///
 /// This type implements the classic linear Kalman filter for a discrete-time,
@@ -51,16 +62,6 @@ use crate::{
 /// This filter is stateful. Reusing the same instance across multiple calls to
 /// [`process`](StreamOperator::process) continues estimation from the previous
 /// internal state until [`reset`](StreamOperatorManagement::reset) is called.
-#[derive(Clone, Debug, PartialEq)]
-pub struct KalmanResult {
-    /// The updated a-posteriori state estimate after incorporating the current
-    /// measurement.
-    pub next_state: C1D,
-    /// The innovation or residual vector `z[k] - H x_pred[k]` formed from the
-    /// incoming measurement and the predicted observation.
-    pub residual_error: C1D,
-}
-
 pub struct KalmanFilter {
     state_transition: C2D,
     observation_model: C2D,

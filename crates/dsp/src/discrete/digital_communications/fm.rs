@@ -11,6 +11,8 @@
 //! recovery and recovers the message exactly in the absence of noise, as long as the deviation
 //! stays below `fs / 2`. An optional single-pole de-emphasis filter models the broadcast
 //! treble-boost compensation.
+//!
+//! See the book entry [Modulation: constellations, OFDM and FM](https://jwkunz.github.io/lib_jsl/book/comms/modulation.html#frequency-modulation).
 
 use crate::discrete::{
     sources::{
@@ -119,6 +121,7 @@ impl FmDemodulator {
     }
 
     /// Demodulates one baseband sample. The first output compares against a unit-phase reference.
+    // ANCHOR: fm_discriminator
     pub fn demodulate_sample(&mut self, y: Complex<f64>) -> f64 {
         let d = (y * self.previous.conj()).arg();
         self.previous = y;
@@ -131,6 +134,7 @@ impl FmDemodulator {
             None => m,
         }
     }
+    // ANCHOR_END: fm_discriminator
 }
 
 impl StreamOperatorManagement for FmDemodulator {

@@ -16,6 +16,8 @@
 //!
 //! Scaling is chosen so the time-domain samples have unit average power when the subcarrier
 //! symbols have unit power.
+//!
+//! See the book entry [Modulation: constellations, OFDM and FM](https://jwkunz.github.io/lib_jsl/book/comms/modulation.html#ofdm).
 
 use crate::{
     ffts::{
@@ -135,6 +137,7 @@ impl Ofdm {
     }
 
     /// Time samples (with prefix) for one OFDM symbol from its data symbols.
+    // ANCHOR: ofdm_modulate
     fn modulate_symbol(&mut self, data: &[Complex<f64>]) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
         let p = &self.params;
         let mut x = vec![Complex::new(0.0, 0.0); p.fft_size];
@@ -151,6 +154,7 @@ impl Ofdm {
         out.extend_from_slice(&body);
         Ok(out)
     }
+    // ANCHOR_END: ofdm_modulate
 
     /// Modulates data symbols into a time-domain signal. The number of symbols must be a multiple
     /// of [`num_data`](OfdmParams::num_data).

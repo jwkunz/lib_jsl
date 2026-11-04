@@ -8,6 +8,8 @@
 //! Demapping is available as hard decisions (nearest symbol) and as soft information: the
 //! max-log log-likelihood ratio `ln P(bit = 0) / P(bit = 1)` per bit (positive favours 0), the
 //! convention used by the LDPC and polar decoders in the `information` crate.
+//!
+//! See the book entry [Modulation: constellations, OFDM and FM](https://jwkunz.github.io/lib_jsl/book/comms/modulation.html#constellations-and-gray-labelling).
 
 use lib_jsl_core::ErrorsJSL;
 use num_complex::Complex;
@@ -152,6 +154,7 @@ impl Constellation {
         if !(noise_variance > 0.0) {
             return Err(ErrorsJSL::InvalidInputRange("Noise variance must be positive"));
         }
+        // ANCHOR: demap_soft
         let k = self.bits_per_symbol;
         let mut llr = Vec::with_capacity(samples.len() * k);
         for &s in samples {
@@ -170,6 +173,7 @@ impl Constellation {
             }
         }
         Ok(llr)
+        // ANCHOR_END: demap_soft
     }
 }
 

@@ -6,6 +6,8 @@
 //! word is the XOR of the positions of its set bits and equals the position of a single error.
 //! The extended code appends one overall parity bit, giving single-error correction and
 //! double-error detection.
+//!
+//! See the book entry [Linear block codes and Hamming codes](https://jwkunz.github.io/lib_jsl/book/coding/hamming.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -104,6 +106,7 @@ impl HammingCode {
         }
         let nb = self.base_len();
         let mut word: Vec<u8> = received.iter().map(|&b| b & 1).collect();
+        // ANCHOR: hamming_decode
         let syndrome = (1..=nb).filter(|&p| word[p - 1] == 1).fold(0usize, |a, p| a ^ p);
         let overall_odd = self.extended && word.iter().fold(0u8, |a, &b| a ^ b) == 1;
         let status = if syndrome == 0 && !overall_odd {
@@ -118,6 +121,7 @@ impl HammingCode {
             word[syndrome - 1] ^= 1;
             HammingStatus::Corrected(syndrome - 1)
         };
+        // ANCHOR_END: hamming_decode
         let data = (1..=nb).filter(|p| !p.is_power_of_two()).map(|p| word[p - 1]).collect();
         Ok(HammingDecoded { data, status })
     }

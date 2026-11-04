@@ -1,4 +1,6 @@
 //! Thin-wire dipoles of finite length, and the half-wave dipole.
+//!
+//! See the book entry [Antenna models](https://jwkunz.github.io/lib_jsl/book/em-arrays/antennas.html).
 
 use super::{Antenna, Excitation};
 use crate::conventions::{C64, Medium, TimeConvention};
@@ -25,11 +27,13 @@ impl Dipole {
 
 impl Antenna for Dipole {
     fn far_field(&self, theta: f64, _phi: f64, frequency: f64, convention: TimeConvention) -> [C64; 2] {
+        // ANCHOR: dipole_far_field
         let half_kl = 0.5 * TAU * frequency / C0 * self.length;
         let s = theta.sin();
         let eta = Medium::VACUUM.impedance(TimeConvention::PlusJ).re;
         let shape = if s.abs() < 1e-12 { 0.0 } else { ((half_kl * theta.cos()).cos() - half_kl.cos()) / s };
         [convention.unit() * (eta / TAU * shape), C64::new(0.0, 0.0)]
+        // ANCHOR_END: dipole_far_field
     }
 
     fn excitation(&self) -> Excitation {

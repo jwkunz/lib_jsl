@@ -1,5 +1,7 @@
 //! Graph representation: adjacency lists with conversions to edge lists and matrices, traversal,
 //! connected components and a disjoint-set (union-find) structure.
+//!
+//! See the book entry [Graphs, traversal and orderings](https://jwkunz.github.io/lib_jsl/book/graph/traversal.html).
 
 use lib_jsl_core::ErrorsJSL;
 use std::collections::VecDeque;
@@ -207,6 +209,7 @@ impl UnionFind {
     }
 
     /// The representative of `x`'s set.
+    // ANCHOR: union_find
     pub fn find(&mut self, mut x: usize) -> usize {
         while self.parent[x] != x {
             self.parent[x] = self.parent[self.parent[x]];
@@ -229,6 +232,7 @@ impl UnionFind {
         self.sets -= 1;
         true
     }
+    // ANCHOR_END: union_find
 
     pub fn connected(&mut self, a: usize, b: usize) -> bool {
         self.find(a) == self.find(b)

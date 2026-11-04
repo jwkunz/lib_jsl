@@ -1,4 +1,6 @@
 //! Topological sorting and strongly connected components of directed graphs.
+//!
+//! See the book entry [Graphs, traversal and orderings](https://jwkunz.github.io/lib_jsl/book/graph/traversal.html#topological-sorting).
 
 use crate::graph::Graph;
 use lib_jsl_core::ErrorsJSL;
@@ -57,6 +59,7 @@ pub fn strongly_connected_components(g: &Graph) -> Vec<usize> {
         counter += 1;
         stack.push(root);
         on_stack[root] = true;
+        // ANCHOR: tarjan
         while let Some(&mut (v, ref mut position)) = frames.last_mut() {
             if let Some(&(w, _)) = g.neighbors(v).get(*position) {
                 *position += 1;
@@ -88,6 +91,7 @@ pub fn strongly_connected_components(g: &Graph) -> Vec<usize> {
                 components += 1;
             }
         }
+        // ANCHOR_END: tarjan
     }
     component
 }

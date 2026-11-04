@@ -40,12 +40,14 @@ impl Lfsr {
     }
 
     /// Advances the register one step and returns the output bit.
+    // ANCHOR: lfsr_step
     pub fn step(&mut self) -> u8 {
         let out = (self.state & 1) as u8;
         let fb = ((self.state & self.taps).count_ones() & 1) as u64;
         self.state = (self.state >> 1) | (fb << (self.width - 1));
         out
     }
+    // ANCHOR_END: lfsr_step
 
     /// Returns the next `n` output bits.
     pub fn bits(&mut self, n: usize) -> Vec<u8> {

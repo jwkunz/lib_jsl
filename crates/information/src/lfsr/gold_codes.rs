@@ -36,6 +36,7 @@ pub fn gold_codes(n: u32) -> Result<Vec<Vec<u8>>, ErrorsJSL> {
     let period = (1usize << n) - 1;
     let u: Vec<u8> = Lfsr::from_polynomial(poly, 1).bits(period);
     // Preferred decimation q = 2^k + 1 with k = 1 (odd n) or k = 2 (n ≡ 2 mod 4).
+    // ANCHOR: gold
     let q = if n % 2 == 1 { 3 } else { 5 };
     let v: Vec<u8> = (0..period).map(|t| u[(q * t) % period]).collect();
     let mut family = Vec::with_capacity(period + 2);
@@ -44,6 +45,7 @@ pub fn gold_codes(n: u32) -> Result<Vec<Vec<u8>>, ErrorsJSL> {
     for shift in 0..period {
         family.push((0..period).map(|t| u[t] ^ v[(t + shift) % period]).collect());
     }
+    // ANCHOR_END: gold
     Ok(family)
 }
 

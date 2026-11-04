@@ -76,12 +76,14 @@ pub fn is_primitive_polynomial(poly: u64) -> bool {
     if n > MAX_CHECKED_DEGREE || poly & 1 == 0 {
         return false;
     }
+    // ANCHOR: primitive
     let order = (1u64 << n) - 1;
     // x^order must be 1 and x^(order/q) != 1 for every prime q dividing order.
     if pow_mod(2, order, poly) != 1 {
         return false;
     }
     prime_factors(order).into_iter().all(|q| pow_mod(2, order / q, poly) != 1)
+    // ANCHOR_END: primitive
 }
 
 /// Returns a minimal-weight primitive polynomial of the given degree (`2..=32`): a trinomial where

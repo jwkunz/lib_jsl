@@ -111,7 +111,7 @@ const UNITS: &[Unit] = &[
     unit!(Pressure, 101_325.0, ["atm"]),
     unit!(Pressure, 133.322_387_415, ["mmHg"]),
     unit!(Pressure, 101_325.0 / 760.0, ["torr"]),
-    unit!(Pressure, 6_894.757_293_168, ["psi"]),
+    unit!(Pressure, 6_894.757_293_168_361, ["psi"]),
     unit!(Energy, 1.0, ["j", "joule", "joules"]),
     unit!(Energy, 1e3, ["kj"]),
     unit!(Energy, 4.184, ["cal"]),
@@ -213,7 +213,7 @@ mod tests {
         assert!(close(unit_conversion(1.0, "mi", "km").unwrap(), 1.609344));
         assert!(close(unit_conversion(100.0, "km/h", "mph").unwrap(), 62.137_119_223_733_4));
         assert!(close(unit_conversion(180.0, "deg", "rad").unwrap(), std::f64::consts::PI));
-        assert!(close(unit_conversion(1.0, "atm", "psi").unwrap(), 14.695_948_775_322_4));
+        assert!(close(unit_conversion(1.0, "atm", "psi").unwrap(), 14.695_948_775_513_4));
         assert!(close(unit_conversion(1.0, "GiB", "MB").unwrap(), 1_073.741_824));
         assert!(close(unit_conversion(60.0, "rpm", "Hz").unwrap(), 1.0));
         assert!(close(unit_conversion(2.0, " Hours ", "min").unwrap(), 120.0));

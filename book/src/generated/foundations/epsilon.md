@@ -1,0 +1,1 @@
+Measured by halving until $1 + \varepsilon/2$ rounds to 1, the machine epsilon is 2.220446049250313e-16, equal to `f64::EPSILON` = $2^{-52}$: true.

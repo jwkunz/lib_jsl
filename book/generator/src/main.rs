@@ -10,6 +10,7 @@ mod derivatives;
 mod em_arrays;
 mod em_waves;
 mod fft;
+mod foundations;
 mod filters;
 mod draw;
 mod geometry;
@@ -49,10 +50,16 @@ pub fn write(chapter: &str, name: &str, contents: &str) {
 }
 
 fn main() {
+    // `INTEROP_OUT=dir` only writes files with the library's encoders, for
+    // `data/make_foundations_refs.py` to read back with Python's libraries.
+    if let Some(dir) = std::env::var_os("INTEROP_OUT") {
+        foundations::write_interop_files(Path::new(&dir));
+        return;
+    }
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 26] = [
+    let chapters: [(&str, fn()); 27] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -79,6 +86,7 @@ fn main() {
         ("graph", graph::generate),
         ("geometry", geometry::generate),
         ("sorting", sorting::generate),
+        ("foundations", foundations::generate),
     ];
     for (name, generate) in chapters {
         if wanted(name) {

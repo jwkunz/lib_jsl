@@ -1,8 +1,10 @@
 //! Conversion between common units of measure.
 //!
-//! Units are looked up by symbol or name, ignoring case and spaces (so `Pa` and `pa`, `MB` and
-//! `mb` are the same unit; SI prefixes are therefore spelled out per unit, e.g. `mhz` is megahertz).
-//! Conversion is allowed only within one physical dimension; temperatures use affine conversions.
+//! Units are looked up by symbol or name, ignoring spaces. An exact, case-sensitive match is tried
+//! first (`mW` is a milliwatt and `MW` a megawatt, `MB` a megabyte and `Mb` a megabit); otherwise
+//! case is ignored if that leaves only one unit (`hz`, `pa` and `kwh` work), and a spelling that
+//! fits several units, such as `mw`, is an error rather than a guess. Conversion is allowed only
+//! within one physical dimension; temperatures use affine conversions.
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -79,9 +81,9 @@ const UNITS: &[Unit] = &[
     unit!(Angle, std::f64::consts::PI / 10_800.0, ["arcmin"]),
     unit!(Angle, std::f64::consts::PI / 648_000.0, ["arcsec"]),
     unit!(Frequency, 1.0, ["hz", "hertz"]),
-    unit!(Frequency, 1e3, ["khz"]),
-    unit!(Frequency, 1e6, ["mhz"]),
-    unit!(Frequency, 1e9, ["ghz"]),
+    unit!(Frequency, 1e3, ["kHz", "kilohertz"]),
+    unit!(Frequency, 1e6, ["MHz", "megahertz"]),
+    unit!(Frequency, 1e9, ["GHz", "gigahertz"]),
     unit!(Frequency, 1.0 / 60.0, ["rpm"]),
     unit!(Frequency, std::f64::consts::TAU, ["rad/s"]),
     unit!(Area, 1.0, ["m2", "m^2", "sqm"]),
@@ -107,7 +109,8 @@ const UNITS: &[Unit] = &[
     unit!(Pressure, 1e5, ["bar"]),
     unit!(Pressure, 100.0, ["mbar", "hpa"]),
     unit!(Pressure, 101_325.0, ["atm"]),
-    unit!(Pressure, 133.322_387_415, ["mmhg", "torr"]),
+    unit!(Pressure, 133.322_387_415, ["mmHg"]),
+    unit!(Pressure, 101_325.0 / 760.0, ["torr"]),
     unit!(Pressure, 6_894.757_293_168, ["psi"]),
     unit!(Energy, 1.0, ["j", "joule", "joules"]),
     unit!(Energy, 1e3, ["kj"]),
@@ -117,25 +120,38 @@ const UNITS: &[Unit] = &[
     unit!(Energy, 1.602_176_634e-19, ["ev"]),
     unit!(Energy, 1_055.055_852_62, ["btu"]),
     unit!(Power, 1.0, ["w", "watt", "watts"]),
-    unit!(Power, 1e3, ["kw"]),
-    unit!(Power, 1e6, ["mw"]),
+    unit!(Power, 1e3, ["kW", "kilowatt", "kilowatts"]),
+    unit!(Power, 1e-3, ["mW", "milliwatt", "milliwatts"]),
+    unit!(Power, 1e6, ["MW", "megawatt", "megawatts"]),
     unit!(Power, 745.699_871_582_270_2, ["hp"]),
     unit!(Force, 1.0, ["n", "newton", "newtons"]),
     unit!(Force, 4.448_221_615_260_5, ["lbf"]),
     unit!(Force, 9.806_65, ["kgf"]),
     unit!(Data, 1.0, ["bit", "bits"]),
     unit!(Data, 8.0, ["byte", "bytes"]),
-    unit!(Data, 8e3, ["kb", "kilobyte"]),
-    unit!(Data, 8e6, ["mb", "megabyte"]),
-    unit!(Data, 8e9, ["gb", "gigabyte"]),
-    unit!(Data, 8192.0, ["kib"]),
-    unit!(Data, 8_388_608.0, ["mib"]),
-    unit!(Data, 8_589_934_592.0, ["gib"]),
+    unit!(Data, 1e3, ["kb", "kbit", "kilobit"]),
+    unit!(Data, 1e6, ["Mb", "Mbit", "megabit"]),
+    unit!(Data, 1e9, ["Gb", "Gbit", "gigabit"]),
+    unit!(Data, 8e3, ["kB", "kilobyte"]),
+    unit!(Data, 8e6, ["MB", "megabyte"]),
+    unit!(Data, 8e9, ["GB", "gigabyte"]),
+    unit!(Data, 8192.0, ["KiB", "kibibyte"]),
+    unit!(Data, 8_388_608.0, ["MiB", "mebibyte"]),
+    unit!(Data, 8_589_934_592.0, ["GiB", "gibibyte"]),
 ];
 
 fn lookup(name: &str) -> Result<&'static Unit, ErrorsJSL> {
-    let key = name.trim().to_lowercase().replace(' ', "");
-    UNITS.iter().find(|u| u.names.contains(&key.as_str())).ok_or(ErrorsJSL::InvalidInputRange("Unknown unit."))
+    let key: String = name.chars().filter(|c| !c.is_whitespace()).collect();
+    if let Some(unit) = UNITS.iter().find(|u| u.names.contains(&key.as_str())) {
+        return Ok(unit);
+    }
+    let lower = key.to_lowercase();
+    let mut matches = UNITS.iter().filter(|u| u.names.iter().any(|n| n.to_lowercase() == lower));
+    match (matches.next(), matches.next()) {
+        (Some(unit), None) => Ok(unit),
+        (Some(_), Some(_)) => Err(ErrorsJSL::InvalidInputRange("Ambiguous unit: give its case-sensitive symbol, such as mW or MW.")),
+        _ => Err(ErrorsJSL::InvalidInputRange("Unknown unit.")),
+    }
 }
 
 /// The dimension of a named unit.
@@ -218,6 +234,16 @@ mod tests {
             assert!(close(v, 3.7), "{a}->{b}");
         }
         assert!(unit_conversion(1.0, "m", "kg").is_err());
+        // Case decides SI prefixes when it must; an ambiguous spelling is refused.
+        assert!(close(unit_conversion(1.0, "mW", "W").unwrap(), 1e-3));
+        assert!(close(unit_conversion(1.0, "MW", "W").unwrap(), 1e6));
+        assert!(unit_conversion(1.0, "mw", "W").is_err());
+        assert!(close(unit_conversion(1.0, "MB", "Mb").unwrap(), 8.0));
+        assert!(close(unit_conversion(1.0, "mhz", "kHz").unwrap(), 1000.0));
+        assert!(close(unit_conversion(760.0, "torr", "atm").unwrap(), 1.0));
+        // The conventional millimetre of mercury is 1.4e-7 larger than the torr (101 325/760 Pa).
+        let ratio = unit_conversion(1.0, "mmHg", "torr").unwrap();
+        assert!(ratio > 1.0 + 1e-7 && ratio < 1.0 + 2e-7);
         assert!(unit_conversion(1.0, "parsec", "m").is_err());
         assert_eq!(unit_dimension("psi").unwrap(), Dimension::Pressure);
     }

@@ -1,4 +1,6 @@
 //! Receiver front-end that mixes a channel to baseband and then resamples.
+//!
+//! See the book entry [Channels and equalisation](https://jwkunz.github.io/lib_jsl/book/comms/equalisation.html#a-channel-in-software).
 use num_complex::Complex;
 
 use crate::{

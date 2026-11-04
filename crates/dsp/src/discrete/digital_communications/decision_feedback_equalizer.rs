@@ -26,6 +26,8 @@
 //!
 //! Error propagation (a wrong decision corrupting the next few outputs) is the DFE's known weakness
 //! and is why training first, at a good signal-to-noise ratio, matters.
+//!
+//! See the book entry [Channels and equalisation](https://jwkunz.github.io/lib_jsl/book/comms/equalisation.html#the-decision-feedback-equalizer).
 
 use super::constellations::Constellation;
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
@@ -121,6 +123,7 @@ impl DecisionFeedbackEqualizer {
     /// Processes one received sample. With `Some(target)` the equalizer trains on that symbol;
     /// with `None` it uses its own decision. Returns `(equalized sample, decision)`.
     pub fn equalize_sample(&mut self, x: Complex<f64>, target: Option<Complex<f64>>) -> (Complex<f64>, Complex<f64>) {
+        // ANCHOR: dfe
         let fl = self.forward_len;
         // Shift the received-sample part of the regressor and insert the new sample.
         self.regressor[..fl].rotate_right(1);
@@ -162,6 +165,7 @@ impl DecisionFeedbackEqualizer {
             self.regressor[fl] = desired;
         }
         (y, decision)
+        // ANCHOR_END: dfe
     }
 
     /// Trains on known symbols: `targets[i]` is the desired output for `received[i]` (when the

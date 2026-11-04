@@ -1,3 +1,7 @@
+//! A channel model: FIR channel, Doppler shift, non-linearity and noise.
+//!
+//! See the book entry [Channels and equalisation](https://jwkunz.github.io/lib_jsl/book/comms/equalisation.html#a-channel-in-software).
+
 use num_complex::Complex;
 
 use crate::{

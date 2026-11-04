@@ -1,3 +1,7 @@
+//! Oversampled uniform DFT polyphase analysis and synthesis filter banks.
+//!
+//! See the book entry [Polyphase filter banks](https://jwkunz.github.io/lib_jsl/book/spectral/filter-banks.html#critical-sampling-and-oversampling).
+
 use std::collections::VecDeque;
 
 use ndarray::Array1;

@@ -25,6 +25,8 @@
 //!    omitted. Stereo files use mid/side coding when the channels are similar.
 //!
 //! Samples are interleaved 16-bit PCM.
+//!
+//! See the book entry [Audio files](https://jwkunz.github.io/lib_jsl/book/foundations/audio.html#a-perceptual-codec).
 
 use lib_jsl_core::ErrorsJSL;
 use std::f64::consts::PI;

@@ -1,4 +1,6 @@
 //! Reading and writing RIFF/WAVE audio files.
+//!
+//! See the book entry [Audio files](https://jwkunz.github.io/lib_jsl/book/foundations/audio.html#wav-files).
 
 use lib_jsl_core::ErrorsJSL;
 use std::path::Path;
@@ -66,6 +68,7 @@ fn u32_at(d: &[u8], p: usize) -> Result<u32, ErrorsJSL> {
 }
 
 /// Parses a WAV byte stream (PCM 8/16/24/32-bit, IEEE float 32/64-bit, plain or extensible headers).
+// ANCHOR: parse_wav
 pub fn parse_wav(data: &[u8]) -> Result<WavAudio, ErrorsJSL> {
     if data.get(0..4) != Some(b"RIFF") || data.get(8..12) != Some(b"WAVE") {
         return Err(ERR_FORMAT);
@@ -118,6 +121,7 @@ pub fn parse_wav(data: &[u8]) -> Result<WavAudio, ErrorsJSL> {
     let whole = samples.len() / channels as usize * channels as usize;
     Ok(WavAudio { sample_rate, channels, samples: samples[..whole].to_vec() })
 }
+// ANCHOR_END: parse_wav
 
 /// Serialises audio as a canonical WAV file in the requested sample format. Samples outside
 /// `[-1, 1)` are clipped for the integer formats (scale is 2^(bits-1)).

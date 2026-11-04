@@ -310,6 +310,7 @@ dependencies = [
  "lib_jsl_ffts",
  "lib_jsl_ffts_reference",
  "lib_jsl_file_io",
+ "lib_jsl_geometry",
  "lib_jsl_graph",
  "lib_jsl_information",
  "lib_jsl_integration",

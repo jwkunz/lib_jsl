@@ -1,0 +1,1 @@
+Over the three orbits the conserved normalisation $g_{\mu\nu} u^\mu u^\nu = -1$ drifted by at most 3e-13.

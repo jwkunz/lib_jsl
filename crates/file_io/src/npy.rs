@@ -6,6 +6,8 @@
 //! signed and unsigned integers of 1 to 8 bytes, 32- and 64-bit floats and 64- and 128-bit
 //! complex numbers, in either byte order and in C or Fortran order; data are returned in C
 //! (row-major) order. Writing produces version 1.0 C-order little-endian files.
+//!
+//! See the book entry [Data files](https://jwkunz.github.io/lib_jsl/book/foundations/data-files.html#numpy-npy).
 
 use lib_jsl_core::ErrorsJSL;
 use ndarray::{ArrayD, IxDyn, ShapeBuilder};
@@ -124,6 +126,7 @@ fn header_value<'a>(header: &'a str, key: &str) -> Result<&'a str, ErrorsJSL> {
 }
 
 /// Decodes `.npy` bytes.
+// ANCHOR: npy_decode
 pub fn npy_decode(bytes: &[u8]) -> Result<NpyArray, ErrorsJSL> {
     if bytes.len() < 10 || &bytes[..6] != b"\x93NUMPY" {
         return Err(corrupt("Not a .npy file."));
@@ -174,6 +177,7 @@ pub fn npy_decode(bytes: &[u8]) -> Result<NpyArray, ErrorsJSL> {
     let data = if fortran && shape.len() > 1 { to_c_order(data, &shape) } else { data };
     NpyArray::new(shape, data)
 }
+// ANCHOR_END: npy_decode
 
 /// Reorders Fortran-order elements into C order.
 fn to_c_order(data: NpyData, shape: &[usize]) -> NpyData {

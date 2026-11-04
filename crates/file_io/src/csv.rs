@@ -3,6 +3,8 @@
 //! Fields may be quoted with `"`, and quoted fields may contain the delimiter, line breaks and
 //! doubled quotes (`""` for a literal `"`). Records end with LF or CRLF; a trailing line break is
 //! optional. Writing quotes exactly the fields that need it.
+//!
+//! See the book entry [Data files](https://jwkunz.github.io/lib_jsl/book/foundations/data-files.html#csv).
 
 use lib_jsl_core::ErrorsJSL;
 use std::path::Path;
@@ -107,6 +109,7 @@ pub fn parse_csv(text: &str, delimiter: char, has_header: bool) -> Result<CsvTab
     Ok(CsvTable { header, rows: records })
 }
 
+// ANCHOR: write_field
 fn write_field(out: &mut String, field: &str, delimiter: char) {
     if field.contains(delimiter) || field.contains('"') || field.contains('\n') || field.contains('\r') || field.starts_with(' ') || field.ends_with(' ') {
         out.push('"');
@@ -116,6 +119,7 @@ fn write_field(out: &mut String, field: &str, delimiter: char) {
         out.push_str(field);
     }
 }
+// ANCHOR_END: write_field
 
 /// Formats a table as delimited text with LF line endings.
 pub fn format_csv(table: &CsvTable, delimiter: char) -> String {

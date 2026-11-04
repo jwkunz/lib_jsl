@@ -1,4 +1,6 @@
 //! Quadrature (complex) source: cosine on the real axis, sine on the imaginary axis.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html#waveforms-and-noise).
 
 use super::nco::{Nco, NcoSource, Phase, Waveform};
 use super::sinusoid::SineKernel;

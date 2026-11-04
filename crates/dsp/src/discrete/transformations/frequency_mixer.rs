@@ -3,6 +3,8 @@
 //! The `FrequencyMixer` struct maintains the current phase of the complex exponential and the normalized frequency increment, which determines how much the phase is advanced for each sample processed.
 //! The `process` method takes an input signal (either real or complex) and multiplies each sample by the corresponding value of the complex exponential based on the current phase. 
 //! The phase is then incremented for the next sample, ensuring that the frequency shift is applied consistently across the entire signal.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html#frequency-mixing).
 
 use std::f64::consts::PI;
 

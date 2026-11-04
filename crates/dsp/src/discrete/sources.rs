@@ -1,4 +1,6 @@
 //! Signal sources and generators.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html).
 
 pub mod nco;
 pub mod pulse_train;

@@ -20,6 +20,8 @@
 //! grow together. `Cordic32` is the hardware-style choice (1e-8 is about -160 dB, beyond what a
 //! 24-bit converter chain can use); `Cordic64` matches the 64-bit phase of the NCO and reaches
 //! double-precision accuracy, at the cost of about 1.7 times as many iterations.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html#cordic).
 
 use lib_jsl_core::ErrorsJSL;
 use std::f64::consts::TAU;
@@ -155,6 +157,7 @@ macro_rules! define_cordic {
                 // The top two bits give the quadrant: start from the gain-compensated unit vector
                 // already rotated by that many quarter turns, then rotate by the remaining angle
                 // in [0, pi/2).
+                // ANCHOR: cordic
                 let (mut x, mut y): ($W, $W) = match angle >> ($ABITS - 2) {
                     0 => (inv_gain, 0),
                     1 => (0, inv_gain),
@@ -177,6 +180,7 @@ macro_rules! define_cordic {
                 }
                 (y, x)
             }
+                // ANCHOR_END: cordic
 
             /// Floating-point convenience: `(sin, cos)` of an angle in radians (any real value).
             /// The angle is first quantized to a binary angle.

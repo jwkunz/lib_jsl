@@ -17,6 +17,8 @@
 //! the number of samples to produce) and `StreamOperator<f64, Output>` (frequency modulation: each
 //! input value is an instantaneous frequency offset in Hz added to the oscillator frequency), where
 //! `Output` is `f64` for real sources and `Complex<f64>` for the quadrature source.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html#phase-accumulation).
 
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;
@@ -140,11 +142,13 @@ impl Nco {
     }
 
     /// Returns the current phase and then advances by one sample.
+    // ANCHOR: nco
     pub fn next_phase(&mut self) -> Phase {
         let current = Phase(self.phase);
         self.phase = self.phase.wrapping_add(self.increment);
         current
     }
+    // ANCHOR_END: nco
 
     /// Like [`next_phase`](Self::next_phase), but this step advances at the oscillator frequency
     /// plus `offset_hz` (frequency modulation). The configured frequency is unchanged.

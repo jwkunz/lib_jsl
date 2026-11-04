@@ -1,4 +1,6 @@
 //! Sinusoid source.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html#waveforms-and-noise).
 
 use super::cordic::{Cordic32, Cordic64};
 use super::nco::{Nco, NcoSource, Phase, Waveform};

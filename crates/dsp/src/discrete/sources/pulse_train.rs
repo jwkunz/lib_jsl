@@ -1,4 +1,6 @@
 //! Pulse train source.
+//!
+//! See the book entry [Signal sources: oscillators, CORDIC and waveforms](https://jwkunz.github.io/lib_jsl/book/comms/sources.html#waveforms-and-noise).
 
 use super::nco::{threshold_from_duty, threshold_from_ratio, Nco, NcoSource, Phase, Waveform};
 use lib_jsl_core::ErrorsJSL;

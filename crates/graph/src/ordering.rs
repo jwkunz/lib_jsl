@@ -2,10 +2,12 @@
 
 use crate::graph::Graph;
 use lib_jsl_core::ErrorsJSL;
-use std::collections::VecDeque;
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
 
-/// A topological order (every edge `u → v` has `u` before `v`) by Kahn's algorithm; ties are
-/// broken by vertex index. Returns an error if the graph has a cycle.
+/// A topological order (every edge `u → v` has `u` before `v`) by Kahn's algorithm, taking the
+/// smallest ready vertex at each step, so the result is the lexicographically smallest
+/// topological order. `O((V + E) log V)`. Returns an error if the graph has a cycle.
 pub fn topological_sort(g: &Graph) -> Result<Vec<usize>, ErrorsJSL> {
     if !g.is_directed() {
         return Err(ErrorsJSL::InvalidInputRange("Topological sorting needs a directed graph."));
@@ -15,14 +17,15 @@ pub fn topological_sort(g: &Graph) -> Result<Vec<usize>, ErrorsJSL> {
     for e in g.edges() {
         indegree[e.to] += 1;
     }
-    let mut ready: VecDeque<usize> = (0..n).filter(|&v| indegree[v] == 0).collect();
+    // A min-heap of the vertices with no remaining incoming edges.
+    let mut ready: BinaryHeap<Reverse<usize>> = (0..n).filter(|&v| indegree[v] == 0).map(Reverse).collect();
     let mut order = Vec::with_capacity(n);
-    while let Some(u) = ready.pop_front() {
+    while let Some(Reverse(u)) = ready.pop() {
         order.push(u);
         for &(v, _) in g.neighbors(u) {
             indegree[v] -= 1;
             if indegree[v] == 0 {
-                ready.push_back(v);
+                ready.push(Reverse(v));
             }
         }
     }
@@ -109,13 +112,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn ties_go_to_the_smallest_ready_vertex() {
+        // With edges 0 → 3 and 2 → 1, a first-in-first-out queue gives [0, 2, 3, 1].
+        let g = Graph::from_unweighted_edges(4, &[(0, 3), (2, 1)], true).unwrap();
+        assert_eq!(topological_sort(&g).unwrap(), vec![0, 2, 1, 3]);
+    }
+
+    #[test]
     fn topological_order_respects_every_edge() {
         let edges = [(5, 2), (5, 0), (4, 0), (4, 1), (2, 3), (3, 1)];
         let g = Graph::from_unweighted_edges(6, &edges, true).unwrap();
         let order = topological_sort(&g).unwrap();
         let position: Vec<usize> = (0..6).map(|v| order.iter().position(|&o| o == v).unwrap()).collect();
         assert!(edges.iter().all(|&(u, v)| position[u] < position[v]));
-        assert_eq!(order, vec![4, 5, 2, 0, 3, 1]);
+        assert_eq!(order, vec![4, 5, 0, 2, 3, 1]);
         assert!(topological_sort(&Graph::from_unweighted_edges(2, &[(0, 1), (1, 0)], true).unwrap()).is_err());
         assert!(topological_sort(&Graph::new(2, false)).is_err());
     }

@@ -93,6 +93,10 @@ pub fn try_shannon_fano_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     // Build a code table by recursively splitting the symbols into two groups
     // with similar total weight.
     assign_codes(&mut symbols, &mut codes);
+    if symbols.len() == 1 {
+        // A single symbol needs no bits: the decoder rebuilds the input from the header alone.
+        return Ok(output);
+    }
 
     let mut current_byte = 0u8;
     let mut bit_count = 0u8;
@@ -192,6 +196,11 @@ pub fn try_shannon_fano_decompress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     }
 
     let mut symbols = sorted_symbols(&frequencies);
+    if symbols.len() == 1 {
+        // A single symbol is fully described by the header (older streams also carried one
+        // redundant bit per byte, which is ignored).
+        return Ok(vec![symbols[0].symbol; original_len]);
+    }
     let mut codes = vec![Vec::new(); 256];
     assign_codes(&mut symbols, &mut codes);
 
@@ -466,6 +475,7 @@ mod tests {
         let decompressed = try_shannon_fano_decompress(&compressed).unwrap();
 
         assert_eq!(decompressed, payload);
+        assert_eq!(compressed.len(), 4 + 8 + 2 + 5, "header only, no payload bits");
     }
 
     #[test]

@@ -104,6 +104,11 @@ pub fn try_huffman_compress(input: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {
     }
 
     let root = build_tree_from_frequencies(&frequencies)?;
+    if symbol_count == 1 {
+        // A single symbol needs no bits: the header's length and table say it all, and the
+        // decoder rebuilds the input from them without reading a payload.
+        return Ok(output);
+    }
     let mut codes = vec![Vec::new(); 256];
     let mut current_path = Vec::new();
     build_code_table(&root, &mut current_path, &mut codes);
@@ -380,6 +385,8 @@ mod tests {
         let decompressed = try_huffman_decompress(&compressed).unwrap();
 
         assert_eq!(decompressed, payload);
+        // Header only: magic, length, symbol count and one table entry; no payload bits.
+        assert_eq!(compressed.len(), 4 + 8 + 2 + 5);
     }
 
     #[test]

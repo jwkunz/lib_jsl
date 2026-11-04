@@ -14,6 +14,8 @@
 //! # Position convention
 //! With the window holding `x[n-N] … x[n]` (oldest first), the output at `μ ∈ [0, 1)` is the signal
 //! value `(N + 1)/2 - μ` samples before the newest sample: `y = x(n - (N+1)/2 + μ)`.
+//!
+//! See the book entry [Synchronisation: phase-locked loops, Costas loops and timing recovery](https://jwkunz.github.io/lib_jsl/book/comms/synchronisation.html#fractional-delay-the-farrow-filter).
 
 use crate::{
     discrete::stream_operator::{StreamOperator, StreamOperatorManagement},
@@ -94,6 +96,7 @@ impl<T: IsAnalytic> FarrowFilter<T> {
         if window.len() != self.order + 1 {
             return Err(ErrorsJSL::IncompatibleArraySizes((window.len(), self.order + 1)));
         }
+        // ANCHOR: farrow
         // Sub-filter outputs v_m, then Horner in mu.
         let v = |m: usize| -> T {
             window.iter().zip(&self.coefficients[m]).fold(T::zero(), |acc, (&x, &c)| acc + x.f_scale(c))
@@ -103,6 +106,7 @@ impl<T: IsAnalytic> FarrowFilter<T> {
             y = y.f_scale(mu) + v(m);
         }
         Ok(y)
+        // ANCHOR_END: farrow
     }
 
     /// Shifts a new sample into the window.

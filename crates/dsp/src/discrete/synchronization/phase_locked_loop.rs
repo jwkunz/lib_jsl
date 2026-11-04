@@ -1,4 +1,6 @@
 //! A digital phase-locked loop with a second-order (proportional-integral) loop filter.
+//!
+//! See the book entry [Synchronisation: phase-locked loops, Costas loops and timing recovery](https://jwkunz.github.io/lib_jsl/book/comms/synchronisation.html#the-loop).
 
 use lib_jsl_core::ErrorsJSL;
 use num_complex::Complex;
@@ -29,6 +31,7 @@ impl LoopFilter {
         if !(normalized_bandwidth > 0.0 && normalized_bandwidth < 0.5) || !(damping > 0.0) {
             return Err(ErrorsJSL::InvalidInputRange("Need 0 < BnT < 0.5 and a positive damping factor."));
         }
+        // ANCHOR: loop_filter
         let theta = normalized_bandwidth / (damping + 0.25 / damping);
         let denominator = 1.0 + 2.0 * damping * theta + theta * theta;
         Ok(LoopFilter { proportional: 4.0 * damping * theta / denominator, integral: 4.0 * theta * theta / denominator, phase: 0.0, frequency: 0.0 })
@@ -39,6 +42,7 @@ impl LoopFilter {
         self.frequency += self.integral * error;
         self.phase = (self.phase + self.proportional * error + self.frequency + PI).rem_euclid(TAU) - PI;
     }
+        // ANCHOR_END: loop_filter
 
     pub fn phase(&self) -> f64 {
         self.phase

@@ -18,6 +18,8 @@
 //! - `ω` is limited to a small band around its nominal value so noise cannot drag it away.
 //!
 //! The loop consumes the oversampled stream and emits one sample per symbol.
+//!
+//! See the book entry [Synchronisation: phase-locked loops, Costas loops and timing recovery](https://jwkunz.github.io/lib_jsl/book/comms/synchronisation.html#timing-recovery).
 
 use super::{constellations::Constellation, farrow_filter::FarrowFilter};
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
@@ -126,6 +128,7 @@ impl StreamOperator<Complex<f64>, Complex<f64>> for MuellerTimingRecovery {
         self.buffer.extend_from_slice(data_in);
         let mut out = Vec::new();
         // The cubic window needs samples floor(pos)-1 ..= floor(pos)+2.
+        // ANCHOR: mueller
         while (self.pos.floor() as usize) + 2 < self.buffer.len() {
             let i = self.pos.floor() as usize;
             let mu = self.pos - i as f64;
@@ -139,6 +142,7 @@ impl StreamOperator<Complex<f64>, Complex<f64>> for MuellerTimingRecovery {
             self.last_error = err;
             out.push(y);
         }
+        // ANCHOR_END: mueller
         // Drop consumed history, keeping the samples the next window will need.
         let keep_from = (self.pos.floor() as usize).saturating_sub(1).min(self.buffer.len());
         if keep_from > 0 {

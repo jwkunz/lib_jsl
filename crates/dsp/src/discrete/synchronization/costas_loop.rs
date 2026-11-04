@@ -1,4 +1,6 @@
 //! Costas loops: carrier recovery for suppressed-carrier BPSK and QPSK.
+//!
+//! See the book entry [Synchronisation: phase-locked loops, Costas loops and timing recovery](https://jwkunz.github.io/lib_jsl/book/comms/synchronisation.html#costas-loops).
 
 use super::phase_locked_loop::LoopFilter;
 use lib_jsl_core::ErrorsJSL;

@@ -40,6 +40,7 @@ impl Sha256 {
             w[i] = w[i - 16].wrapping_add(s0).wrapping_add(w[i - 7]).wrapping_add(s1);
         }
         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh] = *h;
+        // ANCHOR: sha256_rounds
         for i in 0..64 {
             let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
             let ch = (e & f) ^ (!e & g);
@@ -56,6 +57,7 @@ impl Sha256 {
             b = a;
             a = t1.wrapping_add(t2);
         }
+        // ANCHOR_END: sha256_rounds
         for (x, v) in h.iter_mut().zip([a, b, c, d, e, f, g, hh]) {
             *x = x.wrapping_add(v);
         }

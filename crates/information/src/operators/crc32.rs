@@ -48,10 +48,12 @@ impl Crc32 {
 
     /// Feeds more bytes into the checksum.
     pub fn update(&mut self, data: &[u8]) {
+        // ANCHOR: crc_update
         let t = table(self.poly);
         for &b in data {
             self.state = t[((self.state ^ b as u32) & 0xFF) as usize] ^ (self.state >> 8);
         }
+        // ANCHOR_END: crc_update
     }
 
     /// Returns the checksum of everything fed so far (the calculator may continue to be used).

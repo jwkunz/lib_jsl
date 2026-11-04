@@ -146,7 +146,7 @@ fn dictionary_figures() {
         plot.series.push(Series::new(coder.0, pts, if k < 3 { Style::Dashed } else { Style::LineMarkers }, k));
     }
     plot.log_x = true;
-    plot.y_range = Some((0.0, 9.0));
+    plot.y_range = Some((0.0, 13.0));
     plot.legend = Legend::TopRight;
     write(CHAPTER, "dictionary_growth.svg", &plot.render());
     // Different kinds of data.
@@ -224,6 +224,7 @@ fn lfsr_figures() {
     let mut plot = Plot::new("Periodic autocorrelation of an m-sequence of period 127", "shift", "correlation");
     plot.series.push(Series::new("m-sequence", (0..period).map(|s| (s as f64, corr(&m, &m, s) as f64)).collect(), Style::Stems, 0));
     plot.y_range = Some((-10.0, 135.0));
+    plot.x_range = Some((-4.0, 130.0));
     plot.legend = Legend::TopRight;
     write(CHAPTER, "msequence_autocorrelation.svg", &plot.render());
     let family: Vec<Vec<i64>> = gold_codes(n).unwrap().iter().map(|s| chips(s)).collect();

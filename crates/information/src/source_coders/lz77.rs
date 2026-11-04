@@ -76,6 +76,7 @@ pub fn lz77_compress(input: &[u8]) -> Vec<u8> {
 
     // Keep walking forward until every input byte has been represented by
     // either a literal run or a back-reference.
+    // ANCHOR: lz77
     while position < input.len() {
         // Ask the history window for the best repeat we can encode starting at
         // this exact byte position.
@@ -117,6 +118,7 @@ pub fn lz77_compress(input: &[u8]) -> Vec<u8> {
             }
         }
     }
+    // ANCHOR_END: lz77
 
     // If the input ended while we were still collecting literal bytes, emit
     // that final run now.

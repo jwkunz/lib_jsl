@@ -38,6 +38,7 @@ pub fn lzw_compress(input: &[u8]) -> Vec<u8> {
 
     let mut current_phrase = Vec::new();
 
+    // ANCHOR: lzw
     for &byte in input {
         // Hypothesize that the next input byte extends the phrase we are
         // currently building. If that longer phrase already exists, we keep
@@ -74,6 +75,7 @@ pub fn lzw_compress(input: &[u8]) -> Vec<u8> {
             current_phrase.push(byte);
         }
     }
+    // ANCHOR_END: lzw
 
     // Emit the final phrase after the scan finishes.
     if !current_phrase.is_empty() {

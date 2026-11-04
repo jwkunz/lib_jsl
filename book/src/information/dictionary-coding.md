@@ -1,0 +1,102 @@
+# Dictionary coding: LZ77, LZ78 and LZW
+
+<div class="entry-summary">
+
+| | |
+|---|---|
+| **Problem** | Compress data by replacing repeated strings with references to earlier occurrences or to a growing dictionary of phrases, without knowing the source's statistics in advance |
+| **Devised by** | Abraham Lempel and Jacob Ziv (1977, 1978), LZ77 and LZ78; Terry Welch (1984), LZW |
+| **Accuracy** | Lossless; on long inputs from a stationary ergodic source the compression rate approaches the entropy rate (universality). On the 4.6 MB test text: 2.9 bits per byte for LZ77, 3.1 for LZW |
+| **Cost** | LZ77 encoding $O(n\,c\,m)$ for $c$ candidates of length up to $m$; LZ78 and LZW $O(n)$ hash lookups; decoding $O(n)$ for all |
+| **API** | [`lz77_compress`](../../api/lib_jsl_information/source_coders/lz77/fn.lz77_compress.html), [`try_lz77_decompress`](../../api/lib_jsl_information/source_coders/lz77/fn.try_lz77_decompress.html), [`lz78_compress`](../../api/lib_jsl_information/source_coders/lz78/fn.lz78_compress.html), [`try_lz78_decompress`](../../api/lib_jsl_information/source_coders/lz78/fn.try_lz78_decompress.html), [`lzw_compress`](../../api/lib_jsl_information/source_coders/lzw/fn.lzw_compress.html), [`try_lzw_decompress`](../../api/lib_jsl_information/source_coders/lzw/fn.try_lzw_decompress.html), and the [`SourceCoder`](../../api/lib_jsl_information/source_coders/source_coder/trait.SourceCoder.html) wrappers |
+
+</div>
+
+## Overview
+
+Text, code and most files repeat themselves: words, phrases, whole lines. **Dictionary coders** replace a repeated string with a short reference. **LZ77** points back into a sliding window of recent output: "copy 12 bytes from 340 bytes ago". **LZ78** builds an explicit dictionary of phrases,
+each an earlier phrase plus one new byte, and emits phrase numbers. **LZW** drops the explicit byte by starting from a dictionary of all single bytes. None of them needs a model of the source, yet on long inputs they approach the best compression any method can achieve: they are **universal**.
+
+## History
+
+Abraham Lempel and Jacob Ziv at the Technion published the sliding-window method in 1977 and the dictionary method in 1978. They proved both asymptotically optimal for stationary ergodic sources. Terry Welch at Sperry (1984) simplified LZ78 for hardware disk controllers into LZW. It became the compressor of Unix `compress`,
+GIF and early modems, and its patent caused the "GIF controversy" of the 1990s. LZ77 with Huffman coding of the tokens, as in Phil Katz's DEFLATE (1993), became zip, gzip and PNG. Modern descendants (LZMA, Zstandard, Brotli) still begin with an LZ77 stage.
+
+## The idea
+
+### LZ77: a sliding window
+
+At each position, find the longest earlier string, within the window, that matches the bytes ahead. If it is long enough, emit a **back-reference** (offset, length) and skip ahead. Otherwise emit the byte as a **literal**. The decoder copies from its own output. A match may overlap the bytes being produced:
+offset 1 with length 100 repeats one byte 100 times.
+
+The library's format groups literals into runs of up to 128 behind a control byte. A back-reference takes 3 bytes: a control byte holding the length (3 to 130) and a 16-bit offset (up to 65 535). To find matches it indexes every position by its first three bytes and tries the 256 most recent positions with the same prefix.
+
+### LZ78: an explicit dictionary
+
+Read the longest phrase already in the dictionary, then the next byte. Emit (the phrase's index, the byte), and add the phrase plus the byte as a new entry. The dictionary grows by one phrase per token, and phrases grow by one byte at a time, so long repeats are learnt slowly. The library emits a 16-bit index, a flag byte and the byte,
+4 bytes per token. When all 65 535 indices are used, the dictionary stops growing.
+
+### LZW: no explicit byte
+
+Start with the 256 single bytes in the dictionary. Read the longest known phrase $w$ and emit its code. The next byte $k$ begins the next phrase, and $wk$ is added to the dictionary. The decoder can infer $k$, since it is the first byte of the next phrase it decodes. The one awkward case, a code that refers to the entry being created, has phrase $w$ plus the first byte of $w$.
+The library uses fixed 16-bit codes and freezes the dictionary when full. Unix `compress` instead grew the code width from 9 bits and reset a full dictionary.
+
+### Universality and its pace
+
+![Dictionary coder growth](../generated/information/dictionary_growth.svg)
+
+The entropy coders (dashed) settle at the byte entropy within a few kilobytes. The dictionary coders keep improving as they learn longer phrases. LZ77 is best throughout, since its window holds every recent string. LZ78 and LZW improve until their dictionaries fill, after about 65 000 phrases, and then slowly
+lose ground as the text drifts away from what they learnt. The asymptotic optimality of LZ78 needs an unbounded dictionary.
+
+{{#include ../generated/information/data_kinds_table.md}}
+
+On random bytes nothing compresses, and the token overhead expands the data: LZ78's 4 bytes per 2–3-byte phrase most of all. For four random letters, an entropy coder's 2 bits is optimal, and the dictionary coders cannot reach it alone. That is why practical compressors entropy-code the dictionary coder's output.
+A repeated block is ideal for LZ77, whose window holds it whole.
+
+## Algorithm
+
+1. **LZ77**: at each position, look up the three-byte prefix; compare with up to 256 candidates in the window; emit the longest match of 3 or more bytes or a literal; index the positions passed.
+2. **LZ78**: extend the current phrase while the dictionary knows it; on a miss, emit (index, byte), add the phrase, restart.
+3. **LZW**: the same, but emit only the index of the known phrase and restart from the byte that missed.
+
+## Implementation
+
+```rust,ignore
+{{#include ../../../crates/information/src/source_coders/lz77.rs:lz77}}
+```
+
+```rust,ignore
+{{#include ../../../crates/information/src/source_coders/lzw.rs:lzw}}
+```
+
+- The decoders check every reference against what has been reconstructed and return an error for malformed streams.
+- Dictionaries are `HashMap<Vec<u8>, u16>`. That is simple but memory-hungry; production LZW uses a trie of (code, byte) pairs.
+
+## In practice
+
+The [entropy coding example](entropy-coding.md#in-practice) runs all six coders through the `SourceCoder` trait. On its eight repetitions of one paragraph, LZ77 needs 0.77 bits per byte and LZW 4.28: LZW learns the paragraph's phrases only a byte at a time.
+
+**Strengths**
+
+- No model needed; adapts to any data; decoding is very fast (LZ77 decodes at about 170 MB/s here).
+- Universal: asymptotically optimal for stationary sources.
+
+**Weaknesses**
+
+- Slow convergence; on short or random data the token overhead dominates.
+- Without an entropy-coding stage, the tokens themselves are poorly packed; LZ77 encoding is slow when it searches thoroughly.
+
+## Exercises
+
+1. Encode "abababababab" with LZ77 by hand, and show how an overlapping match repeats the pattern.
+2. Encode "TOBEORNOTTOBEORTOBEORNOT" with LZW, and decode the result, including the special case.
+3. Show that LZ78 parses a string into distinct phrases, and bound the number of phrases in a string of length $n$.
+4. Why does LZ78 do worse than LZW on text, although LZW also emits one code per phrase?
+5. Add Huffman coding of the LZ77 tokens and measure the improvement on the test text.
+
+## Further reading
+
+- J. Ziv and A. Lempel, "A universal algorithm for sequential data compression", *IEEE Transactions on Information Theory* 23 (1977) 337–343.
+- J. Ziv and A. Lempel, "Compression of individual sequences via variable-rate coding", *IEEE Transactions on Information Theory* 24 (1978) 530–536.
+- T. A. Welch, "A technique for high-performance data compression", *Computer* 17:6 (1984) 8–19.
+- K. Sayood, *Introduction to Data Compression*, 5th ed., Morgan Kaufmann, 2017, chapter 5.

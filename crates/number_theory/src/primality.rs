@@ -47,8 +47,9 @@ pub fn is_strong_probable_prime(n: u64, a: u64) -> bool {
 }
 
 /// Deterministic primality for every `u64`: Miller-Rabin with the first twelve prime bases,
-/// which has no strong pseudoprimes below 3.3 · 10²⁴ (Sorenson and Webster), after
-/// trial division by small primes.
+/// whose smallest common strong pseudoprime is 318 665 857 834 031 151 167 461 ≈ 3.2 · 10²³
+/// (Sorenson and Webster, 2015), far above `u64::MAX` ≈ 1.8 · 10¹⁹, after trial division by
+/// small primes.
 pub fn is_prime(n: u64) -> bool {
     const BASES: [u64; 12] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37];
     if n < 2 {

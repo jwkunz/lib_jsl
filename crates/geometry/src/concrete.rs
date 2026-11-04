@@ -30,6 +30,8 @@
 //! let shifted = CoordinateVector3D::new(0.0, 0.0, 0.0) + FreeVector3D::new(1.0, 2.0, 3.0);
 //! assert_eq!(shifted, CoordinateVector3D::new(1.0, 2.0, 3.0));
 //! ```
+//!
+//! See the book entry [Geometric types](https://jwkunz.github.io/lib_jsl/book/geometry/types.html).
 
 /// Re-exported one-dimensional concrete geometry types.
 pub use crate::one_d::{Line1D, Plane1D, CoordinateVector1D, UnitVector1D};

@@ -3,6 +3,7 @@
 use crate::common::{GeometryMeasure, IsUnitVector};
 use crate::three_d::{FreeVector3D, CoordinateVector3D, UnitVector3D};
 
+// ANCHOR: rodrigues
 /// Rotates a point around an axis using Rodrigues' rotation formula.
 pub(crate) fn rotate_point_around_axis(
     point: CoordinateVector3D,
@@ -26,6 +27,7 @@ pub(crate) fn rotate_point_around_axis(
     let rotated = translated * cos_theta + cross * sin_theta + axis * (dot * (1.0 - cos_theta));
     origin + rotated
 }
+// ANCHOR_END: rodrigues
 
 /// Reflects a point across a plane defined by a point and unit normal.
 pub(crate) fn reflect_point_across_plane(

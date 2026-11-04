@@ -8,6 +8,8 @@
 //! Each concrete primitive borrows one or more of these tables through shared handles. This lets
 //! higher-level objects such as lines, polygon faces, triangles, and meshes resolve their child
 //! geometry by stable IDs while still sharing a single point table.
+//!
+//! See the book entry [Geometric types](https://jwkunz.github.io/lib_jsl/book/geometry/types.html#keyed-tables-and-the-registry).
 
 use crate::common::{
     FaceId, IsGeometryTableBase, LineId, PointId, TetrahedronId, TriangleId,

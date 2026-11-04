@@ -1,0 +1,1 @@
+Its coherence bandwidth, about $1/(5\sigma_\tau)$, is 435 kHz: frequencies further apart fade independently.

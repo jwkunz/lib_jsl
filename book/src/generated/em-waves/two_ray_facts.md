@@ -1,0 +1,1 @@
+The crossover distance $4\pi h_th_r/\lambda$ is 1698 m.

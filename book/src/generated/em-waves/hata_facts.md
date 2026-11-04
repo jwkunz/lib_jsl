@@ -1,0 +1,1 @@
+At 900 MHz with a 30 m base station, a 1.5 m mobile and 1 km in a small or medium city, the model gives 126.4 dB, the textbook value of 126.4 dB.

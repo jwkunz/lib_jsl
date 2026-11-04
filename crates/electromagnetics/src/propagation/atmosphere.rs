@@ -6,6 +6,8 @@
 //!   permittivity of water.
 //! * Rain by the power law `γ_R = k R^α` with coefficients supplied by the caller (for example
 //!   from ITU-R P.838 for the frequency and polarization).
+//!
+//! See the book entry [Propagation](https://jwkunz.github.io/lib_jsl/book/em-waves/propagation.html).
 
 use lib_jsl_core::ErrorsJSL;
 

@@ -1,5 +1,7 @@
 //! Multipath propagation: the two-ray ground reflection model, Fresnel reflection, Fresnel zones
 //! and tapped-delay-line channels.
+//!
+//! See the book entry [Propagation](https://jwkunz.github.io/lib_jsl/book/em-waves/propagation.html).
 
 use crate::conventions::C64;
 use lib_jsl_core::ErrorsJSL;
@@ -41,6 +43,7 @@ pub fn two_ray_factor(distance: f64, ht: f64, hr: f64, frequency: f64, ground: O
     if !(distance > 0.0) || ht < 0.0 || hr < 0.0 || !(frequency > 0.0) {
         return Err(ErrorsJSL::InvalidInputRange("Need a positive distance and frequency and non-negative heights."));
     }
+    // ANCHOR: two_ray
     let r1 = (distance * distance + (ht - hr).powi(2)).sqrt();
     let r2 = (distance * distance + (ht + hr).powi(2)).sqrt();
     let grazing = ((ht + hr) / distance).atan();
@@ -50,6 +53,7 @@ pub fn two_ray_factor(distance: f64, ht: f64, hr: f64, frequency: f64, ground: O
     };
     let k = TAU * frequency / C0;
     Ok(1.0 + gamma * (r1 / r2) * C64::from_polar(1.0, -k * (r2 - r1)))
+    // ANCHOR_END: two_ray
 }
 
 /// The large-distance two-ray approximation of the received power,

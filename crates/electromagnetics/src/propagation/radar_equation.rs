@@ -1,4 +1,6 @@
 //! The radar range equation and basic radar relations.
+//!
+//! See the book entry [Propagation](https://jwkunz.github.io/lib_jsl/book/em-waves/propagation.html).
 
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_core::constants::em::C0;

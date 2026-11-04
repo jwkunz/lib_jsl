@@ -119,6 +119,15 @@
     - [IIR structures: direct forms, biquads, notch, peak and comb filters](filters/iir-structures.md)
     - [FIR design: windows, frequency sampling and Parks-McClellan](filters/fir-design.md)
     - [Adaptive filters: LMS, NLMS and RLS](filters/adaptive.md)
+- [DSP: spectral estimation, windows, resampling and multirate processing](spectral/index.md)
+    - [Window functions](spectral/windows.md)
+    - [Power spectra: periodogram, Welch, spectrogram and Lomb-Scargle](spectral/power-spectra.md)
+    - [Spectra at chosen frequencies: Goertzel, chirp-z and Fourier integrals](spectral/chosen-frequencies.md)
+    - [The Hilbert transform and the analytic signal](spectral/hilbert.md)
+    - [Parametric spectra: linear prediction, Burg and MUSIC](spectral/parametric.md)
+    - [Wavelet transforms](spectral/wavelets.md)
+    - [Resampling: polyphase, half-band and CIC filters](spectral/resampling.md)
+    - [Polyphase filter banks](spectral/filter-banks.md)
 
 ---
 

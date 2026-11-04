@@ -1,0 +1,10 @@
+| SciPy function and case | largest difference ÷ largest value |
+|---|---:|
+| periodogram hann density | 2.0e-16 |
+| welch hann 64/32 linear spectrum | 5.2e-17 |
+| hilbert 64 | 2.4e-16 |
+| czt 20 points | 1.1e-15 |
+| lombscargle unnormalized | 3.8e-15 |
+| upfirdn up 3 | 0.0e0 |
+| upfirdn up 3 down 2 | 0.0e0 |
+| levinson order 8 | 4.1e-15 |

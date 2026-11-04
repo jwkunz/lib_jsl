@@ -385,7 +385,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md) · 116 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md) · 116 items
 
 #### Continuous
 
@@ -402,7 +402,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 ##### Spectral
 
 - [freqs](filters/analog-prototypes.md#the-magnitude-squared-function)
-- Fourier integrals
+- [Fourier integrals](spectral/chosen-frequencies.md#fourier-integrals)
 
 #### Discrete
 
@@ -415,31 +415,31 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Windows
 
-- Boxcar
-- Triangular
-- Parzen
-- Bohman
-- Blackman
-- Nuttall
-- Blackman-Harris
-- Flat top
-- Bartlett
-- Bartlett-Hann
-- Hamming
-- Hann
-- Kaiser (including beta and tap-count estimation helpers)
-- Kaiser-Bessel derived
-- Gaussian
-- General Gaussian
-- Dolph-Chebyshev
-- Cosine
-- Exponential
-- Tukey
-- Taylor
-- DPSS (Slepian)
-- Lanczos
-- General cosine
-- General Hamming
+- [Boxcar](spectral/windows.md#families)
+- [Triangular](spectral/windows.md#families)
+- [Parzen](spectral/windows.md#families)
+- [Bohman](spectral/windows.md#families)
+- [Blackman](spectral/windows.md#families)
+- [Nuttall](spectral/windows.md#families)
+- [Blackman-Harris](spectral/windows.md#families)
+- [Flat top](spectral/windows.md#families)
+- [Bartlett](spectral/windows.md#families)
+- [Bartlett-Hann](spectral/windows.md#families)
+- [Hamming](spectral/windows.md#families)
+- [Hann](spectral/windows.md#families)
+- [Kaiser (including beta and tap-count estimation helpers)](spectral/windows.md#families)
+- [Kaiser-Bessel derived](spectral/windows.md#families)
+- [Gaussian](spectral/windows.md#families)
+- [General Gaussian](spectral/windows.md#families)
+- [Dolph-Chebyshev](spectral/windows.md#the-dolph-chebyshev-and-dpss-windows)
+- [Cosine](spectral/windows.md#families)
+- [Exponential](spectral/windows.md#families)
+- [Tukey](spectral/windows.md#families)
+- [Taylor](spectral/windows.md#families)
+- [DPSS (Slepian)](spectral/windows.md#the-dolph-chebyshev-and-dpss-windows)
+- [Lanczos](spectral/windows.md#families)
+- [General cosine](spectral/windows.md#families)
+- [General Hamming](spectral/windows.md#families)
 
 ##### Controls
 
@@ -520,24 +520,24 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Resampling
 
-- Polyphase arbitrary resampling
-- Polyphase integer resampling
+- [Polyphase arbitrary resampling](spectral/resampling.md#arbitrary-ratios)
+- [Polyphase integer resampling](spectral/resampling.md#polyphase-resampling)
 
 ##### Spectral
 
-- Chirp-z transform
+- [Chirp-z transform](spectral/chosen-frequencies.md#the-chirp-z-transform)
 - [freqz](filters/iir-design.md#evaluating-the-response)
-- Critically sampled polyphase filter bank
-- Oversampled polyphase filter bank
-- Non-uniformly sampled spectra
-- MUSIC
-- Maximum entropy
-- Linear predictive coding
-- Wavelet transform
-- Welch power spectral density
-- Short-time Fourier transform and spectrogram
-- Hilbert transform and analytic signal
-- Goertzel algorithm
+- [Critically sampled polyphase filter bank](spectral/filter-banks.md#the-polyphase-analysis-bank)
+- [Oversampled polyphase filter bank](spectral/filter-banks.md#critical-sampling-and-oversampling)
+- [Non-uniformly sampled spectra](spectral/power-spectra.md#unevenly-sampled-data-lomb-scargle)
+- [MUSIC](spectral/parametric.md#music)
+- [Maximum entropy](spectral/parametric.md#burgs-method)
+- [Linear predictive coding](spectral/parametric.md#linear-prediction-and-the-yule-walker-equations)
+- [Wavelet transform](spectral/wavelets.md)
+- [Welch power spectral density](spectral/power-spectra.md#variance-welch-averaging)
+- [Short-time Fourier transform and spectrogram](spectral/power-spectra.md#the-short-time-fourier-transform-and-the-spectrogram)
+- [Hilbert transform and analytic signal](spectral/hilbert.md)
+- [Goertzel algorithm](spectral/chosen-frequencies.md#goertzels-recursion)
 
 ##### Transformations
 
@@ -559,8 +559,8 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Multirate and radar
 
-- CIC filters
-- Half-band filters
+- [CIC filters](spectral/resampling.md#cic-filters)
+- [Half-band filters](spectral/resampling.md#half-band-filters)
 - Pulse compression (matched filtering, chirps)
 
 ### Information

@@ -127,6 +127,7 @@ impl PidController {
         self.integral_state = 0.0;
     }
 
+    // ANCHOR: pid
     fn step(&mut self, measurement: f64) -> PidOutput {
         let error = self.setpoint - measurement;
 
@@ -171,6 +172,7 @@ impl PidController {
             error,
         }
     }
+    // ANCHOR_END: pid
 }
 
 impl StreamOperatorManagement for PidController {

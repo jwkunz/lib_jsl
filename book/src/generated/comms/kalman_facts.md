@@ -1,0 +1,1 @@
+After 20 steps the position error is 1.13 RMS against 2.13 for the raw measurements, and the normalised estimation error squared averages 2.27 (2 for a consistent filter with a two-dimensional state).

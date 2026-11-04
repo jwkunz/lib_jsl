@@ -286,6 +286,7 @@ impl KalmanFilter {
         Array2::from_diag(&Array1::from_elem(size, Complex::new(1.0, 0.0)))
     }
 
+    // ANCHOR: kalman
     fn predict(&mut self) {
         self.state_estimate = self.state_transition.dot(&self.state_estimate);
 
@@ -338,6 +339,7 @@ impl KalmanFilter {
             residual_error: innovation,
         })
     }
+    // ANCHOR_END: kalman
 
     fn step(&mut self, measurement: &C1D) -> Result<KalmanResult, ErrorsJSL> {
         self.predict();

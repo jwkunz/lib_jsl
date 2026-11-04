@@ -7,21 +7,36 @@ use std::{
 
 /// A pedagogical integer type stored as decimal digits in a string.
 ///
-/// All arithmetic is performed manually on the string representation, digit by digit.
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default)]
+/// All arithmetic is performed manually on the string representation, digit by digit. Values are
+/// kept in canonical form (no leading zeros, no `-0`), so equality is equality of values, and
+/// ordering compares values, not text.
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct TextCodedInteger {
     /// Internal string representation, decimal digits only, optional leading '-' for negatives.
     text: String,
 }
 
 impl TextCodedInteger {
-    /// Create a new TextCodedInteger from a string (decimal digits only).
+    /// Create a new TextCodedInteger from a string of decimal digits with an optional leading
+    /// `-`, normalised (leading zeros removed, `-0` becomes `0`).
+    ///
+    /// # Panics
+    /// Panics if the text is not of that form.
     pub fn new<T: ToString>(value: T) -> Self {
         let s = value.to_string();
-        if s.chars().all(|c| c.is_ascii_digit() || c == '-') {
-            Self { text: s }
+        let (negative, digits) = match s.strip_prefix('-') {
+            Some(rest) => (true, rest),
+            None => (false, s.as_str()),
+        };
+        if digits.is_empty() || !digits.bytes().all(|c| c.is_ascii_digit()) {
+            panic!("TextCodedInteger can only store decimal digits with an optional leading '-'");
+        }
+        let trimmed = digits.trim_start_matches('0');
+        let digits = if trimmed.is_empty() { "0" } else { trimmed };
+        if negative && digits != "0" {
+            Self { text: format!("-{digits}") }
         } else {
-            panic!("TextCodedInteger can only store decimal digits or a leading '-'");
+            Self { text: digits.to_string() }
         }
     }
 
@@ -131,6 +146,32 @@ impl TextCodedInteger {
             return a.len() > b.len();
         }
         a >= b // safe now because lengths are equal
+    }
+}
+
+impl Default for TextCodedInteger {
+    fn default() -> Self {
+        Self::new("0")
+    }
+}
+
+impl PartialOrd for TextCodedInteger {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// Numeric order: by sign, then by magnitude (more digits is larger; equal lengths compare
+/// digit by digit), reversed for negative numbers.
+impl Ord for TextCodedInteger {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let magnitude = |a: &str, b: &str| a.len().cmp(&b.len()).then_with(|| a.cmp(b));
+        match (self.is_negative(), other.is_negative()) {
+            (false, true) => std::cmp::Ordering::Greater,
+            (true, false) => std::cmp::Ordering::Less,
+            (false, false) => magnitude(self.digits(), other.digits()),
+            (true, true) => magnitude(other.digits(), self.digits()),
+        }
     }
 }
 
@@ -362,11 +403,12 @@ impl Signed for TextCodedInteger {
             self.clone()
         }
     }
+    /// The positive difference `max(self − rhs, 0)`, as `num_traits` defines it.
     fn abs_sub(&self, rhs: &Self) -> Self {
-        if self.abs_ge(rhs) {
-            Self::new(Self::sub_strings(self.digits(), rhs.digits()))
+        if self <= rhs {
+            Self::zero()
         } else {
-            Self::new(Self::sub_strings(rhs.digits(), self.digits()))
+            self.clone() - rhs.clone()
         }
     }
     fn signum(&self) -> Self {
@@ -398,19 +440,48 @@ impl CheckedSub for TextCodedInteger {
     }
 }
 impl CheckedMul for TextCodedInteger {
-    fn checked_mul(&self, _rhs: &Self) -> Option<Self> {
-        unimplemented!()
+    /// Never overflows: the digit string grows as needed.
+    fn checked_mul(&self, rhs: &Self) -> Option<Self> {
+        Some(self.clone() * rhs.clone())
     }
 }
 impl CheckedDiv for TextCodedInteger {
-    fn checked_div(&self, _rhs: &Self) -> Option<Self> {
-        unimplemented!()
+    /// `None` for division by zero.
+    fn checked_div(&self, rhs: &Self) -> Option<Self> {
+        (!rhs.is_zero()).then(|| self.clone() / rhs.clone())
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn values_compare_and_normalise_numerically() {
+        let t = |v: i64| TextCodedInteger::new(v);
+        assert!(t(9) < t(10), "9 < 10 (the text \"9\" sorts after \"10\")");
+        assert!(t(-5) < t(-3) && t(-3) < t(0) && t(0) < t(2));
+        assert_eq!(TextCodedInteger::new("007"), t(7));
+        assert_eq!(TextCodedInteger::new("-0"), t(0));
+        let mut v: Vec<TextCodedInteger> = [12, -7, 100, 3, -120, 0].iter().map(|&x| t(x)).collect();
+        v.sort();
+        assert_eq!(v, [-120, -7, 0, 3, 12, 100].iter().map(|&x| t(x)).collect::<Vec<_>>());
+        assert_eq!(TextCodedInteger::default(), t(0));
+        for bad in ["", "-", "5-", "--5", "1a"] {
+            assert!(std::panic::catch_unwind(|| TextCodedInteger::new(bad)).is_err(), "{bad:?}");
+        }
+    }
+
+    #[test]
+    fn abs_sub_and_checked_operations_follow_num_traits() {
+        let t = |v: i64| TextCodedInteger::new(v);
+        assert_eq!(t(7).abs_sub(&t(3)), t(4));
+        assert_eq!(t(3).abs_sub(&t(7)), t(0));
+        assert_eq!(t(-2).abs_sub(&t(-9)), t(7));
+        assert_eq!(t(12).checked_mul(&t(-11)), Some(t(-132)));
+        assert_eq!(t(12).checked_div(&t(5)), Some(t(2)));
+        assert_eq!(t(12).checked_div(&t(0)), None);
+    }
 
     #[test]
     fn test_text_coded_integer() {

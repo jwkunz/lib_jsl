@@ -1,15 +1,21 @@
-//! Geometry primitives, concrete implementations, and coordinate-system abstractions.
+//! Computational geometry: primitive types in one to four dimensions and the algorithms that work
+//! on points and meshes.
 //!
-//! The module tree is split into two main layers:
+//! - [`algorithms`]: Delaunay triangulation and Voronoi diagrams, convex hulls in 2D and 3D,
+//!   polygon boolean operations, k-d trees, quadtrees and octrees, intersection tests and closest
+//!   points, rotations and quaternions, and mesh smoothing, decimation and slicing. These take
+//!   plain `f64` arrays such as `[f64; 3]` and index triples.
+//! - The primitive types: coordinate, free and unit vectors, lines, planes, triangles, polygon
+//!   faces, tetrahedra and meshes in [`one_d`], [`two_d`] and [`three_d`], whose shapes refer to
+//!   shared points by id through the keyed tables of [`registry`] and [`tables`] (start with
+//!   [`crate::concrete`] and a [`GeometryTableRegistry`](crate::registry::GeometryTableRegistry)).
+//!   Their components are `f32`.
+//! - [`four_d`]: Minkowski four-vectors with Lorentz boosts, and Christoffel symbols for geodesics
+//!   in curved space-time.
+//! - [`coordinate_systems`], [`geometric_traits`] and [`transformation_traits`]: coordinate
+//!   systems and the shared trait surface.
 //!
-//! - trait modules such as [`zero_d`], [`one_d`], [`two_d`], and [`three_d`]
-//! - concrete implementations and storage helpers such as [`concrete`], [`tables`], and
-//!   [`registry`]
-//!
-//! For most users, the quickest entry points are:
-//!
-//! - [`crate::concrete`] for concrete types like `CoordinateVector3D`, `Line3D`, and `SurfaceMesh3D`
-//! - [`crate::geometric_traits`] for the broad trait surface
+//! See the book entry [Computational geometry](https://jwkunz.github.io/lib_jsl/book/geometry/index.html).
 
 pub mod algorithms;
 /// Shared foundational traits used across all geometry dimensions.

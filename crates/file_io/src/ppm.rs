@@ -5,6 +5,8 @@
 //! (P4–P6; 16-bit big-endian when the maximum exceeds 255). Bitmaps (PBM, where 1 is black) are
 //! read as 8-bit greyscale with black = 0 and white = 255. Writing produces binary PGM (one
 //! channel) or PPM (three channels).
+//!
+//! See the book entry [Image files](https://jwkunz.github.io/lib_jsl/book/foundations/images.html#netpbm).
 
 use crate::png::RasterImage;
 use lib_jsl_core::ErrorsJSL;

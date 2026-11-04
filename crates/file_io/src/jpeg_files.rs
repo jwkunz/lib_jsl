@@ -1,4 +1,6 @@
 //! Reading and writing JPEG files with the workspace's baseline codec.
+//!
+//! See the book entry [Image files](https://jwkunz.github.io/lib_jsl/book/foundations/images.html#baseline-jpeg).
 
 use lib_jsl_core::ErrorsJSL;
 use crate::jpeg::{JpegImage, jpeg_decode, jpeg_encode};

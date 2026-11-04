@@ -15,6 +15,8 @@
 //! The pipeline is the classic one: colour conversion, 8x8 forward DCT, quantization, zig-zag
 //! ordering, differential DC coding and run-length AC coding, then Huffman coding; the decoder
 //! runs it in reverse.
+//!
+//! See the book entry [Image files](https://jwkunz.github.io/lib_jsl/book/foundations/images.html#baseline-jpeg).
 
 use lib_jsl_core::ErrorsJSL;
 use std::f64::consts::PI;
@@ -107,6 +109,7 @@ fn dct_basis() -> [[f64; 8]; 8] {
 }
 
 /// Forward 8x8 DCT-II (orthonormal).
+// ANCHOR: dct
 fn fdct(block: &[f64; 64]) -> [f64; 64] {
     let c = dct_basis();
     let mut tmp = [0.0; 64];
@@ -123,6 +126,7 @@ fn fdct(block: &[f64; 64]) -> [f64; 64] {
     }
     out
 }
+// ANCHOR_END: dct
 
 /// Inverse 8x8 DCT.
 fn idct(coef: &[f64; 64]) -> [f64; 64] {

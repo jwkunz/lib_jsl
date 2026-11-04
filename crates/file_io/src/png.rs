@@ -6,6 +6,8 @@
 //! 16-bit images; low bit-depth greyscale is scaled to 8 bits. Encoding writes non-interlaced
 //! 8- or 16-bit greyscale, grey + alpha, RGB or RGBA, choosing a filter per row by the usual
 //! minimum-sum-of-absolute-differences heuristic, compressed with [`crate::deflate`].
+//!
+//! See the book entry [Image files](https://jwkunz.github.io/lib_jsl/book/foundations/images.html#png-and-deflate).
 
 use crate::deflate::{zlib_compress, zlib_decompress};
 use lib_jsl_core::ErrorsJSL;
@@ -88,6 +90,7 @@ fn corrupt(message: &'static str) -> ErrorsJSL {
     ErrorsJSL::RuntimeError(message)
 }
 
+// ANCHOR: unfilter
 fn paeth(a: u8, b: u8, c: u8) -> u8 {
     let p = a as i16 + b as i16 - c as i16;
     let (pa, pb, pc) = ((p - a as i16).abs(), (p - b as i16).abs(), (p - c as i16).abs());
@@ -129,6 +132,7 @@ fn unfilter(data: &[u8], rows: usize, stride: usize, bpp: usize) -> Result<Vec<u
     }
     Ok(out)
 }
+// ANCHOR_END: unfilter
 
 /// Unpacks a row of `count` samples of `depth` bits (big-endian within bytes).
 fn unpack(row: &[u8], count: usize, depth: u8) -> Vec<u16> {

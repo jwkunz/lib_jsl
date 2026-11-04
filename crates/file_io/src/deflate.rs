@@ -3,6 +3,8 @@
 //! The decoder handles all three block types (stored, fixed and dynamic Huffman). The encoder
 //! finds matches with a hash-chain LZ77 search over the 32 KiB window and emits them with the
 //! fixed Huffman code, or uses stored blocks at level 0.
+//!
+//! See the book entry [Image files](https://jwkunz.github.io/lib_jsl/book/foundations/images.html#png-and-deflate).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -289,6 +291,7 @@ pub fn deflate(data: &[u8], level: u8) -> Vec<u8> {
 }
 
 /// LZ77 with hash chains, coded with the fixed Huffman code in a single block.
+// ANCHOR: lz77
 fn deflate_fixed(data: &[u8], level: u8) -> Vec<u8> {
     const WINDOW: usize = 32768;
     const HASH_BITS: u32 = 15;
@@ -344,6 +347,7 @@ fn deflate_fixed(data: &[u8], level: u8) -> Vec<u8> {
     fixed_literal(&mut writer, 256);
     writer.finish()
 }
+// ANCHOR_END: lz77
 
 /// Decompresses a zlib stream (header, DEFLATE data, Adler-32 trailer), verifying the checksum.
 pub fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, ErrorsJSL> {

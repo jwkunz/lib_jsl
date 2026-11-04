@@ -1,4 +1,6 @@
 //! Convex hulls of point sets in two and three dimensions.
+//!
+//! See the book entry [Convex hulls and polygon booleans](https://jwkunz.github.io/lib_jsl/book/geometry/hulls-booleans.html).
 
 use std::collections::HashMap;
 
@@ -167,7 +169,6 @@ pub fn convex_hull_3d(points: &[[f64; 3]]) -> Option<Hull3D> {
     } else {
         vec![[i0, i1, i2], [i0, i3, i1], [i1, i3, i2], [i2, i3, i0]]
     };
-    // ANCHOR: quickhull
     // Each face caches its unit normal and offset, and owns the "outside set" of unprocessed
     // points that see it; a point is in at most one set, and points in none are inside.
     let plane = |f: &[usize; 3]| {
@@ -201,6 +202,7 @@ pub fn convex_hull_3d(points: &[[f64; 3]]) -> Option<Hull3D> {
         if !slots[k].alive || slots[k].outside.is_empty() {
             continue;
         }
+        // ANCHOR: quickhull
         // Quickhull: add the point farthest above this face, which is certainly a hull vertex.
         let apex = *slots[k].outside.iter().max_by(|&&a, &&b| height(&slots[k], a).total_cmp(&height(&slots[k], b))).unwrap();
         // The faces it sees form a connected cap around face k: find them across shared edges.
@@ -255,9 +257,9 @@ pub fn convex_hull_3d(points: &[[f64; 3]]) -> Option<Hull3D> {
             }
         }
         pending.extend(first_new..slots.len());
+        // ANCHOR_END: quickhull
     }
     let faces: Vec<[usize; 3]> = slots.into_iter().filter(|f| f.alive).map(|f| f.vertices).collect();
-    // ANCHOR_END: quickhull
     Some(Hull3D { faces })
 }
 

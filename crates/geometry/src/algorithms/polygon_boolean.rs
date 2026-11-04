@@ -9,6 +9,8 @@
 //! and clockwise holes. Holes arise in a difference when the clip polygon lies strictly inside
 //! the subject, and in a union when the two polygons enclose a region between them; areas add
 //! up correctly when the holes' negative signed areas are included.
+//!
+//! See the book entry [Convex hulls and polygon booleans](https://jwkunz.github.io/lib_jsl/book/geometry/hulls-booleans.html#the-greinerhormann-algorithm).
 
 /// The boolean operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

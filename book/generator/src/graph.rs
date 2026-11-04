@@ -11,8 +11,11 @@ use std::time::Instant;
 
 const CHAPTER: &str = "graph";
 
+/// A graph as written by the reference script: vertex count, directedness and weighted edges.
+type EdgeListGraph = (usize, bool, Vec<(usize, usize, f64)>);
+
 struct Refs {
-    graphs: HashMap<String, (usize, bool, Vec<(usize, usize, f64)>)>,
+    graphs: HashMap<String, EdgeListGraph>,
     values: HashMap<String, Vec<f64>>,
 }
 

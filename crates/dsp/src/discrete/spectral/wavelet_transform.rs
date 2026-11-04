@@ -15,6 +15,8 @@
 //! The CWT correlates the signal with scaled copies of a mother wavelet (the complex Morlet or the
 //! real Ricker "Mexican hat"), for any set of scales, giving a time-scale map. It is computed with
 //! FFT correlation.
+//!
+//! See the book entry [Wavelet transforms](https://jwkunz.github.io/lib_jsl/book/spectral/wavelets.html).
 
 use crate::discrete::cross_correlation::CorrelationMode;
 use crate::discrete::fft_cross_correlation::fft_cross_correlate;
@@ -146,8 +148,10 @@ pub fn dwt(x: &[f64], wavelet: Wavelet) -> Result<(Vec<f64>, Vec<f64>), ErrorsJS
     let g = wavelet.wavelet_filter()?;
     let n = x.len();
     check_even(n, h.len())?;
+    // ANCHOR: dwt
     let analyse = |f: &[f64]| -> Vec<f64> { (0..n / 2).map(|k| f.iter().enumerate().map(|(i, c)| c * x[(2 * k + i) % n]).sum()).collect() };
     Ok((analyse(&h), analyse(&g)))
+    // ANCHOR_END: dwt
 }
 
 /// Inverse of one DWT level: rebuilds a signal of twice the coefficient length.

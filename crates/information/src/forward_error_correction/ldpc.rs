@@ -4,6 +4,8 @@
 //! it covers). Systematic encoding is derived by Gauss-Jordan elimination of `H` over GF(2);
 //! decoding is belief propagation (the sum-product algorithm) with a flooding schedule on
 //! log-likelihood ratios `ln P(0)/P(1)`. Bits are `u8` values 0 or 1.
+//!
+//! See the book entry [Low-density parity-check codes](https://jwkunz.github.io/lib_jsl/book/coding/ldpc.html).
 
 use lib_jsl_core::ErrorsJSL;
 
@@ -197,6 +199,7 @@ impl LdpcCode {
             .map(|(v, cs)| cs.iter().map(|&c| self.checks[c].iter().position(|&x| x == v).unwrap()).collect())
             .collect();
         for iter in 1..=max_iterations {
+            // ANCHOR: check_node
             // Check-node update.
             for (c, vars) in self.checks.iter().enumerate() {
                 let t: Vec<f64> = v2c[c].iter().map(|&m| (0.5 * m.clamp(-30.0, 30.0)).tanh()).collect();
@@ -205,6 +208,7 @@ impl LdpcCode {
                     c2v[c][j] = 2.0 * prod.clamp(-0.999_999_999_999, 0.999_999_999_999).atanh();
                 }
             }
+            // ANCHOR_END: check_node
             // Variable-node update and tentative decision.
             let mut total = llr.to_vec();
             for v in 0..self.n {

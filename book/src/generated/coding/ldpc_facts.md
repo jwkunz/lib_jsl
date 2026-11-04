@@ -1,0 +1,1 @@
+The (3, 6) Gallager code of length 1008 has 504 checks of rank 502, so k = 506 (rate 0.502); the Shannon limit for rate 1/2 on the BPSK-input AWGN channel is about 0.19 dB.

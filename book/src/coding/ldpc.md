@@ -1,0 +1,102 @@
+# Low-density parity-check codes
+
+<div class="entry-summary">
+
+| | |
+|---|---|
+| **Problem** | Approach the Shannon limit with long codes whose parity checks are sparse, decoded iteratively by passing probabilities along a graph |
+| **Devised by** | Robert Gallager (1960, thesis 1963); rediscovered by David MacKay and Radford Neal (1996); Tom Richardson and Rüdiger Urbanke (2001), density evolution and optimised irregular codes |
+| **Accuracy** | A regular (3, 6) code of length 1008 reaches a bit error rate of $10^{-5}$ at about 2.7 dB, 2.5 dB from the rate-1/2 Shannon limit (figure below) |
+| **Cost** | $O(E)$ per iteration for $E$ edges of the graph, with tens of iterations; encoding here $O(nk)$ from the reduced parity-check matrix |
+| **API** | [`LdpcCode`](../../api/lib_jsl_information/forward_error_correction/ldpc/struct.LdpcCode.html) (`new`, `gallager`, `encode`, `decode`, `extract_info`, `is_codeword`, `info_positions`), [`LdpcDecoded`](../../api/lib_jsl_information/forward_error_correction/ldpc/struct.LdpcDecoded.html) |
+
+</div>
+
+## Overview
+
+An **LDPC code** is a linear code whose parity-check matrix $H$ is **sparse**: each check involves a few bits, and each bit a few checks. Draw it as a bipartite **Tanner graph** of variable nodes (bits) and check nodes, with an edge wherever $H$ has a 1. The decoder passes messages along the edges. Each bit tells
+each of its checks what it believes, based on the channel and its other checks; each check tells each bit what its other bits imply. After a few dozen rounds the beliefs settle on a codeword. Long LDPC codes come within a fraction of a decibel of capacity, and they carry Wi-Fi, 5G data channels, DVB-S2 and 10 Gb Ethernet.
+
+## History
+
+Robert Gallager invented LDPC codes and iterative probabilistic decoding in his 1960 MIT thesis, published as a monograph in 1963. Computers of the day could not exploit them, and they were forgotten for thirty years, apart from Michael Tanner's graph description (1981). After turbo codes (1993) showed that iterative decoding works,
+David MacKay and Radford Neal (1996) rediscovered Gallager's codes and showed how close to capacity they come. Tom Richardson, Amin Shokrollahi and Rüdiger Urbanke (2001) developed **density evolution** to optimise irregular codes, and Sae-Young Chung, David Forney, Richardson and Urbanke (2001) designed one within 0.0045 dB of the limit for very long blocks.
+
+## The idea
+
+### Gallager's construction
+
+A regular $(w_c, w_r)$ code has $w_c$ ones in every column and $w_r$ in every row. Gallager stacked $w_c$ blocks. The first block's rows each cover $w_r$ consecutive positions, and each further block is a random column permutation of the first. [`LdpcCode::gallager`](../../api/lib_jsl_information/forward_error_correction/ldpc/struct.LdpcCode.html#method.gallager) builds it from a seed.
+The design rate is $1 - w_c/w_r$. The true dimension is $n$ minus the rank of $H$, which Gauss-Jordan elimination over GF(2) finds while also yielding a systematic encoder. {{#include ../generated/coding/ldpc_facts.md}}
+
+### Belief propagation
+
+Work with log-likelihood ratios. Variable $v$ starts with its channel value $L_v$. Each iteration:
+
+- **Check to variable**: check $c$ tells variable $v$ the LLR that the XOR of its other variables is zero,
+  $$
+  m_{c\to v} = 2\tanh^{-1}\prod_{v' \ne v}\tanh\frac{m_{v'\to c}}{2}.
+  $$
+- **Variable to check**: $m_{v\to c} = L_v + \sum_{c' \ne c} m_{c'\to v}$.
+- **Decide**: bit $v$ is 1 if $L_v + \sum_c m_{c\to v} < 0$. Stop when every check is satisfied.
+
+On a graph without cycles this computes the exact bit posteriors (the **sum-product algorithm**). Real graphs have cycles, but if the cycles are long the messages stay nearly independent for many iterations, and the decoder works almost as well.
+
+![LDPC BER](../generated/coding/ldpc_ber.svg)
+
+The curve falls steeply once the noise is below the code's threshold: the **waterfall**. Near it, decoding needs many iterations; well above it, a few suffice:
+
+![LDPC iterations](../generated/coding/ldpc_iterations.svg)
+
+## Algorithm
+
+1. **Construct**: the check lists; their dense rows reduced by Gauss-Jordan elimination; pivot columns are parity, the rest information.
+2. **Encode**: place the information bits; each parity bit is the XOR of the information bits in its reduced row.
+3. **Decode**: if the hard decisions already satisfy every check, stop; otherwise iterate check and variable updates (flooding schedule) until the checks are satisfied or the iteration limit is reached.
+
+## Implementation
+
+```rust,ignore
+{{#include ../../../crates/information/src/forward_error_correction/ldpc.rs:check_node}}
+```
+
+- Messages are clamped before `tanh` and `atanh` to stay finite.
+- `decode` reports whether it converged and how many iterations it took; on failure it returns the last hard decision.
+- Any parity-check matrix can be supplied to `LdpcCode::new` as lists of positions; redundant checks are allowed.
+
+## In practice
+
+```rust,ignore
+{{#include ../../../crates/information/examples/coding_ldpc.rs}}
+```
+
+```text
+Gallager (3, 6) code: n = 96, k = 50, 48 checks
+codeword satisfies every check: true
+8 errors: converged true, after 32 iterations, info recovered true
+```
+
+**Strengths**
+
+- Near-capacity performance for long blocks; decoding is parallel and its cost linear in the length.
+- The decoder knows when it has succeeded (all checks satisfied).
+
+**Weaknesses**
+
+- Short codes perform less well, and random constructions have error floors from small trapping sets.
+- Dense-matrix construction and encoding here cost $O(n^2)$ memory and $O(nk)$ time; structured (quasi-cyclic) codes avoid this.
+
+## Exercises
+
+1. Derive the check-node update from $P(\text{XOR} = 0) = \tfrac12\big(1 + \prod(1 - 2p_i)\big)$.
+2. Show that the min-sum approximation $m_{c\to v} \approx \prod\operatorname{sgn} \cdot \min|m|$ overestimates the reliability.
+3. Show that a $(w_c, w_r)$ regular code has rate at least $1 - w_c/w_r$.
+4. Decode a (7, 4) Hamming code by belief propagation on its Tanner graph, and explain why its short cycles hurt.
+5. Find the threshold of the (3, 6) ensemble on the binary erasure channel by density evolution, $x_{\ell+1} = \varepsilon\big(1 - (1 - x_\ell)^5\big)^2$.
+
+## Further reading
+
+- R. G. Gallager, *Low-Density Parity-Check Codes*, MIT Press, 1963.
+- D. J. C. MacKay, "Good error-correcting codes based on very sparse matrices", *IEEE Transactions on Information Theory* 45 (1999) 399–431.
+- T. Richardson and R. Urbanke, *Modern Coding Theory*, Cambridge University Press, 2008.
+- D. J. C. MacKay, *Information Theory, Inference, and Learning Algorithms*, Cambridge University Press, 2003, chapter 47.

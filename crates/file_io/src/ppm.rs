@@ -61,7 +61,12 @@ pub fn ppm_decode(data: &[u8]) -> Result<RasterImage, ErrorsJSL> {
         return Err(corrupt("The Netpbm maximum value must be 1 to 65535."));
     }
     let channels = if kind == 3 || kind == 6 { 3 } else { 1 };
-    let count = width * height * channels;
+    // Every sample takes at least one bit of what remains (one character in the text formats), so
+    // a header promising more is rejected before anything is allocated.
+    let count = width.checked_mul(height).and_then(|n| n.checked_mul(channels)).ok_or(corrupt("The Netpbm image is too large."))?;
+    if count / 8 > data.len().saturating_sub(cursor.position) {
+        return Err(corrupt("Netpbm data ended early."));
+    }
     let mut samples = Vec::with_capacity(count);
     if kind <= 3 {
         for _ in 0..count {
@@ -154,6 +159,14 @@ pub fn write_ppm_file(path: impl AsRef<Path>, image: &RasterImage) -> Result<(),
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn headers_promising_more_data_than_the_file_holds_are_errors() {
+        // These used to try to allocate hundreds of gigabytes and abort the process.
+        assert!(ppm_decode(b"P5\n200000 200000\n255\nabc").is_err());
+        assert!(ppm_decode(b"P2\n200000 200000\n255\n1 2 3").is_err());
+        assert!(ppm_decode(b"P6\n4294967296 4294967296\n255\n").is_err());
+    }
 
     #[test]
     fn reads_ascii_variants_with_comments() {

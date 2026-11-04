@@ -198,13 +198,28 @@ pub fn png_decode(data: &[u8]) -> Result<RasterImage, ErrorsJSL> {
     if !depth_ok || h[10] != 0 || h[11] != 0 || interlace > 1 || width == 0 || height == 0 {
         return Err(corrupt("Unsupported PNG header."));
     }
+    if width > i32::MAX as usize || height > i32::MAX as usize {
+        return Err(corrupt("PNG dimensions exceed 2^31 - 1."));
+    }
     let raw = zlib_decompress(&compressed)?;
     let bits_per_pixel = channels * depth as usize;
     let bpp = bits_per_pixel.div_ceil(8);
-    // Decode each (sub-)image into full-resolution sample positions.
-    let mut samples = vec![0u16; width * height * channels];
     let passes: Vec<(usize, usize, usize, usize)> =
         if interlace == 1 { vec![(0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4), (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2)] } else { vec![(0, 0, 1, 1)] };
+    // Check that the image data are all there before allocating for the size the header claims.
+    let needed = passes.iter().try_fold(0usize, |total, &(x0, y0, dx, dy)| {
+        let (pw, ph) = ((width.saturating_sub(x0)).div_ceil(dx), (height.saturating_sub(y0)).div_ceil(dy));
+        if pw == 0 || ph == 0 {
+            return Some(total);
+        }
+        let stride = pw.checked_mul(bits_per_pixel)?.div_ceil(8);
+        total.checked_add(ph.checked_mul(stride.checked_add(1)?)?)
+    });
+    if needed.is_none_or(|n| raw.len() < n) {
+        return Err(corrupt("PNG image data are shorter than the header implies."));
+    }
+    // Decode each (sub-)image into full-resolution sample positions.
+    let mut samples = vec![0u16; width * height * channels];
     let mut offset = 0;
     for (x0, y0, dx, dy) in passes {
         let (pw, ph) = ((width.saturating_sub(x0)).div_ceil(dx), (height.saturating_sub(y0)).div_ceil(dy));
@@ -324,6 +339,19 @@ pub fn write_png_file(path: impl AsRef<Path>, image: &RasterImage) -> Result<(),
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_header_promising_more_data_than_the_file_holds_is_an_error() {
+        // Rewrite the IHDR of a valid file to claim 2^31 - 1 square pixels (with a valid CRC):
+        // this used to overflow the sample buffer's size and panic.
+        let image = RasterImage::new(4, 4, 1, 8, vec![9; 16]).unwrap();
+        let mut bytes = png_encode(&image, 6).unwrap();
+        bytes[16..20].copy_from_slice(&0x7fff_ffffu32.to_be_bytes());
+        bytes[20..24].copy_from_slice(&0x7fff_ffffu32.to_be_bytes());
+        let crc = crc32(&[&bytes[12..16], &bytes[16..29]]);
+        bytes[29..33].copy_from_slice(&crc.to_be_bytes());
+        assert!(png_decode(&bytes).is_err());
+    }
 
     // Test images built independently with CPython's zlib and struct modules.
     /// 4×3 RGB, rows filtered with Sub, Up and Paeth.

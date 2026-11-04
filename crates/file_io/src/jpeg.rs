@@ -640,12 +640,20 @@ pub fn jpeg_decode(data: &[u8]) -> Result<JpegImage, ErrorsJSL> {
     let mcu_h = 8 * vmax;
     let mcus_x = width.div_ceil(mcu_w);
     let mcus_y = height.div_ceil(mcu_h);
+    // Every 8x8 block costs at least two bits of scan data (a DC code and an end-of-block code),
+    // so a frame header claiming more blocks than the data could hold is rejected before the
+    // planes are allocated.
+    let scan = scan_start.ok_or(ErrorsJSL::InvalidInputRange("JPEG file has no scan."))?;
+    let blocks = mcus_x * mcus_y * comps.iter().map(|c| c.h * c.v).sum::<usize>();
+    if blocks / 4 > data.len().saturating_sub(scan) {
+        return Err(ErrorsJSL::InvalidInputRange("JPEG scan data are shorter than the frame needs."));
+    }
     for c in comps.iter_mut() {
         c.plane_w = mcus_x * c.h * 8;
         c.plane = vec![0.0; c.plane_w * mcus_y * c.v * 8];
     }
 
-    let mut reader = BitReader::new(data, scan_start.unwrap());
+    let mut reader = BitReader::new(data, scan);
     let mut prev_dc = vec![0i32; comps.len()];
     let mut mcu_count = 0usize;
     for my in 0..mcus_y {
@@ -725,6 +733,15 @@ pub fn jpeg_decode(data: &[u8]) -> Result<JpegImage, ErrorsJSL> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_frame_larger_than_its_scan_data_is_an_error() {
+        // A 65535 x 65535 frame header on a tiny file used to allocate 100 GB of planes.
+        let mut bytes = jpeg_encode(&[128u8; 64], 8, 8, 1, 90).unwrap();
+        let sof = bytes.windows(2).position(|w| w == [0xFF, 0xC0]).unwrap();
+        bytes[sof + 5..sof + 9].copy_from_slice(&[0xFF; 4]);
+        assert!(jpeg_decode(&bytes).is_err());
+    }
 
     fn psnr(a: &[u8], b: &[u8]) -> f64 {
         let mse: f64 = a.iter().zip(b).map(|(&x, &y)| (x as f64 - y as f64).powi(2)).sum::<f64>() / a.len() as f64;

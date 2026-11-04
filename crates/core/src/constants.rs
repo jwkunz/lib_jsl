@@ -133,7 +133,7 @@ pub mod math {
     /// Standard normal two-sided z-score for 99 % confidence
     pub const Z_99: f64 = 2.5758293035489004;
     /// Standard normal two-sided z-score for 99.9 % confidence
-    pub const Z_999: f64 = 3.2905267314919255;
+    pub const Z_999: f64 = 3.2905267314918949;
     /// Probability within ±1σ of a normal distribution
     pub const P_1_SIGMA: f64 = 0.6826894921370859;
     /// Probability within ±2σ of a normal distribution
@@ -213,7 +213,7 @@ pub mod physics {
     /// Wien wavelength displacement constant b, m·K
     pub const WIEN_B: f64 = 2.897_771_955_185_173e-3;
     /// Wien frequency displacement constant, Hz/K
-    pub const WIEN_B_FREQ: f64 = 5.878_925_757e10;
+    pub const WIEN_B_FREQ: f64 = 5.878_925_757_646_825e10;
 
     // ---- Derived atomic-scale quantities -----------------------------------
     /// Bohr radius a₀ = ħ/(m_e·c·α), m
@@ -364,7 +364,7 @@ pub mod em {
     /// Fine-structure constant α = e²/(4π ε₀ ħ c)
     pub const FINE_STRUCTURE: f64 = ALPHA;
     /// Electron g-factor magnitude |g_e|
-    pub const G_ELECTRON: f64 = 2.002_319_304_360_9;
+    pub const G_ELECTRON: f64 = 2.002_319_304_360_92;
 
     // ---- Standard impedances (ohms) ----------------------------------------
     /// Common RF system impedance, Ω
@@ -391,7 +391,7 @@ pub mod em {
     pub const COULOMB_TO_STATCOULOMB: f64 = 2.997_924_58e9;
     /// Skin-depth prefactor for non-magnetic conductors: δ = SKIN_DEPTH_K · √(ρ/f),
     /// with ρ in Ω·m and f in Hz (K = 1/√(π·μ₀) ≈ 503.29)
-    pub const SKIN_DEPTH_K: f64 = 503.292_121_2;
+    pub const SKIN_DEPTH_K: f64 = 503.292_121_078_095_9;
 
     // ---- Typical material properties at ≈ 20 °C ----------------------------
     /// Resistivity of copper (annealed), Ω·m
@@ -509,10 +509,10 @@ pub mod dsp {
     pub const T0_NOISE: f64 = 290.0;
     /// Thermal noise power density at T₀: k·T₀, W/Hz (≈ −174 dBm/Hz)
     pub const KT0: f64 = K_B * T0_NOISE;
-    /// Thermal noise floor at T₀ in dBm/Hz
-    pub const KT0_DBM_PER_HZ: f64 = -173.975;
-    /// Thermal noise floor at 300 K in dBm/Hz (≈ −173.83)
-    pub const KT300_DBM_PER_HZ: f64 = -173.83;
+    /// Thermal noise floor at T₀ in dBm/Hz: 10·log₁₀(k·T₀ / 1 mW) (≈ −173.98)
+    pub const KT0_DBM_PER_HZ: f64 = -173.975_187_194_228_1;
+    /// Thermal noise floor at 300 K in dBm/Hz: 10·log₁₀(k·300 K / 1 mW) (≈ −173.83)
+    pub const KT300_DBM_PER_HZ: f64 = -173.827_954_626_021;
     /// Watts in 0 dBm
     pub const DBM_REF_WATTS: f64 = 1.0e-3;
 

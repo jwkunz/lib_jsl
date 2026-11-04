@@ -684,18 +684,18 @@ Number theory, graphs and computational geometry.
 
 Number theory: modular arithmetic, primes, factorisation, the Chinese remainder theorem and polynomials.
 
-Crate `lib_jsl_number_theory`: [API reference](../api/lib_jsl_number_theory/index.html) · 10 items
+Crate `lib_jsl_number_theory`: [API reference](../api/lib_jsl_number_theory/index.html) · book chapter: [number theory](number-theory/index.md) · 10 items
 
-- Base exponent in modulus
-- Greatest common divisor
-- Integer square root
-- Multiplicative inverse modulo
-- Polynomial
-- Text coded integer
-- Prime sieves
-- Primality testing (Miller-Rabin)
-- Integer factorization
-- Chinese remainder theorem
+- [Base exponent in modulus](number-theory/modular-arithmetic.md#inverses-and-powers)
+- [Greatest common divisor](number-theory/modular-arithmetic.md#euclids-algorithm-and-bézout-coefficients)
+- [Integer square root](number-theory/modular-arithmetic.md#integer-square-roots)
+- [Multiplicative inverse modulo](number-theory/modular-arithmetic.md#inverses-and-powers)
+- [Polynomial](number-theory/polynomials.md#roots-from-the-companion-matrix)
+- [Text coded integer](number-theory/polynomials.md#decimal-string-integers)
+- [Prime sieves](number-theory/primes.md#sieves)
+- [Primality testing (Miller-Rabin)](number-theory/primes.md#millerrabin)
+- [Integer factorization](number-theory/primes.md#pollards-rho)
+- [Chinese remainder theorem](number-theory/modular-arithmetic.md#the-chinese-remainder-theorem)
 
 ### Graph
 

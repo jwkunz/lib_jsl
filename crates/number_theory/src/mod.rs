@@ -1,3 +1,7 @@
+//! Number theory: modular arithmetic, primes, factorisation, the Chinese remainder theorem, polynomials and decimal-string integers.
+//!
+//! See the book entry [Number theory](https://jwkunz.github.io/lib_jsl/book/number-theory/index.html).
+
 pub mod base_exponent_in_modulus;
 pub mod greatest_common_divisor;
 pub mod integer_square_root;

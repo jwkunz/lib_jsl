@@ -164,6 +164,10 @@
     - [Spherical waves and near-field to far-field transformation](em-waves/near-to-far.md)
     - [The method of moments for wire antennas](em-waves/method-of-moments.md)
     - [The finite-difference time-domain method](em-waves/fdtd.md)
+- [Number theory: modular arithmetic, primes, factorisation and polynomials](number-theory/index.md)
+    - [Divisibility and modular arithmetic](number-theory/modular-arithmetic.md)
+    - [Primes: sieves, Miller–Rabin and factorisation](number-theory/primes.md)
+    - [Polynomials and decimal-string integers](number-theory/polynomials.md)
 
 ---
 

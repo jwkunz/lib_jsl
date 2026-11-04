@@ -604,7 +604,7 @@ Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.ht
 
 Electromagnetics: fields, antennas, arrays, beamforming, direction finding, transmission lines, propagation, MoM and FDTD.
 
-Crate `lib_jsl_electromagnetics`: [API reference](../api/lib_jsl_electromagnetics/index.html) · book chapters: [fields, antennas, arrays and beamforming](em-arrays/index.md) · 39 items
+Crate `lib_jsl_electromagnetics`: [API reference](../api/lib_jsl_electromagnetics/index.html) · book chapters: [fields, antennas, arrays and beamforming](em-arrays/index.md), [transmission lines, propagation and computational methods](em-waves/index.md) · 39 items
 
 
 Design and conventions: `crates/electromagnetics/DESIGN.md`
@@ -651,24 +651,24 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 #### Transmission lines and networks
 
-- Transmission lines (impedance transformation, standing waves)
-- S-parameters and network conversions
-- Smith chart
+- [Transmission lines (impedance transformation, standing waves)](em-waves/transmission-lines.md#lines)
+- [S-parameters and network conversions](em-waves/transmission-lines.md#two-port-parameters)
+- [Smith chart](em-waves/transmission-lines.md#the-smith-chart)
 
 #### Propagation and systems
 
-- Friis transmission and path loss
-- Multipath and two-ray models
-- Atmospheric attenuation
-- Radar equation
+- [Friis transmission and path loss](em-waves/propagation.md#free-space-and-link-budgets)
+- [Multipath and two-ray models](em-waves/propagation.md#the-two-ray-model)
+- [Atmospheric attenuation](em-waves/propagation.md#the-atmosphere)
+- [Radar equation](em-waves/propagation.md#the-radar-equation)
 
 #### Advanced algorithms
 
-- Spherical wave expansion
-- Near-field to far-field transformation
+- [Spherical wave expansion](em-waves/near-to-far.md#spherical-wave-expansions)
+- [Near-field to far-field transformation](em-waves/near-to-far.md#spherical-near-field-to-far-field)
 - [Direction-of-arrival estimation on sensor arrays](em-arrays/direction-finding.md#beam-scanning-spectra)
-- Method of moments (wire antennas)
-- FDTD solver
+- [Method of moments (wire antennas)](em-waves/method-of-moments.md#halléns-equation)
+- [FDTD solver](em-waves/fdtd.md#the-yee-scheme-in-one-dimension)
 
 #### Demonstrations
 

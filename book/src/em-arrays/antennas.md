@@ -82,7 +82,7 @@ A rectangular patch of length $L$ on a grounded substrate of permittivity $\vare
 
 - Every model gives its far field in either time convention (they differ by conjugation).
 - `far_field_pattern` fills a container on a far-field sphere; `HarmonicField::transformed` rotates or moves it.
-- These are analytic models, not full-wave solutions; for a wire antenna's actual current, see the method of moments in the next chapter.
+- These are analytic models, not full-wave solutions; for a wire antenna's actual current, see the [method of moments](../em-waves/method-of-moments.md) in the next chapter.
 
 ## In practice
 

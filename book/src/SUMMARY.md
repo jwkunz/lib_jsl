@@ -158,6 +158,12 @@
     - [Antenna models: dipoles, loops, dishes and patches](em-arrays/antennas.md)
     - [Arrays, scenes and beamformers](em-arrays/beamforming.md)
     - [Direction finding: Bartlett, Capon, MUSIC and ESPRIT](em-arrays/direction-finding.md)
+- [Electromagnetics: transmission lines, propagation and computational methods](em-waves/index.md)
+    - [Transmission lines, two-port networks and the Smith chart](em-waves/transmission-lines.md)
+    - [Propagation: link budgets, path loss, multipath, the atmosphere and radar](em-waves/propagation.md)
+    - [Spherical waves and near-field to far-field transformation](em-waves/near-to-far.md)
+    - [The method of moments for wire antennas](em-waves/method-of-moments.md)
+    - [The finite-difference time-domain method](em-waves/fdtd.md)
 
 ---
 

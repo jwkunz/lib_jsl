@@ -110,6 +110,7 @@ pub mod discrete {
         pub mod music;
         pub mod non_uniformly_sampled;
         pub mod oversampled_polyphase_filter_bank;
+        mod polyphase_synthesis;
         pub mod stft;
         pub mod wavelet_transform;
         pub mod welch;

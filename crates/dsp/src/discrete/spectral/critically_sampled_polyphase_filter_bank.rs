@@ -7,6 +7,7 @@ use std::collections::VecDeque;
 use ndarray::Array1;
 use num_complex::Complex;
 
+use super::polyphase_synthesis::{DftSynthesis, default_synthesis_filter};
 use crate::{
     dsp::discrete::{
         filters::firwin::{FirwinPassZero, firwin},
@@ -183,21 +184,25 @@ impl StreamOperator<Complex<f64>, C1D> for CriticallySampledPolyphaseAnalysisFil
 /// Critically sampled uniform DFT synthesis polyphase filter bank.
 ///
 /// Input: sequence of channelized FFT bins (`C1D`), one frame per decimated time step.
-/// Output: serial complex samples.
+/// Output: serial complex samples, `channels` per frame.
 ///
-/// **Limitation:** the output reconstructs the analysis bank's input only for a prototype with one tap per
-/// phase (`taps.len() == channels`). With longer prototypes, including the default one, the output is not a
-/// delayed, scaled copy of the input (relative errors of 18–41% for 16 channels); see the book entry on
-/// polyphase filter banks.
+/// Each frame is inverted by an inverse DFT and overlap-added through a synthesis filter (see
+/// `polyphase_synthesis` for the derivation). With a prototype of one tap per phase
+/// (`taps.len() == channels`, e.g. all ones) the bank reconstructs the analysis bank's input
+/// exactly, with no delay.
+///
+/// **Critically sampled DFT banks cannot reconstruct with longer prototypes.** With decimation
+/// by the number of channels, every channel aliases, and no FIR synthesis filter cancels the
+/// aliasing unless each polyphase component of the prototype is a single tap. With the default
+/// prototype the output is the input plus an aliasing error of about a fifth of its level (see the
+/// book entry on polyphase filter banks). Use the oversampled banks for analysis followed by
+/// synthesis.
 pub struct CriticallySampledPolyphaseSynthesisFilterBank {
-    channels: usize,
-    taps: Vec<f64>,
-    phases: usize,
-    frame_history: VecDeque<Vec<Complex<f64>>>,
-    ifft: Fft,
+    engine: DftSynthesis,
 }
 
 impl CriticallySampledPolyphaseSynthesisFilterBank {
+    /// A synthesis bank matching the analysis bank built with the same `channels` and `taps`.
     pub fn new(channels: usize, taps: Option<&[f64]>) -> Result<Self, ErrorsJSL> {
         if channels < 2 || !channels.is_power_of_two() {
             return Err(ErrorsJSL::InvalidInputRange(
@@ -214,31 +219,26 @@ impl CriticallySampledPolyphaseSynthesisFilterBank {
         } else {
             design_default_taps(channels)?
         };
-        let phases = taps.len() / channels;
+        let filter = default_synthesis_filter(&taps, channels, channels)?;
+        Ok(Self { engine: DftSynthesis::new(channels, channels, filter)? })
+    }
 
-        let mut ifft = Fft::new();
-        ifft.plan(
-            channels,
-            FftScaleFactor::N,
-            FftDirection::Inverse,
-            FftOrdering::Standard,
-        )?;
+    /// Replaces the synthesis filter (the default is chosen from the prototype; see
+    /// [`OversampledPolyphaseSynthesisFilterBank`](super::oversampled_polyphase_filter_bank::OversampledPolyphaseSynthesisFilterBank)).
+    pub fn with_synthesis_filter(mut self, filter: &[f64]) -> Result<Self, ErrorsJSL> {
+        self.engine.set_filter(filter.to_vec())?;
+        Ok(self)
+    }
 
-        Ok(Self {
-            channels,
-            taps,
-            phases,
-            frame_history: VecDeque::from(vec![vec![Complex::new(0.0, 0.0); channels]; phases]),
-            ifft,
-        })
+    /// The synthesis filter in use.
+    pub fn synthesis_filter(&self) -> &[f64] {
+        self.engine.filter()
     }
 }
 
 impl StreamOperatorManagement for CriticallySampledPolyphaseSynthesisFilterBank {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
-        self.frame_history.iter_mut().for_each(|f| {
-            f.iter_mut().for_each(|v| *v = Complex::new(0.0, 0.0));
-        });
+        self.engine.reset();
         Ok(())
     }
 
@@ -249,44 +249,18 @@ impl StreamOperatorManagement for CriticallySampledPolyphaseSynthesisFilterBank 
 
 impl StreamOperator<C1D, Complex<f64>> for CriticallySampledPolyphaseSynthesisFilterBank {
     fn process(&mut self, data_in: &[C1D]) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
-        if data_in.is_empty() {
-            return Ok(None);
-        }
         let mut out = Vec::<Complex<f64>>::new();
         for frame in data_in {
-            if frame.len() != self.channels {
-                return Err(ErrorsJSL::InvalidInputRange(
-                    "all synthesis input frames must have length = channels",
-                ));
-            }
-            let time_poly = self.ifft.execute(frame.as_slice().ok_or(ErrorsJSL::RuntimeError(
-                "failed to access contiguous synthesis frame",
-            ))?)?;
-            self.frame_history.pop_front();
-            self.frame_history.push_back(time_poly);
-
-            for n in 0..self.channels {
-                let mut y = Complex::new(0.0, 0.0);
-                for r in 0..self.phases {
-                    let h_idx = r * self.channels + n;
-                    let frame_idx = self.phases - 1 - r;
-                    y += self.frame_history[frame_idx][n] * self.taps[h_idx];
-                }
-                out.push(y);
-            }
+            let slice = frame.as_slice().ok_or(ErrorsJSL::RuntimeError("failed to access contiguous synthesis frame"))?;
+            self.engine.push_frame(slice, &mut out)?;
         }
-
-        if out.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(out))
-        }
+        Ok(if out.is_empty() { None } else { Some(out) })
     }
 
+    /// Emits the tail of the synthesis filter after the last frame; the stream ends here.
     fn flush(&mut self) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
-        let zero_frame = Array1::from_vec(vec![Complex::new(0.0, 0.0); self.channels]);
-        let zeros = vec![zero_frame; self.phases.saturating_sub(1)];
-        self.process(&zeros)
+        let out = self.engine.flush();
+        Ok(if out.is_empty() { None } else { Some(out) })
     }
 }
 

@@ -6,7 +6,7 @@
 |---|---|
 | **Problem** | Split a wideband signal into many equally spaced frequency channels, each at a reduced sampling rate (a channeliser), and recombine channels into one signal |
 | **Devised by** | Maurice Bellanger and J. L. Daguet (1974), the polyphase DFT filter bank; Ronald Crochiere and Lawrence Rabiner (1981), weighted overlap-add; P. P. Vaidyanathan (1987–1993), perfect-reconstruction theory; fred harris (2003), polyphase channelisers for radio |
-| **Accuracy** | Analysis channels have the prototype's response (60 dB stopband by default, test below); synthesis reconstructs the input only for one-tap-per-phase prototypes (table below) |
+| **Accuracy** | Analysis channels have the prototype's response (60 dB stopband by default, test below); oversampled synthesis reconstructs the input to better than −65 dB with the default prototype; critically sampled synthesis is exact only for one-tap-per-phase prototypes (table below) |
 | **Cost** | Per block of $D$ input samples: $L$ multiply-adds for a prototype of $L$ taps, and one $M$-point FFT |
 | **API** | [`CriticallySampledPolyphaseAnalysisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/critically_sampled_polyphase_filter_bank/struct.CriticallySampledPolyphaseAnalysisFilterBank.html), [`CriticallySampledPolyphaseSynthesisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/critically_sampled_polyphase_filter_bank/struct.CriticallySampledPolyphaseSynthesisFilterBank.html), [`OversampledPolyphaseAnalysisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/oversampled_polyphase_filter_bank/struct.OversampledPolyphaseAnalysisFilterBank.html), [`OversampledPolyphaseSynthesisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/oversampled_polyphase_filter_bank/struct.OversampledPolyphaseSynthesisFilterBank.html) |
 
@@ -56,21 +56,28 @@ This is the usual choice for channelisers.
 
 ### Synthesis and reconstruction
 
-A synthesis bank interpolates each channel, modulates it back to its centre frequency, and sums: an inverse FFT per block, polyphase filtering, and overlap-add.
-For a critically sampled bank, perfect reconstruction with FIR filters requires specially designed prototypes. For an oversampled bank, a prototype whose shifted
-power responses sum to a constant reconstructs nearly perfectly. The library's synthesis banks reconstruct exactly with a prototype of one tap per phase
-(a rectangular window, which makes the bank a block DFT and its inverse), but **not** with longer prototypes. Measured with white noise, after the best
-delay and complex gain are removed:
+A synthesis bank interpolates each channel, modulates it back to its centre frequency, and sums. In polyphase form, each frame $X(t)$ is inverted by an unnormalised inverse FFT, $z_t[r] = \sum_q X_q(t)\,e^{2\pi iqr/M}$, and overlap-added
+through a **synthesis filter** $f$: the frame whose newest input sample was $m_t$ adds $f[v]\,z_t[v \bmod M]$ to output sample $m_t + 1 - M + v$. Substituting the analysis bank gives, in the frequency domain,
+
+$$
+Y(\nu) = \frac{1}{D}\sum_{a=0}^{D-1} X\Big(\nu - \frac{a}{D}\Big)\sum_{q=0}^{M-1} H\Big(\nu - \frac{q}{M} - \frac{a}{D}\Big)\,F\Big(\nu - \frac{q}{M}\Big)
+$$
+
+up to a linear phase. The terms $a \ne 0$ are aliases of the input. The output is a delayed copy of the input when two conditions hold. First, the channels add up flat: $\sum_q H(\nu - q/M)F(\nu - q/M)$ is constant. Second, there is no aliasing: $F$ is zero
+wherever an image $H(\nu - a/D)$ is not. The combined delay of $h$ and $f$ must also be a multiple of $M$, so that the copies from different channels add in phase.
+
+The default prototype, a low-pass whose −6 dB point is at $1/(2M)$, has shifted copies that add to one. With oversampling, $D \le M/2$, its images at multiples of $1/D$ lie beyond $1.25/M$. So a low-pass $f$ with cutoff $1/(2D)$ and the same transition width passes every channel's band unchanged and stops the images.
+That is the oversampled synthesis bank's default, scaled for unit gain ($\sum f = D/\sum h$). With **critical sampling**, $D = M$, the images begin where the channels' transition bands do, and no FIR $f$ removes them. A critically sampled DFT bank reconstructs only if each polyphase component of the prototype is a single tap,
+as for the rectangular prototype that makes the bank a block DFT. (Critically sampled perfect reconstruction with good channel selectivity needs other structures, such as cosine-modulated banks.) Measured with white noise, after the best delay and complex gain are removed:
 
 {{#include ../generated/spectral/filter_bank_reconstruction.md}}
 
-With the default prototypes, the synthesis output differs from the input by 18–41% of its level, at a gain near $1/M^2$. The analysis banks are
-correct and can be used on their own as channelisers. The synthesis banks should be used only with one-tap prototypes until they are reworked.
+The oversampled banks reconstruct to the level of the 60 dB filters, delayed by the prototype's length minus $M$. The critically sampled bank with the default prototype leaves an aliasing error of about a fifth of the signal. Use it as a channeliser, or for analysis followed by synthesis only with a one-tap prototype.
 
 ## Algorithm
 
 1. **Analysis**: keep the last $L$ inputs; every $D$ inputs, form $v_j = \sum_rh[rM + j]\,x[\text{newest} - rM - j]$ for $j = 0, \ldots, M - 1$ (arranged in reverse order for the FFT), and transform.
-2. **Synthesis**: inverse-transform each frame, weight the polyphase history by the prototype, and overlap-add blocks of the hop length.
+2. **Synthesis**: inverse-transform each frame; add $f[v]\,z_t[v \bmod M]$ into an accumulator from output sample $m_t + 1 - M$ on; emit the $D$ samples that no later frame can change.
 
 ## Implementation
 
@@ -78,9 +85,14 @@ correct and can be used on their own as channelisers. The synthesis banks should
 {{#include ../../../crates/dsp/src/discrete/spectral/critically_sampled_polyphase_filter_bank.rs:pfb_analysis}}
 ```
 
+```rust,ignore
+{{#include ../../../crates/dsp/src/discrete/spectral/polyphase_synthesis.rs:overlap_add}}
+```
+
 - The number of channels must be a power of two, and a supplied prototype's length a multiple of it.
 - Oversampled banks take the oversampling factor $K$ (a power of two dividing $M$); their hop is $M/K$.
 - The banks take complex input and produce one complex vector of $M$ channels per block, through the [`StreamOperator`](../../api/lib_jsl_dsp/discrete/stream_operator/trait.StreamOperator.html) interface.
+- Both synthesis banks share one overlap-add engine; `with_synthesis_filter` replaces the default filter, and `synthesis_filter` returns it.
 
 ## In practice
 
@@ -110,7 +122,7 @@ the prototype's stopband leakage, more than 74 dB down.
 
 **Weaknesses**
 
-- The synthesis banks do not yet reconstruct with practical prototypes (see above).
+- Critically sampled DFT banks cannot reconstruct with selective prototypes; oversampling costs $K$ times more channel samples.
 - Fixed, uniform channel spacing; power-of-two channel counts only.
 
 ## Exercises
@@ -118,7 +130,8 @@ the prototype's stopband leakage, more than 74 dB down.
 1. Derive the polyphase form of the analysis bank from the definition of channel $c$'s filter $h[n]e^{2\pi icn/M}$.
 2. Show that with a one-tap-per-phase prototype the critically sampled analysis bank is a block DFT, and its synthesis bank the inverse.
 3. For an oversampled bank with $K = 2$, find the largest transition band a prototype can have without aliasing between adjacent channels.
-4. State the condition on the prototype for near-perfect reconstruction in an oversampled weighted overlap-add bank, and check whether a Kaiser-window low-pass with cutoff $1/(2M)$ satisfies it.
+4. Derive the frequency-domain expression for $Y(\nu)$ above from the analysis and synthesis formulas.
+5. Show that a critically sampled DFT bank with an FIR synthesis filter reconstructs only if every polyphase component of the prototype is a monomial.
 
 ## Further reading
 

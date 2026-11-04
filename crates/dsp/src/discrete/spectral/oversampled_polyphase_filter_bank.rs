@@ -7,6 +7,7 @@ use std::collections::VecDeque;
 use ndarray::Array1;
 use num_complex::Complex;
 
+use super::polyphase_synthesis::{DftSynthesis, default_synthesis_filter};
 use crate::{
     dsp::discrete::{
         filters::firwin::{FirwinPassZero, firwin},
@@ -194,25 +195,29 @@ impl StreamOperator<Complex<f64>, C1D> for OversampledPolyphaseAnalysisFilterBan
 
 /// Oversampled uniform DFT synthesis polyphase filter bank.
 ///
-/// Input: channelized FFT frames (`C1D`)
-/// Output: serial complex samples with hop `channels / oversampling_factor`.
+/// Input: channelized FFT frames (`C1D`) from the matching analysis bank.
+/// Output: serial complex samples, `channels / oversampling_factor` per frame.
 ///
-/// **Limitation:** the output reconstructs the analysis bank's input only for a prototype with one tap per
-/// phase (`taps.len() == channels`). With longer prototypes, including the default one, the output is not a
-/// delayed, scaled copy of the input (relative errors of 18–41% for 16 channels); see the book entry on
-/// polyphase filter banks.
+/// Each frame is inverted by an inverse DFT and overlap-added through a synthesis filter `f`
+/// (see `polyphase_synthesis` for the derivation). The default `f` depends on the prototype:
+///
+/// - one tap per phase (`taps.len() == channels`): a rectangle, which reconstructs exactly when the
+///   prototype overlap-adds to a constant at the hop (a rectangular prototype does), with no delay;
+/// - longer prototypes, including the default: a 60 dB Kaiser lowpass of the prototype's length
+///   with cutoff `1/(2·hop)`. With the default prototype (whose shifted copies add to one) the bank
+///   reconstructs its input to within about 60 dB, delayed by `taps.len() − channels` samples,
+///   for oversampling factors of 2 or more.
+///
+/// A different filter can be set with [`with_synthesis_filter`](Self::with_synthesis_filter);
+/// reconstruction then needs `Σ_q H(ν − q/M) F(ν − q/M)` constant, no overlap between `F` and the
+/// prototype's images at multiples of `1/hop`, and a combined delay of `h` and `f` that is a
+/// multiple of `channels`. Scale it so that `Σ f = hop / Σ h` for unit gain.
 pub struct OversampledPolyphaseSynthesisFilterBank {
-    channels: usize,
-    oversampling_factor: usize,
-    hop: usize,
-    taps: Vec<f64>,
-    phases: usize,
-    frame_history: VecDeque<Vec<Complex<f64>>>,
-    overlap: Vec<Complex<f64>>,
-    ifft: Fft,
+    engine: DftSynthesis,
 }
 
 impl OversampledPolyphaseSynthesisFilterBank {
+    /// A synthesis bank matching the analysis bank built with the same arguments.
     pub fn new(
         channels: usize,
         oversampling_factor: usize,
@@ -242,38 +247,26 @@ impl OversampledPolyphaseSynthesisFilterBank {
         } else {
             design_default_taps(channels)?
         };
-        let phases = taps.len() / channels;
         let hop = channels / oversampling_factor;
+        let filter = default_synthesis_filter(&taps, channels, hop)?;
+        Ok(Self { engine: DftSynthesis::new(channels, hop, filter)? })
+    }
 
-        let mut ifft = Fft::new();
-        ifft.plan(
-            channels,
-            FftScaleFactor::N,
-            FftDirection::Inverse,
-            FftOrdering::Standard,
-        )?;
+    /// Replaces the synthesis filter.
+    pub fn with_synthesis_filter(mut self, filter: &[f64]) -> Result<Self, ErrorsJSL> {
+        self.engine.set_filter(filter.to_vec())?;
+        Ok(self)
+    }
 
-        Ok(Self {
-            channels,
-            oversampling_factor,
-            hop,
-            taps,
-            phases,
-            frame_history: VecDeque::from(vec![vec![Complex::new(0.0, 0.0); channels]; phases]),
-            overlap: vec![Complex::new(0.0, 0.0); channels - hop],
-            ifft,
-        })
+    /// The synthesis filter in use.
+    pub fn synthesis_filter(&self) -> &[f64] {
+        self.engine.filter()
     }
 }
 
 impl StreamOperatorManagement for OversampledPolyphaseSynthesisFilterBank {
     fn reset(&mut self) -> Result<(), ErrorsJSL> {
-        self.frame_history.iter_mut().for_each(|f| {
-            f.iter_mut().for_each(|v| *v = Complex::new(0.0, 0.0));
-        });
-        self.overlap
-            .iter_mut()
-            .for_each(|v| *v = Complex::new(0.0, 0.0));
+        self.engine.reset();
         Ok(())
     }
 
@@ -284,67 +277,18 @@ impl StreamOperatorManagement for OversampledPolyphaseSynthesisFilterBank {
 
 impl StreamOperator<C1D, Complex<f64>> for OversampledPolyphaseSynthesisFilterBank {
     fn process(&mut self, data_in: &[C1D]) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
-        if data_in.is_empty() {
-            return Ok(None);
-        }
         let mut out = Vec::<Complex<f64>>::new();
         for frame in data_in {
-            if frame.len() != self.channels {
-                return Err(ErrorsJSL::InvalidInputRange(
-                    "all synthesis input frames must have length = channels",
-                ));
-            }
-            let time_poly = self.ifft.execute(frame.as_slice().ok_or(ErrorsJSL::RuntimeError(
-                "failed to access contiguous oversampled synthesis frame",
-            ))?)?;
-
-            if self.phases == 1 {
-                out.extend(time_poly[self.channels - self.hop..].iter().copied());
-                continue;
-            }
-
-            self.frame_history.pop_front();
-            self.frame_history.push_back(time_poly);
-
-            let mut block = vec![Complex::new(0.0, 0.0); self.channels];
-            for (n, bn) in block.iter_mut().enumerate().take(self.channels) {
-                let mut y = Complex::new(0.0, 0.0);
-                for r in 0..self.phases {
-                    let h_idx = r * self.channels + n;
-                    let frame_idx = self.phases - 1 - r;
-                    y += self.frame_history[frame_idx][n] * self.taps[h_idx];
-                }
-                // Normalize overlap gain for rectangular prototype steady-state.
-                *bn = y / self.oversampling_factor as f64;
-            }
-
-            for (block_i, overlap_i) in block.iter_mut().zip(self.overlap.iter()) {
-                *block_i += *overlap_i;
-            }
-            out.extend(block[..self.hop].iter().copied());
-            self.overlap.copy_from_slice(&block[self.hop..]);
+            let slice = frame.as_slice().ok_or(ErrorsJSL::RuntimeError("failed to access contiguous oversampled synthesis frame"))?;
+            self.engine.push_frame(slice, &mut out)?;
         }
-
-        if out.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(out))
-        }
+        Ok(if out.is_empty() { None } else { Some(out) })
     }
 
+    /// Emits the tail of the synthesis filter after the last frame; the stream ends here.
     fn flush(&mut self) -> Result<Option<Vec<Complex<f64>>>, ErrorsJSL> {
-        let zero_frame = Array1::from_vec(vec![Complex::new(0.0, 0.0); self.channels]);
-        let zeros = vec![zero_frame; self.phases.saturating_sub(1)];
-        let mut out = self.process(&zeros)?.unwrap_or_default();
-        out.extend(self.overlap.iter().copied());
-        self.overlap
-            .iter_mut()
-            .for_each(|v| *v = Complex::new(0.0, 0.0));
-        if out.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(out))
-        }
+        let out = self.engine.flush();
+        Ok(if out.is_empty() { None } else { Some(out) })
     }
 }
 
@@ -391,6 +335,47 @@ mod tests {
         }
         mse /= count as f64;
         assert!(mse < 1e-6, "mse={mse}");
+    }
+
+    /// Runs `input` through analysis and synthesis and returns the output.
+    fn round_trip(m: usize, os: usize, taps: Option<&[f64]>, input: &[Complex<f64>]) -> Vec<Complex<f64>> {
+        let mut ana = OversampledPolyphaseAnalysisFilterBank::new(m, os, taps).unwrap();
+        let mut syn = OversampledPolyphaseSynthesisFilterBank::new(m, os, taps).unwrap();
+        let mut frames = ana.process(input).unwrap().unwrap_or_default();
+        frames.extend(ana.flush().unwrap().unwrap_or_default());
+        let mut out = syn.process(&frames).unwrap().unwrap_or_default();
+        out.extend(syn.flush().unwrap().unwrap_or_default());
+        out
+    }
+
+    #[test]
+    fn the_default_prototype_reconstructs_to_60_db() {
+        // White-ish deterministic input; the output must be the input delayed by
+        // taps.len() - channels, with unit gain, to about the prototype's 60 dB stopband.
+        let mut seed = 12345u64;
+        let mut rnd = || {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            (seed >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+        };
+        let input: Vec<Complex<f64>> = (0..4096).map(|_| Complex::new(rnd(), rnd())).collect();
+        for (m, os) in [(16usize, 2usize), (16, 4), (32, 2), (8, 8)] {
+            let delay = design_default_taps(m).unwrap().len() - m;
+            let out = round_trip(m, os, None, &input);
+            let (mut err, mut sig) = (0.0, 0.0);
+            for i in 1000..3000 {
+                err += (out[i + delay] - input[i]).norm_sqr();
+                sig += input[i].norm_sqr();
+            }
+            let rel = (err / sig).sqrt();
+            assert!(rel < 2e-3, "M = {m}, oversampling {os}: relative error {rel:.2e}");
+        }
+    }
+
+    #[test]
+    fn a_custom_synthesis_filter_is_used() {
+        let syn = OversampledPolyphaseSynthesisFilterBank::new(8, 2, None).unwrap().with_synthesis_filter(&[0.5; 16]).unwrap();
+        assert_eq!(syn.synthesis_filter(), &[0.5; 16]);
+        assert!(OversampledPolyphaseSynthesisFilterBank::new(8, 2, None).unwrap().with_synthesis_filter(&[]).is_err());
     }
 
     #[test]

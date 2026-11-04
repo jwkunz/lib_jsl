@@ -16,7 +16,8 @@ pub fn pollard_rho(n: u64) -> u64 {
         return 2;
     }
     for c in 1..n {
-        let f = |x: u64| (mul_mod(x, x, n) + c) % n;
+        // x² mod n + c can exceed u64::MAX when n is within c of 2^64; add in u128.
+        let f = |x: u64| ((mul_mod(x, x, n) as u128 + c as u128) % n as u128) as u64;
         let (mut y, mut r, mut q) = (2u64, 1u64, 1u64);
         let (mut x, mut ys, mut g) = (0, 0, 1);
         const BATCH: u64 = 128;
@@ -121,6 +122,14 @@ mod tests {
 
     fn product(f: &[(u64, u32)]) -> u128 {
         f.iter().map(|&(p, e)| (p as u128).pow(e)).product()
+    }
+
+    #[test]
+    fn semiprimes_near_two_to_the_64_factor_without_overflow() {
+        // The largest primes below 2^32: their products are within 2^34 of 2^64.
+        for (p, q) in [(4294967291u64, 4294967279u64), (4294967291, 4294967291), (4294967279, 4294967231)] {
+            assert_eq!(factorize(p * q), if p == q { vec![(p, 2)] } else { vec![(q.min(p), 1), (p.max(q), 1)] });
+        }
     }
 
     #[test]

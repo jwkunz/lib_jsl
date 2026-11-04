@@ -593,8 +593,8 @@ fn feature_figures() {
     let base = feature_scene(n);
     let mut rows = Vec::new();
     let mut shown = None;
-    for &(angle_deg, scale, gain) in &[(0.0, 1.0, 0.6), (30.0, 1.0, 1.0), (0.0, 0.75, 1.0), (45.0, 0.8, 0.7)] {
-        let angle = (angle_deg as f64).to_radians();
+    for &(angle_deg, scale, gain) in &[(0.0f64, 1.0, 0.6), (30.0, 1.0, 1.0), (0.0, 0.75, 1.0), (45.0, 0.8, 0.7)] {
+        let angle = angle_deg.to_radians();
         let other = warp(&base, angle, scale, 0.4).mapv(|v| gain * v + 0.1);
         let t0 = Instant::now();
         let ka = sift(&base, &SiftParams::default()).unwrap();

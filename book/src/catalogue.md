@@ -810,13 +810,13 @@ Crate `lib_jsl_utils`: [API reference](../api/lib_jsl_utils/index.html) · 3 ite
 
 Sorting and selection algorithms.
 
-Crate `lib_jsl_sorting`: [API reference](../api/lib_jsl_sorting/index.html) · 5 items
+Crate `lib_jsl_sorting`: [API reference](../api/lib_jsl_sorting/index.html) · book chapter: [sorting and selection](sorting/index.md) · 5 items
 
-- Quicksort
-- Heapsort
-- Select M largest
-- Equivalence classes
-- Shell's method
+- [Quicksort](sorting/comparison-sorts.md#quicksort)
+- [Heapsort](sorting/comparison-sorts.md#heapsort)
+- [Select M largest](sorting/selection.md#selecting-the-m-largest)
+- [Equivalence classes](sorting/selection.md#equivalence-classes)
+- [Shell's method](sorting/comparison-sorts.md#shells-method)
 
 ### File IO
 

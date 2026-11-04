@@ -1,4 +1,6 @@
 //! Sorting and selection algorithms.
+//!
+//! See the book entry [Sorting and selection](https://jwkunz.github.io/lib_jsl/book/sorting/index.html).
 
 pub mod quicksort;
 pub mod heapsort;

@@ -182,6 +182,9 @@
     - [Intersections and closest points](geometry/intersections.md)
     - [Triangle meshes: smoothing, decimation and slicing](geometry/meshes.md)
     - [Space-time: four-vectors, Lorentz boosts and Christoffel symbols](geometry/spacetime.md)
+- [Sorting and selection](sorting/index.md)
+    - [Comparison sorting: quicksort, heapsort and Shell's method](sorting/comparison-sorts.md)
+    - [Selection and equivalence classes](sorting/selection.md)
 
 ---
 

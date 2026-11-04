@@ -58,6 +58,7 @@ pub fn hough_transform(edges: &Array2<bool>, num_angles: usize, rho_resolution: 
     let thetas: Vec<f64> = (0..num_angles).map(|j| j as f64 * PI / num_angles as f64).collect();
     let trig: Vec<(f64, f64)> = thetas.iter().map(|t| (t.cos(), t.sin())).collect();
     let mut acc = Array2::<u32>::zeros((n_rho, num_angles));
+    // ANCHOR: hough_vote
     for ((r, c), &e) in edges.indexed_iter() {
         if !e {
             continue;
@@ -68,6 +69,7 @@ pub fn hough_transform(edges: &Array2<bool>, num_angles: usize, rho_resolution: 
             acc[(bin, j)] += 1;
         }
     }
+    // ANCHOR_END: hough_vote
     Ok(HoughLines { accumulator: acc, thetas, rho_min, rho_step: rho_resolution })
 }
 

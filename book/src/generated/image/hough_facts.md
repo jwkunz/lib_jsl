@@ -1,0 +1,1 @@
+The two strongest lines have 55 and 52 votes, at (θ, ρ) = (82°, 81) and (140°, 1); the clutter's best cell has 9. The best circle is centred at row 32, column 66 with radius 15 and support 0.71 (the true circle: row 32, column 66, radius 15, one third missing).

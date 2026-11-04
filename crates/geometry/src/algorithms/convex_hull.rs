@@ -118,15 +118,18 @@ impl Hull3D {
     }
 }
 
-/// The 3D convex hull by incremental insertion (`O(n·f)`, where `f` is the face count, which is
-/// fast for typical inputs).
+/// The 3D convex hull by Quickhull (Barber, Dobkin and Huhdanpaa): starting from a tetrahedron,
+/// each face keeps the points outside it, and the point farthest above a face is added by
+/// replacing the faces it sees with a cone to their horizon. `O(n log n)` expected for typical
+/// inputs, `O(n²)` in the worst case.
 ///
 /// Returns `None` if there are fewer than four points or they are all coplanar (within a tolerance
 /// relative to the extent of the data) or contain non-finite values. Points strictly inside the
-/// hull and duplicates are never vertices of the result. Points lying exactly on a face or edge of
-/// the final hull may be: one processed before that face exists can become a vertex of coplanar
-/// triangles, so for degenerate inputs such as a grid, `vertices` can include non-extreme points
-/// (a 5×5×5 grid gives 32 vertices, not 8). The volume and surface area are unaffected.
+/// hull and duplicates are never vertices of the result, and nor, usually, are points lying on a
+/// face or edge of the hull (a 5×5×5 grid gives its 8 corners). Such a point can still become a
+/// vertex of coplanar triangles if it is the farthest point above some intermediate face, so
+/// [`Hull3D::vertices`] is guaranteed to contain the extreme points but may, for degenerate
+/// inputs, contain a few more. The volume and surface area are unaffected.
 pub fn convex_hull_3d(points: &[[f64; 3]]) -> Option<Hull3D> {
     let n = points.len();
     if n < 4 || points.iter().flatten().any(|v| !v.is_finite()) {
@@ -159,46 +162,102 @@ pub fn convex_hull_3d(points: &[[f64; 3]]) -> Option<Hull3D> {
     }
 
     // Orient faces outward: the fourth vertex must be on the negative side of every face.
-    let mut faces: Vec<[usize; 3]> = if plane_dist(i3) > 0.0 {
+    let faces: Vec<[usize; 3]> = if plane_dist(i3) > 0.0 {
         vec![[i0, i2, i1], [i0, i1, i3], [i1, i2, i3], [i2, i0, i3]]
     } else {
         vec![[i0, i1, i2], [i0, i3, i1], [i1, i3, i2], [i2, i3, i0]]
     };
-    let signed = |f: &[usize; 3], p: [f64; 3]| {
+    // ANCHOR: quickhull
+    // Each face caches its unit normal and offset, and owns the "outside set" of unprocessed
+    // points that see it; a point is in at most one set, and points in none are inside.
+    let plane = |f: &[usize; 3]| {
         let n = cross3(sub3(points[f[1]], points[f[0]]), sub3(points[f[2]], points[f[0]]));
-        dot3(n, sub3(p, points[f[0]])) / dot3(n, n).sqrt()
+        let len = dot3(n, n).sqrt();
+        let n = [n[0] / len, n[1] / len, n[2] / len];
+        (n, dot3(n, points[f[0]]))
     };
-
-    for (p, &point) in points.iter().enumerate() {
-        if [i0, i1, i2, i3].contains(&p) {
-            continue;
-        }
-        let visible: Vec<bool> = faces.iter().map(|f| signed(f, point) > eps).collect();
-        if !visible.iter().any(|&v| v) {
-            continue;
-        }
-        // Horizon: directed edges of visible faces whose reverse edge belongs to a hidden face.
-        let mut edges: HashMap<(usize, usize), bool> = HashMap::new();
-        for (f, &vis) in faces.iter().zip(&visible) {
-            for k in 0..3 {
-                edges.insert((f[k], f[(k + 1) % 3]), vis);
-            }
-        }
-        let mut next: Vec<[usize; 3]> = Vec::with_capacity(faces.len() + 8);
-        for (f, &vis) in faces.iter().zip(&visible) {
-            if vis {
-                for k in 0..3 {
-                    let (a, b) = (f[k], f[(k + 1) % 3]);
-                    if edges.get(&(b, a)) == Some(&false) {
-                        next.push([a, b, p]);
-                    }
-                }
-            } else {
-                next.push(*f);
-            }
-        }
-        faces = next;
+    struct Face {
+        vertices: [usize; 3],
+        normal: [f64; 3],
+        offset: f64,
+        outside: Vec<usize>,
+        alive: bool,
     }
+    let height = |f: &Face, p: usize| dot3(f.normal, points[p]) - f.offset;
+    let mut slots: Vec<Face> = faces.iter().map(|f| { let (normal, offset) = plane(f); Face { vertices: *f, normal, offset, outside: Vec::new(), alive: true } }).collect();
+    let mut owner: HashMap<(usize, usize), usize> = HashMap::new();
+    for (k, f) in slots.iter().enumerate() {
+        for j in 0..3 {
+            owner.insert((f.vertices[j], f.vertices[(j + 1) % 3]), k);
+        }
+    }
+    for p in (0..n).filter(|p| ![i0, i1, i2, i3].contains(p)) {
+        if let Some(k) = (0..4).find(|&k| height(&slots[k], p) > eps) {
+            slots[k].outside.push(p);
+        }
+    }
+    let mut pending: Vec<usize> = (0..4).collect();
+    while let Some(k) = pending.pop() {
+        if !slots[k].alive || slots[k].outside.is_empty() {
+            continue;
+        }
+        // Quickhull: add the point farthest above this face, which is certainly a hull vertex.
+        let apex = *slots[k].outside.iter().max_by(|&&a, &&b| height(&slots[k], a).total_cmp(&height(&slots[k], b))).unwrap();
+        // The faces it sees form a connected cap around face k: find them across shared edges.
+        let mut visible = vec![k];
+        let mut seen = std::collections::HashSet::from([k]);
+        let mut horizon: Vec<(usize, usize)> = Vec::new();
+        let mut i = 0;
+        while i < visible.len() {
+            let f = slots[visible[i]].vertices;
+            for j in 0..3 {
+                let (a, b) = (f[j], f[(j + 1) % 3]);
+                let across = owner[&(b, a)];
+                if seen.contains(&across) {
+                    continue;
+                }
+                if height(&slots[across], apex) > eps {
+                    seen.insert(across);
+                    visible.push(across);
+                } else {
+                    horizon.push((a, b));
+                }
+            }
+            i += 1;
+        }
+        // Remove the cap, keeping its outside points to hand on to the new faces.
+        let mut orphans = Vec::new();
+        for &v in &visible {
+            let f = &mut slots[v];
+            f.alive = false;
+            orphans.append(&mut f.outside);
+            for j in 0..3 {
+                owner.remove(&(f.vertices[j], f.vertices[(j + 1) % 3]));
+            }
+        }
+        // Cone the horizon to the apex, skipping any edge that rounding has left inconsistent
+        // (its face across was removed after all).
+        let first_new = slots.len();
+        for (a, b) in horizon {
+            if owner.contains_key(&(a, b)) || !owner.contains_key(&(b, a)) {
+                continue;
+            }
+            let vertices = [a, b, apex];
+            let (normal, offset) = plane(&vertices);
+            for j in 0..3 {
+                owner.insert((vertices[j], vertices[(j + 1) % 3]), slots.len());
+            }
+            slots.push(Face { vertices, normal, offset, outside: Vec::new(), alive: true });
+        }
+        for p in orphans.into_iter().filter(|&p| p != apex) {
+            if let Some(f) = (first_new..slots.len()).find(|&f| height(&slots[f], p) > eps) {
+                slots[f].outside.push(p);
+            }
+        }
+        pending.extend(first_new..slots.len());
+    }
+    let faces: Vec<[usize; 3]> = slots.into_iter().filter(|f| f.alive).map(|f| f.vertices).collect();
+    // ANCHOR_END: quickhull
     Some(Hull3D { faces })
 }
 
@@ -296,8 +355,9 @@ mod tests {
         let vertices = hull.vertices();
         let corners = (0..125).filter(|&i| grid[i].iter().all(|&v| v == 0.0 || v == 4.0));
         assert!(corners.into_iter().all(|c| vertices.contains(&c)));
-        // Points interior to the cube are never vertices.
+        // Points interior to the cube are never vertices, and Quickhull keeps only the corners.
         assert!(vertices.iter().all(|&i| grid[i].iter().any(|&v| v == 0.0 || v == 4.0)));
+        assert_eq!(vertices.len(), 8);
     }
 
     #[test]

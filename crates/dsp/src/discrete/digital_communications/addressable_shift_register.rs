@@ -4,6 +4,8 @@
 //! Address 0 is the newest stage and address `capacity - 1` the oldest. Pushing a value shifts every
 //! stage by one (the old contents move to higher addresses) and returns the value that falls off
 //! the end. The implementation is a circular buffer, so a push is `O(1)` regardless of length.
+//!
+//! See the book entry [DSP: synchronisation, communications, radar and controls](https://jwkunz.github.io/lib_jsl/book/comms/index.html#addressable-shift-register).
 
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;

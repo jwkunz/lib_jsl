@@ -1,3 +1,7 @@
+//! A discrete-time Kalman filter with complex-valued matrices.
+//!
+//! See the book entry [Control: state-space models, PID controllers and the Kalman filter](https://jwkunz.github.io/lib_jsl/book/comms/controls.html#the-kalman-filter).
+
 use ndarray::{Array1, Array2};
 use lib_jsl_linalg::Solve;
 use num_complex::Complex;

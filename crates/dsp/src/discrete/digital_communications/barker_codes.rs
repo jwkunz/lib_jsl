@@ -2,6 +2,8 @@
 //! magnitude. They are used for frame synchronisation and radar pulse compression because the
 //! correlation peak (equal to the code length) stands out from the sidelobes by a factor of
 //! `length`. Barker codes exist only for lengths 2, 3, 4, 5, 7, 11 and 13.
+//!
+//! See the book entry [Pulse compression, Barker codes and pulse tracking](https://jwkunz.github.io/lib_jsl/book/comms/radar.html#barker-codes).
 
 use lib_jsl_core::ErrorsJSL;
 

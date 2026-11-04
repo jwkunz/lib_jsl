@@ -1,3 +1,7 @@
+//! A PID controller with derivative filtering, output limits and anti-windup.
+//!
+//! See the book entry [Control: state-space models, PID controllers and the Kalman filter](https://jwkunz.github.io/lib_jsl/book/comms/controls.html#pid-control).
+
 use crate::{
     dsp::discrete::{
         filters::biquad::BiquadFilter,

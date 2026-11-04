@@ -128,6 +128,13 @@
     - [Wavelet transforms](spectral/wavelets.md)
     - [Resampling: polyphase, half-band and CIC filters](spectral/resampling.md)
     - [Polyphase filter banks](spectral/filter-banks.md)
+- [DSP: synchronisation, communications, radar and controls](comms/index.md)
+    - [Signal sources: oscillators, CORDIC and waveforms](comms/sources.md)
+    - [Modulation: constellations, OFDM and FM](comms/modulation.md)
+    - [Synchronisation: phase-locked loops, Costas loops and timing recovery](comms/synchronisation.md)
+    - [Channels and equalisation](comms/equalisation.md)
+    - [Pulse compression, Barker codes and pulse tracking](comms/radar.md)
+    - [Control: state-space models, PID controllers and the Kalman filter](comms/controls.md)
 
 ---
 

@@ -1,3 +1,7 @@
+//! Discrete-time state-space models: simulation, poles, stability, controllability and observability.
+//!
+//! See the book entry [Control: state-space models, PID controllers and the Kalman filter](https://jwkunz.github.io/lib_jsl/book/comms/controls.html#state-space-models).
+
 use ndarray::s;
 use lib_jsl_linalg::{Eig, SVD};
 

@@ -4,6 +4,8 @@
 //! a frequency-modulated pulse has both. Correlating the echo with the transmitted pulse (the
 //! matched filter, which maximises the output SNR in white noise) compresses each target's echo
 //! into a peak about `1/B` wide, with a processing gain equal to the time-bandwidth product.
+//!
+//! See the book entry [Pulse compression, Barker codes and pulse tracking](https://jwkunz.github.io/lib_jsl/book/comms/radar.html#chirps).
 
 use crate::discrete::convolve::ConvolveMode;
 use crate::discrete::fft_convolution::fft_convolve;

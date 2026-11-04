@@ -385,7 +385,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md) · 116 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md) · 116 items
 
 #### Continuous
 
@@ -443,32 +443,32 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Controls
 
-- Kalman filter
-- PID loop
-- State-space model
+- [Kalman filter](comms/controls.md#the-kalman-filter)
+- [PID loop](comms/controls.md#pid-control)
+- [State-space model](comms/controls.md#state-space-models)
 
 ##### Sources
 
-- Pulse train
-- Ramp
-- Triangle
-- CORDIC (fixed point)
-- Sinusoid and quadrature
-- Square
-- Noise
+- [Pulse train](comms/sources.md#waveforms-and-noise)
+- [Ramp](comms/sources.md#waveforms-and-noise)
+- [Triangle](comms/sources.md#waveforms-and-noise)
+- [CORDIC (fixed point)](comms/sources.md#cordic)
+- [Sinusoid and quadrature](comms/sources.md#phase-accumulation)
+- [Square](comms/sources.md#waveforms-and-noise)
+- [Noise](comms/sources.md#waveforms-and-noise)
 
 ##### Digital communications
 
-- Constellations
-- Barker codes
-- Decision feedback equalizer
-- Farrow filter
-- Mueller timing detector
-- OFDM
-- FM
-- Pulse correlation tracker
-- Addressable shift register
-- Ping-pong buffer
+- [Constellations](comms/modulation.md#constellations-and-gray-labelling)
+- [Barker codes](comms/radar.md#barker-codes)
+- [Decision feedback equalizer](comms/equalisation.md#the-decision-feedback-equalizer)
+- [Farrow filter](comms/synchronisation.md#fractional-delay-the-farrow-filter)
+- [Mueller timing detector](comms/synchronisation.md#timing-recovery)
+- [OFDM](comms/modulation.md#ofdm)
+- [FM](comms/modulation.md#frequency-modulation)
+- [Pulse correlation tracker](comms/radar.md#finding-and-tracking-a-pulse)
+- [Addressable shift register](comms/index.md#addressable-shift-register)
+- [Ping-pong buffer](comms/index.md#ping-pong-buffer)
 
 ##### Image
 
@@ -541,11 +541,11 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Transformations
 
-- Channel impairment
-- Channel receiver
-- Channel transmitter
-- Frequency mixer
-- Non-linearity transformer
+- [Channel impairment](comms/equalisation.md#a-channel-in-software)
+- [Channel receiver](comms/equalisation.md#a-channel-in-software)
+- [Channel transmitter](comms/equalisation.md#a-channel-in-software)
+- [Frequency mixer](comms/sources.md#frequency-mixing)
+- [Non-linearity transformer](comms/equalisation.md#non-linearities)
 
 ##### Adaptive filters
 
@@ -554,14 +554,14 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Synchronization
 
-- Phase-locked loop
-- Costas loop
+- [Phase-locked loop](comms/synchronisation.md#the-loop)
+- [Costas loop](comms/synchronisation.md#costas-loops)
 
 ##### Multirate and radar
 
 - [CIC filters](spectral/resampling.md#cic-filters)
 - [Half-band filters](spectral/resampling.md#half-band-filters)
-- Pulse compression (matched filtering, chirps)
+- [Pulse compression (matched filtering, chirps)](comms/radar.md#chirps)
 
 ### Information
 

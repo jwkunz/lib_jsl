@@ -5,6 +5,8 @@
 //! that block becomes available to the consumer. If the producer fills a second block before the
 //! consumer has released the first, the new block cannot be stored: the push reports an overrun and
 //! the samples are dropped (and counted) rather than corrupting the block being read.
+//!
+//! See the book entry [DSP: synchronisation, communications, radar and controls](https://jwkunz.github.io/lib_jsl/book/comms/index.html#ping-pong-buffer).
 
 use crate::discrete::stream_operator::{StreamOperator, StreamOperatorManagement};
 use lib_jsl_core::ErrorsJSL;

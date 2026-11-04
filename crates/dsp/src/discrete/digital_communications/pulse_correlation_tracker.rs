@@ -16,6 +16,8 @@
 //!    corrects the delay (`α`) and rate (`β`). If not, the tracker *coasts* on its prediction and
 //!    counts a miss; after too many consecutive misses it declares the track lost and must
 //!    [`acquire`](PulseCorrelationTracker::acquire) again with a full search.
+//!
+//! See the book entry [Pulse compression, Barker codes and pulse tracking](https://jwkunz.github.io/lib_jsl/book/comms/radar.html#finding-and-tracking-a-pulse).
 
 use crate::discrete::fft_cross_correlation::fft_cross_correlate;
 use crate::discrete::cross_correlation::CorrelationMode;

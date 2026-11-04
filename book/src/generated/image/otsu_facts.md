@@ -1,0 +1,1 @@
+Otsu's threshold is 101, with separability $\sigma_b^2/\sigma^2 = 0.83$.

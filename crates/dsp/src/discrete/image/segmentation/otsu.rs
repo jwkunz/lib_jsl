@@ -48,6 +48,7 @@ pub fn otsu(image: &Array2<u8>) -> Result<OtsuResult, ErrorsJSL> {
     let (mut w0, mut sum0) = (0.0f64, 0.0f64);
     let mut best = 0.0f64;
     let mut best_range = (0usize, 0usize);
+    // ANCHOR: otsu
     for t in 0..256 {
         w0 += hist[t] as f64;
         sum0 += t as f64 * hist[t] as f64;
@@ -64,6 +65,7 @@ pub fn otsu(image: &Array2<u8>) -> Result<OtsuResult, ErrorsJSL> {
             best_range.1 = t;
         }
     }
+    // ANCHOR_END: otsu
     let threshold = if best > 0.0 {
         ((best_range.0 + best_range.1) / 2) as u8
     } else {

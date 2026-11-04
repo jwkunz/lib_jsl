@@ -63,6 +63,7 @@ pub fn canny_edge_detection(image: &Array2<f64>, sigma: f64, low: f64, high: f64
         }
     }
 
+    // ANCHOR: hysteresis
     // Hysteresis: grow from strong pixels through weak ones.
     let mut edges = Array2::from_elem((rows, cols), false);
     let mut queue = VecDeque::new();
@@ -88,6 +89,7 @@ pub fn canny_edge_detection(image: &Array2<f64>, sigma: f64, low: f64, high: f64
         }
     }
     Ok(edges)
+    // ANCHOR_END: hysteresis
 }
 
 #[cfg(test)]

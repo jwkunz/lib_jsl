@@ -75,6 +75,7 @@ pub fn watershed_masked(elevation: &Array2<f64>, markers: &Array2<i32>, mask: Op
             age += 1;
         }
     }
+    // ANCHOR: flood
     while let Some(Entry { row, col, .. }) = heap.pop() {
         let label = labels[(row, col)];
         for (dr, dc) in [(-1isize, 0isize), (1, 0), (0, -1), (0, 1)] {
@@ -92,6 +93,7 @@ pub fn watershed_masked(elevation: &Array2<f64>, markers: &Array2<i32>, mask: Op
         }
     }
     Ok(labels)
+    // ANCHOR_END: flood
 }
 
 /// Marks pixels that have a right or lower neighbour with a different (nonzero) label: a

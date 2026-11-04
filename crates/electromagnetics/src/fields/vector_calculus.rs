@@ -12,6 +12,8 @@
 //!
 //! These operators need volume domains with at least two samples per axis; surface fields have
 //! no full 3D derivatives.
+//!
+//! See the book entry [Fields on grids](https://jwkunz.github.io/lib_jsl/book/em-arrays/fields.html).
 
 use crate::conventions::C64;
 use crate::coordinates::polarization::PolarizationBasis;
@@ -89,6 +91,7 @@ pub(crate) fn axis_stencil(domain: &Domain, idx: &[usize], a: usize) -> Vec<(usi
 }
 
 /// For each sample, the Jacobian `J[k][j] = ∂F_k/∂x_j` of Cartesian components `F_k`.
+// ANCHOR: cartesian_jacobians
 fn cartesian_jacobians<T: FieldScalar>(domain: &Domain, cart: &[[T; 3]]) -> Vec<[[T; 3]; 3]> {
     let n = domain.len();
     let mut out = vec![[[T::zero(); 3]; 3]; n];
@@ -118,6 +121,7 @@ fn cartesian_jacobians<T: FieldScalar>(domain: &Domain, cart: &[[T; 3]]) -> Vec<
     }
     out
 }
+// ANCHOR_END: cartesian_jacobians
 
 fn harmonic_cartesian(field: &HarmonicField) -> Vec<[C64; 3]> {
     (0..field.len()).map(|i| field.cartesian(i)).collect()

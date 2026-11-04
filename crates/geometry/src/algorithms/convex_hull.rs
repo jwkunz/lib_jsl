@@ -76,7 +76,8 @@ fn dot3(a: [f64; 3], b: [f64; 3]) -> f64 {
 }
 
 impl Hull3D {
-    /// Sorted indices of the points that are hull vertices.
+    /// Sorted indices of the points used by the faces: every extreme point, plus any points on a
+    /// face or edge that the construction kept (see [`convex_hull_3d`]).
     pub fn vertices(&self) -> Vec<usize> {
         let mut v: Vec<usize> = self.faces.iter().flatten().copied().collect();
         v.sort_unstable();
@@ -121,8 +122,11 @@ impl Hull3D {
 /// fast for typical inputs).
 ///
 /// Returns `None` if there are fewer than four points or they are all coplanar (within a tolerance
-/// relative to the extent of the data) or contain non-finite values. Points inside the hull, on a
-/// face, or duplicated are not vertices of the result.
+/// relative to the extent of the data) or contain non-finite values. Points strictly inside the
+/// hull and duplicates are never vertices of the result. Points lying exactly on a face or edge of
+/// the final hull may be: one processed before that face exists can become a vertex of coplanar
+/// triangles, so for degenerate inputs such as a grid, `vertices` can include non-extreme points
+/// (a 5×5×5 grid gives 32 vertices, not 8). The volume and surface area are unaffected.
 pub fn convex_hull_3d(points: &[[f64; 3]]) -> Option<Hull3D> {
     let n = points.len();
     if n < 4 || points.iter().flatten().any(|v| !v.is_finite()) {
@@ -281,6 +285,19 @@ mod tests {
         assert_eq!(v - 3 * f / 2 + f, 2, "Euler characteristic");
         assert!(hull.volume(&pts) > 0.0 && hull.volume(&pts) < 4.18879);
         assert!(hull.volume(&pts) > 3.9, "volume {}", hull.volume(&pts));
+    }
+
+    #[test]
+    fn grid_hull_keeps_its_volume_and_all_corners() {
+        let grid: Vec<[f64; 3]> = (0..125).map(|i| [(i % 5) as f64, ((i / 5) % 5) as f64, (i / 25) as f64]).collect();
+        let hull = convex_hull_3d(&grid).unwrap();
+        assert!((hull.volume(&grid) - 64.0).abs() < 1e-12);
+        assert!((hull.surface_area(&grid) - 96.0).abs() < 1e-12);
+        let vertices = hull.vertices();
+        let corners = (0..125).filter(|&i| grid[i].iter().all(|&v| v == 0.0 || v == 4.0));
+        assert!(corners.into_iter().all(|c| vertices.contains(&c)));
+        // Points interior to the cube are never vertices.
+        assert!(vertices.iter().all(|&i| grid[i].iter().any(|&v| v == 0.0 || v == 4.0)));
     }
 
     #[test]

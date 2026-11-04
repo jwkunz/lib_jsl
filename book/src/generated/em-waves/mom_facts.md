@@ -1,0 +1,1 @@
+The reactance vanishes at L = 0.4751λ, where R = 72.0 Ω: a dipole must be cut about 5% shorter than half a wavelength to resonate.

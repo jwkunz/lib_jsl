@@ -11,6 +11,8 @@
 //! nodes and the equation matched at those nodes and at the wire end, giving a square system for
 //! the node currents and `C`. The near-singular `1/R` part of the kernel is integrated
 //! analytically and the smooth remainder by Gauss-Legendre quadrature.
+//!
+//! See the book entry [The method of moments for wire antennas](https://jwkunz.github.io/lib_jsl/book/em-waves/method-of-moments.html).
 
 use crate::conventions::{C64, Medium, TimeConvention};
 use lib_jsl_core::ErrorsJSL;
@@ -104,6 +106,7 @@ impl WireDipole {
         let j = C64::new(0.0, 1.0);
         let mut matrix = vec![vec![C64::new(0.0, 0.0); n + 1]; n + 1];
         let mut rhs = vec![C64::new(0.0, 0.0); n + 1];
+        // ANCHOR: hallen_fill
         for (m, &z) in matches.iter().enumerate() {
             for (col, entry) in matrix[m].iter_mut().take(n).enumerate() {
                 let (left, centre, right) = (node(col), node(col + 1), node(col + 2));
@@ -127,6 +130,7 @@ impl WireDipole {
             matrix[m][n] = C64::new(-(k * z).cos(), 0.0);
             rhs[m] = -j / (2.0 * eta) * (k * z.abs()).sin();
         }
+        // ANCHOR_END: hallen_fill
         let x = solve_complex(matrix, rhs)?;
         let currents = x[..n].to_vec();
         let feed = currents[n / 2];

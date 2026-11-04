@@ -75,6 +75,7 @@ pub fn blob_detection(image: &Array2<f64>, min_sigma: f64, max_sigma: f64, num_s
     }
     let ratio = if num_sigma > 1 { (max_sigma / min_sigma).powf(1.0 / (num_sigma - 1) as f64) } else { 1.0 };
     let sigmas: Vec<f64> = (0..num_sigma).map(|i| min_sigma * ratio.powi(i as i32)).collect();
+    // ANCHOR: log_stack
     let laplacian = array![[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]];
     // Scale-normalised, sign-flipped so bright blobs are positive maxima.
     let stack: Vec<Array2<f64>> = sigmas
@@ -84,6 +85,7 @@ pub fn blob_detection(image: &Array2<f64>, min_sigma: f64, max_sigma: f64, num_s
             Ok(lap.mapv(|v| -s * s * v))
         })
         .collect::<Result<_, ErrorsJSL>>()?;
+    // ANCHOR_END: log_stack
 
     let mut blobs = Vec::new();
     for i in 0..num_sigma {

@@ -51,6 +51,7 @@ pub fn match_descriptors(a: &[Vec<f64>], b: &[Vec<f64>], ratio: f64, mutual: boo
         }
         (best, best_d, second_d)
     };
+    // ANCHOR: ratio_test
     let mut out = Vec::new();
     for (i, q) in a.iter().enumerate() {
         let (j, d1, d2) = nearest(q, b);
@@ -61,6 +62,7 @@ pub fn match_descriptors(a: &[Vec<f64>], b: &[Vec<f64>], ratio: f64, mutual: boo
         }
     }
     Ok(out)
+    // ANCHOR_END: ratio_test
 }
 
 #[cfg(test)]

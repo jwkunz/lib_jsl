@@ -141,11 +141,13 @@ impl ResponseLayer {
             for ac in 0..cols {
                 let (r, c) = ((ar * step) as isize, (ac * step) as isize);
                 let ls = l as usize;
+                // ANCHOR: box_hessian
                 let dxx = (integral.box_sum(r - l + 1, c - b, 2 * ls - 1, w) - 3.0 * integral.box_sum(r - l + 1, c - l / 2, 2 * ls - 1, ls)) * inv_area;
                 let dyy = (integral.box_sum(r - b, c - l + 1, w, 2 * ls - 1) - 3.0 * integral.box_sum(r - l / 2, c - l + 1, ls, 2 * ls - 1)) * inv_area;
                 let dxy = (integral.box_sum(r - l, c + 1, ls, ls) + integral.box_sum(r + 1, c - l, ls, ls) - integral.box_sum(r - l, c - l, ls, ls) - integral.box_sum(r + 1, c + 1, ls, ls)) * inv_area;
                 response[(ar, ac)] = dxx * dyy - 0.81 * dxy * dxy;
                 laplacian[(ar, ac)] = if dxx + dyy >= 0.0 { 1 } else { -1 };
+                // ANCHOR_END: box_hessian
             }
         }
         ResponseLayer { filter, step, rows, cols, response, laplacian }

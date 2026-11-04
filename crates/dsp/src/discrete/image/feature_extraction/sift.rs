@@ -159,6 +159,7 @@ fn refine(oct: &Octave, p: &SiftParams, mut layer: usize, mut row: usize, mut co
         let dxs = (dp[(row, col + 1)] - dp[(row, col - 1)] - dm[(row, col + 1)] + dm[(row, col - 1)]) / 4.0;
         let dys = (dp[(row + 1, col)] - dp[(row - 1, col)] - dm[(row + 1, col)] + dm[(row - 1, col)]) / 4.0;
         let h = [[dxx, dxy, dxs], [dxy, dyy, dys], [dxs, dys, dss]];
+        // ANCHOR: sift_refine
         let x = solve3(h, [-g[0], -g[1], -g[2]])?;
         if x.iter().all(|v| v.abs() < 0.5) {
             let contrast = v + 0.5 * (g[0] * x[0] + g[1] * x[1] + g[2] * x[2]);
@@ -172,6 +173,7 @@ fn refine(oct: &Octave, p: &SiftParams, mut layer: usize, mut row: usize, mut co
             }
             return Some(Candidate { layer, row, col, dx: x[0], dy: x[1], ds: x[2], contrast });
         }
+        // ANCHOR_END: sift_refine
         // Move to the neighbouring sample the offset points to and try again.
         let step = |v: f64| v.round() as isize;
         let (nl, nr, nc) = (layer as isize + step(x[2]), row as isize + step(x[1]), col as isize + step(x[0]));

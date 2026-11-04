@@ -1,4 +1,6 @@
 //! Select M largest.
+//!
+//! See the book entry [Selection and equivalence classes](https://jwkunz.github.io/lib_jsl/book/sorting/selection.html#selecting-the-m-largest).
 
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
@@ -7,6 +9,7 @@ use std::collections::BinaryHeap;
 ///
 /// Uses a bounded min-heap, so it runs in O(n log m) time and O(m) extra space. If `m >= len`
 /// all elements are returned (sorted descending).
+// ANCHOR: select
 pub fn select_m_largest<T: Ord + Clone>(slice: &[T], m: usize) -> Vec<T> {
     if m == 0 {
         return Vec::new();
@@ -25,6 +28,7 @@ pub fn select_m_largest<T: Ord + Clone>(slice: &[T], m: usize) -> Vec<T> {
     out.sort_by(|a, b| b.cmp(a));
     out
 }
+// ANCHOR_END: select
 
 #[cfg(test)]
 mod tests {

@@ -1,10 +1,13 @@
 //! Equivalence classes.
+//!
+//! See the book entry [Selection and equivalence classes](https://jwkunz.github.io/lib_jsl/book/sorting/selection.html#equivalence-classes).
 
 /// Computes equivalence classes given an equivalence relation.
 ///
 /// Uses a union-find structure over all pairs, so `equiv` is only required to hold between pairs
 /// (the transitive closure is taken). Classes are ordered by their first member's position and
 /// items keep their original relative order within a class.
+// ANCHOR: classes
 pub fn equivalence_classes<T, F>(items: &[T], equiv: F) -> Vec<Vec<T>>
 where
     T: Clone,
@@ -49,6 +52,7 @@ where
     }
     classes
 }
+// ANCHOR_END: classes
 
 #[cfg(test)]
 mod tests {

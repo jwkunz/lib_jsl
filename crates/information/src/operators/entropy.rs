@@ -16,7 +16,8 @@ pub fn entropy(data: &[u8]) -> f64 {
         .filter(|&&c| c > 0)
         .map(|&c| {
             let p = c as f64 / n;
-            -p * p.log2()
+            // Written as p log2(1/p), which is +0 (not -0) for p = 1.
+            p * (1.0 / p).log2()
         })
         .sum()
 }
@@ -27,7 +28,7 @@ pub fn entropy_from_probabilities(p: &[f64]) -> f64 {
     if p.iter().any(|&x| !x.is_finite() || x < 0.0) {
         return f64::NAN;
     }
-    p.iter().filter(|&&x| x > 0.0).map(|&x| -x * x.log2()).sum()
+    p.iter().filter(|&&x| x > 0.0).map(|&x| x * (1.0 / x).log2()).sum()
 }
 
 /// The cross entropy `-Σ p log2 q` in bits. Infinite if `q` is zero where `p` is positive.
@@ -39,7 +40,7 @@ pub fn cross_entropy(p: &[f64], q: &[f64]) -> f64 {
     p.iter()
         .zip(q)
         .filter(|(pi, _)| **pi > 0.0)
-        .map(|(&pi, &qi)| if qi == 0.0 { f64::INFINITY } else { -pi * qi.log2() })
+        .map(|(&pi, &qi)| if qi == 0.0 { f64::INFINITY } else { pi * (1.0 / qi).log2() })
         .sum()
 }
 
@@ -82,6 +83,8 @@ mod tests {
     fn byte_entropy() {
         assert_eq!(entropy(&[]), 0.0);
         assert_eq!(entropy(&[7u8; 100]), 0.0);
+        assert!(entropy(&[7u8; 100]).is_sign_positive(), "zero, not negative zero");
+        assert!(entropy_from_probabilities(&[1.0]).is_sign_positive() && cross_entropy(&[1.0], &[1.0]).is_sign_positive());
         assert!((entropy(&[0, 1]) - 1.0).abs() < 1e-15);
         let all: Vec<u8> = (0..=255u8).collect();
         assert!((entropy(&all) - 8.0).abs() < 1e-12);

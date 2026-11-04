@@ -1,3 +1,7 @@
+//! Exact integer square roots by Newton's method and by bisection.
+//!
+//! See the book entry [Divisibility and modular arithmetic](https://jwkunz.github.io/lib_jsl/book/number-theory/modular-arithmetic.html).
+
 /// Computes the integer square root of a `u128` using binary search (efficient, but slower)
 ///
 /// The integer square root of `n` is defined as the largest integer `x`
@@ -64,6 +68,7 @@ pub fn integer_square_root_newton(n: u128) -> u128 {
     }
 
     // 2^⌈bits/2⌉ is at least √n.
+    // ANCHOR: newton_isqrt
     let bits = 128 - n.leading_zeros();
     let mut x = 1u128 << bits.div_ceil(2);
 
@@ -74,6 +79,7 @@ pub fn integer_square_root_newton(n: u128) -> u128 {
         }
         x = next;
     }
+    // ANCHOR_END: newton_isqrt
 }
 
 #[cfg(test)]

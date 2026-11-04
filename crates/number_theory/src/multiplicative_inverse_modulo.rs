@@ -1,3 +1,7 @@
+//! Modular multiplicative inverses.
+//!
+//! See the book entry [Divisibility and modular arithmetic](https://jwkunz.github.io/lib_jsl/book/number-theory/modular-arithmetic.html).
+
 use crate::greatest_common_divisor::extended_gcd;
 use lib_jsl_core::ErrorsJSL;
 

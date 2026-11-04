@@ -1,3 +1,7 @@
+//! Modular exponentiation by square-and-multiply.
+//!
+//! See the book entry [Divisibility and modular arithmetic](https://jwkunz.github.io/lib_jsl/book/number-theory/modular-arithmetic.html).
+
 use lib_jsl_core::ErrorsJSL;
 
 /// Computes modular exponentiation using exponentiation by squaring.
@@ -49,6 +53,7 @@ pub fn base_exponent_in_modulus(base: i128, exponent: i128, modulus: i128) -> Re
     let mut exp = exponent;
     let mut result: u128 = 1 % m;
 
+    // ANCHOR: square_and_multiply
     while exp > 0 {
         // If the current exponent bit is set, multiply result by base
         if exp & 1 == 1 {
@@ -61,6 +66,7 @@ pub fn base_exponent_in_modulus(base: i128, exponent: i128, modulus: i128) -> Re
         // Shift exponent right by one bit
         exp >>= 1;
     }
+    // ANCHOR_END: square_and_multiply
 
     Ok(result as i128)
 }

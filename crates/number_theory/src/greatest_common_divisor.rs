@@ -1,3 +1,7 @@
+//! Greatest common divisors and Bézout coefficients by Euclid's algorithm.
+//!
+//! See the book entry [Divisibility and modular arithmetic](https://jwkunz.github.io/lib_jsl/book/number-theory/modular-arithmetic.html).
+
 /// Computes the greatest common divisor (GCD) of two integers using the
 /// classical Euclidean algorithm.
 ///
@@ -74,6 +78,7 @@ pub fn extended_gcd(a: i128, b: i128) -> (i128, i128, i128) {
     let mut old_t: i128 = 0;
     let mut t: i128 = 1;
 
+    // ANCHOR: extended_euclid
     while r != 0 {
         let quotient = old_r / r;
 
@@ -89,6 +94,7 @@ pub fn extended_gcd(a: i128, b: i128) -> (i128, i128, i128) {
         old_t = t;
         t = temp_t;
     }
+    // ANCHOR_END: extended_euclid
 
     // At this point old_r is the GCD up to sign, and old_s and old_t are the Bézout
     // coefficients; make the GCD non-negative.

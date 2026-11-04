@@ -1,0 +1,1 @@
+With $p = 1000000007$, $q = 998244353$, $n = pq = 998244359987710471$ and $e = 65537$, the extended Euclidean algorithm gives $65537 \cdot (78519762354634753) + 998244357989466112 \cdot (-5155) = 1$, so $d = 78519762354634753$. The message 4242424242 encrypts to 128943449465725493 and decrypts back to 4242424242.

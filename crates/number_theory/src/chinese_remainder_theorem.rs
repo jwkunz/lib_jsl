@@ -1,4 +1,6 @@
 //! The Chinese remainder theorem.
+//!
+//! See the book entry [Divisibility and modular arithmetic](https://jwkunz.github.io/lib_jsl/book/number-theory/modular-arithmetic.html).
 
 use crate::greatest_common_divisor::extended_gcd;
 use lib_jsl_core::ErrorsJSL;
@@ -15,6 +17,7 @@ pub fn chinese_remainder(residues: &[i128], moduli: &[i128]) -> Result<(i128, i1
         return Err(ErrorsJSL::InvalidInputRange("Moduli must be positive."));
     }
     let (mut x, mut m) = (0i128, 1i128);
+    // ANCHOR: crt_merge
     for (&r, &mi) in residues.iter().zip(moduli) {
         let r = r.rem_euclid(mi);
         // Merge x (mod m) with r (mod mi): x + m t ≡ r (mod mi), i.e. m t ≡ r − x (mod mi).
@@ -30,6 +33,7 @@ pub fn chinese_remainder(residues: &[i128], moduli: &[i128]) -> Result<(i128, i1
         x = (x + m.checked_mul(t).ok_or(ErrorsJSL::InvalidInputRange("The combined modulus overflows."))?).rem_euclid(lcm);
         m = lcm;
     }
+    // ANCHOR_END: crt_merge
     Ok((x, m))
 }
 

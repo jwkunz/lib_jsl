@@ -1,10 +1,10 @@
 //! Quicksort.
 
-/// Sorts a slice using quicksort: a median-of-three pivot, a three-way partition into keys less
-/// than, equal to and greater than the pivot (so runs of equal keys cost linear time), insertion
-/// sort for ranges of 16 or fewer, and recursion on the smaller side so the stack depth is
-/// `O(log n)`. `O(n log n)` on average; inputs built against median-of-three can still take
-/// `O(n²)`.
+/// Sorts a slice using quicksort: a median-of-three pivot, Hoare's partition (whose two scans
+/// both stop at keys equal to the pivot, so runs of equal keys are split evenly rather than piling
+/// up on one side), insertion sort for ranges of 16 or fewer, and recursion on the smaller side so
+/// the stack depth is `O(log n)`. `O(n log n)` on average and on sorted, reversed or
+/// repeated-key input; inputs built against median-of-three can still take `O(n²)`.
 pub fn quicksort<T: Ord>(slice: &mut [T]) {
     let mut slice = slice;
     loop {
@@ -13,9 +13,9 @@ pub fn quicksort<T: Ord>(slice: &mut [T]) {
             insertion_sort(slice);
             return;
         }
-        let (lt, gt) = partition(slice);
-        let (left, rest) = slice.split_at_mut(lt);
-        let right = &mut rest[gt - lt..];
+        let p = partition(slice);
+        let (left, rest) = slice.split_at_mut(p);
+        let right = &mut rest[1..];
         if left.len() < right.len() {
             quicksort(left);
             slice = right;
@@ -37,9 +37,9 @@ fn insertion_sort<T: Ord>(s: &mut [T]) {
 }
 
 // ANCHOR: partition
-/// Partitions around a median-of-three pivot into `s[..lt] < pivot`, `s[lt..gt] == pivot` and
-/// `s[gt..] > pivot` (Dijkstra's "Dutch national flag"); returns `(lt, gt)`.
-fn partition<T: Ord>(s: &mut [T]) -> (usize, usize) {
+/// Hoare's partition around a median-of-three pivot; returns the pivot's final index, with
+/// smaller-or-equal keys before it and greater-or-equal keys after.
+fn partition<T: Ord>(s: &mut [T]) -> usize {
     let last = s.len() - 1;
     let mid = last / 2;
     if s[mid] < s[0] {
@@ -51,25 +51,26 @@ fn partition<T: Ord>(s: &mut [T]) -> (usize, usize) {
     if s[last] < s[mid] {
         s.swap(last, mid);
     }
-    // The median is now at `mid`; keep the pivot at index 0 while scanning.
+    // Now s[0] <= s[mid] <= s[last]. The median becomes the pivot at index 0, where it stops the
+    // right-to-left scan, and s[last] >= pivot stops the left-to-right one.
     s.swap(0, mid);
-    let (mut lt, mut i, mut gt) = (0, 1, s.len());
-    // Invariant: s[..lt] < pivot = s[lt], s[lt..i] == pivot, s[gt..] > pivot.
-    while i < gt {
-        match s[i].cmp(&s[lt]) {
-            std::cmp::Ordering::Less => {
-                s.swap(i, lt);
-                lt += 1;
-                i += 1;
-            }
-            std::cmp::Ordering::Greater => {
-                gt -= 1;
-                s.swap(i, gt);
-            }
-            std::cmp::Ordering::Equal => i += 1,
+    let (mut i, mut j) = (0, s.len());
+    loop {
+        i += 1;
+        while s[i] < s[0] {
+            i += 1;
         }
+        j -= 1;
+        while s[0] < s[j] {
+            j -= 1;
+        }
+        if i >= j {
+            break;
+        }
+        s.swap(i, j);
     }
-    (lt, gt)
+    s.swap(0, j);
+    j
 }
 // ANCHOR_END: partition
 
@@ -87,9 +88,9 @@ mod tests {
     }
 
     #[test]
-    fn many_equal_keys_take_linear_time_per_level() {
-        // With a two-way partition all keys equal to the pivot went to one side, so these took
-        // quadratic time; the three-way partition finishes each in one pass.
+    fn equal_keys_and_presorted_input_stay_fast() {
+        // A partition that sends every key equal to the pivot to one side takes quadratic time on
+        // these, and one that rearranges the greater keys can do so on sorted input.
         let mut same = vec![7u8; 200_000];
         quicksort(&mut same);
         assert!(same.iter().all(|&x| x == 7));
@@ -98,6 +99,17 @@ mod tests {
         expected.sort();
         quicksort(&mut few);
         assert_eq!(few, expected);
+        let mut organ: Vec<u32> = (0..200_000u32).map(|i| i.min(200_000 - i)).collect();
+        let mut expected = organ.clone();
+        expected.sort();
+        quicksort(&mut organ);
+        assert_eq!(organ, expected);
+        let mut sorted: Vec<u32> = (0..200_000).collect();
+        quicksort(&mut sorted);
+        assert!(sorted.windows(2).all(|w| w[0] < w[1]));
+        let mut reversed: Vec<u32> = (0..200_000).rev().collect();
+        quicksort(&mut reversed);
+        assert_eq!(reversed, sorted);
     }
 
     #[test]

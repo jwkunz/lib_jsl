@@ -4,6 +4,8 @@
 //! `Γ^λ_{μν} = ½ g^{λσ} (∂_μ g_{σν} + ∂_ν g_{σμ} - ∂_σ g_{μν})`.
 //! They are stored as `gamma[λ][μ][ν]` (symmetric in the lower pair) and give the geodesic
 //! equation `d²x^λ/dτ² = -Γ^λ_{μν} dx^μ/dτ dx^ν/dτ`.
+//!
+//! See the book entry [Space-time](https://jwkunz.github.io/lib_jsl/book/geometry/spacetime.html#christoffel-symbols-and-geodesics).
 
 /// A 4×4 metric tensor `g[μ][ν]`.
 pub type Metric4 = [[f64; 4]; 4];
@@ -50,6 +52,7 @@ pub fn invert_4x4(m: &Metric4) -> Option<Metric4> {
 impl ChristoffelSymbols4D {
     /// The symbols from the metric `g` and its partial derivatives `dg[σ][μ][ν] = ∂_σ g_{μν}`
     /// at a point. `None` if the metric is singular there.
+    // ANCHOR: christoffel
     pub fn from_metric_derivatives(g: &Metric4, dg: &[Metric4; 4]) -> Option<Self> {
         let inv = invert_4x4(g)?;
         let mut gamma = [[[0.0; 4]; 4]; 4];
@@ -62,6 +65,7 @@ impl ChristoffelSymbols4D {
         }
         Some(ChristoffelSymbols4D { gamma })
     }
+    // ANCHOR_END: christoffel
 
     /// The symbols of the metric field `metric(x)` at `point`, with the derivatives taken by
     /// fourth-order central differences of step `h` (a relative step near `1e-3` works well for

@@ -5,6 +5,8 @@
 //! units; use [`SpaceTimeVector4D::from_time`] to convert from seconds and a speed of light).
 //! The metric signature is `(-, +, +, +)`: the invariant interval `-t² + x² + y² + z²` is negative
 //! for timelike separations, positive for spacelike, and zero on the light cone.
+//!
+//! See the book entry [Space-time](https://jwkunz.github.io/lib_jsl/book/geometry/spacetime.html#minkowski-space-and-lorentz-boosts).
 
 use std::ops::{Add, Mul, Neg, Sub};
 

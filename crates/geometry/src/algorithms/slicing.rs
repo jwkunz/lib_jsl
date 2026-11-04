@@ -65,16 +65,26 @@ impl Contour {
 /// endpoints count as coincident; choose it relative to the mesh size (e.g. `1e-9 * extent`).
 ///
 /// Triangles lying exactly in the plane contribute nothing (their boundary appears from the
-/// neighbouring triangles). Triangles with out-of-range indices are skipped.
+/// neighbouring triangles), and an edge lying in the plane is reported once even though both of
+/// its triangles cut there, so a plane through a ring of vertices gives one loop. Triangles with
+/// out-of-range indices are skipped.
 pub fn slice_mesh(vertices: &[[f64; 3]], triangles: &[[usize; 3]], plane_point: [f64; 3], normal: [f64; 3], tol: f64) -> Vec<Contour> {
+    let tol = tol.max(f64::MIN_POSITIVE);
+    // A mesh edge lying in the plane is reported by both triangles that share it; keep one copy.
+    let key = |p: [f64; 3]| -> (i64, i64, i64) { ((p[0] / tol).round() as i64, (p[1] / tol).round() as i64, (p[2] / tol).round() as i64) };
+    let mut seen = std::collections::HashSet::new();
     let segments: Vec<([f64; 3], [f64; 3])> = triangles
         .iter()
         .filter_map(|t| {
             let (a, b, c) = (*vertices.get(t[0])?, *vertices.get(t[1])?, *vertices.get(t[2])?);
             triangle_plane(a, b, c, plane_point, normal, tol)
         })
+        .filter(|&(p, q)| {
+            let (kp, kq) = (key(p), key(q));
+            seen.insert(if kp <= kq { (kp, kq) } else { (kq, kp) })
+        })
         .collect();
-    chain_segments(&segments, tol.max(f64::MIN_POSITIVE))
+    chain_segments(&segments, tol)
 }
 
 /// Slices the mesh at each of `levels` along a coordinate axis (`0` = x, `1` = y, `2` = z),
@@ -193,6 +203,25 @@ mod tests {
         // still report their edge, so the boundary comes out as a loop.
         let on_face = slice_mesh(&v, &t, [0.0, 0.0, 0.0], [0.0, 0.0, 1.0], 1e-9);
         assert!(!on_face.is_empty());
+    }
+
+    #[test]
+    fn a_plane_through_a_ring_of_vertices_gives_one_loop() {
+        // A square tube from z = 0 to 2 with a ring of vertices at z = 1: each ring edge belongs
+        // to a triangle above and one below, and used to be reported twice.
+        let corners = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]];
+        let v: Vec<[f64; 3]> = (0..3).flat_map(|z| corners.iter().map(move |c| [c[0], c[1], z as f64])).collect();
+        let mut t = Vec::new();
+        for level in 0..2 {
+            for k in 0..4 {
+                let (a, b) = (4 * level + k, 4 * level + (k + 1) % 4);
+                t.push([a, b, b + 4]);
+                t.push([a, b + 4, a + 4]);
+            }
+        }
+        let cuts = slice_mesh(&v, &t, [0.0, 0.0, 1.0], [0.0, 0.0, 1.0], 1e-9);
+        assert_eq!(cuts.len(), 1);
+        assert!(cuts[0].closed && (cuts[0].length() - 4.0).abs() < 1e-12);
     }
 
     #[test]

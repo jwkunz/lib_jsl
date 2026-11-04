@@ -1,7 +1,10 @@
 //! Quicksort.
 
-/// Sorts a slice using quicksort (median-of-three pivot, Hoare-style partition, insertion sort
-/// for small ranges, recursing on the smaller side so stack depth is O(log n)).
+/// Sorts a slice using quicksort: a median-of-three pivot, a three-way partition into keys less
+/// than, equal to and greater than the pivot (so runs of equal keys cost linear time), insertion
+/// sort for ranges of 16 or fewer, and recursion on the smaller side so the stack depth is
+/// `O(log n)`. `O(n log n)` on average; inputs built against median-of-three can still take
+/// `O(n²)`.
 pub fn quicksort<T: Ord>(slice: &mut [T]) {
     let mut slice = slice;
     loop {
@@ -10,9 +13,9 @@ pub fn quicksort<T: Ord>(slice: &mut [T]) {
             insertion_sort(slice);
             return;
         }
-        let p = partition(slice);
-        let (left, right) = slice.split_at_mut(p);
-        let right = &mut right[1..];
+        let (lt, gt) = partition(slice);
+        let (left, rest) = slice.split_at_mut(lt);
+        let right = &mut rest[gt - lt..];
         if left.len() < right.len() {
             quicksort(left);
             slice = right;
@@ -33,8 +36,10 @@ fn insertion_sort<T: Ord>(s: &mut [T]) {
     }
 }
 
-/// Partitions around a median-of-three pivot; returns the pivot's final index.
-fn partition<T: Ord>(s: &mut [T]) -> usize {
+// ANCHOR: partition
+/// Partitions around a median-of-three pivot into `s[..lt] < pivot`, `s[lt..gt] == pivot` and
+/// `s[gt..] > pivot` (Dijkstra's "Dutch national flag"); returns `(lt, gt)`.
+fn partition<T: Ord>(s: &mut [T]) -> (usize, usize) {
     let last = s.len() - 1;
     let mid = last / 2;
     if s[mid] < s[0] {
@@ -46,18 +51,27 @@ fn partition<T: Ord>(s: &mut [T]) -> usize {
     if s[last] < s[mid] {
         s.swap(last, mid);
     }
-    // Median now at mid; move to the end as pivot.
-    s.swap(mid, last);
-    let mut store = 0;
-    for i in 0..last {
-        if s[i] < s[last] {
-            s.swap(i, store);
-            store += 1;
+    // The median is now at `mid`; keep the pivot at index 0 while scanning.
+    s.swap(0, mid);
+    let (mut lt, mut i, mut gt) = (0, 1, s.len());
+    // Invariant: s[..lt] < pivot = s[lt], s[lt..i] == pivot, s[gt..] > pivot.
+    while i < gt {
+        match s[i].cmp(&s[lt]) {
+            std::cmp::Ordering::Less => {
+                s.swap(i, lt);
+                lt += 1;
+                i += 1;
+            }
+            std::cmp::Ordering::Greater => {
+                gt -= 1;
+                s.swap(i, gt);
+            }
+            std::cmp::Ordering::Equal => i += 1,
         }
     }
-    s.swap(store, last);
-    store
+    (lt, gt)
 }
+// ANCHOR_END: partition
 
 #[cfg(test)]
 mod tests {
@@ -70,6 +84,20 @@ mod tests {
         expected.sort();
         quicksort(&mut v);
         assert_eq!(v, expected);
+    }
+
+    #[test]
+    fn many_equal_keys_take_linear_time_per_level() {
+        // With a two-way partition all keys equal to the pivot went to one side, so these took
+        // quadratic time; the three-way partition finishes each in one pass.
+        let mut same = vec![7u8; 200_000];
+        quicksort(&mut same);
+        assert!(same.iter().all(|&x| x == 7));
+        let mut few: Vec<u32> = (0..200_000u32).map(|i| i.wrapping_mul(2_654_435_761) % 3).collect();
+        let mut expected = few.clone();
+        expected.sort();
+        quicksort(&mut few);
+        assert_eq!(few, expected);
     }
 
     #[test]

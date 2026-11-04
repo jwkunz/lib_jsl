@@ -80,7 +80,10 @@ impl Quaternion {
         let sinp = 2.0 * (q.w * q.y - q.z * q.x);
         if sinp.abs() >= 1.0 - 1e-12 {
             let pitch = std::f64::consts::FRAC_PI_2.copysign(sinp);
-            let roll = 2.0 * q.x.atan2(q.w) * sinp.signum();
+            // Here q = ±cos(π/4)(cos(r/2), sin(r/2), ±cos(r/2), ∓sin(r/2)) for the roll r that
+            // goes with zero yaw, whichever the sign of the pitch.
+            let roll = 2.0 * q.x.atan2(q.w);
+            let roll = if roll > std::f64::consts::PI { roll - std::f64::consts::TAU } else if roll <= -std::f64::consts::PI { roll + std::f64::consts::TAU } else { roll };
             return (roll, pitch, 0.0);
         }
         let roll = (2.0 * (q.w * q.x + q.y * q.z)).atan2(1.0 - 2.0 * (q.x * q.x + q.y * q.y));
@@ -373,6 +376,12 @@ mod tests {
         let q = Quaternion::from_euler(0.4, FRAC_PI_2, 0.0);
         let (_, pitch, _) = q.to_euler();
         assert!((pitch - FRAC_PI_2).abs() < 1e-9);
+        // At either gimbal lock the angles returned must reproduce the rotation.
+        for pitch in [FRAC_PI_2, -FRAC_PI_2] {
+            let q = Quaternion::from_euler(0.86, pitch, 1.77);
+            let (r, p, y) = q.to_euler();
+            assert!(y == 0.0 && q.angle_to(&Quaternion::from_euler(r, p, y)) < 1e-6, "pitch {pitch}");
+        }
     }
 
     #[test]

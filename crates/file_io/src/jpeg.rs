@@ -7,7 +7,8 @@
 //!   standard Annex K quantization and Huffman tables, a quality factor in `1..=100`, and
 //!   4:4:4 chroma (no subsampling).
 //! - **Decoding** baseline sequential (SOF0) JPEG files with one or three components, 8-bit
-//!   precision, any chroma subsampling (upsampled by replication), custom Huffman and
+//!   precision, any chroma subsampling (upsampled by linear interpolation, like libjpeg's
+//!   "fancy" upsampling), custom Huffman and
 //!   quantization tables, and restart intervals.
 //!
 //! Progressive, arithmetic-coded, 12-bit, CMYK and multi-scan files are rejected with an error.
@@ -713,13 +714,33 @@ pub fn jpeg_decode(data: &[u8]) -> Result<JpegImage, ErrorsJSL> {
         }
     }
 
-    // Upsample (replication) and colour-convert.
+    // Upsample and colour-convert.
     let channels = comps.len();
     let mut pixels = vec![0u8; width * height * channels];
     let clamp = |v: f64| v.round().clamp(0.0, 255.0) as u8;
+    // ANCHOR: upsample
+    // A subsampled component is interpolated linearly between its sample centres, as libjpeg's
+    // "fancy" upsampling does: for 2:1 that weights the nearer sample 3/4 and the farther 1/4 in
+    // each direction (9/3/3/1 sixteenths for 2:1 both ways). Samples beyond the component's
+    // edge repeat the last one.
+    let sample = |c: &Component, x: usize, y: usize| -> f64 {
+        let (rh, rv) = (hmax / c.h, vmax / c.v);
+        if rh == 1 && rv == 1 {
+            return c.plane[y * c.plane_w + x];
+        }
+        let (cw, ch) = ((width * c.h).div_ceil(hmax), (height * c.v).div_ceil(vmax));
+        let at = |i: isize, j: isize| c.plane[(j.clamp(0, ch as isize - 1) as usize) * c.plane_w + i.clamp(0, cw as isize - 1) as usize].clamp(0.0, 255.0);
+        let u = (x as f64 + 0.5) / rh as f64 - 0.5;
+        let v = (y as f64 + 0.5) / rv as f64 - 0.5;
+        let (i, j) = (u.floor(), v.floor());
+        let (fu, fv) = (u - i, v - j);
+        let (i, j) = (i as isize, j as isize);
+        (1.0 - fv) * ((1.0 - fu) * at(i, j) + fu * at(i + 1, j)) + fv * ((1.0 - fu) * at(i, j + 1) + fu * at(i + 1, j + 1))
+    };
+    // ANCHOR_END: upsample
     for y in 0..height {
         for x in 0..width {
-            let sample = |c: &Component| c.plane[(y * c.v / vmax) * c.plane_w + x * c.h / hmax];
+            let sample = |c: &Component| sample(c, x, y);
             let o = (y * width + x) * channels;
             if channels == 1 {
                 pixels[o] = clamp(sample(&comps[0]));
@@ -959,12 +980,52 @@ mod tests {
     0xff, 0xd9,
     ];
 
+    /// Pillow's (libjpeg's) decoding of LIBJPEG_420_16X16, with its interpolated chroma.
+    const PILLOW_420_16X16: [u8; 768] = [
+        0, 5, 119, 10, 5, 121, 29, 4, 121, 48, 5, 121, 63, 4, 122, 79, 5, 120, 95, 6, 122, 112, 5, 121,
+        132, 5, 122, 148, 3, 120, 164, 5, 123, 180, 6, 121, 197, 6, 120, 214, 6, 120, 234, 5, 122, 245, 6, 125,
+        4, 16, 124, 15, 17, 126, 35, 17, 127, 53, 17, 127, 69, 17, 127, 85, 17, 126, 101, 19, 127, 117, 18, 126,
+        137, 17, 127, 153, 15, 126, 169, 17, 126, 186, 18, 127, 201, 18, 126, 220, 18, 126, 239, 17, 128, 250, 18, 130,
+        6, 32, 125, 17, 33, 128, 37, 33, 130, 54, 32, 130, 70, 33, 129, 87, 33, 129, 102, 35, 130, 119, 34, 128,
+        139, 33, 131, 156, 32, 130, 172, 34, 130, 188, 34, 130, 204, 34, 130, 222, 34, 129, 243, 33, 130, 254, 34, 132,
+        6, 49, 127, 17, 50, 129, 37, 49, 131, 54, 49, 131, 71, 49, 131, 87, 50, 128, 103, 52, 131, 119, 50, 130,
+        138, 49, 129, 155, 48, 128, 171, 50, 130, 188, 51, 129, 203, 51, 128, 222, 51, 130, 242, 49, 130, 253, 50, 132,
+        4, 69, 127, 15, 69, 129, 36, 68, 129, 54, 68, 131, 69, 67, 130, 86, 68, 128, 101, 70, 130, 118, 68, 129,
+        138, 68, 130, 155, 67, 128, 170, 68, 131, 187, 69, 129, 203, 69, 128, 221, 69, 128, 241, 68, 131, 252, 69, 133,
+        3, 85, 125, 14, 85, 127, 34, 85, 128, 52, 85, 130, 68, 85, 129, 84, 86, 127, 102, 87, 130, 117, 86, 128,
+        136, 85, 128, 153, 84, 128, 170, 84, 129, 185, 87, 128, 201, 86, 127, 219, 87, 127, 239, 86, 130, 250, 87, 132,
+        4, 103, 126, 16, 104, 128, 35, 102, 129, 53, 103, 130, 68, 102, 129, 83, 103, 127, 100, 104, 129, 117, 103, 128,
+        137, 103, 128, 152, 102, 127, 169, 103, 130, 186, 104, 127, 202, 104, 127, 220, 103, 129, 240, 103, 129, 251, 104, 132,
+        4, 119, 124, 15, 120, 126, 35, 119, 129, 52, 118, 130, 69, 119, 128, 85, 119, 128, 101, 121, 128, 117, 120, 127,
+        136, 119, 129, 153, 117, 127, 169, 119, 128, 185, 120, 128, 201, 120, 127, 219, 119, 127, 240, 118, 129, 251, 119, 130,
+        3, 135, 124, 15, 136, 127, 36, 135, 130, 54, 135, 129, 70, 135, 129, 86, 135, 129, 102, 137, 130, 119, 136, 128,
+        139, 136, 129, 155, 135, 128, 170, 136, 127, 186, 136, 127, 203, 136, 127, 220, 135, 128, 241, 136, 132, 252, 137, 132,
+        4, 151, 123, 15, 152, 126, 35, 151, 128, 54, 152, 129, 70, 152, 130, 87, 152, 128, 103, 152, 130, 118, 152, 128,
+        138, 152, 129, 155, 150, 128, 172, 152, 128, 187, 153, 128, 202, 152, 127, 220, 153, 127, 240, 152, 130, 252, 153, 132,
+        5, 168, 125, 17, 169, 128, 37, 169, 129, 54, 169, 128, 71, 169, 130, 85, 170, 128, 103, 171, 130, 118, 169, 128,
+        138, 169, 128, 153, 168, 127, 171, 169, 128, 187, 170, 127, 203, 170, 127, 221, 170, 127, 241, 169, 129, 253, 171, 133,
+        3, 185, 124, 14, 186, 126, 34, 186, 127, 53, 187, 128, 69, 187, 129, 86, 187, 127, 100, 188, 128, 117, 187, 127,
+        137, 187, 128, 154, 185, 126, 169, 187, 127, 186, 187, 127, 201, 187, 126, 219, 187, 126, 241, 186, 129, 252, 187, 131,
+        1, 204, 122, 13, 206, 125, 34, 205, 127, 52, 204, 127, 68, 204, 128, 84, 205, 126, 100, 207, 129, 117, 205, 127,
+        137, 205, 128, 153, 204, 127, 168, 205, 127, 184, 205, 126, 201, 206, 126, 218, 205, 126, 239, 206, 129, 250, 206, 131,
+        1, 221, 123, 12, 222, 125, 34, 222, 128, 52, 221, 128, 68, 222, 128, 84, 222, 127, 99, 223, 127, 116, 221, 126,
+        136, 221, 127, 153, 220, 125, 168, 222, 128, 185, 222, 126, 201, 223, 125, 218, 222, 127, 238, 221, 129, 250, 223, 132,
+        4, 236, 126, 16, 238, 129, 36, 238, 130, 54, 237, 131, 70, 237, 131, 86, 237, 130, 102, 240, 131, 118, 238, 130,
+        139, 238, 130, 155, 237, 129, 170, 237, 131, 186, 238, 128, 202, 238, 128, 220, 238, 128, 241, 238, 131, 252, 239, 134,
+        10, 249, 132, 21, 250, 134, 41, 249, 135, 59, 250, 136, 75, 249, 136, 92, 251, 135, 107, 251, 137, 123, 250, 135,
+        143, 250, 136, 160, 248, 135, 176, 250, 137, 192, 251, 135, 207, 250, 134, 226, 251, 134, 246, 250, 137, 255, 251, 139,
+    ];
+
     #[test]
     fn decodes_libjpeg_subsampled_file() {
         let img = jpeg_decode(LIBJPEG_420_16X16).unwrap();
         assert_eq!((img.width, img.height, img.channels), (16, 16, 3));
         let want = gradient(16, 16);
         assert!(psnr(&img.pixels, &want) > 30.0, "psnr {}", psnr(&img.pixels, &want));
+        // Interpolating the chroma as libjpeg does reproduces its output to rounding; replicating
+        // it differed by up to 14 levels here.
+        let worst = img.pixels.iter().zip(PILLOW_420_16X16).map(|(&a, b)| a.abs_diff(b)).max().unwrap();
+        assert!(worst <= 2, "largest difference from libjpeg {worst}");
     }
 
     #[test]

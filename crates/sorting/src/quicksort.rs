@@ -2,31 +2,46 @@
 //!
 //! See the book entry [Comparison sorting](https://jwkunz.github.io/lib_jsl/book/sorting/comparison-sorts.html#quicksort).
 
+use crate::heapsort::heapsort;
+
 /// Sorts a slice using quicksort: a median-of-three pivot, Hoare's partition (whose two scans
 /// both stop at keys equal to the pivot, so runs of equal keys are split evenly rather than piling
 /// up on one side), insertion sort for ranges of 16 or fewer, and recursion on the smaller side so
-/// the stack depth is `O(log n)`. `O(n log n)` on average and on sorted, reversed or
-/// repeated-key input; inputs built against median-of-three can still take `O(n²)`.
+/// the stack depth is `O(log n)`. As in Musser's introsort, a range still unsorted after
+/// `2 log₂ n` partitions is finished by heapsort, so the worst case is `O(n log n)` even on
+/// inputs built to defeat median-of-three.
 pub fn quicksort<T: Ord>(slice: &mut [T]) {
+    let depth = 2 * (usize::BITS - slice.len().leading_zeros()) as usize;
+    introsort(slice, depth);
+}
+
+// ANCHOR: introsort
+fn introsort<T: Ord>(slice: &mut [T], mut depth: usize) {
     let mut slice = slice;
     loop {
-        let n = slice.len();
-        if n <= 16 {
+        if slice.len() <= 16 {
             insertion_sort(slice);
             return;
         }
+        if depth == 0 {
+            // Too many unbalanced partitions: the pivots are being chosen badly.
+            heapsort(slice);
+            return;
+        }
+        depth -= 1;
         let p = partition(slice);
         let (left, rest) = slice.split_at_mut(p);
         let right = &mut rest[1..];
         if left.len() < right.len() {
-            quicksort(left);
+            introsort(left, depth);
             slice = right;
         } else {
-            quicksort(right);
+            introsort(right, depth);
             slice = left;
         }
     }
 }
+// ANCHOR_END: introsort
 
 fn insertion_sort<T: Ord>(s: &mut [T]) {
     for i in 1..s.len() {
@@ -112,6 +127,77 @@ mod tests {
         let mut reversed: Vec<u32> = (0..200_000).rev().collect();
         quicksort(&mut reversed);
         assert_eq!(reversed, sorted);
+    }
+
+    /// McIlroy's adversary: keys start as "gas", larger than every value, and are frozen to
+    /// increasing values only when the sort compares two gas keys, choosing which one so as to
+    /// make the current pivot as bad as possible.
+    mod adversary {
+        use std::cell::RefCell;
+        use std::cmp::Ordering;
+        use std::rc::Rc;
+
+        pub struct State {
+            pub val: Vec<usize>,
+            gas: usize,
+            solid: usize,
+            candidate: usize,
+            pub comparisons: u64,
+        }
+
+        #[derive(Clone)]
+        pub struct Key {
+            pub i: usize,
+            pub state: Rc<RefCell<State>>,
+        }
+
+        pub fn keys(n: usize) -> (Vec<Key>, Rc<RefCell<State>>) {
+            let state = Rc::new(RefCell::new(State { val: vec![n; n], gas: n, solid: 0, candidate: 0, comparisons: 0 }));
+            ((0..n).map(|i| Key { i, state: state.clone() }).collect(), state)
+        }
+
+        impl PartialEq for Key {
+            fn eq(&self, other: &Self) -> bool {
+                self.cmp(other) == Ordering::Equal
+            }
+        }
+        impl Eq for Key {}
+        impl PartialOrd for Key {
+            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+                Some(self.cmp(other))
+            }
+        }
+        impl Ord for Key {
+            fn cmp(&self, other: &Self) -> Ordering {
+                let mut s = self.state.borrow_mut();
+                s.comparisons += 1;
+                let (x, y, gas) = (self.i, other.i, s.gas);
+                if s.val[x] == gas && s.val[y] == gas {
+                    let frozen = if x == s.candidate { x } else { y };
+                    s.val[frozen] = s.solid;
+                    s.solid += 1;
+                }
+                if s.val[x] == gas {
+                    s.candidate = x;
+                } else if s.val[y] == gas {
+                    s.candidate = y;
+                }
+                s.val[x].cmp(&s.val[y])
+            }
+        }
+    }
+
+    #[test]
+    fn an_adversary_cannot_force_quadratic_time() {
+        // Without the heapsort fallback the adversary forced about n²/4 comparisons
+        // (16 million for n = 8000, 154 n log₂ n).
+        let n = 8000;
+        let (mut keys, state) = adversary::keys(n);
+        quicksort(&mut keys);
+        let comparisons = state.borrow().comparisons as f64;
+        assert!(comparisons < 8.0 * n as f64 * (n as f64).log2(), "{comparisons} comparisons");
+        let val = state.borrow().val.clone();
+        assert!(keys.windows(2).all(|w| val[w[0].i] <= val[w[1].i]));
     }
 
     #[test]

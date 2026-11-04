@@ -12,6 +12,8 @@
 //!
 //! and ESPRIT estimates the direction cosines of a uniform linear array in closed form from the
 //! rotational invariance between its two overlapping subarrays.
+//!
+//! See the book entry [Direction finding](https://jwkunz.github.io/lib_jsl/book/em-arrays/direction-finding.html).
 
 use crate::arrays::SensorArray;
 use crate::conventions::{C64, TimeConvention};
@@ -53,10 +55,12 @@ pub fn music_spectrum(array: &SensorArray, covariance: &Array2<C64>, sources: us
     if sources == 0 || sources >= n {
         return Err(ErrorsJSL::InvalidInputRange("Need 0 < sources < elements."));
     }
+    // ANCHOR: music
     let (_, vectors) = hermitian_eigen(covariance)?;
     let noise = vectors.slice(s![.., sources..]).to_owned();
     let projector = noise.dot(&hermitian_transpose(&noise));
     directions.iter().map(|&d| { let a = steering(array, d, polarization)?; Ok(norm_squared(&a) / hermitian_product(&a, &projector).max(1e-300)) }).collect()
+    // ANCHOR_END: music
 }
 
 /// The indices of the `count` largest local maxima of a spectrum sampled on a 1D grid (ends
@@ -81,6 +85,7 @@ pub fn esprit_ula(covariance: &Array2<C64>, sources: usize, spacing: f64, wavenu
         return Err(ErrorsJSL::InvalidInputRange("Need 0 < sources < elements."));
     }
     let (_, vectors) = hermitian_eigen(covariance)?;
+    // ANCHOR: esprit
     let signal = vectors.slice(s![.., ..sources]).to_owned();
     let (first, second) = (signal.slice(s![..n - 1, ..]).to_owned(), signal.slice(s![1.., ..]).to_owned());
     // Least squares Ψ = (E₁ᴴE₁)⁻¹ E₁ᴴ E₂; its eigenvalues are e^{±jkd u}.
@@ -88,6 +93,7 @@ pub fn esprit_ula(covariance: &Array2<C64>, sources: usize, spacing: f64, wavenu
     let psi = e1h.dot(&first).inv().map_err(|_| ErrorsJSL::RuntimeError("Degenerate signal subspace."))?.dot(&e1h.dot(&second));
     let (eigenvalues, _) = psi.eig().map_err(|_| ErrorsJSL::RuntimeError("Eigendecomposition failed."))?;
     let mut u: Vec<f64> = eigenvalues.iter().map(|l| (l.arg() / (convention.sign() * wavenumber * spacing)).clamp(-1.0, 1.0)).collect();
+    // ANCHOR_END: esprit
     u.sort_by(f64::total_cmp);
     Ok(u)
 }

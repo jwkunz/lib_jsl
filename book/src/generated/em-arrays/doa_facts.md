@@ -1,0 +1,1 @@
+Estimates (true 85° and 93°): Bartlett 89.7° and 115.0°; Capon 90.4° and 117.7°; MUSIC 85.5° and 92.8°; ESPRIT 85.58° and 93.26°. The Bartlett spectrum shows a single merged peak.

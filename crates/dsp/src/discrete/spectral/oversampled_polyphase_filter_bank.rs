@@ -192,6 +192,11 @@ impl StreamOperator<Complex<f64>, C1D> for OversampledPolyphaseAnalysisFilterBan
 ///
 /// Input: channelized FFT frames (`C1D`)
 /// Output: serial complex samples with hop `channels / oversampling_factor`.
+///
+/// **Limitation:** the output reconstructs the analysis bank's input only for a prototype with one tap per
+/// phase (`taps.len() == channels`). With longer prototypes, including the default one, the output is not a
+/// delayed, scaled copy of the input (relative errors of 18–41% for 16 channels); see the book entry on
+/// polyphase filter banks.
 pub struct OversampledPolyphaseSynthesisFilterBank {
     channels: usize,
     oversampling_factor: usize,

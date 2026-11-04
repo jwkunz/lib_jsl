@@ -92,6 +92,7 @@ impl CriticallySampledPolyphaseAnalysisFilterBank {
     }
 
     fn compute_frame(&mut self) -> Result<C1D, ErrorsJSL> {
+        // ANCHOR: pfb_analysis
         let mut poly = vec![Complex::new(0.0, 0.0); self.channels];
         let l = self.history.len();
         for (k, pk) in poly.iter_mut().enumerate().take(self.channels) {
@@ -105,6 +106,7 @@ impl CriticallySampledPolyphaseAnalysisFilterBank {
             }
             *pk = acc;
         }
+        // ANCHOR_END: pfb_analysis
         let spec = self.fft.execute(&poly)?;
         Ok(Array1::from_vec(spec))
     }
@@ -178,6 +180,11 @@ impl StreamOperator<Complex<f64>, C1D> for CriticallySampledPolyphaseAnalysisFil
 ///
 /// Input: sequence of channelized FFT bins (`C1D`), one frame per decimated time step.
 /// Output: serial complex samples.
+///
+/// **Limitation:** the output reconstructs the analysis bank's input only for a prototype with one tap per
+/// phase (`taps.len() == channels`). With longer prototypes, including the default one, the output is not a
+/// delayed, scaled copy of the input (relative errors of 18–41% for 16 channels); see the book entry on
+/// polyphase filter banks.
 pub struct CriticallySampledPolyphaseSynthesisFilterBank {
     channels: usize,
     taps: Vec<f64>,

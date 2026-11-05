@@ -173,9 +173,64 @@ fn fractional_figure() {
 }
 
 pub fn generate() {
+    scipy_reference();
     accuracy_figure();
     dct_figure();
     fractional_figure();
     real_fft_table();
     speed_figure();
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_rel_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_ffts::{dst, fft2, fftn, fftshift, idct, rfft};
+    use ndarray::{Array2, ArrayD, IxDyn};
+
+    let refs = Refs::parse(include_str!("../data/fft_reference.txt"));
+    let signal = |n: usize| -> Vec<Complex<f64>> { (0..n).map(|k| { let k = k as f64; Complex::new((0.37 * k).sin() + 0.5 * (1.3 * k * k / n as f64).cos(), 0.2 * (0.11 * k).sin()) }).collect() };
+    let real_signal = |n: usize| -> Vec<f64> { (0..n).map(|k| { let k = k as f64; (0.37 * k).sin() + 0.5 * (1.3 * k * k / n as f64).cos() }).collect() };
+    // The relative difference of a complex result: the largest |z - w| over the largest |w|.
+    let complex_diff = |got: &[Complex<f64>], key: &str| {
+        let want = refs.get(key);
+        let scale = want[0].iter().zip(&want[1]).map(|(r, i)| r.hypot(*i)).fold(0.0, f64::max);
+        fmt_diff(got.iter().zip(want[0].iter().zip(&want[1])).map(|(z, (r, i))| (z.re - r).hypot(z.im - i)).fold(0.0, f64::max) / scale)
+    };
+    let transform = |n: usize, direction: FftDirection, scale: FftScaleFactor| {
+        let mut f = Fft::new();
+        f.plan(n, scale, direction, FftOrdering::Standard).unwrap();
+        f.execute(&signal(n)).unwrap()
+    };
+    let mut rows = Vec::new();
+    for (n, what) in [(8, "power of two"), (64, "power of two"), (512, "power of two"), (1000, "Bluestein"), (997, "prime, Bluestein")] {
+        rows.push(vec![format!("complex DFT, {n} points ({what}) (`fft.fft`)"), complex_diff(&transform(n, FftDirection::Forward, FftScaleFactor::None), &format!("fft {n}"))]);
+    }
+    for n in [64, 997] {
+        rows.push(vec![format!("inverse DFT, {n} points, scaled by 1/n (`fft.ifft`)"), complex_diff(&transform(n, FftDirection::Inverse, FftScaleFactor::N), &format!("ifft {n}"))]);
+    }
+    for n in [16, 17] {
+        rows.push(vec![format!("real DFT, {n} points (`fft.rfft`)"), complex_diff(&rfft(&real_signal(n)).unwrap(), &format!("rfft {n}"))]);
+    }
+    let grid = Array2::from_shape_vec((8, 12), signal(96)).unwrap();
+    rows.push(vec!["2D DFT, 8 x 12 (`fft.fft2`)".into(), complex_diff(&fft2(&grid).unwrap().iter().copied().collect::<Vec<_>>(), "fft2 8x12")]);
+    let cube = ArrayD::from_shape_vec(IxDyn(&[4, 6, 5]), signal(120)).unwrap();
+    rows.push(vec!["3D DFT, 4 x 6 x 5 (`fft.fftn`)".into(), complex_diff(&fftn(&cube, FftDirection::Forward).unwrap().iter().copied().collect::<Vec<_>>(), "fftn 4x6x5")]);
+    let shifted = fftshift(&ArrayD::from_shape_vec(IxDyn(&[9]), signal(9)).unwrap());
+    rows.push(vec!["fftshift, 9 points (`fft.fftshift`)".into(), complex_diff(&shifted.iter().copied().collect::<Vec<_>>(), "fftshift 9")]);
+    write(CHAPTER, "scipy_fft.md", &md_table(&["transform (SciPy reference)", "largest relative difference"], &rows));
+
+    let x = real_signal(32);
+    let mut rows = Vec::new();
+    for (k, kind) in [(1, TrigTransformType::I), (2, TrigTransformType::II), (3, TrigTransformType::III), (4, TrigTransformType::IV)] {
+        let mut row = vec![format!("type {}", ["I", "II", "III", "IV"][k - 1])];
+        for (name, norm) in [("backward", TrigNormalization::Backward), ("ortho", TrigNormalization::Ortho)] {
+            let d = |got: Vec<f64>, case: &str| max_rel_diff(&got, refs.values(&format!("{case} {k} {name}")));
+            let worst = d(dct(&x, kind, norm).unwrap(), "dct").max(d(dst(&x, kind, norm).unwrap(), "dst")).max(d(idct(&x, kind, norm).unwrap(), "idct"));
+            row.push(fmt_diff(worst));
+        }
+        rows.push(row);
+    }
+    write(CHAPTER, "scipy_trig.md", &md_table(&["DCT, DST and inverse DCT, 32 points (`fft.dct`, `fft.dst`, `fft.idct`)", "unnormalised (`backward`)", "orthonormal (`ortho`)"], &rows));
 }

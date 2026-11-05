@@ -75,6 +75,26 @@ exponentially.
 | Irregular domains, variable or discontinuous coefficients | Finite elements | [Finite element methods](finite-elements.md) |
 | Smooth solution on an interval or a periodic domain | Chebyshev or Fourier spectral methods | [Spectral methods](spectral-methods.md) |
 
+## Testing against SciPy
+
+The references come from SciPy 1.17.1, written by `book/generator/data/make_integration_refs.py`, with the Gauss-Legendre weights also computed by mpmath at 40 digits.
+
+The Gaussian rules agree with `scipy.special`'s to rounding error. At 100 points the library's Legendre weights are in fact the more accurate: SciPy's differ from the exact weights by $2 \times 10^{-13}$.
+
+{{#include ../generated/integration/scipy_rules.md}}
+
+For one-dimensional integrals the table gives the relative error against the exact value, for the library's adaptive Gauss-Kronrod and tanh-sinh rules and for SciPy's QUADPACK `quad` and its own `tanhsinh`:
+
+{{#include ../generated/integration/scipy_quadrature.md}}
+
+All four reach about double precision, except on $1/\sqrt{1 - x^2}$, where $1 - x^2$ loses its digits near the ends when $x$ is rounded. QUADPACK's algebraic-singularity extrapolation recovers most of them. Tanh-sinh recovers all of them when the integrand is given the exact offset of $x$ from the nearer endpoint, which [`integrate_with_complement`](tanh-sinh.md) provides.
+
+Cubature, initial and boundary value problems, compared with `integrate.cubature`, `solve_ivp` (DOP853 for the non-stiff problem, Radau for the stiff ones) and `solve_bvp`:
+
+{{#include ../generated/integration/scipy_solvers.md}}
+
+The ODE differences are those expected from the tolerances requested: $10^{-11}$ for Dormand-Prince and $10^{-8}$ for the stiff solvers.
+
 ## In the library
 
 The integration crate is `lib_jsl_integration`

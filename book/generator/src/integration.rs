@@ -174,6 +174,7 @@ fn tanh_sinh_figures() {
 }
 
 pub fn generate() {
+    scipy_reference();
     spectral_figures();
     finite_element_figures();
     finite_difference_figures();
@@ -817,4 +818,98 @@ fn spectral_figures() {
     plot.series.push(Series::new("u = e^(sin x) (analytic)", smooth, Style::LineMarkers, 0));
     plot.series.push(Series::new("u = |sin x|³ (three derivatives)", rough, Style::LineMarkers, 1));
     write(CHAPTER, "fourier_derivative.svg", &plot.render());
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+/// A named integrand.
+type Integrand = Box<dyn Fn(f64) -> f64>;
+/// A Jacobian function, for the solvers' optional argument.
+type Jacobian = fn(f64, &[f64]) -> Vec<Vec<f64>>;
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_abs_diff, max_rel_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_integration::boundary_value_problems::{BvpOptions, solve_bvp_collocation};
+    use lib_jsl_integration::cubature::{CubatureOptions, adaptive_cubature};
+    use lib_jsl_integration::dormand_prince::dormand_prince_solve;
+    use lib_jsl_integration::gaussian_quadrature::{gauss_hermite, gauss_laguerre};
+    use lib_jsl_integration::stiff_ode::{OdeOptions, bdf, rosenbrock23};
+
+    let refs = Refs::parse(include_str!("../data/integration_reference.txt"));
+    let mut rows: Vec<Vec<String>> = Vec::new();
+    let rule_row = |label: String, rule: lib_jsl_integration::gaussian_quadrature::QuadratureRule, want: &Vec<Vec<f64>>| {
+        vec![label, format!("nodes {}, weights {} (relative)", fmt_diff(max_abs_diff(&rule.nodes, &want[0])), fmt_diff(max_rel_diff(&rule.weights, &want[1])))]
+    };
+    for n in [5, 20, 100] {
+        let want = refs.get(&format!("gauss_legendre {n}"));
+        let rule = gauss_legendre(n).unwrap();
+        rows.push(vec![
+            format!("Gauss-Legendre, {n} points (`special.roots_legendre`)"),
+            format!("nodes {}; weights {} (relative); against mpmath, library {} and SciPy {}", fmt_diff(max_abs_diff(&rule.nodes, &want[0])), fmt_diff(max_rel_diff(&rule.weights, &want[1])), fmt_diff(max_rel_diff(&rule.weights, &want[2])), fmt_diff(max_rel_diff(&want[1], &want[2]))),
+        ]);
+    }
+    for n in [10, 40] {
+        rows.push(rule_row(format!("Gauss-Hermite, {n} points (`special.roots_hermite`)"), gauss_hermite(n).unwrap(), refs.get(&format!("gauss_hermite {n}"))));
+    }
+    for (n, alpha) in [(10, 0.0), (20, 1.5)] {
+        rows.push(rule_row(format!("Gauss-Laguerre, {n} points, alpha = {alpha} (`special.roots_genlaguerre`)"), gauss_laguerre(n, alpha).unwrap(), refs.get(&format!("gauss_laguerre {n} {alpha:?}"))));
+    }
+    write(CHAPTER, "scipy_rules.md", &md_table(&["rule (SciPy reference)", "largest difference"], &rows));
+
+    // One-dimensional integrals with their exact values.
+    let cases: Vec<(&str, Integrand, f64, f64, f64)> = vec![
+        ("exp(-x^2) on [0, 1]", Box::new(|x: f64| (-x * x).exp()), 0.0, 1.0, PI.sqrt() / 2.0 * (1.0 - lib_jsl_special_functions::error_function::erfc(1.0))),
+        ("1/(1 + 25 x^2) on [-1, 1]", Box::new(|x: f64| 1.0 / (1.0 + 25.0 * x * x)), -1.0, 1.0, 0.4 * 5f64.atan()),
+        ("sqrt(x) ln(x) on [0, 1]", Box::new(|x: f64| if x > 0.0 { x.sqrt() * x.ln() } else { 0.0 }), 0.0, 1.0, -4.0 / 9.0),
+        ("1/sqrt(1 - x^2) on [-1, 1]", Box::new(|x: f64| if x.abs() < 1.0 { 1.0 / (1.0 - x * x).sqrt() } else { 0.0 }), -1.0, 1.0, PI),
+        ("cos(30 x) exp(x) on [0, 2]", Box::new(|x: f64| (30.0 * x).cos() * x.exp()), 0.0, 2.0, {
+            // Re ∫ e^{(1 + 30i)x} dx = Re[(e^{2(1 + 30i)} − 1)/(1 + 30i)].
+            let (re, im) = (2f64.exp() * 60f64.cos() - 1.0, 2f64.exp() * 60f64.sin());
+            (re + 30.0 * im) / 901.0
+        }),
+    ];
+    let mut rows = Vec::new();
+    for (name, f, a, b, exact) in &cases {
+        let want = refs.values(&format!("quad {name}"));
+        let gk = AdaptiveGL7K15IntegrationEngine::new(1e-13, *a, *b).integrate_with_error(f).unwrap().0;
+        let ts = TanhSinhEngine::new(*a, *b).integrate_with_error(f).unwrap().0;
+        let err = |v: f64| fmt_diff((v - exact).abs() / exact.abs());
+        rows.push(vec![name.to_string(), err(gk), err(ts), err(want[0]), err(want[1])]);
+    }
+    // The same singular integral, with 1 - x^2 formed from the exact offset to the nearer end.
+    let complement = TanhSinhEngine::new(-1.0, 1.0).integrate_with_complement(|_x, c| { let c = c.abs(); 1.0 / (c * (2.0 - c)).sqrt() }).unwrap().0;
+    rows.push(vec!["1/sqrt(1 - x^2), library tanh-sinh with the endpoint offset".into(), "".into(), fmt_diff((complement - PI).abs() / PI), "".into(), "".into()]);
+    write(CHAPTER, "scipy_quadrature.md", &md_table(&["integral", "library Gauss-Kronrod", "library tanh-sinh", "SciPy `quad`", "SciPy `tanhsinh`"], &rows));
+
+    // Cubature, initial value problems and a boundary value problem.
+    let mut rows = Vec::new();
+    let options = CubatureOptions { absolute_tolerance: 0.0, relative_tolerance: 1e-12, max_evaluations: 20_000_000 };
+    let c1 = adaptive_cubature(|x: &[f64]| (-(x.iter().map(|v| v * v).sum::<f64>())).exp(), &[0.0; 3], &[1.0; 3], options).unwrap().value;
+    let c2 = adaptive_cubature(|x: &[f64]| (x[0] + 2.0 * x[1]).cos(), &[0.0, 0.0], &[1.0, 2.0], options).unwrap().value;
+    for (name, got) in [("exp(-r^2) on [0, 1]^3", c1), ("cos(x + 2y) on [0, 1] x [0, 2]", c2)] {
+        let want = refs.values(&format!("cubature {name}"))[0];
+        rows.push(vec![format!("cubature of {name} (`integrate.cubature`)"), format!("relative difference {}", fmt_diff(((got - want) / want).abs()))]);
+    }
+    let vdp = |mu: f64| move |_t: f64, y: &[f64]| vec![y[1], mu * (1.0 - y[0] * y[0]) * y[1] - y[0]];
+    let tight = OdeOptions { relative_tolerance: 1e-11, absolute_tolerance: 1e-12, initial_step: None, max_steps: 10_000_000 };
+    let no_jacobian: Option<Jacobian> = None;
+    let dp = dormand_prince_solve(vdp(1.0), 0.0, &[2.0, 0.0], 10.0, tight).unwrap();
+    rows.push(vec!["van der Pol, mu = 1, state at t = 10: Dormand-Prince (`solve_ivp`, DOP853)".into(), format!("largest difference {}", fmt_diff(max_abs_diff(dp.last(), refs.values("ivp van der Pol mu 1, t = 10"))))]);
+    let stiff = OdeOptions { relative_tolerance: 1e-8, absolute_tolerance: 1e-10, initial_step: None, max_steps: 10_000_000 };
+    let want = refs.values("ivp van der Pol mu 100, t = 100");
+    let r = rosenbrock23(vdp(100.0), no_jacobian, 0.0, &[2.0, 0.0], 100.0, stiff).unwrap();
+    let b = bdf(vdp(100.0), no_jacobian, 0.0, &[2.0, 0.0], 100.0, 5, stiff).unwrap();
+    rows.push(vec!["van der Pol, mu = 100, state at t = 100 (`solve_ivp`, Radau)".into(), format!("Rosenbrock {}, BDF {}", fmt_diff(max_abs_diff(r.last(), want)), fmt_diff(max_abs_diff(b.last(), want)))]);
+    let robertson = |_t: f64, y: &[f64]| vec![-0.04 * y[0] + 1e4 * y[1] * y[2], 0.04 * y[0] - 1e4 * y[1] * y[2] - 3e7 * y[1] * y[1], 3e7 * y[1] * y[1]];
+    let chem = OdeOptions { relative_tolerance: 1e-8, absolute_tolerance: 1e-14, initial_step: None, max_steps: 10_000_000 };
+    let want = refs.values("ivp Robertson, t = 1000");
+    let r = rosenbrock23(robertson, no_jacobian, 0.0, &[1.0, 0.0, 0.0], 1000.0, chem).unwrap();
+    let b = bdf(robertson, no_jacobian, 0.0, &[1.0, 0.0, 0.0], 1000.0, 5, chem).unwrap();
+    rows.push(vec!["Robertson's reactions, state at t = 1000 (`solve_ivp`, Radau)".into(), format!("relative: Rosenbrock {}, BDF {}", fmt_diff(max_rel_diff(r.last(), want)), fmt_diff(max_rel_diff(b.last(), want)))]);
+    let x: Vec<f64> = (0..=10).map(|i| i as f64 / 10.0).collect();
+    let bratu = solve_bvp_collocation(|_x: f64, y: &[f64]| vec![y[1], -y[0].exp()], |ya: &[f64], yb: &[f64]| vec![ya[0], yb[0]], x.clone(), vec![vec![0.0, 0.0]; 11], BvpOptions { tolerance: 1e-10, max_nodes: 100_000, max_newton_iterations: 50 }).unwrap();
+    let got: Vec<f64> = x.iter().map(|&t| bratu.evaluate(t)[0]).collect();
+    rows.push(vec!["Bratu's problem y'' + e^y = 0, solution at 11 points: collocation (`solve_bvp`)".into(), format!("largest difference {}", fmt_diff(max_abs_diff(&got, refs.values("bvp Bratu"))))]);
+    write(CHAPTER, "scipy_solvers.md", &md_table(&["problem (SciPy reference)", "result"], &rows));
 }

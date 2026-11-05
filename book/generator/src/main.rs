@@ -27,6 +27,7 @@ mod optimization;
 mod optimization_more;
 mod random;
 mod raster;
+mod refs;
 mod sorting;
 mod root_finding;
 mod spectral;

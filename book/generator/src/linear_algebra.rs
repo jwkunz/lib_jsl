@@ -411,6 +411,7 @@ fn svd_speed_figure() {
 }
 
 pub fn generate() {
+    scipy_reference();
     pivoting_tables();
     conditioning_figure();
     cholesky_table();
@@ -424,4 +425,80 @@ pub fn generate() {
     low_rank_figure();
     svd_speed_figure();
     speed_figure();
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_abs_diff, max_rel_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_linalg::Determinant;
+    use num_complex::Complex;
+
+    let refs = Refs::parse(include_str!("../data/linear_algebra_reference.txt"));
+    let real = |name: &str| {
+        let m = refs.get(&format!("matrix {name}"));
+        Array2::from_shape_vec((m[0][0] as usize, m[1][0] as usize), m[2].clone()).unwrap()
+    };
+    let complex = |name: &str| {
+        let m = refs.get(&format!("matrix {name}"));
+        Array2::from_shape_vec((m[0][0] as usize, m[1][0] as usize), m[2].iter().zip(&m[3]).map(|(&r, &i)| Complex::new(r, i)).collect()).unwrap()
+    };
+    let flat = |a: &Array2<f64>| a.iter().copied().collect::<Vec<f64>>();
+    let abs_flat = |a: &Array2<f64>| a.iter().map(|v| v.abs()).collect::<Vec<f64>>();
+    let (a, b) = (real("A"), real("b").column(0).to_owned());
+    let (spd, sym, general) = (real("S"), real("H"), real("N"));
+    let (tall, rhs, deficient) = (real("R"), real("c").column(0).to_owned(), real("D"));
+    let (herm, ac, bc) = (complex("Hc"), complex("Ac"), complex("bc").column(0).to_owned());
+    let rel = |got: &[f64], key: &str| fmt_diff(max_rel_diff(got, refs.values(key)));
+
+    let mut rows: Vec<Vec<String>> = Vec::new();
+    let mut add = |what: &str, production: String, reference: String| rows.push(vec![what.to_string(), production, reference]);
+    add("solve, 40 x 40 (`linalg.solve`)", rel(&a.solve(&b).unwrap().to_vec(), "solve"), format!("{} (pivoted elimination), {} (Doolittle LU)", rel(&reference::gaussian_elimination::solve_with_partial_pivoting(&a, &b).unwrap().to_vec(), "solve"), rel(&reference::lu::lu(&a).unwrap().solve(&b).unwrap().to_vec(), "solve")));
+    add("inverse (`linalg.inv`)", rel(&flat(&a.inv().unwrap()), "inv"), "".into());
+    let det_want = refs.values("det")[0];
+    add("determinant (`linalg.det`)", fmt_diff(((a.det().unwrap() - det_want) / det_want).abs()), fmt_diff(((reference::lu::lu(&a).unwrap().determinant() - det_want) / det_want).abs()));
+    add("Cholesky factor, 30 x 30 (`linalg.cholesky`)", rel(&flat(&spd.cholesky(UPLO::Lower).unwrap()), "cholesky"), rel(&flat(&reference::cholesky::cholesky(&spd).unwrap()), "cholesky"));
+    let want = refs.get("eigh");
+    let (w, v) = sym.eigh(UPLO::Lower).unwrap();
+    let mut jacobi = reference::jacobi_eigenvalue::jacobi_eigen(&sym, 1e-14).unwrap().values.to_vec();
+    jacobi.sort_by(f64::total_cmp);
+    let mut qr = reference::qr_algorithm::shifted_qr(&sym, 1e-14, 100_000).unwrap().values.to_vec();
+    qr.sort_by(f64::total_cmp);
+    add("symmetric eigenvalues, 30 x 30 (`linalg.eigh`)", fmt_diff(max_rel_diff(&w.to_vec(), &want[0])), format!("{} (Jacobi), {} (shifted QR)", fmt_diff(max_rel_diff(&jacobi, &want[0])), fmt_diff(max_rel_diff(&qr, &want[0]))));
+    add("their eigenvectors, up to sign", fmt_diff(max_abs_diff(&abs_flat(&v), &want[1])), "".into());
+    let want = refs.get("eigvals");
+    let mut e = general.eigvals().unwrap().to_vec();
+    e.sort_by(|x, y| x.re.total_cmp(&y.re).then(x.im.total_cmp(&y.im)));
+    // Pair with the nearest reference eigenvalue: conjugate pairs share a real part only to rounding.
+    let mut unused: Vec<usize> = (0..want[0].len()).collect();
+    let mut worst = 0.0f64;
+    let scale = want[0].iter().zip(&want[1]).map(|(r, i)| r.hypot(*i)).fold(0.0, f64::max);
+    for z in &e {
+        let (k, d) = unused.iter().enumerate().map(|(k, &j)| (k, (z.re - want[0][j]).hypot(z.im - want[1][j]))).min_by(|x, y| x.1.total_cmp(&y.1)).unwrap();
+        worst = worst.max(d / scale);
+        unused.remove(k);
+    }
+    add("general eigenvalues, 25 x 25, complex pairs (`linalg.eigvals`)", fmt_diff(worst), "".into());
+    let want_r = refs.values("qr r");
+    let (_, hr) = reference::qr::householder(&tall);
+    let (_, mr) = reference::qr::modified_gram_schmidt(&tall);
+    let top = |r: &Array2<f64>| r.slice(ndarray::s![..20, ..]).iter().map(|v| v.abs()).collect::<Vec<f64>>();
+    add("QR, R factor up to signs, 50 x 20 (`linalg.qr`)", "".into(), format!("{} (Householder), {} (modified Gram-Schmidt)", fmt_diff(max_rel_diff(&top(&hr), want_r)), fmt_diff(max_rel_diff(&top(&mr), want_r))));
+    let want = refs.get("svd");
+    let (u, sv, vt) = tall.svd(true, true).unwrap();
+    let u = u.unwrap();
+    let u20: Vec<f64> = u.slice(ndarray::s![.., ..20]).iter().map(|x| x.abs()).collect();
+    add("singular values, 50 x 20 (`linalg.svd`)", fmt_diff(max_rel_diff(&sv.to_vec(), &want[0])), format!("{} (through AᵀA)", fmt_diff(max_rel_diff(&reference::naive_svd::svd_via_normal_matrix(&tall).unwrap().singular_values.to_vec(), &want[0]))));
+    add("singular vectors, up to sign", fmt_diff(max_abs_diff(&u20, &want[1]).max(max_abs_diff(&abs_flat(&vt.unwrap()), &want[2]))), "".into());
+    add("least squares, 50 x 20 (`linalg.lstsq`)", rel(&tall.least_squares(&rhs).unwrap().solution.to_vec(), "lstsq"), format!("{} (QR), {} (normal equations)", rel(&reference::least_squares::qr_least_squares(&tall, &rhs).unwrap().to_vec(), "lstsq"), rel(&reference::least_squares::normal_equations(&tall, &rhs).unwrap().to_vec(), "lstsq")));
+    let ls = deficient.least_squares(&rhs).unwrap();
+    let want = refs.get("lstsq rank deficient");
+    add("minimum-norm least squares, rank 12 of 20 (`linalg.lstsq`)", format!("{}, rank {} (SciPy {})", fmt_diff(max_rel_diff(&ls.solution.to_vec(), &want[0])), ls.rank, want[1][0]), "".into());
+    add("Hermitian eigenvalues, complex 20 x 20 (`linalg.eigh`)", rel(&herm.eigvalsh(UPLO::Lower).unwrap().to_vec(), "eigh complex"), "".into());
+    let x = ac.solve(&bc).unwrap();
+    let want = refs.get("solve complex");
+    let (re, im): (Vec<f64>, Vec<f64>) = x.iter().map(|z| (z.re, z.im)).unzip();
+    add("complex solve, 20 x 20 (`linalg.solve`)", fmt_diff(max_rel_diff(&re, &want[0]).max(max_rel_diff(&im, &want[1]))), "".into());
+    write(CHAPTER, "scipy_reference.md", &md_table(&["computation (SciPy reference)", "`lib_jsl_linalg`", "`lib_jsl_linalg_reference`"], &rows));
 }

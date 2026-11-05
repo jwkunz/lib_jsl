@@ -257,10 +257,98 @@ fn mcmc_figures() {
 }
 
 pub fn generate() {
+    scipy_reference();
     audit_table();
     histogram_figure();
     halton_projection_figure();
     qmc_error_figure();
     mcmc_figures();
     speed_table();
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+/// A named sampler drawing one value from the generator.
+type Sampler = (&'static str, Box<dyn Fn(&mut UniformRNG) -> f64>);
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_abs_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_special_functions::chi_square_survival;
+
+    let refs = Refs::parse(include_str!("../data/random_reference.txt"));
+    let mut sobol = SobolSequence::new(10).unwrap();
+    let points: Vec<f64> = (0..256).flat_map(|_| sobol.next_point()).collect();
+    let mut halton = HaltonSequence::new(10).unwrap();
+    let hpoints: Vec<f64> = (0..256).flat_map(|_| halton.next_point()).collect();
+    let rows = vec![
+        vec!["Sobol sequence, 256 points in 10 dimensions, unscrambled (`qmc.Sobol`)".to_string(), fmt_diff(max_abs_diff(&points, refs.values("sobol")))],
+        vec!["Halton sequence, 256 points in 10 dimensions, unscrambled (`qmc.Halton`, after its origin)".to_string(), fmt_diff(max_abs_diff(&hpoints, refs.values("halton")))],
+    ];
+    write(CHAPTER, "scipy_qmc.md", &md_table(&["sequence (SciPy reference)", "largest difference"], &rows));
+
+    // Each sampler's frequencies in bins defined by SciPy's quantiles or probabilities.
+    let mut rng = UniformRNG::from_seed(4096);
+    let chi_row = |name: &str, observed: &[f64], expected: &[f64]| {
+        let chi2: f64 = observed.iter().zip(expected).map(|(o, e)| (o - e) * (o - e) / e).sum();
+        let dof = observed.len() - 1;
+        vec![name.to_string(), format!("{}", observed.len()), format!("{chi2:.1}"), format!("{:.2}", chi_square_survival(chi2, dof as f64))]
+    };
+    let mut rows = Vec::new();
+    let continuous: Vec<Sampler> = vec![
+        ("uniform U(-1, 3)", Box::new(|r| uniform_distribution(r, -1.0, 3.0))),
+        ("exponential, rate 2", Box::new(|r| exponential_distribution(r, 2.0))),
+        ("Weibull, shape 1.5, scale 2", Box::new(|r| weibull_distribution(r, 1.5, 2.0))),
+        ("normal N(1, 4)", Box::new(|r| gaussian_distribution_box_muller(r, 1.0, 2.0).0)),
+        ("log-normal, mu 0, sigma 0.5", Box::new(|r| log_normal_distribution(r, 0.0, 0.5).unwrap())),
+        ("chi-square, k = 5", Box::new(|r| chi_square_distribution(r, 5, 0.0, 1.0))),
+        ("Student's t, nu = 5", Box::new(|r| students_t_distribution(r, 5, 0.0, 1.0))),
+        ("gamma, shape 2.5, scale 2", Box::new(|r| gamma_distribution(r, 2.5, 2.0).unwrap())),
+        ("gamma, shape 0.3", Box::new(|r| gamma_distribution(r, 0.3, 1.0).unwrap())),
+        ("beta (2, 5)", Box::new(|r| beta_distribution(r, 2.0, 5.0).unwrap())),
+        ("Cauchy", Box::new(|r| cauchy_distribution(r, 0.0, 1.0).unwrap())),
+    ];
+    for (name, draw) in &continuous {
+        let edges = refs.values(&format!("bins {name}"));
+        let mut counts = vec![0.0; 20];
+        for _ in 0..N {
+            let x = draw(&mut rng);
+            counts[edges.partition_point(|&e| e <= x)] += 1.0;
+        }
+        rows.push(chi_row(name, &counts, &[N as f64 / 20.0; 20]));
+    }
+    let discrete: Vec<Sampler> = vec![
+        ("Bernoulli, p = 0.3", Box::new(|r| bernoulli_distribution(r, 0.3))),
+        ("geometric, p = 0.2 (failures)", Box::new(|r| geometric_distribution(r, 0.2))),
+        ("Poisson, lambda = 4", Box::new(|r| poisson_distribution_knuth(r, 4.0))),
+        ("Poisson, lambda = 300", Box::new(|r| poisson_distribution_knuth(r, 300.0))),
+        ("binomial, n = 20, p = 0.3", Box::new(|r| binomial_distribution(r, 20, 0.3).unwrap() as f64)),
+        ("binomial, n = 100000, p = 0.4", Box::new(|r| binomial_distribution(r, 100_000, 0.4).unwrap() as f64)),
+    ];
+    for (name, draw) in &discrete {
+        let pmf = refs.get(&format!("pmf {name}"));
+        let (k0, p) = (pmf[0][0] as i64, &pmf[1]);
+        // Group consecutive values into bins expecting at least 50 samples (tails lumped in).
+        let mut bins: Vec<(i64, f64)> = Vec::new(); // (last value of the bin, expected count)
+        let mut acc = 0.0;
+        for (j, &pj) in p.iter().enumerate() {
+            acc += pj * N as f64;
+            if acc >= 50.0 {
+                bins.push((k0 + j as i64, acc));
+                acc = 0.0;
+            }
+        }
+        if let Some(last) = bins.last_mut() {
+            last.1 += acc;
+            last.0 = i64::MAX;
+        }
+        let mut counts = vec![0.0; bins.len()];
+        for _ in 0..N {
+            let k = draw(&mut rng) as i64;
+            counts[bins.partition_point(|b| b.0 < k)] += 1.0;
+        }
+        let expected: Vec<f64> = bins.iter().map(|b| b.1).collect();
+        rows.push(chi_row(name, &counts, &expected));
+    }
+    write(CHAPTER, "scipy_samplers.md", &md_table(&["distribution (SciPy's quantiles or probabilities)", "bins", "chi-square", "p-value"], &rows));
 }

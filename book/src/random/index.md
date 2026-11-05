@@ -31,6 +31,18 @@ returned $-1$ for every rate (one uniform reused, a loop condition inverted); `H
 edge and panicked at its upper one; and a helper that draws vectors of normal samples returned two extra values for
 even lengths, which made chi-square samples with even degrees of freedom sum two extra squares.
 
+### Against SciPy
+
+The references come from SciPy 1.17.1, written by `book/generator/data/make_random_refs.py`. The unscrambled quasi-random sequences reproduce `scipy.stats.qmc` exactly (Sobol from the same Joe-Kuo direction numbers; the library's Halton sequence starts after the origin, which SciPy includes):
+
+{{#include ../generated/random/scipy_qmc.md}}
+
+As an independent check of the samplers, which does not use the library's own distribution functions, 100 000 samples of each are counted in bins whose edges are SciPy's quantiles (20 equally likely bins) or, for discrete distributions, whose probabilities come from SciPy's `pmf` (grouped so that each bin expects at least 50 samples). The chi-square statistic then tests the counts:
+
+{{#include ../generated/random/scipy_samplers.md}}
+
+Under correct sampling the p-values are uniformly distributed, so among 17 tests one or two below 0.1 are expected. Repeating the lowest here (the normal sampler) with a million samples and five seeds gives p-values from 0.3 to 0.8.
+
 ## In the library
 
 The crate is `lib_jsl_random` ([API reference](../../api/lib_jsl_random/index.html)). Generators implement the

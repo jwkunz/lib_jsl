@@ -14,8 +14,8 @@
 | ppm P3 (text) | 8223 | identical |
 | pgm 16-bit | 1551 | identical |
 | jpeg 4:4:4 | 1318 | PSNR 30.3 dB against the original (Pillow: 30.3 dB) |
-| jpeg 4:2:0 | 1014 | PSNR 24.5 dB against the original (Pillow: 25.1 dB) |
-| jpeg 4:2:0 with restarts | 933 | PSNR 24.0 dB against the original (Pillow: 24.7 dB) |
+| jpeg 4:2:0 | 1014 | PSNR 25.1 dB against the original (Pillow: 25.1 dB) |
+| jpeg 4:2:0 with restarts | 933 | PSNR 24.7 dB against the original (Pillow: 24.7 dB) |
 | jpeg greyscale | 613 | PSNR 36.5 dB against the original (Pillow: 36.5 dB) |
 | jpeg progressive | 917 | refused: Only baseline sequential Huffman JPEG is supported. |
 | zlib level 0 | 6011 | identical |

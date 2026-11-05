@@ -65,7 +65,13 @@ The encoder writes 4:4:4 (no chroma subsampling) with the Annex K tables scaled 
 
 {{#include ../generated/foundations/jpeg_rate.md}}
 
-Chroma subsampling (4:2:0, Pillow's default) stores colour at half resolution. At the same quality setting it saves 13–22% of the bytes here. PSNR, which weighs colour errors like brightness errors, rates it no better at equal size; its advantage is perceptual, because the eye resolves colour less finely than brightness. The library's decoder accepts any subsampling, custom tables and restart intervals. It upsamples chroma by replication, where libjpeg interpolates, which costs it about 0.6 dB on subsampled files. Progressive, arithmetic-coded, 12-bit and multi-scan files are refused with an error.
+Chroma subsampling (4:2:0, Pillow's default) stores colour at half resolution. At the same quality setting it saves 13–22% of the bytes here. PSNR, which weighs colour errors like brightness errors, rates it no better at equal size; its advantage is perceptual, because the eye resolves colour less finely than brightness. The library's decoder accepts any subsampling, custom tables and restart intervals. It upsamples chroma as libjpeg does, interpolating linearly between chroma sample centres: for 2:1 factors that weights the nearer sample $\tfrac34$ and the farther $\tfrac14$ in each direction. Writing this chapter replaced the earlier replication, which decoded subsampled files up to 82 levels away from libjpeg at colour edges and 0.6 dB worse in PSNR; the decodes now agree to within 2 levels.
+
+```rust,ignore
+{{#include ../../../crates/file_io/src/jpeg.rs:upsample}}
+```
+
+Progressive, arithmetic-coded, 12-bit and multi-scan files are refused with an error.
 
 ### Netpbm
 
@@ -114,7 +120,7 @@ The test card's ramps and stripes are almost perfectly predictable after filteri
 
 **Strengths**
 
-- Complete PNG decoding, Netpbm in all six forms, and baseline JPEG equal to libjpeg's at the same quality.
+- Complete PNG decoding, Netpbm in all six forms, and baseline JPEG equal to libjpeg's at the same quality, including the upsampling of subsampled files.
 - Robust decoders: no panics on damaged files, and no huge allocations from forged headers.
 
 **Weaknesses**

@@ -8,3 +8,6 @@
 | upfirdn up 3 | 0.0e0 |
 | upfirdn up 3 down 2 | 0.0e0 |
 | levinson order 8 | 4.1e-15 |
+| stft hann 64/16 | 2.1e-16 |
+| spectrogram hann 64/16 density | 4.3e-16 |
+| square period 8 | 0.0e0 |

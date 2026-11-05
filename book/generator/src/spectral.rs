@@ -120,6 +120,12 @@ fn library_case(name: &str, data: &std::collections::HashMap<String, Vec<Vec<f64
             y.extend(r.flush().ok()?.unwrap_or_default());
             vec![y]
         }
+        "stft hann 64/16" => {
+            let z = lib_jsl_dsp::discrete::spectral::stft::stft(x, &windows::hann::hann(64, false), 16).ok()?;
+            cplx(z.iter().copied().collect())
+        }
+        "spectrogram hann 64/16 density" => vec![lib_jsl_dsp::discrete::spectral::stft::spectrogram(x, 10.0, &windows::hann::hann(64, false), 16, SpectralScaling::Density).ok()?.power.iter().copied().collect()],
+        "square period 8" => vec![lib_jsl_dsp::discrete::sources::square(8, 40).ok()?],
         "levinson order 8" => {
             let r: Vec<f64> = (0..9).map(|k| x[..256 - k].iter().zip(&x[k..]).map(|(a, b)| a * b).sum::<f64>() / 256.0).collect();
             // SciPy solves R a = r[1..]; Levinson returns A(z) = 1 + Σ a_k z^-k with the opposite sign.

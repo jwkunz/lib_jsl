@@ -59,3 +59,12 @@ out("upfirdn up 3 down 2", signal.upfirdn(3 * h, x[:40], up=3, down=2))
 from scipy.linalg import solve_toeplitz
 r = np.array([np.dot(x[: 256 - k], x[k:]) / 256 for k in range(9)])
 out("levinson order 8", solve_toeplitz(r[:8], r[1:9]))
+# Short-time Fourier transform (frames that fit inside the signal, rescaled from SciPy's 1/sum(w)
+# and listed frame by frame), the spectrogram as a density, and a square wave.
+win = signal.get_window("hann", 64)
+f, t, z = signal.stft(x, window=win, nperseg=64, noverlap=48, boundary=None, padded=False, detrend=False)
+z = (z * win.sum()).T
+out("stft hann 64/16", z.real.ravel(), z.imag.ravel())
+f, t, s = signal.spectrogram(x, fs=10.0, window=win, nperseg=64, noverlap=48, detrend=False, scaling="density", mode="psd")
+out("spectrogram hann 64/16 density", s.T.ravel())
+out("square period 8", signal.square(2 * np.pi * np.arange(40) / 8))

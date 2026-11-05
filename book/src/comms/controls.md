@@ -86,6 +86,14 @@ Estimating a constant ($F = H = 1$, $Q = 0$) gives the running average, as the e
 {{#include ../generated/comms/kalman_facts.md}} The **normalised estimation error squared** $e^*P^{-1}e$ checks the filter's honesty: if the model is right, it averages the state dimension. Here the
 simulation's discretised acceleration noise differs slightly from the filter's $Q$, hence the small excess.
 
+### Checking against SciPy
+
+Because `step` reads the output after updating the state, the library's $(A, B, C, D)$ is the system that SciPy and most textbooks write as $y[k] = C'x[k] + D'u[k]$ with $C' = CA$ and $D' = CB + D$. Simulating that system with `scipy.signal.dlsim` (SciPy 1.17.1, references from `book/generator/data/make_controls_refs.py`) reproduces the library's output:
+
+{{#include ../generated/comms/scipy_controls.md}}
+
+A model written in the usual convention therefore cannot always be entered directly: recovering $C$ from $C' = CA$ needs $A$ to be invertible. This is a limitation of the current interface.
+
 ## Algorithm
 
 1. **State space**: $x \leftarrow Ax + Bu$; $y = Cx + Du$. Poles from the eigenvalues of $A$; ranks of the controllability and observability matrices by SVD.

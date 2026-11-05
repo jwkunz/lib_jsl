@@ -336,15 +336,8 @@ fn scipy_reference() {
         let want = refs.get(&format!("poly {name}"));
         let got = polynomial_roots_complex(&coeffs).unwrap();
         let re: Vec<f64> = got.iter().map(|z| z.re).collect();
-        // Pair each root with the nearest unused NumPy root: conjugate pairs share a real part
-        // only to rounding, so sorting alone can swap their members.
-        let mut unused: Vec<usize> = (0..want[0].len()).collect();
-        let mut d = 0.0f64;
-        for z in &got {
-            let (k, dist) = unused.iter().enumerate().map(|(k, &j)| (k, (z.re - want[0][j]).hypot(z.im - want[1][j]))).min_by(|a, b| a.1.total_cmp(&b.1)).unwrap();
-            d = d.max(dist);
-            unused.remove(k);
-        }
+        // Conjugate pairs share a real part only to rounding, so pair roots by distance, not order.
+        let d = crate::refs::max_matched_distance(&got, &want[0], &want[1]);
         let against_exact = exact
             .map(|e| {
                 let polished = lib_jsl_root_finding::polynomial_roots::polynomial_roots(&coeffs);

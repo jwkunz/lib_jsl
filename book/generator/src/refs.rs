@@ -52,3 +52,18 @@ pub fn max_rel_diff(got: &[f64], want: &[f64]) -> f64 {
 pub fn fmt_diff(d: f64) -> String {
     if d == 0.0 { "0".to_string() } else { format!("{d:.0e}") }
 }
+
+/// The largest distance between complex values and their references (`re`, `im`), pairing each
+/// with the nearest unused reference: values such as conjugate pairs or repeated roots, whose
+/// sorted order depends on rounding, are matched without relying on order.
+pub fn max_matched_distance(got: &[num_complex::Complex<f64>], re: &[f64], im: &[f64]) -> f64 {
+    assert_eq!(got.len(), re.len(), "lists of different lengths");
+    let mut unused: Vec<usize> = (0..re.len()).collect();
+    let mut worst = 0.0f64;
+    for z in got {
+        let (k, d) = unused.iter().enumerate().map(|(k, &j)| (k, (z.re - re[j]).hypot(z.im - im[j]))).min_by(|a, b| a.1.total_cmp(&b.1)).unwrap();
+        worst = worst.max(d);
+        unused.remove(k);
+    }
+    worst
+}

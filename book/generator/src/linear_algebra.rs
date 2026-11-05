@@ -468,17 +468,9 @@ fn scipy_reference() {
     add("symmetric eigenvalues, 30 x 30 (`linalg.eigh`)", fmt_diff(max_rel_diff(&w.to_vec(), &want[0])), format!("{} (Jacobi), {} (shifted QR)", fmt_diff(max_rel_diff(&jacobi, &want[0])), fmt_diff(max_rel_diff(&qr, &want[0]))));
     add("their eigenvectors, up to sign", fmt_diff(max_abs_diff(&abs_flat(&v), &want[1])), "".into());
     let want = refs.get("eigvals");
-    let mut e = general.eigvals().unwrap().to_vec();
-    e.sort_by(|x, y| x.re.total_cmp(&y.re).then(x.im.total_cmp(&y.im)));
-    // Pair with the nearest reference eigenvalue: conjugate pairs share a real part only to rounding.
-    let mut unused: Vec<usize> = (0..want[0].len()).collect();
-    let mut worst = 0.0f64;
+    let e = general.eigvals().unwrap().to_vec();
     let scale = want[0].iter().zip(&want[1]).map(|(r, i)| r.hypot(*i)).fold(0.0, f64::max);
-    for z in &e {
-        let (k, d) = unused.iter().enumerate().map(|(k, &j)| (k, (z.re - want[0][j]).hypot(z.im - want[1][j]))).min_by(|x, y| x.1.total_cmp(&y.1)).unwrap();
-        worst = worst.max(d / scale);
-        unused.remove(k);
-    }
+    let worst = crate::refs::max_matched_distance(&e, &want[0], &want[1]) / scale;
     add("general eigenvalues, 25 x 25, complex pairs (`linalg.eigvals`)", fmt_diff(worst), "".into());
     let want_r = refs.values("qr r");
     let (_, hr) = reference::qr::householder(&tall);

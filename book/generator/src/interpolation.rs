@@ -64,6 +64,7 @@ fn polynomial_figures() {
 }
 
 pub fn generate() {
+    scipy_reference();
     grid_figures();
     scattered_figures();
     trigonometric_figures();
@@ -375,4 +376,133 @@ fn scattered_figures() {
     plot.series.push(Series::new("thin-plate spline RBF", grid.iter().map(|&x| (x, tps.interpolate_at(x, 0.5).unwrap())).collect(), Style::Line, 0));
     plot.series.push(Series::new("Shepard, power 2", grid.iter().map(|&x| (x, shep.interpolate_at(x, 0.5, 0.0).unwrap())).collect(), Style::Line, 1));
     write(CHAPTER, "scattered_slice.svg", &plot.render());
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_abs_diff, max_rel_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_interpolation::nd::InterpolationND;
+    use lib_jsl_interpolation::nd::grid_data::GridData;
+    use lib_jsl_interpolation::one_d::aaa::AaaApproximation;
+    use lib_jsl_interpolation::one_d::akima::akima;
+    use lib_jsl_interpolation::one_d::floater_hormann::FloaterHormann;
+    use lib_jsl_interpolation::one_d::fourier_1d::FourierInterpolator1D;
+    use lib_jsl_interpolation::one_d::linear_interpolator::LinearInterpolator;
+    use lib_jsl_interpolation::one_d::natural_cubic_spline_interpolator::NaturalCubicSplineInterpolator;
+    use lib_jsl_interpolation::one_d::pade_approximants::PadeApproximant;
+    use lib_jsl_interpolation::one_d::pchip::pchip;
+    use lib_jsl_interpolation::one_d::polynomial_interpolator::PolynomialInterpolator;
+    use lib_jsl_interpolation::one_d::savitzky_golay::{savitzky_golay, savitzky_golay_coefficients};
+    use lib_jsl_interpolation::three_d::Interpolation3D;
+    use lib_jsl_interpolation::three_d::b_spline::BSpline3D;
+    use lib_jsl_interpolation::three_d::trilinear::Trilinear;
+    use lib_jsl_interpolation::two_d::Interpolation2D;
+    use lib_jsl_interpolation::two_d::bilinear::Bilinear;
+    use lib_jsl_interpolation::two_d::nearest::Nearest2D;
+    use lib_jsl_interpolation::two_d::radial_basis_functions::{RadialBasisInterpolator, RadialKernel};
+    use ndarray::{Array2, Array3, ArrayD, IxDyn};
+
+    let refs = Refs::parse(include_str!("../data/interpolation_reference.txt"));
+    let mut rows: Vec<Vec<String>> = Vec::new();
+    let row = |rows: &mut Vec<Vec<String>>, label: &str, got: &[f64], key: &str| {
+        let d = max_abs_diff(got, refs.values(key));
+        rows.push(vec![label.to_string(), fmt_diff(d)]);
+    };
+
+    // One-dimensional interpolants on uneven nodes.
+    let x: Vec<f64> = (0..12).map(|i| i as f64 + 0.3 * (i as f64).sin()).collect();
+    let smooth: Vec<f64> = x.iter().map(|&t| t.sin() + 0.05 * t * t).collect();
+    let steps = vec![0.0, 0.0, 0.5, 1.0, 1.0, 1.2, 3.0, 3.1, 3.1, 4.0, 6.0, 6.2];
+    let xq: Vec<f64> = (0..61).map(|k| x[0] + (x[11] - x[0]) * k as f64 / 60.0).collect();
+    let xa = R1D::from_vec(x.clone());
+    for (name, y) in [("smooth", smooth), ("steps", steps)] {
+        let ya = R1D::from_vec(y);
+        let mut spline = NaturalCubicSplineInterpolator::new(xa.view(), ya.view()).unwrap();
+        let mut p = pchip(xa.view(), ya.view()).unwrap();
+        let mut a = akima(xa.view(), ya.view()).unwrap();
+        let mut l = LinearInterpolator::new(xa.view(), ya.view()).unwrap();
+        let data = if name == "smooth" { "a smooth curve" } else { "data with flat stretches" };
+        row(&mut rows, &format!("natural cubic spline, {data} (`CubicSpline`, natural)"), &xq.iter().map(|&t| spline.interpolate_at(t).unwrap()).collect::<Vec<_>>(), &format!("natural spline {name}"));
+        row(&mut rows, &format!("PCHIP, {data} (`PchipInterpolator`)"), &xq.iter().map(|&t| p.interpolate_at(t).unwrap()).collect::<Vec<_>>(), &format!("pchip {name}"));
+        row(&mut rows, &format!("Akima, {data} (`Akima1DInterpolator`)"), &xq.iter().map(|&t| a.interpolate_at(t).unwrap()).collect::<Vec<_>>(), &format!("akima {name}"));
+        row(&mut rows, &format!("linear, {data} (`numpy.interp`)"), &xq.iter().map(|&t| l.interpolate_at(t).unwrap()).collect::<Vec<_>>(), &format!("linear {name}"));
+    }
+
+    // Polynomial and rational interpolation of Runge's function.
+    let tq: Vec<f64> = (0..101).map(|k| -1.0 + k as f64 / 50.0).collect();
+    let cheb: Vec<f64> = (0..9).map(|j| (PI * j as f64 / 8.0).cos()).collect();
+    let (cx, cy) = (R1D::from_vec(cheb.clone()), R1D::from_vec(cheb.iter().map(|&t| runge(t)).collect()));
+    let mut poly = PolynomialInterpolator::new(cx.view(), cy.view()).unwrap();
+    row(&mut rows, "polynomial through 9 Chebyshev points (`BarycentricInterpolator`)", &tq.iter().map(|&t| poly.interpolate_at(t).unwrap()).collect::<Vec<_>>(), "polynomial chebyshev 9");
+    let eq = equispaced(21);
+    let (ex, ey) = (R1D::from_vec(eq.clone()), R1D::from_vec(eq.iter().map(|&t| runge(t)).collect()));
+    let mut fh = FloaterHormann::new(ex.view(), ey.view(), 3).unwrap();
+    row(&mut rows, "Floater-Hormann, 21 equispaced points, d = 3 (`FloaterHormannInterpolator`)", &tq.iter().map(|&t| fh.interpolate_at(t).unwrap()).collect::<Vec<_>>(), "floater-hormann 21 d3");
+    let z: Vec<f64> = (0..1000).map(|k| -1.0 + 2.0 * k as f64 / 999.0).collect();
+    let tan = |t: f64| (PI * t / 2.2).tan();
+    let aaa = AaaApproximation::new(R1D::from_vec(z.clone()).view(), R1D::from_vec(z.iter().map(|&t| tan(t)).collect()).view(), 1e-13, 100).unwrap();
+    let got: Vec<f64> = tq.iter().map(|&t| aaa.evaluate(t)).collect();
+    rows.push(vec!["AAA rational approximation of tan(pi x / 2.2) (`AAA`)".into(), format!("{} (relative); each within {} of the function", fmt_diff(max_rel_diff(&got, refs.values("aaa tan"))), fmt_diff(max_rel_diff(&got, &tq.iter().map(|&t| tan(t)).collect::<Vec<_>>())))]);
+    let taylor: Vec<f64> = (0..9).map(|k| 1.0 / (1..=k).map(|j| j as f64).product::<f64>()).collect();
+    let pade = PadeApproximant::new(&taylor, 4, 4).unwrap();
+    let want = refs.get("pade exp 4 4");
+    rows.push(vec!["[4/4] Pade approximant of exp, coefficients (`pade`)".into(), format!("numerator {}, denominator {}", fmt_diff(max_abs_diff(pade.numerator(), &want[0])), fmt_diff(max_abs_diff(pade.denominator(), &want[1])))]);
+    let c = ChebyshevApproximation::new(f64::exp, -1.0, 1.0, 12).unwrap();
+    let mut coeffs = c.coefficients().to_vec();
+    coeffs[0] /= 2.0; // the library's series starts with c0/2
+    row(&mut rows, "Chebyshev coefficients of exp, 12 terms (`numpy.polynomial.chebyshev.chebinterpolate`)", &coeffs, "chebyshev exp 12");
+
+    // Savitzky-Golay smoothing and differentiation.
+    for (deriv, delta) in [(0, 1.0), (1, 0.1)] {
+        let mut c = savitzky_golay_coefficients(11, 3, deriv, delta).unwrap();
+        let want = refs.values(&format!("savgol coeffs 11 3 {deriv}"));
+        if max_abs_diff(&c, want) > 1e-9 {
+            c.reverse(); // SciPy lists convolution coefficients in reverse order
+        }
+        row(&mut rows, &format!("Savitzky-Golay coefficients, 11 points, cubic, derivative {deriv} (`savgol_coeffs`)"), &c, &format!("savgol coeffs 11 3 {deriv}"));
+        let noisy = R1D::from_vec((0..100).map(|k| (k as f64 / 8.0).sin() + 0.1 * (k as f64 * 2.3).sin()).collect());
+        let filtered = savitzky_golay(noisy.view(), 11, 3, deriv, delta).unwrap();
+        row(&mut rows, &format!("Savitzky-Golay filter, derivative {deriv}, with end fitting (`savgol_filter`, interp)"), filtered.as_slice().unwrap(), &format!("savgol filter 11 3 {deriv}"));
+    }
+
+    // Fourier interpolation of periodic samples onto a four times finer grid.
+    for n in [15usize, 16] {
+        let y = R1D::from_vec((0..n).map(|j| { let t = 2.0 * PI * j as f64 / n as f64; t.sin().exp() + 0.3 * (3.0 * t).cos() }).collect());
+        let f = FourierInterpolator1D::new(y.view(), 0.0, 2.0 * PI).unwrap();
+        let got: Vec<f64> = (0..4 * n).map(|j| f.evaluate(2.0 * PI * j as f64 / (4 * n) as f64)).collect();
+        row(&mut rows, &format!("trigonometric interpolation, {n} samples (`signal.resample`)"), &got, &format!("fourier {n}"));
+    }
+
+    // Gridded data in two and three dimensions.
+    let (gx, gy): (Vec<f64>, Vec<f64>) = (vec![0.0, 0.5, 1.3, 2.0, 3.1], vec![0.0, 1.0, 1.5, 2.5]);
+    let g2 = Array2::from_shape_fn((5, 4), |(i, j)| gx[i].sin() * gy[j].cos() + gx[i] * gy[j] / 4.0);
+    let q2: Vec<[f64; 2]> = (0..40).map(|j| [0.05 + 3.0 * ((7 * j) % 41) as f64 / 41.0, 0.05 + 2.4 * ((11 * j) % 37) as f64 / 37.0]).collect();
+    let (gxa, gya) = (R1D::from_vec(gx.clone()), R1D::from_vec(gy.clone()));
+    let bil = Bilinear::new(gxa.view(), gya.view(), g2.view()).unwrap();
+    row(&mut rows, "bilinear on an uneven grid (`RegularGridInterpolator`, linear)", &q2.iter().map(|p| bil.interpolate_at(p[0], p[1]).unwrap()).collect::<Vec<_>>(), "grid2 linear");
+    let near = Nearest2D::new(gxa.view(), gya.view(), g2.view()).unwrap();
+    row(&mut rows, "nearest neighbour on an uneven grid (`RegularGridInterpolator`, nearest)", &q2.iter().map(|p| near.interpolate_at(p[0], p[1]).unwrap()).collect::<Vec<_>>(), "grid2 nearest");
+    let ax: Vec<f64> = (0..6).map(|k| 0.4 * k as f64).collect();
+    let g3 = Array3::from_shape_fn((6, 6, 6), |(i, j, k)| ax[i].sin() + (1.3 * ax[j]).cos() * ax[k] * ax[k] / 4.0);
+    let q3: Vec<[f64; 3]> = (0..40).map(|j| [2.0 * ((5 * j) % 29) as f64 / 29.0, 2.0 * ((13 * j) % 31) as f64 / 31.0, 2.0 * ((17 * j) % 23) as f64 / 23.0]).collect();
+    let axa = R1D::from_vec(ax.clone());
+    let tri = Trilinear::new(axa.view(), axa.view(), axa.view(), &g3).unwrap();
+    row(&mut rows, "trilinear (`RegularGridInterpolator`, linear)", &q3.iter().map(|p| tri.interpolate_at(p[0], p[1], p[2]).unwrap()).collect::<Vec<_>>(), "grid3 linear");
+    let nd = GridData::new(&[&ax, &ax, &ax], &ArrayD::from_shape_vec(IxDyn(&[6, 6, 6]), g3.iter().copied().collect()).unwrap()).unwrap();
+    row(&mut rows, "n-dimensional multilinear, in 3D (`RegularGridInterpolator`, linear)", &q3.iter().map(|p| nd.interpolate_at(p).unwrap()).collect::<Vec<_>>(), "grid3 linear");
+    let bs = BSpline3D::new(axa.view(), axa.view(), axa.view(), &g3).unwrap();
+    row(&mut rows, "tricubic natural B-spline (`CubicSpline`, natural, along each axis)", &q3.iter().map(|p| bs.interpolate_at(p[0], p[1], p[2]).unwrap()).collect::<Vec<_>>(), "grid3 natural spline");
+
+    // Scattered data and radial basis functions.
+    let sp: Vec<[f64; 2]> = (0..30).map(|j| [((37 * j) % 53) as f64 / 53.0, ((61 * j) % 47) as f64 / 47.0]).collect();
+    let sf: Vec<f64> = sp.iter().map(|p| (3.0 * p[0]).sin() * (2.0 * p[1]).cos() + p[0] * p[0]).collect();
+    let sq: Vec<[f64; 2]> = (0..40).map(|j| [((29 * j) % 43) as f64 / 43.0, ((19 * j) % 41) as f64 / 41.0]).collect();
+    let (sx, sy, sv) = (R1D::from_vec(sp.iter().map(|p| p[0]).collect()), R1D::from_vec(sp.iter().map(|p| p[1]).collect()), R1D::from_vec(sf));
+    for (name, kernel) in [("thin_plate_spline", RadialKernel::ThinPlateSpline), ("cubic", RadialKernel::Cubic), ("gaussian", RadialKernel::Gaussian(1.5)), ("multiquadric", RadialKernel::Multiquadric(1.5)), ("inverse_multiquadric", RadialKernel::InverseMultiquadric(1.5))] {
+        let rbf = RadialBasisInterpolator::new(sx.view(), sy.view(), sv.view(), kernel).unwrap();
+        row(&mut rows, &format!("radial basis functions, {} kernel, 30 scattered points (`RBFInterpolator`)", name.replace('_', " ")), &sq.iter().map(|p| rbf.interpolate_at(p[0], p[1]).unwrap()).collect::<Vec<_>>(), &format!("rbf {name}"));
+    }
+    write(CHAPTER, "scipy_reference.md", &md_table(&["interpolant (SciPy reference)", "largest difference"], &rows));
 }

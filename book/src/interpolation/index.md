@@ -40,6 +40,14 @@ single most important cautionary example in the subject.
 | Values on a 2D, 3D or N-D grid | Bicubic, tricubic, B-spline or multilinear | [Interpolation on grids](grids.md) |
 | Scattered points in the plane or in space | Radial basis functions | [Scattered data](scattered.md) |
 
+## Testing against SciPy
+
+The references come from SciPy 1.17.1 and NumPy 2.4, written by `book/generator/data/make_interpolation_refs.py` on data that the generator rebuilds from the same formulas. Each row gives the largest difference between the library's interpolant and SciPy's, at 40 to 100 evaluation points:
+
+{{#include ../generated/interpolation/scipy_reference.md}}
+
+The interpolants agree to rounding error. The radial basis functions with a shape parameter (Gaussian, multiquadric) differ more because their interpolation systems are ill-conditioned (condition numbers of $10^{9}$ to $3 \times 10^{11}$ here, against $7 \times 10^{5}$ for the cubic kernel), so each implementation's rounding is amplified; both still reproduce the data. The library's bicubic interpolant, whose node derivatives are finite-difference estimates, has no SciPy counterpart and is not listed.
+
 ## In the library
 
 The interpolation crate is `lib_jsl_interpolation`

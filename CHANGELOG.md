@@ -4,6 +4,14 @@ All crates in the workspace share one version. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [semantic versioning](https://semver.org).
 
+## [Unreleased]
+
+### Removed
+
+- The `mp3` and `mp3_tables` modules of `lib_jsl_file_io` (`mp3_encode`, `mp3_decode`,
+  `mp3_encode_with_model`, `Mp3Audio` and the psychoacoustic models). The codec followed the
+  structure of MPEG-1 Layer III but could neither read nor write real MP3 files.
+
 ## [1.0.0] - 2026-11-01
 
 The first stable release: every planned algorithm (457 items across 23 library crates, listed

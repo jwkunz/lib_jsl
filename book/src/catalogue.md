@@ -13,7 +13,7 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **457 algorithms and components in 23 crates**:
+The library implements **456 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
@@ -22,7 +22,7 @@ The library implements **457 algorithms and components in 23 crates**:
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 174 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
-| [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 17 |
+| [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
 
 ## Calculus and analysis
 
@@ -820,14 +820,13 @@ Crate `lib_jsl_sorting`: [API reference](../api/lib_jsl_sorting/index.html) · b
 
 ### File IO
 
-Readers and writers for WAV, MP3, JPEG, PNG, Netpbm, CSV and NumPy .npy files.
+Readers and writers for WAV, JPEG, PNG, Netpbm, CSV and NumPy .npy files.
 
-Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · book chapter: [foundations](foundations/index.md) · 7 items
+Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · book chapter: [foundations](foundations/index.md) · 6 items
 
 #### Audio
 
 - [WAV files](foundations/audio.md#wav-files)
-- [MP3](foundations/audio.md#a-perceptual-codec)
 
 #### Image
 

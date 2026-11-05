@@ -74,7 +74,6 @@ pub fn generate() {
     interop_table(&refs);
     jpeg_figure(&refs);
     deflate_table(&refs);
-    audio_figure();
     utilities();
 }
 
@@ -257,37 +256,6 @@ fn deflate_table(refs: &Refs) {
         rows.push(vec![name.to_string(), format!("{}", data.len()), format!("{} / {}", a.len(), b.len()), format!("{} / {}", zl[0], zl[1])]);
     }
     write(CHAPTER, "deflate.md", &md_table(&["data", "bytes", "library, level 6 / 9", "zlib, level 6 / 9"], &rows));
-}
-
-// ------------------------------------------------------------------ audio
-
-fn audio_figure() {
-    let rate = 44100u32;
-    let n = rate as usize;
-    let mut s: u64 = 5;
-    let mut noise = move || {
-        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
-        (s >> 11) as f64 / (1u64 << 53) as f64 - 0.5
-    };
-    let tau = 2.0 * std::f64::consts::PI;
-    let signals: Vec<(&str, Vec<i16>)> = vec![
-        ("440 Hz tone", (0..n).map(|i| (12000.0 * (tau * 440.0 * i as f64 / rate as f64).sin()) as i16).collect()),
-        ("three-note chord", (0..n).map(|i| { let t = i as f64 / rate as f64; (6000.0 * ((tau * 261.6 * t).sin() + (tau * 329.6 * t).sin() + (tau * 392.0 * t).sin())) as i16 }).collect()),
-        ("white noise", (0..n).map(|_| (16000.0 * noise()) as i16).collect()),
-    ];
-    let mut plot = Plot::new("The MP3-style codec: quality against bit rate (mono, 44.1 kHz)", "bit rate (kbit/s)", "SNR (dB)");
-    for (k, (name, pcm)) in signals.iter().enumerate() {
-        let mut pts = Vec::new();
-        for kbps in [16u32, 32, 48, 64, 96, 128, 192, 256] {
-            let encoded = mp3_encode(pcm, rate, 1, kbps).unwrap();
-            let decoded = mp3_decode(&encoded).unwrap().samples;
-            let (sig, err) = pcm.iter().zip(&decoded).fold((0.0, 0.0), |(a, b), (&x, &y)| (a + (x as f64).powi(2), b + (x as f64 - y as f64).powi(2)));
-            pts.push((encoded.len() as f64 * 8.0 / 1000.0, 10.0 * (sig / err).log10()));
-        }
-        plot.series.push(Series::new(name, pts, Style::LineMarkers, k));
-    }
-    plot.legend = Legend::TopLeft;
-    write(CHAPTER, "audio_rate.svg", &plot.render());
 }
 
 // ------------------------------------------------------------------ utilities

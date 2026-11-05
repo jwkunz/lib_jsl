@@ -12,14 +12,14 @@ work as well as use them.
   undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
 - **Catalogue:** the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html) lists everything the library
-  implements (457 items), grouped by subject, and what it deliberately does not cover.
+  implements (456 items), grouped by subject, and what it deliberately does not cover.
 
 ## Status
 
 | | |
 |---|---|
 | Version | 1.0.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
-| Algorithms | 457 algorithms and components across 23 library crates |
+| Algorithms | 456 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; the book's integration chapter is the pilot, with the other chapters in progress |
@@ -52,7 +52,7 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 | `lib_jsl_geometry` | 1D to 4D geometry types, Delaunay and Voronoi, convex hulls, spatial trees, intersections, mesh processing, polygon booleans |
 | `lib_jsl_number_theory` | Modular arithmetic, primes and primality, factorisation, Chinese remainder theorem, polynomials |
 | `lib_jsl_information` | Source coding (Huffman, arithmetic, LZ family), LFSRs, CRC and SHA-256, error-correcting codes (LDPC, polar, Reed-Solomon, convolutional) |
-| `lib_jsl_file_io` | WAV, MP3, JPEG, PNG, Netpbm, CSV and NumPy `.npy` files |
+| `lib_jsl_file_io` | WAV, JPEG, PNG, Netpbm, CSV and NumPy `.npy` files |
 | `lib_jsl_sorting` | Sorting and selection |
 | `lib_jsl_utils` | Terminal plots, unit conversion, numerical helpers |
 

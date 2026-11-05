@@ -27,6 +27,14 @@ and logistic regression and the subgradient conditions of the lasso and elastic 
 Writing this chapter fixed multinomial naive Bayes without smoothing, which dropped a class from the vote (a NaN from
 $0 \times (-\infty)$) whenever a word unseen in that class was absent from the document.
 
+### Against SciPy
+
+Each model's objective was reproduced with SciPy 1.17.1's linear algebra, optimisers and distributions (`book/generator/data/make_machine_learning_refs.py`), so the references are the same mathematical solutions computed independently:
+
+{{#include ../generated/machine_learning/scipy_reference.md}}
+
+The closed-form fits agree to rounding. The lasso, elastic net and logistic regression are solved iteratively on both sides, and agree to the stopping tolerances of the optimisers.
+
 ## Comparing classifiers
 
 {{#include ../generated/machine_learning/comparison.md}}

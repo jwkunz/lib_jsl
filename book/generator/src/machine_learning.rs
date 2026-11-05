@@ -17,6 +17,7 @@ use std::f64::consts::PI;
 const CHAPTER: &str = "machine_learning";
 
 pub fn generate() {
+    scipy_reference();
     polynomial_figures();
     regularisation_paths();
     weighted_least_squares();
@@ -715,4 +716,80 @@ fn comparison_tables() {
         table.push_str(&format!("| {c} | {} | {} | {} | {:.3} | {:.3} | {:.3} |\n", m[c][0], m[c][1], m[c][2], prf[c].0, prf[c].1, prf[c].2));
     }
     write(CHAPTER, "confusion.md", &table);
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_abs_diff, max_rel_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_core::{R1D, R2D};
+    use lib_jsl_machine_learning::common::{Classifier, Clusterer, Regressor};
+    use lib_jsl_machine_learning::supervised::classification::{GaussianNaiveBayes, LogisticRegression};
+    use lib_jsl_machine_learning::supervised::regression::{ElasticNet, LinearRegression, Ridge};
+    use lib_jsl_machine_learning::unsupervised::clustering::KMeans;
+    use lib_jsl_machine_learning::unsupervised::reduction::Lda;
+
+    let refs = Refs::parse(include_str!("../data/machine_learning_reference.txt"));
+    let matrix = |name: &str| {
+        let m = refs.get(&format!("data {name}"));
+        R2D::from_shape_vec((m[0][0] as usize, m[1][0] as usize), m[2].clone()).unwrap()
+    };
+    let (x, y) = (matrix("X"), R1D::from_vec(matrix("y").row(0).to_vec()));
+    let with_intercept = |w: &R1D, b: f64| w.iter().copied().chain(std::iter::once(b)).collect::<Vec<f64>>();
+    let mut rows = Vec::new();
+    let mut ols = LinearRegression::new();
+    ols.fit(x.view(), y.view()).unwrap();
+    rows.push(vec!["least squares with intercept (`linalg.lstsq`)".to_string(), fmt_diff(max_rel_diff(&with_intercept(ols.weights(), ols.intercept()), refs.values("ols")))]);
+    let mut ridge = Ridge::new(10.0);
+    ridge.fit(x.view(), y.view()).unwrap();
+    let want: Vec<f64> = refs.get("ridge 10").iter().flatten().copied().collect();
+    rows.push(vec!["ridge, alpha = 10 (`linalg.solve` of the centred normal equations)".to_string(), fmt_diff(max_rel_diff(&with_intercept(ridge.weights(), ridge.intercept()), &want))]);
+    for (label, key, alpha, rho) in [("lasso, alpha = 0.2", "lasso 0.2", 0.2, 1.0), ("elastic net, alpha = 0.2, rho = 0.5", "elastic net 0.2 0.5", 0.2, 0.5)] {
+        let mut model = ElasticNet::new(alpha, rho);
+        model.fit(x.view(), y.view()).unwrap();
+        let want: Vec<f64> = refs.get(key).iter().flatten().copied().collect();
+        rows.push(vec![format!("{label} (`optimize.minimize`, L-BFGS-B on split weights)"), fmt_diff(max_abs_diff(&with_intercept(model.weights(), model.intercept()), &want))]);
+    }
+    let z = matrix("Z");
+    let classes: Vec<usize> = matrix("c").row(0).iter().map(|&v| v as usize).collect();
+    let mut logistic = LogisticRegression::new(1e-2).with_limits(10_000, 1e-12);
+    logistic.fit(z.view(), &classes).unwrap();
+    let (w, b) = (logistic.coefficients(), logistic.intercepts());
+    let log_odds = [w[[1, 0]] - w[[0, 0]], w[[1, 1]] - w[[0, 1]], b[1] - b[0]];
+    let grid = R2D::from_shape_vec((3, 2), vec![2.0, 8.0, 5.0, 7.0, 8.0, 5.0]).unwrap();
+    let probabilities: Vec<f64> = logistic.predict_proba(grid.view()).unwrap().column(1).to_vec();
+    let want = refs.get("logistic");
+    rows.push(vec!["logistic regression, L2 penalty 0.01: log-odds coefficients (`optimize.minimize`, BFGS)".to_string(), format!("{}; probabilities {}", fmt_diff(max_abs_diff(&log_odds, &want[0])), fmt_diff(max_abs_diff(&probabilities, &want[1])))]);
+    let g = matrix("G");
+    let labels: Vec<usize> = (0..90).map(|i| i / 30).collect();
+    let mut nb = GaussianNaiveBayes::new().with_var_smoothing(1e-9);
+    nb.fit(g.view(), &labels).unwrap();
+    let posterior: Vec<f64> = nb.predict_proba(matrix("Q").view()).unwrap().iter().copied().collect();
+    rows.push(vec!["Gaussian naive Bayes, posterior probabilities (`stats.norm.logpdf`)".to_string(), fmt_diff(max_abs_diff(&posterior, refs.values("gaussian nb")))]);
+    let mut lda = Lda::new(2).with_shrinkage(0.0);
+    lda.fit_labelled(g.view(), &labels).unwrap();
+    let want = refs.get("lda");
+    let d = lda.directions();
+    let mut directions = Vec::new();
+    for j in 0..2 {
+        let col = d.column(j);
+        let norm = col.iter().map(|v| v * v).sum::<f64>().sqrt() * col[0].signum();
+        directions.extend(col.iter().map(|v| v / norm));
+    }
+    // SciPy's directions are listed row by row (features x components).
+    let want_dirs: Vec<f64> = (0..2).flat_map(|j| (0..3).map(move |i| want[1][i * 2 + j])).collect();
+    rows.push(vec!["linear discriminant analysis: Fisher ratios and unit directions (`linalg.eigh(S_b, S_w)`)".to_string(), format!("ratios {}, directions {}", fmt_diff(max_rel_diff(lda.eigenvalues(), &want[0])), fmt_diff(max_abs_diff(&directions, &want_dirs)))]);
+    write(CHAPTER, "scipy_reference.md", &md_table(&["model (SciPy reference)", "largest difference"], &rows));
+
+    let k = matrix("K");
+    let mut km = KMeans::new(4, 1).with_restarts(20);
+    km.fit_predict(k.view()).unwrap();
+    let c = km.centroids();
+    let mut centroids: Vec<[f64; 2]> = (0..4).map(|i| [c[[i, 0]], c[[i, 1]]]).collect();
+    centroids.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+    let want = refs.get("kmeans");
+    let flat: Vec<f64> = centroids.iter().flatten().copied().collect();
+    let rows = vec![vec!["k-means, 4 clusters of 25 points, best of 20 k-means++ starts (`cluster.vq.kmeans2`)".to_string(), format!("centroids {}, inertia {:.4} (SciPy {:.4})", fmt_diff(max_abs_diff(&flat, &want[0])), km.inertia(), want[1][0])]];
+    write("unsupervised", "scipy_kmeans.md", &md_table(&["clustering (SciPy reference)", "result"], &rows));
 }

@@ -41,6 +41,10 @@ Writing this chapter fixed three problems:
 - `GaussianMixture` reported the log-likelihood (and BIC and AIC) of the previous parameters when it stopped at the iteration limit.
 - A kernel PCA test claimed a scaling difference between kernel and linear PCA scores that does not exist; the scores are identical.
 
+k-means, compared with the best of twenty k-means++ starts of SciPy's `cluster.vq.kmeans2` on four separated clusters, finds the same partition:
+
+{{#include ../generated/unsupervised/scipy_kmeans.md}}
+
 ## In the library
 
 The clustering and reduction methods are in `lib_jsl_machine_learning::unsupervised` ([API reference](../../api/lib_jsl_machine_learning/unsupervised/index.html)).

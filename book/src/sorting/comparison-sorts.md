@@ -5,9 +5,9 @@
 | | |
 |---|---|
 | **Problem** | Put the elements of a slice in order, using only comparisons between them, in place |
-| **Devised by** | Tony Hoare (1961), quicksort; J. W. J. Williams (1964) and Robert Floyd (1964), heapsort; Donald Shell (1959), diminishing-increment sort; Marcin Ciura (2001), gap sequence |
+| **Devised by** | Tony Hoare (1961), quicksort; David Musser (1997), introsort; J. W. J. Williams (1964) and Robert Floyd (1964), heapsort; Donald Shell (1959), diminishing-increment sort; Marcin Ciura (2001), gap sequence |
 | **Accuracy** | Exact; every result is checked against the standard library's sort in the generator |
-| **Cost** | Quicksort $O(n \log n)$ on average, about $1.19\, n \log_2 n$ comparisons, $O(n^2)$ worst case; heapsort $O(n \log n)$ worst case, about $2 n \log_2 n$ comparisons; Shell's method about $O(n^{1.25})$ empirically |
+| **Cost** | Quicksort $O(n \log n)$ on average, about $1.19\, n \log_2 n$ comparisons, and $O(n \log n)$ worst case with the heapsort fallback; heapsort $O(n \log n)$ worst case, about $2 n \log_2 n$ comparisons; Shell's method about $O(n^{1.25})$ empirically |
 | **API** | [`quicksort`](../../api/lib_jsl_sorting/quicksort/fn.quicksort.html), [`heapsort`](../../api/lib_jsl_sorting/heapsort/fn.heapsort.html), [`shell_sort`](../../api/lib_jsl_sorting/shells_method/fn.shell_sort.html) |
 
 </div>
@@ -31,7 +31,8 @@ Choose a **pivot**, rearrange the slice so that smaller keys come before it and 
 - the pivot is the **median of three**: the first, middle and last keys;
 - **Hoare's partition** scans inwards from both ends, swapping pairs that are on the wrong sides;
 - ranges of 16 or fewer keys are finished by **insertion sort**, which is faster on small inputs;
-- recursion goes into the **smaller** side and loops on the larger, so the stack depth is at most $\log_2 n$.
+- recursion goes into the **smaller** side and loops on the larger, so the stack depth is at most $\log_2 n$;
+- after $2 \log_2 n$ partitions, a range still unsorted is finished by **heapsort** (introsort).
 
 Both of Hoare's scans stop at keys equal to the pivot. That seems wasteful, but it splits a run of equal keys evenly between the sides. A partition that sends all equal keys to one side takes $O(n^2)$ on input with few distinct values. The library's partition used to do exactly that: 40 000 equal keys took 0.7 s. Writing this chapter fixed it, first with a three-way partition and then with Hoare's, after the three-way partition turned out to rearrange sorted input badly (a million sorted keys took 4 s).
 
@@ -39,7 +40,13 @@ Both of Hoare's scans stop at keys equal to the pivot. That seems wasteful, but 
 {{#include ../../../crates/sorting/src/quicksort.rs:partition}}
 ```
 
-Median-of-three makes sorted, reversed and organ-pipe inputs fast, but an adversary can still build inputs that make every pivot bad (Musser's "median-of-3 killer" sequences). Introsort avoids this by switching to heapsort when the recursion gets too deep, and Rust's standard `sort_unstable` (pattern-defeating quicksort) does the same.
+Median-of-three makes sorted, reversed and organ-pipe inputs fast, but an adversary can still build inputs that make every pivot bad (Musser's "median-of-3 killer" sequences). Douglas McIlroy's "killer adversary" (1999) finds such an input for any quicksort. It treats every key as undecided "gas" until the sort compares two of them, then fixes values so that the current pivot is as bad as possible. Against the library's quicksort it forced about $n^2/4$ comparisons: 16 million for 8000 keys.
+
+**Introsort** (Musser, 1997) bounds the damage. Balanced partitions finish in about $\log_2 n$ levels, so a range still unsorted after $2 \log_2 n$ partitions is a sign of bad pivots, and it is handed to heapsort. Typical inputs never reach the limit and run as plain quicksort. Writing this chapter added the fallback, which holds the adversary to $3.7\, n \log_2 n$ comparisons. Rust's standard `sort_unstable` (pattern-defeating quicksort) uses the same safeguard.
+
+```rust,ignore
+{{#include ../../../crates/sorting/src/quicksort.rs:introsort}}
+```
 
 ### Heapsort
 
@@ -61,7 +68,7 @@ Median-of-three quicksort settles near $\tfrac{12}{7}\, n \ln n \approx 1.19\, n
 
 {{#include ../generated/sorting/timing.md}}
 
-The standard library's sorts are four to eight times faster than these on random keys. They combine pattern detection, branch-free partitioning and careful small-sort networks, and they detect sorted runs, which makes already sorted input almost free. The library's sorts are teaching implementations of the classic algorithms. For production sorting of primitive keys, use `sort_unstable`.
+The standard library's sorts are several times faster than these on random keys, and far faster on presorted input. They combine pattern detection, branch-free partitioning and careful small-sort networks, and they detect sorted runs, which makes already sorted input almost free. The library's sorts are teaching implementations of the classic algorithms. For production sorting of primitive keys, use `sort_unstable`.
 
 ## Algorithm
 
@@ -95,12 +102,12 @@ The two Gausses come out in first-name order because tuples compare field by fie
 
 **Strengths**
 
-- Three classic in-place algorithms, generic over `Ord`, with guarded worst cases where the algorithm allows.
+- Three classic in-place algorithms, generic over `Ord`; quicksort and heapsort are $O(n \log n)$ in the worst case.
 - Quicksort handles sorted, reversed and repeated keys in $O(n \log n)$.
 
 **Weaknesses**
 
-- None is stable, and quicksort has no introsort fallback, so adversarial inputs remain quadratic.
+- None is stable, and Shell's method has no proven $O(n \log n)$ bound.
 - All are several times slower than the standard library's sorts.
 
 ## Exercises
@@ -109,7 +116,7 @@ The two Gausses come out in first-name order because tuples compare field by fie
 2. Show that a partition sending all keys equal to the pivot to one side makes quicksort quadratic on equal keys, and that stopping both scans on equality fixes it.
 3. Prove that Floyd's heap construction takes $O(n)$ time.
 4. Show that $h$-sorting an array that is already $k$-sorted leaves it $k$-sorted.
-5. Construct an input on which median-of-three quicksort takes $\Theta(n^2)$ comparisons.
+5. Construct an input on which median-of-three quicksort without the heapsort fallback takes $\Theta(n^2)$ comparisons, and show that introsort's depth limit keeps it to $O(n \log n)$.
 
 ## Further reading
 

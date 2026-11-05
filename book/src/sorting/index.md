@@ -7,7 +7,7 @@ Sorting puts data in order so that it can be searched, merged, ranked and groupe
 
 ## The central questions
 
-- **Average or worst case?** Quicksort is fastest on average; heapsort guarantees $O(n \log n)$; Shell's method is simplest and adapts to nearly sorted data.
+- **Average or worst case?** Quicksort is fastest on average, and falls back to heapsort, which guarantees $O(n \log n)$, when its pivots go wrong; Shell's method is simplest and adapts to nearly sorted data.
 - **All of the order, or part of it?** For the top $m$ of $n$, a heap costs $O(n \log m)$ instead of $O(n \log n)$.
 - **The library or the standard library?** Rust's own `sort` and `sort_unstable` are faster than any of these on primitive keys, and stable when needed. The algorithms here are clear implementations of the classics, to read, compare and teach from.
 
@@ -15,7 +15,7 @@ Sorting puts data in order so that it can be searched, merged, ranked and groupe
 
 Each sort is run on a million keys in five arrangements (random, nearly sorted, sorted, reversed, and only three distinct values), and its output is checked against the standard library's. Comparisons are counted by sorting a key type whose `Ord` implementation counts its calls.
 
-Writing this chapter fixed quicksort, which took quadratic time on runs of equal keys. Its documentation also called its partition Hoare-style when it was Lomuto's. It now uses Hoare's partition.
+Writing this chapter fixed quicksort, which took quadratic time on runs of equal keys. Its documentation also called its partition Hoare-style when it was Lomuto's. It now uses Hoare's partition, and falls back to heapsort as introsort does, so even an adversary cannot make it quadratic.
 
 ## In the library
 

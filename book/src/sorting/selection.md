@@ -34,7 +34,7 @@ Keep a **min-heap** of at most $m$ elements. Its root is the smallest of the bes
 
 {{#include ../generated/sorting/selection.md}}
 
-For small $m$ selection is over twenty times faster than sorting. As $m$ approaches $n$ it loses that advantage. The heap then does the work of a heapsort, and the standard library's sort is faster.
+For small $m$ selection is an order of magnitude faster than sorting. As $m$ approaches $n$ it loses that advantage. The heap then does the work of a heapsort, and the standard library's sort is faster.
 
 ### Equivalence classes
 

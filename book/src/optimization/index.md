@@ -52,6 +52,18 @@ minimum at $(1, 1)$, is the standard test of a local method; it appears througho
 | Discrete stages or a Markov decision process | Dynamic programming | [Dynamic programming](dynamic-programming.md) |
 | Many local minima, a bounded box | Differential evolution or particle swarm | [Stochastic global optimisation](stochastic.md) |
 
+## Testing against SciPy
+
+The references come from SciPy 1.17.1, written by `book/generator/data/make_optimization_refs.py`. For the unconstrained problems the table gives each solution's distance from the true minimiser, for the library's method and the closest SciPy method, both run to tight tolerances:
+
+{{#include ../generated/optimization/scipy_unconstrained.md}}
+
+Both Newton implementations stop at the five-variable Rosenbrock function's other local minimum, near $(-1, 1, 1, 1, 1)$, from this starting point. Nelder-Mead's distance reflects its stopping rule, which tests the spread of function values, so near a quadratic minimum it places $x$ to about the square root of the tolerance; SciPy's adaptive variant also requires the simplex itself to shrink. Golden-section search is limited the same way, and Brent's parabolic steps do better.
+
+{{#include ../generated/optimization/scipy_other.md}}
+
+The curve fits agree to the convergence tolerance of MINPACK's Levenberg-Marquardt, and the standard errors to the accuracy of the finite-difference Jacobians from which both compute the covariance. The linear programs match HiGHS to rounding, and the knapsack matches HiGHS's branch and bound on the same items. Differential evolution is stochastic. With this seed SciPy's run ended in a local minimum of Rastrigin's function while the library's reached the global one, which says more about the seeds than the implementations.
+
 ## In the library
 
 The optimisation crate is `lib_jsl_optimization`

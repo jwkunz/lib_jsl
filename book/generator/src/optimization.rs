@@ -372,8 +372,185 @@ fn direct_search_figures() {
 }
 
 pub fn generate() {
+    scipy_reference();
     line_search_figures();
     gradient_figures();
     comparison_table();
     direct_search_figures();
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+use std::f64::consts::PI;
+
+/// The Rosenbrock function in any dimension, with its gradient and Hessian.
+struct RosenbrockN;
+impl lib_jsl_optimization::optimization_traits::ObjectiveFunction for RosenbrockN {
+    fn evaluate(&self, x: &[f64]) -> f64 {
+        x.windows(2).map(|w| 100.0 * (w[1] - w[0] * w[0]).powi(2) + (1.0 - w[0]).powi(2)).sum()
+    }
+}
+impl lib_jsl_optimization::optimization_traits::GradientFunction for RosenbrockN {
+    fn evaluate(&self, x: &[f64]) -> Vec<f64> {
+        let n = x.len();
+        let mut g = vec![0.0; n];
+        for i in 0..n - 1 {
+            let t = x[i + 1] - x[i] * x[i];
+            g[i] += -400.0 * x[i] * t - 2.0 * (1.0 - x[i]);
+            g[i + 1] += 200.0 * t;
+        }
+        g
+    }
+}
+impl lib_jsl_optimization::optimization_traits::HessianFunction for RosenbrockN {
+    fn evaluate(&self, x: &[f64]) -> Vec<Vec<f64>> {
+        let n = x.len();
+        let mut h = vec![vec![0.0; n]; n];
+        for i in 0..n - 1 {
+            h[i][i] += 1200.0 * x[i] * x[i] - 400.0 * x[i + 1] + 2.0;
+            h[i][i + 1] -= 400.0 * x[i];
+            h[i + 1][i] -= 400.0 * x[i];
+            h[i + 1][i + 1] += 200.0;
+        }
+        h
+    }
+}
+
+struct Rastrigin3;
+impl lib_jsl_optimization::optimization_traits::ObjectiveFunction for Rastrigin3 {
+    fn evaluate(&self, x: &[f64]) -> f64 {
+        10.0 * x.len() as f64 + x.iter().map(|v| v * v - 10.0 * (2.0 * PI * v).cos()).sum::<f64>()
+    }
+}
+
+struct CanArea;
+impl lib_jsl_optimization::optimization_traits::ObjectiveFunction for CanArea {
+    fn evaluate(&self, x: &[f64]) -> f64 {
+        2.0 * PI * x[0] * x[0] + 2.0 / x[0]
+    }
+}
+
+struct Box3;
+impl lib_jsl_optimization::constrained::ConstrainedProblem for Box3 {
+    fn objective(&self, x: &[f64]) -> f64 {
+        -x[0] * x[1] * x[2]
+    }
+    fn equalities(&self, x: &[f64]) -> Vec<f64> {
+        vec![2.0 * (x[0] * x[1] + x[1] * x[2] + x[2] * x[0]) - 6.0]
+    }
+    fn inequalities(&self, x: &[f64]) -> Vec<f64> {
+        x.iter().map(|v| -v).collect()
+    }
+}
+
+/// Hock and Schittkowski's problem 71.
+struct Hs71;
+impl lib_jsl_optimization::constrained::ConstrainedProblem for Hs71 {
+    fn objective(&self, x: &[f64]) -> f64 {
+        x[0] * x[3] * (x[0] + x[1] + x[2]) + x[2]
+    }
+    fn equalities(&self, x: &[f64]) -> Vec<f64> {
+        vec![x.iter().map(|v| v * v).sum::<f64>() - 40.0]
+    }
+    fn inequalities(&self, x: &[f64]) -> Vec<f64> {
+        let mut g = vec![25.0 - x.iter().product::<f64>()];
+        g.extend(x.iter().map(|v| 1.0 - v));
+        g.extend(x.iter().map(|v| v - 5.0));
+        g
+    }
+}
+
+fn scipy_reference() {
+    use crate::refs::{Refs, fmt_diff, max_abs_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_optimization::conjugate_gradient::{ConjugateGradientBeta, NonlinearConjugateGradient as ConjugateGradient};
+    use lib_jsl_optimization::constrained::{ConstrainedOptions, augmented_lagrangian, sqp};
+    use lib_jsl_optimization::differential_evolution::DifferentialEvolution;
+    use lib_jsl_optimization::dynamic_programming::knapsack_01;
+    use lib_jsl_optimization::golden_section_search::GoldenSectionSearch;
+    use lib_jsl_optimization::least_squares::{LevenbergMarquardt, curve_fit};
+    use lib_jsl_optimization::linear_programming::LinearProgram;
+    use lib_jsl_optimization::nelder_mead_method::NelderMeadMethod;
+    use lib_jsl_optimization::newton_raphson_method::NewtonRaphsonMethod;
+    use lib_jsl_optimization::optimization_traits::{GradientBasedMinimizationEngine, GradientFreeMinimizationEngine, HessianBasedMinimizationEngine, MinimizationControls};
+    use lib_jsl_optimization::powells_method::PowellsMethod;
+    use lib_jsl_optimization::quasi_newton::{Bfgs, Lbfgs};
+
+    let refs = Refs::parse(include_str!("../data/optimization_reference.txt"));
+    // Rosenbrock: distance of each solution from the true minimum (1, ..., 1), library and SciPy.
+    let mut rows = Vec::new();
+    for (n, x0) in [(2usize, vec![-1.2, 1.0]), (5, vec![-1.2, 1.0, -0.5, 0.8, 1.5])] {
+        let ones = vec![1.0; n];
+        let err = |x: &[f64]| fmt_diff(max_abs_diff(x, &ones));
+        let scipy = |m: &str| err(&refs.get(&format!("rosenbrock {n} {m}"))[0]);
+        let tight = |e: &mut dyn MinimizationControls| {
+            e.set_tolerance(Some(1e-14));
+            e.set_max_iterations(Some(200_000));
+        };
+        let mut newton = NewtonRaphsonMethod::new();
+        tight(&mut newton);
+        let mut bfgs = Bfgs::new();
+        tight(&mut bfgs);
+        let mut lbfgs = Lbfgs::new(5);
+        tight(&mut lbfgs);
+        let mut cg = ConjugateGradient::new(ConjugateGradientBeta::PolakRibierePlus);
+        tight(&mut cg);
+        let mut nm = NelderMeadMethod::new();
+        tight(&mut nm);
+        let mut powell = PowellsMethod::new();
+        tight(&mut powell);
+        let lib = |r: Result<lib_jsl_optimization::optimization_traits::OptimizationResult, lib_jsl_core::ErrorsJSL>| r.map(|r| err(&r.parameters)).unwrap_or_else(|_| "failed".into());
+        rows.push(vec![format!("Rosenbrock, {n} variables"), "Newton / Newton-CG".into(), lib(newton.hessian_based_minimize(&RosenbrockN, &RosenbrockN, &RosenbrockN, x0.clone())), scipy("Newton-CG")]);
+        rows.push(vec!["".into(), "BFGS".into(), lib(bfgs.gradient_based_minimize(&RosenbrockN, &RosenbrockN, x0.clone())), scipy("BFGS")]);
+        rows.push(vec!["".into(), "L-BFGS (5 pairs) / L-BFGS-B".into(), lib(lbfgs.gradient_based_minimize(&RosenbrockN, &RosenbrockN, x0.clone())), scipy("L-BFGS-B")]);
+        rows.push(vec!["".into(), "conjugate gradient (PR+) / CG".into(), lib(cg.gradient_based_minimize(&RosenbrockN, &RosenbrockN, x0.clone())), scipy("CG")]);
+        rows.push(vec!["".into(), "Nelder-Mead".into(), lib(nm.gradient_free_minimize(&RosenbrockN, x0.clone())), scipy("Nelder-Mead")]);
+        rows.push(vec!["".into(), "Powell".into(), lib(powell.gradient_free_minimize(&RosenbrockN, x0.clone())), scipy("Powell")]);
+    }
+    let mut golden = GoldenSectionSearch::new();
+    golden.set_bounds(Some(vec![(0.1, 2.0)]));
+    golden.set_tolerance(Some(1e-12));
+    let r = golden.gradient_free_minimize(&CanArea, vec![0.5]).unwrap();
+    let exact = (1.0 / (2.0 * PI)).cbrt();
+    rows.push(vec!["can of least area, 1 variable".into(), "golden section / golden, Brent".into(), fmt_diff((r.parameters[0] - exact).abs()), format!("{}, {}", fmt_diff((refs.values("scalar golden")[0] - exact).abs()), fmt_diff((refs.values("scalar brent")[0] - exact).abs()))]);
+    write(CHAPTER, "scipy_unconstrained.md", &md_table(&["problem", "method (library / SciPy)", "library: distance from the minimiser", "SciPy: distance from the minimiser"], &rows));
+
+    // Global, least-squares, linear, constrained and integer problems.
+    let mut rows = Vec::new();
+    let de = DifferentialEvolution::new(vec![(-5.12, 5.12); 3]).gradient_free_minimize(&Rastrigin3, vec![3.3, -2.1, 4.4]).unwrap();
+    rows.push(vec!["Rastrigin's function, 3 variables (`differential_evolution`)".into(), format!("library f = {:.1e} at the global minimum; SciPy f = {:.4}, a local minimum (seed 1)", de.objective_value, refs.get("de rastrigin")[1][0])]);
+    let t: Vec<f64> = (0..10).map(|k| 10.0 * k as f64).collect();
+    let counts = [1031.0, 735.0, 589.0, 409.0, 331.0, 226.0, 187.0, 128.0, 109.0, 70.0];
+    let sigma: Vec<f64> = counts.iter().map(|c: &f64| c.sqrt()).collect();
+    let model = |t: f64, p: &[f64]| p[0] * (-t / p[1]).exp();
+    for (label, key, s) in [("weighted", "curve_fit decay", Some(&sigma[..])), ("unweighted", "curve_fit decay unweighted", None)] {
+        let fit = curve_fit(model, &t, &counts, s, vec![1000.0, 50.0], &LevenbergMarquardt::new()).unwrap();
+        let want = refs.get(key);
+        rows.push(vec![format!("exponential decay fit, {label} (`curve_fit`)"), format!("parameters {}, standard errors {} (relative)", fmt_diff(crate::refs::max_rel_diff(&fit.parameters, &want[0])), fmt_diff(crate::refs::max_rel_diff(&fit.standard_errors, &want[1])))]);
+    }
+    let diet = LinearProgram::new(vec![2.0, 3.5, 8.0]).with_greater_equal(vec![65.0, 120.0, 106.0], 300.0).with_greater_equal(vec![2.0, 8.0, 7.0], 20.0).with_bounds(1, 0.0, 2.0).solve().unwrap();
+    let want = refs.get("linprog diet");
+    rows.push(vec!["diet problem, 3 variables (`linprog`, HiGHS)".into(), format!("solution {}, cost {}", fmt_diff(max_abs_diff(&diet.x, &want[0])), fmt_diff((diet.objective - want[1][0]).abs()))]);
+    let data = refs.get("linprog random data");
+    let mut lp = LinearProgram::new(data[2].clone());
+    for (row, &rhs) in data[0].chunks(10).zip(&data[1]) {
+        lp = lp.with_less_equal(row.to_vec(), rhs);
+    }
+    let s = lp.solve().unwrap();
+    let want = refs.get("linprog random");
+    rows.push(vec!["random program, 10 variables, 8 constraints (`linprog`, HiGHS)".into(), format!("solution {}, objective {}", fmt_diff(max_abs_diff(&s.x, &want[0])), fmt_diff((s.objective - want[1][0]).abs()))]);
+    let options = ConstrainedOptions { tolerance: 1e-12, max_iterations: 500 };
+    fn constrained_row<P: lib_jsl_optimization::constrained::ConstrainedProblem>(refs: &Refs, label: &str, key: &str, problem: &P, x0: Vec<f64>, options: ConstrainedOptions) -> Vec<String> {
+        let want = refs.get(key);
+        let a = sqp(problem, x0.clone(), options).unwrap();
+        let b = augmented_lagrangian(problem, x0, options).unwrap();
+        vec![format!("{label} (`minimize`, SLSQP)"), format!("SQP {}, augmented Lagrangian {} in the solution; objective {}", fmt_diff(max_abs_diff(&a.parameters, &want[0])), fmt_diff(max_abs_diff(&b.parameters, &want[0])), fmt_diff((a.objective_value - want[1][0]).abs()))]
+    }
+    rows.push(constrained_row(&refs, "largest box of surface area 6", "slsqp box", &Box3, vec![0.5, 1.0, 2.0], options));
+    rows.push(constrained_row(&refs, "Hock-Schittkowski 71", "slsqp hs71", &Hs71, vec![1.0, 5.0, 5.0, 1.0], options));
+    let (value, items) = knapsack_01(&[23, 31, 29, 44, 53, 38, 63, 85, 89, 82], &[92.0, 57.0, 49.0, 68.0, 60.0, 43.0, 67.0, 84.0, 87.0, 72.0], 165).unwrap();
+    let want = refs.get("knapsack");
+    let same = items.iter().map(|&i| i as f64).collect::<Vec<_>>() == want[1];
+    rows.push(vec!["0/1 knapsack, 10 items (`milp`, HiGHS)".into(), format!("value {value} (SciPy {}), same items: {same}", want[0][0])]);
+    write(CHAPTER, "scipy_other.md", &md_table(&["problem (SciPy reference)", "result"], &rows));
 }

@@ -22,6 +22,16 @@ of rounding errors (which wants large ones).
 | An analytic function you can evaluate at complex points | Cauchy integral formula | [Complex contour integration](../integration/contour-integration.md#cauchys-integral-formula-and-derivatives) |
 | A smooth periodic function or one on an interval, sampled on a grid | Spectral differentiation | [Spectral methods](../integration/spectral-methods.md) |
 
+## Testing against SciPy
+
+SciPy 1.17.1's `scipy.differentiate` estimates derivatives adaptively: it applies central differences with a sequence of shrinking steps and extrapolates (Richardson), stopping when the estimates agree. The library uses one fixed step chosen to balance truncation and rounding. The references come from `book/generator/data/make_derivatives_refs.py`; the tables give relative errors against the exact derivatives:
+
+{{#include ../generated/derivatives/scipy_scalar.md}}
+
+{{#include ../generated/derivatives/scipy_vectors.md}}
+
+Adaptive extrapolation reaches 13 to 15 digits where the fixed-step formulas give 9 to 14, at the cost of many more evaluations, but it needs a sensible first step. SciPy's default first step of 0.5 jumps past zero for $\ln x$ at $x = 0.1$ and returns NaN; the library's step is relative to $\max(|x|, 1)$, so it stays near the point, but for the same reason it is too large for a function that varies on a scale much smaller than 1, which costs it accuracy at $x = 0.1$. The second derivatives of the five-point stencil lose more digits, as the step must be larger to keep rounding error, now divided by $h^2$, in check.
+
 ## In the library
 
 The differentiation crate is `lib_jsl_derivatives`

@@ -40,6 +40,18 @@ of digits per step; order 2 (quadratic) doubles the number of correct digits per
 | A system of equations with a Jacobian | Newton's method with line search | [Nonlinear systems](nonlinear-systems.md#newtons-method) |
 | A system, expensive to evaluate, no Jacobian | Broyden's method | [Nonlinear systems](nonlinear-systems.md#broydens-method) |
 
+## Testing against SciPy
+
+The references come from SciPy 1.17.1 and NumPy 2.4, written by `book/generator/data/make_root_finding_refs.py`. For scalar equations the table gives each library method's relative difference from the root found by `optimize.brentq`; the last column shows how far SciPy's own six methods (`brentq`, `bisect`, `ridder`, `toms748`, and `newton` with and without a derivative) spread among themselves:
+
+{{#include ../generated/root_finding/scipy_scalar.md}}
+
+Polynomial roots are compared with `numpy.roots`, which also uses companion-matrix eigenvalues, and systems with MINPACK's hybrid method in `optimize.fsolve`:
+
+{{#include ../generated/root_finding/scipy_polynomials_systems.md}}
+
+Roots of polynomials like Wilkinson's are ill-conditioned. Here the coefficients are integers, exact in double precision, but the rounding inside the companion-matrix eigenvalue computation acts like a relative perturbation of about $10^{-16}$ in them, which moves the roots by up to $10^{-9}$. The library's eigenvalues happen to land about ten times closer than NumPy's here. Newton polishing in `polynomial_roots` gains only a little more, because near these roots the polynomial itself cannot be evaluated more accurately than that in double precision. The double root of $(x - 1)^2$ is accurate only to about $\sqrt{\varepsilon}$, which bounds the third row.
+
 ## In the library
 
 The root finding crate is `lib_jsl_root_finding`

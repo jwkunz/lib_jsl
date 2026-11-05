@@ -266,8 +266,104 @@ fn systems_figures() {
 }
 
 pub fn generate() {
+    scipy_reference();
     bracketing_figures();
     newton_figures();
     polynomial_figures();
     systems_figures();
+}
+
+// ------------------------------------------------------------------ SciPy references
+
+/// A scalar test equation: its function, derivative, bracket and Newton start.
+type Equation = (&'static str, fn(f64) -> f64, fn(f64) -> f64, (f64, f64), f64);
+/// A test polynomial (highest power first) and, when known, its exact roots.
+type TestPolynomial = (&'static str, Vec<f64>, Option<Vec<f64>>);
+/// A Jacobian function for the system solvers' optional argument.
+type SystemJacobian = fn(&[f64]) -> Vec<Vec<f64>>;
+/// A test system and its starting point.
+type TestSystem<'a> = (&'static str, &'a dyn Fn(&[f64]) -> Vec<f64>, Vec<f64>);
+
+fn scipy_reference() {
+    use std::f64::consts::PI;
+    use crate::refs::{Refs, fmt_diff, max_abs_diff};
+    use crate::spectral::md_table;
+    use lib_jsl_root_finding::bisection::bisection;
+    use lib_jsl_root_finding::false_position_method::false_position;
+    use lib_jsl_root_finding::newton_raphson::newton_raphson;
+    use lib_jsl_root_finding::nonlinear_systems::{SystemOptions, broyden_system, newton_system};
+    use lib_jsl_root_finding::polynomial_roots::polynomial_roots_complex;
+    use lib_jsl_root_finding::ridders_method::ridders_method;
+    use lib_jsl_root_finding::secant_method::secant_method;
+    use lib_jsl_root_finding::van_wijngaarden_dekker_brent::brent_method;
+
+    let refs = Refs::parse(include_str!("../data/root_finding_reference.txt"));
+    let equations: [Equation; 5] = [
+        ("cos(x) = x", |x| x.cos() - x, |x| -x.sin() - 1.0, (0.0, 1.0), 0.5),
+        ("x^3 - 2x - 5 = 0", |x| x * x * x - 2.0 * x - 5.0, |x| 3.0 * x * x - 2.0, (2.0, 3.0), 2.0),
+        ("Kepler: E - 0.9 sin E = 0.3", |x| x - 0.9 * x.sin() - 0.3, |x| 1.0 - 0.9 * x.cos(), (0.0, PI), 1.0),
+        ("x e^-x = 0.1", |x| x * (-x).exp() - 0.1, |x| (1.0 - x) * (-x).exp(), (0.0, 0.5), 0.0),
+        ("ln x + x^2 = 3", |x| x.ln() + x * x - 3.0, |x| 1.0 / x + 2.0 * x, (1.0, 2.0), 1.5),
+    ];
+    let mut rows = Vec::new();
+    for (name, f, df, (a, b), x0) in equations {
+        let want = refs.values(&format!("scalar {name}"));
+        let root = want[0];
+        let rel = |v: f64| fmt_diff(((v - root) / root).abs());
+        let tol = 1e-15;
+        rows.push(vec![
+            name.to_string(),
+            format!("{root:.16}"),
+            rel(brent_method(f, a, b, tol).unwrap()),
+            rel(bisection(f, a, b, tol).unwrap()),
+            rel(ridders_method(f, a, b, tol).unwrap()),
+            rel(false_position(f, a, b, tol).unwrap()),
+            rel(newton_raphson(f, df, x0, tol).unwrap()),
+            rel(secant_method(f, x0, x0 + 0.1, tol).unwrap()),
+            fmt_diff(want.iter().map(|&v| ((v - root) / root).abs()).fold(0.0, f64::max)),
+        ]);
+    }
+    write(CHAPTER, "scipy_scalar.md", &md_table(&["equation", "root (`brentq`)", "Brent", "bisection", "Ridders", "false position", "Newton", "secant", "spread of SciPy's six methods"], &rows));
+
+    let polynomials: [TestPolynomial; 4] = [
+        ("Wilkinson-like, roots 1 to 10", { let mut c = vec![1.0]; for r in 1..=10 { let mut next = vec![0.0; c.len() + 1]; for (i, &v) in c.iter().enumerate() { next[i] += v; next[i + 1] -= v * r as f64; } c = next; } c }, Some((1..=10).map(|r| r as f64).collect())),
+        ("x^5 - x - 1", vec![1.0, 0.0, 0.0, 0.0, -1.0, -1.0], None),
+        ("(x - 1)^2 (x + 2) (x^2 + 1)", vec![1.0, 0.0, -2.0, 2.0, -3.0, 2.0], None),
+        ("degree 12, coefficients 1 to 13", (1..=13).map(|k| k as f64).collect(), None),
+    ];
+    let mut rows = Vec::new();
+    for (name, coeffs, exact) in polynomials {
+        let want = refs.get(&format!("poly {name}"));
+        let got = polynomial_roots_complex(&coeffs).unwrap();
+        let re: Vec<f64> = got.iter().map(|z| z.re).collect();
+        // Pair each root with the nearest unused NumPy root: conjugate pairs share a real part
+        // only to rounding, so sorting alone can swap their members.
+        let mut unused: Vec<usize> = (0..want[0].len()).collect();
+        let mut d = 0.0f64;
+        for z in &got {
+            let (k, dist) = unused.iter().enumerate().map(|(k, &j)| (k, (z.re - want[0][j]).hypot(z.im - want[1][j]))).min_by(|a, b| a.1.total_cmp(&b.1)).unwrap();
+            d = d.max(dist);
+            unused.remove(k);
+        }
+        let against_exact = exact
+            .map(|e| {
+                let polished = lib_jsl_root_finding::polynomial_roots::polynomial_roots(&coeffs);
+                format!("; from the exact roots, library {} and NumPy {}, and the library's Newton-polished real roots {}", fmt_diff(max_abs_diff(&re, &e)), fmt_diff(max_abs_diff(&want[0], &e)), fmt_diff(max_abs_diff(&polished, &e)))
+            })
+            .unwrap_or_default();
+        rows.push(vec![format!("{name} (`numpy.roots`)"), format!("{}{against_exact}", fmt_diff(d))]);
+    }
+    let options = SystemOptions { function_tolerance: 1e-14, step_tolerance: 1e-16, max_iterations: 200 };
+    let no_jacobian: Option<SystemJacobian> = None;
+    let circle = |v: &[f64]| vec![v[0] * v[0] + v[1] * v[1] - 4.0, v[0].exp() + v[1] - 1.0];
+    let trig = |v: &[f64]| vec![3.0 * v[0] - (v[1] * v[2]).cos() - 0.5, v[0] * v[0] - 81.0 * (v[1] + 0.1).powi(2) + v[2].sin() + 1.06, (-v[0] * v[1]).exp() + 20.0 * v[2] + (10.0 * PI - 3.0) / 3.0];
+    let tridiagonal = |v: &[f64]| { let x: Vec<f64> = std::iter::once(0.0).chain(v.iter().copied()).chain(std::iter::once(0.0)).collect(); (1..6).map(|i| (3.0 - 2.0 * x[i]) * x[i] - x[i - 1] - 2.0 * x[i + 1] + 1.0).collect::<Vec<f64>>() };
+    let systems: [TestSystem; 3] = [("circle and exponential", &circle, vec![1.0, -1.0]), ("three trigonometric equations", &trig, vec![0.1, 0.1, -0.1]), ("Broyden tridiagonal, 5 variables", &tridiagonal, vec![-1.0; 5])];
+    for (name, f, x0) in systems {
+        let want = refs.values(&format!("system {name}"));
+        let n = newton_system(f, no_jacobian, x0.clone(), options).unwrap();
+        let b = broyden_system(f, x0, options).unwrap();
+        rows.push(vec![format!("system: {name} (`optimize.fsolve`)"), format!("Newton {}, Broyden {}", fmt_diff(max_abs_diff(&n.x, want)), fmt_diff(max_abs_diff(&b.x, want)))]);
+    }
+    write(CHAPTER, "scipy_polynomials_systems.md", &md_table(&["problem (SciPy reference)", "largest difference in the roots"], &rows));
 }

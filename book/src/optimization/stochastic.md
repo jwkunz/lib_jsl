@@ -49,36 +49,73 @@ stable.
 
 ### Simulated annealing
 
-From the current point $\mathbf x$, propose a random neighbour $\mathbf x'$. If $f(\mathbf x') < f(\mathbf x)$, move there; otherwise
-move there with probability $e^{-(f(\mathbf x') - f(\mathbf x))/T}$. At high $T$ almost every move is accepted and the
-walk explores freely; as $T$ falls, uphill moves become rare and the walk settles into a deep valley.
-Here the neighbour adds Gaussian noise with standard deviation $T$ to every coordinate, so the
-temperature also sets the step size, and the temperature is multiplied by a cooling factor after each
-batch of proposals (geometric cooling). The best point ever seen is returned.
+A local method only ever moves downhill, so it is trapped by the first valley it enters.
+Simulated annealing escapes by sometimes accepting a move *uphill*. From the current point
+$\mathbf x$, propose a random neighbour $\mathbf x'$, and let $\Delta = f(\mathbf x') - f(\mathbf x)$.
+
+- If $\Delta < 0$ the neighbour is better: move there.
+- Otherwise move there anyway with probability $e^{-\Delta/T}$.
+
+The parameter $T$ is called the **temperature**, by analogy with the slow cooling (annealing) of
+a metal, in which atoms jostled by heat find their way to a low-energy crystal. It sets how
+tolerant the walk is. An uphill move of $\Delta = 1$ is accepted with probability $e^{-1} \approx
+0.37$ at $T = 1$, but with probability $e^{-10} \approx 5 \times 10^{-5}$ at $T = 0.1$. At high $T$
+almost every move is accepted and the walk explores the whole landscape freely. As $T$ falls,
+uphill moves become rare, first the large ones and then the small ones, and the walk settles into
+a deep valley and finally behaves like a local search.
+
+Two details of the library's version: the neighbour is formed by adding Gaussian noise with
+standard deviation $T$ to every coordinate, so the temperature also sets the step size; and the
+temperature is multiplied by a fixed cooling factor after each batch of proposals (**geometric
+cooling**). Since the walk may leave a good point, the best point ever seen is recorded and
+returned.
 
 ### Differential evolution
 
-Keep a population of $N_p$ points (by default $\max(15, 10n)$), spread uniformly in the box. For each
-member $\mathbf x_i$, pick three other distinct members $\mathbf a, \mathbf b, \mathbf c$ and form the **mutant**
-$\mathbf v = \mathbf a + F(\mathbf b - \mathbf c)$ with $F = 0.8$. Build the **trial** point by taking each coordinate from $\mathbf v$ with
-probability $CR = 0.9$ (and at least one coordinate always), otherwise from $\mathbf x_i$. If the trial is no
-worse than $\mathbf x_i$, it replaces it. The differences $\mathbf b - \mathbf c$ automatically adapt the step sizes to the
-spread of the population: large while it is scattered, small as it converges into a valley. This is
-the strategy DE/rand/1/bin.
+Differential evolution keeps not one point but a **population** of $N_p$ points (by default
+$\max(15, 10n)$), initially spread uniformly over the search box. In each generation, every
+member $\mathbf x_i$ is challenged by a new candidate built from other members.
+
+1. **Mutation.** Pick three other distinct members $\mathbf a, \mathbf b, \mathbf c$ at random and form the
+   **mutant** $\mathbf v = \mathbf a + F(\mathbf b - \mathbf c)$, with $F = 0.8$. The mutant is a random member
+   displaced by a scaled difference of two others.
+2. **Crossover.** Build the **trial** point by taking each coordinate from $\mathbf v$ with
+   probability $CR = 0.9$ and otherwise from $\mathbf x_i$. At least one coordinate always comes from
+   $\mathbf v$, so the trial differs from $\mathbf x_i$.
+3. **Selection.** If the trial is no worse than $\mathbf x_i$, it replaces it; otherwise $\mathbf x_i$
+   survives.
+
+The clever part is the mutation. The method has no step-size parameter to tune, because the
+differences $\mathbf b - \mathbf c$ between members supply the steps. While the population is scattered
+over the whole box, the differences are large and the search is global. As the population
+gathers in a valley, the differences shrink, and they also line up with the shape of the valley,
+so the search becomes local and adapted to the function. This variant is known as DE/rand/1/bin:
+a random base member, one difference, binomial crossover.
 
 ### Particle swarm optimisation
 
-Each particle has a position $\mathbf x_i$, a velocity $\mathbf v_i$ and a memory of its best position $\mathbf p_i$; the swarm
-remembers its best position $\mathbf g$. Each step updates
+A particle swarm is also a population, but its members move continuously and share information.
+Each particle has a position $\mathbf x_i$ and a velocity $\mathbf v_i$, and remembers the best position
+$\mathbf p_i$ it has visited. The swarm as a whole remembers the best position $\mathbf g$ any particle has
+visited. Each step updates
 
 $$
 \mathbf v_i \leftarrow w\,\mathbf v_i + c_1 \mathbf r_1 \odot (\mathbf p_i - \mathbf x_i) + c_2 \mathbf r_2 \odot (\mathbf g - \mathbf x_i), \qquad \mathbf x_i \leftarrow \mathbf x_i + \mathbf v_i,
 $$
 
-with $\mathbf r_1, \mathbf r_2$ uniform random in $[0, 1]$ per coordinate. The inertia $w$ keeps particles moving, the
-**cognitive** term pulls each towards its own best, and the **social** term towards the swarm's best.
-Clerc and Kennedy's values $w = 0.7298$, $c_1 = c_2 = 1.49618$ make the swarm converge without
-exploding.
+where $\mathbf r_1, \mathbf r_2$ are vectors of random numbers, uniform in $[0, 1]$ and drawn afresh for
+each coordinate, and $\odot$ multiplies vectors coordinate by coordinate. The new velocity is a
+sum of three tendencies.
+
+- The **inertia** term $w\,\mathbf v_i$ keeps the particle moving in its current direction, which
+  carries it across small bumps.
+- The **cognitive** term pulls it back towards the best place it has itself seen.
+- The **social** term pulls it towards the best place anyone has seen.
+
+The random factors keep the particles from all following the same path. The balance of the
+coefficients matters: with too much inertia the velocities grow without bound, and with too
+little the swarm collapses at once onto its first good point. Clerc and Kennedy's analysis gives
+the values $w = 0.7298$, $c_1 = c_2 = 1.49618$, which make the swarm converge without exploding.
 
 ### Comparison
 

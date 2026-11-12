@@ -46,34 +46,67 @@ long line of derivative-free methods based on quadratic models (COBYLA, NEWUOA, 
 
 ### The Nelder-Mead simplex method
 
-Order the $n + 1$ vertices so that $f(\mathbf x_1) \le \cdots \le f(\mathbf x_{n+1})$, and let $\bar{\mathbf x}$ be the centroid of all
-but the worst. Each iteration tries to replace the worst vertex $\mathbf x_{n+1}$ by a point on the line
-through it and $\bar{\mathbf x}$:
+A **simplex** in $n$ dimensions is the figure with $n + 1$ corners: a triangle in the plane, a
+tetrahedron in space. The Nelder-Mead method keeps the value of $f$ at each corner (vertex) and
+repeatedly replaces the worst vertex by a better point. No gradient is ever computed; the
+vertices themselves show which way is downhill, since the function is higher at the worst vertex
+than at the others.
 
-- **reflect**: $\mathbf x_r = \bar{\mathbf x} + (\bar{\mathbf x} - \mathbf x_{n+1})$. If it is better than the second worst but not
-  the best, accept it.
-- **expand**: if $\mathbf x_r$ is the best point so far, try going twice as far, $\mathbf x_e = \bar{\mathbf x} + 2(\bar{\mathbf x} - \mathbf x_{n+1})$, and
-  keep the better.
-- **contract**: if $\mathbf x_r$ is no better than the second worst, try a point halfway between $\bar{\mathbf x}$ and $\mathbf x_r$
-  (outside) or $\mathbf x_{n+1}$ (inside).
-- **shrink**: if that fails too, move every vertex halfway towards the best.
+At the start of each iteration, order the vertices from best to worst,
+$f(\mathbf x_1) \le \cdots \le f(\mathbf x_{n+1})$, and let $\bar{\mathbf x}$ be the centroid (average) of all but
+the worst. The line from the worst vertex $\mathbf x_{n+1}$ through $\bar{\mathbf x}$ points away from the
+high ground. The iteration tries points along this line, in order:
 
-The simplex thus rolls downhill, stretches out along valleys, squeezes through narrow passages and
-finally contracts onto a minimum. It stops when the function values at the vertices agree to the
-tolerance (their standard deviation falls below it). The initial simplex steps 5% along each
-coordinate from the starting point, as `fminsearch` does.
+- **Reflect.** Mirror the worst vertex through the centroid:
+  $\mathbf x_r = \bar{\mathbf x} + (\bar{\mathbf x} - \mathbf x_{n+1})$. If $\mathbf x_r$ is better than the second-worst
+  vertex but not better than the best, accept it. The simplex has flipped over, away from the
+  worst point.
+- **Expand.** If $\mathbf x_r$ is the best point so far, the direction is a good one, so try going
+  twice as far, $\mathbf x_e = \bar{\mathbf x} + 2(\bar{\mathbf x} - \mathbf x_{n+1})$, and keep the better of
+  $\mathbf x_r$ and $\mathbf x_e$. The simplex stretches along the promising direction.
+- **Contract.** If $\mathbf x_r$ is no better than the second worst, the step was too long. Try a
+  point halfway between $\bar{\mathbf x}$ and $\mathbf x_r$ (an *outside* contraction, if $\mathbf x_r$ at
+  least improved on the worst vertex) or halfway between $\bar{\mathbf x}$ and $\mathbf x_{n+1}$ (an
+  *inside* contraction, if it did not).
+- **Shrink.** If the contraction fails too, the simplex is probably straddling a minimum or a
+  narrow valley. Move every vertex halfway towards the best one.
+
+Each iteration normally costs one or two evaluations of $f$; only a shrink costs $n$. Through
+these moves the simplex rolls downhill, stretches out along valleys, squeezes through narrow
+passages and finally contracts onto a minimum.
+
+The method stops when the function values at the vertices agree to the tolerance (their standard
+deviation falls below it). The initial simplex is built by stepping 5% along each coordinate from
+the starting point, as `fminsearch` does.
 
 ![Direct search on the Rosenbrock function](../generated/optimization/direct_search.svg)
 
 ### Powell's method
 
-Powell's method keeps a set of $n$ directions, initially the coordinate axes. Each iteration
-minimises $f$ along each direction in turn, by a one-dimensional search (bracketing, then Brent's
-parabolic interpolation), and then considers the overall displacement $\mathbf x_n - \mathbf x_0$ of the iteration
-as a new direction. On a quadratic, after $n$ iterations, the directions generated this way are
-mutually conjugate and the minimum is reached exactly. To keep the directions from becoming linearly
-dependent, the new direction replaces the old one along which $f$ decreased most, and only when a
-test shows the replacement is worthwhile.
+The most obvious derivative-free strategy is to minimise along each coordinate axis in turn and
+repeat. It works, but in a tilted valley it zigzags in tiny steps, for the same reason as
+[gradient descent](gradient-methods.md#gradient-descent). Powell's method starts this way and
+then improves the set of directions as it learns the shape of the function.
+
+It keeps a set of $n$ directions, initially the coordinate axes. One iteration does the
+following.
+
+1. Starting from $\mathbf x_0$, minimise $f$ along each direction in turn by a
+   [one-dimensional search](one-dimensional.md) (bracketing, then Brent's parabolic
+   interpolation), arriving at $\mathbf x_n$.
+2. Take the overall displacement of the iteration, $\mathbf x_n - \mathbf x_0$, as a candidate new
+   direction. It summarises the net progress of $n$ small zigzag steps, so it tends to point along
+   the valley.
+3. Replace one of the old directions by the new one, and minimise along it.
+
+On a quadratic, the directions generated this way become mutually
+[conjugate](gradient-methods.md#nonlinear-conjugate-gradients), so that after $n$ iterations
+the minimum is reached exactly, without a single derivative.
+
+There is one hazard. If the new directions are added carelessly, the set can become linearly
+dependent, and the search is then confined to a subspace that may not contain the minimum. To
+prevent this, the new direction replaces the old one along which $f$ decreased most (the one it
+most resembles), and only when a test shows the replacement is worthwhile.
 
 ## Algorithm
 

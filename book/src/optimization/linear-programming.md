@@ -49,43 +49,108 @@ Bland's rule (1977) is the simplest guaranteed cure.
 
 ### The simplex method
 
-Adding a non-negative **slack** variable to each inequality, shifting or splitting variables to
-make them all non-negative, and so on, puts the LP in **standard form**: $\min\mathbf c^{\mathsf T}\mathbf x$ subject to $A\mathbf x = \mathbf b$,
-$\mathbf x \ge \mathbf 0$, with $A$ of size $m \times N$. A vertex is a **basic feasible solution**: choose $m$ **basic**
-columns forming an invertible matrix $B$, set the other variables to zero, and solve $B\mathbf x_B = \mathbf b$; it is
-feasible if $\mathbf x_B \ge \mathbf 0$.
-
-From a basic feasible solution, the **reduced cost** of a non-basic variable $j$,
-$\bar c_j = c_j - \mathbf c_B^{\mathsf T}B^{-1}A_j$, is the rate at which the objective changes as $x_j$ increases from 0.
-If every $\bar c_j \ge 0$, no neighbour is better and the vertex is optimal. Otherwise a variable with
-$\bar c_j < 0$ **enters** the basis. It increases until a basic variable reaches zero (the **ratio
-test**), and that variable **leaves**. If none ever reaches zero, the objective decreases without
-bound. The update of the representation is a **pivot**, one step of Gauss-Jordan elimination on the
-**tableau** $[A\ |\ \mathbf b]$.
+The constraints of a linear program cut out a region with flat faces, the **feasible region**: a
+polygon in two dimensions, a polyhedron in general. The objective is linear, so its contours are
+parallel lines (or planes), and sliding a contour in the direction of improvement as far as it
+will go ends at a corner of the region. An optimum, if there is one, is always attained at a
+**vertex**. The simplex method exploits this: it starts at a vertex and repeatedly moves along an
+edge to a neighbouring vertex with a better objective, until no neighbour is better.
 
 ![A linear program in two variables](../generated/optimization/linear_program.svg)
 
 In the figure (the "Wyndor Glass" problem of Hillier and Lieberman's textbook), the feasible region
 is the polygon, the dashed lines are contours of the objective, and the optimum is the vertex
-$(2, 6)$ where the contour last touches the region. From the origin, the textbook rule (enter the most
-negative reduced cost) moves to $(0, 6)$ and then to the optimum; the library, with Bland's rule
-and its phase one, takes three pivots in all.
+$(2, 6)$ where the contour last touches the region.
+
+To turn this picture into arithmetic we need an algebraic description of a vertex, a test for
+optimality, and a rule for moving.
+
+**Standard form.** First the program is rewritten with equality constraints and non-negative
+variables. An inequality such as $3x + 2y \le 18$ becomes the equation $3x + 2y + s = 18$ with a
+new **slack** variable $s \ge 0$, which measures how far the constraint is from being tight. A
+variable that may be negative is shifted, or split into the difference of two non-negative ones.
+The result is
+
+$$
+\min\ \mathbf c^{\mathsf T}\mathbf x \quad\text{subject to}\quad A\mathbf x = \mathbf b, \quad \mathbf x \ge \mathbf 0,
+$$
+
+with $A$ of size $m \times N$ and more variables than equations ($N > m$).
+
+**Vertices.** With $N$ unknowns and $m$ equations there are $N - m$ degrees of freedom. A vertex
+is a point where as many variables as possible are zero, that is, where $N - m$ of the
+constraints $x_j \ge 0$ are tight. So: choose $m$ of the columns of $A$, forming an invertible
+matrix $B$; call the corresponding variables **basic**; set all the other (non-basic) variables
+to zero; and solve $B\mathbf x_B = \mathbf b$ for the basic ones. This is a **basic solution**, and it is a
+vertex of the feasible region if in addition $\mathbf x_B \ge \mathbf 0$, a **basic feasible solution**.
+
+**The optimality test.** Standing at a vertex, consider increasing one non-basic variable $x_j$
+from zero while keeping the other non-basic variables at zero. The basic variables must change
+to keep $A\mathbf x = \mathbf b$ satisfied: $\mathbf x_B = B^{-1}\mathbf b - B^{-1}A_j\,x_j$, where $A_j$ is column
+$j$ of $A$. Substituting into the objective,
+
+$$
+\mathbf c^{\mathsf T}\mathbf x = \mathbf c_B^{\mathsf T}\mathbf x_B + c_j x_j
+= \text{constant} + \underbrace{\big(c_j - \mathbf c_B^{\mathsf T}B^{-1}A_j\big)}_{\bar c_j}\,x_j .
+$$
+
+The number $\bar c_j$ is the **reduced cost** of variable $j$: the rate at which the objective
+changes as $x_j$ increases, once the forced changes in the basic variables are accounted for.
+If every $\bar c_j \ge 0$, moving along any edge makes the objective worse, and the vertex is
+optimal.
+
+**Moving to a neighbour.** Otherwise pick a variable with $\bar c_j < 0$ to **enter** the basis,
+and increase it. As it grows, the basic variables change linearly, and some of them decrease.
+The first one to reach zero stops the move, since it must not become negative; it **leaves** the
+basis. Finding it means comparing, for each decreasing basic variable, its current value with its
+rate of decrease, which is called the **ratio test**. We have arrived at a neighbouring vertex.
+If no basic variable decreases, $x_j$ can grow for ever and the objective decreases without
+bound: the program is **unbounded**.
+
+**Pivoting.** In practice $B^{-1}$ is never formed. The method keeps the **tableau**
+$[A\ |\ \mathbf b]$ in a form where the basic columns are columns of the identity, so that the basic
+solution and the reduced costs can be read off. Exchanging the entering and leaving variables is
+one step of Gauss-Jordan elimination on the tableau, called a **pivot**.
+
+In the Wyndor problem, starting from the origin, the textbook rule (enter the variable with the
+most negative reduced cost) moves to $(0, 6)$ and then to the optimum. The library, with Bland's
+rule and its phase one, takes three pivots in all.
 
 ### Two phases
 
-A first basic feasible solution is not always obvious. **Phase one** adds an **artificial** variable
-to each constraint, starting from the obvious basis of artificials, and minimises their sum. If the
-minimum is positive, the LP is **infeasible**; if zero, the final basis (after driving out any
-artificials left at zero) is feasible for the original problem, and **phase two** optimises the true
-objective from it.
+The simplex method needs a vertex to start from. When all constraints are of the form
+$A\mathbf x \le \mathbf b$ with $\mathbf b \ge \mathbf 0$, the origin is one, with the slack variables as the
+basis. In general a first basic feasible solution is not obvious, and finding one is itself a
+linear program.
+
+**Phase one** adds an **artificial** variable $a_i \ge 0$ to each constraint, so that row $i$
+reads $(A\mathbf x)_i + a_i = b_i$. Now $\mathbf x = \mathbf 0$, $\mathbf a = \mathbf b$ is an obvious vertex of the
+enlarged problem. From there the simplex method minimises the sum of the artificials.
+
+- If the minimum is positive, the artificials cannot all be driven to zero, which means the
+  original constraints cannot all be satisfied: the LP is **infeasible**.
+- If the minimum is zero, every artificial is zero and the remaining variables satisfy the
+  original constraints. After pivoting out any artificials that are still in the basis at value
+  zero, the final basis is a basic feasible solution of the original problem.
+
+**Phase two** discards the artificials and optimises the true objective from that vertex.
 
 ### Degeneracy and Bland's rule
 
-When a basic variable is zero (a **degenerate** vertex, where more than $n$ constraints meet), a pivot
-can change the basis without moving, and the textbook rule of entering the most negative reduced
-cost can return to an earlier basis and **cycle**. **Bland's rule**, choosing the entering and
-leaving variables of lowest index among the candidates, provably never cycles. It is slower on
-average than smarter rules, but simple and safe; this library uses it.
+The argument that the simplex method terminates is that every pivot improves the objective, so
+no vertex is visited twice, and there are finitely many vertices. The argument has a gap.
+
+A vertex is **degenerate** when a basic variable happens to be zero, which occurs when more
+constraints than necessary pass through the same point. At a degenerate vertex the ratio test
+can stop the entering variable immediately, at zero. The pivot then changes which variables are
+called basic without moving the point or improving the objective. A sequence of such pivots can
+return to an earlier basis and repeat for ever. This is **cycling**, and the textbook rule of
+entering the most negative reduced cost is vulnerable to it.
+
+**Bland's rule** closes the gap: among the candidates, always choose the entering variable of
+lowest index and the leaving variable of lowest index. Bland proved that with this rule no basis
+is ever repeated. It is slower on average than smarter rules, but simple and safe; this library
+uses it.
 
 The library's results on a few programs:
 
@@ -97,10 +162,36 @@ minimised by linear programming, with a free variable split into two non-negativ
 
 ### Duality
 
-Every LP has a **dual**: for $\min\mathbf c^{\mathsf T}\mathbf x$ subject to $A\mathbf x \ge \mathbf b$, $\mathbf x \ge 0$, it is $\max\mathbf b^{\mathsf T}\mathbf y$ subject to
-$A^{\mathsf T}\mathbf y \le \mathbf c$, $\mathbf y \ge 0$. Any feasible dual value bounds the primal optimum, and at the optimum they are
-equal (**strong duality**). The optimal dual variables are the **shadow prices** of the constraints,
-the same as the Lagrange multipliers of [constrained optimisation](constrained.md#optimality-conditions).
+Every linear program has a partner, its **dual**. For the **primal** problem
+
+$$
+\min\ \mathbf c^{\mathsf T}\mathbf x \quad\text{subject to}\quad A\mathbf x \ge \mathbf b,\ \ \mathbf x \ge \mathbf 0,
+$$
+
+the dual is
+
+$$
+\max\ \mathbf b^{\mathsf T}\mathbf y \quad\text{subject to}\quad A^{\mathsf T}\mathbf y \le \mathbf c,\ \ \mathbf y \ge \mathbf 0 .
+$$
+
+There is one dual variable for each primal constraint and one dual constraint for each primal
+variable. The two problems bound each other. If $\mathbf x$ is feasible for the primal and $\mathbf y$ for
+the dual, then
+
+$$
+\mathbf c^{\mathsf T}\mathbf x \ \ge\ (A^{\mathsf T}\mathbf y)^{\mathsf T}\mathbf x = \mathbf y^{\mathsf T}(A\mathbf x) \ \ge\ \mathbf y^{\mathsf T}\mathbf b ,
+$$
+
+using $\mathbf c \ge A^{\mathsf T}\mathbf y$ with $\mathbf x \ge \mathbf 0$ for the first inequality and $A\mathbf x \ge \mathbf b$
+with $\mathbf y \ge \mathbf 0$ for the second. Every feasible dual value is a lower bound on every feasible
+primal value (**weak duality**). The deeper result, **strong duality**, is that at the optimum
+the two values are equal, so a dual solution is a certificate that a primal solution cannot be
+improved.
+
+The optimal dual variables have a practical meaning: $y_i$ is the rate at which the optimal cost
+changes when the right-hand side $b_i$ is changed, the **shadow price** of constraint $i$. They
+are the same as the Lagrange multipliers of
+[constrained optimisation](constrained.md#optimality-conditions).
 
 ## Algorithm
 

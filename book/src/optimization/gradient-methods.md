@@ -47,36 +47,116 @@ convergence and introduced the safeguarded "PR+" version used here.
 
 ### Gradient descent
 
-From $\mathbf x_k$, step against the gradient with a **learning rate** $\alpha$:
+The gradient $\nabla f(\mathbf x)$ points in the direction in which $f$ increases fastest, so its
+negative is the direction of steepest descent. **Gradient descent** takes a step in that
+direction, of a length set by a **learning rate** (or step size) $\alpha$:
 
 $$
 \mathbf x_{k+1} = \mathbf x_k - \alpha\,\nabla f(\mathbf x_k).
 $$
 
-The behaviour is clearest on a quadratic $f = \tfrac12\mathbf x^{\mathsf T}A\mathbf x$, whose Hessian $A$ has eigenvalues
-from $\mu$ to $L$. In the eigenvector coordinates each component is multiplied by $1 - \alpha\lambda_i$ per
-step, so the iteration converges if and only if $\alpha < 2/L$, and its rate is $\max_i|1 - \alpha\lambda_i|$. The
-best fixed step, $\alpha = 2/(L + \mu)$, gives the rate
+Everything depends on $\alpha$. The behaviour is clearest on the simplest function with a minimum,
+a quadratic.
+
+**Analysis on a quadratic.** Let $f(\mathbf x) = \tfrac12\mathbf x^{\mathsf T}A\mathbf x$ with $A$ symmetric
+positive definite. Its minimum is at $\mathbf x = \mathbf 0$, its gradient is $A\mathbf x$, and its Hessian
+(the matrix of second derivatives) is $A$. The iteration becomes
 
 $$
-\frac{L - \mu}{L + \mu} = \frac{\kappa - 1}{\kappa + 1}, \qquad \kappa = L/\mu,
+\mathbf x_{k+1} = \mathbf x_k - \alpha A\mathbf x_k = (I - \alpha A)\,\mathbf x_k .
 $$
 
-which is close to 1 when the **condition number** $\kappa$ is large: about $\kappa$ iterations per factor
-$e$ of progress. For $\tfrac12(x^2 + 10y^2)$, with $L = 10$, $\mu = 1$, the best step is $2/11 \approx 0.18$:
+Write $\mathbf x_k$ in the basis of eigenvectors of $A$, with eigenvalues
+$\mu = \lambda_1 \le \cdots \le \lambda_n = L$. Along eigenvector $i$ the matrix $A$ acts as
+multiplication by $\lambda_i$, so each step multiplies that component of $\mathbf x_k$ by
+$1 - \alpha\lambda_i$. The components evolve independently:
+
+- component $i$ shrinks if and only if $|1 - \alpha\lambda_i| < 1$, that is $0 < \alpha < 2/\lambda_i$;
+- all components shrink if and only if $\alpha < 2/L$, the condition for the largest eigenvalue;
+- the slowest component sets the overall rate, $\max_i|1 - \alpha\lambda_i|$.
+
+A small $\alpha$ is safe but leaves $1 - \alpha\mu$ close to 1, so the component along the smallest
+eigenvalue barely moves. A large $\alpha$ handles that component well but makes $1 - \alpha L$ close
+to $-1$, so the component along the largest eigenvalue overshoots and oscillates. The best fixed
+step balances the two extremes, $1 - \alpha\mu = -(1 - \alpha L)$, which gives $\alpha = 2/(L + \mu)$
+and the rate
+
+$$
+\frac{L - \mu}{L + \mu} = \frac{\kappa - 1}{\kappa + 1}, \qquad \kappa = L/\mu .
+$$
+
+The ratio $\kappa$ of the largest to the smallest curvature is the **condition number**. When
+$\kappa$ is large the rate is about $1 - 2/\kappa$, very close to 1, and the number of iterations
+needed to reduce the error by a fixed factor is proportional to $\kappa$. For
+$\tfrac12(x^2 + 10y^2)$, with $L = 10$ and $\mu = 1$, the best step is $2/11 \approx 0.18$:
 
 ![Gradient descent with various steps](../generated/optimization/step_sizes.svg)
 
 A step of 0.205 exceeds $2/L = 0.2$ and diverges; a step of 0.02 is safe but ten times slower than
-0.18. For a general smooth $f$, $L$ is a bound on the curvature (the **Lipschitz constant** of $\nabla f$),
-and a step $\alpha \le 1/L$ guarantees that $f$ decreases. Choosing $\alpha$ well requires knowing $L$, which
-is why practical methods choose the step by a [line search](one-dimensional.md#line-searches-and-the-wolfe-conditions)
-instead.
+0.18.
 
-Even with the best step, the path zigzags. Each step is perpendicular to the contour at its
-starting point, and in an elongated valley that direction points mostly across the valley:
+**General functions.** For a general smooth $f$, the role of the largest eigenvalue is played by
+a bound $L$ on the curvature, the **Lipschitz constant** of $\nabla f$. A second-order Taylor bound
+gives
+
+$$
+f(\mathbf x - \alpha\nabla f) \le f(\mathbf x) - \alpha\left(1 - \tfrac12\alpha L\right)\|\nabla f\|^2,
+$$
+
+so any step $\alpha \le 1/L$ is guaranteed to decrease $f$, by at least $\tfrac12\alpha\|\nabla f\|^2$.
+Choosing $\alpha$ well requires knowing $L$, which is why practical methods choose the step by a
+[line search](one-dimensional.md#line-searches-and-the-wolfe-conditions) instead.
+
+**The zigzag.** Even with the best step, the path is inefficient. The gradient is perpendicular
+to the contour line through the current point. In an elongated valley the contours are long thin
+ellipses, and the perpendicular to them points mostly across the valley, not along it towards the
+minimum. The iterates bounce from side to side:
 
 ![Gradient descent and conjugate gradients](../generated/optimization/quadratic_paths.svg)
+
+### Nonlinear conjugate gradients
+
+The zigzag happens because each step partly undoes the work of earlier steps: after minimising
+along one direction, the next step moves off that minimum again. **Conjugate gradient** methods
+choose directions that do not interfere with each other. Each new search direction is built from
+the new gradient and the previous direction,
+
+$$
+\mathbf x_{k+1} = \mathbf x_k + \alpha_k\mathbf d_k, \qquad \mathbf d_{k+1} = -\nabla f(\mathbf x_{k+1}) + \beta_k\,\mathbf d_k,
+$$
+
+starting from $\mathbf d_0 = -\nabla f(\mathbf x_0)$. The step $\alpha_k$ comes from a line search. The
+scalar $\beta_k$ adds a memory of the previous direction, and the art is in choosing it.
+
+**Conjugacy.** On a quadratic with Hessian $A$, two directions are called **conjugate** if
+$\mathbf d_i^{\mathsf T}A\,\mathbf d_j = 0$. Here is why that is the right notion of non-interference.
+Suppose we have minimised along $\mathbf d_i$, so the slope along it, $\nabla f \cdot \mathbf d_i$, is
+zero. Moving a distance $\alpha$ along another direction $\mathbf d_j$ changes the gradient by
+$\alpha A\mathbf d_j$, and so changes the slope along $\mathbf d_i$ by $\alpha\,\mathbf d_i^{\mathsf T}A\mathbf d_j$. If
+the directions are conjugate this is zero: the point is *still* at the minimum along $\mathbf d_i$.
+The minimisation along each direction never needs repeating. An $n$-dimensional space has room for only $n$
+mutually conjugate directions, so the minimum of an $n$-dimensional quadratic is reached in at
+most $n$ steps: two steps in the figure.
+
+**Choosing $\beta_k$.** For a quadratic with exact line searches, $\beta_k$ is chosen to make the
+directions conjugate, and remarkably this needs only the current and previous gradients. Write
+$\mathbf g_k = \nabla f(\mathbf x_k)$ and $\mathbf y_k = \mathbf g_{k+1} - \mathbf g_k$. Several formulas give the
+same value on a quadratic but behave differently on general functions:
+
+| name | $\beta_k$ | property |
+|---|---|---|
+| Fletcher-Reeves | $\|\mathbf g_{k+1}\|^2 / \|\mathbf g_k\|^2$ | global convergence theory, but can stall with tiny steps |
+| Polak-Ribière (PR+) | $\max(0,\ \mathbf g_{k+1}^{\mathsf T}\mathbf y_k / \|\mathbf g_k\|^2)$ | restarts itself when progress stalls; the usual default |
+| Hestenes-Stiefel | $\mathbf g_{k+1}^{\mathsf T}\mathbf y_k / \mathbf d_k^{\mathsf T}\mathbf y_k$ | the original linear formula |
+| Dai-Yuan | $\|\mathbf g_{k+1}\|^2 / \mathbf d_k^{\mathsf T}\mathbf y_k$ | descent with any Wolfe line search |
+
+**General functions.** On a non-quadratic function the Hessian changes from point to point and
+conjugacy holds only approximately. The method is therefore restarted with a steepest descent step
+($\beta = 0$) every $n$ iterations, or whenever $\mathbf d$ fails to be a descent direction. Near a
+minimum $f$ is nearly quadratic, and the convergence rate approaches that of linear conjugate
+gradients, about $(\sqrt\kappa - 1)/(\sqrt\kappa + 1)$ per iteration. The number of iterations for a
+fixed reduction is proportional to $\sqrt\kappa$ instead of $\kappa$: for $\kappa = 10^4$, of the order
+of a hundred iterations instead of ten thousand.
 
 ### Nonlinear conjugate gradients
 

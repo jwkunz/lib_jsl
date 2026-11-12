@@ -46,61 +46,169 @@ and Dimitri Bertsekas, and the basis of codes such as LANCELOT.
 
 ### Optimality conditions
 
-The **Lagrangian** is $L(\mathbf x, \boldsymbol\lambda, \boldsymbol\mu) = f(\mathbf x) + \sum_i\lambda_i h_i(\mathbf x) + \sum_j\mu_j g_j(\mathbf x)$. Under mild
-conditions on the constraints, a local minimum $\mathbf x^*$ has multipliers satisfying the **KKT
-conditions**
+The problem is
+
+$$
+\min_{\mathbf x} f(\mathbf x) \quad\text{subject to}\quad h_i(\mathbf x) = 0, \qquad g_j(\mathbf x) \le 0,
+$$
+
+with **equality constraints** $h_i$ and **inequality constraints** $g_j$. A point satisfying all
+of them is **feasible**. Before designing an algorithm we need to know how to recognise a
+solution. Without constraints the test is $\nabla f = \mathbf 0$. With constraints it is more subtle,
+and is best built up in three steps.
+
+**One equality constraint.** The feasible points lie on the surface $h(\mathbf x) = 0$, and the
+gradient $\nabla h$ is perpendicular to that surface. At a constrained minimum, $f$ must not
+decrease in any direction *along the surface*. That does not require $\nabla f = \mathbf 0$; it
+requires only that $\nabla f$ have no component along the surface, that is, that $\nabla f$ be
+perpendicular to it too. Two vectors perpendicular to the same surface are parallel:
+
+$$
+\nabla f + \lambda\,\nabla h = \mathbf 0
+$$
+
+for some number $\lambda$, the **Lagrange multiplier**. If this failed, sliding along the surface
+in the direction of the leftover component of $-\nabla f$ would reduce $f$.
+
+**One inequality constraint.** There are two cases. If the minimum lies strictly inside the
+region, $g < 0$, the constraint plays no part (it is **inactive**) and $\nabla f = \mathbf 0$ as
+usual. If the minimum lies on the boundary, $g = 0$, the constraint is **active** and behaves
+like an equality, $\nabla f + \mu\nabla g = \mathbf 0$, with one extra requirement. Moving into the
+interior (against $\nabla g$) must not decrease $f$ either, so $-\nabla f$ must point *out* of the
+region, the same way as $\nabla g$. That forces $\mu \ge 0$. Both cases are covered by a single
+statement: $\nabla f + \mu\nabla g = \mathbf 0$ with $\mu \ge 0$ and $\mu\,g = 0$, where the last
+equation says that either the multiplier or the constraint is zero.
+
+**The general case.** With several constraints the gradient of $f$ is balanced by a combination
+of the constraint gradients. It is convenient to collect everything into the **Lagrangian**
+
+$$
+L(\mathbf x, \boldsymbol\lambda, \boldsymbol\mu) = f(\mathbf x) + \sum_i\lambda_i h_i(\mathbf x) + \sum_j\mu_j g_j(\mathbf x).
+$$
+
+Under mild conditions on the constraints, a local minimum $\mathbf x^*$ has multipliers satisfying
+the **Karush-Kuhn-Tucker (KKT) conditions**
 
 $$
 \nabla f + \sum_i\lambda_i\nabla h_i + \sum_j\mu_j\nabla g_j = \mathbf 0, \qquad
 h_i = 0,\quad g_j \le 0,\quad \mu_j \ge 0,\quad \mu_j g_j = 0 .
 $$
 
-The last condition, **complementarity**, says that an inactive constraint ($g_j < 0$) has $\mu_j = 0$:
-only active constraints exert a "force". The multiplier $\mu_j$ is the rate at which the optimal value
-would fall if the constraint $g_j \le 0$ were relaxed to $g_j \le \epsilon$.
+The first equation says that the gradient of $L$ with respect to $\mathbf x$ vanishes
+(**stationarity**). The next two are feasibility. The last, **complementarity**, says that an
+inactive constraint ($g_j < 0$) has $\mu_j = 0$: only active constraints exert a "force" on the
+solution.
+
+The multipliers are not just bookkeeping. $\mu_j$ is the rate at which the optimal value would
+fall if the constraint $g_j \le 0$ were relaxed to $g_j \le \epsilon$: it is the price of that
+constraint. A large multiplier marks a constraint that is costing a great deal.
 
 ### Sequential quadratic programming
 
-At the current point, SQP solves the **quadratic program**
+The KKT conditions are a system of nonlinear equations (and inequalities) in $\mathbf x$ and the
+multipliers. SQP solves them by a Newton-like iteration, in which each step is itself a simpler
+optimisation problem.
+
+**The subproblem.** At the current point, replace $f$ by a quadratic model and each constraint by
+its linearisation, and solve for the step $\mathbf d$:
 
 $$
 \min_{\mathbf d}\ \tfrac12\mathbf d^{\mathsf T}B\mathbf d + \nabla f^{\mathsf T}\mathbf d \quad\text{subject to}\quad
-h_i + \nabla h_i^{\mathsf T}\mathbf d = 0, \quad g_j + \nabla g_j^{\mathsf T}\mathbf d \le 0,
+h_i + \nabla h_i^{\mathsf T}\mathbf d = 0, \quad g_j + \nabla g_j^{\mathsf T}\mathbf d \le 0 .
 $$
 
-where $B$ approximates the Hessian of the Lagrangian. Its solution gives a step $\mathbf d$ and new multiplier
-estimates, and with $B$ the exact Hessian it is Newton's method for the KKT conditions. The library
-maintains $B$ by a BFGS update with Powell's **damping** (which keeps $B$ positive definite even
-where the Lagrangian has negative curvature), and solves the QP through its **dual**: with
-$B$ positive definite, the step is $\mathbf d = -B^{-1}(\nabla f + A^{\mathsf T}\mathbf y)$ for multipliers $\mathbf y$ that minimise a convex
-quadratic subject only to $y_j \ge 0$ for the inequalities, a problem solved by an active-set method.
-The step is accepted by a line search on the **$\ell_1$ merit function** $f + \nu(\sum|h_i| + \sum\max(g_j, 0))$,
-with $\nu$ above the largest multiplier, which balances decreasing $f$ against reducing the violation
-and lets SQP start from an infeasible point.
+A problem with a quadratic objective and linear constraints is a **quadratic program** (QP), and
+it can be solved exactly in a finite number of steps. Its solution gives the step $\mathbf d$, and its
+own multipliers are the new estimates of $\boldsymbol\lambda$ and $\boldsymbol\mu$. The matrix $B$ approximates the
+Hessian of the *Lagrangian*, not of $f$ alone, because the curvature of the constraints matters as
+much as that of the objective. With $B$ the exact Hessian, the iteration is Newton's method
+applied to the KKT conditions.
+
+The library's implementation makes three further choices.
+
+- **The Hessian approximation.** $B$ is maintained by a
+  [BFGS update](newton-quasi-newton.md#bfgs), so no second derivatives are needed. The Lagrangian
+  can have negative curvature in some directions even at a solution, which would break the
+  ordinary BFGS update; Powell's **damping** modifies the update so that $B$ stays positive
+  definite regardless.
+- **Solving the QP.** With $B$ positive definite the QP is solved through its **dual**. The step
+  can be written $\mathbf d = -B^{-1}(\nabla f + A^{\mathsf T}\mathbf y)$, where the rows of $A$ are the
+  constraint gradients and $\mathbf y$ holds the multipliers. The multipliers minimise a convex
+  quadratic subject only to the simple bounds $y_j \ge 0$ for the inequalities, a much easier
+  problem, which an active-set method solves.
+- **Accepting the step.** A step may reduce $f$ while violating the constraints more, or the
+  reverse, so progress is measured by the **$\ell_1$ merit function**
+
+$$
+f(\mathbf x) + \nu\Big(\sum_i|h_i(\mathbf x)| + \sum_j\max(g_j(\mathbf x), 0)\Big),
+$$
+
+  which adds to $f$ a penalty $\nu$ times the total constraint violation. A line search along
+  $\mathbf d$ reduces this function. With $\nu$ larger than the largest multiplier, its minimum is the
+  constrained minimum. Because violations are penalised and not forbidden, SQP can start from an
+  infeasible point.
 
 ### The augmented Lagrangian method
 
-For equality constraints, the **augmented Lagrangian** is
+The second method reduces the constrained problem to a sequence of unconstrained ones. Consider
+equality constraints first.
+
+**The penalty idea, and its flaw.** The simplest approach adds a penalty for violating the
+constraints and minimises $f(\mathbf x) + \tfrac{\rho}{2}\|\mathbf h(\mathbf x)\|^2$ without constraints. The
+minimiser of this function always violates the constraints slightly, by an amount proportional
+to $1/\rho$, because a small violation costs little and can buy a reduction in $f$. Exact
+feasibility needs $\rho \to \infty$, and the penalised function then has a valley with extremely
+steep walls, which is ill-conditioned and hard to minimise.
+
+**Adding the multiplier term.** The **augmented Lagrangian** adds the penalty to the Lagrangian
+instead of to $f$:
 
 $$
 L_\rho(\mathbf x, \boldsymbol\lambda) = f(\mathbf x) + \boldsymbol\lambda^{\mathsf T}\mathbf h(\mathbf x) + \tfrac{\rho}{2}\|\mathbf h(\mathbf x)\|^2 .
 $$
 
-Each outer iteration minimises $L_\rho$ over $\mathbf x$ with an unconstrained method (here
-[L-BFGS](newton-quasi-newton.md#l-bfgs)) and then updates the multipliers by
-$\boldsymbol\lambda \leftarrow \boldsymbol\lambda + \rho\,\mathbf h(\mathbf x)$. If $\boldsymbol\lambda$ were exact, the minimiser of $L_\rho$ would be the constrained
-solution for any large enough finite $\rho$, unlike a pure penalty method, which needs $\rho \to \infty$ and
-becomes ill-conditioned. Inequalities are handled by Rockafellar's form, which adds
-$\tfrac1{2\rho}\sum_j(\max(0, \mu_j + \rho g_j)^2 - \mu_j^2)$ and updates $\mu_j \leftarrow \max(0, \mu_j + \rho g_j)$. The penalty $\rho$ is
-increased tenfold whenever the violation fails to fall by a factor of four.
+If $\boldsymbol\lambda$ were the exact multiplier vector, the minimiser of $L_\rho$ over $\mathbf x$ would be the
+constrained solution itself, for any sufficiently large *finite* $\rho$. The multiplier term
+supplies the force that holds the solution on the constraints, so the penalty no longer has to.
+
+**Estimating the multipliers.** The exact multipliers are unknown, but each minimisation improves
+the estimate. At the minimiser of $L_\rho$ its gradient vanishes:
+
+$$
+\nabla f + \sum_i\big(\lambda_i + \rho\,h_i(\mathbf x)\big)\nabla h_i = \mathbf 0 .
+$$
+
+Compare this with the KKT stationarity condition: the quantity $\lambda_i + \rho h_i$ stands
+exactly where the true multiplier should. This suggests the update
+$\boldsymbol\lambda \leftarrow \boldsymbol\lambda + \rho\,\mathbf h(\mathbf x)$.
+
+**The method.** Each outer iteration minimises $L_\rho$ over $\mathbf x$ with an unconstrained method
+(here [L-BFGS](newton-quasi-newton.md#l-bfgs)) and then updates the multipliers by the rule
+above. The penalty $\rho$ is increased tenfold whenever the violation fails to fall by a factor
+of four.
+
+**Inequalities** are handled by Rockafellar's form of the augmented Lagrangian, which adds
+$\tfrac1{2\rho}\sum_j(\max(0, \mu_j + \rho g_j)^2 - \mu_j^2)$ and updates
+$\mu_j \leftarrow \max(0, \mu_j + \rho g_j)$. The $\max$ implements the two cases of the optimality
+conditions: a constraint that is comfortably satisfied gets a zero multiplier and drops out,
+while an active one is treated like an equality.
 
 ### An example
 
 Minimise $(x - 2)^2 + (y - 1)^2$ subject to $y \ge x^2$ and $x + y \le 2$, from the infeasible point
-$(-1.5, 0.5)$. The unconstrained minimum $(2, 1)$ violates both constraints; the solution $(1, 1)$ is
-where both are active, with multipliers $\mu_1 = \mu_2 = 2/3$:
+$(-1.5, 0.5)$. The objective is the squared distance from $(2, 1)$, so the unconstrained minimum is
+$(2, 1)$, which violates both constraints. The solution is $(1, 1)$, where both are active, with
+multipliers $\mu_1 = \mu_2 = 2/3$:
 
 ![A constrained problem](../generated/optimization/constrained.svg)
+
+The KKT conditions can be checked by hand. In the standard form the constraints are
+$g_1 = x^2 - y \le 0$ and $g_2 = x + y - 2 \le 0$. At $(1, 1)$ the gradients are
+$\nabla f = (-2, 0)$, $\nabla g_1 = (2, -1)$ and $\nabla g_2 = (1, 1)$, and indeed
+
+$$
+\nabla f + \tfrac23\nabla g_1 + \tfrac23\nabla g_2 = \big(-2 + \tfrac43 + \tfrac23,\ \ 0 - \tfrac23 + \tfrac23\big) = (0, 0).
+$$
 
 {{#include ../generated/optimization/constrained.md}}
 

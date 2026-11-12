@@ -41,32 +41,95 @@ WY representation that lets reflections be applied in blocks, at matrix-multiply
 
 ### Gram-Schmidt orthogonalisation
 
-**Classical Gram-Schmidt** subtracts from each column $\mathbf a_j$ its components along the previous $\mathbf q_i$, computed
-from the original column, and normalises:
+Let $A$ be an $m \times n$ matrix with $m \ge n$ and columns $\mathbf a_1, \ldots, \mathbf a_n$. We want
+orthonormal vectors $\mathbf q_1, \ldots, \mathbf q_n$ (mutually perpendicular, each of length 1) such that
+$\mathbf q_1, \ldots, \mathbf q_k$ span the same space as $\mathbf a_1, \ldots, \mathbf a_k$ for every $k$.
+
+The **Gram-Schmidt process** builds them one at a time.
+
+- Normalise the first column: $\mathbf q_1 = \mathbf a_1/\|\mathbf a_1\|$.
+- From the second column remove its component along $\mathbf q_1$, which is
+  $(\mathbf q_1^{\mathsf T}\mathbf a_2)\,\mathbf q_1$. What is left, $\mathbf v_2 = \mathbf a_2 - (\mathbf q_1^{\mathsf T}\mathbf a_2)\,\mathbf q_1$, is
+  perpendicular to $\mathbf q_1$. Normalise it to get $\mathbf q_2$.
+- From the third column remove its components along both $\mathbf q_1$ and $\mathbf q_2$, normalise, and
+  so on.
+
+In symbols, for each column $j$:
 
 $$
 r_{ij} = \mathbf q_i^{\mathsf T}\mathbf a_j \ (i < j), \qquad \mathbf v_j = \mathbf a_j - \sum_{i<j}r_{ij}\mathbf q_i, \qquad r_{jj} = \|\mathbf v_j\|, \qquad \mathbf q_j = \mathbf v_j/r_{jj} .
 $$
 
-**Modified Gram-Schmidt** computes each $r_{ij}$ from the partially orthogonalised vector instead, subtracting
-one component at a time. In exact arithmetic the two are identical. In floating point, rounding errors in
-the early $\mathbf q_i$ contaminate the later ones, and the computed $Q$ loses orthogonality: by about $\kappa^2\varepsilon$ for classical
-Gram-Schmidt and $\kappa\varepsilon$ for modified, where $\kappa$ is the condition number of $A$. Reorthogonalising (running the
-process twice) restores orthogonality.
+**Why this is a factorisation.** Rearranging the middle formula,
+$\mathbf a_j = \sum_{i<j}r_{ij}\mathbf q_i + r_{jj}\mathbf q_j$: each column of $A$ is a combination of the first
+$j$ columns of $Q$ with coefficients $r_{1j}, \ldots, r_{jj}$. That is precisely the statement
+$A = QR$, where $Q$ has the $\mathbf q_j$ as columns and $R$ is the upper triangular matrix of the
+$r_{ij}$.
+
+**Classical and modified.** The formulas above are **classical Gram-Schmidt**: every coefficient
+$r_{ij}$ is computed from the original column $\mathbf a_j$. **Modified Gram-Schmidt** subtracts the
+components one at a time and computes each coefficient from the vector as it currently stands:
+start with $\mathbf v = \mathbf a_j$, and for $i = 1, \ldots, j - 1$ set $r_{ij} = \mathbf q_i^{\mathsf T}\mathbf v$ and
+$\mathbf v \leftarrow \mathbf v - r_{ij}\mathbf q_i$.
+
+In exact arithmetic the two give identical results, since the $\mathbf q_i$ are orthogonal and
+removing one component does not change the others. In floating point they differ. The computed
+$\mathbf q_i$ are only approximately orthogonal, and when a column is nearly a combination of the
+previous ones, $\mathbf v_j$ is a small difference of large vectors and its direction is contaminated
+by rounding errors. The modified version projects out each direction from a vector that has
+already had its earlier errors partly removed, so the errors do not compound as badly. The
+computed $Q$ departs from orthogonality by about $\kappa^2\varepsilon$ for classical Gram-Schmidt and
+$\kappa\varepsilon$ for modified, where $\kappa$ is the [condition number](lu.md#conditioning) of $A$.
+Reorthogonalising (running the process twice) restores orthogonality.
 
 ### Householder reflections
 
-A **Householder reflection** $H = I - 2\mathbf v\mathbf v^{\mathsf T}$, with $\|\mathbf v\| = 1$, reflects vectors in the hyperplane orthogonal to $\mathbf v$.
-It is symmetric and orthogonal, and for any vector $\mathbf x$ the choice $\mathbf v \propto \mathbf x + \operatorname{sign}(x_1)\|\mathbf x\|\mathbf e_1$ maps $\mathbf x$ onto
-$-\operatorname{sign}(x_1)\|\mathbf x\|\mathbf e_1$. The sign is chosen so that the first component of $\mathbf v$ involves no cancellation. Applying
-reflections $H_1, H_2, \ldots, H_n$ that zero the subdiagonal of each column in turn gives
+Gram-Schmidt makes $Q$ by operating on $A$ with triangular transformations, and orthogonality is
+the hoped-for result. Householder's method does the reverse: it operates on $A$ with orthogonal
+transformations until it is triangular, so orthogonality is guaranteed by construction.
+
+**The reflection.** For a unit vector $\mathbf v$, the matrix
 
 $$
-H_n\cdots H_2H_1A = R, \qquad Q = H_1H_2\cdots H_n .
+H = I - 2\mathbf v\mathbf v^{\mathsf T}
 $$
 
-Each reflection is applied without forming it, as $H\mathbf y = \mathbf y - 2(\mathbf v^{\mathsf T}\mathbf y)\mathbf v$, and $Q$ is usually kept as the list of
-vectors $\mathbf v_k$. Because every factor is orthogonal to working precision, so is the product: the computed $Q$ is
+is a **Householder reflection**. Applied to a vector, $H\mathbf y = \mathbf y - 2(\mathbf v^{\mathsf T}\mathbf y)\mathbf v$: it
+subtracts twice the component of $\mathbf y$ along $\mathbf v$, which reverses that component and leaves
+the rest alone. Geometrically, $H$ reflects in the plane (hyperplane) perpendicular to $\mathbf v$.
+It is symmetric, and it is orthogonal, since reflecting twice restores the original:
+$H^2 = I - 4\mathbf v\mathbf v^{\mathsf T} + 4\mathbf v(\mathbf v^{\mathsf T}\mathbf v)\mathbf v^{\mathsf T} = I$.
+
+**Zeroing a column.** A reflection preserves length, so it can map a given vector $\mathbf x$ onto
+any vector of the same length. We want it mapped onto a multiple of the first unit vector
+$\mathbf e_1$, so that all its entries but the first become zero; the target must be
+$\pm\|\mathbf x\|\mathbf e_1$. A reflection that takes $\mathbf x$ to $\mathbf y$ has its mirror perpendicular to
+$\mathbf x - \mathbf y$, so
+
+$$
+\mathbf v \propto \mathbf x + \operatorname{sign}(x_1)\|\mathbf x\|\,\mathbf e_1 \qquad\text{maps}\qquad \mathbf x \mapsto -\operatorname{sign}(x_1)\|\mathbf x\|\,\mathbf e_1 .
+$$
+
+Of the two possible signs of the target, this one is chosen so that the first component of
+$\mathbf v$ is $x_1$ plus a number of the same sign. With the other choice it would be a difference
+of two nearly equal numbers whenever $\mathbf x$ is already close to a multiple of $\mathbf e_1$, and
+would lose accuracy to cancellation.
+
+**The factorisation.** Apply a reflection $H_1$ that zeroes the first column of $A$ below the
+diagonal. Then apply $H_2$, built from the part of the second column on and below the diagonal,
+which zeroes that column below the diagonal without disturbing the first row or column. After $n$
+such steps,
+
+$$
+H_n\cdots H_2H_1A = R, \qquad\text{so}\qquad A = QR \quad\text{with}\quad Q = H_1H_2\cdots H_n .
+$$
+
+Two practical points. A reflection is never formed as a matrix; it is applied to each column
+$\mathbf y$ by the formula $H\mathbf y = \mathbf y - 2(\mathbf v^{\mathsf T}\mathbf y)\mathbf v$, at the cost of a dot product and a
+vector update. And $Q$ is usually not formed either, but kept as the list of vectors $\mathbf v_k$,
+from which $Q\mathbf y$ or $Q^{\mathsf T}\mathbf y$ can be computed whenever needed.
+
+Because every factor is orthogonal to working precision, so is the product: the computed $Q$ is
 orthogonal to about $\varepsilon$ regardless of the conditioning of $A$.
 
 ![Loss of orthogonality](../generated/linear_algebra/orthogonality.svg)
@@ -78,12 +141,22 @@ entirely in $Q$.
 
 ### Column pivoting
 
-**QR with column pivoting**, $AP = QR$, chooses at each step the remaining column of largest norm. The diagonal of
-$R$ then decreases, $|r_{11}| \ge |r_{22}| \ge \cdots$, and a sharp drop reveals the **numerical rank**: if $A$ is close to a matrix of
-rank $r$, then $|r_{r+1,r+1}|$ is small. The column norms are **downdated** after each step rather than recomputed,
-with a recomputation when cancellation makes the downdated value unreliable (the safeguard used in LAPACK's
-`geqp3`). The production library uses pivoted QR for [least squares](least-squares.md) and to precondition
-the [Jacobi SVD](svd.md#one-sided-jacobi).
+Plain QR processes the columns in the order given. If some columns are (nearly) combinations of
+others, so that $A$ has fewer than $n$ independent columns, that fact is hidden somewhere inside
+$R$. **QR with column pivoting** brings it into the open. At each step it swaps the remaining
+column of largest norm into the current position, giving $AP = QR$ with $P$ a permutation.
+
+The effect is that the most independent columns are processed first. The diagonal of $R$ then
+decreases in magnitude, $|r_{11}| \ge |r_{22}| \ge \cdots$, and each $|r_{kk}|$ measures how much of
+column $k$ is new, that is, not already explained by the columns before it. A sharp drop reveals
+the **numerical rank**: if $A$ is close to a matrix of rank $r$, then $|r_{r+1,r+1}|$ is small.
+
+Recomputing the norms of all remaining columns at every step would double the cost. Instead they
+are **downdated**: after a reflection, the squared norm of what remains of a column is its
+previous value minus the square of the entry just fixed in $R$. The subtraction can cancel, so
+the norm is recomputed from scratch when the downdated value becomes unreliable (the safeguard
+used in LAPACK's `geqp3`). The production library uses pivoted QR for
+[least squares](least-squares.md) and to precondition the [Jacobi SVD](svd.md#one-sided-jacobi).
 
 ## Algorithm
 

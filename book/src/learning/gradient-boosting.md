@@ -35,15 +35,38 @@ careful engineering, and dominate machine-learning competitions on tabular data.
 
 ### Functional gradient descent
 
-The model is an additive expansion
+**Boosting by fitting residuals.** Start with the simplest possible model for a regression
+problem, a constant $F_0$ equal to the mean of the targets. It is wrong at every training point
+by a residual $y_i - F_0$. Fit a small regression tree $h_1$ to those residuals: it captures the
+largest pattern in what the constant missed. Add it to the model, compute the new residuals, fit
+another tree to them, and continue. Each tree corrects the errors of the sum of its
+predecessors. The final model is an additive expansion
 
 $$
 F_M(\mathbf x) = F_0 + \nu\sum_{m=1}^Mh_m(\mathbf x),
 $$
 
-where $F_0$ is a constant (the mean, or the log class priors), each $h_m$ is a small regression tree, and $\nu \in (0, 1]$ is the **learning rate**. At stage $m$, compute
-the **pseudo-residuals** $r_i = -\partial L(y_i, F)/\partial F$ at $F = F_{m-1}(\mathbf x_i)$, fit a tree $h_m$ to them by least squares, and add $\nu h_m$. For squared error $L = \frac12(y - F)^2$ the
-pseudo-residual is the ordinary residual $y_i - F_{m-1}(\mathbf x_i)$:
+where each $h_m$ is a small tree. The factor $\nu \in (0, 1]$, the **learning rate**, adds only a
+fraction of each tree, so that no single tree is trusted too much.
+
+**The connection with gradient descent.** For the squared-error loss
+$L = \tfrac12(y - F)^2$, the derivative of the loss with respect to the prediction $F$ is
+$-(y - F)$. The residual is therefore the *negative gradient* of the loss with respect to the
+model's prediction at that point. Adding a tree that approximates the residuals moves the
+predictions at all the training points a step in the direction of steepest descent. Boosting is
+gradient descent, not on a vector of parameters, but on the function $F$ itself.
+
+This observation, due to Friedman, generalises the method to any differentiable loss. At stage
+$m$:
+
+1. compute the **pseudo-residuals** $r_i = -\partial L(y_i, F)/\partial F$, evaluated at the
+   current prediction $F = F_{m-1}(\mathbf x_i)$;
+2. fit a regression tree $h_m$ to the pseudo-residuals by least squares;
+3. add $\nu h_m$ to the model.
+
+For squared error the pseudo-residuals are the ordinary residuals, and the description above is
+recovered. For other losses, such as the cross-entropy used for classification, they are whatever
+the gradient says would reduce the loss fastest.
 
 ![Boosting a sine](../generated/learning/gb_stages.svg)
 
@@ -52,16 +75,31 @@ sine as a fine staircase.
 
 ### Newton steps in the leaves
 
-The tree structure comes from a least-squares fit to the gradient, but the value in each leaf can do better than the mean gradient.
-A Newton step for the loss restricted to the leaf's points $R$ is
+A regression tree does two things: it divides the points into groups (its leaves), and it
+assigns a value to each group. Fitting the tree to the pseudo-residuals by least squares is a
+good way to find the groups. But the least-squares leaf value, the mean pseudo-residual, is only
+the best value for the squared-error loss. For another loss, the value can be chosen to reduce
+*that* loss as much as possible for the points in the leaf.
+
+One step of [Newton's method](../optimization/newton-quasi-newton.md#newtons-method) on the
+loss, restricted to the points $R$ of a leaf and to a single unknown $\gamma$, the leaf's value,
+gives
 
 $$
 \gamma = \frac{\sum_{i \in R}g_i}{\sum_{i \in R}h_i},
 $$
 
-with $g_i$ the negative gradient and $h_i$ the second derivative. For squared error $h_i = 1$, giving the mean residual. For classification with $K$ classes, the
-model keeps one score $F_k$ per class with softmax probabilities $p_k$, and minimises the cross-entropy (multinomial deviance). Each stage fits one tree per
-class to $y_{ik} - p_{ik}$, with leaf values $\frac{K - 1}{K}\sum(y - p)/\sum p(1 - p)$ (Friedman's factor $\frac{K - 1}{K}$ allows for the softmax's redundant degree of freedom).
+where $g_i$ is the negative gradient (the pseudo-residual) and $h_i$ the second derivative of
+the loss at point $i$. For squared error $h_i = 1$, and $\gamma$ is the mean residual as before.
+
+For classification with $K$ classes the model keeps one score $F_k$ per class, converts the
+scores to probabilities $p_k$ by a softmax, and minimises the cross-entropy (the multinomial
+deviance). The pseudo-residual for class $k$ is $y_{ik} - p_{ik}$, where $y_{ik}$ is 1 if point
+$i$ belongs to class $k$ and 0 otherwise: the familiar prediction error. Each stage fits one
+tree per class to these, with leaf values
+$\frac{K - 1}{K}\sum(y - p)/\sum p(1 - p)$. (Friedman's factor $\frac{K - 1}{K}$ allows for the
+fact that the softmax has one redundant degree of freedom: adding a constant to all the scores
+changes nothing.)
 
 ![Gradient boosting on moons](../generated/learning/gb_moons.svg)
 

@@ -34,10 +34,37 @@ tabular data.
 
 ### Growing a tree by Gini impurity
 
-At a node with class proportions $p_c$, the **Gini impurity** $G = 1 - \sum_cp_c^2$ is the probability that two points drawn at random have different labels:
-zero for a pure node. For each feature, sort the node's points by it and consider every threshold between consecutive distinct
-values; choose the split that most reduces the size-weighted impurity of the two children. Recurse until the node is pure, too
-small, or at the depth limit; a leaf stores the class proportions, which serve as probabilities.
+A decision tree classifies a point by asking a sequence of yes-or-no questions of the form "is
+feature $j$ below the threshold $t$?". Each answer leads down a branch to another question, and
+finally to a **leaf**, which holds the prediction. Geometrically, each question cuts a region of
+feature space in two with a cut parallel to an axis, so the tree divides the space into boxes.
+
+**Measuring purity.** A good question separates the classes. To compare candidate questions we
+need a measure of how mixed a set of points is. For a node whose points have class proportions
+$p_c$, the **Gini impurity** is
+
+$$
+G = 1 - \sum_cp_c^2 .
+$$
+
+It is the probability that two points drawn at random from the node have different labels. A
+pure node, with all its points in one class, has $G = 0$. A node split evenly between two
+classes has $G = 1 - (\tfrac14 + \tfrac14) = \tfrac12$, the largest possible for two classes.
+
+**Choosing a split.** At a node, every feature and every threshold is a candidate. For each
+feature, sort the node's points by that feature; only thresholds between consecutive distinct
+values need be considered, since any other threshold divides the points in the same way as one
+of those. Each candidate sends some points to a left child and the rest to a right child. Its
+quality is the average impurity of the two children, weighted by their sizes, and the split
+chosen is the one that reduces the impurity most.
+
+**Growing.** The procedure is applied recursively to each child, until a node is pure, has too
+few points to split, or has reached the depth limit. It then becomes a leaf, which stores the
+class proportions of its training points; these serve as predicted probabilities.
+
+The choice at each node is **greedy**: it is the best single split, without looking ahead to
+what later splits could achieve. Finding the truly optimal tree is computationally intractable,
+and the greedy tree is good enough in practice.
 
 | | | |
 |:---:|:---:|:---:|
@@ -48,14 +75,38 @@ slivers; a forest of 200 trees averages them into a boundary that follows the mo
 
 ### Bagging and random features
 
-Averaging $T$ predictors with variance $\sigma^2$ and pairwise correlation $\rho$ gives variance $\rho\sigma^2 + (1 - \rho)\sigma^2/T$: more trees remove the second term, but
-the first remains. Bootstrap resampling makes the trees differ; restricting each split to a random subset of $m$ features
-(default $\sqrt p$) decorrelates them further, because a dominant feature can no longer head every tree.
+A fully grown tree fits its training data perfectly and is very sensitive to it: a slightly
+different training set can produce a quite different tree. In statistical terms it has low bias
+and high variance. Averaging is the classical cure for variance, and a **random forest** is an
+average of many trees.
+
+How much does averaging help? If $T$ predictors each have variance $\sigma^2$ and every pair has
+correlation $\rho$, their average has variance
+
+$$
+\rho\sigma^2 + \frac{(1 - \rho)\,\sigma^2}{T} .
+$$
+
+The second term shrinks as trees are added, but the first does not. If the trees were
+independent ($\rho = 0$) the variance would fall like $1/T$; if they were identical ($\rho = 1$)
+averaging would achieve nothing. So the trees must be made to *differ*, while each remains a
+reasonable classifier. Two sources of randomness do this.
+
+- **Bagging** (bootstrap aggregating): each tree is trained on a
+  [bootstrap sample](../statistics/bootstrap.md), $n$ points drawn with replacement from the
+  training set, so each tree sees a somewhat different data set.
+- **Random features**: at each split only a random subset of $m$ features (by default
+  $\sqrt p$) may be considered. Without this, a single strong feature would be chosen at the top
+  of every tree and the trees would all resemble one another. With it, other features get their
+  turn, and the trees are less correlated.
 
 ### Out-of-bag error and feature importance
 
-Each bootstrap sample omits about 37% of the points. Scoring each point with only the trees that did not see it gives the
-**out-of-bag** accuracy, an estimate of test accuracy at no extra cost:
+Bagging provides a test set for free. Each bootstrap sample omits about 37% of the training
+points (see [the bootstrap](../statistics/bootstrap.md#resampling-and-the-plug-in-principle)),
+so for every training point there are trees that never saw it. Predicting each point using only
+those trees, and comparing with its true label, gives the **out-of-bag** accuracy: an honest
+estimate of the accuracy on new data, with no data held back and no extra training.
 
 ![Accuracy against the number of trees](../generated/machine_learning/forest_trees.svg)
 

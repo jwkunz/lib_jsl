@@ -39,17 +39,50 @@ stability in the 1940s and 1960s, showing that it needs no pivoting at all.
 
 ### The factorisation
 
-Comparing entries of $A = LL^{\mathsf T}$ row by row determines each entry of $L$ from those already known:
+We look for a lower triangular matrix $L$ with $A = LL^{\mathsf T}$. For a $2 \times 2$ matrix, writing
+out the product shows how the entries of $L$ can be found one at a time:
+
+$$
+\begin{pmatrix} a_{11} & a_{21} \\ a_{21} & a_{22} \end{pmatrix} =
+\begin{pmatrix} \ell_{11} & 0 \\ \ell_{21} & \ell_{22} \end{pmatrix}
+\begin{pmatrix} \ell_{11} & \ell_{21} \\ 0 & \ell_{22} \end{pmatrix} =
+\begin{pmatrix} \ell_{11}^2 & \ell_{11}\ell_{21} \\ \ell_{11}\ell_{21} & \ell_{21}^2 + \ell_{22}^2 \end{pmatrix}.
+$$
+
+The top left entry gives $\ell_{11} = \sqrt{a_{11}}$. The off-diagonal entry then gives
+$\ell_{21} = a_{21}/\ell_{11}$, and the last gives $\ell_{22} = \sqrt{a_{22} - \ell_{21}^2}$. For
+$A = \begin{pmatrix} 4 & 2 \\ 2 & 5 \end{pmatrix}$ this yields $\ell_{11} = 2$, $\ell_{21} = 1$ and
+$\ell_{22} = \sqrt{5 - 1} = 2$.
+
+The same comparison of entries works for any size. Entry $(i, j)$ of $LL^{\mathsf T}$ is the dot
+product of rows $i$ and $j$ of $L$, $\sum_{k \le j}\ell_{ik}\ell_{jk}$ for $i \ge j$. Setting it equal to
+$a_{ij}$ and solving for the one entry not yet known gives
 
 $$
 \ell_{jj} = \sqrt{a_{jj} - \sum_{k<j}\ell_{jk}^2}, \qquad \ell_{ij} = \frac1{\ell_{jj}}\Big(a_{ij} - \sum_{k<j}\ell_{ik}\ell_{jk}\Big) \quad (i > j).
 $$
 
-The quantity under the square root is positive at every step if and only if $A$ is positive definite (it is
-the ratio of successive leading principal minors), so the algorithm either succeeds or detects that $A$ is not
-positive definite. Since $\ell_{ij}^2 \le a_{ii}$ for every entry of row $i$, the entries of $L$ cannot grow: this is why no
-pivoting is needed. A system $A\mathbf x = \mathbf b$ is then solved by $L\mathbf y = \mathbf b$ and $L^{\mathsf T}\mathbf x = \mathbf y$. For complex Hermitian
-matrices the same formulas hold with $L^{\mathsf H}$ and $|\ell_{jk}|^2$.
+Working through the matrix row by row (or column by column), every entry on the right has
+already been computed when it is needed. The cost is about $\tfrac13n^3$ flops, half that of
+[LU](lu.md), because symmetry means only half the matrix has to be processed.
+
+Three properties make this factorisation special.
+
+- **It tests positive definiteness.** The quantity under the square root is positive at every
+  step if and only if $A$ is positive definite. (It equals the ratio of successive leading
+  principal minors of $A$, the determinants of its top left $j \times j$ blocks, and a symmetric
+  matrix is positive definite exactly when all of these are positive.) So the algorithm either
+  succeeds, or meets a non-positive number under a square root and reports that $A$ is not
+  positive definite.
+- **It needs no pivoting.** The diagonal entries of $A = LL^{\mathsf T}$ are
+  $a_{ii} = \sum_k\ell_{ik}^2$, so every entry of row $i$ of $L$ satisfies $\ell_{ik}^2 \le a_{ii}$. The
+  entries of $L$ cannot grow beyond the size of those of $A$. There is no growth factor to
+  worry about, and the algorithm is backward stable as it stands.
+- **It solves systems like LU.** $A\mathbf x = \mathbf b$ is solved by forward substitution with
+  $L\mathbf y = \mathbf b$ followed by back substitution with $L^{\mathsf T}\mathbf x = \mathbf y$.
+
+For complex Hermitian matrices the same formulas hold with the conjugate transpose $L^{\mathsf H}$
+and $|\ell_{jk}|^2$.
 
 {{#include ../generated/linear_algebra/cholesky_cases.md}}
 

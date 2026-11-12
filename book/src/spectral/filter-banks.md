@@ -31,13 +31,31 @@ reconstruction. fred harris's work (2003) on polyphase channelisers made oversam
 
 ### The polyphase analysis bank
 
-Channel $c$ of the bank filters by $h[n]e^{2\pi icn/M}$ and decimates. Splitting the filter sum into $M$ interleaved parts, $n = rM + j$, the output at block time $t$ is
+**The task.** A **filter bank** splits a wide-band signal into $M$ adjacent frequency channels,
+each delivered as its own low-rate signal: a radio receiver separating many stations at once,
+for example. The direct construction uses one band-pass filter per channel. All of them have the
+same shape, obtained by shifting a single low-pass **prototype** filter $h$ to the centre
+frequency of each channel, which amounts to multiplying its taps by a complex exponential. Each
+channel occupies only $1/M$ of the band, so its output can be decimated, keeping one sample in
+every $D$.
+
+Built this way the bank costs $M$ filters, each running at the full input rate. The
+**polyphase** form computes all $M$ channels for the price of one filter and one FFT.
+
+**The derivation.** Channel $c$ of the bank filters by $h[n]e^{2\pi icn/M}$ and decimates. The key
+observation is that the exponential repeats with period $M$ in $n$, so taps that are $M$ apart
+share the same factor. Splitting the filter sum into $M$ interleaved parts accordingly, $n = rM + j$, the output at block time $t$ is
 
 $$
 X_c[t] = \sum_{j=0}^{M-1}e^{2\pi icj/M}\underbrace{\sum_rh[rM + j]\,x[tD - rM - j]}_{v_j[t]},
 $$
 
-an $M$-point DFT of the **polyphase components** $v_j$, the input delayed by $j$ and filtered by the $j$-th phase of the prototype. One block costs $L$ multiply-adds and one FFT, however many channels.
+The inner sum $v_j$ does not depend on the channel $c$. It is the input, delayed by $j$,
+filtered by the $j$-th phase of the prototype (every $M$-th tap, starting from tap $j$): a
+**polyphase component**. The outer sum, over $j$, is an $M$-point DFT of these components. So the
+channels are obtained together: compute the $M$ polyphase components, which uses each of the $L$
+taps once, and take one FFT. One block costs $L$ multiply-adds and one FFT, however many
+channels there are.
 The default prototype is a Kaiser-window low-pass with cutoff at half a channel spacing and 60 dB attenuation:
 
 ![Channel responses](../generated/spectral/filter_bank_channels.svg)

@@ -42,45 +42,76 @@ integral based on a sampling theorem.
 
 ### The incomplete gamma function
 
-The regularised lower and upper incomplete gamma functions are
+The gamma function is an integral from 0 to $\infty$. Stopping the integral at a finite point $x$
+gives the **incomplete** gamma function, and dividing by $\Gamma(a)$ so that the result runs from 0
+to 1 gives the **regularised** forms
 
 $$
 P(a, x) = \frac1{\Gamma(a)}\int_0^x t^{a-1}e^{-t}\,dt, \qquad Q(a, x) = 1 - P(a, x) = \frac1{\Gamma(a)}\int_x^\infty t^{a-1}e^{-t}\,dt .
 $$
 
-$P(a, x)$ rises from 0 to 1, most steeply near $x = a$, with width about $\sqrt a$:
+$P$ is the fraction of the integral accumulated up to $x$, and $Q$ is the remaining tail. These
+are the cumulative distribution functions of the gamma, chi-squared and Poisson distributions,
+which is why they matter. As a function of $x$, $P(a, x)$ rises from 0 to 1, most steeply near
+$x = a$ (where the integrand peaks), over a width of about $\sqrt a$:
 
 ![The incomplete gamma function](../generated/special_functions/incomplete_gamma.svg)
 
-Two expansions cover the whole range. For $x < a + 1$ the **series**
+No single formula computes $P$ efficiently everywhere. Two expansions, each good on one side of
+the rise, cover the whole range.
+
+**Left of the rise: a series.** For $x < a + 1$,
 
 $$
-P(a, x) = \frac{x^a e^{-x}}{\Gamma(a + 1)}\sum_{n=0}^\infty\frac{x^n}{(a + 1)(a + 2)\cdots(a + n)}
+P(a, x) = \frac{x^a e^{-x}}{\Gamma(a + 1)}\sum_{n=0}^\infty\frac{x^n}{(a + 1)(a + 2)\cdots(a + n)} .
 $$
 
-converges quickly, its terms decreasing once $n > x - a$. For $x \ge a + 1$, Legendre's **continued
-fraction**
+Each term is the previous one multiplied by $x/(a + n)$. When $x < a + 1$ this ratio is below 1
+from the start, so the terms decrease and the series converges quickly.
+
+**Right of the rise: a continued fraction.** For $x \ge a + 1$ the series would need many terms.
+There, Legendre's **continued fraction** for the tail converges quickly instead:
 
 $$
-Q(a, x) = \frac{x^a e^{-x}}{\Gamma(a)}\cdot\cfrac{1}{x + 1 - a - \cfrac{1\cdot(1 - a)}{x + 3 - a - \cfrac{2\,(2 - a)}{x + 5 - a - \cdots}}}
+Q(a, x) = \frac{x^a e^{-x}}{\Gamma(a)}\cdot\cfrac{1}{x + 1 - a - \cfrac{1\cdot(1 - a)}{x + 3 - a - \cfrac{2\,(2 - a)}{x + 5 - a - \cdots}}} .
 $$
 
-converges quickly instead. Each expansion computes the *smaller* of $P$ and $Q$, and the other is
-obtained by subtracting from 1, which loses nothing when the subtracted value is small. Continued
-fractions are evaluated from the top down by the **modified Lentz algorithm**, which updates the
-ratios of successive convergents and so needs no fixed number of terms in advance.
+A continued fraction is an expression of the form $b_0 + a_1/(b_1 + a_2/(b_2 + \cdots))$. Cutting
+it off after $n$ levels gives an ordinary fraction, its $n$-th **convergent**, and the value of
+the continued fraction is the limit of the convergents. Continued fractions often converge in
+regions where power series converge slowly or not at all, which makes them the natural partner
+of a series.
+
+**Why each expansion is used where it is.** There is a second reason for the split, besides
+speed. Left of the rise $P$ is the smaller of the pair, and right of it $Q$ is. Each expansion
+computes the *smaller* quantity directly, to full relative accuracy, and the other follows by
+subtracting from 1, which loses nothing when the subtracted value is small. Doing it the other
+way round, computing a tiny tail as 1 minus a number very close to 1, would cancel most of its
+digits.
+
+**Evaluating a continued fraction.** Written as above, a continued fraction seems to need
+evaluating from the bottom up, which requires deciding in advance how many levels to keep. The
+**modified Lentz algorithm** evaluates it from the top down instead. It keeps track of the ratios
+of successive convergents and multiplies the running value by one such ratio per level, stopping
+when the ratio is 1 to within rounding error.
 
 ### The incomplete beta function
 
-The regularised incomplete beta function
+The same construction applied to the [beta function](gamma.md#the-beta-function) gives the
+regularised incomplete beta function
 
 $$
-I_x(a, b) = \frac1{B(a, b)}\int_0^x t^{a-1}(1 - t)^{b-1}\,dt
+I_x(a, b) = \frac1{B(a, b)}\int_0^x t^{a-1}(1 - t)^{b-1}\,dt ,
 $$
 
-has a continued fraction (from Gauss's continued fraction for ${}_2F_1$) that converges rapidly for
-$x < (a + 1)/(a + b + 2)$, the region below the mean of the beta distribution. Above it, the symmetry
-$I_x(a, b) = 1 - I_{1-x}(b, a)$ maps the problem back. The prefactor $x^a(1 - x)^b/(aB(a, b))$ is computed from
+which rises from 0 at $x = 0$ to 1 at $x = 1$. It is the cumulative distribution function of
+the beta distribution, and through it of Student's $t$, the $F$ and the binomial distributions.
+
+It has a continued fraction (derived from Gauss's continued fraction for the hypergeometric
+function ${}_2F_1$) that converges rapidly for $x < (a + 1)/(a + b + 2)$, the region below the mean
+of the beta distribution. Above that point the problem is reflected: swapping the roles of $t$
+and $1 - t$ in the integral gives the symmetry $I_x(a, b) = 1 - I_{1-x}(b, a)$, and the right side
+is in the region of rapid convergence. The prefactor $x^a(1 - x)^b/(aB(a, b))$ is computed from
 logarithms to avoid overflow for large parameters.
 
 ### The error function
@@ -88,17 +119,35 @@ logarithms to avoid overflow for large parameters.
 The **error function** and its complement are
 
 $$
-\operatorname{erf} x = \frac2{\sqrt\pi}\int_0^x e^{-t^2}\,dt = P(\tfrac12, x^2), \qquad \operatorname{erfc} x = 1 - \operatorname{erf} x = Q(\tfrac12, x^2) \quad (x \ge 0),
+\operatorname{erf} x = \frac2{\sqrt\pi}\int_0^x e^{-t^2}\,dt, \qquad \operatorname{erfc} x = 1 - \operatorname{erf} x .
 $$
 
-so the library computes both through the incomplete gamma function. The point of a separate $\operatorname{erfc}$ is
-the upper tail: $\operatorname{erf} x$ rounds to 1 beyond $x \approx 5.9$, so $1 - \operatorname{erf} x$ is zero there, while $\operatorname{erfc} x$ keeps full
-relative accuracy down to the underflow threshold near $x = 26.5$:
+$\operatorname{erf}$ is the area under the bell curve $e^{-t^2}$ from 0 to $x$, scaled to tend to 1; it gives
+the probability that a normally distributed measurement falls within a given distance of its
+mean. It is a special case of the incomplete gamma function. Substituting $t = \sqrt u$ in the
+integral, so that $dt = du/(2\sqrt u)$, turns it into $\frac1{\sqrt\pi}\int_0^{x^2}u^{-1/2}e^{-u}\,du$,
+and since $\Gamma(\tfrac12) = \sqrt\pi$,
+
+$$
+\operatorname{erf} x = P(\tfrac12, x^2), \qquad \operatorname{erfc} x = Q(\tfrac12, x^2) \quad (x \ge 0).
+$$
+
+The library computes both through the incomplete gamma function.
+
+Why provide $\operatorname{erfc}$ as a separate function, when it is just $1 - \operatorname{erf}$? Because of the
+upper tail. For $x$ beyond about 5.9, $\operatorname{erf} x$ differs from 1 by less than the spacing of
+double-precision numbers, so it rounds to exactly 1 and $1 - \operatorname{erf} x$ evaluates to zero. The
+true value is small but not zero, and tail probabilities of that size matter in practice (error
+rates of communication links, for example). Computed directly, $\operatorname{erfc} x$ keeps full relative
+accuracy down to the underflow threshold near $x = 26.5$:
 
 ![erfc and 1 − erf](../generated/special_functions/erfc.svg)
 
-The **inverse error function** starts from Winitzki's approximation and refines it by Halley's
-method, which converges cubically using $\operatorname{erf}'$ and $\operatorname{erf}''$, both elementary.
+The **inverse error function** has no convenient series. It is found by solving
+$\operatorname{erf} y = x$ for $y$ as a root-finding problem: start from Winitzki's closed-form approximation
+and refine it by Halley's method, a relative of [Newton's method](../root_finding/newton.md)
+that also uses the second derivative and converges cubically. Both $\operatorname{erf}'$ and $\operatorname{erf}''$ are
+elementary, so the extra derivative costs almost nothing.
 
 ### Dawson's integral
 

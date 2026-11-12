@@ -37,15 +37,45 @@ digital algorithm.
 
 ### Bluestein's algorithm
 
-Using $jk = \tfrac12\big(j^2 + k^2 - (k - j)^2\big)$,
+The radix-2 FFT works by halving, so it needs $n$ to be a power of two. Bluestein's algorithm
+computes a DFT of *any* length using only power-of-two FFTs. It rests on two facts: a DFT can be
+rewritten as a convolution, and a convolution can be computed with FFTs of any convenient
+length.
+
+**Step 1: turn the product $jk$ into a difference.** In the DFT
+$X_k = \sum_jx_je^{-2\pi ijk/n}$, the indices $j$ and $k$ appear multiplied together. The identity
 
 $$
-X_k = \sum_jx_je^{-2\pi ijk/n} = e^{-\pi ik^2/n}\sum_j\big(x_je^{-\pi ij^2/n}\big)\,e^{\pi i(k-j)^2/n} .
+jk = \tfrac12\big(j^2 + k^2 - (k - j)^2\big)
 $$
 
-The sum is the convolution of $a_j = x_je^{-\pi ij^2/n}$ with the chirp $b_m = e^{\pi im^2/n}$, for $m$ from $-(n - 1)$ to $n - 1$. Zero-padding to a power of
-two $M \ge 2n - 1$ makes the circular convolution of length $M$ equal the linear one, so three FFTs of length $M$ (one of them, of $b$,
-precomputed at planning time) and $O(n)$ multiplications give the DFT.
+(expand the square to check it) replaces the product by terms that depend on $j$ alone, on $k$
+alone, and on the difference $k - j$. Substituting it into the exponent and separating the three
+factors,
+
+$$
+X_k = e^{-\pi ik^2/n}\sum_j\big(x_je^{-\pi ij^2/n}\big)\,e^{\pi i(k-j)^2/n} .
+$$
+
+**Step 2: recognise a convolution.** A sum of the form $\sum_ja_j\,b_{k-j}$ is the
+[convolution](../filters/convolution.md) of the sequences $a$ and $b$. Here
+$a_j = x_je^{-\pi ij^2/n}$ and $b_m = e^{\pi im^2/n}$. The sequence $b$ is a **chirp**: a complex
+exponential whose phase grows quadratically, so its frequency rises linearly, like a bird's
+chirp. So the DFT is: multiply the input by a chirp, convolve with a chirp, and multiply the
+result by a chirp.
+
+**Step 3: compute the convolution with FFTs.** By the convolution theorem, the DFT of a circular
+convolution is the product of the DFTs, so a convolution costs three FFTs: transform both
+sequences, multiply, and transform back. The length of these FFTs is ours to choose. The
+convolution needs $b_m$ for $m$ from $-(n - 1)$ to $n - 1$, and an FFT computes a *circular*
+convolution, in which indices wrap around. Padding with zeros to a length $M \ge 2n - 1$ leaves
+enough room that the wrapped-around terms never overlap the wanted ones, so the circular
+convolution equals the ordinary one. Choosing $M$ a power of two lets the fast radix-2 engine do
+the work.
+
+Altogether: three FFTs of length $M$ (one of them, the transform of $b$, is the same for every
+input and is precomputed at planning time) and $O(n)$ multiplications give the DFT of length
+$n$. Since $M < 4n$, the cost is still $O(n\log n)$, a few times that of a power-of-two transform.
 
 **Chirp accuracy.** The chirp angle $\pi k^2/n$ reaches $\pi n$ radians. Computed in floating point, its rounding error is about $\varepsilon\pi n$, so for
 $n = 10^5$ every chirp value is wrong by $10^{-11}$. Since $e^{\pi im/n}$ has period $2n$ in $m$, the library reduces $k^2 \bmod 2n$ exactly in integer

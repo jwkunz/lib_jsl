@@ -32,23 +32,73 @@ Klaus-Robert Müller (1998) expressed PCA through inner products only, so that a
 
 ### Directions of greatest variance
 
-Centre the data, $\widetilde{\mathbf x}_i = \mathbf x_i - \bar{\mathbf x}$, and form the sample covariance $C = \frac{1}{n - 1}\sum_i\widetilde{\mathbf x}_i\widetilde{\mathbf x}_i^{\mathsf T}$. The variance of the projections onto a unit vector $\mathbf u$ is $\mathbf u^{\mathsf T}C\mathbf u$, and
-maximising this Rayleigh quotient gives the eigenvector of $C$ with the largest eigenvalue. The next direction, constrained to be orthogonal to the first,
-is the next eigenvector. So
+PCA looks for the directions along which the data vary most. The assumption behind it is that
+directions of large variation carry the structure of the data, and directions of small variation
+are mostly noise.
+
+**Setting up.** Subtract the mean from every point, $\widetilde{\mathbf x}_i = \mathbf x_i - \bar{\mathbf x}$, so
+that the cloud of points is centred on the origin, and form the sample **covariance matrix**
+
+$$
+C = \frac{1}{n - 1}\sum_i\widetilde{\mathbf x}_i\widetilde{\mathbf x}_i^{\mathsf T} .
+$$
+
+Its diagonal entries are the variances of the individual features, and its off-diagonal entries
+say how pairs of features vary together.
+
+**The first direction.** Project the points onto a unit vector $\mathbf u$: the coordinate of point
+$i$ along it is $\mathbf u^{\mathsf T}\widetilde{\mathbf x}_i$. The variance of these coordinates is
+
+$$
+\frac{1}{n - 1}\sum_i(\mathbf u^{\mathsf T}\widetilde{\mathbf x}_i)^2
+= \mathbf u^{\mathsf T}\Big(\frac{1}{n - 1}\sum_i\widetilde{\mathbf x}_i\widetilde{\mathbf x}_i^{\mathsf T}\Big)\mathbf u = \mathbf u^{\mathsf T}C\mathbf u .
+$$
+
+We want the unit vector that maximises $\mathbf u^{\mathsf T}C\mathbf u$. Since $C$ is symmetric it has
+orthonormal eigenvectors $\mathbf u_1, \mathbf u_2, \ldots$ with eigenvalues
+$\lambda_1 \ge \lambda_2 \ge \cdots \ge 0$. Writing $\mathbf u = \sum_ja_j\mathbf u_j$ with $\sum_ja_j^2 = 1$
+gives $\mathbf u^{\mathsf T}C\mathbf u = \sum_j\lambda_ja_j^2$, a weighted average of the eigenvalues. It is
+largest when all the weight is on the largest eigenvalue: $\mathbf u = \mathbf u_1$, and the variance
+along it is $\lambda_1$. (The expression $\mathbf u^{\mathsf T}C\mathbf u$ for unit $\mathbf u$ is the
+[Rayleigh quotient](../linear_algebra/eigen-iterations.md#power-iteration-inverse-iteration-and-the-rayleigh-quotient)
+of $C$.)
+
+**The other directions.** The second direction maximises the variance among unit vectors
+orthogonal to the first. By the same argument it is $\mathbf u_2$, with variance $\lambda_2$, and so
+on. The **principal axes** are therefore the eigenvectors of the covariance matrix, ordered by
+eigenvalue:
 
 $$
 C = U\Lambda U^{\mathsf T}, \qquad \text{scores } \mathbf z_i = U_q^{\mathsf T}\widetilde{\mathbf x}_i,
 $$
 
-where $U_q$ holds the first $q$ eigenvectors and $\lambda_j$ is the variance along the $j$-th axis. The scores are uncorrelated.
+where $U_q$ holds the first $q$ eigenvectors as columns. The **scores** $\mathbf z_i$ are the
+coordinates of the points along the first $q$ axes, a description of each point by $q$ numbers
+instead of $p$. The variance of the $j$-th score is $\lambda_j$, and different scores are
+uncorrelated, because in the eigenvector basis the covariance matrix is diagonal.
 
 ![Principal axes](../generated/unsupervised/pca_axes.svg)
 
 ### Best low-rank reconstruction
 
-The same axes solve a second problem: among all $q$-dimensional subspaces, the span of $U_q$ minimises the sum of squared distances from the points
-to their projections (the Eckart-Young theorem). The reconstruction $\hat{\mathbf x}_i = \bar{\mathbf x} + U_q\mathbf z_i$ has mean squared error equal to the sum of the discarded
-eigenvalues (times $(n - 1)/n$, divided by $p$ for a per-feature mean):
+The same axes solve a second problem, which gives another reason to use them. Suppose we keep
+only the $q$ scores of each point and want to recover the point as well as possible. The
+reconstruction from the scores is
+
+$$
+\hat{\mathbf x}_i = \bar{\mathbf x} + U_q\mathbf z_i,
+$$
+
+the projection of the point onto the $q$-dimensional subspace spanned by the axes (shifted back
+by the mean). Among *all* $q$-dimensional subspaces, this one minimises the sum of squared
+distances from the points to their projections. This is the
+[Eckart-Young theorem](../linear_algebra/svd.md#low-rank-approximation) applied to the matrix of
+centred data. Maximising the variance kept and minimising the error discarded are the same
+thing, because by Pythagoras the squared length of each centred point is the sum of the two.
+
+The error is exactly the variance in the directions thrown away: the mean squared reconstruction
+error equals the sum of the discarded eigenvalues (times $(n - 1)/n$, and divided by $p$ for a
+per-feature mean):
 
 {{#include ../generated/unsupervised/pca_reconstruction.md}}
 

@@ -43,54 +43,121 @@ matrix-chain algorithm (Godbole, 1973) followed the same pattern.
 
 ### Bellman's principle
 
+Dynamic programming applies to problems that can be solved by a sequence of decisions. Its
+foundation is an observation about what the best sequence must look like.
+
 > **Principle of optimality.** An optimal policy has the property that, whatever the initial state
 > and initial decision, the remaining decisions must constitute an optimal policy with regard to the
 > state resulting from the first decision.
 
-The principle turns into a recurrence (the **Bellman equation**) for the optimal value of each
-subproblem in terms of smaller ones. Two ingredients make the recurrence efficient: **optimal
-substructure** (the principle holds) and **overlapping subproblems** (the same subproblems recur, so
-storing their values pays). The values are computed bottom-up into a table, and an optimal solution
-is recovered by tracing back the choices that achieved them.
+A route example makes it concrete. If the shortest route from A to C passes through B, then the
+part of it from B to C must be a shortest route from B to C. If a shorter one existed, splicing it
+in would shorten the whole route, a contradiction. So the best way to finish does not depend on
+how we arrived, only on *where we are*: the **state**.
+
+This has a practical consequence. Define the **value** of a state as the best result achievable
+from it. The value of a state can then be computed from the values of the states one decision
+later: try each possible decision, add its immediate cost to the value of the state it leads to,
+and keep the best. Such a recurrence is called a **Bellman equation**.
+
+Two properties make the recurrence useful.
+
+- **Optimal substructure**: the principle of optimality holds, so that optimal solutions are
+  assembled from optimal solutions of smaller subproblems.
+- **Overlapping subproblems**: the same subproblems are reached along many different decision
+  paths. A naive recursion would solve them again and again, taking exponential time. Storing each
+  value the first time it is computed, in a table, reduces the work to one computation per
+  distinct subproblem.
+
+The method therefore has three steps: define the subproblems and their recurrence; fill the table
+from the smallest subproblems upwards; and recover an actual optimal solution, not just its value,
+by tracing back through the table the choices that achieved each entry.
 
 ### Sequence and combinatorial problems
 
-- **0/1 knapsack**: with $V(i, w)$ the best value from the first $i$ items within capacity $w$,
-  $V(i, w) = \max(V(i-1, w),\ V(i-1, w - w_i) + v_i)$. The table has $(n + 1)(W + 1)$ entries: polynomial in
-  the capacity $W$ but exponential in its number of digits (the problem is NP-hard).
-- **Coin change**: the fewest coins for amount $a$ is $1 + \min_c C(a - c)$. Unlike the greedy method,
-  which fails for coins $\{1, 3, 4\}$ and amount 6, it is always optimal.
-- **Edit distance**: with $D(i, j)$ the distance between the first $i$ and $j$ characters,
-  $D(i, j) = \min(D(i-1, j) + 1,\ D(i, j-1) + 1,\ D(i-1, j-1) + [a_i \ne b_j])$.
-- **Longest common subsequence**: the same table with matches scoring 1 and no substitutions.
-- **Longest increasing subsequence**: an $O(n \log n)$ refinement that keeps, for each length, the
-  smallest possible last element ("patience sorting").
-- **Matrix-chain ordering**: the cheapest parenthesisation of $A_1A_2\cdots A_n$, from the costs of all
-  subchains, $O(n^3)$.
+The art is in choosing the subproblems. The classic examples show the patterns.
+
+- **0/1 knapsack.** Items with weights $w_i$ and values $v_i$ are to be packed into a knapsack of
+  capacity $W$, each item used at most once, to maximise the total value. Let $V(i, w)$ be the
+  best value using only the first $i$ items within capacity $w$. Item $i$ is either left out, in
+  which case the best is $V(i-1, w)$, or put in, which earns $v_i$ and leaves capacity
+  $w - w_i$ for the earlier items:
+
+$$
+V(i, w) = \max\big(V(i-1, w),\ \ V(i-1, w - w_i) + v_i\big).
+$$
+
+  The table has $(n + 1)(W + 1)$ entries. That is polynomial in the capacity $W$, but $W$ can be
+  exponentially large in the number of digits needed to write it down, and the problem is in fact
+  NP-hard.
+- **Coin change.** Find the fewest coins that make an amount $a$. The last coin is one of the
+  denominations $c$, and the rest must be the fewest coins for $a - c$:
+  $C(a) = 1 + \min_c C(a - c)$. The obvious greedy method, always taking the largest coin that
+  fits, can fail: for coins $\{1, 3, 4\}$ and amount 6 it takes $4 + 1 + 1$, three coins, while
+  the recurrence finds $3 + 3$.
+- **Edit distance.** The fewest single-character insertions, deletions and substitutions that
+  turn string $a$ into string $b$. Let $D(i, j)$ be the distance between the first $i$ characters
+  of $a$ and the first $j$ of $b$. Look at the last characters: either $a_i$ is deleted, or $b_j$
+  is inserted, or $a_i$ is matched with $b_j$ (free if they are equal, one substitution if not):
+
+$$
+D(i, j) = \min\big(D(i-1, j) + 1,\ \ D(i, j-1) + 1,\ \ D(i-1, j-1) + [a_i \ne b_j]\big),
+$$
+
+  where $[a_i \ne b_j]$ is 1 if the characters differ and 0 otherwise.
+- **Longest common subsequence.** The same table, with matches scoring 1 and no substitutions.
+- **Longest increasing subsequence.** An $O(n \log n)$ refinement that keeps, for each length, the
+  smallest possible last element of an increasing subsequence of that length ("patience
+  sorting").
+- **Matrix-chain ordering.** The cheapest order in which to multiply $A_1A_2\cdots A_n$. The
+  subproblems are the contiguous subchains; the cost of a chain is the minimum over the place of
+  the last multiplication. There are $O(n^2)$ subchains and $O(n)$ split points each: $O(n^3)$.
 
 {{#include ../generated/optimization/dynamic_programming.md}}
 
 ### Markov decision processes
 
-A **Markov decision process** has states $s$, actions $a$, rewards $r(s, a)$ and transition probabilities
-$P(s' \mid s, a)$. A **policy** chooses an action in each state, and its value is the expected discounted
-sum of rewards, $\mathbb E\sum_t\gamma^t r_t$, with discount $0 \le \gamma < 1$. The optimal values satisfy the Bellman
-equation
+The same idea handles decisions whose outcomes are uncertain. A **Markov decision process**
+(MDP) consists of
+
+- a set of **states** $s$;
+- a set of **actions** $a$ available in each state;
+- a **reward** $r(s, a)$ for taking action $a$ in state $s$;
+- **transition probabilities** $P(s' \mid s, a)$: the probability that the action leads to state
+  $s'$.
+
+A **policy** is a rule that chooses an action in each state. Its value is the expected total
+reward, with rewards $t$ steps in the future weighted by $\gamma^t$: $\mathbb E\sum_t\gamma^t r_t$. The
+**discount factor** $0 \le \gamma < 1$ makes distant rewards count for less, and keeps the infinite
+sum finite.
+
+Let $V^*(s)$ be the best achievable value starting from state $s$. The principle of optimality
+gives its Bellman equation. Taking action $a$ earns $r(s, a)$ now, and then the process moves to
+some state $s'$, from which the best continuation is worth $V^*(s')$, discounted by one step and
+averaged over where we might land:
 
 $$
-V^*(s) = \max_a\Big[r(s, a) + \gamma\sum_{s'}P(s' \mid s, a)\,V^*(s')\Big],
+V^*(s) = \max_a\Big[r(s, a) + \gamma\sum_{s'}P(s' \mid s, a)\,V^*(s')\Big].
 $$
 
-and the optimal policy takes the maximising action. **Value iteration** applies the right-hand side
-repeatedly, starting from $V = 0$. The map is a **contraction** with factor $\gamma$ in the maximum norm, so
-the error falls like $\gamma^k$:
+The optimal policy takes the maximising action in each state.
+
+Unlike the tables of the previous section, this equation cannot be filled in order, because
+$V^*$ appears on both sides: states can lead back to each other. **Value iteration** solves it by
+repeated substitution. Start from $V = 0$, evaluate the right-hand side to get a new $V$, and
+repeat. This converges because the right-hand side is a **contraction**: applying it to two
+different value functions brings them closer together, by the factor $\gamma$ in the maximum
+norm. The distance to the fixed point $V^*$ therefore shrinks by $\gamma$ per iteration, so the
+error falls like $\gamma^k$:
 
 ![Value iteration](../generated/optimization/value_iteration.svg)
 
-With $\gamma = 0.99$ (rewards a hundred steps ahead still matter), thousands of iterations are needed;
-policy iteration, which solves for the value of the current policy exactly at each step, converges
-in far fewer, more expensive, iterations. For a finite horizon $T$, **backward induction** computes the
-optimal values stage by stage from the end, exactly, in $T$ steps.
+With $\gamma = 0.99$ (rewards a hundred steps ahead still matter), thousands of iterations are
+needed. **Policy iteration** alternates two steps: compute the value of the current policy
+exactly, by solving a linear system, and then improve the policy by choosing the maximising
+action in each state. It converges in far fewer, more expensive, iterations. For a finite horizon
+of $T$ steps, there is no circularity: **backward induction** computes the optimal values stage by
+stage from the end, exactly, in $T$ steps.
 
 ## Algorithm
 

@@ -69,15 +69,31 @@ $$
 \int_{x_0}^{x_0+h} f(x)\,dx \approx h\,f(m).
 $$
 
-Expanding $f$ in a Taylor series about $m$, every odd power of $x - m$ integrates to zero over
-the symmetric panel, so the first error term comes from $f''$:
+How large is the error? Expand $f$ in a Taylor series about the centre $m$:
+
+$$
+f(x) = f(m) + (x - m) f'(m) + \tfrac12 (x - m)^2 f''(m) + \cdots
+$$
+
+and integrate term by term over the panel, which runs from $m - h/2$ to $m + h/2$. The constant
+term gives $h\,f(m)$, which is the rule itself. The linear term gives zero, because $x - m$ is as
+often negative as positive on a panel that is symmetric about $m$; the same is true of every odd
+power. The first term that survives is the quadratic one:
+
+$$
+\int_{m-h/2}^{m+h/2} \tfrac12 (x - m)^2 f''(m)\,dx = \frac{h^3}{24} f''(m).
+$$
+
+A careful version of this argument, which keeps track of the neglected terms, replaces $f''(m)$ by
+$f''(\xi)$ at some unknown point $\xi$ in the panel and makes the statement exact:
 
 $$
 \int_{x_0}^{x_0+h} f(x)\,dx - h\,f(m) = \frac{h^3}{24} f''(\xi).
 $$
 
-A constant approximation is therefore exact for straight lines: degree of exactness 1, a free
-bonus from symmetry. The midpoint rule is an **open** rule: it never evaluates $f$ at the
+Since the error involves only $f''$, it vanishes whenever $f'' = 0$. A constant approximation is
+therefore exact for straight lines, not just for constants: degree of exactness 1, a free bonus
+from symmetry. The midpoint rule is an **open** rule: it never evaluates $f$ at the
 endpoints, which matters when $f$ is undefined there.
 
 ### The trapezoid rule
@@ -128,8 +144,16 @@ section.
 
 ### Simpson's rules
 
-Because $M_n - I \approx -\tfrac12 (T_n - I)$, the combination $(2 M_n + T_n)/3$ cancels the $h^2$
-error. Written out, it uses the panel endpoints and midpoints with weights
+The table shows that the midpoint error is very nearly minus one half of the trapezoid error.
+Two estimates whose errors are in a known ratio can be combined so that the errors cancel. Write
+$e = T_n - I$ for the trapezoid error, so that $M_n - I \approx -\tfrac12 e$. Then the weighted
+average $(2 M_n + T_n)/3$ has error
+
+$$
+\frac{2 M_n + T_n}{3} - I = \frac{2(M_n - I) + (T_n - I)}{3} \approx \frac{2(-\tfrac12 e) + e}{3} = 0.
+$$
+
+The $h^2$ errors cancel, and what remains is of order $h^4$. Written out, the combination uses the panel endpoints and midpoints with weights
 $\tfrac{h}{6}(1, 4, 1)$ per panel. With the step $h$ now denoting the distance between
 neighbouring points and an even number $n$ of such sub-panels, this is the composite
 **Simpson's 1/3 rule**:

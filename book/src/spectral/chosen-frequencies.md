@@ -31,16 +31,39 @@ uses the same identity for prime-length transforms.
 
 ### Goertzel's recursion
 
-The DFT bin $X(k) = \sum_nx_ne^{-2\pi ikn/N}$ is the output, at time $N - 1$, of a filter with a single pole at $e^{2\pi ik/N}$ on the unit circle. Combining the pole with its conjugate gives the real
-recursion
+An FFT computes all $N$ frequency bins at once. When only one or two frequencies matter, as in
+detecting a telephone dialling tone, most of that work is wasted. Goertzel's algorithm computes
+a single bin with a two-term recursion.
+
+**A DFT bin as a filter output.** The bin is the sum $X(k) = \sum_nx_ne^{-i\omega n}$ with
+$\omega = 2\pi k/N$. Consider the one-pole recursive filter $y_n = x_n + e^{i\omega}y_{n-1}$,
+starting from zero. Unrolling it, $y_{N-1} = \sum_nx_ne^{i\omega(N-1-n)}$, which is the wanted sum
+multiplied by the known phase factor $e^{i\omega(N-1)}$. So running this filter over the block and
+reading its final output gives the bin. The filter has a single pole at $e^{i\omega}$ on the unit
+circle: it resonates at exactly the frequency of interest.
+
+**Making it real.** That filter needs a complex multiplication per sample. Multiplying its
+transfer function above and below by the conjugate factor gives an equivalent filter whose
+recursive part has *real* coefficients, with the two poles $e^{\pm i\omega}$:
 
 $$
-s_n = x_n + 2\cos\omega\,s_{n-1} - s_{n-2}, \qquad \omega = 2\pi k/N,
+s_n = x_n + 2\cos\omega\,s_{n-1} - s_{n-2} .
 $$
 
-and at the end $X(k) = e^{-i\omega(N-1)}(s_{N-1} - e^{-i\omega}s_{N-2})$. The power alone, $|X(k)|^2 = s_{N-1}^2 + s_{N-2}^2 - 2\cos\omega\,s_{N-1}s_{N-2}$, needs no complex arithmetic at all. The bin $k$ need not be an integer, so any frequency
-can be targeted. Each bin costs one real multiply per sample; the FFT costs about $\log_2N$ per sample for all bins. In practice the FFT's efficiency
-narrows the margin:
+This is run over the whole block with one real multiplication per sample. The complex arithmetic
+is postponed to a single step at the end,
+$X(k) = e^{-i\omega(N-1)}(s_{N-1} - e^{-i\omega}s_{N-2})$. If only the power is wanted, even that is
+unnecessary:
+
+$$
+|X(k)|^2 = s_{N-1}^2 + s_{N-2}^2 - 2\cos\omega\,s_{N-1}s_{N-2} .
+$$
+
+Nothing in the derivation requires $k$ to be an integer, so any frequency can be targeted, not
+only the bin centres of an FFT.
+
+**When it pays.** Each bin costs one real multiply per sample; the FFT costs about $\log_2N$ per
+sample for all bins. In practice the FFT's efficiency narrows the margin:
 
 {{#include ../generated/spectral/goertzel_time.md}}
 
@@ -49,14 +72,26 @@ the result is wanted the moment the block ends.
 
 ### The chirp-z transform
 
-The chirp-z transform evaluates $X(z_k) = \sum_nx_nz_k^{-n}$ at $M$ points $z_k = AW^{-k}$, a spiral starting at $A$ with ratio $W^{-1}$. With $|A| = |W| = 1$ the points lie on an arc of the unit circle, from any start
-frequency with any spacing. Writing $nk = \frac12(n^2 + k^2 - (k - n)^2)$,
+The DFT evaluates the spectrum at $N$ frequencies spaced evenly round the whole unit circle. To
+look closely at a narrow band, one wants many points within that band only. The
+**chirp-z transform** evaluates $X(z_k) = \sum_nx_nz_k^{-n}$ at $M$ points $z_k = AW^{-k}$,
+which start at $A$ and advance by the constant ratio $W^{-1}$. With $|A| = |W| = 1$ the points lie
+on an arc of the unit circle, beginning at any frequency, with any spacing, and $M$ need not
+equal $N$. (With other magnitudes they lie on a spiral.)
+
+It is computed by the same device as
+[Bluestein's algorithm](../fft/bluestein-fractional.md#bluesteins-algorithm), of which it is the
+general form. Substituting $z_k$ gives a sum containing $W^{nk}$, and writing
+$nk = \frac12(n^2 + k^2 - (k - n)^2)$ separates the exponent into parts depending on $n$, on $k$
+and on $k - n$:
 
 $$
-X(z_k) = W^{k^2/2}\sum_n\big(x_nA^{-n}W^{n^2/2}\big)W^{-(k-n)^2/2},
+X(z_k) = W^{k^2/2}\sum_n\big(x_nA^{-n}W^{n^2/2}\big)W^{-(k-n)^2/2} .
 $$
 
-a convolution of the premultiplied input with the chirp $W^{-m^2/2}$, done with FFTs. Zooming on two tones 1.8 bins apart in a 256-sample record:
+The sum is a convolution of the premultiplied input with the chirp $W^{-m^2/2}$, computed with
+FFTs in $O((N + M)\log(N + M))$ operations. Zooming on two tones 1.8 bins apart in a 256-sample
+record:
 
 ![Chirp-z zoom](../generated/spectral/chirpz_zoom.svg)
 

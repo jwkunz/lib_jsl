@@ -38,22 +38,45 @@ journal. Their tables contained some errors, corrected by Steinier, Termonia and
 
 ### Local polynomial least squares
 
-Take a window of $2m + 1$ samples centred on sample $i$, with offsets $k = -m, \ldots, m$. Fit the
-polynomial $q(k) = \sum_{j=0}^{d} b_j k^j$ by least squares:
+Take a window of $2m + 1$ samples centred on sample $i$, and number the samples in it by their
+offsets $k = -m, \ldots, m$ from the centre. Fit a polynomial of degree $d$,
+$q(k) = \sum_{j=0}^{d} b_j k^j$, by least squares: choose the coefficients $b_j$ to minimise the
+sum of squared differences between the polynomial and the data,
 
 $$
 \min_{b} \sum_{k=-m}^{m} \big(q(k) - y_{i+k}\big)^2.
 $$
 
-With the Vandermonde matrix $A_{kj} = k^j$, the solution is $\mathbf b = A^{+}\mathbf y$, where $A^{+}$ is the
-pseudo-inverse. The smoothed value is $q(0) = b_0$, the first row of $A^{+}$ applied to the window,
-and the $r$-th derivative is $q^{(r)}(0) = r!\, b_r / \Delta^r$, the row $r$. Since $A$ depends only on $m$
-and $d$, not on the data, these rows are the **filter coefficients**, the same for every position.
-For $m = 2$ and $d = 2$ they are the classic $(-3, 12, 17, 12, -3)/35$.
+The window must contain more samples than the polynomial has coefficients ($2m + 1 > d + 1$), so
+that the polynomial cannot follow every sample and is forced to average out the noise.
 
-The filter reproduces any polynomial of degree $\le d$ exactly, so it does not distort features that
-are locally polynomial, and its noise reduction is close to that of a moving average of the same
-length. A moving average is the special case $d = 0$ (or $d = 1$, which gives the same weights):
+**The fit is linear in the data.** Collect the samples of the window in a vector $\mathbf y$ and the
+coefficients in a vector $\mathbf b$. The values of the polynomial at the offsets are $A\mathbf b$,
+where $A$ is the **Vandermonde matrix** with entries $A_{kj} = k^j$. The
+[least-squares solution](../linear_algebra/least-squares.md) is
+
+$$
+\mathbf b = A^{+}\mathbf y, \qquad A^{+} = (A^{\mathsf T}A)^{-1}A^{\mathsf T},
+$$
+
+where $A^{+}$ is called the pseudo-inverse of $A$. The important point is that $\mathbf b$ is a
+matrix times $\mathbf y$: each coefficient is a fixed weighted sum of the samples in the window.
+
+**Reading off the filter.** We do not need the whole polynomial, only its value at the centre of
+the window, $q(0) = b_0$. That is the first row of $A^{+}$ applied to the window. Similarly the
+$r$-th derivative at the centre is $q^{(r)}(0) = r!\,b_r$ in units of the sample offset, or
+$r!\,b_r/\Delta^r$ for samples spaced $\Delta$ apart: row $r$ of $A^{+}$. The matrix $A$ depends only
+on $m$ and $d$, not on the data or on the position $i$ of the window, so these rows are the
+**filter coefficients**, the same for every position. For $m = 2$ and $d = 2$ the smoothing
+coefficients are the classic $(-3, 12, 17, 12, -3)/35$: each smoothed value is this weighted sum
+of the sample and its two neighbours on either side.
+
+**Properties.** If the data in a window lie exactly on a polynomial of degree at most $d$, the
+least-squares fit is that polynomial, and the filter returns the data unchanged. The filter
+therefore does not distort features that are locally polynomial, while its noise reduction is
+close to that of a moving average of the same length. The moving average is itself the special
+case $d = 0$: the best constant fit to a window is its mean. Degree $d = 1$ gives the same weights,
+because adding a slope to the fit over a symmetric window does not change its value at the centre.
 
 ![Smoothing a noisy peak](../generated/interpolation/savitzky_golay_peak.svg)
 
@@ -62,14 +85,17 @@ filter follows it.
 
 ### Derivatives of noisy data
 
-Differentiating noisy data by [finite differences](../derivatives/finite-differences.md) amplifies the
-noise by $1/\Delta$: the noise in the samples plays the role of rounding error. The derivative of the
-local fit averages the noise first. On the noisy peak above:
+Differentiating noisy data by [finite differences](../derivatives/finite-differences.md) divides
+the noise by the sample spacing $\Delta$ and so amplifies it. This is the rounding-error problem
+of numerical differentiation again, with the measurement noise playing the role of rounding error,
+and a far larger one. The derivative of the local fit is much better behaved, because the fit
+averages the noise over the window before differentiating. On the noisy peak above:
 
 {{#include ../generated/interpolation/savitzky_golay_derivative.md}}
 
-The best window balances the two sources of error, just as the best step does for finite differences:
-too short and noise dominates, too long and the window's polynomial cannot follow the signal.
+The best window balances two sources of error, just as the best step does for finite differences.
+If the window is too short, too few samples are averaged and noise dominates. If it is too long, a
+polynomial of degree $d$ cannot follow the signal across the whole window, and the fit is biased.
 
 ### Conditioning
 

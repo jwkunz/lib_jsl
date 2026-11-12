@@ -46,53 +46,133 @@ when such methods converge superlinearly.
 
 ### Newton's method
 
-Linearising $\mathbf F$ about the current point $\mathbf x_k$,
+The problem is to find a vector $\mathbf x = (x_1, \ldots, x_n)$ at which $n$ functions vanish
+together: $F_1(\mathbf x) = 0, \ldots, F_n(\mathbf x) = 0$, written $\mathbf F(\mathbf x) = \mathbf 0$. For
+example, the intersection of the circle $x^2 + y^2 = 4$ with the hyperbola $xy = 1$ is a root of
 
 $$
-\mathbf F(\mathbf x_k + \mathbf p) \approx \mathbf F(\mathbf x_k) + J(\mathbf x_k)\,\mathbf p, \qquad J_{ij} = \frac{\partial F_i}{\partial x_j},
+\mathbf F(x, y) = \begin{pmatrix} x^2 + y^2 - 4 \\ xy - 1 \end{pmatrix}.
 $$
 
-and setting the linear model to zero gives the **Newton step**: solve $J(\mathbf x_k)\,\mathbf p = -\mathbf F(\mathbf x_k)$, and
-set $\mathbf x_{k+1} = \mathbf x_k + \mathbf p$. As in one dimension, the convergence is quadratic near a root at which
-$J$ is non-singular. The Jacobian can be supplied analytically or formed by forward differences, one
-evaluation of $\mathbf F$ per column with steps $h_j = \sqrt{\varepsilon}\max(|x_j|, 1)$; difference Jacobians
-cost $n$ evaluations but barely affect the convergence.
+[Newton's method in one variable](newton.md) replaced $f$ by its tangent line. The analogue in $n$
+variables replaces each $F_i$ by its first-order Taylor expansion about the current point
+$\mathbf x_k$. For a small displacement $\mathbf p$,
+
+$$
+\mathbf F(\mathbf x_k + \mathbf p) \approx \mathbf F(\mathbf x_k) + J(\mathbf x_k)\,\mathbf p, \qquad J_{ij} = \frac{\partial F_i}{\partial x_j}.
+$$
+
+The matrix $J$ of all first partial derivatives is the **Jacobian**; it plays the role of $f'$. Row
+$i$ is the gradient of $F_i$. For the example above,
+
+$$
+J = \begin{pmatrix} 2x & 2y \\ y & x \end{pmatrix}.
+$$
+
+The right side of the approximation is a *linear* function of $\mathbf p$, and we know how to find
+where a linear function vanishes. Setting it to zero gives the **Newton step**:
+
+1. solve the linear system $J(\mathbf x_k)\,\mathbf p = -\mathbf F(\mathbf x_k)$ for $\mathbf p$;
+2. set $\mathbf x_{k+1} = \mathbf x_k + \mathbf p$.
+
+In one dimension step 1 is the division $p = -f/f'$. In $n$ dimensions it is a linear solve by
+[Gaussian elimination](../linear_algebra/lu.md). Each iteration of a nonlinear solver therefore
+contains a linear solver.
+
+As in one dimension, the convergence is quadratic near a root at which $J$ is non-singular (the
+analogue of $f'(r) \ne 0$).
+
+**Where the Jacobian comes from.** It can be supplied as a function, or formed by
+[forward differences](../derivatives/finite-differences.md): perturbing $x_j$ by
+$h_j = \sqrt{\varepsilon}\max(|x_j|, 1)$ and differencing $\mathbf F$ gives column $j$. That costs one extra
+evaluation of $\mathbf F$ per column, $n$ in all. The small errors of a difference Jacobian barely
+affect the convergence, because the Jacobian only determines the *step*; the root itself is
+defined by $\mathbf F$, which is evaluated exactly.
 
 ### Line search: global convergence
 
-Far from a root the full Newton step can increase the residual, and the iteration can diverge. The
-remedy is to measure progress by the **merit function** $\phi(\mathbf x) = \tfrac12\|\mathbf F(\mathbf x)\|^2$. The Newton
-direction is always a descent direction for $\phi$:
+Far from a root the linear model is a poor description of $\mathbf F$, and the full Newton step can
+land somewhere worse than where it started. The iteration can then diverge, as it did for
+$\arctan$ in [one dimension](newton.md#when-newtons-method-fails).
+
+The remedy needs a way to say what "worse" means. With several equations there is no single
+function value to watch, so we combine them into one number, the **merit function**
 
 $$
-\nabla\phi \cdot \mathbf p = \mathbf F^{\mathsf T} J \mathbf p = -\|\mathbf F\|^2 < 0,
+\phi(\mathbf x) = \tfrac12\|\mathbf F(\mathbf x)\|^2 = \tfrac12\sum_i F_i(\mathbf x)^2 .
 $$
 
-so a short enough step along it reduces $\phi$. The **backtracking line search** tries the full step
-$\lambda = 1$ and, if $\phi$ does not decrease by at least $10^{-4}\lambda\,|\nabla\phi\cdot\mathbf p|$ (the Armijo
-condition), chooses a smaller $\lambda$ by fitting a quadratic, then a cubic, to the values of $\phi$ along the
-line. Near the root the full step is always accepted, and the quadratic convergence is untouched.
+It is zero at a root and positive elsewhere, so a step is an improvement if it reduces $\phi$.
 
-The line search makes Newton's method converge to a root, or to a local minimum of $\|\mathbf F\|$ that is not a
-root, where the Jacobian is singular: in the latter case the solvers stop and report
-`converged = false`. On $x^2 + 1 = 0$, for example, they stop at the minimum $x = 0$.
+**The Newton direction always points downhill.** By the chain rule, the gradient of $\phi$ is
+$\nabla\phi = J^{\mathsf T}\mathbf F$. The rate of change of $\phi$ along the Newton direction $\mathbf p$
+is the dot product of the two, and since $J\mathbf p = -\mathbf F$,
+
+$$
+\nabla\phi \cdot \mathbf p = \mathbf F^{\mathsf T} J \mathbf p = -\mathbf F^{\mathsf T}\mathbf F = -\|\mathbf F\|^2 < 0 .
+$$
+
+The slope is negative: $\phi$ decreases, at least initially, as we move along $\mathbf p$. So even
+when the full step is too long, a *short enough* step in the same direction makes progress.
+
+**Backtracking.** The line search takes $\mathbf x_{k+1} = \mathbf x_k + \lambda\mathbf p$ and looks for
+an acceptable $\lambda \in (0, 1]$.
+
+1. Try the full step, $\lambda = 1$.
+2. Accept it if $\phi$ has decreased by at least $10^{-4}\lambda\,|\nabla\phi\cdot\mathbf p|$. This is
+   the **Armijo condition**: the decrease must be at least a small fraction of what the initial
+   slope predicts, which rules out steps that reduce $\phi$ only negligibly.
+3. Otherwise choose a smaller $\lambda$. The values of $\phi$ already computed along the line are
+   fitted by a quadratic (the first time) or a cubic (afterwards), and $\lambda$ is moved to the
+   minimum of the fit. Go to 2.
+
+Near the root the full step always passes the test, so the line search costs nothing there and
+the quadratic convergence is untouched.
+
+**What it cannot do.** The line search guarantees that $\phi$ keeps decreasing, but $\phi$ may have
+local minima that are not roots. At such a point $\nabla\phi = J^{\mathsf T}\mathbf F = 0$ with
+$\mathbf F \ne 0$, which requires the Jacobian to be singular. The solvers then stop and report
+`converged = false`. On $x^2 + 1 = 0$, for example, which has no real root, they stop at the
+minimum $x = 0$ of $\tfrac12(x^2 + 1)^2$.
 
 ### Broyden's method
 
-When the Jacobian is formed by differences, it costs $n$ evaluations of $\mathbf F$ per iteration, most of
-the work for large $n$. Broyden's method keeps an approximation $B_k$ and, after each step
-$\mathbf s = \mathbf x_{k+1} - \mathbf x_k$ with change $\mathbf y = \mathbf F(\mathbf x_{k+1}) - \mathbf F(\mathbf x_k)$, corrects it to satisfy the
-**secant equation** $B_{k+1}\mathbf s = \mathbf y$, the multidimensional analogue of the secant slope:
+When the Jacobian is formed by differences, it costs $n$ evaluations of $\mathbf F$ per iteration,
+which is most of the work for large $n$. In one dimension the
+[secant method](newton.md#the-secant-method) avoids the derivative by using the slope between
+the last two points. Broyden's method is its generalisation.
+
+It keeps a matrix $B_k$ that approximates the Jacobian and uses it in place of $J$ in the Newton
+step. After each step it has two new pieces of information: the step taken,
+$\mathbf s = \mathbf x_{k+1} - \mathbf x_k$, and the resulting change in the function,
+$\mathbf y = \mathbf F(\mathbf x_{k+1}) - \mathbf F(\mathbf x_k)$. A good approximation of the Jacobian should
+reproduce this observation, so the new matrix is required to satisfy the **secant equation**
+
+$$
+B_{k+1}\mathbf s = \mathbf y .
+$$
+
+In one dimension this determines the slope $B = y/s$ completely. In $n$ dimensions it is only $n$
+equations for the $n^2$ entries of $B_{k+1}$: it says how $B_{k+1}$ acts on the one direction
+$\mathbf s$ and nothing about the directions perpendicular to it. Broyden's choice is to leave the
+action on those directions exactly as it was:
 
 $$
 B_{k+1} = B_k + \frac{(\mathbf y - B_k \mathbf s)\,\mathbf s^{\mathsf T}}{\mathbf s^{\mathsf T}\mathbf s}.
 $$
 
-Among all matrices satisfying the secant equation this is the closest to $B_k$ in the Frobenius norm:
-it changes $B$ only in the direction $\mathbf s$, about which there is new information. Broyden's method
-converges superlinearly, and needs one evaluation of $\mathbf F$ per iteration (plus the line search). The
-library forms $B_0$ by differences, and forms it afresh whenever the updated matrix stops giving a
-descent direction.
+Check the two properties. Applied to $\mathbf s$, the correction term gives
+$(\mathbf y - B_k\mathbf s)(\mathbf s^{\mathsf T}\mathbf s)/(\mathbf s^{\mathsf T}\mathbf s) = \mathbf y - B_k\mathbf s$, so
+$B_{k+1}\mathbf s = \mathbf y$. Applied to any $\mathbf w$ perpendicular to $\mathbf s$, the correction
+vanishes because $\mathbf s^{\mathsf T}\mathbf w = 0$, so $B_{k+1}\mathbf w = B_k\mathbf w$. Among all
+matrices satisfying the secant equation, this is the one closest to $B_k$ (in the Frobenius norm,
+the square root of the sum of squared entries): it changes $B$ as little as the new information
+allows.
+
+Broyden's method converges **superlinearly**: faster than any fixed linear rate, though not
+quadratically. It needs one evaluation of $\mathbf F$ per iteration (plus any used by the line
+search), instead of $n + 1$. The library forms $B_0$ by differences, and forms it afresh whenever
+the updated matrix stops giving a descent direction.
 
 ### Comparison
 

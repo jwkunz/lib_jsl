@@ -34,15 +34,47 @@ dimension.
 
 ### Gaussian naive Bayes
 
-For continuous features, each class $c$ and feature $j$ gets a normal distribution with the class mean $\mu_{cj}$ and variance $\sigma^2_{cj}$ estimated
-from the training data, and the prior $P(c)$ is the class frequency. Working in logarithms,
+**Bayes' rule.** A classifier needs $P(c \mid \mathbf x)$, the probability of class $c$ given the
+features. Bayes' rule expresses it through quantities that are easier to estimate:
 
 $$
-\log P(c \mid \mathbf x) = \log P(c) - \frac12\sum_j\Big(\log(2\pi\sigma_{cj}^2) + \frac{(x_j - \mu_{cj})^2}{\sigma_{cj}^2}\Big) + \text{const}.
+P(c \mid \mathbf x) = \frac{P(c)\,P(\mathbf x \mid c)}{P(\mathbf x)} .
 $$
 
-The boundaries between classes are quadratic, since each class has its own variances. A small fraction of the largest
-feature variance (`var_smoothing`, $10^{-9}$) is added to every variance so that a constant feature cannot cause a division by zero.
+$P(c)$ is the **prior**, how common the class is; $P(\mathbf x \mid c)$ is the **likelihood**, how
+typical these features are of the class. The denominator is the same for every class, so it does
+not affect which class is most probable.
+
+**The naive assumption.** Estimating $P(\mathbf x \mid c)$ as a joint distribution over all the
+features would need enormous amounts of data. Naive Bayes assumes that, within a class, the
+features are independent, so that the joint probability is a product of one-dimensional ones:
+$P(\mathbf x \mid c) = \prod_jP(x_j \mid c)$. Each factor involves a single feature and is easy to
+estimate. The assumption is rarely true (hence "naive"), but the classifier often works well
+anyway, because it only needs to rank the classes correctly, not to get the probabilities
+right.
+
+**Gaussian features.** For continuous features, each $P(x_j \mid c)$ is modelled as a normal
+distribution, with the mean $\mu_{cj}$ and variance $\sigma^2_{cj}$ of feature $j$ among the training
+points of class $c$. The prior $P(c)$ is the fraction of training points in the class. Training
+is just the computation of these averages.
+
+**Prediction.** Multiplying many small probabilities underflows, so the computation is done in
+logarithms, where the product becomes a sum. Taking the logarithm of Bayes' rule with the normal
+densities substituted,
+
+$$
+\log P(c \mid \mathbf x) = \log P(c) - \frac12\sum_j\Big(\log(2\pi\sigma_{cj}^2) + \frac{(x_j - \mu_{cj})^2}{\sigma_{cj}^2}\Big) + \text{const},
+$$
+
+and the predicted class is the one with the largest value. Each feature contributes a penalty
+that grows with the squared distance of $x_j$ from the class mean, measured in units of the
+class's standard deviation.
+
+The expression is quadratic in $\mathbf x$, and since each class has its own variances the
+quadratic terms do not cancel when two classes are compared: the boundaries between classes are
+curved (quadratic). A small fraction of the largest feature variance (`var_smoothing`,
+$10^{-9}$) is added to every variance so that a constant feature cannot cause a division by
+zero.
 
 ### When independence fails
 
@@ -57,11 +89,37 @@ The cost of the wrong assumption here is 1.4 percentage points of accuracy.
 
 ### Multinomial naive Bayes for counts
 
-For word counts $x_j$ in a document, the class-conditional model is a multinomial over the vocabulary: $\log P(\mathbf x \mid c) = \sum_jx_j\log\theta_{cj} + \text{const}$,
-where $\theta_{cj}$ is the probability of word $j$ in class $c$. **Laplace smoothing** estimates $\theta_{cj} = (N_{cj} + \alpha)/(N_c + \alpha p)$ from the word totals, so that a word
-never seen in a class does not give it probability zero. The classifier is linear in the counts.
+For text, the features are counts: $x_j$ is the number of times word $j$ of the vocabulary
+occurs in a document. The natural model is that a document of class $c$ is produced by drawing
+words independently, word $j$ with probability $\theta_{cj}$. The probability of the document is
+then a multinomial, and its logarithm is
+
+$$
+\log P(\mathbf x \mid c) = \sum_jx_j\log\theta_{cj} + \text{const} .
+$$
+
+Each occurrence of a word adds $\log\theta_{cj}$ to the score of class $c$: words that are common
+in a class count as evidence for it. The score is a linear function of the counts, so the
+classifier is linear.
+
+The obvious estimate of $\theta_{cj}$ is the fraction of all the words in the training documents
+of class $c$ that are word $j$, $N_{cj}/N_c$. It has a fatal flaw: a word that never occurred in
+a class gets probability zero, its logarithm is $-\infty$, and a single such word vetoes the
+class however strong the other evidence. **Laplace smoothing** adds a small pseudo-count
+$\alpha$ to every word,
+
+$$
+\theta_{cj} = \frac{N_{cj} + \alpha}{N_c + \alpha p},
+$$
+
+where $p$ is the size of the vocabulary, so that no probability is zero.
 
 ### Generative against discriminative
+
+Naive Bayes is a **generative** classifier: it models how the features of each class are
+produced, and derives the class probabilities from that model. Logistic regression is
+**discriminative**: it models the class probabilities directly and says nothing about how the
+features arise. The two have complementary strengths.
 
 Naive Bayes estimates each parameter from simple averages, so it reaches its best performance with few examples; logistic
 regression needs more data to pin down its weights, but is not limited by a wrong model. On documents of 12 words from two

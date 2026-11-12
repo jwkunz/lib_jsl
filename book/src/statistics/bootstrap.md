@@ -33,27 +33,82 @@ Robert Tibshirani's *An Introduction to the Bootstrap* (1993) brought the method
 
 ### Resampling and the plug-in principle
 
-The empirical distribution $\hat F$ puts mass $1/n$ on each observation. The bootstrap estimates any property of the sampling distribution
-under $F$ by the same property under $\hat F$, computed by simulation. The **standard error** is the standard deviation of the replicates,
-and the **bias** is $\bar\theta^* - \hat\theta$. A resample contains on average $1 - (1 - 1/n)^n \approx 63\%$ of the distinct observations, some repeated.
+Why should resampling the data we already have tell us anything about samples we never took?
+
+The sampling distribution of $\hat\theta$ is determined by the population distribution $F$: if
+we knew $F$, we could simulate as many fresh samples as we liked and watch how $\hat\theta$
+varies. We do not know $F$, but we have an estimate of it. The **empirical distribution**
+$\hat F$ puts probability $1/n$ on each observation, and for a reasonably large sample it
+resembles $F$. The **plug-in principle** is to use $\hat F$ wherever $F$ is needed. Drawing a
+sample of size $n$ from $\hat F$ means choosing $n$ of the observations at random, *with
+replacement*, since each draw is independent and may pick the same observation again.
+
+So the bootstrap is a simulation of the sampling process with $\hat F$ standing in for $F$.
+From the replicates $\hat\theta^*_1, \ldots, \hat\theta^*_B$:
+
+- the **standard error** of $\hat\theta$ is estimated by the standard deviation of the
+  replicates;
+- the **bias** is estimated by $\bar\theta^* - \hat\theta$, the amount by which the replicates,
+  on average, overshoot the value for the sample they were drawn from.
+
+A resample is not a copy of the data. The chance that a given observation is missed by all $n$
+draws is $(1 - 1/n)^n \approx e^{-1}$, so a resample contains on average
+$1 - (1 - 1/n)^n \approx 63\%$ of the distinct observations, some of them repeated. That variation
+in which observations are included is what mimics the variation between real samples.
 
 ### Percentile intervals
 
-The simplest interval takes the $\alpha/2$ and $1 - \alpha/2$ quantiles of the replicates. It is correct when some monotone transformation of $\hat\theta$
-is normal and unbiased, but it inherits the bias and skewness of the bootstrap distribution, and its coverage error is $O(n^{-1/2})$.
+A **confidence interval** at level $1 - \alpha$ is a range computed from the data that contains
+the true value in a fraction $1 - \alpha$ of repeated experiments; that fraction is its
+**coverage**. The simplest bootstrap interval reads the range straight off the replicates: it
+runs from their $\alpha/2$ quantile to their $1 - \alpha/2$ quantile. For a 90% interval, sort
+the replicates and cut off the lowest 5% and the highest 5%.
+
+The percentile interval is exactly right when some monotone transformation of $\hat\theta$ has a
+normal, unbiased sampling distribution. Otherwise it inherits whatever bias and skewness the
+bootstrap distribution has, and its actual coverage differs from the nominal $1 - \alpha$ by an
+error of order $n^{-1/2}$.
 
 ### The BCa interval
 
-Efron's **bias-corrected and accelerated** interval uses different quantiles of the same replicates. The bias correction
-$z_0 = \Phi^{-1}\big(\#\{\hat\theta^*_b < \hat\theta\}/B\big)$ measures the median bias of the replicates; the **acceleration** $a$, how fast the standard error changes with
-$\theta$, is estimated from the skewness of the jackknife values $\hat\theta_{(i)}$,
+Efron's **bias-corrected and accelerated** (BCa) interval uses the same replicates but reads
+off *different* quantiles, adjusted for two defects of the percentile interval.
+
+**Bias correction.** If the statistic were unbiased in the median sense, half the replicates
+would fall below $\hat\theta$. The actual fraction measures the bias, expressed as a normal
+quantile:
 
 $$
-a = \frac{\sum(\bar\theta_{(\cdot)} - \hat\theta_{(i)})^3}{6\big(\sum(\bar\theta_{(\cdot)} - \hat\theta_{(i)})^2\big)^{3/2}}.
+z_0 = \Phi^{-1}\Big(\frac{\#\{\hat\theta^*_b < \hat\theta\}}{B}\Big),
 $$
 
-The interval endpoints are the replicate quantiles at levels $\Phi\big(z_0 + \frac{z_0 + z_\alpha}{1 - a(z_0 + z_\alpha)}\big)$ for $z_\alpha = \pm\Phi^{-1}(1 - \alpha/2)$. BCa intervals are
-transformation-respecting and second-order accurate: their coverage error is $O(n^{-1})$.
+which is zero when exactly half fall below.
+
+**Acceleration.** The percentile interval assumes that the standard error of $\hat\theta$ is the
+same whatever the true $\theta$ is. Often it is not: the standard error of a standard deviation,
+for instance, grows with the standard deviation itself. The **acceleration** $a$ measures how
+fast the standard error changes with $\theta$. It is estimated from the **jackknife** values
+$\hat\theta_{(i)}$, the statistic recomputed with observation $i$ left out, through their
+skewness:
+
+$$
+a = \frac{\sum(\bar\theta_{(\cdot)} - \hat\theta_{(i)})^3}{6\big(\sum(\bar\theta_{(\cdot)} - \hat\theta_{(i)})^2\big)^{3/2}},
+$$
+
+where $\bar\theta_{(\cdot)}$ is the mean of the jackknife values.
+
+**The interval.** With $z_\alpha = \pm\Phi^{-1}(1 - \alpha/2)$, the endpoints are the replicate
+quantiles at the levels
+
+$$
+\Phi\Big(z_0 + \frac{z_0 + z_\alpha}{1 - a(z_0 + z_\alpha)}\Big) .
+$$
+
+When $z_0 = 0$ and $a = 0$ this reduces to $\Phi(z_\alpha)$, that is $\alpha/2$ and
+$1 - \alpha/2$: the percentile interval. Otherwise both ends shift, in the direction that
+compensates for the bias and the skewness. BCa intervals are **transformation-respecting** (the
+interval for $g(\theta)$ is $g$ applied to the interval for $\theta$) and **second-order
+accurate**: their coverage error is $O(n^{-1})$ instead of $O(n^{-1/2})$.
 
 ### How well do they cover?
 

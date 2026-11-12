@@ -36,40 +36,121 @@ Poisson and binomial distributions, collected with many others in Luc Devroye's 
 
 ### Inversion
 
-If $F$ is a continuous CDF and $U$ uniform on $(0, 1)$, then $X = F^{-1}(U)$ satisfies $P(X \le x) = P(U \le F(x)) = F(x)$. The exponential with rate $\lambda$
-($X = -\ln(1 - U)/\lambda$), the Weibull, the Cauchy ($X = \tan(\pi(U - \tfrac12))$) and, after rounding down, the geometric distribution are sampled
-this way. Using $1 - U$ rather than $U$ keeps the logarithm finite, since $U$ can be exactly 0. For discrete distributions, inversion
-is a search: find the smallest $k$ with $F(k) \ge U$.
+A generator supplies uniform numbers $U$ on $(0, 1)$. Every other distribution must be
+manufactured from them, and there are three general techniques: inversion, transformation and
+rejection.
+
+**Inversion** uses the cumulative distribution function $F(x) = P(X \le x)$. If $F$ is continuous
+and increasing, set
+
+$$
+X = F^{-1}(U).
+$$
+
+To see that $X$ has the right distribution, compute its CDF. Since $F$ is increasing,
+$X \le x$ exactly when $U \le F(x)$, and for a uniform variable the probability of being below
+a number $p$ in $(0, 1)$ is $p$ itself:
+
+$$
+P(X \le x) = P\big(U \le F(x)\big) = F(x).
+$$
+
+**Example: the exponential distribution.** With rate $\lambda$ its CDF is $F(x) = 1 - e^{-\lambda x}$.
+Solving $u = 1 - e^{-\lambda x}$ for $x$ gives
+
+$$
+X = -\frac{\ln(1 - U)}{\lambda} .
+$$
+
+Since $1 - U$ is also uniform, one could write $\ln U$ instead. The library keeps $1 - U$, because
+$U$ can be exactly 0, and $\ln 0$ is infinite, whereas $1 - U$ is never 0.
+
+The Weibull, the Cauchy ($X = \tan(\pi(U - \tfrac12))$) and, after rounding down, the geometric
+distribution are sampled in the same way. Inversion needs a formula for $F^{-1}$, which many
+distributions (the normal among them) do not have. For discrete distributions, inversion becomes
+a search: find the smallest $k$ with $F(k) \ge U$.
 
 ### The normal distribution: Box-Muller
 
-If $U_1$, $U_2$ are independent uniforms, then
+The normal CDF cannot be inverted in closed form, but a pair of normals can be produced by a
+change of variables. If $U_1$ and $U_2$ are independent uniforms, then
 
 $$
 Z_1 = \sqrt{-2\ln U_1}\cos(2\pi U_2), \qquad Z_2 = \sqrt{-2\ln U_1}\sin(2\pi U_2)
 $$
 
-are independent standard normals: in polar coordinates, $R^2 = Z_1^2 + Z_2^2$ is exponential with mean 2 and the angle is uniform. The
-library returns both, and scales them to $N(\mu, \sigma^2)$. The log-normal is $e^Z$; the chi-square with $k$ degrees of freedom is the sum
-of $k$ squared normals; Student's $t$ is a normal divided by $\sqrt{\chi^2_\nu/\nu}$.
+are independent standard normals.
+
+The reason is easiest to see backwards. Take two independent standard normals and regard them
+as the coordinates of a point in the plane. Their joint density is proportional to
+$e^{-(z_1^2 + z_2^2)/2} = e^{-r^2/2}$, which depends only on the distance $r$ from the origin. So
+the direction of the point is uniform over the circle, and independent of its distance. As for
+the distance, changing to polar coordinates shows that $R^2$ has an exponential distribution
+with mean 2. Both ingredients are easy to sample: the angle is $2\pi U_2$, and by inversion the
+squared radius is $-2\ln U_1$. Converting the polar coordinates back to Cartesian ones gives the
+formulas above.
+
+The library returns both values, and scales them to $N(\mu, \sigma^2)$ as $\mu + \sigma Z$. Several
+other distributions are built on the normal by their definitions: the log-normal is $e^Z$; the
+chi-square with $k$ degrees of freedom is the sum of $k$ squared normals; Student's $t$ is a
+normal divided by $\sqrt{\chi^2_\nu/\nu}$.
 
 ### Rejection: the gamma distribution
 
-To sample a density $f$, choose an envelope $g$ that can be sampled and a constant $c$ with $f \le cg$; draw $X$ from $g$ and accept it with
-probability $f(X)/(cg(X))$. The accepted values have density $f$, and on average $c$ proposals are needed. **Marsaglia and Tsang's**
-gamma sampler for shape $\alpha \ge 1$ writes $X = d(1 + cZ)^3$ with $d = \alpha - \tfrac13$, $c = 1/\sqrt{9d}$ and $Z$ normal, and accepts when
-$\ln U < \tfrac12Z^2 + d - dV + d\ln V$ with $V = (1 + cZ)^3$; the acceptance rate exceeds 95%. Shapes below 1 use the identity
-$\operatorname{Gamma}(\alpha) = \operatorname{Gamma}(\alpha + 1)\cdot U^{1/\alpha}$. The beta distribution is $X/(X + Y)$ for independent gammas of shapes $a$ and $b$; the
-Dirichlet normalises a vector of gammas.
+When neither inversion nor a transformation is available, **rejection sampling** almost always
+is. Picture the region under the graph of the density $f$. If points are scattered uniformly
+over that region, their $x$-coordinates have density $f$, because the chance of landing in a thin
+vertical strip is proportional to its height. The difficulty is scattering points uniformly
+under $f$. Rejection does it indirectly:
+
+1. Choose an **envelope**: a density $g$ that is easy to sample, and a constant $c$ such that
+   $f(x) \le c\,g(x)$ everywhere, so that the graph of $cg$ lies above that of $f$.
+2. Draw $X$ from $g$ and an independent uniform $U$. The point $(X, U\,c\,g(X))$ is uniform under
+   the graph of $cg$.
+3. **Accept** $X$ if the point lies under the graph of $f$, that is if $U \le f(X)/(c\,g(X))$.
+   Otherwise reject it and return to step 2.
+
+The accepted points are uniform under $f$, so the accepted values have density $f$. The area
+under $cg$ is $c$ and the area under $f$ is 1, so the probability of acceptance is $1/c$ and on
+average $c$ proposals are needed per sample. A good envelope hugs the density closely.
+
+**Marsaglia and Tsang's gamma sampler** is a refined example, for shape $\alpha \ge 1$. It sets
+$X = d(1 + cZ)^3$ with $Z$ normal, $d = \alpha - \tfrac13$ and $c = 1/\sqrt{9d}$. The cube of a
+normal variable, suitably shifted and scaled, already has a distribution very close to the
+gamma, so the rejection step only has to correct a small discrepancy: the value is accepted when
+$\ln U < \tfrac12Z^2 + d - dV + d\ln V$ with $V = (1 + cZ)^3$, which happens more than 95% of the
+time.
+
+Shapes below 1 use the identity $\operatorname{Gamma}(\alpha) = \operatorname{Gamma}(\alpha + 1)\cdot U^{1/\alpha}$. Other
+distributions follow from gammas: the beta distribution is $X/(X + Y)$ for independent gammas of
+shapes $a$ and $b$, and the Dirichlet normalises a vector of gammas to sum to 1.
 
 ### Discrete distributions: Poisson and binomial
 
-For small rates, **Knuth's** Poisson sampler counts how many uniforms can be multiplied together before the product falls below $e^{-\lambda}$,
-which simulates the arrivals of a Poisson process in unit time; it needs about $\lambda + 1$ uniforms. For large $\lambda$ the library uses the
-exact recursion of Ahrens and Dieter: with $m = \lfloor7\lambda/8\rfloor$, the time $G \sim \operatorname{Gamma}(m)$ of the $m$-th arrival decides whether
-the count is $m$ plus a Poisson count in the remaining time $\lambda - G$, or a binomial count of the $m - 1$ earlier arrivals that fall before
-$\lambda$. The binomial sampler uses inversion for small means, and otherwise splits recursively on a beta-distributed order statistic, in
-$O(\log n)$ beta samples.
+A Poisson variable with rate $\lambda$ counts the events of a **Poisson process**, in which events
+occur independently at an average rate $\lambda$, during one unit of time. The gaps between
+successive events of such a process are independent exponentials with rate $\lambda$. So one way
+to sample is to add up exponential gaps until their sum exceeds 1, and count how many fitted.
+
+**Knuth's sampler** is this idea with the logarithms removed. Each gap is $-\ln U_i/\lambda$, so
+the sum of the gaps exceeds 1 exactly when the *product* of the uniforms falls below
+$e^{-\lambda}$. The sampler multiplies uniforms together until that happens, and returns the number
+of factors, less one. It needs about $\lambda + 1$ uniforms, so it is suitable only for small
+rates.
+
+For large $\lambda$ the library uses the exact recursion of Ahrens and Dieter, which avoids
+simulating every event. Let $m = \lfloor7\lambda/8\rfloor$, and draw the time $G$ of the $m$-th event
+directly, as a $\operatorname{Gamma}(m)$ variable (the sum of $m$ exponential gaps).
+
+- If $G$ is before the end of the interval, at least $m$ events have occurred, and the count is
+  $m$ plus a Poisson count for the remaining time, with the smaller rate $\lambda - G$.
+- If $G$ is after the end, fewer than $m$ events occurred. The $m - 1$ earlier events are
+  uniformly distributed over $(0, G)$, so the number of them that fall inside the interval is
+  binomial.
+
+Either way the problem has been reduced to a much smaller one. The binomial sampler uses
+inversion for small means, and otherwise splits recursively in a similar way, on a
+beta-distributed order statistic, in $O(\log n)$ beta samples.
 
 The original Poisson sampler multiplied one uniform by itself, with its loop condition inverted, and returned $-1$ for every $\lambda$.
 

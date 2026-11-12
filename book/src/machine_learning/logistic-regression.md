@@ -37,15 +37,61 @@ problems quasi-Newton methods such as L-BFGS (Liu and Nocedal, 1989) took over.
 
 ### The likelihood
 
-With $p_{ic} = P(y_i = c \mid \mathbf x_i)$, the mean negative log-likelihood, or **cross-entropy**, is $L = -\frac1n\sum_i\ln p_{i,y_i}$. Its gradient has a remarkably
-simple form: for class $c$ and feature $j$, $\partial L/\partial w_{cj} = \frac1n\sum_i(p_{ic} - [y_i = c])x_{ij}$, the prediction errors weighted by the features.
-The loss is convex, so any minimum is global; but it has no closed-form minimiser, and an iterative solver is needed.
+**From scores to probabilities.** The model computes a linear **score** for each class,
+$z_c = \mathbf w_c^{\mathsf T}\mathbf x + b_c$, and the softmax turns the scores into probabilities:
+exponentiating makes them positive, and dividing by the sum makes them add up to 1. A class with
+a higher score gets a higher probability. For two classes this reduces to the logistic function
+of the difference of the scores, which rises smoothly from 0 to 1.
+
+**Fitting by maximum likelihood.** Given training data, how should the weights be chosen? The
+model assigns a probability to each possible label of each training point. The **likelihood** of
+the weights is the probability the model assigns to the labels that were actually observed, the
+product over the training points of $p_{i,y_i}$, where $p_{ic} = P(y_i = c \mid \mathbf x_i)$ and
+$y_i$ is the true class of point $i$. Maximum likelihood chooses the weights that make the
+observed labels as probable as possible.
+
+Products of many probabilities are tiny and awkward, so one works with the logarithm, which
+turns the product into a sum, and changes the sign to obtain a quantity to minimise. Averaged
+over the data this is the **cross-entropy**, or **log-loss**:
+
+$$
+L = -\frac1n\sum_i\ln p_{i,y_i} .
+$$
+
+Each point contributes $-\ln$ of the probability given to its true class: nothing if the model
+was certain and right, a little if it was fairly confident and right, and a great deal if it was
+confident and wrong.
+
+**The gradient.** Differentiating $L$ through the softmax gives a remarkably simple result. For
+the weight of feature $j$ in class $c$,
+
+$$
+\frac{\partial L}{\partial w_{cj}} = \frac1n\sum_i\big(p_{ic} - [y_i = c]\big)\,x_{ij},
+$$
+
+where $[y_i = c]$ is 1 if point $i$ belongs to class $c$ and 0 otherwise. The bracket is the
+**prediction error**: the probability the model gave to class $c$, minus what it should have
+been. The gradient is the average of the prediction errors, weighted by the feature values. It
+vanishes when the errors are uncorrelated with every feature.
+
+The loss is convex, so any minimum is global and there are no false minima to be trapped in. But
+unlike least squares, setting the gradient to zero gives equations that cannot be solved in
+closed form, because the probabilities depend nonlinearly on the weights. An iterative solver is
+needed.
 
 ### Separation and the penalty
 
-If a hyperplane separates the classes perfectly, the likelihood increases without bound as the weights grow: there is no
-maximum-likelihood estimate. This happens easily with many features and few samples. An $\ell_2$ penalty $\frac{\lambda}{2}\lVert W\rVert^2$ (intercepts excluded)
-makes the minimum unique and finite and improves the probabilities on new data:
+Maximum likelihood has a failure mode that is easy to overlook. Suppose a hyperplane separates
+the classes perfectly in the training data. Then scaling the weights up makes the model more
+confident about every training point, all of which it classifies correctly, and the likelihood
+increases. Doubling the weights again increases it further. The likelihood has no maximum: it
+approaches its upper limit only as the weights grow without bound, and the fitted probabilities
+all tend to 0 or 1. This **separation** happens easily with many features and few samples.
+
+The remedy is the one used in [ridge regression](linear-regression.md#ridge-regression): add an
+$\ell_2$ penalty $\frac{\lambda}{2}\lVert W\rVert^2$ on the weights (intercepts excluded) to the
+loss. The penalised minimum is unique and finite, and the less extreme probabilities it produces
+are better on new data:
 
 {{#include ../generated/machine_learning/logistic_penalty.md}}
 
@@ -57,8 +103,12 @@ changes the accuracy but improves the test log-loss ninefold.
 
 ![Logistic regression contours](../generated/machine_learning/logistic_contours.svg)
 
-The decision boundary $P = 0.5$ is a line, and the probability contours are parallel lines whose spacing reflects the overlap of
-the classes.
+For two classes the probability depends on $\mathbf x$ only through the score
+$\mathbf w^{\mathsf T}\mathbf x + b$, which is constant along lines perpendicular to $\mathbf w$. The
+**decision boundary** $P = 0.5$, where the score is zero, is therefore a straight line (a
+hyperplane in higher dimensions), and the other probability contours are lines parallel to it.
+Their spacing reflects the overlap of the classes: closely spaced contours mean a sharp
+transition, and so well-separated classes.
 
 ### L-BFGS
 

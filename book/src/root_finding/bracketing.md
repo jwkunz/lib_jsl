@@ -60,56 +60,101 @@ even multiplicity, where $f$ touches zero without crossing, are invisible to all
 
 ### Bisection
 
-Evaluate $f$ at the midpoint $m = (a + b)/2$ and keep the half over which the sign changes. After $k$
-steps the root lies in an interval of width $(b - a)/2^k$, whatever $f$ is, so the number of
-evaluations to reach a tolerance $\delta$ is $\lceil\log_2((b - a)/\delta)\rceil$: about 46 for an interval of
-length 1 and $\delta = 10^{-13}$. This **linear** convergence, one binary digit per evaluation, is slow,
-but it is the best possible guarantee for a method that uses only the signs of $f$.
+Evaluate $f$ at the midpoint $m = (a + b)/2$. If $f(m)$ has the same sign as $f(a)$, the sign
+change is in $[m, b]$; otherwise it is in $[a, m]$. Keep that half and repeat.
+
+Each step halves the bracket, whatever $f$ is. After $k$ steps the root lies in an interval of
+width $(b - a)/2^k$. To reach a tolerance $\delta$ we need $(b - a)/2^k \le \delta$, that is
+
+$$
+k = \left\lceil \log_2 \frac{b - a}{\delta} \right\rceil
+$$
+
+halvings: 44 for an interval of length 1 and $\delta = 10^{-13}$, since
+$10^{13} \approx 2^{43.2}$. Counting the two evaluations at the ends of the starting bracket, that
+is about 46 evaluations of $f$. The error is multiplied by $\tfrac12$ at every step. This is **linear**
+convergence, one binary digit per evaluation. It is slow, but the count is known in advance and
+does not depend on $f$, and it is the best possible guarantee for a method that uses only the
+signs of $f$.
 
 ### False position and the Illinois modification
 
-False position uses the values, not just the signs: it draws the straight line through
-$(a, f(a))$ and $(b, f(b))$ and takes its zero,
+Bisection ignores the sizes of $f(a)$ and $f(b)$. If $|f(a)|$ is much smaller than $|f(b)|$, the
+root is probably nearer to $a$. **False position** (in Latin, *regula falsi*) uses this
+information: it draws the straight line through $(a, f(a))$ and $(b, f(b))$ and takes the point
+where the line crosses zero,
 
 $$
 c = \frac{a\,f(b) - b\,f(a)}{f(b) - f(a)},
 $$
 
-keeping the part of the interval where the sign changes. For a straight line it is exact. For a
-convex function, however, one end of the bracket never moves, and the method converges only
-linearly, sometimes extremely slowly. The **Illinois** modification fixes this: when the same end
-has been kept twice in a row, its stored function value is halved, which pulls the next estimate
-towards it. The order of convergence becomes $3^{1/3} \approx 1.44$ per evaluation.
+then keeps the part of the interval where the sign changes, as bisection does. If $f$ is a
+straight line the answer is exact in one step.
+
+The weakness appears when $f$ is curved in one direction throughout the bracket (convex or
+concave). The chord of a convex function lies above its graph, so the chord's zero always falls
+on the same side of the root. One end of the bracket is replaced at every step, and the other
+*never moves*. The bracket does not shrink to zero, and the estimates creep towards the root with
+linear convergence, sometimes extremely slowly.
+
+The **Illinois** modification fixes this with one line of code. When the same end has been kept
+twice in a row, its stored function value is halved. This tilts the next chord so that its zero
+moves towards the stuck end, and usually lands on the other side of the root, which frees that
+end. The order of convergence becomes $3^{1/3} \approx 1.44$ per evaluation.
 
 ### Ridders' method
 
-Ridders' method evaluates $f$ at the midpoint $x_3$ of the bracket $[x_1, x_2]$ and then finds the
-exponential factor $e^{Qx}$ that makes $f(x)\,e^{Qx}$ a straight line through the three points. False
-position applied to that straightened function gives
+False position is exact for straight lines and struggles with curvature. Ridders' idea is to
+remove the curvature first. One step, on a bracket $[x_1, x_2]$ with function values $f_1, f_2$:
+
+1. Evaluate $f_3 = f(x_3)$ at the midpoint $x_3$.
+2. Find the exponential factor $e^{Qx}$ for which the three values of $g(x) = f(x)\,e^{Qx}$ at
+   $x_1, x_3, x_2$ lie on a straight line. (This is one condition on the one unknown $Q$, and it
+   reduces to a quadratic equation for $e^{Q(x_3 - x_1)}$.) Multiplying by a positive factor does not move the root,
+   so $g$ has the same root as $f$.
+3. Apply false position to the straightened function $g$. The result simplifies to
 
 $$
-x_4 = x_3 + (x_3 - x_1)\,\frac{\operatorname{sign}(f_1 - f_2)\,f_3}{\sqrt{f_3^2 - f_1 f_2}},
+x_4 = x_3 + (x_3 - x_1)\,\frac{\operatorname{sign}(f_1 - f_2)\,f_3}{\sqrt{f_3^2 - f_1 f_2}} .
 $$
 
-which always lies inside the bracket. With two evaluations per step and quadratic convergence per
-step, its order is $\sqrt 2 \approx 1.41$ per evaluation. It is simple and robust, a good alternative to
-Brent's method when a short implementation is wanted.
+4. Evaluate $f(x_4)$ and form the new bracket from $x_4$ and whichever neighbouring point has the
+   opposite sign.
+
+The formula has two reassuring properties. Since $f_1$ and $f_2$ have opposite signs,
+$f_3^2 - f_1f_2$ is positive, so the square root is real and larger than $|f_3|$; consequently the fraction
+is smaller than 1 in magnitude and $x_4$ always lies inside the bracket. Each step costs two evaluations and
+converges quadratically, which makes the order $\sqrt 2 \approx 1.41$ per evaluation. Ridders'
+method is simple and robust, a good alternative to Brent's method when a short implementation is
+wanted.
 
 ### Brent's method
 
-Brent's method keeps three points: the best estimate $b$, the previous one $a$, and a contrapoint $c$
-with $f(c)$ of opposite sign to $f(b)$, so that the root is bracketed by $b$ and $c$. At each step it
-tries a fast step:
+Brent's method aims for the best of both worlds: the speed of interpolation when the function is
+well behaved and the guarantee of bisection when it is not.
 
-- **inverse quadratic interpolation**, fitting $x$ as a quadratic function of $y$ through the three
-  points and evaluating it at $y = 0$, when the three function values are distinct;
-- the **secant** step through $a$ and $b$ otherwise.
+**The points it keeps.** Three points are maintained: the best estimate so far, $b$; the previous
+estimate, $a$; and a **contrapoint** $c$ at which $f$ has the opposite sign to $f(b)$. The root
+always lies between $b$ and $c$.
 
-It accepts the fast step only if it falls inside the bracket and is less than half the size of the
-step before last; otherwise it **bisects**. Near a simple root the interpolation steps are always
-accepted and the order is about 1.84; on difficult functions the safeguard forces bisection often
-enough that the method is never much worse than bisection. Brent proved that it needs at most about
-the square of bisection's count of evaluations.
+**The fast step.** At each iteration the method proposes a new point by interpolation:
+
+- **Inverse quadratic interpolation**, when the three function values are distinct. Instead of
+  fitting $y$ as a quadratic in $x$ (a parabola, which may cross the axis twice or not at all),
+  it fits $x$ as a quadratic function of $y$ through the three points and evaluates that at $y = 0$.
+  This always gives exactly one answer.
+- The **secant** step through $a$ and $b$ otherwise.
+
+**The safeguard.** The proposed point is accepted only if it falls inside the bracket and the
+step is less than half the size of the step before last. The second condition insists that the
+steps keep shrinking quickly, as they would if interpolation were working. If either test fails,
+the method **bisects** instead.
+
+Near a simple root the interpolation steps are always accepted and the order of convergence is
+about 1.84. On difficult functions the safeguard forces a bisection often enough that the method
+is never much worse than bisection. Brent proved that it needs at most about the square of
+bisection's count of evaluations, and in practice it rarely needs more than a few times that
+count.
 
 ### Comparison
 

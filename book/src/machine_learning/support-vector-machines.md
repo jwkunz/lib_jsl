@@ -35,36 +35,93 @@ its working-set selection in LIBSVM, the most widely used implementation.
 
 ### The maximal-margin hyperplane
 
-For labels $y_i = \pm1$ and a hyperplane $f(\mathbf x) = \mathbf w^{\mathsf T}\mathbf x + b$, scale $\mathbf w$ so that the closest points satisfy $y_if(\mathbf x_i) = 1$; the margin is then $2/\lVert\mathbf w\rVert$. The
-soft-margin SVM solves
+**The margin.** Take two classes with labels $y_i = +1$ and $y_i = -1$, and a linear classifier
+that predicts the sign of $f(\mathbf x) = \mathbf w^{\mathsf T}\mathbf x + b$. The boundary $f(\mathbf x) = 0$ is a
+hyperplane (a line in two dimensions). If the classes can be separated at all, many hyperplanes
+separate them. The support vector machine chooses the one that is as far as possible from the
+nearest training points, on the reasoning that a boundary with room to spare on both sides is
+least likely to misclassify new points.
+
+To make this precise, note that the distance of a point $\mathbf x$ from the hyperplane is
+$|f(\mathbf x)|/\lVert\mathbf w\rVert$. Multiplying $\mathbf w$ and $b$ by a constant does not move the
+hyperplane, so we may fix the scale by requiring that the closest points have $|f| = 1$. Every
+training point then satisfies $y_if(\mathbf x_i) \ge 1$, the closest points lie on the two parallel
+hyperplanes $f = \pm1$, and the gap between those, the **margin**, has width $2/\lVert\mathbf w\rVert$.
+Maximising the margin is therefore the same as minimising $\lVert\mathbf w\rVert$.
+
+**The soft margin.** Real classes overlap, and no hyperplane separates them. The **soft-margin**
+SVM allows points to violate the margin, at a price:
 
 $$
-\min_{\mathbf w, b, \boldsymbol\xi}\ \tfrac12\lVert\mathbf w\rVert^2 + C\sum_i\xi_i \quad\text{subject to}\quad y_if(\mathbf x_i) \ge 1 - \xi_i,\ \xi_i \ge 0,
+\min_{\mathbf w, b, \boldsymbol\xi}\ \tfrac12\lVert\mathbf w\rVert^2 + C\sum_i\xi_i \quad\text{subject to}\quad y_if(\mathbf x_i) \ge 1 - \xi_i,\ \xi_i \ge 0 .
 $$
 
-where the slack $\xi_i$ measures how far point $i$ intrudes into the margin. Equivalently, it minimises the **hinge loss** $\max(0, 1 - y_if(\mathbf x_i))$ with an $\ell_2$
-penalty $1/(2C)$. Small $C$ gives a wide margin with many violations; large $C$ a narrow one that fits the training data.
+The **slack** $\xi_i$ measures how far point $i$ intrudes into the margin: zero if it is on the
+correct side with room to spare, between 0 and 1 if it is inside the margin but correctly
+classified, and more than 1 if it is on the wrong side. The parameter $C$ sets the price of
+violations. Small $C$ gives a wide margin with many violations; large $C$ gives a narrow margin
+that fits the training data closely.
+
+At the optimum each slack is as small as its constraint allows,
+$\xi_i = \max(0, 1 - y_if(\mathbf x_i))$. This function of the classifier's output is called the
+**hinge loss**, and substituting it shows that the SVM minimises the total hinge loss plus an
+$\ell_2$ penalty on the weights, with strength $1/(2C)$. In that form it resembles
+[penalised logistic regression](logistic-regression.md#separation-and-the-penalty), with a
+different loss. The difference matters: the hinge loss is exactly zero for points beyond the
+margin, so those points have no influence on the solution at all.
 
 ![Linear SVM with margins](../generated/machine_learning/svm_margin.svg)
 
 Only the six points on or inside the margins (highlighted) determine the boundary; the others could move freely without
-changing it.
+changing it. These are the **support vectors**.
 
 ### The dual problem and kernels
 
-Lagrange duality turns the problem into one over multipliers $\alpha_i$, one per training point:
+**The dual.** The problem above is a quadratic program with linear constraints, and
+[Lagrange duality](../optimization/constrained.md#optimality-conditions) transforms it into an
+equivalent problem in the Lagrange multipliers $\alpha_i$, one for each training point's
+constraint:
 
 $$
-\min_{\boldsymbol\alpha}\ \tfrac12\sum_{i,j}\alpha_i\alpha_jy_iy_jk(\mathbf x_i, \mathbf x_j) - \sum_i\alpha_i \quad\text{subject to}\quad 0 \le \alpha_i \le C,\ \sum_i\alpha_iy_i = 0,
+\min_{\boldsymbol\alpha}\ \tfrac12\sum_{i,j}\alpha_i\alpha_jy_iy_j\,\mathbf x_i^{\mathsf T}\mathbf x_j - \sum_i\alpha_i \quad\text{subject to}\quad 0 \le \alpha_i \le C,\ \sum_i\alpha_iy_i = 0 .
 $$
 
-with $f(\mathbf x) = \sum_i\alpha_iy_ik(\mathbf x_i, \mathbf x) + b$ and $k(\mathbf x, \mathbf x') = \mathbf x^{\mathsf T}\mathbf x'$ for the linear machine. By the KKT conditions, $\alpha_i = 0$ for points outside the margin: only
-support vectors have $\alpha_i > 0$. The data enter only through $k$, so any **positive-definite kernel** can replace the dot product:
+The solution of the original problem is recovered as $\mathbf w = \sum_i\alpha_iy_i\mathbf x_i$, so the
+classifier is
 
-- **Linear** $\mathbf x^{\mathsf T}\mathbf x'$.
-- **Polynomial** $(\gamma\mathbf x^{\mathsf T}\mathbf x' + c_0)^d$, an inner product of all monomials up to degree $d$.
-- **Radial basis function (RBF)** $e^{-\gamma\lVert\mathbf x - \mathbf x'\rVert^2}$, an inner product in an infinite-dimensional space; $f$ becomes a sum of Gaussian bumps on the support vectors.
-- **Sigmoid** $\tanh(\gamma\mathbf x^{\mathsf T}\mathbf x' + c_0)$, not positive definite for all parameters.
+$$
+f(\mathbf x) = \sum_i\alpha_iy_i\,\mathbf x_i^{\mathsf T}\mathbf x + b .
+$$
+
+Two features of the dual are important. First, by the complementarity condition, a multiplier is
+nonzero only if its constraint is active: $\alpha_i = 0$ for every point outside the margin. Only
+the support vectors have $\alpha_i > 0$, so the sum for $f$ has few terms. Second, the training
+points appear, in both the problem and the classifier, *only* through dot products
+$\mathbf x_i^{\mathsf T}\mathbf x_j$.
+
+**The kernel trick.** A linear boundary is often not enough. One remedy is to compute new
+features from the old, for instance all products of pairs of features, and fit a linear
+classifier in the larger feature space; a hyperplane there is a curved surface in the original
+space. The feature space may be huge. But since the SVM needs only dot products, it never needs
+the new features themselves, only a function
+
+$$
+k(\mathbf x, \mathbf x') = \text{the dot product of the feature vectors of } \mathbf x \text{ and } \mathbf x',
+$$
+
+called a **kernel**, and for many useful feature maps the kernel can be computed directly from
+$\mathbf x$ and $\mathbf x'$ at trivial cost. In two dimensions, for example,
+$(\mathbf x^{\mathsf T}\mathbf x')^2 = x_1^2x_1'^2 + 2x_1x_2x_1'x_2' + x_2^2x_2'^2$ is the dot product of the
+feature vectors $(x_1^2, \sqrt2x_1x_2, x_2^2)$: one multiplication and a square replace the
+explicit computation of three quadratic features. Replacing every dot product by $k$ gives the
+kernel SVM, with $f(\mathbf x) = \sum_i\alpha_iy_ik(\mathbf x_i, \mathbf x) + b$. Any function that is a
+**positive-definite kernel** corresponds to a dot product in some feature space and can be used:
+
+- **Linear** $\mathbf x^{\mathsf T}\mathbf x'$: the original machine.
+- **Polynomial** $(\gamma\mathbf x^{\mathsf T}\mathbf x' + c_0)^d$: the feature space of all monomials up to degree $d$.
+- **Radial basis function (RBF)** $e^{-\gamma\lVert\mathbf x - \mathbf x'\rVert^2}$: a feature space of infinite dimension. The
+  classifier $f$ becomes a sum of Gaussian bumps centred on the support vectors.
+- **Sigmoid** $\tanh(\gamma\mathbf x^{\mathsf T}\mathbf x' + c_0)$: not positive definite for all parameters.
 
 ### The kernel width
 
@@ -81,12 +138,28 @@ almost all of them support vectors. $C$ and $\gamma$ interact and must be chosen
 
 ### Sequential minimal optimisation
 
-The dual is a quadratic program with $n$ variables, a box and one equality constraint. SMO solves it by repeatedly optimising
-just **two** multipliers, the smallest set that can move while keeping $\sum\alpha_iy_i = 0$; the two-variable problem has a closed-form
-solution, clipped to the box. Following LIBSVM, the library chooses the first variable as the one that most violates the
-optimality conditions and the second to maximise the guaranteed decrease of the objective (second-order selection), and
-keeps the gradient $Q\boldsymbol\alpha - \mathbf e$ up to date in $O(n)$ per step. It stops when the largest violation falls below the tolerance. More than two
-classes are handled **one versus one**: a machine for each pair of classes, and a majority vote.
+The dual is a quadratic program with $n$ variables, one per training point. Each variable is
+confined to the interval $[0, C]$ (a "box"), and there is one equality constraint. A
+general-purpose solver would need the $n \times n$ matrix of kernel values, which is too large
+for big data sets. **Sequential minimal optimisation** (SMO) exploits the simple structure of
+the constraints.
+
+It would be natural to optimise one multiplier at a time, as in
+[coordinate descent](linear-regression.md#coordinate-descent), but the constraint
+$\sum\alpha_iy_i = 0$ forbids it: with all the others fixed, a single multiplier cannot move. The
+smallest set that can move is **two**. With two multipliers free, the equality constraint
+confines them to a line segment inside the box, and the objective along that segment is a
+quadratic in one variable. Its minimum is given by a formula, clipped to the ends of the segment.
+SMO repeats this two-variable step until the optimality conditions hold.
+
+The choice of the pair decides the speed. Following LIBSVM, the library chooses the first
+variable as the one that most violates the optimality conditions, and the second to maximise
+the guaranteed decrease of the objective (second-order selection). It keeps the gradient
+$Q\boldsymbol\alpha - \mathbf e$ of the objective up to date at a cost of $O(n)$ per step, and stops when
+the largest violation falls below the tolerance.
+
+More than two classes are handled **one versus one**: a separate machine is trained for each
+pair of classes, and a point is assigned to the class that wins the most pairwise contests.
 
 ### Support vector regression
 

@@ -35,6 +35,16 @@ statisticians used printed tables of these functions; the table below is compute
 
 ### Distribution functions as incomplete integrals
 
+A continuous random variable is described by its **probability density function** (PDF) $f(x)$;
+the probability that it falls in an interval is the area under $f$ over that interval. Its
+**cumulative distribution function** (CDF) is the probability of falling at or below $x$,
+$F(x) = \int_{-\infty}^x f(t)\,dt$, which rises from 0 to 1. The complement $1 - F(x)$, the
+probability of exceeding $x$, is called the **survival function** or upper tail.
+
+The densities of the common distributions are powers and exponentials, so their CDFs are exactly
+the incomplete integrals of the [incomplete gamma and beta entry](incomplete.md). No new
+numerical method is needed, only the right change of variable:
+
 | distribution | CDF | through |
 |---|---|---|
 | normal $N(\mu, \sigma^2)$ | $\Phi(z) = \tfrac12\operatorname{erfc}(-z/\sqrt2)$, $z = (x - \mu)/\sigma$ | the error function |
@@ -46,10 +56,16 @@ statisticians used printed tables of these functions; the table below is compute
 | $F(d_1, d_2)$ | $I_{d_1x/(d_1x + d_2)}(\tfrac{d_1}2, \tfrac{d_2}2)$ | incomplete beta |
 | binomial $(n, p)$ | $P(X \le k) = I_{1-p}(n - k, k + 1)$ | incomplete beta |
 
-Computing the normal CDF through $\operatorname{erfc}$ rather than $\operatorname{erf}$ gives full relative accuracy in the lower tail, and
-`chi_square_survival` computes the upper tail $Q(k/2, x/2)$ directly, for the tiny $p$-values of large
-statistics. Probability mass functions use logarithms of gamma functions, so that $\binom{1000}{400}0.42^{400}0.58^{600}$ is
-formed without overflow or underflow.
+Two numerical points deserve attention.
+
+- **Tails.** Small tail probabilities must be computed directly, never as 1 minus a number close
+  to 1, which would cancel their leading digits (see
+  [the error function](incomplete.md#the-error-function)). Computing the normal CDF through
+  $\operatorname{erfc}$ instead of $\operatorname{erf}$ gives full relative accuracy in the lower tail, and
+  `chi_square_survival` computes the upper tail $Q(k/2, x/2)$ directly, for the tiny $p$-values of
+  large test statistics.
+- **Overflow.** Probability mass functions of discrete distributions are products of very large
+  and very small factors. They are assembled from logarithms of gamma functions, so that $\binom{1000}{400}0.42^{400}0.58^{600}$ is formed without overflow or underflow, and exponentiated only at the end.
 
 As the degrees of freedom grow, Student's $t$ approaches the normal distribution, from heavier tails:
 
@@ -57,7 +73,10 @@ As the degrees of freedom grow, Student's $t$ approaches the normal distribution
 
 ### Quantiles
 
-The **quantile** (inverse CDF) $x_p$ solves $F(x_p) = p$. For the normal distribution, Acklam's rational
+The **quantile** function is the inverse of the CDF: $x_p$ is the value below which the variable
+falls with probability $p$, the solution of $F(x_p) = p$. The median is $x_{0.5}$, and the critical
+values of statistical tests are quantiles. Since CDFs have no closed-form inverse, a quantile is
+found by solving that equation numerically. For the normal distribution, Acklam's rational
 approximation gives $x_p$ to about $10^{-9}$, and one Halley step on $\Phi(x) = p$ brings it to full precision. For the other
 continuous distributions the library brackets the solution by doubling and then bisects on the CDF to
 a relative width of a few units of $\varepsilon$, about 60 evaluations: slow but certain, since the CDF is monotone.

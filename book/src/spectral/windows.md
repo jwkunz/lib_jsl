@@ -35,7 +35,26 @@ with the discrete Fourier transform", defined the figures of merit still used.
 
 ### Leakage, the main lobe and the side lobes
 
-Multiplying by $w[n]$ in time convolves with $W(f)$ in frequency. A pure tone therefore appears as a copy of $W$ centred on its frequency:
+**Where leakage comes from.** A spectrum can only be computed from a finite record of $M$
+samples. Taking a finite record is the same as multiplying the endless signal by a function that
+is 1 during the record and 0 outside it, a rectangular **window**. That multiplication changes
+the spectrum. Multiplying two signals in time convolves their spectra in frequency, so the
+spectrum we compute is the true spectrum smeared by the transform $W(f)$ of the window.
+
+The effect is clearest for a pure tone, whose true spectrum is a single spike. Convolving a spike
+with $W$ gives a copy of $W$ centred on the tone's frequency. So instead of one sharp line, the
+tone appears as the whole shape of $W$: a central **main lobe**, whose width limits how close two
+tones can be and still be told apart, and a series of **side lobes** that spread the tone's
+energy to distant frequencies. That spreading is **leakage**. The side lobes of a strong tone can
+hide a weak one entirely.
+
+(When a tone has exactly a whole number of cycles in the record, the DFT happens to sample $W$
+only at its peak and its zeros, and no leakage is visible. For any other frequency it is.)
+
+**The remedy.** The side lobes of the rectangular window are high because it switches on and off
+abruptly. A window $w[n]$ that rises smoothly from zero and falls smoothly back has far lower
+side lobes. The price is a wider main lobe, because the taper makes the record effectively
+shorter. Every window is a compromise between the two:
 
 | | |
 |:---:|:---:|
@@ -59,11 +78,17 @@ the main lobe and lowers the side lobes: Hann to −31 dB, Blackman to −58 dB,
 
 ### Figures of merit
 
-For a window of length $M$:
+Three numbers summarise how a window of length $M$ affects measurements made with it.
 
-- The **coherent gain** $\sum w/M$ scales a tone's amplitude.
-- The **equivalent noise bandwidth** $M\sum w^2/(\sum w)^2$ (in bins) scales noise power.
-- The **scalloping loss** is the amplitude lost by a tone halfway between two bins.
+- The **coherent gain** $\sum w/M$ is the factor by which the window scales the amplitude of a
+  tone. A taper reduces the samples near the ends, so the gain is below 1 and amplitudes must be
+  divided by it.
+- The **equivalent noise bandwidth** $M\sum w^2/(\sum w)^2$, in bins, measures how much noise each
+  bin collects. It is the width of the ideal rectangular filter that would pass the same noise
+  power. A wider main lobe admits more noise, so tapering costs a little signal-to-noise ratio.
+- The **scalloping loss** is the amplitude lost by a tone that falls halfway between two bins,
+  the worst case, where both neighbouring bins sample the main lobe on its slopes instead of at
+  its peak.
 
 {{#include ../generated/spectral/window_merits.md}}
 

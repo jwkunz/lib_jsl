@@ -36,27 +36,68 @@ bandwidths that estimate the curvature of the density from the data.
 
 ### Bias, variance and the bandwidth
 
-A small $h$ follows the data closely but is noisy (high variance); a large $h$ is smooth but blurs peaks and valleys (high bias). For a
-twice-differentiable density, the bias at $x$ is about $\tfrac12h^2f''(x)$ and the variance about $f(x)/(2\sqrt\pi nh)$ for the Gaussian kernel. Integrating, the
-asymptotic mean integrated squared error
+The estimate places a small bump, the kernel, of width $h$ on each observation and adds the
+bumps up. Everything depends on the **bandwidth** $h$, and the two ways of getting it wrong have
+names.
+
+- If $h$ is too small, each bump is narrow and the estimate is a row of spikes. It follows the
+  particular sample closely and would look quite different for another sample. This is
+  **variance**.
+- If $h$ is too large, the bumps are so wide that real features, peaks and valleys, are smeared
+  out. The estimate would be much the same for any sample, but systematically wrong. This is
+  **bias**.
+
+Both can be quantified. For a twice-differentiable density $f$ and the Gaussian kernel, at a
+point $x$:
 
 $$
-\text{AMISE}(h) = \frac{h^4}{4}\int f''^2 + \frac{1}{2\sqrt\pi\,nh}
+\text{bias} \approx \tfrac12h^2f''(x), \qquad \text{variance} \approx \frac{f(x)}{2\sqrt\pi\,nh} .
 $$
 
-is minimised by $h^* = \big(2\sqrt\pi\,n\int f''^2\big)^{-1/5} \propto n^{-1/5}$, giving an error of order $n^{-4/5}$: slower than the $n^{-1}$ of a parametric fit, the price of
-assuming nothing about the shape.
+The bias formula says that smoothing lowers peaks (where $f'' < 0$) and fills valleys (where
+$f'' > 0$), more so the sharper they are. The variance formula says that the noise falls as
+$nh$, roughly the number of observations inside one kernel width, grows.
+
+The total error at a point is the squared bias plus the variance. Integrating over $x$ (the
+variance term integrates to $1/(2\sqrt\pi nh)$ because $\int f = 1$) gives the asymptotic mean
+integrated squared error
+
+$$
+\text{AMISE}(h) = \frac{h^4}{4}\int f''^2 + \frac{1}{2\sqrt\pi\,nh} .
+$$
+
+The first term grows with $h$ and the second falls, so there is a best bandwidth, found by
+setting the derivative to zero:
+
+$$
+h^3\int f''^2 - \frac{1}{2\sqrt\pi\,nh^2} = 0
+\quad\Longrightarrow\quad
+h^* = \Big(2\sqrt\pi\,n\int f''^2\Big)^{-1/5} \propto n^{-1/5} .
+$$
+
+This is the same kind of balance as the choice of step in
+[numerical differentiation](../derivatives/finite-differences.md#rounding-error-and-the-optimal-step).
+Two consequences follow. The best bandwidth shrinks only slowly as the sample grows, like
+$n^{-1/5}$. And substituting $h^*$ back gives an error of order $n^{-4/5}$, which is slower than
+the $n^{-1}$ of a parametric fit: that is the price of assuming nothing about the shape of the
+density.
 
 ### Rules of thumb
 
-The optimal $h^*$ depends on the unknown $\int f''^2$. **Normal-reference** rules substitute the value for a normal density with the sample
-standard deviation $\sigma$, giving $h = 1.06\,\sigma n^{-1/5}$. The library offers:
+The formula for $h^*$ cannot be used directly, because it contains $\int f''^2$, a property of
+the unknown density being estimated. **Normal-reference** rules break the circle by pretending,
+for this one purpose, that the density is normal with the sample's standard deviation $\sigma$.
+For a normal density the integral can be done exactly, and the formula gives
+$h = 1.06\,\sigma n^{-1/5}$. The library offers:
 
 - **Scott**: $h = \sigma n^{-1/5}$, the factor used by `scipy.stats.gaussian_kde` (slightly smaller than 1.06).
 - **Silverman**: $h = 0.9\min(\sigma, \operatorname{IQR}/1.34)\,n^{-1/5}$, which shrinks the bandwidth for heavy tails and resists outliers.
 - **Fixed**: any given $h$.
 
-Both rules are tuned to unimodal, normal-like data and **oversmooth** multimodal densities, whose curvature is larger:
+The assumption has a cost. A density with two or more peaks has much more curvature than a
+normal density of the same overall spread, so its $\int f''^2$ is larger and its best bandwidth
+smaller. Both rules are tuned to unimodal, normal-like data and **oversmooth** multimodal
+densities:
 
 ![Kernel density estimates](../generated/statistics/kde.svg)
 

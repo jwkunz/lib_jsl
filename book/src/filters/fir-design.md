@@ -35,8 +35,35 @@ standard design tool, and SciPy's `remez` is a direct descendant.
 
 ### Linear phase and the four types
 
-A symmetric filter of length $N$ has frequency response $H(e^{j\omega}) = e^{-j\omega(N-1)/2}A(\omega)$ with a **real** amplitude $A(\omega)$. Depending on whether $N$ is odd or even and the taps
-symmetric or antisymmetric, $A$ is a sum of cosines or sines, giving the four **types**:
+**Why symmetry matters.** A filter delays the signals passing through it, and in general it
+delays different frequencies by different amounts, which distorts the shape of a pulse. A filter
+that delays every frequency by the *same* amount only shifts the signal in time. Such a filter
+has a phase that is a linear function of frequency, and is said to have **linear phase**. FIR
+filters can achieve this exactly, simply by making their taps symmetric.
+
+To see why, take five symmetric taps, $h_0, h_1, h_2, h_1, h_0$. In the frequency response
+$\sum_kh_ke^{-j\omega k}$, factor out the delay to the centre tap, $e^{-2j\omega}$, and pair each
+tap with its mirror image:
+
+$$
+H(e^{j\omega}) = e^{-2j\omega}\big[h_2 + h_1(e^{j\omega} + e^{-j\omega}) + h_0(e^{2j\omega} + e^{-2j\omega})\big]
+= e^{-2j\omega}\big[h_2 + 2h_1\cos\omega + 2h_0\cos2\omega\big].
+$$
+
+The bracket is real. So the response is a real **amplitude** $A(\omega)$ times a pure delay of two
+samples, half the filter's span. In general a symmetric filter of length $N$ has
+
+$$
+H(e^{j\omega}) = e^{-j\omega(N-1)/2}A(\omega),
+$$
+
+a delay of $(N - 1)/2$ samples at every frequency. Designing the filter reduces to designing the
+real function $A(\omega)$.
+
+**The four types.** The same pairing works when the taps are antisymmetric ($h_k = -h_{N-1-k}$),
+giving sines instead of cosines (and an extra factor $j$). The length may be odd or even. These
+choices give four **types**, and the symmetry of each forces its amplitude to vanish at certain
+frequencies, which limits what it can be used for:
 
 | Type | Taps | Length | $A(\omega)$ is forced to zero at | Suits |
 |---|---|---|---|---|
@@ -45,18 +72,48 @@ symmetric or antisymmetric, $A$ is a sum of cosines or sines, giving the four **
 | III | antisymmetric | odd | $\omega = 0$ and $\pi$ | Hilbert transformers, band-pass |
 | IV | antisymmetric | even | $\omega = 0$ | differentiators, Hilbert transformers, high-pass |
 
-Every type can be written $A(\omega) = Q(\omega)P(\omega)$ with $P$ a cosine polynomial and $Q$ equal to $1$, $\cos(\omega/2)$, $\sin\omega$ or $\sin(\omega/2)$. This is how one optimisation algorithm serves all four.
+A type II filter, for example, cannot be a high-pass filter, because its gain at the Nyquist
+frequency is always zero.
+
+Every type can be written $A(\omega) = Q(\omega)P(\omega)$, where $P$ is a polynomial in $\cos\omega$ and
+$Q$ is a fixed factor, equal to $1$, $\cos(\omega/2)$, $\sin\omega$ or $\sin(\omega/2)$ for types I to IV,
+that accounts for the forced zeros. This is how one optimisation algorithm serves all four: it
+always designs the polynomial $P$.
 
 ### The window method
 
-The ideal low-pass filter with cutoff $\omega_c$ has impulse response $h_d[n] = \frac{\omega_c}{\pi}\operatorname{sinc}(\omega_c n/\pi)$, infinitely long. Truncating it to $N$ taps multiplies it by a rectangle, which
-convolves the ideal response with the rectangle's transform. The result has ripple near the edge (the Gibbs phenomenon, 9% overshoot
-whatever $N$) and side lobes only 21 dB down. Multiplying by a smoother **window** $w[n]$ instead trades a wider transition for lower side lobes:
+The simplest design method starts from the ideal answer and makes it realisable.
+
+**The ideal filter.** An ideal low-pass filter has gain 1 up to the cutoff $\omega_c$ and 0 beyond.
+Its impulse response is the inverse Fourier transform of that rectangular shape,
+
+$$
+h_d[n] = \frac{\omega_c}{\pi}\operatorname{sinc}\Big(\frac{\omega_cn}{\pi}\Big), \qquad \operatorname{sinc}(x) = \frac{\sin\pi x}{\pi x},
+$$
+
+which extends for ever in both directions and decays only like $1/n$. It cannot be used as it
+stands.
+
+**Truncation and its cost.** The obvious fix is to keep only the $N$ central taps. Keeping some
+taps and discarding the rest is the same as multiplying $h_d$ by a rectangular **window** that is
+1 on those taps and 0 elsewhere. Multiplication in time corresponds to convolution in frequency:
+the response of the truncated filter is the ideal rectangle smeared by the Fourier transform of
+the window. The transform of a rectangular window is a narrow main lobe flanked by side lobes
+that decay slowly. Smearing with it has two effects. The sharp edge of the ideal response
+becomes a transition band about as wide as the main lobe. And the side lobes produce ripple on
+both sides of the edge: an overshoot of 9% however large $N$ is (the Gibbs phenomenon), and a
+stopband whose first side lobe is only 21 dB down.
+
+**Better windows.** The side lobes come from the abrupt ends of the rectangular window. A window
+that tapers smoothly to zero at its ends has much lower side lobes, at the price of a wider main
+lobe. Multiplying by such a window $w[n]$ instead trades a wider transition band for a cleaner
+stopband:
 
 ![Window-method filters](../generated/filters/fir_windows.svg)
 
 [`firwin`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin/fn.firwin.html) builds the ideal response from sinc functions, one difference of two per band, applies the window, and scales the result to unit gain at the
-centre of the first passband. Its window can be any of the library's window functions, which a later chapter treats in detail.
+centre of the first passband. Its window can be any of the library's
+[window functions](../spectral/windows.md), which a later chapter treats in detail.
 
 ### Kaiser's formulas
 
@@ -84,21 +141,40 @@ More taps follow the specification more closely, but discontinuities still ring.
 
 ### Parks-McClellan: equiripple design
 
-Window designs spread their error unevenly: largest near the band edges, wasted far from them. The **minimax** design instead chooses the taps
-to minimise the largest weighted error over the bands of interest,
+Window designs are simple but not optimal. Their error is spread unevenly: largest near the band
+edges, and far smaller than necessary elsewhere. A filter that meets a specification with the
+fewest taps should not waste accuracy in this way. The **minimax** design chooses the taps to
+minimise the *largest* weighted error over the bands of interest,
 
 $$
-\min_{h}\max_{\omega \in \text{bands}}W(\omega)\,\big|D(\omega) - A(\omega)\big|.
+\min_{h}\max_{\omega \in \text{bands}}W(\omega)\,\big|D(\omega) - A(\omega)\big|,
 $$
 
-By Chebyshev's **alternation theorem**, the optimal $P$ (a polynomial of degree $r - 1$ in $\cos\omega$) is characterised by an error that reaches its maximum magnitude $\delta$ at least
-$r + 1$ times with alternating signs. Remez's **exchange algorithm** finds it:
+where $D$ is the desired amplitude (1 in a passband, 0 in a stopband), $A$ the actual amplitude,
+and $W$ a weight that sets the relative importance of the bands. The transition bands are left
+out: no error is counted there.
 
-1. Guess $r + 1$ reference frequencies.
-2. Solve for the polynomial that makes the weighted error exactly $\pm\delta$, alternating, at those frequencies. A closed formula gives $\delta$, and barycentric
-   Lagrange interpolation gives the polynomial.
-3. Evaluate the error on a dense grid, and move the reference to its local extrema.
-4. Repeat until the reference stops changing. The error is then equiripple and optimal.
+**What the optimum looks like.** A classical theorem of approximation theory describes the
+solution. By Chebyshev's **alternation theorem**, a polynomial $P$ of degree $r - 1$ (in
+$\cos\omega$) is the minimax approximation if and only if its weighted error reaches its maximum
+magnitude $\delta$ at least $r + 1$ times, with alternating signs. Intuitively, if the error
+peaks were not all equal, the polynomial could be adjusted to lower the highest peak at the
+expense of the others. At the optimum no such improvement is possible: all the peaks are
+level. The error is **equiripple**.
+
+**Finding it.** The theorem turns an optimisation problem into a search for the right $r + 1$
+frequencies. Remez's **exchange algorithm** does the search:
+
+1. Guess $r + 1$ **reference** frequencies.
+2. Solve for the polynomial whose weighted error is exactly $\pm\delta$, with alternating signs,
+   at those frequencies. This is a linear problem in the coefficients and $\delta$; a closed
+   formula gives $\delta$, and
+   [barycentric Lagrange interpolation](../interpolation/polynomial.md#the-barycentric-formula)
+   gives the polynomial.
+3. Evaluate the error on a dense grid of frequencies. Between the reference points it generally
+   exceeds $\delta$ somewhere. Move the reference frequencies to the local extrema of the error.
+4. Repeat until the reference stops changing. The error then alternates between equal extremes,
+   and by the theorem the filter is optimal.
 
 ![Equiripple against window](../generated/filters/fir_remez.svg)
 

@@ -45,56 +45,125 @@ L-BFGS the standard method for large smooth problems.
 
 ### Newton's method
 
-The second-order Taylor model of $f$ around $\mathbf x_k$ is
+[Gradient descent](gradient-methods.md) uses only the slope of $f$ at the current point. Newton's
+method also uses its curvature. Around the current point $\mathbf x_k$, approximate $f$ by the first
+three terms of its Taylor series, a quadratic function of the displacement $\mathbf p$:
 
 $$
 m(\mathbf p) = f(\mathbf x_k) + \nabla f(\mathbf x_k)^{\mathsf T}\mathbf p + \tfrac12\mathbf p^{\mathsf T}\nabla^2 f(\mathbf x_k)\,\mathbf p .
 $$
 
-If the Hessian $\nabla^2 f$ is positive definite, $m$ has a unique minimum where its gradient vanishes,
-which gives the **Newton step**
+Here $\nabla^2 f$ is the **Hessian**, the symmetric matrix of second partial derivatives. The idea
+is to jump straight to the minimum of this model. A minimum requires the gradient of $m$ with
+respect to $\mathbf p$ to vanish:
+
+$$
+\nabla m(\mathbf p) = \nabla f(\mathbf x_k) + \nabla^2 f(\mathbf x_k)\,\mathbf p = \mathbf 0 .
+$$
+
+This is a linear system for the **Newton step** $\mathbf p_k$:
 
 $$
 \nabla^2 f(\mathbf x_k)\,\mathbf p_k = -\nabla f(\mathbf x_k), \qquad \mathbf x_{k+1} = \mathbf x_k + \mathbf p_k .
 $$
 
-On a quadratic it reaches the minimum in one step, whatever the condition number. Near any
-minimum with positive definite Hessian it converges quadratically, as in the
-[root-finding case](../root_finding/newton.md#newtons-method). Far from a minimum it has no such
-guarantee: where the Hessian is indefinite the model has no minimum and the step may go towards a
-saddle point or a maximum, and even where it is positive definite the step may overshoot and
-increase $f$. Practical Newton methods therefore modify the Hessian to make it positive definite and
-add a line search or a trust region; the library's `NewtonRaphsonMethod` is the pure method, best
-used close to a minimum.
+The stationary point of $m$ is a minimum only if the Hessian is **positive definite** (the model
+curves upward in every direction). There is another way to read the same formula: a minimum of
+$f$ is a root of the system $\nabla f(\mathbf x) = \mathbf 0$, and this is exactly
+[Newton's method for systems](../root_finding/nonlinear-systems.md#newtons-method) applied to
+it, with the Hessian as the Jacobian of the gradient.
+
+**Strengths.** If $f$ is itself a quadratic, the model is exact and the method reaches the minimum
+in one step, whatever the condition number: the Hessian rescales the valley that made gradient
+descent zigzag. Near any minimum with a positive definite Hessian it converges quadratically, as in
+the [root-finding case](../root_finding/newton.md#newtons-method).
+
+**Weaknesses.** Far from a minimum there is no such guarantee.
+
+- Where the Hessian is indefinite the model has no minimum, and the step goes to a saddle point or
+  a maximum of the model instead.
+- Even where it is positive definite, the model may be a poor approximation at the distance of
+  the step, which can overshoot and increase $f$.
+- Each iteration needs the $n \times n$ Hessian and the solution of a linear system, $O(n^3)$ work.
+
+Practical Newton methods therefore modify the Hessian to make it positive definite and add a line
+search or a trust region. The library's `NewtonRaphsonMethod` is the pure method, best used close
+to a minimum.
 
 ### BFGS
 
-Quasi-Newton methods take the step $\mathbf p_k = -H_k\nabla f(\mathbf x_k)$, with $H_k$ an approximation of the
-*inverse* Hessian, and choose $\alpha_k$ by a line search. After the step $\mathbf s_k = \mathbf x_{k+1} - \mathbf x_k$, with gradient
-change $\mathbf y_k = \nabla f(\mathbf x_{k+1}) - \nabla f(\mathbf x_k)$, the new approximation is required to satisfy the **secant
-equation** $H_{k+1}\mathbf y_k = \mathbf s_k$, which holds exactly for the true inverse Hessian of a quadratic.
-Among the many matrices satisfying it, BFGS chooses the one closest to $H_k$ in a weighted norm,
-which gives the rank-two update
+**Quasi-Newton** methods keep the speed of Newton's method without computing second derivatives.
+They maintain an approximation of the Hessian built up from the gradients seen so far, just as
+[Broyden's method](../root_finding/nonlinear-systems.md#broydens-method) builds up a Jacobian.
+BFGS, named after Broyden, Fletcher, Goldfarb and Shanno, is the most successful of them.
+
+It is convenient to approximate the *inverse* Hessian directly, by a matrix $H_k$, because then
+the Newton-like step needs no linear solve:
+
+$$
+\mathbf p_k = -H_k\nabla f(\mathbf x_k), \qquad \mathbf x_{k+1} = \mathbf x_k + \alpha_k\mathbf p_k,
+$$
+
+with the step length $\alpha_k$ chosen by a line search.
+
+**What a step teaches.** After the step we know two vectors: the displacement
+$\mathbf s_k = \mathbf x_{k+1} - \mathbf x_k$ and the change in the gradient
+$\mathbf y_k = \nabla f(\mathbf x_{k+1}) - \nabla f(\mathbf x_k)$. For a quadratic with Hessian $A$ the gradient
+is $A\mathbf x + \mathbf b$, so these are related exactly by $\mathbf y_k = A\mathbf s_k$, or
+$A^{-1}\mathbf y_k = \mathbf s_k$. We ask the new approximation to agree with this observation, the
+**secant equation**
+
+$$
+H_{k+1}\mathbf y_k = \mathbf s_k .
+$$
+
+**The update.** The secant equation gives $n$ conditions on a symmetric matrix with $n(n+1)/2$
+entries, so many matrices satisfy it. BFGS chooses the symmetric one closest to $H_k$ (in a
+suitably weighted norm), on the principle that the old information should be kept unless it
+conflicts with the new. The result is
 
 $$
 H_{k+1} = (I - \rho_k\mathbf s_k\mathbf y_k^{\mathsf T})\,H_k\,(I - \rho_k\mathbf y_k\mathbf s_k^{\mathsf T}) + \rho_k\mathbf s_k\mathbf s_k^{\mathsf T}, \qquad \rho_k = \frac1{\mathbf y_k^{\mathsf T}\mathbf s_k}.
 $$
 
-If $H_k$ is positive definite and $\mathbf y_k^{\mathsf T}\mathbf s_k > 0$, so is $H_{k+1}$, and every step is a descent
-direction. The [Wolfe curvature condition](one-dimensional.md#line-searches-and-the-wolfe-conditions)
-guarantees $\mathbf y_k^{\mathsf T}\mathbf s_k > 0$, which is why BFGS uses that line search. The first approximation is
-$H_0 = I$, rescaled after the first step by $\mathbf y^{\mathsf T}\mathbf s / \mathbf y^{\mathsf T}\mathbf y$ to match the curvature along it. BFGS
-converges superlinearly, and corrects poor approximations of the Hessian quickly; it is
+It is easy to check that this satisfies the secant equation. The rightmost bracket applied to
+$\mathbf y_k$ gives $\mathbf y_k - \rho_k\mathbf y_k(\mathbf s_k^{\mathsf T}\mathbf y_k) = \mathbf y_k - \mathbf y_k = \mathbf 0$, so the
+whole first term vanishes, and the second gives
+$\rho_k\mathbf s_k(\mathbf s_k^{\mathsf T}\mathbf y_k) = \mathbf s_k$. The update changes $H_k$ by a matrix of rank
+two, and costs $O(n^2)$ operations.
+
+**Staying positive definite.** If $H_k$ is positive definite and $\mathbf y_k^{\mathsf T}\mathbf s_k > 0$, then
+$H_{k+1}$ is positive definite too, and so $\mathbf p = -H\nabla f$ is always a descent direction.
+The condition $\mathbf y_k^{\mathsf T}\mathbf s_k > 0$ says that the slope along the step has increased, that
+is, the function curves upward along it. The
+[Wolfe curvature condition](one-dimensional.md#line-searches-and-the-wolfe-conditions)
+guarantees exactly this, which is why BFGS is paired with a Wolfe line search.
+
+**Starting.** The first approximation is $H_0 = I$, which makes the first step a gradient descent
+step. After that step it is rescaled by $\mathbf y^{\mathsf T}\mathbf s / \mathbf y^{\mathsf T}\mathbf y$, an estimate of the
+inverse curvature along the step, so that later steps have about the right length.
+
+BFGS converges superlinearly, and it corrects poor approximations of the Hessian quickly; it is
 remarkably robust.
 
 ### L-BFGS
 
-BFGS stores the dense $n \times n$ matrix $H_k$, which is impossible for a million variables. But $H_k$ is
-$H_0$ updated by the pairs $(\mathbf s_i, \mathbf y_i)$, and the product $H_k\mathbf g$ can be computed from the pairs alone
-by the **two-loop recursion**, in $O(mn)$ operations. L-BFGS keeps only the most recent $m$ pairs
-(typically 3 to 20), discarding older curvature information. It converges linearly rather than
-superlinearly, but quickly, and on large problems it is usually the fastest method that needs only
-gradients.
+BFGS stores the dense $n \times n$ matrix $H_k$, which is impossible for a million variables.
+**Limited-memory BFGS** avoids storing it at all.
+
+The observation is that the method never needs $H_k$ itself, only the product $H_k\mathbf g$ with
+the current gradient. And $H_k$ is nothing more than $H_0$ (a multiple of the identity) with $k$
+updates applied, each defined by one pair of vectors $(\mathbf s_i, \mathbf y_i)$. The product can
+therefore be computed from the stored pairs alone, by unrolling the update formula. The procedure
+is called the **two-loop recursion**: one loop runs backwards through the pairs applying the
+right-hand brackets of the updates, and a second runs forwards applying the left-hand ones. With
+$m$ pairs it costs $O(mn)$ operations.
+
+L-BFGS keeps only the most recent $m$ pairs (typically 3 to 20) and discards older ones, so its
+memory is $2mn$ numbers instead of $n^2$. Old curvature information is also the least relevant,
+since it was gathered far from the current point. The price is that convergence is linear
+instead of superlinear, but it is fast in practice, and on large problems L-BFGS is usually the
+fastest method that needs only gradients.
 
 ### Comparison
 

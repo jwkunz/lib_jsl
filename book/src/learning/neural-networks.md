@@ -36,15 +36,31 @@ trainable.
 
 ### Layers and activations
 
-With input $\mathbf a^{(0)} = \mathbf x$, layer $l$ computes
+A multilayer perceptron is a chain of **layers**. Each layer takes a vector, multiplies it by a
+matrix of **weights**, adds a vector of **biases**, and applies a simple nonlinear function to
+each component. With the input $\mathbf a^{(0)} = \mathbf x$, layer $l$ computes
 
 $$
-\mathbf z^{(l)} = W^{(l)}\mathbf a^{(l-1)} + \mathbf b^{(l)}, \qquad \mathbf a^{(l)} = f(\mathbf z^{(l)}),
+\mathbf z^{(l)} = W^{(l)}\mathbf a^{(l-1)} + \mathbf b^{(l)}, \qquad \mathbf a^{(l)} = f(\mathbf z^{(l)}) .
 $$
 
-where $f$ is the activation: **ReLU** $\max(0, z)$, **tanh**, or the **sigmoid** $1/(1 + e^{-z})$. The output layer is linear for regression, with a squared-error loss, and a
-**softmax** $p_c = e^{z_c}/\sum_ke^{z_k}$ for classification, with the cross-entropy loss $-\log p_y$. Without the nonlinearities the whole network would collapse to one linear map.
-With them, each hidden unit contributes a ridge-shaped function, and the network adds them up into curved decision boundaries:
+Each component of $\mathbf a^{(l)}$ is called a **unit**; it computes a weighted sum of the previous
+layer's outputs and passes it through the **activation function** $f$. The layers between the
+input and the output are **hidden** layers. Common activations are **ReLU**, $\max(0, z)$,
+**tanh**, and the **sigmoid** $1/(1 + e^{-z})$.
+
+The last layer depends on the task. For regression its output is left linear and compared with
+the target by the squared error. For classification it is passed through a **softmax**,
+$p_c = e^{z_c}/\sum_ke^{z_k}$, which turns the outputs into probabilities, and the loss is the
+cross-entropy $-\log p_y$, exactly as in
+[logistic regression](../machine_learning/logistic-regression.md#the-likelihood). A network with
+no hidden layer *is* linear or logistic regression.
+
+**Why the nonlinearity is essential.** A composition of linear maps is a linear map: without
+$f$, any number of layers would collapse into a single matrix, and the network could represent
+nothing more than a linear model. With the nonlinearity, each hidden unit contributes a function
+that varies along one direction of the input space (a ridge), and the next layer adds these up.
+Enough of them can build curved decision boundaries of any shape:
 
 | | | |
 |:---:|:---:|:---:|
@@ -55,23 +71,86 @@ epochs, start to bend around individual points.
 
 ### Backpropagation
 
-Training needs the gradient of the loss with respect to every weight. Write $\boldsymbol\delta^{(l)} = \partial L/\partial\mathbf z^{(l)}$. For the output layer of both pairings (linear output with squared error,
-softmax with cross-entropy), it takes the same simple form $\boldsymbol\delta^{(L)} = \hat{\mathbf y} - \mathbf y$. The chain rule then runs backwards through the layers:
+Training adjusts the weights to reduce the loss $L$ by gradient descent, which needs the
+derivative of the loss with respect to every weight in every layer. Computing each derivative
+separately would be hopelessly slow. **Backpropagation** computes all of them together, by
+applying the chain rule in a well-chosen order.
+
+**The quantity to propagate.** For each layer define
 
 $$
-\boldsymbol\delta^{(l-1)} = \big(W^{(l)\mathsf T}\boldsymbol\delta^{(l)}\big) \odot f'(\mathbf z^{(l-1)}), \qquad \frac{\partial L}{\partial W^{(l)}} = \boldsymbol\delta^{(l)}\mathbf a^{(l-1)\mathsf T}, \qquad \frac{\partial L}{\partial\mathbf b^{(l)}} = \boldsymbol\delta^{(l)}.
+\boldsymbol\delta^{(l)} = \frac{\partial L}{\partial\mathbf z^{(l)}},
 $$
 
-One backward pass costs a small multiple of the forward pass, whatever the number of weights. That is the point of reverse-mode
-differentiation, and the reason networks with millions of parameters can be trained. The derivatives are written through the
-activation values ($f' = 1 - a^2$ for tanh, $a(1 - a)$ for the sigmoid), so the forward pass's stored activations are all the backward pass needs.
+the sensitivity of the loss to the weighted sums of that layer. Everything else follows from
+these vectors.
+
+**Start at the output.** For both standard pairings of output and loss (a linear output with
+squared error, and a softmax with cross-entropy), the derivative works out to the same simple
+form, the prediction error:
+
+$$
+\boldsymbol\delta^{(L)} = \hat{\mathbf y} - \mathbf y .
+$$
+
+**Step backwards.** Suppose $\boldsymbol\delta^{(l)}$ is known. Layer $l - 1$ influences the loss only
+through layer $l$, by two links: $\mathbf z^{(l)} = W^{(l)}\mathbf a^{(l-1)} + \mathbf b^{(l)}$, whose
+derivative with respect to $\mathbf a^{(l-1)}$ is $W^{(l)}$, and
+$\mathbf a^{(l-1)} = f(\mathbf z^{(l-1)})$, whose derivative is $f'(\mathbf z^{(l-1)})$ component by
+component. The chain rule multiplies them:
+
+$$
+\boldsymbol\delta^{(l-1)} = \big(W^{(l)\mathsf T}\boldsymbol\delta^{(l)}\big) \odot f'(\mathbf z^{(l-1)}),
+$$
+
+where $\odot$ is the componentwise product. The transpose appears because the sensitivities
+travel in the opposite direction to the signals: each unit collects the sensitivities of all the
+units it feeds, weighted by the connections.
+
+**Read off the gradients.** Since $\mathbf z^{(l)}$ depends on the weights of its own layer through
+$W^{(l)}\mathbf a^{(l-1)} + \mathbf b^{(l)}$,
+
+$$
+\frac{\partial L}{\partial W^{(l)}} = \boldsymbol\delta^{(l)}\mathbf a^{(l-1)\mathsf T}, \qquad \frac{\partial L}{\partial\mathbf b^{(l)}} = \boldsymbol\delta^{(l)} .
+$$
+
+The gradient for a weight is the sensitivity of the unit it feeds times the activation of the
+unit it comes from.
+
+So training alternates a **forward pass**, which computes and stores the activations layer by
+layer, with a **backward pass**, which computes the $\boldsymbol\delta$'s from the last layer to the
+first. The backward pass costs a small multiple of the forward pass, whatever the number of
+weights. This is the point of reverse-mode differentiation, and the reason networks with millions
+of parameters can be trained. The derivatives of the activations are written in terms of the
+activation values themselves ($f' = 1 - a^2$ for tanh, $a(1 - a)$ for the sigmoid), so the stored
+activations are all the backward pass needs.
 
 ### Adam and mini-batches
 
-Each step uses a **mini-batch** of rows (32 by default), shuffled each **epoch**, a full pass over the data. The gradient is therefore noisy but cheap.
-**Adam** keeps exponentially decaying averages of the gradient $\mathbf m$ and of its square $\mathbf v$ (rates 0.9 and 0.999), corrects their bias towards zero
-at the start, and steps each weight by $-\eta\,\hat m/(\sqrt{\hat v} + \epsilon)$. Each weight is thus scaled by its own recent gradient size, which makes
-the learning rate $\eta$ far less sensitive than in plain gradient descent, though it still matters:
+**Mini-batches.** The loss is an average over all the training points, and so is its gradient.
+Computing the full gradient for every step is wasteful when a rough estimate would do. Each step
+therefore uses the gradient of a small random subset of the data, a **mini-batch** (32 rows by
+default). The data are shuffled and divided into mini-batches, and one full pass through them is
+an **epoch**. The gradient is noisy but cheap, and many noisy steps make faster progress than a
+few exact ones. This is **stochastic gradient descent**.
+
+**Adam.** Plain gradient descent uses the same step size for every weight, and
+[choosing it is delicate](../optimization/gradient-methods.md#gradient-descent). **Adam**
+adapts the step for each weight separately. It keeps two running averages for each weight: one
+of the gradient, $\mathbf m$, and one of its square, $\mathbf v$. They are exponentially decaying
+averages (with rates 0.9 and 0.999), which forget old gradients gradually. Both start at zero
+and so are biased towards zero during the first steps; a correction factor removes the bias,
+giving $\hat m$ and $\hat v$. Each weight is then moved by
+
+$$
+-\eta\,\frac{\hat m}{\sqrt{\hat v} + \epsilon} .
+$$
+
+The numerator is a smoothed gradient, which damps the noise of the mini-batches. The denominator
+is the typical recent size of that weight's gradient, so the ratio is of order 1 for every
+weight, and each moves by about $\eta$ per step regardless of the scale of its gradient. This
+makes the **learning rate** $\eta$ far less sensitive than in plain gradient descent, though it
+still matters:
 
 ![Training loss for several learning rates](../generated/learning/mlp_learning_rate.svg)
 

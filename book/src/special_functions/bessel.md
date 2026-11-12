@@ -48,35 +48,66 @@ Steed and L. J. B. Goldfarb (1974) devised the continued-fraction method used he
 
 ### Bessel functions of real order
 
-$J_\nu$, regular at the origin, and $Y_\nu$, singular there, are the two independent solutions. For large
-$x$ they behave like damped cosines with a phase shift,
+Bessel's equation is a second-order differential equation, so it has two independent solutions
+for each order $\nu$. The standard pair is $J_\nu$, the **Bessel function of the first kind**, which
+is finite at the origin, and $Y_\nu$, the **second kind**, which is infinite there. Every solution
+is a combination of the two.
+
+**What they look like.** For large $x$ the term $\nu^2$ in the equation becomes negligible, and
+the solutions behave like sines and cosines whose amplitude decays slowly:
 
 $$
-J_\nu(x) \approx \sqrt{\frac2{\pi x}}\cos\!\big(x - \tfrac{\nu\pi}2 - \tfrac\pi4\big), \qquad Y_\nu(x) \approx \sqrt{\frac2{\pi x}}\sin\!\big(x - \tfrac{\nu\pi}2 - \tfrac\pi4\big),
+J_\nu(x) \approx \sqrt{\frac2{\pi x}}\cos\!\big(x - \tfrac{\nu\pi}2 - \tfrac\pi4\big), \qquad Y_\nu(x) \approx \sqrt{\frac2{\pi x}}\sin\!\big(x - \tfrac{\nu\pi}2 - \tfrac\pi4\big).
 $$
 
-and for small $x$, $J_\nu(x) \approx (x/2)^\nu/\Gamma(\nu + 1)$ while $Y_\nu$ diverges.
+$J$ and $Y$ are thus related as cosine and sine are. For small $x$ they differ completely:
+$J_\nu(x) \approx (x/2)^\nu/\Gamma(\nu + 1)$ tends to zero (or to 1 for $\nu = 0$), while $Y_\nu$ diverges.
 
 ![Bessel functions J and Y](../generated/special_functions/bessel_jy.svg)
 
-All four functions satisfy the recurrence $C_{\nu-1}(x) + C_{\nu+1}(x) = \frac{2\nu}x\,C_\nu(x)$, but it is stable only in
-one direction for each: upward for $Y_\nu$, downward for $J_\nu$ (the **minimal** solution). **Steed's method**
-combines three ingredients:
+**The recurrence, and its danger.** Functions of neighbouring orders are linked. Both $J$ and $Y$
+(and the modified functions below, with a change of sign) satisfy
 
-1. a continued fraction (CF1) for the ratio $J_\nu'/J_\nu$, from the recurrence run to infinity;
-2. downward recurrence from order $\nu$ to a small order $\mu \in [-\tfrac12, \tfrac12)$, which gives the *ratio* of
-   $J_\mu$ to $J_\nu$ stably;
-3. a complex continued fraction (CF2) for $(J_\mu' + iY_\mu')/(J_\mu + iY_\mu)$, which together with the Wronskian
-   $J_\mu Y_\mu' - J_\mu'Y_\mu = 2/(\pi x)$ fixes the absolute values of $J_\mu$, $Y_\mu$ and their derivatives.
+$$
+C_{\nu-1}(x) + C_{\nu+1}(x) = \frac{2\nu}x\,C_\nu(x).
+$$
 
-$Y$ is then carried upward to order $\nu$, and $J_\nu$ follows from the ratio. CF2 converges only for $x \gtrsim 2$; for
-smaller $x$, **Temme's series** for $Y_\mu$ and $Y_{\mu+1}$ replace it. Negative orders use the reflection formulas
+Given two neighbouring orders, this yields the next, which looks like an easy way to compute
+many orders from two. But the recurrence is a trap. Because both $J$ and $Y$ satisfy it, any
+rounding error introduces a small multiple of the *other* solution into the computed sequence.
+For orders $\nu > x$, $Y_\nu$ grows rapidly with $\nu$ while $J_\nu$ decays rapidly. So when
+recurring *upward* for $J_\nu$, the unwanted trace of $Y_\nu$ grows at each step and eventually
+swamps the answer. Recurring upward for $Y_\nu$ is safe, because the contamination by $J_\nu$
+shrinks. In the *downward* direction the roles are reversed: it is safe for $J_\nu$. The solution
+that decays in a given direction, here $J_\nu$ for increasing order, is called the **minimal**
+solution, and a recurrence must never be run in the direction in which the wanted solution is
+minimal.
+
+**Steed's method.** The algorithm uses the recurrence only in its safe directions, and gets the
+values it needs to start from two continued fractions.
+
+1. A continued fraction (CF1) gives the ratio $J_\nu'/J_\nu$. It comes from the recurrence itself,
+   run to infinity, and determines $J_\nu$ only up to an unknown scale factor.
+2. Downward recurrence, the safe direction for $J$, carries that unscaled solution from order
+   $\nu$ to a small order $\mu \in [-\tfrac12, \tfrac12)$. This gives the *ratio* of $J_\mu$ to $J_\nu$.
+3. A second, complex continued fraction (CF2) gives $(J_\mu' + iY_\mu')/(J_\mu + iY_\mu)$. Together
+   with the **Wronskian** identity $J_\mu Y_\mu' - J_\mu'Y_\mu = 2/(\pi x)$, a known relation
+   between the two solutions and their derivatives, this is enough to fix the actual values of
+   $J_\mu$, $Y_\mu$ and their derivatives.
+4. $Y$ is carried upward, its safe direction, to order $\nu$, and $J_\nu$ follows from the ratio
+   found in step 2.
+
+CF2 converges only for $x \gtrsim 2$. For smaller $x$, **Temme's series** for $Y_\mu$ and $Y_{\mu+1}$
+replace it. Negative orders use the reflection formulas
 $J_{-\nu} = \cos(\nu\pi)J_\nu - \sin(\nu\pi)Y_\nu$ and similarly for $Y$.
 
 ### Modified Bessel functions
 
-$I_\nu(x) = i^{-\nu}J_\nu(ix)$ grows like $e^x/\sqrt{2\pi x}$ and $K_\nu$ decays like $\sqrt{\pi/(2x)}\,e^{-x}$. They are computed by the
-same strategy (`bessik`), with real continued fractions.
+Replacing $x$ by $ix$ in Bessel's equation changes the sign of the $x^2$ term. The solutions no
+longer oscillate; like $\cosh$ and $\sinh$ compared with $\cos$ and $\sin$, they grow or decay
+exponentially. The standard pair is $I_\nu(x) = i^{-\nu}J_\nu(ix)$, which grows like
+$e^x/\sqrt{2\pi x}$, and $K_\nu$, which decays like $\sqrt{\pi/(2x)}\,e^{-x}$. They are computed by the
+same strategy (`bessik`), with real continued fractions in place of the complex one.
 
 ### Bessel functions of integer order
 

@@ -35,7 +35,13 @@ software.
 
 ### The Lambert W function
 
-For real $z$, $we^w = z$ has a solution only for $z \ge -1/e$, because $we^w$ has its minimum $-1/e$ at $w = -1$:
+The Lambert W function is the inverse of $w \mapsto we^w$: $W(z)$ is the number $w$ for which
+$we^w = z$. To see what this inverse looks like, consider the graph of $g(w) = we^w$. Its
+derivative $(w + 1)e^w$ is negative for $w < -1$ and positive for $w > -1$, so $g$ falls from 0
+(as $w \to -\infty$) to a minimum of $-1/e$ at $w = -1$, and then rises without bound. Three
+conclusions follow for real $z$. There is no solution for $z < -1/e$. For $z \ge 0$ there is
+exactly one. And for $-1/e < z < 0$ there are two, one on each side of $w = -1$. The inverse
+therefore has two real branches:
 
 - the **principal branch** $W_0(z) \ge -1$, defined for $z \ge -1/e$, increasing, with $W_0(0) = 0$ and $W_0(e) = 1$;
 - the **lower branch** $W_{-1}(z) \le -1$, defined for $-1/e \le z < 0$, decreasing to $-\infty$ as $z \to 0^-$.
@@ -48,9 +54,13 @@ $W \approx -1 + p - p^2/3$ with $p = \sqrt{2(ez + 1)}$ (and $-p$ for the lower b
 In the complex plane there are infinitely many branches $W_k$, $k \in \mathbb Z$. For large $|z|$ they behave like
 $W_k(z) \approx L - \ln L$ with $L = \ln z + 2\pi ik$.
 
-**Computing W** needs a good starting point and a fast iteration. The library starts from the
-branch-point series near $-1/e$, from the asymptotic expansion for large $|z|$, and from simple
-approximations elsewhere, and refines with **Halley's method** on $f(w) = we^w - z$,
+**Computing W.** There is no formula for $W$ in terms of elementary functions, so it is computed
+as the root of $f(w) = we^w - z$. Like any iterative root finder, this needs a good starting point
+and a fast iteration. The library starts from the branch-point series near $-1/e$, from the
+asymptotic expansion for large $|z|$, and from simple approximations elsewhere. It then refines
+the estimate with **Halley's method**, which extends
+[Newton's method](../root_finding/newton.md) by using the second derivative as well as the
+first; here both are cheap, since they involve only $e^w$:
 
 $$
 w \leftarrow w - \frac{f}{e^w(w + 1) - \frac{(w + 2)f}{2w + 2}},

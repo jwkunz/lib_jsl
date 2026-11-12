@@ -52,53 +52,112 @@ the smooth damping update used here.
 
 ### Gauss-Newton
 
-With the Jacobian $J_{ij} = \partial r_i/\partial p_j$, the gradient and Hessian of $F$ are
+$F$ could be minimised by any general method, but its special form, a sum of squares, makes a
+better one possible. Start by differentiating. Let $J$ be the $m \times n$ **Jacobian** of the
+residuals, $J_{ij} = \partial r_i/\partial p_j$: row $i$ says how residual $i$ responds to each
+parameter. By the chain rule,
+
+$$
+\frac{\partial F}{\partial p_j} = \sum_i r_i\,\frac{\partial r_i}{\partial p_j},
+\qquad
+\frac{\partial^2 F}{\partial p_j\,\partial p_k} = \sum_i \frac{\partial r_i}{\partial p_j}\frac{\partial r_i}{\partial p_k} + \sum_i r_i\,\frac{\partial^2 r_i}{\partial p_j\,\partial p_k},
+$$
+
+or in matrix form
 
 $$
 \nabla F = J^{\mathsf T}\mathbf r, \qquad \nabla^2 F = J^{\mathsf T}J + \sum_i r_i\,\nabla^2 r_i .
 $$
 
-The second term is small when the residuals are small (a good fit) or the model nearly linear.
-Dropping it gives an approximate Hessian $J^{\mathsf T}J$ that needs only first derivatives and is always
-positive semidefinite. Newton's step with it is the **Gauss-Newton** step,
+The Hessian has two parts. The first, $J^{\mathsf T}J$, involves only first derivatives of the model.
+The second involves second derivatives, each multiplied by a residual. That second part is small
+in two common situations: when the residuals are small (the model fits the data well), or when
+the model is nearly linear in the parameters (its second derivatives are small).
+
+Gauss's idea is to drop the second part. The approximate Hessian $J^{\mathsf T}J$ comes for free
+once the gradient has been computed, and it is always positive semidefinite, so it never points
+the step uphill. [Newton's step](newton-quasi-newton.md#newtons-method) with this Hessian is the
+**Gauss-Newton** step,
 
 $$
-J^{\mathsf T}J\,\mathbf h = -J^{\mathsf T}\mathbf r,
+J^{\mathsf T}J\,\mathbf h = -J^{\mathsf T}\mathbf r .
 $$
 
-the solution of the linearised problem $\min_{\mathbf h}\|\mathbf r + J\mathbf h\|$. Gauss-Newton converges quadratically when
-the residuals at the solution are zero and rapidly when they are small, but it can diverge from a
-poor start, and fails when $J$ is rank deficient.
+There is a second way to arrive at the same step, which explains what it means. Linearise the
+residuals about the current parameters, $\mathbf r(\mathbf p + \mathbf h) \approx \mathbf r + J\mathbf h$, and minimise
+the length of the linearised residual, $\min_{\mathbf h}\|\mathbf r + J\mathbf h\|$. That is a *linear*
+least-squares problem, and the equations above are its
+[normal equations](../linear_algebra/least-squares.md). Gauss-Newton thus solves a nonlinear
+fitting problem as a sequence of linear ones.
+
+Gauss-Newton converges quadratically when the residuals at the solution are zero, and rapidly
+when they are small. But it has no safeguard: from a poor start the linearisation can be badly
+wrong and the iteration can diverge, and when $J$ is rank deficient (two parameters with the same
+effect on the model, say) the system has no unique solution.
 
 ### The Levenberg-Marquardt method
 
-Levenberg-Marquardt adds a damping term,
+Levenberg-Marquardt repairs both defects with one modification: it adds a positive **damping**
+term to the matrix,
 
 $$
 (J^{\mathsf T}J + \mu D)\,\mathbf h = -J^{\mathsf T}\mathbf r, \qquad D = \operatorname{diag}(J^{\mathsf T}J).
 $$
 
-For small $\mu$ the step is Gauss-Newton; for large $\mu$ it is a short step along the scaled negative
-gradient. Marquardt's scaling $D$ makes the method invariant to rescaling the parameters. The damping
-is adapted by comparing the actual reduction in $F$ with the reduction predicted by the linear model,
-their ratio $\rho$: a good step ($\rho > 0$) is accepted and $\mu$ is reduced by the factor
-$\max(\tfrac13, 1 - (2\rho - 1)^3)$; a bad step is rejected and $\mu$ is increased by a factor that doubles
-with each consecutive failure. In effect the damping controls a trust region around the current
-point within which the linear model is believed.
+The damping parameter $\mu \ge 0$ moves the step continuously between two extremes.
+
+- For small $\mu$ the added term is negligible and the step is the Gauss-Newton step: fast, but
+  trustworthy only near the solution.
+- For large $\mu$ the term $\mu D$ dominates, and $\mathbf h \approx -D^{-1}J^{\mathsf T}\mathbf r/\mu$. Since
+  $J^{\mathsf T}\mathbf r$ is the gradient of $F$, this is a short step in the (scaled) steepest descent
+  direction: slow, but certain to reduce $F$ if short enough.
+
+The damped matrix is also positive definite whenever $\mu > 0$, so the system can always be
+solved. Marquardt's choice of $D$, the diagonal of $J^{\mathsf T}J$ instead of the identity, makes
+the method give the same iterates if a parameter is measured in different units.
+
+**Adapting the damping.** After each trial step, compare the reduction in $F$ that actually
+occurred with the reduction predicted by the linearised model. Their ratio $\rho$ measures how far
+the linearisation can be trusted.
+
+- If $\rho > 0$, $F$ decreased. The step is accepted and $\mu$ is reduced, by the factor
+  $\max(\tfrac13, 1 - (2\rho - 1)^3)$, moving towards Gauss-Newton. The better the agreement, the
+  larger the reduction.
+- Otherwise the step is rejected and $\mu$ is increased, by a factor that doubles with each
+  consecutive failure, moving towards short gradient steps.
+
+In effect the damping controls the radius of a **trust region** around the current point, within
+which the linear model is believed. The method behaves like gradient descent while far from the
+solution and like Gauss-Newton as it closes in.
 
 ### Curve fitting and uncertainties
 
-At the solution, the **covariance** of the fitted parameters is approximately
+A fit is not complete without an estimate of how well the parameters are determined. Noise in the
+data moves the minimum of $F$, and the parameters inherit an uncertainty from it.
+
+Near the solution $F$ is approximately quadratic, with Hessian $J^{\mathsf T}J$. A direction in
+parameter space along which $F$ rises steeply is well determined by the data; a direction along
+which it is nearly flat is poorly determined. This is why the **covariance matrix** of the fitted
+parameters is approximately the *inverse* of the Hessian,
 
 $$
 C = (J^{\mathsf T}J)^{-1},
 $$
 
-for residuals weighted by the true $\sigma_i$, and the **standard errors** are $\sqrt{C_{jj}}$. The quality of the
-fit is measured by $\chi^2 = \sum_i r_i^2$, which for a correct model and correct $\sigma_i$ has expected value
-$m - n$: the **reduced chi-squared** $\chi^2/(m - n)$ should be close to 1. If the noise level is unknown,
-`curve_fit` (called with `sigma = None`) estimates it from the residuals by scaling $C$ by the reduced
-chi-squared, as SciPy does.
+provided the residuals were weighted by the true noise levels $\sigma_i$. The diagonal entries
+$C_{jj}$ are the variances of the individual parameters, so the **standard errors** are
+$\sqrt{C_{jj}}$; the off-diagonal entries say how the errors of different parameters are correlated.
+
+The quality of the fit as a whole is measured by $\chi^2 = \sum_i r_i^2$. Each residual, being an
+error divided by its standard deviation, should have a square of about 1 on average, but fitting
+$n$ parameters uses up $n$ of the $m$ degrees of freedom. For a correct model and correct
+$\sigma_i$ the expected value is $m - n$, so the **reduced chi-squared** $\chi^2/(m - n)$ should be
+close to 1. A value much larger than 1 means the model does not describe the data, or the
+$\sigma_i$ are too small; a value much smaller than 1 means the $\sigma_i$ are too large.
+
+If the noise level is unknown, this argument can be run backwards: assume the model is right and
+estimate the noise from the scatter of the residuals. `curve_fit` (called with `sigma = None`)
+does this by scaling $C$ by the reduced chi-squared, as SciPy does.
 
 A Gaussian peak on a baseline, $y = a\,e^{-(x - \mu)^2/2s^2} + b$, fitted to 60 noisy points from a poor
 starting guess:

@@ -41,7 +41,23 @@ and zeros filled handbooks (Anatol Zverev's *Handbook of Filter Synthesis*, 1967
 
 ### The magnitude-squared function
 
-All four families except Bessel are defined through $|H(j\omega)|^2 = 1/(1 + \varepsilon^2F_n(\omega)^2)$ for a function $F_n$ that is small in the passband $|\omega| < 1$ and large beyond:
+(The terms used here, transfer function, poles, zeros and decibels, are explained in the
+[chapter's background section](index.md#background-frequency-responses-and-transfer-functions).)
+
+A filter is usually specified by its gain as a function of frequency, without regard to phase.
+So the classical designs start from the squared magnitude of the frequency response, and all of
+them except Bessel choose it in the same form:
+
+$$
+|H(j\omega)|^2 = \frac{1}{1 + \varepsilon^2F_n(\omega)^2} .
+$$
+
+The idea is simple. Wherever $F_n$ is small, the gain is close to 1; wherever $F_n$ is large,
+the gain is close to 0. So a low-pass filter needs a function $F_n$ that is small in the
+passband $|\omega| < 1$ and grows as fast as possible beyond it. The constraint is that $F_n$
+must be a polynomial or rational function of degree $n$, the order of the filter, because a
+circuit with $n$ reactive components can realise nothing else. The families differ in the choice
+of $F_n$:
 
 | Family | $F_n(\omega)$ | Passband | Stopband |
 |---|---|---|---|
@@ -50,7 +66,28 @@ All four families except Bessel are defined through $|H(j\omega)|^2 = 1/(1 + \va
 | Chebyshev II | $1/T_n(1/\omega)$, rescaled | monotone | equiripple |
 | Elliptic | a rational Chebyshev function $R_n(\xi, \omega)$ | equiripple | equiripple |
 
-Here $\varepsilon$ sets the passband ripple: $10\log_{10}(1 + \varepsilon^2)$ dB. The poles are the left-half-plane roots of $1 + \varepsilon^2F_n(s/j)^2$; those in the right half-plane belong to $H(-s)$.
+- **Butterworth.** $\omega^n$ is as flat as possible near $\omega = 0$ (its first $n - 1$
+  derivatives vanish there), which gives a passband with no ripple. Beyond the cutoff the gain
+  falls like $1/\omega^n$, a factor of $10^n$ in amplitude ($20n$ dB) for each tenfold increase
+  in frequency.
+- **Chebyshev I.** The [Chebyshev polynomial](../interpolation/polynomial.md#chebyshev-series)
+  $T_n$ oscillates between $-1$ and $1$ on $[-1, 1]$ and then grows faster than any other
+  polynomial of the same degree with that property. Accepting a small ripple in the passband
+  therefore buys the steepest possible polynomial roll-off. **Equiripple** means that all the
+  ripples have the same height.
+- **Chebyshev II** moves the ripple to the stopband by using the reciprocal function.
+- **Elliptic** filters use a rational function that ripples equally in both bands, and are the
+  steepest of all.
+
+The constant $\varepsilon$ sets the passband ripple: at the passband edge the gain has fallen by
+$10\log_{10}(1 + \varepsilon^2)$ dB.
+
+**From the magnitude to the filter.** The formula gives $|H|^2$, not $H$. For a filter with real
+coefficients, $|H(j\omega)|^2 = H(s)H(-s)$ evaluated at $s = j\omega$. Replacing $\omega$ by
+$s/j$ in the formula therefore gives the product $H(s)H(-s)$, whose poles are the roots of
+$1 + \varepsilon^2F_n(s/j)^2 = 0$. These roots come in pairs $\pm s$, placed symmetrically about
+the imaginary axis. A stable filter must have its poles in the left half-plane, so $H(s)$ takes
+the left-half-plane roots, and the mirror images belong to $H(-s)$.
 
 ![Fifth-order prototypes](../generated/filters/analog_magnitude.svg)
 

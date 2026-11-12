@@ -46,19 +46,59 @@ software, and Nocedal and Wright's textbook version of it is the one used here.
 
 ### Golden section search
 
-Suppose $f$ is **unimodal** on $[a, b]$: decreasing, then increasing. Evaluate it at two interior points
-$c < d$. If $f(c) < f(d)$, the minimum cannot lie in $(d, b]$, so the interval shrinks to $[a, d]$;
-otherwise it shrinks to $[c, b]$. Unlike bisection, one interior point is left inside the new
-interval, already evaluated. Placing the points at fractions $1 - 1/\varphi$ and $1/\varphi$ of the
-interval, with $\varphi = (1 + \sqrt5)/2$ the golden ratio, makes the surviving point fall exactly where
-one of the next pair must be, because $1/\varphi^2 = 1 - 1/\varphi$. Every further iteration then costs a
-single evaluation and reduces the interval by the factor $1/\varphi \approx 0.618$.
+Suppose $f$ is **unimodal** on $[a, b]$: it decreases to a single minimum and then increases.
+Golden section search is to minimisation what bisection is to root finding: it traps the minimum
+in an interval and shrinks the interval at a fixed rate.
 
-Since the method uses only comparisons, it needs no smoothness: it works as well for $|x - 0.3|$ as
-for $(x - 0.3)^2$. Its accuracy has a limit, however. Near a smooth minimum
-$f(x) \approx f(x^*) + \tfrac12 f''(x^*)(x - x^*)^2$, and once $\tfrac12 f''(x - x^*)^2$ is smaller than the rounding error
-$\varepsilon|f(x^*)|$, the function values can no longer tell which point is lower. The minimum can be
-located only to about $\sqrt{\varepsilon}$ relative, $10^{-8}$ in double precision, not $10^{-16}$:
+**Why two interior points are needed.** For a root, one interior value is enough, because its
+sign tells us which half contains the root. For a minimum it is not: knowing $f$ at $a$, $b$ and
+one point between says nothing about which side of that point the minimum is on. So evaluate $f$
+at two interior points $c < d$.
+
+- If $f(c) < f(d)$, the function is already rising at $d$, so the minimum cannot lie in $(d, b]$.
+  The interval shrinks to $[a, d]$.
+- Otherwise the minimum cannot lie in $[a, c)$, and the interval shrinks to $[c, b]$.
+
+**Why the golden ratio.** After shrinking, one of the two interior points is still inside the
+new interval, with its function value already known. If it happens to sit where the next step
+wants one of its two points, each iteration needs only *one* new evaluation. This fixes where the
+points must go. Place them symmetrically, at fractions $1 - \rho$ and $\rho$ of the way along an
+interval of length $\ell$. If the interval shrinks to $[a, d]$, its new length is $\rho\ell$, and the
+surviving point $c$ sits at distance $(1 - \rho)\ell$ from $a$. For $c$ to be the *upper* interior
+point of the new interval it must be at fraction $\rho$ of the new length:
+
+$$
+(1 - \rho)\,\ell = \rho\cdot\rho\,\ell \quad\Longrightarrow\quad \rho^2 + \rho - 1 = 0
+\quad\Longrightarrow\quad \rho = \frac{\sqrt5 - 1}{2} = \frac1\varphi \approx 0.618,
+$$
+
+where $\varphi = (1 + \sqrt5)/2$ is the golden ratio. Every iteration after the first then costs a
+single evaluation and reduces the interval by the factor $1/\varphi \approx 0.618$. This is linear
+convergence, a little slower per evaluation than bisection's factor of $0.5$.
+
+**No smoothness needed.** The method uses only comparisons of function values, so it works as
+well for $|x - 0.3|$, which has a corner at its minimum, as for $(x - 0.3)^2$.
+
+**The accuracy limit.** There is a limit to how accurately *any* method that compares function
+values can locate a smooth minimum. Near the minimum $x^*$ the slope is zero, so
+
+$$
+f(x) \approx f(x^*) + \tfrac12 f''(x^*)(x - x^*)^2 .
+$$
+
+The function is very flat there: moving $x$ a little changes $f$ only by the square of the
+displacement. A computed function value has a rounding error of about $\varepsilon|f(x^*)|$. Once the
+difference $\tfrac12 f''(x - x^*)^2$ is smaller than that, the computed values cannot tell which of
+two points is lower. Solving
+$\tfrac12 f''(x - x^*)^2 \approx \varepsilon|f(x^*)|$ gives
+
+$$
+|x - x^*| \approx \sqrt{\varepsilon}\,\sqrt{\frac{2|f(x^*)|}{f''(x^*)}} .
+$$
+
+The minimum can be located only to about $\sqrt{\varepsilon} \approx 10^{-8}$ relative accuracy in double
+precision, not $10^{-16}$. (A root, by contrast, can be found to full precision, because $f$
+changes sign there.)
 
 {{#include ../generated/optimization/golden_section.md}}
 
@@ -70,31 +110,52 @@ usually not set below about $10^{-8}$.
 
 ### Line searches and the Wolfe conditions
 
-Given a point $\mathbf x$ and a **descent direction** $\mathbf d$ (one with $\nabla f \cdot \mathbf d < 0$), a step $\alpha > 0$ is
-acceptable if it satisfies the **strong Wolfe conditions**
+Most methods for minimising a function of several variables work in two stages: choose a
+direction $\mathbf d$ in which to move from the current point $\mathbf x$, then decide how far to go.
+The second stage is a one-dimensional problem. Define
 
 $$
-f(\mathbf x + \alpha\mathbf d) \le f(\mathbf x) + c_1 \alpha\,\nabla f(\mathbf x)\cdot\mathbf d,
+\phi(\alpha) = f(\mathbf x + \alpha\mathbf d), \qquad \phi'(\alpha) = \nabla f(\mathbf x + \alpha\mathbf d)\cdot\mathbf d,
+$$
+
+the value of $f$ and its slope along the line, as functions of the step length $\alpha$. We assume
+$\mathbf d$ is a **descent direction**, meaning $\phi'(0) = \nabla f(\mathbf x) \cdot \mathbf d < 0$: the function
+initially decreases along it.
+
+Finding the exact minimiser of $\phi$ would waste evaluations, since $\mathbf d$ will be replaced at
+the next iteration anyway. A **line search** looks instead for a step that is merely *good
+enough*. The standard definition of good enough is the pair of **strong Wolfe conditions**
+
+$$
+\phi(\alpha) \le \phi(0) + c_1 \alpha\,\phi'(0),
 \qquad
-|\nabla f(\mathbf x + \alpha\mathbf d)\cdot\mathbf d| \le c_2\,|\nabla f(\mathbf x)\cdot\mathbf d|,
+|\phi'(\alpha)| \le c_2\,|\phi'(0)|,
 $$
 
-with $0 < c_1 < c_2 < 1$. The first, **sufficient decrease**, says that $f$ must fall by at least a
-fraction $c_1$ of what the tangent line predicts, ruling out steps that are too long. The second, the
-**curvature condition**, says that the slope along the line must have flattened by a factor $c_2$,
-ruling out steps that are too short. Usual values are $c_1 = 10^{-4}$ and $c_2 = 0.9$ for Newton and
-quasi-Newton methods, whose natural step $\alpha = 1$ is usually acceptable, and $c_2 = 0.1$ for conjugate
-gradients, which need a more nearly exact minimum along the line.
+with constants $0 < c_1 < c_2 < 1$.
+
+- The first is the **sufficient decrease** (or Armijo) condition. The tangent line at $\alpha = 0$
+  predicts a decrease of $\alpha|\phi'(0)|$; the condition asks for at least the fraction $c_1$ of
+  that. Steps so long that $f$ has climbed back up are ruled out.
+- The second is the **curvature condition**. It asks that the slope along the line has flattened
+  to at most the fraction $c_2$ of its initial steepness. If the slope at $\alpha$ is still strongly
+  negative, there is more decrease to be had by going further, so the condition rules out steps
+  that are too short.
+
+Usual values are $c_1 = 10^{-4}$ and $c_2 = 0.9$ for Newton and quasi-Newton methods, whose
+natural step $\alpha = 1$ is usually acceptable. Conjugate gradients need a more nearly exact minimum
+along the line and use $c_2 = 0.1$.
 
 ![A line search along steepest descent](../generated/optimization/line_search.svg)
 
-The figure shows $\varphi(\alpha)$ along the steepest descent direction from $(-1.2, 1)$ on the Rosenbrock
+The figure shows $\phi(\alpha)$ along the steepest descent direction from $(-1.2, 1)$ on the Rosenbrock
 function. With $c_2 = 0.9$ the first trial step, $\alpha = 0.02$, is already acceptable; with $c_2 = 0.1$
 the search continues to a step near the minimum along the line.
 
-The conditions matter because of **Zoutendijk's theorem**: if every step satisfies the Wolfe
-conditions and the directions do not become orthogonal to the gradient, then $\nabla f(\mathbf x_k) \to 0$,
-whatever the starting point.
+Why these conditions in particular? Because they are enough to prove convergence.
+**Zoutendijk's theorem** states that if every step satisfies the Wolfe conditions and the
+directions do not become orthogonal to the gradient, then $\nabla f(\mathbf x_k) \to 0$, whatever the
+starting point. The iteration cannot stall at a point that is not stationary.
 
 ## Algorithm
 

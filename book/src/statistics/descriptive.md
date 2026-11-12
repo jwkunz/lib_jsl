@@ -35,17 +35,50 @@ definitions of the sample quantile used by statistical packages.
 
 ### The mean and compensated summation
 
-The mean $\bar x = \frac1n\sum x_i$ is the least-squares location. Summing $n$ numbers naively accumulates a rounding error that grows
-with $n$; the library uses **Neumaier's compensated summation**, which carries the rounding error of each addition in a second
-variable, so the sum is accurate to a few units in the last place for any $n$. Weighted, geometric ($\exp$ of the mean log)
+The mean $\bar x = \frac1n\sum x_i$ is the value $c$ that minimises the sum of squared deviations
+$\sum(x_i - c)^2$, which is why it is called the least-squares estimate of location.
+
+Computing it requires a sum, and even a sum deserves care. Each floating-point addition rounds
+its result, and when a small number is added to a large running total the low digits of the
+small number are lost. Over $n$ additions these errors accumulate and grow with $n$. The library
+uses **Neumaier's compensated summation**: after each addition it works out, exactly, the
+rounding error that the addition just made (this is possible with two further floating-point
+operations) and accumulates those errors in a second variable, which is added to the total at
+the end. The sum is then accurate to a few units in the last place for any $n$. Weighted, geometric ($\exp$ of the mean log)
 and harmonic (reciprocal of the mean reciprocal) means are also provided.
 
 ### The variance: why the textbook formula fails
 
-The sample variance is $s^2 = \frac{1}{n - 1}\sum(x_i - \bar x)^2$; dividing by $n - 1$ rather than $n$ (`ddof = 1`) makes it unbiased. Algebraically
-$\sum(x_i - \bar x)^2 = \sum x_i^2 - n\bar x^2$, which needs a single pass over the data, but when the mean is large compared with the spread
-the two terms are nearly equal and their difference cancels catastrophically. The library uses the **corrected two-pass
-algorithm**: compute $\bar x$, then $\sum(x_i - \bar x)^2 - \frac1n\big(\sum(x_i - \bar x)\big)^2$, where the second term removes the error left in $\bar x$.
+The sample variance is the average squared deviation from the mean,
+
+$$
+s^2 = \frac{1}{n - 1}\sum(x_i - \bar x)^2 .
+$$
+
+The divisor is $n - 1$ and not $n$ (`ddof = 1`) because the deviations are measured from the
+sample mean, which was itself fitted to the data and so lies closer to the data than the true
+mean does; dividing by $n - 1$ compensates exactly, making $s^2$ an **unbiased** estimate of the
+true variance.
+
+Expanding the square gives the algebraically equivalent formula
+$\sum(x_i - \bar x)^2 = \sum x_i^2 - n\bar x^2$, which appears in many textbooks because it needs
+only a single pass over the data. Numerically it is a trap. Suppose the data are near $10^8$ and
+vary by about 1. Then $\sum x_i^2$ and $n\bar x^2$ are both about $n \times 10^{16}$ and agree in
+their first sixteen digits, while their difference, the quantity wanted, is only about $n$. Double
+precision holds sixteen digits, so the subtraction cancels every one of them and leaves rounding
+error. This is **catastrophic cancellation**.
+
+The library uses the **corrected two-pass algorithm** instead. The first pass computes
+$\bar x$. The second computes the deviations $x_i - \bar x$, which are small numbers computed
+accurately, and forms
+
+$$
+\sum(x_i - \bar x)^2 - \frac1n\Big(\sum(x_i - \bar x)\Big)^2 .
+$$
+
+In exact arithmetic the deviations sum to zero and the second term vanishes. In floating point
+the computed mean is slightly off, the deviations sum to a small nonzero number, and the second
+term removes the resulting error.
 
 ![Variance accuracy](../generated/statistics/variance_accuracy.svg)
 
@@ -54,9 +87,15 @@ clipped), Welford's one-pass update degrades more slowly, and the two-pass algor
 
 ### Quantiles
 
-The $p$-quantile splits the data so that a fraction $p$ lies below it. For a finite sample there is no unique definition; the
-library uses Hyndman and Fan's **type 7**, the default of R and NumPy: sort the data, set $h = (n - 1)p$, and interpolate linearly
-between the order statistics $x_{(\lfloor h\rfloor + 1)}$ and $x_{(\lfloor h\rfloor + 2)}$. The median is the 0.5-quantile, the quartiles the 0.25 and 0.75 quantiles, and `summary` returns
+The $p$-quantile splits the data so that a fraction $p$ lies below it. For a finite sample this
+does not define a unique number: with four values, any number between the second and the third
+has half the data below it. Hyndman and Fan catalogued nine definitions in use. The library uses
+their **type 7**, the default of R and NumPy. Sort the data into the **order statistics**
+$x_{(1)} \le x_{(2)} \le \cdots \le x_{(n)}$, place them at equally spaced positions from 0 to
+$n - 1$, and read off the value at position $h = (n - 1)p$, interpolating linearly between the
+two neighbouring order statistics $x_{(\lfloor h\rfloor + 1)}$ and $x_{(\lfloor h\rfloor + 2)}$ when $h$ is not
+a whole number. For the data $1, 2, 4, 8$ and $p = 0.5$, $h = 1.5$, halfway between the second
+and third values: the median is 3. The median is the 0.5-quantile, the quartiles the 0.25 and 0.75 quantiles, and `summary` returns
 Tukey's five-number summary with the count, mean and standard deviation.
 
 ### Robustness and the breakdown point

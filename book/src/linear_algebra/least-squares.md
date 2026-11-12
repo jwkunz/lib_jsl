@@ -39,28 +39,78 @@ showed how to compute it stably through the SVD.
 
 ### The normal equations
 
-At the minimum, the residual $\mathbf r = \mathbf b - A\mathbf x$ is orthogonal to the column space of $A$: $A^{\mathsf T}\mathbf r = \mathbf 0$, which gives the
-**normal equations**
+The problem is to choose $\mathbf x$ to minimise the length of the **residual**
+$\mathbf r = \mathbf b - A\mathbf x$, where $A$ is $m \times n$ with $m > n$.
+
+**The geometry.** As $\mathbf x$ varies, $A\mathbf x$ ranges over all combinations of the columns of $A$,
+the **column space**, an $n$-dimensional subspace of $\mathbb R^m$. The vector $\mathbf b$ generally
+lies outside it. The closest point of a subspace to an outside point is the foot of the
+perpendicular, so at the minimum the residual is perpendicular to the column space. That means
+it is perpendicular to every column of $A$:
 
 $$
-A^{\mathsf T}A\,\mathbf x = A^{\mathsf T}\mathbf b .
+A^{\mathsf T}\mathbf r = A^{\mathsf T}(\mathbf b - A\mathbf x) = \mathbf 0 .
 $$
 
-If $A$ has full column rank, $A^{\mathsf T}A$ is symmetric positive definite, and [Cholesky](cholesky.md) solves the system
-cheaply. But $\kappa(A^{\mathsf T}A) = \kappa(A)^2$: forming the product loses twice as many digits as the problem requires, and
-for $\kappa(A) > 10^8$ the computed $A^{\mathsf T}A$ may not even be positive definite.
+Rearranged, these are the **normal equations** ("normal" in the sense of perpendicular),
+
+$$
+A^{\mathsf T}A\,\mathbf x = A^{\mathsf T}\mathbf b ,
+$$
+
+a square $n \times n$ system. (The same equations follow from setting the gradient of
+$\|\mathbf b - A\mathbf x\|^2$ to zero.)
+
+**An example.** Fit a line $y = c_0 + c_1t$ to the three points $(0, 1)$, $(1, 2)$, $(2, 2)$. Each
+point gives one equation, $c_0 + c_1t_i = y_i$:
+
+$$
+A = \begin{pmatrix} 1 & 0 \\ 1 & 1 \\ 1 & 2 \end{pmatrix}, \quad \mathbf b = \begin{pmatrix} 1 \\ 2 \\ 2 \end{pmatrix}, \qquad
+A^{\mathsf T}A = \begin{pmatrix} 3 & 3 \\ 3 & 5 \end{pmatrix}, \quad A^{\mathsf T}\mathbf b = \begin{pmatrix} 5 \\ 6 \end{pmatrix}.
+$$
+
+Solving $3c_0 + 3c_1 = 5$ and $3c_0 + 5c_1 = 6$ gives $c_1 = \tfrac12$ and $c_0 = \tfrac76$. The
+residuals are $(-\tfrac16, \tfrac13, -\tfrac16)$; they sum to zero and are orthogonal to
+$(0, 1, 2)$, as the normal equations require.
+
+**The catch.** If the columns of $A$ are independent, $A^{\mathsf T}A$ is symmetric positive
+definite, and [Cholesky](cholesky.md) solves the system cheaply. But the method has a numerical
+flaw: $\kappa(A^{\mathsf T}A) = \kappa(A)^2$. Forming the product squares the
+[condition number](lu.md#conditioning), so the solution loses twice as many digits as the
+problem itself requires. With $\kappa(A) = 10^6$, a careful method keeps ten digits and the normal
+equations keep four. For $\kappa(A) > 10^8$ the squared condition number exceeds $1/\varepsilon$, and the
+computed $A^{\mathsf T}A$ may not even be positive definite.
 
 ### QR factorisation
 
-With $A = QR$ (thin QR, $Q$ of size $m \times n$) and $Q_\perp$ completing it to an orthogonal matrix, orthogonality gives
+The [QR factorisation](qr.md) solves the same problem without ever forming $A^{\mathsf T}A$. The idea
+is to rotate the problem into coordinates in which it is trivial.
+
+Write $A = QR$ with $Q$ of size $m \times n$ (the **thin** QR), and let $Q_\perp$ hold $m - n$ further
+orthonormal columns that complete $Q$ to a full orthogonal matrix. Multiplying a vector by an
+orthogonal matrix does not change its length, so the residual can be measured in the new
+coordinates. Its components along the columns of $Q$ are
+$Q^{\mathsf T}(A\mathbf x - \mathbf b) = R\mathbf x - Q^{\mathsf T}\mathbf b$, and its components along the columns of
+$Q_\perp$ are $-Q_\perp^{\mathsf T}\mathbf b$, because $Q_\perp^{\mathsf T}A = 0$. Hence
 
 $$
-\|A\mathbf x - \mathbf b\|^2 = \|R\mathbf x - Q^{\mathsf T}\mathbf b\|^2 + \|Q_\perp^{\mathsf T}\mathbf b\|^2,
+\|A\mathbf x - \mathbf b\|^2 = \|R\mathbf x - Q^{\mathsf T}\mathbf b\|^2 + \|Q_\perp^{\mathsf T}\mathbf b\|^2 .
 $$
 
-so the minimiser solves the triangular system $R\mathbf x = Q^{\mathsf T}\mathbf b$, and the minimum residual is $\|Q_\perp^{\mathsf T}\mathbf b\|$. With Householder QR,
-$Q^{\mathsf T}\mathbf b$ is computed by applying the reflections to $\mathbf b$, and $Q$ is never formed. The error is proportional to $\kappa(A)\varepsilon$
-(with an additional $\kappa^2\varepsilon$ term weighted by the relative size of the residual, which is inherent in the problem).
+The second term does not depend on $\mathbf x$ at all: it is the part of $\mathbf b$ that no choice of
+$\mathbf x$ can reach. The first term can be made exactly zero, by solving the triangular system
+
+$$
+R\mathbf x = Q^{\mathsf T}\mathbf b
+$$
+
+by back substitution. That is the least-squares solution, and the minimum residual is
+$\|Q_\perp^{\mathsf T}\mathbf b\|$. With Householder QR, $Q^{\mathsf T}\mathbf b$ is computed by applying the
+reflections to $\mathbf b$, and $Q$ is never formed.
+
+The error of this method is proportional to $\kappa(A)\varepsilon$, not $\kappa(A)^2\varepsilon$. (There is an
+additional $\kappa^2\varepsilon$ term multiplied by the relative size of the residual. It is inherent
+in the least-squares problem and no method avoids it, but it is small when the fit is good.)
 
 Fitting a polynomial of degree $d$ in the monomial basis, whose Vandermonde matrix becomes more ill-conditioned as $d$
 grows, shows the difference:
@@ -73,15 +123,27 @@ methods follow $\kappa\varepsilon$. (Better still, fit in an orthogonal basis su
 
 ### Rank deficiency and the minimum-norm solution
 
-If $A$ has rank $r < n$, the minimisers form an affine subspace, and the **pseudoinverse** picks the one of least norm:
-with the SVD $A = U\Sigma V^{\mathsf T}$,
+So far the columns of $A$ were assumed independent. If they are not, so that $A$ has rank
+$r < n$, there is some nonzero $\mathbf z$ with $A\mathbf z = \mathbf 0$, and adding any multiple of $\mathbf z$ to
+a minimiser gives another minimiser with the same residual. The minimisers form a whole family,
+and a rule is needed to choose one. The standard rule is to take the minimiser of smallest norm.
+
+The [singular value decomposition](svd.md) $A = U\Sigma V^{\mathsf T}$ makes this choice explicit. In
+the orthonormal bases given by the columns $\mathbf u_i$ of $U$ and $\mathbf v_i$ of $V$, the matrix acts
+as a simple scaling: it maps $\mathbf v_i$ to $\sigma_i\mathbf u_i$. To undo it, take the component of
+$\mathbf b$ along each $\mathbf u_i$, divide by $\sigma_i$, and place the result along $\mathbf v_i$. The
+directions with $\sigma_i = 0$ cannot be undone; they are left out, which is exactly what makes the
+solution as short as possible:
 
 $$
 \mathbf x = A^+\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^{\mathsf T}\mathbf b}{\sigma_i}\,\mathbf v_i .
 $$
 
-Numerically, rank is a matter of degree: singular values below a threshold, here $\max(m, n)\,\varepsilon\,\sigma_1$, are treated as zero.
-Including them would divide by numbers that are rounding errors and give a huge, meaningless solution.
+The matrix $A^+$ defined by this formula is the **pseudoinverse** of $A$.
+
+Numerically, rank is a matter of degree. Rounding turns singular values that should be exactly
+zero into tiny nonzero numbers, and dividing by them would give a huge, meaningless solution.
+Singular values below a threshold, here $\max(m, n)\,\varepsilon\,\sigma_1$, are therefore treated as zero.
 
 The library's `least_squares` combines the methods. It factorises with **pivoted QR** and, if the diagonal of $R$ shows
 full column rank, solves by back substitution. Otherwise, or when the system is underdetermined, it uses the SVD

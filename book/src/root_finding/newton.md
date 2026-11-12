@@ -14,23 +14,27 @@
 
 ## Overview
 
-**Newton's method** replaces $f$ by its tangent line at the current point and takes the tangent's
-zero as the next point:
+**Newton's method** improves a guess $x_k$ for a root of $f$ in the simplest way imaginable. Near
+$x_k$ the graph of $f$ looks like its tangent line, and the zero of a straight line is easy to
+find. So replace $f$ by its tangent at the current point and take the tangent's zero as the next
+point:
 
 $$
 x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)}.
 $$
 
-Near a simple root this doubles the number of correct digits at every step, which makes it the most
-important iteration in numerical analysis: it computes square roots and reciprocals in hardware,
-solves the implicit equations of [stiff ODE solvers](../integration/stiff-ode.md), drives
+Near a **simple root** (one where the graph crosses the axis with nonzero slope, $f'(r) \ne 0$)
+this roughly doubles the number of correct digits at every step. That makes it the most important
+iteration in numerical analysis: it computes square roots and reciprocals in hardware, solves the
+implicit equations of [stiff ODE solvers](../integration/stiff-ode.md), drives
 [optimisation](../../api/lib_jsl_optimization/index.html), and extends to
 [systems of equations](nonlinear-systems.md). The **secant method** replaces the tangent by the line
-through the last two points, needing no derivative, and is almost as fast.
+through the last two points. It needs no derivative and is almost as fast.
 
-Both are **open** methods: they do not keep the root bracketed, and from a poor starting point they
-can wander off, cycle or diverge. They are best used when a good starting guess is available, or to
-finish off after a [bracketing method](bracketing.md) has done the rough work.
+Both are **open** methods: unlike the [bracketing methods](bracketing.md), they do not keep the
+root trapped in an interval, and from a poor starting point they can wander off, cycle or diverge.
+They are best used when a good starting guess is available, or to finish off after a bracketing
+method has done the rough work.
 
 ## History
 
@@ -50,50 +54,132 @@ order of convergence, the golden ratio, follows from a recurrence of Fibonacci t
 
 ### Newton's method
 
-Expanding $f$ about the current point,
-$0 = f(r) = f(x_k) + f'(x_k)(r - x_k) + \tfrac12 f''(\xi)(r - x_k)^2$. Dropping the quadratic term and solving
-for $r$ gives the Newton step. Keeping it shows how the error $e_k = x_k - r$ evolves:
+**Deriving the step.** The tangent line to $f$ at $x_k$ is $y = f(x_k) + f'(x_k)(x - x_k)$. Setting
+$y = 0$ and solving for $x$ gives the formula in the overview. For example, to compute $\sqrt 2$
+take $f(x) = x^2 - 2$, so that $f'(x) = 2x$ and the step simplifies to $x_{k+1} = (x_k + 2/x_k)/2$.
+Starting from $x_0 = 1$:
+
+| $k$ | $x_k$ | error $x_k - \sqrt2$ |
+|---|---|---|
+| 1 | 1.5 | $8.6 \times 10^{-2}$ |
+| 2 | 1.416666666666667 | $2.5 \times 10^{-3}$ |
+| 3 | 1.414215686274510 | $2.1 \times 10^{-6}$ |
+| 4 | 1.414213562374690 | $1.6 \times 10^{-12}$ |
+
+Each error is roughly the square of the one before. The fifth iterate is correct to all 16
+digits.
+
+**Why the error is squared.** Let $r$ be the root and $e_k = x_k - r$ the error. Taylor's theorem
+with remainder, expanding about $x_k$ and evaluating at $r$, says
 
 $$
-e_{k+1} = \frac{f''(\xi)}{2f'(x_k)}\,e_k^2 \approx \frac{f''(r)}{2f'(r)}\,e_k^2,
+0 = f(r) = f(x_k) + f'(x_k)(r - x_k) + \tfrac12 f''(\xi)(r - x_k)^2
 $$
 
-**quadratic convergence**. Three conditions are hidden in this formula: the root must be **simple**
-($f'(r) \ne 0$), $f$ must be twice differentiable, and $e_k$ must already be small enough that
-$|f''/2f'|\,|e_k| < 1$.
+for some $\xi$ between $x_k$ and $r$. Divide by $f'(x_k)$ and rearrange:
 
-At a root of multiplicity $m$, $f(x) \approx c\,(x - r)^m$ and the Newton step reduces the error only by
-the factor $(m - 1)/m$: convergence becomes **linear**, by a half per step at a double root. If $m$ is
-known, the step $x_{k+1} = x_k - m\,f(x_k)/f'(x_k)$ restores quadratic convergence.
+$$
+\underbrace{x_k - \frac{f(x_k)}{f'(x_k)}}_{x_{k+1}} - r = \frac{f''(\xi)}{2f'(x_k)}\,(r - x_k)^2 .
+$$
+
+The left side is exactly $x_{k+1} - r = e_{k+1}$. Therefore
+
+$$
+e_{k+1} = \frac{f''(\xi)}{2f'(x_k)}\,e_k^2 \approx \frac{f''(r)}{2f'(r)}\,e_k^2 .
+$$
+
+The new error is a constant times the *square* of the old one. This is **quadratic convergence**:
+if the error is $10^{-3}$, the next is about $10^{-6}$ and the one after about $10^{-12}$. The
+tangent line captured the constant and linear terms of the Taylor series exactly, so the only
+error left is the quadratic term.
+
+Three conditions are hidden in this formula.
+
+- The root must be **simple**, $f'(r) \ne 0$, or the constant $f''/2f'$ is infinite.
+- $f$ must be twice differentiable near the root.
+- The error must already be small: squaring only helps if $|f''/2f'|\,|e_k| < 1$. Far from the
+  root the formula promises nothing.
+
+**Multiple roots.** A root has **multiplicity** $m$ if $f$ behaves like $c\,(x - r)^m$ near it; a
+double root ($m = 2$) touches the axis without crossing. Then $f'(x) \approx cm(x - r)^{m-1}$, so
+$f/f' \approx (x - r)/m$ and the Newton step gives
+
+$$
+e_{k+1} \approx e_k - \frac{e_k}{m} = \frac{m-1}{m}\,e_k .
+$$
+
+The error shrinks only by a fixed factor at each step. This is **linear** convergence: at a double
+root the error halves each time, no better than bisection. If $m$ is known, the modified step
+$x_{k+1} = x_k - m\,f(x_k)/f'(x_k)$ cancels the error to first order and restores quadratic
+convergence.
 
 ![Orders of convergence](../generated/root_finding/orders.svg)
 
 ### When Newton's method fails
 
-From a poor starting point the tangent can point anywhere. The classic example is $\arctan x = 0$,
-whose only root is 0: from $|x_0| < 1.3917$ the iteration converges, from $|x_0| = 1.3917\ldots$ it cycles
-between $\pm x_0$ forever, and from beyond it oscillates with growing amplitude and diverges.
+The convergence analysis is *local*: it assumes we are already near the root. From a poor
+starting point the tangent can point anywhere. The classic example is $\arctan x = 0$, whose only
+root is 0. The graph flattens out for large $|x|$, so a tangent drawn far from the origin is
+nearly horizontal and crosses the axis far away on the other side. There is a critical starting
+value, $|x_0| = 1.3917\ldots$:
+
+- from $|x_0| < 1.3917$ each step lands closer to 0 and the iteration converges;
+- from exactly the critical value the step lands at $-x_0$, and the iteration cycles between
+  $\pm x_0$ forever;
+- from beyond it each step lands further out than the last, and the iteration oscillates with
+  growing amplitude and diverges.
 
 ![Newton's method on arctan](../generated/root_finding/newton_atan.svg)
 
 The orange path ($x_0 = 1.39$) shows the knife edge: it oscillates for several steps before falling
-into the region of quadratic convergence. Other failures: a zero derivative (a horizontal tangent)
-throws the iterate to infinity, and for $f(x) = x^{1/3}$ the iteration doubles the error at each step.
-Newton's method in the complex plane, on $z^3 = 1$ say, makes the sensitivity to the starting point
-visible as a fractal boundary between the basins of the three roots.
+into the region of quadratic convergence. There are other ways to fail.
+
+- Where $f'(x_k) = 0$ the tangent is horizontal and never meets the axis; near such a point the
+  iterate is thrown very far away.
+- For $f(x) = x^{1/3}$ we have $f/f' = 3x$, so $x_{k+1} = -2x_k$: the iteration doubles the error at
+  each step from any starting point. The function is not differentiable at its root.
+- In the complex plane, on $z^3 = 1$ say, the set of starting points that lead to each of the
+  three roots (its **basin**) has a fractal boundary, which makes the sensitivity to the starting
+  point visible.
 
 ### The secant method
 
-Replacing $f'(x_k)$ by the slope of the line through the last two iterates,
+If the derivative is unavailable or expensive, approximate it by the slope of the line through the
+last two iterates, $f'(x_k) \approx \big(f(x_k) - f(x_{k-1})\big)/(x_k - x_{k-1})$. Substituting into
+Newton's step gives
 
 $$
-x_{k+1} = x_k - f(x_k)\,\frac{x_k - x_{k-1}}{f(x_k) - f(x_{k-1})},
+x_{k+1} = x_k - f(x_k)\,\frac{x_k - x_{k-1}}{f(x_k) - f(x_{k-1})}.
 $$
 
-needs only one new value of $f$ per step. The errors satisfy $e_{k+1} \approx \frac{f''}{2f'}\,e_k\,e_{k-1}$,
-whose solution grows like $e_{k+1} \sim e_k^{\,\varphi}$ with $\varphi = (1 + \sqrt5)/2 \approx 1.618$.
-Measured per evaluation of a function, secant is often *faster* than Newton: two secant steps
-(order $\varphi^2 \approx 2.6$) cost the same as one Newton step (order 2) when $f'$ costs as much as $f$.
+Geometrically, $x_{k+1}$ is where the line through the two latest points (a **secant** of the
+graph) crosses the axis. The method needs two starting points and then only one new value of $f$
+per step.
+
+**The order of convergence.** An analysis like the one above shows that the errors satisfy
+
+$$
+e_{k+1} \approx C\,e_k\,e_{k-1}, \qquad C = \frac{f''(r)}{2f'(r)} .
+$$
+
+The new error is the product of the *two* previous errors, not the square of the last. To find the
+order, suppose $e_{k+1} \approx K e_k^{\,p}$ for some power $p$. The same relation one step earlier,
+$e_k \approx K e_{k-1}^{\,p}$, gives $e_{k-1} \propto e_k^{1/p}$. Substituting this into the right side,
+
+$$
+K e_k^{\,p} \approx C\,e_k\,e_{k-1} \propto e_k \cdot e_k^{1/p} = e_k^{\,1 + 1/p} .
+$$
+
+Both sides must be the same power of $e_k$, so $p = 1 + 1/p$.
+
+So $p^2 - p - 1 = 0$, whose positive root is the golden ratio $\varphi = (1 + \sqrt5)/2 \approx 1.618$.
+The number of correct digits is multiplied by about 1.6 at each step instead of 2.
+
+That sounds slower than Newton's method, but the comparison should be per unit of work. If
+evaluating $f'$ costs as much as evaluating $f$, one Newton step costs two evaluations. Two
+secant steps cost the same and multiply the number of correct digits by $\varphi^2 \approx 2.6$,
+against 2 for Newton's method. Measured per function evaluation, the secant method is often the
+*faster* of the two.
 
 ## Algorithm
 

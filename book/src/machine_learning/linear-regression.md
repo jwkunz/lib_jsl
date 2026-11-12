@@ -35,22 +35,55 @@ showed that simple coordinate descent solves these problems faster than anything
 
 ### Least squares
 
-Minimise the residual sum of squares $\lVert\mathbf y - X\mathbf w - b\rVert^2$. Appending a column of ones to $X$ for the intercept, the solution satisfies the
-**normal equations** $X^{\mathsf T}X\mathbf w = X^{\mathsf T}\mathbf y$: the residual is orthogonal to every column. The library solves the problem through the
-[singular value decomposition](../linear_algebra/svd.md), which returns the minimum-norm solution when features are
-collinear or outnumber the samples, rather than forming $X^{\mathsf T}X$ and squaring its condition number (see
-[linear least squares](../linear_algebra/least-squares.md)).
+**The model.** The data are $n$ samples, each with $p$ features, collected as the rows of an
+$n \times p$ matrix $X$, together with a vector $\mathbf y$ of the $n$ values to be predicted. The
+model predicts
 
-A flexible enough linear model interpolates noise. With 20 points, a polynomial of degree 15 swings wildly between them,
-while degree 3 and a penalised degree-15 fit follow the underlying curve:
+$$
+\hat y_i = w_1x_{i1} + \cdots + w_px_{ip} + b, \qquad\text{or}\qquad \hat{\mathbf y} = X\mathbf w + b,
+$$
+
+with a **weight** $w_j$ for each feature and an **intercept** $b$.
+
+**The fit.** The weights are chosen to minimise the **residual sum of squares**
+$\lVert\mathbf y - X\mathbf w - b\rVert^2$, the sum of squared differences between the observed and
+predicted values. The intercept can be treated as one more weight by appending a column of ones
+to $X$. This is exactly the [linear least-squares problem](../linear_algebra/least-squares.md) of
+the linear algebra chapter, whose solution satisfies the **normal equations**
+$X^{\mathsf T}X\mathbf w = X^{\mathsf T}\mathbf y$: at the minimum, the residual is orthogonal to every column
+of $X$.
+
+The library does not solve the normal equations, since forming $X^{\mathsf T}X$ squares the condition
+number. It uses the [singular value decomposition](../linear_algebra/svd.md), which also behaves
+sensibly when the weights are not uniquely determined, because features are collinear or
+outnumber the samples: it then returns the solution of smallest norm.
+
+**Overfitting.** Least squares finds the best fit to the *training* data, which is not the same
+as the best prediction of new data. A flexible enough model can follow the noise in the training
+points as well as the trend. With 20 points, a polynomial of degree 15 has almost enough freedom
+to pass through all of them, and swings wildly in between; a polynomial of degree 3, or a
+penalised degree-15 fit (below), follows the underlying curve:
 
 ![Polynomial fits](../generated/machine_learning/polynomial_fits.svg)
 
 ### Weighted and generalised least squares
 
-When the errors have covariance $\Sigma$, the best linear unbiased estimator minimises $(\mathbf y - X\mathbf w)^{\mathsf T}\Sigma^{-1}(\mathbf y - X\mathbf w)$. Factorising $\Sigma = LL^{\mathsf T}$
-([Cholesky](../linear_algebra/cholesky.md)) and multiplying by $L^{-1}$ **whitens** the problem into ordinary least squares. Independent errors
-with variances $\sigma_i^2$ give **weighted least squares** with weights $1/\sigma_i^2$: noisy points count for less.
+Ordinary least squares treats every observation alike. That is right when the errors all have
+the same variance and are independent of each other, and wasteful otherwise: a measurement known
+to be noisy should count for less than a precise one.
+
+When the errors are independent with known variances $\sigma_i^2$, **weighted least squares**
+minimises $\sum_i(y_i - \hat y_i)^2/\sigma_i^2$. Each residual is measured in units of its own
+standard deviation, so that noisy points count for less.
+
+More generally, if the errors have covariance matrix $\Sigma$ (so that they may also be
+correlated), **generalised least squares** minimises
+$(\mathbf y - X\mathbf w)^{\mathsf T}\Sigma^{-1}(\mathbf y - X\mathbf w)$, and this is the best linear unbiased
+estimator. It needs no new algorithm. Factorise $\Sigma = LL^{\mathsf T}$ by
+[Cholesky](../linear_algebra/cholesky.md) and multiply both $X$ and $\mathbf y$ by $L^{-1}$. The
+transformed errors $L^{-1}\boldsymbol\epsilon$ have covariance $L^{-1}\Sigma L^{-\mathsf T} = I$: they
+are uncorrelated with unit variance. The transformation is said to **whiten** the problem, which
+is then solved by ordinary least squares.
 
 ![Weighted least squares](../generated/machine_learning/wls.svg)
 
@@ -61,24 +94,81 @@ by a factor of 3.7.
 
 ### Ridge regression
 
-Minimise $\lVert\mathbf y - X\mathbf w - b\rVert^2 + \alpha\lVert\mathbf w\rVert^2$. The solution $\mathbf w = (X^{\mathsf T}X + \alpha I)^{-1}X^{\mathsf T}\mathbf y$ (on centred data, so the intercept is not penalised)
-exists for any $\alpha > 0$, even with more features than samples. In terms of the SVD $X = U\Sigma V^{\mathsf T}$, ridge multiplies each component of the
-least-squares solution by $\sigma_j^2/(\sigma_j^2 + \alpha)$, damping the directions with small singular values, where noise is amplified most. The
-penalty trades bias for variance; the test error is lowest at an intermediate $\alpha$:
+Overfitting shows itself in the weights: to follow noise, a flexible model needs large weights
+of opposite signs that nearly cancel. **Ridge regression** discourages them by adding a penalty
+on the size of the weights to the quantity being minimised:
+
+$$
+\lVert\mathbf y - X\mathbf w - b\rVert^2 + \alpha\lVert\mathbf w\rVert^2 .
+$$
+
+The parameter $\alpha \ge 0$ sets the strength of the penalty: $\alpha = 0$ is least squares, and
+as $\alpha \to \infty$ all the weights are driven to zero. The intercept is not penalised (the
+data are centred first), since there is no reason to prefer predictions near zero.
+
+Setting the gradient to zero gives a modified form of the normal equations,
+
+$$
+(X^{\mathsf T}X + \alpha I)\,\mathbf w = X^{\mathsf T}\mathbf y .
+$$
+
+The matrix $X^{\mathsf T}X + \alpha I$ is positive definite for any $\alpha > 0$, so the solution
+exists and is unique even with more features than samples, where least squares is not.
+
+**What the penalty does.** The SVD $X = U\Sigma V^{\mathsf T}$ shows it precisely. The least-squares
+solution divides each component of the data (along the singular direction $j$) by the singular
+value $\sigma_j$. A small $\sigma_j$ marks a direction in feature space along which the data
+hardly vary, so that the weight along it is poorly determined; dividing by it amplifies the
+noise. Ridge multiplies each component of the least-squares solution by
+
+$$
+\frac{\sigma_j^2}{\sigma_j^2 + \alpha} .
+$$
+
+For $\sigma_j^2 \gg \alpha$ this factor is close to 1 and the component is untouched. For
+$\sigma_j^2 \ll \alpha$ it is close to 0 and the component is suppressed. Ridge damps precisely the
+directions where noise is amplified most.
+
+**The trade-off.** The penalised weights are biased towards zero, but vary less from one
+training sample to another. A little bias in exchange for a large reduction in variance improves
+the predictions; too much makes them worse. The error on test data is lowest at an intermediate
+$\alpha$:
 
 ![Ridge error](../generated/machine_learning/ridge_error.svg)
 
 ### The lasso and the elastic net
 
-The lasso replaces the squared penalty by $\alpha\lVert\mathbf w\rVert_1$. The corners of the $\ell_1$ ball make the solution **sparse**: as $\alpha$ grows, weights reach
-exactly zero one by one, selecting features. The elastic net minimises
+The **lasso** replaces the squared penalty by the sum of absolute values,
+$\alpha\lVert\mathbf w\rVert_1 = \alpha\sum_j|w_j|$. The change looks minor, but it has a striking
+effect: the solution is **sparse**. As $\alpha$ grows, weights become *exactly* zero one by one,
+so the lasso selects features as well as shrinking them.
+
+**Why the absolute value gives zeros.** A problem with a single weight shows the mechanism.
+Minimise $\tfrac12(w - z)^2 + \gamma|w|$, where $z$ is the value the weight would take without a
+penalty. For $w > 0$ the derivative is $w - z + \gamma$, which vanishes at $w = z - \gamma$; this
+is a valid solution only if $z > \gamma$. Similarly $w = z + \gamma$ if $z < -\gamma$. For
+$|z| \le \gamma$ neither applies, and the minimum is at the corner $w = 0$. Altogether
+
+$$
+w = S(z, \gamma) = \operatorname{sign}(z)\max(|z| - \gamma,\ 0),
+$$
+
+the **soft-thresholding** function: values smaller than $\gamma$ are set to zero, and larger
+ones are moved towards zero by $\gamma$. The absolute value has a constant slope $\gamma$ right
+down to zero, so a weak pull from the data cannot overcome it. The squared penalty of ridge, by
+contrast, has a slope that vanishes at zero: its solution is $z/(1 + 2\gamma)$, which shrinks
+but never reaches zero.
+
+The **elastic net** uses both penalties:
 
 $$
 \frac{1}{2n}\lVert\mathbf y - X\mathbf w - b\rVert^2 + \alpha\Big(\rho\lVert\mathbf w\rVert_1 + \frac{1 - \rho}{2}\lVert\mathbf w\rVert^2\Big),
 $$
 
-with $\rho = 1$ the lasso and $\rho = 0$ a scaled ridge. Among correlated features the lasso tends to pick one arbitrarily; the ridge part spreads
-the weight among them. On eight features of which three matter (and one is correlated with the first):
+with $\rho = 1$ the lasso and $\rho = 0$ a scaled ridge. The mixture helps with correlated
+features. Among a group of features that carry the same information the lasso tends to keep one,
+chosen almost arbitrarily, and discard the rest; the ridge part spreads the weight among them.
+On eight features of which three matter (and one is correlated with the first):
 
 | | |
 |:---:|:---:|
@@ -89,15 +179,34 @@ and the real ones only for large $\alpha$.
 
 ### Coordinate descent
 
-The elastic-net objective is not differentiable where a weight is zero, but it is easy one coordinate at a time. With the
-others fixed, the optimal $w_j$ is
+The elastic-net objective cannot be minimised by setting a gradient to zero, because $|w_j|$ is
+not differentiable where $w_j = 0$, and that is exactly where many of the solution's weights
+lie. But the one-weight problem above has a closed-form answer, and that suggests an algorithm:
+optimise one weight at a time, holding the others fixed.
+
+With all weights but $w_j$ fixed, let $\mathbf r^{(j)}$ be the residual computed *without* feature
+$j$, that is $\mathbf y$ minus the contributions of all the other features, and let $\mathbf x_j$ be
+column $j$ of $X$. As a function of $w_j$ alone the objective is
 
 $$
-w_j = \frac{S\big(\tfrac1n\mathbf x_j^{\mathsf T}\mathbf r^{(j)}, \alpha\rho\big)}{\tfrac1n\lVert\mathbf x_j\rVert^2 + \alpha(1 - \rho)}, \qquad S(z, \gamma) = \operatorname{sign}(z)\max(|z| - \gamma, 0),
+\frac{1}{2n}\lVert\mathbf r^{(j)} - \mathbf x_jw_j\rVert^2 + \alpha\rho\,|w_j| + \frac{\alpha(1 - \rho)}{2}w_j^2 + \text{const},
 $$
 
-where $\mathbf r^{(j)}$ is the residual without feature $j$ and $S$ the **soft-thresholding** operator. Cycling through the coordinates, keeping the residual
-up to date, converges to the global minimum because the objective is convex and its non-smooth part separable.
+a one-weight problem of the kind just solved. Its minimiser is
+
+$$
+w_j = \frac{S\big(\tfrac1n\mathbf x_j^{\mathsf T}\mathbf r^{(j)},\ \alpha\rho\big)}{\tfrac1n\lVert\mathbf x_j\rVert^2 + \alpha(1 - \rho)} .
+$$
+
+The numerator measures how strongly feature $j$ is correlated with what the other features have
+left unexplained. If that correlation is below the threshold $\alpha\rho$, the weight is set to
+zero.
+
+**Coordinate descent** cycles through the weights, updating each by this formula and keeping
+the residual up to date, until the weights stop changing. Optimising one coordinate at a time
+does not work for every function, but it does here: the objective is convex, and its
+non-differentiable part is a sum of terms each involving a single weight, which together
+guarantee convergence to the global minimum.
 
 ## Algorithm
 

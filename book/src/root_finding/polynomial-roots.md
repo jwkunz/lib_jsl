@@ -50,8 +50,8 @@ H. Murakami (1995) proved that it is backward stable once the matrix is **balanc
 
 ### The companion matrix
 
-The monic polynomial $z^n + c_1 z^{n-1} + \cdots + c_n$, with $c_i = a_i/a_0$, is the characteristic
-polynomial of
+Divide the polynomial $a_0 z^n + a_1 z^{n-1} + \cdots + a_n$ by its leading coefficient to make it
+**monic**: $p(z) = z^n + c_1 z^{n-1} + \cdots + c_n$ with $c_i = a_i/a_0$. Its **companion matrix** is
 
 $$
 C = \begin{pmatrix}
@@ -60,42 +60,80 @@ C = \begin{pmatrix}
 0 & 1 & \cdots & 0 & 0 \\
 \vdots & & \ddots & & \vdots \\
 0 & 0 & \cdots & 1 & 0
-\end{pmatrix},
+\end{pmatrix}.
 $$
 
-as expanding $\det(zI - C)$ along the first row shows. Its eigenvalues are the roots. The matrix is
-already in upper Hessenberg form, the form the QR algorithm works on, and the eigenvalue
-computation costs $O(n^3)$ operations. Specialised structured QR algorithms reduce this to $O(n^2)$.
+The claim is that the eigenvalues of $C$ are exactly the roots of $p$. To see why, let $r$ be a
+root and consider the vector of its descending powers,
+$\mathbf v = (r^{n-1}, r^{n-2}, \ldots, r, 1)^{\mathsf T}$. Multiply it by $C$ row by row.
+
+- Rows 2 to $n$ each contain a single 1, which copies the entry above: row 2 gives $r^{n-1}$, row 3
+  gives $r^{n-2}$, and so on down to $r$. Each is $r$ times the corresponding entry of $\mathbf v$.
+- Row 1 gives $-c_1 r^{n-1} - c_2 r^{n-2} - \cdots - c_n$. Because $p(r) = 0$, this equals $r^n$,
+  which is $r$ times the first entry of $\mathbf v$.
+
+So $C\mathbf v = r\mathbf v$: every root is an eigenvalue. Since $C$ has $n$ eigenvalues and $p$ has
+$n$ roots, there are no others. (Equivalently, expanding $\det(zI - C)$ along the first row shows
+that $p$ is the characteristic polynomial of $C$.) For $z^2 - 3z + 2 = (z - 1)(z - 2)$, for
+example, $C = \begin{pmatrix} 3 & -2 \\ 1 & 0 \end{pmatrix}$, with trace $3 = 1 + 2$ and
+determinant $2 = 1 \cdot 2$.
+
+Root finding has become an eigenvalue problem, for which a robust general-purpose method exists:
+the [QR algorithm](../linear_algebra/eigen-iterations.md). The companion matrix is already in
+**upper Hessenberg form** (zero below the first subdiagonal), which is the form the QR algorithm
+works on, and the eigenvalue computation costs $O(n^3)$ operations. Specialised structured QR
+algorithms reduce this to $O(n^2)$.
 
 ### Balancing
 
 The entries of $C$ can range over many orders of magnitude: the coefficients of Wilkinson's
-polynomial run from 1 to $2.4 \times 10^{18}$. The QR algorithm's rounding errors are proportional to the
-norm of the matrix, so the small entries are lost. **Balancing** replaces $C$ by $D^{-1} C D$ for a
-diagonal $D$ chosen to make each row and the matching column similar in size. The eigenvalues are
-unchanged; with the entries of $D$ powers of 2, not even rounding is introduced. Without balancing,
+polynomial (below) run from 1 to $2.4 \times 10^{18}$. The rounding errors of the QR algorithm are
+proportional to the *largest* entries of the matrix, so the information in the small entries is
+lost.
+
+**Balancing** is a change of units that evens out the sizes. It replaces $C$ by $D^{-1} C D$,
+where $D$ is a diagonal matrix chosen to make each row and the matching column similar in size.
+This is a similarity transformation, so the eigenvalues are unchanged. If the entries of $D$ are
+powers of 2, the scaling only changes exponents and introduces no rounding error at all. Without balancing,
 this library's eigenvalue solver returned 18 zeros and a wild complex pair for Wilkinson's
 polynomial; with it, all 20 roots to within $4 \times 10^{-3}$.
 
 ### Conditioning: Wilkinson's polynomial
 
-How much does a root $r$ move if a coefficient $a_i$ changes by $\delta a_i$? To first order,
+Why only to within $4 \times 10^{-3}$? Because the roots of this polynomial are extraordinarily
+sensitive to its coefficients, and no algorithm can overcome that.
+
+**Sensitivity of a root.** Ask how much a root $r$ moves if the coefficient $a_i$ of $x^{n-i}$
+changes by a small amount $\delta a_i$. The perturbed polynomial is $p(x) + \delta a_i\,x^{n-i}$, and
+its root $r + \delta r$ satisfies
+
+$$
+p(r + \delta r) + \delta a_i\,(r + \delta r)^{n-i} = 0 .
+$$
+
+To first order in the small quantities, $p(r + \delta r) \approx p(r) + p'(r)\,\delta r = p'(r)\,\delta r$
+and $(r + \delta r)^{n-i} \approx r^{n-i}$. Solving for $\delta r$,
 
 $$
 \delta r \approx -\frac{r^{\,n-i}}{p'(r)}\,\delta a_i .
 $$
 
-For $W(x) = \prod_{k=1}^{20}(x - k)$ and the coefficient of $x^{19}$ (which is $-210$), this factor is about
-$2 \times 10^9$ for the roots 15 and 16. Wilkinson changed that coefficient by $2^{-23} \approx 10^{-7}$, a
-relative change of $6 \times 10^{-10}$, and ten of the roots became five complex pairs:
+The factor $r^{n-i}/p'(r)$ is the **condition number** of the root with respect to that
+coefficient. It is large when the root is large (the numerator) or when the graph of $p$ is nearly flat
+at the root, as it is when roots are close together (the denominator).
+
+**Wilkinson's example.** Take $W(x) = \prod_{k=1}^{20}(x - k)$, with the innocent-looking roots
+$1, 2, \ldots, 20$, and consider the coefficient of $x^{19}$, which is $-210$. For the roots 15 and
+16 the factor is about $2 \times 10^9$. Wilkinson changed that coefficient by $2^{-23} \approx 10^{-7}$,
+a relative change of $6 \times 10^{-10}$, and ten of the roots became five complex pairs:
 
 ![Wilkinson's polynomial](../generated/root_finding/wilkinson.svg)
 
-No algorithm can do better than the conditioning allows: merely storing the coefficients of $W$ in
-double precision perturbs them by more than enough to move the upper roots by $10^{-3}$. A good
-algorithm is **backward stable**: it computes the exact roots of a polynomial whose coefficients are
-close to the given ones. The companion matrix method with balancing achieves this in a norm-wise
-sense.
+**What a good algorithm can promise.** Merely storing the coefficients of $W$ in double precision
+perturbs them by more than enough to move the upper roots by $10^{-3}$. No algorithm can do
+better than the conditioning allows. The right standard is **backward stability**: the computed
+roots are the exact roots of a polynomial whose coefficients are close to the given ones. The
+companion matrix method with balancing achieves this in a norm-wise sense.
 
 {{#include ../generated/root_finding/polynomial_accuracy.md}}
 
@@ -105,10 +143,19 @@ basis, such as the [Chebyshev basis](../interpolation/polynomial.md#chebyshev-se
 
 ### Multiple roots
 
-A root of multiplicity $m$ is perturbed by about $\varepsilon^{1/m}$ times its scale: a triple root, $10^{-5}$.
-The computed eigenvalues form a small regular cluster around it, often a real value and a nearly
-real complex pair. The *mean* of the cluster is far more accurate than its members, because the
-perturbations average out: for $(x - 1)^3$ the members are off by $10^{-5}$ and the mean by $10^{-16}$.
+Multiple roots are the extreme case of ill-conditioning, since $p'(r) = 0$ there and the formula
+above breaks down. A direct argument shows what happens. Near a root of multiplicity $m$ the
+polynomial behaves like $(x - r)^m$. Perturb it by a small constant $\epsilon$: the equation
+$(x - r)^m = \epsilon$ has the $m$ solutions $x = r + \epsilon^{1/m}$, with the $m$ complex $m$-th
+roots of $\epsilon$. A perturbation of size $\epsilon$ moves the root by $\epsilon^{1/m}$, which is
+far larger. With rounding errors of $10^{-16}$, a triple root is known only to about
+$10^{-16/3} \approx 10^{-5}$.
+
+The $m$ perturbed roots lie evenly spaced on a small circle around $r$, which is what the
+computed eigenvalues look like: a small regular cluster, often a real value and a nearly real
+complex pair. The centre of the circle is still $r$, so the *mean* of the cluster is far more
+accurate than its members: for $(x - 1)^3$ the members are off by $10^{-5}$ and the mean by
+$10^{-16}$.
 
 ### Real roots
 

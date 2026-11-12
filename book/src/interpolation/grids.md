@@ -41,42 +41,96 @@ and colleagues in the 2000s, from the idea of averaging over all window alignmen
 
 ### Tensor products
 
-If $\sum_i w_i(x)\,f_i$ interpolates in one dimension, then
+Every one-dimensional interpolation method in the previous entries can be written as a weighted
+sum of the data, $f(x) \approx \sum_i w_i(x)\,f_i$, where the weights $w_i(x)$ depend on where $x$
+lies but not on the data. For linear interpolation between $x_0$ and $x_1$, for example, with
+$s = (x - x_0)/(x_1 - x_0)$ the fraction of the way across, the weights are $1 - s$ and $s$.
+
+On a two-dimensional grid with values $f_{ij}$ at the points $(x_i, y_j)$, apply the method in two
+stages. First interpolate along $x$ within each grid row $j$, which gives a value
+$g_j = \sum_i w_i(x)\,f_{ij}$ for each row. Then interpolate these row values along $y$:
 
 $$
-f(x, y) \approx \sum_i \sum_j w_i(x)\, w_j(y)\, f_{ij}
+f(x, y) \approx \sum_j w_j(y)\,g_j = \sum_i \sum_j w_i(x)\, w_j(y)\, f_{ij}.
 $$
 
-interpolates on a two-dimensional grid, and likewise in any dimension. **Bilinear** interpolation uses
-the two nearest values per axis with linear weights; **multilinear** interpolation in $n$ dimensions
-uses the $2^n$ corners of the enclosing cell. Both are exact for functions that are linear in each
-coordinate and have error $O(h^2)$.
+The weight of each grid value is the *product* of a one-dimensional weight for each axis. This
+construction is called a **tensor product**, and it works the same way in any number of
+dimensions. The order of the axes does not matter, since the final formula is symmetric in them.
+
+The simplest example is **bilinear** interpolation, which uses the two nearest values per axis
+with linear weights. In a grid cell with corner values $f_{00}, f_{10}, f_{01}, f_{11}$ and
+fractional position $(s, t)$,
+
+$$
+f \approx (1 - s)(1 - t)\,f_{00} + s(1 - t)\,f_{10} + (1 - s)t\,f_{01} + st\,f_{11}.
+$$
+
+Each corner is weighted by the area of the rectangle opposite to it. Despite the name, the result
+is not a plane: it contains the product term $st$, so it is linear along each axis but curved along the
+diagonals. **Multilinear** interpolation is the same in $n$ dimensions and uses the $2^n$ corners
+of the enclosing cell. Both are exact for functions that are linear in each coordinate separately
+and have error $O(h^2)$, like [linear interpolation](splines.md#linear-interpolation) in one
+dimension.
 
 ### Cubic methods
 
-Cubic methods use four values per axis. **Bicubic** interpolation fits a tensor-product cubic Hermite
-patch in each cell, matching the values and estimated derivatives $f_x$, $f_y$, $f_{xy}$ at the corners;
-with central-difference derivatives it is the same method as the **Catmull-Rom cubic basis**, and the
-two give identical results in the table below. **Tricubic Lagrange** interpolation passes a cubic
-through the four nearest values along each axis. The **B-spline** method expresses the interpolant as
-a combination of cubic B-splines, $s(\mathbf u) = \sum c_{\mathbf k}\,B_3(\mathbf u - \mathbf k)$; the coefficients are
-not the data but the result of a **prefilter**, a tridiagonal solve along each axis, and the result is
-twice continuously differentiable with fourth-order accuracy.
+Higher accuracy needs more neighbours. The cubic methods use four values per axis, so 16 values
+in two dimensions and 64 in three. The library has three, all tensor products of one-dimensional
+cubic methods.
+
+- **Bicubic** interpolation is the tensor product of
+  [cubic Hermite interpolation](splines.md#cubic-hermite-interpolation). In each cell it fits a
+  patch that matches the values and the estimated derivatives $f_x$, $f_y$ and $f_{xy}$ at the four
+  corners. When the derivatives are estimated by central differences it is the same method as the
+  **Catmull-Rom cubic basis**, and the two give identical results in the table below.
+- **Tricubic Lagrange** interpolation passes a cubic polynomial through the four nearest values
+  along each axis, the tensor product of
+  [polynomial interpolation](polynomial.md) at four points.
+- The **B-spline** method is the tensor product of the
+  [cubic spline](splines.md#cubic-splines). It writes the interpolant as a sum of shifted copies
+  of one smooth bump, the cubic B-spline $B_3$, one copy centred on each grid point:
+  $s(\mathbf u) = \sum_{\mathbf k} c_{\mathbf k}\,B_3(\mathbf u - \mathbf k)$. The bump $B_3$ is wider than one cell,
+  so neighbouring bumps overlap and the coefficients $c_{\mathbf k}$ are *not* the data values. They
+  must be found first, by solving a tridiagonal system along each axis (the **prefilter**), exactly
+  as a spline's coefficients are found in one dimension. The result is twice continuously
+  differentiable and fourth-order accurate.
 
 ### Interpolation as convolution
 
-On a uniform grid every linear method is a **convolution**: the value at $u$ (in grid units) is
-$\sum_k K(u - k)\, f_k$ for a **kernel** $K$, the function the method returns for a single unit sample.
-The figure shows the library's kernels, computed exactly that way:
+On a uniform grid there is a second way to look at all these methods. Measure position $u$ in
+units of the grid spacing, so that the samples sit at the integers $k$. Every linear method can
+then be written as
+
+$$
+f(u) \approx \sum_k K(u - k)\, f_k
+$$
+
+for some function $K$, called the **kernel** of the method. The formula says: place a copy of $K$
+at each sample, scale it by the sample value, and add the copies up. This operation is a
+[convolution](../filters/convolution.md). To find the kernel of a method, feed it data that are 1 at
+one grid point and 0 everywhere else; the function it returns is $K$. The figure shows the
+library's kernels, computed exactly that way:
 
 ![Interpolation kernels](../generated/interpolation/grid_kernels.svg)
 
-The ideal kernel for band-limited data is the sinc function $\sin(\pi u)/(\pi u)$, which extends to
-infinity. **Lanczos** resampling truncates it with a wider sinc as a window,
-$K(u) = \operatorname{sinc}(u)\operatorname{sinc}(u/a)$ for $|u| < a$. **All-phase** interpolation averages the sinc
-interpolations of all $n$-sample windows containing the point, which tapers the sinc by a triangle,
-$K(u) = \operatorname{sinc}(u)(1 - |u|/n)$. Both kernels have negative lobes that sharpen edges in images, at the
-price of slight ringing.
+Every kernel equals 1 at $u = 0$ and 0 at the other integers, which is what makes the method
+interpolate. Linear interpolation has a triangular kernel; the cubic kernels are smoother and
+have small negative lobes.
+
+Signal processing suggests an ideal. If the data are samples of a **band-limited** function (one
+containing no frequencies above half the sampling rate), the sampling theorem says the function
+is recovered exactly with the kernel $\operatorname{sinc}(u) = \sin(\pi u)/(\pi u)$. The sinc function
+decays slowly and extends to infinity, so it cannot be used as it stands. Two practical kernels
+shorten it.
+
+- **Lanczos** resampling multiplies the sinc by a wider copy of itself, which acts as a window
+  and brings it smoothly to zero: $K(u) = \operatorname{sinc}(u)\operatorname{sinc}(u/a)$ for $|u| < a$, and 0 beyond.
+- **All-phase** interpolation averages the sinc interpolations of all $n$-sample windows containing
+  the point. The effect is a sinc tapered by a triangle, $K(u) = \operatorname{sinc}(u)(1 - |u|/n)$.
+
+Both kernels have negative lobes that sharpen edges in images, at the price of slight ringing
+(faint echoes beside sharp edges).
 
 ### Accuracy
 

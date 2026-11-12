@@ -41,62 +41,93 @@ elliptic integrals of most modern libraries, including this one.
 
 ### Elliptic integrals
 
-In Legendre's form, with modulus $k$ (parameter $m = k^2$) and amplitude $\varphi$,
+**Legendre's forms.** Legendre showed that every elliptic integral can be reduced to three
+standard ones. With **modulus** $k$ (some authors use the **parameter** $m = k^2$ instead) and
+**amplitude** $\varphi$, the integrals of the first, second and third kinds are
 
 $$
 F(\varphi, k) = \int_0^\varphi\frac{d\theta}{\sqrt{1 - k^2\sin^2\theta}}, \quad
 E(\varphi, k) = \int_0^\varphi\sqrt{1 - k^2\sin^2\theta}\,d\theta, \quad
-\Pi(\varphi, n, k) = \int_0^\varphi\frac{d\theta}{(1 - n\sin^2\theta)\sqrt{1 - k^2\sin^2\theta}},
+\Pi(\varphi, n, k) = \int_0^\varphi\frac{d\theta}{(1 - n\sin^2\theta)\sqrt{1 - k^2\sin^2\theta}} .
 $$
 
-and the **complete** integrals $K(k) = F(\tfrac\pi2, k)$, $E(k) = E(\tfrac\pi2, k)$, $\Pi(n, k) = \Pi(\tfrac\pi2, n, k)$. At $k = 0$ they reduce to
-$\pi/2$; as $k \to 1$, $K$ diverges logarithmically, $K \approx \ln(4/\sqrt{1 - k^2})$, while $E \to 1$.
+When the upper limit is $\pi/2$ they are called **complete**: $K(k) = F(\tfrac\pi2, k)$,
+$E(k) = E(\tfrac\pi2, k)$, $\Pi(n, k) = \Pi(\tfrac\pi2, n, k)$. For example, the perimeter of an ellipse
+with semi-axes $a \ge b$ is $4aE(k)$ with $k^2 = 1 - b^2/a^2$, and the period of a pendulum of
+length $\ell$ released from angle $\theta_0$ is $4\sqrt{\ell/g}\,K(\sin(\theta_0/2))$.
+
+At $k = 0$ the square roots are 1 and both $K$ and $E$ reduce to $\pi/2$. As $k \to 1$ the integrand
+of $K$ becomes $1/\cos\theta$, which is not integrable at $\pi/2$: $K$ diverges logarithmically,
+$K \approx \ln(4/\sqrt{1 - k^2})$, while $E \to 1$.
 
 ![Complete elliptic integrals](../generated/special_functions/elliptic_ke.svg)
 
-**Carlson's symmetric forms** are
+**Carlson's symmetric forms.** Legendre's forms are traditional but awkward to compute: each
+needs its own method and its own special cases. Carlson proposed a different set of standard
+integrals,
 
 $$
 R_F(x, y, z) = \tfrac12\int_0^\infty\frac{dt}{\sqrt{(t + x)(t + y)(t + z)}}, \qquad
 R_D(x, y, z) = \tfrac32\int_0^\infty\frac{dt}{(t + z)\sqrt{(t + x)(t + y)(t + z)}},
 $$
 
-and similarly $R_J$ (third kind) and the degenerate $R_C(x, y) = R_F(x, y, y)$, which is elementary. Legendre's
-integrals are combinations of them, for example
+and similarly $R_J$ (for the third kind) and the degenerate case $R_C(x, y) = R_F(x, y, y)$, which is
+an elementary function. $R_F$ is **symmetric**: interchanging $x$, $y$ and $z$ does not change it.
+Legendre's integrals are simple combinations of Carlson's, for example
 
 $$
 F(\varphi, k) = \sin\varphi\,R_F(\cos^2\varphi,\ 1 - k^2\sin^2\varphi,\ 1), \qquad K(k) = R_F(0,\ 1 - k^2,\ 1) .
 $$
 
-The symmetry gives the **duplication theorem**: with $\lambda = \sqrt{xy} + \sqrt{yz} + \sqrt{zx}$,
+**The duplication theorem.** The reward for symmetry is one algorithm that computes all of them.
+With $\lambda = \sqrt{xy} + \sqrt{yz} + \sqrt{zx}$,
 
 $$
 R_F(x, y, z) = R_F\Big(\frac{x + \lambda}4, \frac{y + \lambda}4, \frac{z + \lambda}4\Big).
 $$
 
-Each step brings the three arguments four times closer together. Once they nearly agree,
-$R_F \approx \mu^{-1/2}$ (for their mean $\mu$) plus a short Taylor series in their relative deviations, which
-completes the evaluation to full precision. The same idea computes $R_D$ and $R_J$. Arguments of $F$, $E$
-and $\Pi$ beyond $\pi/2$ are reduced by periodicity: $F(\varphi + j\pi, k) = F(\varphi, k) + 2jK(k)$.
+The value is unchanged, but the arguments are different. Adding the same $\lambda$ to each
+leaves their differences as they were, and dividing by 4 then shrinks the differences by a
+factor of 4. Repeating the step drives the three arguments together.
+
+Why does that help? Because when the three arguments are equal the integral is elementary:
+$R_F(\mu, \mu, \mu) = \tfrac12\int_0^\infty (t + \mu)^{-3/2}\,dt = \mu^{-1/2}$. Once the arguments
+nearly agree, $R_F$ is $\mu^{-1/2}$ for their mean $\mu$, times a short Taylor series in their small
+relative deviations from the mean. A handful of duplications followed by that series gives full
+precision. The same idea computes $R_D$ and $R_J$.
+
+Amplitudes beyond $\pi/2$ are reduced by periodicity of the integrand:
+$F(\varphi + j\pi, k) = F(\varphi, k) + 2jK(k)$, and similarly for $E$ and $\Pi$.
 
 ### Jacobian elliptic functions
 
-If $u = F(\varphi, k)$, the **Jacobian elliptic functions** are
+The inverse sine can be *defined* by an integral, $\arcsin x = \int_0^x dt/\sqrt{1 - t^2}$, and the
+sine is then the inverse of that integral. Jacobi's functions arise in the same way from the
+elliptic integral of the first kind. If $u = F(\varphi, k)$, then $\varphi$ is a function of $u$,
+and the **Jacobian elliptic functions** are
 
 $$
 \operatorname{sn}(u \mid m) = \sin\varphi, \qquad \operatorname{cn}(u \mid m) = \cos\varphi, \qquad \operatorname{dn}(u \mid m) = \sqrt{1 - m\sin^2\varphi},
 $$
 
-with $m = k^2$. They have real period $4K$ ($\operatorname{sn}$, $\operatorname{cn}$) or $2K$ ($\operatorname{dn}$), and reduce to $\sin$, $\cos$, 1 at $m = 0$ and to
-$\tanh$, $\operatorname{sech}$, $\operatorname{sech}$ at $m = 1$. The motion of a pendulum released at angle $\theta_0$ is $\sin(\theta/2) = k\,\operatorname{sn}(K - \omega t \mid k^2)$ with
-$k = \sin(\theta_0/2)$:
+with $m = k^2$. They generalise the trigonometric functions, to which they reduce at $m = 0$
+(where $u = \varphi$): $\operatorname{sn} = \sin$, $\operatorname{cn} = \cos$, $\operatorname{dn} = 1$. As $\varphi$ increases by
+$2\pi$, $u$ increases by $4K$, so $\operatorname{sn}$ and $\operatorname{cn}$ have period $4K$ in place of $2\pi$; $\operatorname{dn}$
+has period $2K$. At the other extreme, $m = 1$, the period is infinite and the functions become
+$\tanh$, $\operatorname{sech}$ and $\operatorname{sech}$. The motion of a pendulum released at angle $\theta_0$ is
+$\sin(\theta/2) = k\,\operatorname{sn}(K - \omega t \mid k^2)$ with $k = \sin(\theta_0/2)$:
 
 ![Jacobian elliptic functions](../generated/special_functions/jacobi_elliptic.svg)
 
-They are computed by the **descending Landen transformation**: the arithmetic-geometric mean of 1
-and $\sqrt{1 - m}$ is run until its sequences agree, which takes about five steps; then the amplitude is
-recovered by a backward recursion $\sin(2\varphi_{n-1} - \varphi_n) = (c_n/a_n)\sin\varphi_n$, and
-$\operatorname{dn} = \sqrt{(1 - m) + m\,\operatorname{cn}^2}$.
+They are computed by the **descending Landen transformation**, which relates elliptic functions
+of parameter $m$ to those of a smaller parameter. Applied repeatedly, it drives the parameter
+to zero, where the functions are trigonometric. In practice the iteration is the
+**arithmetic-geometric mean**: starting from $a_0 = 1$ and $b_0 = \sqrt{1 - m}$, replace the pair
+by its arithmetic mean $(a + b)/2$ and its geometric mean $\sqrt{ab}$, and repeat. The two
+sequences converge to a common limit quadratically, in about five steps. The amplitude is then
+recovered by running back through the steps with the recursion
+$\sin(2\varphi_{n-1} - \varphi_n) = (c_n/a_n)\sin\varphi_n$, where $c_n = (a_{n-1} - b_{n-1})/2$, and
+finally $\operatorname{dn} = \sqrt{(1 - m) + m\,\operatorname{cn}^2}$.
 
 ### Accuracy
 

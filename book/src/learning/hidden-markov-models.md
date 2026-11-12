@@ -50,25 +50,63 @@ half the time. The switch probabilities are 0.05 per roll from fair to loaded an
 
 ### The Viterbi algorithm
 
-There are $N^T$ paths, but the best path to state $j$ at time $t$ must extend the best path to some state at time $t - 1$. With $\delta_t(j)$ the highest log
-probability of any path ending in $j$ at time $t$,
+The first question to ask of an HMM is **decoding**: given the observations, what is the most
+likely sequence of hidden states? There are $N^T$ possible paths, far too many to try. But the
+[principle of optimality](../optimization/dynamic-programming.md#bellmans-principle) applies.
+Because each state depends only on the one before it, the best path that ends in state $j$ at
+time $t$ must consist of the best path to *some* state $i$ at time $t - 1$, followed by the step
+from $i$ to $j$. So it is enough to keep, for each state, the best path ending there.
+
+Let $\delta_t(j)$ be the highest log probability of any path ending in state $j$ at time $t$,
+together with the observations up to then. It starts as
+$\delta_1(j) = \log\pi_j + \log B_{jo_1}$ and is updated by
 
 $$
-\delta_t(j) = \max_i\big(\delta_{t-1}(i) + \log A_{ij}\big) + \log B_{jo_t},
+\delta_t(j) = \max_i\big(\delta_{t-1}(i) + \log A_{ij}\big) + \log B_{jo_t} .
 $$
 
-storing the maximising $i$ as a back-pointer. The best final state, followed back through the pointers, gives the most likely path in
-$O(TN^2)$ operations. Working in logarithms avoids underflow, since probabilities of long sequences fall below the smallest `f64` within a few
-hundred steps. The library's [`viterbi_path`](../../api/lib_jsl_machine_learning/supervised/classification/viterbi_algorithm/fn.viterbi_path.html) takes the scores as closures, so the same code decodes HMMs, trellis codes or
+The first term chooses the best predecessor of $j$; the second accounts for emitting the
+observed symbol from $j$. The maximising $i$ is stored as a **back-pointer**. At the end, the
+state with the largest $\delta_T$ is the last state of the best path, and following the
+back-pointers from it recovers the whole path. Each of the $T$ steps examines $N^2$ transitions,
+so the cost is $O(TN^2)$ instead of $N^T$.
+
+Working with logarithms turns the products of probabilities into sums and avoids underflow:
+probabilities of long sequences fall below the smallest `f64` within a few hundred steps. The
+library's [`viterbi_path`](../../api/lib_jsl_machine_learning/supervised/classification/viterbi_algorithm/fn.viterbi_path.html) takes the scores as closures, so the same code decodes HMMs, trellis codes or
 any other chain of choices.
 
 ### The forward-backward algorithm
 
-Replacing the maximum by a sum gives the **forward** variables $\alpha_t(j) = P(o_1, \ldots, o_t, s_t = j)$, and $P(\mathbf o) = \sum_j\alpha_T(j)$ sums over all paths at the same cost. The
-**backward** variables $\beta_t(i) = P(o_{t+1}, \ldots, o_T \mid s_t = i)$ run the other way, and their product gives the **posterior** probability of each state at each time:
+Two further questions have the same structure. What is the total probability $P(\mathbf o)$ of the
+observations, summed over all possible paths? And what is the probability that the chain was in
+a particular state at a particular time, given all the observations?
+
+**Forward.** Define the **forward** variables
+$\alpha_t(j) = P(o_1, \ldots, o_t, s_t = j)$: the probability of the observations so far, with the
+chain in state $j$ now. They obey the Viterbi recurrence with the maximum replaced by a sum,
+since we now add up over all predecessors instead of choosing the best:
 
 $$
-\gamma_t(i) = P(s_t = i \mid \mathbf o) = \frac{\alpha_t(i)\beta_t(i)}{P(\mathbf o)}.
+\alpha_1(j) = \pi_jB_{jo_1}, \qquad \alpha_t(j) = \Big(\sum_i\alpha_{t-1}(i)A_{ij}\Big)B_{jo_t} .
+$$
+
+At the end, $P(\mathbf o) = \sum_j\alpha_T(j)$: the sum over all $N^T$ paths, at a cost of $O(TN^2)$.
+
+**Backward.** The **backward** variables
+$\beta_t(i) = P(o_{t+1}, \ldots, o_T \mid s_t = i)$ are the probability of the *remaining*
+observations, given the state now. They are computed from the end:
+
+$$
+\beta_T(i) = 1, \qquad \beta_t(i) = \sum_jA_{ij}B_{jo_{t+1}}\beta_{t+1}(j) .
+$$
+
+**Combining them.** The probability of all the observations together with state $i$ at time $t$
+is the product $\alpha_t(i)\beta_t(i)$: the past and present, times the future. Dividing by the
+total gives the **posterior** probability of each state at each time,
+
+$$
+\gamma_t(i) = P(s_t = i \mid \mathbf o) = \frac{\alpha_t(i)\beta_t(i)}{P(\mathbf o)} .
 $$
 
 ![The dishonest casino](../generated/learning/hmm_casino.svg)

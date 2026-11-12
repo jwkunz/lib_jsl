@@ -32,20 +32,72 @@ components came from Hirotugu Akaike (1974) and Gideon Schwarz (1978).
 
 ### The mixture likelihood
 
-The density is $p(\mathbf x) = \sum_{c=1}^kw_cN(\mathbf x; \boldsymbol\mu_c, \Sigma_c)$ with $w_c \ge 0$ and $\sum_cw_c = 1$. The log-likelihood $\sum_i\log p(\mathbf x_i)$ has a sum inside the logarithm. Unlike a single Gaussian, it
-has no closed-form maximiser, and many local maxima. It is also unbounded: a component centred on one point, with covariance
-shrinking to zero, drives it to infinity. The library adds `reg_covar` $= 10^{-6}$ to every covariance diagonal to rule this out.
+Under the model, the probability density of a point is a weighted sum of the component
+densities,
+
+$$
+p(\mathbf x) = \sum_{c=1}^kw_c\,N(\mathbf x; \boldsymbol\mu_c, \Sigma_c), \qquad w_c \ge 0, \quad \sum_cw_c = 1 .
+$$
+
+The parameters, the weights $w_c$, means $\boldsymbol\mu_c$ and covariances $\Sigma_c$, are to be chosen
+by **maximum likelihood**: make the observed data as probable as possible, by maximising the
+log-likelihood $\sum_i\log p(\mathbf x_i)$.
+
+For a single Gaussian this is easy, and the answer is the sample mean and covariance. For a
+mixture it is hard, for three reasons.
+
+- **No closed form.** The logarithm of a single Gaussian density is a simple quadratic. Here the
+  logarithm is applied to a *sum* of densities and cannot be simplified, so setting the
+  derivatives to zero gives equations with no explicit solution.
+- **Local maxima.** The likelihood generally has many of them, so the result depends on the
+  starting point.
+- **It is unbounded.** Centre one component exactly on a data point and let its covariance
+  shrink to zero. Its density at that point grows without limit, and so does the likelihood,
+  although the fit is useless. The library adds `reg_covar` $= 10^{-6}$ to every covariance
+  diagonal, which keeps the covariances from collapsing and rules this out.
 
 ### Expectation-maximisation
 
-If we knew which component generated each point, fitting would be easy: one Gaussian per group. EM replaces that unknown by its
-expected value:
+The difficulty comes from not knowing which component generated each point. If we knew, fitting
+would be easy: collect the points of each component and compute their mean and covariance.
+Conversely, if we knew the parameters, we could work out how likely each point is to belong to
+each component. **Expectation-maximisation** (EM) breaks the circle by alternating between the
+two, starting from a guess.
 
-- **E-step.** For each point, compute the **responsibilities** $r_{ic} = \dfrac{w_cN(\mathbf x_i; \boldsymbol\mu_c, \Sigma_c)}{\sum_{c'}w_{c'}N(\mathbf x_i; \boldsymbol\mu_{c'}, \Sigma_{c'})}$, the posterior probability that point $i$ came from component $c$.
-- **M-step.** Re-estimate each component from responsibility-weighted data: $N_c = \sum_ir_{ic}$, $w_c = N_c/n$, $\boldsymbol\mu_c = \frac{1}{N_c}\sum_ir_{ic}\mathbf x_i$, and $\Sigma_c = \frac{1}{N_c}\sum_ir_{ic}(\mathbf x_i - \boldsymbol\mu_c)(\mathbf x_i - \boldsymbol\mu_c)^{\mathsf T}$.
+**E-step: assign points to components, softly.** With the current parameters, compute for each
+point $i$ and component $c$ the **responsibility**
 
-The log-likelihood is bounded below by an expected complete-data log-likelihood. The E-step makes the bound touch the
-likelihood, and the M-step maximises the bound, so the likelihood cannot decrease. Progress can be slow, though:
+$$
+r_{ic} = \frac{w_c\,N(\mathbf x_i; \boldsymbol\mu_c, \Sigma_c)}{\sum_{c'}w_{c'}\,N(\mathbf x_i; \boldsymbol\mu_{c'}, \Sigma_{c'})} .
+$$
+
+This is Bayes' rule: the prior probability $w_c$ of the component times the density it gives
+the point, normalised so that the responsibilities of each point sum to 1. It is the posterior
+probability that point $i$ came from component $c$. A point close to one component and far from
+the others has a responsibility near 1 for it; a point between two components is shared.
+
+**M-step: refit each component.** Treat $r_{ic}$ as the fraction of point $i$ that belongs to
+component $c$, and compute weighted versions of the usual estimates:
+
+$$
+N_c = \sum_ir_{ic}, \qquad w_c = \frac{N_c}{n}, \qquad
+\boldsymbol\mu_c = \frac{1}{N_c}\sum_ir_{ic}\mathbf x_i, \qquad
+\Sigma_c = \frac{1}{N_c}\sum_ir_{ic}(\mathbf x_i - \boldsymbol\mu_c)(\mathbf x_i - \boldsymbol\mu_c)^{\mathsf T} .
+$$
+
+$N_c$ is the effective number of points in the component, and the mean and covariance are
+averages in which each point counts in proportion to its responsibility.
+
+The two steps are repeated until the log-likelihood stops increasing. This is the same
+alternation as [k-means](k-means.md#lloyds-algorithm), assign and then refit, with soft
+assignments in place of hard ones, and with covariances as well as means.
+
+**Why it works.** Each iteration can be shown never to decrease the log-likelihood. The E-step
+constructs a function of the parameters that lies below the log-likelihood everywhere and
+touches it at the current parameters (a lower bound); the M-step moves to the maximum of that
+function. Since the bound touches the likelihood at the old parameters and lies below it at the
+new ones, the likelihood at the new parameters is at least as large as before. EM therefore
+climbs steadily to a local maximum. Progress can be slow, though:
 
 ![Log-likelihood by iteration](../generated/unsupervised/gmm_loglik.svg)
 

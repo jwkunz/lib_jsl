@@ -33,27 +33,63 @@ hashing (Piotr Indyk and Rajeev Motwani, 1998) make the search fast.
 
 ### Voting
 
-For a query $\mathbf x$, find the set $N_k(\mathbf x)$ of the $k$ training points nearest in Euclidean distance, and estimate
-$P(c \mid \mathbf x) \approx \frac1k\#\{i \in N_k(\mathbf x) : y_i = c\}$. With **distance weighting**, each neighbour's vote counts $1/d_i$, so closer points matter more; a training point at
-distance zero decides alone.
+The method has no training step at all: it simply stores the training data. To classify a query
+point $\mathbf x$, find the set $N_k(\mathbf x)$ of the $k$ training points nearest to it in Euclidean
+distance, and let them vote. The fraction of the neighbours belonging to class $c$ is an
+estimate of the class probability,
+
+$$
+P(c \mid \mathbf x) \approx \frac1k\,\#\{i \in N_k(\mathbf x) : y_i = c\},
+$$
+
+and the prediction is the class with the most votes. The underlying assumption is only that
+nearby points tend to have the same label.
+
+With **distance weighting**, each neighbour's vote counts $1/d_i$, where $d_i$ is its distance
+from the query, so that closer points matter more. A training point at distance zero decides
+alone.
 
 ### Choosing k
+
+The number of neighbours controls how smooth the classifier is.
 
 | | | |
 |:---:|:---:|:---:|
 | ![k = 1](../generated/machine_learning/knn_1.svg) | ![k = 15](../generated/machine_learning/knn_15.svg) | ![k = 101](../generated/machine_learning/knn_101.svg) |
 
-With $k = 1$ the boundary encloses every isolated point; with $k = 15$ it follows the moons; with $k = 101$ it approaches a straight line.
-The training error is zero for $k = 1$ and grows with $k$; the test error is lowest in between:
+With $k = 1$ every training point decides its own surroundings, so the boundary encloses every
+isolated point, including mislabelled and noisy ones. With $k = 15$ the vote averages out such
+points and the boundary follows the two moons. With $k = 101$ the neighbourhood is so large
+that the curved structure is averaged away as well, and the boundary approaches a straight
+line.
+
+The training error is misleading here. With $k = 1$ each training point is its own nearest
+neighbour, so the training error is zero; it grows with $k$. The error on new data is high for
+very small $k$ (the classifier follows noise) and for very large $k$ (it ignores structure), and
+lowest in between:
 
 ![Error against k](../generated/machine_learning/knn_error.svg)
 
 ### The curse of dimensionality
 
-In $p$ dimensions, a neighbourhood containing a fraction $f$ of uniformly spread data has edge length $f^{1/p}$: with $p = 10$, capturing 1% of the
-data needs a cube spanning 63% of each axis. Neighbours are no longer local, distances concentrate, and nearest-neighbour
-methods degrade unless the data lie near a low-dimensional manifold. Irrelevant features add noise to every distance, and
-features on large scales dominate it: standardise, and select features.
+Nearest-neighbour methods depend on neighbours being *near*. In high dimensions they are not.
+
+Suppose the data are spread uniformly in a unit cube with $p$ dimensions, and we want a
+neighbourhood, a smaller cube, that contains a fraction $f$ of the data. Its volume must be $f$,
+so its edge length is $f^{1/p}$. In one dimension, capturing 1% of the data needs an interval
+of length 0.01. In ten dimensions it needs a cube of edge $0.01^{1/10} \approx 0.63$, spanning
+63% of the range of every feature. Such a "neighbourhood" is not local in any useful sense, and
+the labels of points that far away say little about the query.
+
+A related effect is that distances **concentrate**: in high dimensions the nearest and the
+farthest training points are at nearly the same distance from a query, so the ranking of
+neighbours is easily upset by noise. Nearest-neighbour methods therefore degrade as the
+dimension grows, unless the data lie near a low-dimensional surface (a manifold) within the
+high-dimensional space, as real data often do.
+
+Two practical consequences follow. An irrelevant feature adds pure noise to every distance, so
+features should be selected. And a feature measured on a large scale dominates the distance, so
+features should be [standardised](foundations.md#scaling).
 
 ## Algorithm
 

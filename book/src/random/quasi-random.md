@@ -44,10 +44,33 @@ where integrals over hundreds of dimensions price derivatives.
 
 ### The radical inverse and the Halton sequence
 
-The **radical inverse** of $n$ in base $b$ reflects its digits about the radix point: if $n = \sum_ja_jb^j$ then
-$\phi_b(n) = \sum_ja_jb^{-j-1}$. In base 2, $n = 1, 2, 3, 4, \ldots$ gives $\tfrac12, \tfrac14, \tfrac34, \tfrac18, \ldots$: each new point halves the largest gap.
-The **Halton sequence** uses the first $d$ primes as bases, one per coordinate. It is simple and extends to any number of
-points, but in high dimensions the bases are large primes, and the first points in two neighbouring coordinates rise
+Random points are not as evenly spread as one might expect: by chance they form clusters and
+leave gaps. For [numerical integration](../integration/monte-carlo.md) evenness is what
+matters, and a **quasi-random** (or **low-discrepancy**) sequence is a deterministic sequence
+designed to fill space as evenly as possible, at every stage as points are added.
+
+**One dimension.** The basic construction is the **radical inverse**: write the index $n$ in
+base $b$ and mirror its digits about the radix point. If $n = \sum_ja_jb^j$ then
+
+$$
+\phi_b(n) = \sum_ja_jb^{-j-1} .
+$$
+
+In base 2, for example, $n = 6$ is $110_2$, and mirroring gives $0.011_2 = \tfrac38$. The
+sequence $n = 1, 2, 3, 4, \ldots$ gives $\tfrac12, \tfrac14, \tfrac34, \tfrac18, \tfrac58, \tfrac38, \tfrac78, \ldots$. The
+fastest-changing digit of $n$ becomes the most significant digit of the point, so consecutive
+points jump far apart, and each new point lands in the middle of one of the largest remaining
+gaps. This is the **van der Corput sequence**.
+
+**Several dimensions.** A point in $d$ dimensions needs $d$ coordinates that are evenly spread
+*jointly*, not just one at a time. Using the same base for two coordinates would put every point
+on the diagonal. The **Halton sequence** uses a different prime base for each coordinate, the
+first $d$ primes, so that the digit patterns of the coordinates never fall into step.
+
+The Halton sequence is simple and can be extended to any number of points. Its weakness appears
+in high dimensions, where the bases are large primes. In base 113, say, the first 112 points of
+that coordinate simply climb in steps of $1/113$, and a neighbouring coordinate with a similar
+base climbs at almost the same rate. The first points in the two coordinates therefore rise
 together in long correlated runs:
 
 | | |
@@ -60,17 +83,38 @@ Halton problem.
 
 ### The Sobol sequence
 
-Sobol points are built from **direction numbers** $v_{k,j}$ for each coordinate $k$ and bit $j$, derived from a primitive polynomial over $\mathbb F_2$
-and a few initial values. Coordinate $k$ of point $n$ is the exclusive-or of the $v_{k,j}$ for the bits $j$ set in $n$ (in Gray code). Generating
-the points in **Gray-code order**, where consecutive indices differ in one bit, makes each new point a single exclusive-or per
-coordinate from the last. Every block of $2^m$ consecutive points starting at a multiple of $2^m$ is a **$(t, m, d)$-net**: each of a family of
-elementary boxes of volume $2^{t-m}$ contains exactly $2^t$ points. The library uses Joe and Kuo's direction numbers.
+The Sobol sequence avoids large bases by working in base 2 for every coordinate, and makes the
+coordinates differ in another way. In the base-2 radical inverse, bit $j$ of the index
+contributes the fixed amount $2^{-j-1}$ to the point. Sobol's construction replaces these
+amounts by a table of **direction numbers** $v_{k,j}$, a different set for each coordinate $k$,
+and combines them by exclusive-or instead of addition: coordinate $k$ of a point is the
+exclusive-or of the $v_{k,j}$ for the bits $j$ that are set in its index. The direction numbers
+of each coordinate are derived from a primitive polynomial over $\mathbb F_2$ and a few initial
+values, chosen so that the coordinates are evenly spread jointly. The library uses Joe and Kuo's
+direction numbers.
+
+**Gray-code order.** Computing a point from scratch needs one exclusive-or per set bit. If the
+points are generated in **Gray-code order**, an ordering of the integers in which consecutive
+values differ in exactly one bit, each point differs from the previous one by a single direction
+number, and costs one exclusive-or per coordinate. The same set of points is produced, in a
+different order.
+
+**The guarantee.** The evenness of Sobol points can be stated precisely. Every block of $2^m$
+consecutive points starting at a multiple of $2^m$ is a **$(t, m, d)$-net**: divide the unit cube
+into equal boxes of volume $2^{t-m}$ by cutting each axis into a power-of-two number of pieces,
+in any combination, and every box contains exactly $2^t$ points. No box is over- or
+under-filled. The smaller the quality parameter $t$, the finer the boxes for which this holds.
 
 ### Error estimates by random shifts
 
-Quasi-random points are deterministic, so an average over them has no variance to estimate. A **Cranley-Patterson rotation**
-$\mathbf x \mapsto (\mathbf x + \mathbf u) \bmod 1$ with a uniform random $\mathbf u$ keeps the evenness of the points and makes the average an unbiased random
-estimate; independent shifts give independent replicates, whose spread estimates the error.
+A Monte Carlo estimate comes with an error bar, computed from the scatter of the samples.
+Quasi-random points are deterministic, so an average over them has no scatter to measure, and no
+error estimate. Randomness can be reintroduced without losing the evenness. A
+**Cranley-Patterson rotation** shifts every point by the same random vector $\mathbf u$ and wraps
+around the edges of the unit cube, $\mathbf x \mapsto (\mathbf x + \mathbf u) \bmod 1$. The shifted set is just
+as evenly spread as the original, and because $\mathbf u$ is uniform, the average over it is an
+unbiased random estimate of the integral. Repeating with several independent shifts gives
+independent estimates, whose spread measures the error.
 
 ### Integration error
 

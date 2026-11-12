@@ -39,43 +39,117 @@ variant NUTS (Hoffman and Gelman, 2014) power modern systems such as Stan.
 
 ### The Metropolis-Hastings algorithm
 
-From the current state $x$, propose $x'$ from a proposal density $q(x' \mid x)$ and accept it with probability
+The task is to draw samples from a **target** density $p(x)$ that is known only up to a constant
+factor: we can evaluate a function proportional to $p$ at any point, but we cannot compute its
+normalising constant, invert its CDF or find an envelope for it. This is the usual situation in
+Bayesian statistics, where the posterior density is a product of a likelihood and a prior.
+
+The idea of **Markov chain Monte Carlo** is to give up independence. Instead of independent
+samples, generate a sequence in which each state is obtained by a random move from the previous
+one (a **Markov chain**), with the moves arranged so that, in the long run, the chain visits
+each region in proportion to its probability under $p$. Averages along the chain then
+approximate averages under $p$.
+
+**One step.** From the current state $x$:
+
+1. propose a new state $x'$, drawn from a **proposal density** $q(x' \mid x)$ of our choosing;
+2. compute the acceptance probability
 
 $$
 \alpha(x, x') = \min\Big(1, \frac{p(x')\,q(x \mid x')}{p(x)\,q(x' \mid x)}\Big);
 $$
 
-otherwise stay at $x$ (and count $x$ again). The unknown normalising constant of $p$ cancels in the ratio. The acceptance
-probability makes the chain satisfy **detailed balance**, $p(x)\,P(x \to x') = p(x')\,P(x' \to x)$, so $p$ is its stationary
-distribution, and under mild conditions the distribution of the state converges to $p$ from any start.
+3. with probability $\alpha$ move to $x'$; otherwise stay at $x$, and record $x$ again as the
+   next state of the chain.
 
-The library implements the **random-walk** version: $x' = x + \boldsymbol\sigma \odot \mathbf z$ with $\mathbf z$ standard normal, a symmetric
-proposal for which $q$ cancels and $\alpha = \min(1, p(x')/p(x))$. Working with log-densities avoids overflow, and a log-density of $-\infty$
-marks points outside the support, which are always rejected.
+Only the *ratio* $p(x')/p(x)$ appears, so the unknown normalising constant cancels. That is what
+makes the method applicable.
+
+**Why it works.** A distribution $p$ is **stationary** for a chain if, once the state is
+distributed according to $p$, it remains so after a step. A sufficient condition is
+**detailed balance**: for every pair of states, the flow of probability from $x$ to $x'$ equals
+the flow back,
+
+$$
+p(x)\,P(x \to x') = p(x')\,P(x' \to x),
+$$
+
+where $P(x \to x') = q(x' \mid x)\,\alpha(x, x')$ is the probability density of moving from $x$ to
+$x'$. If every such exchange is in balance, no region gains or loses probability overall. The
+acceptance rule is designed to make this hold. Suppose the unbalanced flow $p(x)\,q(x' \mid x)$
+from $x$ to $x'$ is the larger of the two. Then the ratio in $\alpha(x, x')$ is below 1, so moves
+in that direction are thinned out by exactly the factor needed, while moves in the opposite
+direction are always accepted ($\alpha(x', x) = 1$). Both flows then equal $p(x')\,q(x \mid x')$.
+
+So $p$ is the stationary distribution, and under mild conditions (the chain must be able to
+reach every region) the distribution of the state converges to $p$ from any starting point.
+
+**The random-walk version.** The library implements the simplest proposal: add Gaussian noise to
+the current state, $x' = x + \boldsymbol\sigma \odot \mathbf z$ with $\mathbf z$ standard normal and a step
+size $\sigma_i$ for each coordinate. This proposal is symmetric, $q(x' \mid x) = q(x \mid x')$, so
+$q$ cancels and
+
+$$
+\alpha = \min\big(1,\ p(x')/p(x)\big).
+$$
+
+A move to a more probable state is always accepted; a move to a less probable one is accepted
+with probability equal to the ratio of the densities. Two implementation points: the library
+works with log-densities, comparing $\ln U$ with $\ln p(x') - \ln p(x)$, which avoids overflow
+and underflow; and a log-density of $-\infty$ marks points outside the support, which are always
+rejected.
 
 ### Burn-in, thinning and the proposal scale
 
-The chain starts wherever it is put, possibly in a region of negligible probability, so the first states are discarded as
-**burn-in**. Keeping only every $k$-th state (**thinning**) saves storage but does not improve the estimates.
+Three practical matters decide whether a chain is useful.
 
-The step size decides how fast the chain explores. Too small, and almost every proposal is accepted but the chain crawls;
-too large, and almost every proposal is rejected and the chain sticks. On a standard normal target from $x = 4$:
+**Burn-in.** The chain starts wherever it is put, possibly in a region of negligible
+probability, and its early states reflect the starting point, not the target. They are discarded
+as **burn-in**.
+
+**Thinning.** Successive states are correlated, since each is a small move from the last, or no
+move at all. Keeping only every $k$-th state (**thinning**) reduces the correlation between the
+states kept and saves storage. It does not improve the estimates: the discarded states also
+carried information.
+
+**The proposal scale.** The step size $\sigma$ decides how fast the chain explores, and it can be
+wrong in either direction. If it is too small, almost every proposal is accepted, but each move
+is tiny and the chain crawls. If it is too large, almost every proposal lands far out in the
+tails and is rejected, and the chain stays stuck at one point for long stretches. On a standard
+normal target, started from $x = 4$:
 
 ![Traces of three chains](../generated/random/mcmc_trace.svg)
+
+The **autocorrelation** $\rho(k)$ of a chain is the correlation between states $k$ steps apart.
+For an efficient chain it falls quickly to zero as $k$ grows; for a crawling or a sticking chain
+it stays high for hundreds of steps:
 
 ![Autocorrelation](../generated/random/mcmc_acf.svg)
 
 ### Effective sample size
 
-The variance of an MCMC average is $\sigma^2\tau/N$ rather than $\sigma^2/N$, where the **integrated autocorrelation time**
-$\tau = 1 + 2\sum_{k\ge1}\rho(k)$ sums the autocorrelations of the chain; $N/\tau$ is the **effective sample size**:
+How much is a correlated sample worth? For $N$ *independent* samples with variance $\sigma^2$, the
+variance of their average is $\sigma^2/N$. For a correlated chain it is larger,
+
+$$
+\operatorname{Var}(\bar x) \approx \frac{\sigma^2\tau}{N}, \qquad \tau = 1 + 2\sum_{k\ge1}\rho(k),
+$$
+
+where $\tau$ is the **integrated autocorrelation time**, the sum of the autocorrelations at all
+lags. Comparing the two formulas, $N$ correlated samples are worth as much as $N/\tau$
+independent ones. That number is the **effective sample size**:
 
 {{#include ../generated/random/mcmc_table.md}}
 
-The well-tuned chain is a hundred times more efficient than the timid one. In one dimension the optimal random-walk
-acceptance rate is about 0.44, and in many dimensions about 0.234; the library adapts the scale towards these rates during
-burn-in (multiplying it every 100 steps by $e^{2(r - r^*)}$ for observed rate $r$), as the last row shows, and keeps it fixed afterwards
-so that the chain is a proper Markov chain.
+The well-tuned chain is a hundred times more efficient than the timid one.
+
+A convenient way to tune the step size is through the acceptance rate, which is easy to observe.
+Theory for random-walk proposals gives an optimal acceptance rate of about 0.44 in one
+dimension and about 0.234 in many dimensions. The library adapts the scale towards these rates
+during burn-in (multiplying it every 100 steps by $e^{2(r - r^*)}$, where $r$ is the observed rate
+and $r^*$ the target), as the last row shows. After burn-in the scale is kept fixed: a chain
+whose rules keep changing in response to its own history is no longer a Markov chain, and the
+argument above would not apply.
 
 ### Difficult targets
 

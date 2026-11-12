@@ -38,10 +38,48 @@ the practical side of the Behrens-Fisher problem of comparing means with unequal
 
 ### Student's and Welch's $t$ tests
 
-For a sample of size $n$ with mean $\bar x$ and standard deviation $s$, the **one-sample** statistic $t = (\bar x - \mu_0)/(s/\sqrt n)$ has Student's $t$ distribution with
-$n - 1$ degrees of freedom when the data are normal with mean $\mu_0$. The **paired** test applies it to differences. To compare two independent
-samples, **Student's** test pools the variances, $s_p^2 = ((n_1 - 1)s_1^2 + (n_2 - 1)s_2^2)/(n_1 + n_2 - 2)$, and assumes they are equal; **Welch's** test uses
-$t = (\bar x_1 - \bar x_2)/\sqrt{s_1^2/n_1 + s_2^2/n_2}$ with the Welch-Satterthwaite degrees of freedom
+Every test in this entry follows the same three steps. First, reduce the data to a single
+number, the **statistic**, that is near zero (or near some known value) when the null hypothesis
+is true and far from it otherwise. Second, work out the **reference distribution**: how the
+statistic would vary from sample to sample if $H_0$ were true. Third, report the p-value, the
+probability under that distribution of a value at least as extreme as the one observed. The
+tests differ only in the statistic and its reference distribution.
+
+**One sample.** The question is whether a sample of size $n$, with mean $\bar x$ and standard
+deviation $s$, is consistent with a population mean $\mu_0$. The natural measure is the distance
+of the sample mean from $\mu_0$. But a distance of 1 means little without knowing how much
+$\bar x$ fluctuates by chance: its standard deviation is $\sigma/\sqrt n$, estimated by $s/\sqrt n$
+(the **standard error**). The statistic is the distance in units of the standard error:
+
+$$
+t = \frac{\bar x - \mu_0}{s/\sqrt n} .
+$$
+
+If $\sigma$ were known exactly, this would have a standard normal distribution for normal data.
+Because $s$ is only an estimate, $t$ varies a little more, especially for small $n$. Its exact
+distribution, worked out by Gosset ("Student"), is **Student's $t$ distribution** with $n - 1$
+**degrees of freedom**. It has heavier tails than the normal and approaches it as $n$ grows.
+
+**Paired samples.** When each observation in one sample is matched with one in the other
+(before and after a treatment, say), take the differences and apply the one-sample test to them
+with $\mu_0 = 0$.
+
+**Two independent samples.** To compare the means of two groups, the statistic is the
+difference of the means divided by its standard error. There are two ways to estimate that
+standard error.
+
+- **Student's** test assumes that the two populations have the same variance and **pools** the
+  two estimates of it: $s_p^2 = ((n_1 - 1)s_1^2 + (n_2 - 1)s_2^2)/(n_1 + n_2 - 2)$. The reference
+  distribution is $t$ with $n_1 + n_2 - 2$ degrees of freedom.
+- **Welch's** test makes no such assumption. The variance of a difference of independent means
+  is the sum of their variances, so
+
+$$
+t = \frac{\bar x_1 - \bar x_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}} .
+$$
+
+  This statistic does not have an exact $t$ distribution, but it is well approximated by one
+  with a non-integer number of degrees of freedom given by the Welch-Satterthwaite formula
 
 $$
 \nu = \frac{(s_1^2/n_1 + s_2^2/n_2)^2}{(s_1^2/n_1)^2/(n_1 - 1) + (s_2^2/n_2)^2/(n_2 - 1)}.
@@ -52,33 +90,107 @@ times as often as it should (table below), while Welch's loses almost nothing wh
 
 ### Chi-square tests for counts
 
-For counts $O_i$ in $k$ categories with expected counts $E_i$ under $H_0$, **Pearson's statistic** $X^2 = \sum(O_i - E_i)^2/E_i$ is approximately $\chi^2$ with $k - 1$ degrees of
-freedom (**goodness of fit**). For an $r \times c$ contingency table, the expected counts under **independence** are $E_{ij} = R_iC_j/N$ from the row and column totals,
-and $X^2$ has $(r - 1)(c - 1)$ degrees of freedom. The approximation needs expected counts of about 5 or more.
+When the data are counts of observations falling into categories, the null hypothesis specifies
+the **expected** count $E_i$ in each of the $k$ categories, and the test asks whether the
+**observed** counts $O_i$ differ from them by more than chance. **Pearson's statistic** adds up
+the squared discrepancies, each scaled by its expected count:
+
+$$
+X^2 = \sum_{i=1}^k\frac{(O_i - E_i)^2}{E_i} .
+$$
+
+The scaling is what makes the terms comparable: a count with expectation $E_i$ fluctuates by
+about $\sqrt{E_i}$, so each term is roughly the square of a standardised deviation. For large
+counts those deviations are approximately normal, and a sum of squared normals has a
+**chi-square** distribution. The counts must add up to the total, which removes one degree of
+freedom.
+
+- **Goodness of fit.** For a fully specified set of expected counts, $X^2$ is approximately
+  $\chi^2$ with $k - 1$ degrees of freedom.
+- **Independence.** For a table with $r$ rows and $c$ columns, the null hypothesis is that the
+  row and column classifications are independent. Then the probability of a cell is the product
+  of its row and column probabilities, and the expected counts are $E_{ij} = R_iC_j/N$, from the
+  row totals $R_i$, the column totals $C_j$ and the grand total $N$. The statistic has
+  $(r - 1)(c - 1)$ degrees of freedom.
+
+Both rest on the normal approximation to counts, which needs expected counts of about 5 or more.
 
 ### One-way analysis of variance
 
-To compare the means of $k$ groups, ANOVA splits the total sum of squares into the spread **between** group means and the spread
-**within** groups. The ratio $F = \frac{SS_B/(k - 1)}{SS_W/(N - k)}$ has the $F$ distribution with $(k - 1, N - k)$ degrees of freedom for normal groups with equal
-variances and equal means. The library computes the upper tail $P(F > f) = I_{d_2/(d_2 + d_1 f)}(d_2/2, d_1/2)$ directly as an incomplete beta function; it used to
-form $1 - \text{CDF}$, which lost every digit of p-values below $10^{-16}$.
+To compare the means of $k$ groups at once, **analysis of variance** (ANOVA) asks whether the
+group means differ from each other by more than the scatter inside the groups can explain. It
+splits the total sum of squared deviations from the overall mean into two parts:
+
+- $SS_B$, the spread **between** groups: how far the group means lie from the overall mean;
+- $SS_W$, the spread **within** groups: how far the observations lie from their own group mean.
+
+Dividing each by its degrees of freedom gives two estimates of the variance. The within-group
+one, $SS_W/(N - k)$, always estimates the noise variance. The between-group one, $SS_B/(k - 1)$,
+estimates the same quantity if the true means are equal, and something larger if they are not.
+Their ratio
+
+$$
+F = \frac{SS_B/(k - 1)}{SS_W/(N - k)}
+$$
+
+is therefore near 1 under $H_0$ and large otherwise. For normal groups with equal variances and
+equal means it has the **$F$ distribution** with $(k - 1, N - k)$ degrees of freedom. With two
+groups, ANOVA is equivalent to Student's $t$ test, with $F = t^2$.
+
+The library computes the upper tail $P(F > f) = I_{d_2/(d_2 + d_1 f)}(d_2/2, d_1/2)$ directly as an
+[incomplete beta function](../special_functions/incomplete.md#the-incomplete-beta-function); it
+used to form $1 - \text{CDF}$, which lost every digit of p-values below $10^{-16}$.
 
 ### Kolmogorov-Smirnov tests
 
-The **one-sample** statistic $D = \sup_x|F_n(x) - F(x)|$ is the largest gap between the empirical distribution function and a hypothesised
-continuous $F$. Its null distribution does not depend on $F$, and $\sqrt nD$ converges to the **Kolmogorov distribution**,
-$Q(\lambda) = 2\sum_{k\ge1}(-1)^{k-1}e^{-2k^2\lambda^2}$. The library uses Stephens' finite-sample correction $Q((\sqrt n + 0.12 + 0.11/\sqrt n)D)$, which is within a fraction of
-a per cent of the exact p-value (table below). The **two-sample** test compares two empirical distribution functions, with the
-effective size $nm/(n + m)$; the same correction is less accurate there, and for samples of 15 and 25 the p-value is 7% below the exact one.
-The tests detect any difference in distribution, not just in location, at some cost in power against pure shifts.
+The tests so far compare means or counts. The Kolmogorov-Smirnov tests compare whole
+distributions. The **empirical distribution function** $F_n(x)$ of a sample is the fraction of
+the observations that are at most $x$: a staircase that rises by $1/n$ at each observation.
+
+**One sample.** To test whether the sample comes from a specified continuous distribution $F$,
+the statistic is the largest vertical gap between the staircase and the curve,
+
+$$
+D = \sup_x|F_n(x) - F(x)| .
+$$
+
+A remarkable property makes this practical: under $H_0$ the distribution of $D$ is the same
+whatever $F$ is, so one table serves every hypothesis. As $n$ grows, $\sqrt nD$ converges to the
+**Kolmogorov distribution**, whose upper tail is
+$Q(\lambda) = 2\sum_{k\ge1}(-1)^{k-1}e^{-2k^2\lambda^2}$. For finite samples the library uses
+Stephens' correction $Q((\sqrt n + 0.12 + 0.11/\sqrt n)D)$, which is within a fraction of a per
+cent of the exact p-value (table below).
+
+**Two samples.** The same statistic applied to two empirical distribution functions tests
+whether two samples come from the same distribution, with the effective size $nm/(n + m)$ in
+place of $n$. The same correction is less accurate there, and for samples of 15 and 25 the
+p-value is 7% below the exact one.
+
+These tests detect any difference in distribution, in shape or spread as well as in location.
+The price of that generality is lower power against a pure shift than a test designed for
+shifts.
 
 ### The Mann-Whitney $U$ test
 
-Rank the combined samples; $U = R_1 - n_1(n_1 + 1)/2$, where $R_1$ is the rank sum of the first sample, counts the pairs in which the first sample's
-value is larger. Under $H_0$ (identical continuous distributions) $U$ has mean $n_1n_2/2$ and variance $\frac{n_1n_2}{12}\big((n + 1) - \frac{\sum(t^3 - t)}{n(n - 1)}\big)$ with a
-correction for tie groups of size $t$; the library uses the normal approximation with a continuity correction, as SciPy's
-`method="asymptotic"`. Against normal shifts it has asymptotic efficiency $3/\pi \approx 0.955$ relative to the $t$ test, and it can be far more
-powerful for heavy tails.
+The Mann-Whitney test is the rank-based counterpart of the two-sample $t$ test. It asks whether
+values from one sample tend to be larger than values from the other, using only their order.
+
+Consider every pair consisting of one value from each sample, $n_1n_2$ pairs in all, and let $U$
+be the number of pairs in which the first sample's value is the larger. If the two samples come
+from the same distribution, each pair is equally likely to go either way, and $U$ should be near
+$n_1n_2/2$. In practice $U$ is computed without examining every pair: rank the combined samples,
+add up the ranks of the first sample to get $R_1$, and then $U = R_1 - n_1(n_1 + 1)/2$.
+
+Under $H_0$ (identical continuous distributions) $U$ has mean $n_1n_2/2$ and variance
+$\frac{n_1n_2}{12}\big((n + 1) - \frac{\sum(t^3 - t)}{n(n - 1)}\big)$, where $n = n_1 + n_2$ and the
+sum is a correction for groups of $t$ tied values. For samples that are not very small $U$ is
+approximately normal, and the library uses that approximation with a continuity correction, as
+SciPy's `method="asymptotic"` does.
+
+Because it uses ranks, the test is unaffected by outliers and by the shape of the distribution.
+It gives up very little when the data really are normal: against normal shifts its asymptotic
+efficiency relative to the $t$ test is $3/\pi \approx 0.955$, meaning that it needs only about 5%
+more data for the same power. For heavy-tailed data it can be far more powerful.
 
 ### Checking against SciPy
 

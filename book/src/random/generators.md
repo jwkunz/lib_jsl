@@ -40,28 +40,68 @@ in the xoshiro and xoroshiro families, small, fast and statistically excellent.
 
 ### xoshiro256++
 
-The state is four 64-bit words $s_0, \ldots, s_3$. Each step outputs $\operatorname{rotl}(s_0 + s_3, 23) + s_0$ and updates the state by
-a linear map over $\mathbb F_2$ (shifts, exclusive-ors and a rotation), whose characteristic polynomial is primitive: every
-non-zero state lies on a single cycle of length $2^{256} - 1$. The linear engine alone would fail some tests (its low bits are
-linear); the "++" scrambler, an addition and rotation, breaks the linearity. The state must not be all zero, the one fixed
-point.
+A pseudo-random number generator has three parts: a **state** (a block of memory), an **update**
+that maps each state to the next, and an **output function** that turns the state into a number.
+Everything it produces is determined by the initial state, so the "randomness" is a matter of
+the outputs being statistically indistinguishable from random ones. Since there are finitely
+many states, the sequence must eventually repeat; the length of the cycle is the **period**.
 
-A floating-point number in $[0, 1)$ uses the top 53 bits of the output, $\lfloor x/2^{11}\rfloor \cdot 2^{-53}$, so that every value is an exact
-multiple of $2^{-53}$ and all are equally likely. It can be exactly 0, which matters for samplers that take logarithms (they use $1 - u$).
+**The state and its update.** In xoshiro256++ the state is four 64-bit words $s_0, \ldots, s_3$,
+256 bits in all. The update uses only shifts, rotations and exclusive-ors, which are fast on
+every processor. Such an update is **linear over $\mathbb F_2$**: regard the state as a vector of
+256 bits and do arithmetic modulo 2 (where addition is exclusive-or), and the update is
+multiplication by a fixed $256 \times 256$ matrix of zeros and ones.
+
+Linearity is what allows the period to be *proved* instead of hoped for. The matrix has been
+chosen so that its characteristic polynomial is **primitive**, and that guarantees that every
+non-zero state lies on one single cycle of length $2^{256} - 1$, the longest possible. The
+all-zero state is the one exception: it maps to itself, so it must never be used.
+
+**The output function.** Linearity is also a weakness. If the output were simply a word of the
+state, its bits would satisfy linear relations that statistical tests can detect, the lowest
+bits especially. The output is therefore passed through a nonlinear **scrambler**. Each step
+returns
+
+$$
+\operatorname{rotl}(s_0 + s_3,\ 23) + s_0,
+$$
+
+where the additions are ordinary 64-bit integer additions (whose carries are *not* linear over
+$\mathbb F_2$) and rotl rotates the bits left. This is the "++" of the name.
+
+**From integers to floating point.** A uniform number in $[0, 1)$ is made from the top 53 bits
+of the output, $\lfloor x/2^{11}\rfloor \cdot 2^{-53}$. A double holds 53 significant bits, so every
+value produced is an exact multiple of $2^{-53}$ and all $2^{53}$ of them are equally likely. The
+result can be exactly 0 but never 1, which matters for samplers that take logarithms: they use
+$\ln(1 - u)$ instead of $\ln u$.
 
 ### Seeding with SplitMix64
 
-A 64-bit seed must be expanded to 256 well-mixed bits. **SplitMix64** adds the golden-ratio constant $\lfloor2^{64}/\varphi\rfloor$ to a
-counter and passes it through a strong mixing function (two multiply-xorshift rounds); its outputs for consecutive counters are
-effectively independent. The library's version also skips the value 0, so that a seed can never produce the forbidden all-zero
-state. That check is recursive, which keeps it from being inlined, and makes it slower than xoshiro in the table below; it is used
-only for seeding.
+A user supplies a seed of 64 bits, but the generator needs 256 bits of state, and they should
+look unrelated to each other even when the seeds are simple numbers such as 1, 2, 3. A second,
+simpler generator does the expansion. **SplitMix64** keeps a counter, adds the constant
+$\lfloor2^{64}/\varphi\rfloor$ (with $\varphi$ the golden ratio) to it at each call, and passes the result
+through a strong **mixing function**, two rounds of multiplying and xor-shifting, in which every
+input bit affects every output bit. Its outputs for consecutive counters are effectively
+independent, and four of them fill the state.
+
+The library's version also skips the value 0, so that a seed can never produce the forbidden
+all-zero state. That check is recursive, which keeps it from being inlined, and makes it slower
+than xoshiro in the table below; it is used only for seeding.
 
 ### Independent streams
 
-Parallel workers need non-overlapping streams. Because the update is linear, advancing the state by $2^{128}$ steps is itself a
-linear map, computed by the `jump` function from a precomputed polynomial: $2^{128}$ jumps fit in the period, each stream $2^{128}$ long.
-The alternative of seeding each worker with a different seed works in practice but carries no guarantee against overlap.
+A parallel computation needs one stream of random numbers per worker, and the streams must not
+overlap, or the workers would be using the same "random" numbers. Linearity provides a
+guarantee. Advancing the state by one step is multiplication by the matrix $M$, so advancing by
+$2^{128}$ steps is multiplication by $M^{2^{128}}$, another fixed linear map. The `jump` function
+applies it in one call, using a precomputed polynomial. Calling `jump` repeatedly yields
+starting states that are $2^{128}$ steps apart: since the period is about $2^{256}$, there is room
+for $2^{128}$ such streams, each $2^{128}$ numbers long, and they provably do not overlap.
+
+The alternative of seeding each worker with a different seed works in practice, because the
+period is so vast that two random starting points are very unlikely to be close, but it carries
+no guarantee.
 
 ### Histograms
 

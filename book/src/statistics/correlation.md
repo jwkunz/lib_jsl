@@ -37,14 +37,35 @@ $$
 r = \frac{\sum(x_i - \bar x)(y_i - \bar y)}{\sqrt{\sum(x_i - \bar x)^2\,\sum(y_i - \bar y)^2}}.
 $$
 
-By the Cauchy-Schwarz inequality $|r| \le 1$, with equality exactly when the points lie on a line. $r^2$ is the fraction of the variance of $y$
-explained by a least-squares line. For independent normal variables, $t = r\sqrt{(n - 2)/(1 - r^2)}$ has Student's $t$ distribution with $n - 2$
-degrees of freedom, which gives the p-value. The library computes $r$ by two passes and clamps it to $[-1, 1]$.
+The numerator is positive when $x$ and $y$ tend to be above their means together and below
+their means together, and negative when one tends to be high where the other is low. Dividing by
+the two spreads removes the units and the scales of the variables, so $r$ is a pure number that
+does not change if either variable is shifted or rescaled.
+
+- By the Cauchy-Schwarz inequality $|r| \le 1$, with equality exactly when the points lie on a
+  straight line. So $r$ measures the strength of a *linear* relation; a perfect but curved
+  relation can have a small $r$.
+- $r^2$ is the fraction of the variance of $y$ explained by the least-squares line through the
+  data.
+- **Significance.** Even unrelated variables give a nonzero $r$ in a finite sample, so one asks
+  how large a value chance alone would produce. For independent normal variables the statistic
+  $t = r\sqrt{(n - 2)/(1 - r^2)}$ has Student's $t$ distribution with $n - 2$ degrees of freedom,
+  which gives the [p-value](hypothesis-tests.md).
+
+The library computes $r$ by two passes (means first, then deviations, as for the
+[variance](descriptive.md#the-variance-why-the-textbook-formula-fails)) and clamps it to
+$[-1, 1]$, which rounding could otherwise slightly exceed.
 
 ### Spearman's rank correlation
 
-Replace each value by its rank (1 for the smallest; tied values share the average of their ranks) and compute Pearson's $r$ of the
-ranks. The result $\rho$ is 1 for any increasing relation, linear or not, and an outlier can move a rank by at most $n - 1$. The library
+Pearson's $r$ has two limitations: it detects only linear relations, and a single extreme value
+can dominate it. Both are removed by discarding the values and keeping only their order. Replace
+each $x$ value by its **rank** among the $x$ values (1 for the smallest; tied values share the
+average of their ranks), do the same for the $y$ values, and compute Pearson's $r$ of the ranks.
+
+The result $\rho$ equals 1 for *any* increasing relation, linear or not, because the ranks of $x$
+and $y$ then coincide. It is also robust: however extreme an outlier is, its rank is at most
+$n$, so it can only have a limited effect. The library
 uses the same $t$ approximation for the p-value, as SciPy does.
 
 ### Kendall's tau

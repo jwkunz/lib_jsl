@@ -17,6 +17,73 @@ accurately. It is the first of the book's DSP chapters; spectral estimation, win
 - **How to compute it?** Direct convolution for short FIR filters and FFT methods for long ones. For IIR filters, structures that
   tolerate rounding.
 
+## Background: frequency responses and transfer functions
+
+The DSP chapters use a small vocabulary that is worth collecting in one place. Readers who have
+taken a signals course can skip this section.
+
+**Signals and frequencies.** A digital signal is a sequence of samples $x[n]$, taken $f_s$ times
+per second (the **sampling rate**). A sinusoid of frequency $f$ hertz advances by
+$\omega = 2\pi f/f_s$ radians from one sample to the next; $\omega$ is the frequency in radians
+per sample. The highest frequency a sampled signal can represent is the **Nyquist frequency**
+$f_s/2$, or $\omega = \pi$, at which the samples alternate in sign. It is convenient to work with
+the complex exponential $e^{j\omega n} = \cos\omega n + j\sin\omega n$, which carries a cosine and
+a sine together. (Engineers write $j$ for $\sqrt{-1}$, and so do these chapters.)
+
+**Linear time-invariant filters.** A digital filter computes each output sample as a weighted
+sum of current and past inputs and, possibly, past outputs:
+
+$$
+y[n] = b_0x[n] + b_1x[n-1] + \cdots + b_Mx[n-M] - a_1y[n-1] - \cdots - a_Ny[n-N] .
+$$
+
+If there are no feedback terms $a_k$ the filter is FIR, and its **impulse response** (the output
+when the input is a single 1 followed by zeros) is just the list of coefficients $b_k$, called
+**taps**. With feedback the impulse response goes on for ever: the filter is IIR.
+
+**The frequency response.** Feed such a filter the complex exponential $x[n] = e^{j\omega n}$. A
+delay of $k$ samples multiplies it by $e^{-j\omega k}$, so every term of the sum is a multiple of
+the input, and the output is the same exponential multiplied by a complex number,
+
+$$
+y[n] = H(e^{j\omega})\,e^{j\omega n}, \qquad
+H(e^{j\omega}) = \frac{b_0 + b_1e^{-j\omega} + \cdots + b_Me^{-j\omega M}}{1 + a_1e^{-j\omega} + \cdots + a_Ne^{-j\omega N}} .
+$$
+
+A filter does not change the frequency of a sinusoid; it changes only its amplitude, by the
+factor $|H|$ (the **gain**), and its phase, by $\arg H$. $H$ as a function of $\omega$ is the
+**frequency response**. Since any signal is a sum of sinusoids, $H$ describes completely what the
+filter does. A **low-pass** filter has $|H| \approx 1$ at low frequencies (its **passband**) and
+$|H| \approx 0$ at high ones (its **stopband**), with a **transition band** between.
+
+**Decibels.** Gains are quoted on a logarithmic scale, $20\log_{10}|H|$ decibels (dB). A gain of
+$\tfrac1{10}$ in amplitude is $-20$ dB, $\tfrac1{100}$ is $-40$ dB, and $-3$ dB is a factor of
+$1/\sqrt2$ in amplitude, or one half in power.
+
+**The transfer function, poles and zeros.** Writing $z$ for $e^{j\omega}$, the frequency response
+is the value on the unit circle $|z| = 1$ of a ratio of two polynomials in $z^{-1}$,
+
+$$
+H(z) = \frac{B(z)}{A(z)} = \frac{b_0 + b_1z^{-1} + \cdots + b_Mz^{-M}}{1 + a_1z^{-1} + \cdots + a_Nz^{-N}},
+$$
+
+the **transfer function**. Here $z^{-1}$ stands for "delay by one sample". The roots of the
+numerator are the **zeros** of the filter and the roots of the denominator its **poles**; with an
+overall gain factor, they determine it completely. They also give a geometric picture of the
+response: as $\omega$ moves round the unit circle, the gain dips where the point $e^{j\omega}$
+passes near a zero and peaks where it passes near a pole.
+
+**Stability.** Each pole $p$ contributes a term proportional to $p^n$ to the impulse response.
+If $|p| < 1$ the term decays; if $|p| > 1$ it grows without bound. A filter is **stable** exactly
+when all its poles lie inside the unit circle. FIR filters have no poles (other than at the
+origin) and are always stable.
+
+**Analogue filters.** A circuit is described in the same way, with continuous time. Its response
+to $e^{j\Omega t}$ is $H(j\Omega)e^{j\Omega t}$, where the transfer function $H(s)$ is a ratio of
+polynomials in the complex variable $s$, and the frequency response is its value on the
+imaginary axis $s = j\Omega$. A pole $p$ contributes $e^{pt}$ to the impulse response, so an
+analogue filter is stable when all its poles lie in the left half-plane, $\operatorname{Re}p < 0$.
+
 ## Testing against SciPy
 
 Each design function mirrors a SciPy function. For 45 cases, covering every IIR family and band type, order selection,

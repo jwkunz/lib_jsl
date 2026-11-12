@@ -34,17 +34,49 @@ transform became the standard for frequency-selective filters.
 
 ### The bilinear transform
 
-The trapezoidal rule for integration, $y_n = y_{n-1} + \frac T2(x_n + x_{n-1})$, has the transfer function $\frac T2\frac{1 + z^{-1}}{1 - z^{-1}}$, which replaces the integrator $1/s$. Substituting
+An analogue filter is described by a transfer function $H(s)$ and a digital one by $H(z)$ (see
+the [chapter's background section](index.md#background-frequency-responses-and-transfer-functions)).
+To convert one into the other we need a rule that replaces $s$ by an expression in $z$.
+
+**Where the rule comes from.** In an analogue circuit, $1/s$ is the transfer function of an
+integrator. A digital filter cannot integrate, but it can approximate an integral numerically.
+The [trapezoid rule](../integration/newton-cotes.md#the-trapezoid-rule) with sample interval
+$T = 1/f_s$ updates a running integral $y$ of the input $x$ by
 
 $$
-s = 2f_s\frac{1 - z^{-1}}{1 + z^{-1}}
+y_n = y_{n-1} + \frac T2(x_n + x_{n-1}) .
 $$
 
-into $H(s)$ gives a digital filter of the same order. Its key properties:
+Writing $z^{-1}$ for a delay of one sample, this says $Y(1 - z^{-1}) = \frac T2(1 + z^{-1})X$, so
+the digital integrator has the transfer function $\frac T2\frac{1 + z^{-1}}{1 - z^{-1}}$. Using it
+in place of every $1/s$ amounts to the substitution
 
-- The left half $s$-plane maps into the unit disc, so stable analogue filters give stable digital ones.
-- The imaginary axis $s = j\Omega$ maps onto the unit circle $z = e^{j\omega}$, with $\Omega = 2f_s\tan(\omega/2)$. The whole infinite analogue frequency axis is compressed onto $0 \le \omega < \pi$ without aliasing.
-- A zero or pole at $s = c$ maps to $(2f_s + c)/(2f_s - c)$, and every excess pole of the prototype contributes a zero at $z = -1$, the Nyquist frequency.
+$$
+s = 2f_s\,\frac{1 - z^{-1}}{1 + z^{-1}},
+$$
+
+the **bilinear transform**. Applied to a rational $H(s)$ of order $n$ it gives a rational $H(z)$
+of the same order.
+
+**Its key properties.**
+
+- *Frequencies map to frequencies.* Put $z = e^{j\omega}$, a point on the unit circle. Then
+  $\frac{1 - e^{-j\omega}}{1 + e^{-j\omega}} = j\tan(\omega/2)$, so $s = j\Omega$ with
+
+$$
+\Omega = 2f_s\tan(\omega/2) .
+$$
+
+  The unit circle corresponds to the imaginary axis: the digital filter's response at $\omega$
+  *equals* the analogue filter's response at $\Omega$. As $\omega$ runs from 0 to $\pi$ (Nyquist),
+  $\Omega$ runs from 0 to $\infty$. The whole infinite analogue frequency axis is compressed onto
+  $0 \le \omega < \pi$, each frequency appearing exactly once, so there is no aliasing.
+- *Stability is preserved.* The left half of the $s$-plane maps to the inside of the unit
+  circle, so the poles of a stable analogue filter become the poles of a stable digital one.
+- *Poles and zeros map individually.* A zero or pole at $s = c$ moves to
+  $z = (2f_s + c)/(2f_s - c)$. An analogue low-pass filter has more poles than zeros; its response
+  falls to zero as $\Omega \to \infty$. Infinite analogue frequency corresponds to $z = -1$, so
+  each excess pole of the prototype contributes a zero at $z = -1$, the Nyquist frequency.
 
 ### Frequency warping and prewarping
 

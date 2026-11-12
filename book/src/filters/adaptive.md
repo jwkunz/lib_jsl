@@ -33,43 +33,127 @@ applied it to channel equalisation. Simon Haykin's *Adaptive Filter Theory* (198
 
 ### The Wiener solution
 
-If the signals are stationary, the weights that minimise the mean squared error $J(\mathbf w) = E|d_n - \mathbf w^{\mathsf H}\mathbf u_n|^2$ satisfy the **Wiener-Hopf** equations $R\mathbf w_\star = \mathbf p$, with input correlation matrix
-$R = E[\mathbf u\mathbf u^{\mathsf H}]$ and cross-correlation $\mathbf p = E[\mathbf u\,\bar d]$. Adaptive filters approach $\mathbf w_\star$ without knowing $R$ or $\mathbf p$, and follow it when the statistics drift.
+**The setting.** An adaptive filter is an FIR filter with $M$ taps whose weights are adjusted
+while it runs. At each time step $n$ it has three things: the vector $\mathbf u_n$ of the $M$ most
+recent input samples; a **desired** signal $d_n$ that its output should match; and its current
+weights $\mathbf w$. Its output is the weighted sum $\mathbf w^{\mathsf H}\mathbf u_n$, and the **error** is
+$e_n = d_n - \mathbf w^{\mathsf H}\mathbf u_n$. (The superscript $\mathsf H$ is the conjugate transpose, which
+allows complex signals; for real signals it is the ordinary transpose.) In system
+identification, for example, the input is fed to both an unknown system and the filter, the
+desired signal is the unknown system's output, and driving the error to zero makes the filter a
+copy of the system.
+
+**The best fixed filter.** If the signals are **stationary** (their statistics do not change
+with time), there is a best set of weights: the one that minimises the mean squared error
+$J(\mathbf w) = E|d_n - \mathbf w^{\mathsf H}\mathbf u_n|^2$. This is a least-squares problem, and $J$ is a
+quadratic function of the weights, a bowl with a single minimum. Setting its gradient to zero
+gives the **Wiener-Hopf** equations
+
+$$
+R\,\mathbf w_\star = \mathbf p, \qquad R = E[\mathbf u\mathbf u^{\mathsf H}], \qquad \mathbf p = E[\mathbf u\,\bar d],
+$$
+
+where $R$ is the **correlation matrix** of the input and $\mathbf p$ the **cross-correlation** of the
+input with the desired signal. These are the
+[normal equations](../linear_algebra/least-squares.md#the-normal-equations) with averages over
+the data replaced by expectations.
+
+Solving them directly would require knowing $R$ and $\mathbf p$, which are properties of the signals
+that are not known in advance and may change. Adaptive filters approach $\mathbf w_\star$ using only
+the samples as they arrive, and follow it when the statistics drift.
 
 ### LMS: stochastic gradient descent
 
-The gradient of $J$ is $-2(\mathbf p - R\mathbf w)$. Replacing the expectations by their instantaneous values gives the **LMS** update
+The simplest way to find the bottom of the bowl is
+[gradient descent](../optimization/gradient-methods.md#gradient-descent): move the weights a
+small step against the gradient of $J$. That gradient is $-2(\mathbf p - R\mathbf w)$, which again
+involves the unknown $R$ and $\mathbf p$.
+
+Widrow and Hoff's idea was to replace the expectations by the values at the current instant,
+however crude that estimate is. With $\mathbf u\mathbf u^{\mathsf H}$ in place of $R$ and $\mathbf u\bar d$ in
+place of $\mathbf p$,
+
+$$
+\mathbf p - R\mathbf w \ \approx\ \mathbf u_n\bar d_n - \mathbf u_n\mathbf u_n^{\mathsf H}\mathbf w = \mathbf u_n\,\overline{(d_n - \mathbf w^{\mathsf H}\mathbf u_n)} = \mathbf u_n\bar e_n .
+$$
+
+The estimated gradient is just the input vector times the error. This gives the
+**least mean squares** (LMS) update
 
 $$
 \mathbf w_{n+1} = \mathbf w_n + \mu\,\bar e_n\,\mathbf u_n,
 $$
 
-one multiply-add per tap. For small $\mu$ the weights converge in the mean when $0 < \mu < 2/\lambda_{\max}(R)$, and in practice when $\mu$ is well below $2/(M\,P_x)$, where $P_x$ is the input power. Convergence
-proceeds along the eigenvectors of $R$, each at a rate set by $\mu\lambda_i$. With a large **eigenvalue spread** $\lambda_{\max}/\lambda_{\min}$, the slow modes dominate. Gradient noise leaves a
-**misadjustment**, an excess mean squared error that grows with $\mu$. The choice of $\mu$ trades speed against final accuracy.
+with **step size** $\mu$. It costs one multiply-add per tap, and needs no knowledge of the
+signals. Each individual step is noisy, since it is based on a single sample, but the noise
+averages out over many steps and the weights drift towards the Wiener solution.
+
+The behaviour of LMS follows from that of gradient descent on a quadratic.
+
+- **Stability.** The weights converge on average when $0 < \mu < 2/\lambda_{\max}(R)$. Since the
+  largest eigenvalue is at most the sum of all of them, which is $M$ times the input power $P_x$,
+  a safe practical rule is to keep $\mu$ well below $2/(MP_x)$.
+- **Speed.** Convergence proceeds independently along each eigenvector of $R$, at a rate set by
+  $\mu\lambda_i$. If the **eigenvalue spread** $\lambda_{\max}/\lambda_{\min}$ is large, the step size
+  that is safe for the largest eigenvalue is far too small for the smallest, and the slow modes
+  dominate. The spread is 1 for white noise and large for strongly correlated ("coloured")
+  inputs.
+- **Accuracy.** Because the gradient estimates are noisy, the weights never settle exactly; they
+  jitter around the optimum. The resulting excess mean squared error is the **misadjustment**,
+  and it grows with $\mu$.
+
+The choice of $\mu$ therefore trades speed against final accuracy.
 
 ### NLMS: a step normalised by the input power
 
-**Normalised LMS** divides the step by the regressor's energy:
+The stability limit of LMS depends on the input power, so a step size that works for a quiet
+signal makes the filter diverge when the signal gets louder. **Normalised LMS** removes the
+dependence by dividing the step by the energy of the current input vector:
 
 $$
-\mathbf w_{n+1} = \mathbf w_n + \frac{\mu}{\epsilon + \lVert\mathbf u_n\rVert^2}\,\bar e_n\,\mathbf u_n, \qquad 0 < \mu < 2.
+\mathbf w_{n+1} = \mathbf w_n + \frac{\mu}{\epsilon + \lVert\mathbf u_n\rVert^2}\,\bar e_n\,\mathbf u_n, \qquad 0 < \mu < 2 .
 $$
 
-It is stable for any input level and converges faster when the input power varies. With $\mu = 1$ it makes the a posteriori error zero at each step.
+The small constant $\epsilon$ prevents division by zero during silence. The step size $\mu$ is
+now a pure number, with the same stability range $0 < \mu < 2$ whatever the input level, and the
+filter converges faster when the input power varies. There is a neat interpretation of
+$\mu = 1$: the update is then exactly large enough that, if the same input were presented again,
+the error would be zero.
 
 ### RLS: exact recursive least squares
 
-**RLS** minimises $\sum_{i \le n}\lambda^{n-i}|d_i - \mathbf w^{\mathsf H}\mathbf u_i|^2$ exactly at every step, where the **forgetting factor** $\lambda \le 1$ discounts the past over about $1/(1 - \lambda)$ samples. Its normal equations update
-by rank one at each step, and the matrix inversion lemma updates the inverse correlation matrix $P$ directly:
+LMS takes a small step towards the solution at each sample. **Recursive least squares** (RLS)
+jumps to the exact least-squares solution at every sample. It minimises
 
 $$
-\mathbf k = \frac{P\mathbf u}{\lambda + \mathbf u^{\mathsf H}P\mathbf u}, \qquad e = d - \mathbf w^{\mathsf H}\mathbf u, \qquad \mathbf w \leftarrow \mathbf w + \mathbf k\bar e, \qquad P \leftarrow \frac{P - \mathbf k\mathbf u^{\mathsf H}P}{\lambda}.
+\sum_{i \le n}\lambda^{n-i}\,|d_i - \mathbf w^{\mathsf H}\mathbf u_i|^2,
 $$
 
-RLS converges in about $2M$ samples whatever the eigenvalue spread, because $P$ approximates $R^{-1}$ and "whitens" the update, a Newton step instead of a gradient
-step. The cost is $O(M^2)$ per sample, and in finite precision $P$ must be kept Hermitian, or it drifts indefinite and the filter diverges. The library
-updates one triangle of $P$ and mirrors it.
+the sum of squared errors over all the data so far, with older samples weighted down by the
+**forgetting factor** $\lambda \le 1$. A sample $k$ steps old has weight $\lambda^k$, so the filter
+effectively remembers about $1/(1 - \lambda)$ samples, which lets it track changing statistics.
+
+Solving a new least-squares problem from scratch at every sample would cost $O(M^3)$ each time.
+The saving comes from noticing how little changes. The normal equations involve the weighted sum
+of the matrices $\mathbf u_i\mathbf u_i^{\mathsf H}$, and each new sample adds one such rank-one term. The
+**matrix inversion lemma** (the Sherman-Morrison formula) gives the inverse of a matrix after a
+rank-one change in terms of the old inverse, in $O(M^2)$ operations. So RLS maintains the inverse
+correlation matrix $P$ directly and updates it together with the weights:
+
+$$
+\mathbf k = \frac{P\mathbf u}{\lambda + \mathbf u^{\mathsf H}P\mathbf u}, \qquad e = d - \mathbf w^{\mathsf H}\mathbf u, \qquad \mathbf w \leftarrow \mathbf w + \mathbf k\bar e, \qquad P \leftarrow \frac{P - \mathbf k\mathbf u^{\mathsf H}P}{\lambda} .
+$$
+
+The vector $\mathbf k$ is the **gain**: it plays the role of $\mu\mathbf u$ in LMS, but with the input
+multiplied by $P \approx R^{-1}$. That multiplication rescales every eigen-direction of the input
+to the same size ("whitens" it), so all modes converge at the same rate. In optimisation terms,
+RLS takes a [Newton step](../optimization/newton-quasi-newton.md#newtons-method) where LMS takes
+a gradient step. It converges in about $2M$ samples whatever the eigenvalue spread.
+
+The cost is $O(M^2)$ per sample instead of $O(M)$. There is also a numerical hazard: in exact
+arithmetic $P$ is Hermitian and positive definite, but rounding errors can destroy both
+properties, after which the filter diverges. The library updates one triangle of $P$ and mirrors
+it, which keeps it exactly Hermitian.
 
 ### Learning curves
 

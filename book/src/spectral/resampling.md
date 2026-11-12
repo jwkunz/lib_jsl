@@ -31,13 +31,33 @@ receiver. Ronald Crochiere and Lawrence Rabiner's *Multirate Digital Signal Proc
 
 ### Polyphase resampling
 
-Write the upsampled signal as $u[j] = x[j/U]$ when $U$ divides $j$, and 0 otherwise. Filtering with $h$ and keeping every $D$-th sample gives
+**The textbook procedure.** To change the sampling rate of a signal by the rational factor
+$U/D$, three steps are needed in principle.
+
+1. **Upsample by $U$**: insert $U - 1$ zeros between consecutive samples. The rate is now $U$
+   times higher, but the spectrum of the zero-stuffed signal contains $U - 1$ unwanted copies
+   (**images**) of the original spectrum at higher frequencies.
+2. **Low-pass filter** at the high rate. One filter does two jobs: it removes the images, which
+   turns the zeros into interpolated values, and it removes everything above the *new* Nyquist
+   frequency, which would otherwise fold back (**alias**) into the band in the next step.
+3. **Downsample by $D$**: keep every $D$-th sample.
+
+Done literally this is very wasteful. The filter runs at the high rate, yet most of its inputs
+are zeros that contribute nothing, and most of its outputs are thrown away.
+
+**The polyphase shortcut.** Both kinds of waste can be removed by algebra. Write the upsampled
+signal as $u[j] = x[j/U]$ when $U$ divides $j$, and 0 otherwise. Filtering with $h$ and keeping every $D$-th sample gives
 
 $$
 y[m] = \sum_kh[k]\,u[mD - k] = \sum_jh[mD - jU]\,x[j],
 $$
 
-the sum running over the inputs $j$ whose tap index $mD - jU$ lies in $[0, L)$. Only $\lceil L/U\rceil$ terms appear, using one **phase** $\{h[p], h[p + U], \ldots\}$ of the filter, with $p = mD \bmod U$. This is SciPy's `upfirdn`, and
+where the second form drops the zero terms: the sum runs only over actual inputs $j$, those
+whose tap index $mD - jU$ lies in $[0, L)$ for a filter of length $L$. Two things have happened.
+Only the outputs that are kept are ever computed. And each one uses only every $U$-th tap of the
+filter, about $\lceil L/U\rceil$ of them: the subset $\{h[p], h[p + U], \ldots\}$ with
+$p = mD \bmod U$. Such a subset is called a **phase** of the filter, and the filter is in effect
+split into $U$ short filters used in rotation, which gives the method its name. This is SciPy's `upfirdn`, and
 [`PolyphaseIntegerResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_integer_resampling/struct.PolyphaseIntegerResampler.html) computes it as a stream, multiplying the taps by $U$ so that interpolation keeps unit gain (as `resample_poly` does).
 Without taps, it designs a Kaiser-window low-pass with cutoff $1/\max(U, D)$ of the high-rate Nyquist and 60 dB attenuation.
 
@@ -59,7 +79,7 @@ large $U$ costs only memory for the filter, not computation, because each output
 
 ### Half-band filters
 
-A **half-band** filter has its cutoff at a quarter of the sampling rate and a response symmetric about it, $H(f) + H(\frac12 - f) = 1$. Its impulse response, $h[n] = \frac12\operatorname{sinc}(n/2)$ windowed, is zero at every even offset from the centre except the centre itself,
+Halving the sampling rate is the most common rate change, and there is a filter made for it. A **half-band** filter has its cutoff at a quarter of the sampling rate and a response symmetric about it, $H(f) + H(\frac12 - f) = 1$. Its impulse response, $h[n] = \frac12\operatorname{sinc}(n/2)$ windowed, is zero at every even offset from the centre except the centre itself,
 where it is $\frac12$:
 
 ![Half-band filter](../generated/spectral/halfband.svg)
@@ -71,7 +91,11 @@ are the usual way to decimate by powers of two.
 
 ### CIC filters
 
-A moving sum of length $RM$, $H(z) = \frac{1 - z^{-RM}}{1 - z^{-1}}$, can be built from an **integrator** $1/(1 - z^{-1})$ at the high rate and a **comb** $1 - z^{-M}$ at the low rate, with the rate change in between. $N$ cascaded integrators
+At very high sampling rates, as at the output of a radio's analogue-to-digital converter, even
+one multiplication per sample is expensive. The **cascaded integrator-comb** (CIC) filter
+changes the rate by a large factor $R$ using only additions and subtractions.
+
+Its starting point is the simplest low-pass filter, a moving sum. A moving sum of length $RM$, $H(z) = \frac{1 - z^{-RM}}{1 - z^{-1}}$, can be built from an **integrator** $1/(1 - z^{-1})$ at the high rate and a **comb** $1 - z^{-M}$ at the low rate, with the rate change in between. $N$ cascaded integrators
 and $N$ combs give
 
 $$

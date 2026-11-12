@@ -30,8 +30,24 @@ DFT, the construction used by MATLAB and SciPy.
 
 ### Removing negative frequencies
 
-The Hilbert transform multiplies each frequency component by $-i\,\mathrm{sgn}(f)$. The analytic signal $x + i\mathcal Hx$ therefore has spectrum $X(f)(1 + \mathrm{sgn}(f))$: twice $X$ for $f > 0$, $X$ at $f = 0$, and zero for $f < 0$. In discrete time, with
-an $N$-point DFT, the recipe is:
+**The motivating example.** A real oscillation $A\cos\theta(t)$ hides its amplitude and its
+phase behind each other: from the value at one instant there is no telling whether the signal is
+small because $A$ is small or because the cosine is near zero. The complex signal
+$Ae^{i\theta(t)}$ has no such ambiguity. Its magnitude is $A$ and its angle is $\theta$, at every
+instant. The **analytic signal** is the systematic way to pass from the first to the second.
+
+The link is Euler's formula, $\cos\theta = \tfrac12(e^{i\theta} + e^{-i\theta})$. A real cosine is the
+sum of a positive-frequency exponential and a negative-frequency one, each of half the
+amplitude. Deleting the negative-frequency half and doubling the positive one leaves exactly
+$e^{i\theta}$. Doing this to every frequency component of a real signal $x$ gives its analytic
+signal $z$.
+
+**The Hilbert transform.** The imaginary part of $z$ is called the **Hilbert transform**
+$\mathcal Hx$ of $x$, so that $z = x + i\mathcal Hx$. It turns every cosine into a sine: each
+frequency component is shifted in phase by a quarter cycle, which in the frequency domain is
+multiplication by $-i\,\mathrm{sgn}(f)$. The analytic signal therefore has spectrum
+$X(f)(1 + \mathrm{sgn}(f))$: twice $X$ for $f > 0$, $X$ at $f = 0$, and zero for $f < 0$, as
+described. In discrete time, with an $N$-point DFT, the recipe is:
 
 $$
 Z_k = \begin{cases} X_k, & k = 0 \text{ or } k = N/2, \\ 2X_k, & 0 < k < N/2, \\ 0, & k > N/2, \end{cases} \qquad z = \mathrm{IDFT}(Z).
@@ -43,8 +59,10 @@ The DC and Nyquist bins are their own negatives and are kept once. The real part
 
 ![Envelope of an AM signal](../generated/spectral/hilbert_envelope.svg)
 
-For an amplitude-modulated carrier, $|z|$ recovers the modulation, here exactly, because the modulation (3 Hz) is far below the carrier (60 Hz) and the record holds
-whole periods of both. The instantaneous frequency is $\frac1{2\pi}\frac{d}{dt}\arg z$, computed from phase differences between samples:
+The magnitude $|z|$ of the analytic signal is the **envelope** of $x$, the slowly varying
+amplitude within which it oscillates. For an amplitude-modulated carrier, $|z|$ recovers the modulation, here exactly, because the modulation (3 Hz) is far below the carrier (60 Hz) and the record holds
+whole periods of both. The angle $\arg z$ is the instantaneous phase, and its rate of change is the
+**instantaneous frequency**, $\frac1{2\pi}\frac{d}{dt}\arg z$, computed from phase differences between samples:
 
 ![Instantaneous frequency of a chirp](../generated/spectral/hilbert_frequency.svg)
 

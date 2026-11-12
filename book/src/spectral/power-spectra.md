@@ -33,14 +33,29 @@ seasons, needed spectra of unevenly sampled data. Nicholas Lomb (1976) and Jeffr
 
 ### The periodogram and its scaling
 
-For $N$ samples $x_n$ at rate $f_s$, windowed by $w$, the one-sided periodogram is
+The **power spectral density** (PSD) of a signal says how its power is distributed over
+frequency. The most direct estimate takes the DFT of a record and squares its magnitude: the
+energy found at each frequency. This is the **periodogram**. For $N$ samples $x_n$ at rate $f_s$,
+multiplied by a [window](windows.md) $w$, the one-sided periodogram is
 
 $$
-P(f_k) = \frac{c_k}{f_s\sum_nw_n^2}\Big|\sum_nw_nx_ne^{-2\pi ikn/N}\Big|^2, \qquad f_k = kf_s/N,
+P(f_k) = \frac{c_k}{f_s\sum_nw_n^2}\Big|\sum_nw_nx_ne^{-2\pi ikn/N}\Big|^2, \qquad f_k = kf_s/N .
 $$
 
-with $c_k = 2$ except at DC and Nyquist, folding the negative frequencies in. This **density** scaling (units²/Hz) integrates to the variance. The **spectrum** scaling, $1/(\sum w)^2$, instead
-gives a sinusoid of amplitude $A$ centred on a bin the value $A^2/2$. The scalings follow SciPy, and the results agree with it to rounding error.
+For a real signal the negative frequencies duplicate the positive ones, so they are folded in:
+$c_k = 2$, except at DC and at the Nyquist frequency, which have no partner. The remaining
+factors fix the units, and there are two conventions, suited to two kinds of signal.
+
+- **Density** scaling, the factor $1/(f_s\sum w^2)$ shown above, gives units of power per hertz.
+  Integrating the result over frequency gives the variance of the signal. It is the right scale
+  for noise, whose power is spread over a band.
+- **Spectrum** scaling, with $1/(\sum w)^2$ instead, gives units of power. A sinusoid of
+  amplitude $A$ centred on a bin reads $A^2/2$, its mean square. It is the right scale for tones,
+  whose power is concentrated at a frequency.
+
+The scalings follow SciPy, and the results agree with it to rounding error.
+
+The periodogram has two defects, bias and variance, treated in the next two sections.
 
 ### Bias: leakage
 
@@ -51,8 +66,20 @@ falls off steeply, revealing both. The window's resolution and dynamic range car
 
 ### Variance: Welch averaging
 
-Each periodogram value of a Gaussian noise process is approximately the true density times a $\chi^2_2/2$ variable, which has standard deviation equal to its mean. Averaging $K$ independent segments divides
-the standard deviation by $\sqrt K$. Overlapping by half with a Hann window keeps most of the independence while using the data better:
+The second defect is that the periodogram of a noisy signal is itself extremely noisy, and
+taking a longer record does not help. A longer record gives more frequency bins, each as erratic
+as before. In statistical terms, each periodogram value of a Gaussian noise process is
+approximately the true density multiplied by a random factor distributed as $\chi^2_2/2$, whose
+standard deviation equals its mean: the estimate is wrong by about 100%, whatever $N$ is.
+
+The cure for a noisy estimate is to average several independent ones. **Welch's method** cuts
+the record into $K$ shorter segments, computes a windowed periodogram of each, and averages
+them. Averaging $K$ independent estimates divides the standard deviation by $\sqrt K$. The price
+is resolution: shorter segments have wider bins.
+
+Segments may overlap. A tapered window gives little weight to the samples near the ends of each
+segment, so without overlap those samples would be largely wasted. Overlapping by half with a
+Hann window uses them, while the segments remain nearly independent:
 
 {{#include ../generated/spectral/welch_variance.md}}
 

@@ -33,21 +33,48 @@ thresholding wavelet coefficients is a nearly optimal denoiser for a wide class 
 
 ### Multiresolution and the filter-bank algorithm
 
-An orthogonal wavelet is defined by a **scaling filter** $h$ (low-pass, $\sum h = \sqrt2$) and a **wavelet filter** $g_n = (-1)^nh_{L-1-n}$ (high-pass, its quadrature mirror). One level of the DWT filters the signal with both and keeps every
+**The simplest case: Haar.** Take a signal two samples at a time, and replace each pair
+$(x_0, x_1)$ by its scaled sum and difference,
+
+$$
+a = \frac{x_0 + x_1}{\sqrt2}, \qquad d = \frac{x_0 - x_1}{\sqrt2} .
+$$
+
+The sums $a$ form a version of the signal at half the resolution, a local average. The
+differences $d$ record the detail that the averaging lost. Nothing has been thrown away: the pair
+is recovered as $x_0 = (a + d)/\sqrt2$, $x_1 = (a - d)/\sqrt2$. Where the signal is smooth,
+neighbouring samples are nearly equal and the details are nearly zero. Now repeat the step on the
+sequence of averages, and again on *its* averages. The signal ends up described by one overall
+average and details at successively coarser scales. That is a **discrete wavelet transform**
+(DWT), with the Haar wavelet.
+
+**The general case.** Other wavelets replace the two-point sum and difference by longer
+filters. An orthogonal wavelet is defined by a **scaling filter** $h$ (low-pass, $\sum h = \sqrt2$) and a **wavelet filter** $g_n = (-1)^nh_{L-1-n}$ (high-pass, its quadrature mirror). One level of the DWT filters the signal with both and keeps every
 other sample:
 
 $$
 a_k = \sum_nh_n\,x_{2k+n}, \qquad d_k = \sum_ng_n\,x_{2k+n}.
 $$
 
-The **approximation** $a$ is a half-resolution version of the signal and the **detail** $d$ is what was lost. Repeating on $a$ gives the pyramid, at total cost $N + N/2 + \cdots < 2N$ filter steps.
-Because the filters are orthonormal under shifts by two ($\sum_nh_nh_{n+2s} = \delta_s$), the transform is an orthogonal matrix. The inverse transposes it, and reconstruction is exact:
+For Haar, $h = (1, 1)/\sqrt2$ and $g = (1, -1)/\sqrt2$, which reproduces the sums and
+differences above. As before, the **approximation** $a$ is a half-resolution version of the
+signal and the **detail** $d$ is what was lost. Repeating the step on $a$ gives a pyramid of
+details at coarser and coarser scales. Each level works on half as many samples as the one
+before, so the total cost is $N + N/2 + \cdots < 2N$ filter steps: the transform is $O(N)$,
+cheaper even than an FFT.
+
+Invertibility comes from a condition on the filters: they are orthonormal under shifts by two,
+$\sum_nh_nh_{n+2s} = \delta_s$. This makes the transform an orthogonal matrix, so its inverse is
+its transpose, energy is preserved, and reconstruction is exact:
 
 {{#include ../generated/spectral/wavelet_checks.md}}
 
 ### Vanishing moments
 
-The Daubechies wavelet with $p$ vanishing moments, filter length $2p$, satisfies $\sum_nn^jg_n = 0$ for $j < p$: its detail coefficients of a polynomial of degree below $p$ are zero. Smooth stretches of a signal therefore
+The Haar details vanish where the signal is constant, since $g = (1, -1)/\sqrt2$ sums to zero.
+Longer filters can do better. The Daubechies wavelet with $p$ **vanishing moments**, of filter
+length $2p$, satisfies $\sum_nn^jg_n = 0$ for $j < p$, which means that its detail coefficients
+are zero wherever the signal is locally a polynomial of degree below $p$. Smooth stretches of a signal therefore
 produce small details, and only edges and singularities produce large ones. Signals that are smooth apart from a few jumps become **sparse** in the wavelet basis,
 the property behind compression and denoising. Haar is Daubechies with one moment; longer filters give smoother wavelets and more
 vanishing moments, at more cost and with longer edge effects.

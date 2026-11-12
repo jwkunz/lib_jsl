@@ -37,14 +37,44 @@ for frequency and direction-of-arrival estimation.
 
 ### Linear prediction and the Yule-Walker equations
 
-Predicting $x_n$ from its past by $\hat x_n = -\sum_{k=1}^pa_kx_{n-k}$ with the smallest mean squared error leads to the **Yule-Walker** equations $\sum_{k=1}^pa_kr_{|j-k|} = -r_j$ for $j = 1, \ldots, p$, where $r$ is the autocorrelation. The matrix is Toeplitz, and
-the **Levinson-Durbin** recursion solves it in $O(p^2)$ by building the order-$m$ predictor from the order-$(m - 1)$ one:
+**The model.** The periodogram assumes nothing about the signal, and pays for it with limited
+resolution. A **parametric** method assumes a model, fits its few parameters to the data, and
+computes the spectrum of the fitted model. The most useful model is **autoregressive** (AR): each
+sample is a linear combination of the $p$ previous samples plus a new random input $e_n$,
+
+$$
+x_n = -\sum_{k=1}^pa_kx_{n-k} + e_n .
+$$
+
+Equivalently, the signal is white noise passed through the all-pole filter $1/A(z)$, with
+$A(z) = 1 + a_1z^{-1} + \cdots + a_pz^{-p}$. Poles near the unit circle give sharp peaks in the
+spectrum, so a low-order model can describe a resonant signal very compactly.
+
+**Fitting it.** The coefficients are found by **linear prediction**: choose them so that
+$\hat x_n = -\sum_{k=1}^pa_kx_{n-k}$ predicts $x_n$ from its past with the smallest mean squared
+error. Setting the derivative of the error with respect to each coefficient to zero gives the
+**Yule-Walker** equations
+
+$$
+\sum_{k=1}^pa_kr_{|j-k|} = -r_j, \qquad j = 1, \ldots, p,
+$$
+
+where $r_k$ is the **autocorrelation** of the signal at lag $k$, the average of $x_nx_{n+k}$.
+These are the [normal equations](../linear_algebra/least-squares.md#the-normal-equations) of the
+prediction problem.
+
+**Solving them fast.** The matrix of the system has entries $r_{|j-k|}$ that depend only on the
+difference of the indices: it is constant along each diagonal, a **Toeplitz** matrix. This
+structure allows a solution in $O(p^2)$ operations instead of $O(p^3)$. The
+**Levinson-Durbin** recursion builds the predictor of order $m$ from the predictor of order
+$m - 1$, adding one new number $k_m$ at each stage:
 
 $$
 k_m = -\frac{r_m + \sum_{j=1}^{m-1}a_j^{(m-1)}r_{m-j}}{E_{m-1}}, \qquad a_j^{(m)} = a_j^{(m-1)} + k_ma_{m-j}^{(m-1)}, \qquad E_m = E_{m-1}(1 - k_m^2).
 $$
 
-The **reflection coefficients** $k_m$ have magnitude below one exactly when the autocorrelation is positive definite, which guarantees a stable synthesis filter $1/A(z)$.
+Here $E_m$ is the prediction error power of the order-$m$ predictor, which can only decrease as
+the order grows. The **reflection coefficients** $k_m$ have magnitude below one exactly when the autocorrelation is positive definite, which guarantees a stable synthesis filter $1/A(z)$.
 They are also the coefficients of a lattice filter, a model of the vocal tract as a tube of uniform sections in speech coding. The prediction error power $E_p$
 is the driving noise variance, and the AR spectrum is $\sigma^2/|A(e^{i\omega})|^2$.
 
@@ -76,14 +106,30 @@ The Hann periodogram shows a single broad hump. A Burg AR(16) model resolves two
 
 ### MUSIC
 
-For $q$ complex exponentials in white noise, the $m \times m$ covariance matrix of the data is $R = \sum_i P_i\,\mathbf a(\omega_i)\mathbf a(\omega_i)^{\mathsf H} + \sigma^2I$, with **steering vectors** $\mathbf a(\omega) = (1, e^{i\omega}, \ldots, e^{i(m-1)\omega})$. Its $m - q$ smallest eigenvalues equal $\sigma^2$, and their
-eigenvectors $E_n$ span a **noise subspace** orthogonal to every steering vector of a true frequency. The MUSIC **pseudospectrum**
+MUSIC (multiple signal classification) is built for a narrower model: a few pure tones in white
+noise. It exploits the algebraic structure that this model gives to the covariance matrix of the
+data, and finds the frequencies from its eigenvectors.
+
+Take vectors of $m$ consecutive samples. A complex exponential of frequency $\omega$ contributes
+to each such vector a multiple of the **steering vector**
+$\mathbf a(\omega) = (1, e^{i\omega}, \ldots, e^{i(m-1)\omega})$. With $q$ tones, the signal part of every
+data vector is a combination of only $q$ fixed vectors: it lies in a $q$-dimensional
+**signal subspace** of the $m$-dimensional space. The noise, by contrast, is spread equally over
+all $m$ dimensions. This shows in the covariance matrix. For $q$ complex exponentials in white noise, the $m \times m$ covariance matrix of the data is $R = \sum_i P_i\,\mathbf a(\omega_i)\mathbf a(\omega_i)^{\mathsf H} + \sigma^2I$, with **steering vectors** $\mathbf a(\omega) = (1, e^{i\omega}, \ldots, e^{i(m-1)\omega})$. The first term has rank $q$ and the second adds $\sigma^2$ to every eigenvalue. So $R$ has $q$
+large eigenvalues, whose eigenvectors span the signal subspace, and $m - q$ eigenvalues equal to
+$\sigma^2$, whose eigenvectors $E_n$ span the **noise subspace**. Eigenvectors of a Hermitian
+matrix belonging to different eigenvalues are orthogonal, so the noise subspace is orthogonal to
+the signal subspace, and in particular to the steering vector of every true frequency.
+
+That gives a test for a candidate frequency $\omega$: project its steering vector onto the noise
+subspace. If $\omega$ is one of the true frequencies the projection is zero; otherwise it is not.
+The MUSIC **pseudospectrum** is the reciprocal of the squared length of the projection,
 
 $$
 P(\omega) = \frac{1}{\lVert E_n^{\mathsf H}\mathbf a(\omega)\rVert^2}
 $$
 
-peaks sharply at the true frequencies. It is not a power spectrum: its height says nothing about power. A real sinusoid is two complex
+which peaks sharply at the true frequencies. It is not a power spectrum: its height says nothing about power. A real sinusoid is two complex
 exponentials, so `music_real` uses a signal subspace of dimension $2q$. The same pseudospectrum, with array steering vectors, estimates directions of arrival (`music_doa`).
 The covariance eigenvalues confirm the model order: a gap after the $q$-th (or $2q$-th) separates signal from noise.
 

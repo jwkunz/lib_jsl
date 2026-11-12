@@ -48,52 +48,149 @@ that LAPACK adopted as `getrf2` and that this library uses.
 
 ### Gaussian elimination and pivoting
 
-At step $k$, row $i > k$ is replaced by row $i$ minus $\ell_{ik} = a_{ik}/a_{kk}$ times row $k$, which zeroes the entries below
-the **pivot** $a_{kk}$. After $n - 1$ steps $A$ has become an upper triangular $U$, and **back substitution**,
-$x_i = (c_i - \sum_{j>i}u_{ij}x_j)/u_{ii}$ from $i = n$ down, finishes the solve.
+**Elimination by example.** Take the system
 
-Without pivoting a zero pivot stops the algorithm, and a small one ruins it. For the system
-$\begin{pmatrix}\varepsilon & 1\\ 1 & 1\end{pmatrix}\mathbf x = \begin{pmatrix}1\\ 2\end{pmatrix}$, whose solution is close to $(1, 1)$, the multiplier $1/\varepsilon$ is huge, the second
-row becomes $(0, 1 - 1/\varepsilon)$, the 1 is lost to rounding, and $x_1$ is computed from a catastrophic cancellation:
+$$
+\begin{pmatrix} 2 & 1 & 1 \\ 4 & 3 & 3 \\ 8 & 7 & 9 \end{pmatrix}
+\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} =
+\begin{pmatrix} 4 \\ 10 \\ 24 \end{pmatrix}.
+$$
+
+Subtracting 2 times the first equation from the second, and 4 times the first from the third,
+removes $x_1$ from both. Then subtracting 3 times the new second equation from the new third
+removes $x_2$ from it:
+
+$$
+\left(\begin{array}{ccc|c} 2 & 1 & 1 & 4 \\ 4 & 3 & 3 & 10 \\ 8 & 7 & 9 & 24 \end{array}\right)
+\ \to\
+\left(\begin{array}{ccc|c} 2 & 1 & 1 & 4 \\ 0 & 1 & 1 & 2 \\ 0 & 3 & 5 & 8 \end{array}\right)
+\ \to\
+\left(\begin{array}{ccc|c} 2 & 1 & 1 & 4 \\ 0 & 1 & 1 & 2 \\ 0 & 0 & 2 & 2 \end{array}\right).
+$$
+
+The system is now **upper triangular**, and can be solved from the bottom up: the last equation
+gives $x_3 = 1$, then the second gives $x_2 = 2 - x_3 = 1$, then the first gives
+$x_1 = (4 - x_2 - x_3)/2 = 1$. This last stage is **back substitution**.
+
+**In general.** At step $k$, each row $i > k$ is replaced by row $i$ minus
+$\ell_{ik} = a_{ik}/a_{kk}$ times row $k$, which zeroes the entries below the diagonal entry
+$a_{kk}$, called the **pivot**. The numbers $\ell_{ik}$ are the **multipliers** (2, 4 and 3 in the
+example). After $n - 1$ steps $A$ has become an upper triangular matrix $U$ and $\mathbf b$ a vector
+$\mathbf c$, and back substitution computes $x_i = (c_i - \sum_{j>i}u_{ij}x_j)/u_{ii}$ for
+$i = n, n - 1, \ldots, 1$. Elimination costs about $\tfrac23n^3$ arithmetic operations (flops) and
+back substitution $n^2$.
+
+**Why pivoting is needed.** The algorithm divides by the pivot. A zero pivot stops it, even for a
+perfectly good system (swap the two equations of $x_2 = 1$, $x_1 = 2$ and nothing is wrong). A
+*small* pivot is more insidious: the algorithm runs, and returns a wrong answer. Consider, with
+$\varepsilon = 10^{-20}$,
+
+$$
+\begin{pmatrix}\varepsilon & 1\\ 1 & 1\end{pmatrix}\mathbf x = \begin{pmatrix}1\\ 2\end{pmatrix},
+$$
+
+whose solution is very close to $(1, 1)$. The multiplier is $1/\varepsilon = 10^{20}$, and the second
+row becomes $(0,\ 1 - 10^{20} \mid 2 - 10^{20})$. In double precision, with 16 digits, both
+$1 - 10^{20}$ and $2 - 10^{20}$ round to $-10^{20}$: the original entries 1 and 2 of the second
+equation, which distinguished it from any other, have been wiped out. Back substitution gives
+$x_2 = 1$, correctly, and then $x_1 = (1 - x_2)/\varepsilon = 0$, which is completely wrong.
 
 {{#include ../generated/linear_algebra/small_pivot.md}}
 
-**Partial pivoting** swaps the row with the largest $|a_{ik}|$, $i \ge k$, into the pivot position, so every
-multiplier satisfies $|\ell_{ik}| \le 1$. Wilkinson's analysis shows that the computed solution then satisfies
-$(A + \delta A)\hat{\mathbf x} = \mathbf b$ with
+**Partial pivoting.** The damage was done by the huge multiplier. The cure is to swap rows before
+each step so that the pivot is the largest entry (in magnitude) in its column, on or below the
+diagonal. Every multiplier then satisfies $|\ell_{ik}| \le 1$, and multiples of the pivot row can
+no longer swamp the rows they are subtracted from. In the example the rows are exchanged, the
+multiplier is $\varepsilon$, the second row becomes $(0,\ 1 - \varepsilon \mid 1 - 2\varepsilon)$, and the
+computed solution is $(1, 1)$.
+
+**How stable is it?** The right way to state the accuracy of elimination is due to Wilkinson. The
+computed solution $\hat{\mathbf x}$ is not the exact solution of the given system, but it is the exact
+solution of a *nearby* system, $(A + \delta A)\hat{\mathbf x} = \mathbf b$, with
 
 $$
-\frac{\|\delta A\|_\infty}{\|A\|_\infty} \le c\,n^3\rho\,\varepsilon, \qquad \rho = \frac{\max_{i,j,k}|a_{ij}^{(k)}|}{\max_{i,j}|a_{ij}|},
+\frac{\|\delta A\|_\infty}{\|A\|_\infty} \le c\,n^3\rho\,\varepsilon, \qquad \rho = \frac{\max_{i,j,k}|a_{ij}^{(k)}|}{\max_{i,j}|a_{ij}|}.
 $$
 
-where the **growth factor** $\rho$ measures how large the entries become during elimination. It can be as large
-as $2^{n-1}$: Wilkinson's example has 1 on the diagonal and in the last column and $-1$ below the diagonal, so that
-partial pivoting never swaps and the last column doubles at every step:
+Here $\varepsilon$ is the machine epsilon, $c$ a modest constant, and $a_{ij}^{(k)}$ the entries of the
+matrix after $k$ steps. An algorithm with this property, giving the exact answer to a slightly
+perturbed problem, is called **backward stable**, and $\delta A$ is the **backward error**. The
+bound contains the **growth factor** $\rho$, which measures how much larger the entries become
+during elimination than they were at the start. Pivoting keeps the multipliers small, but entries
+can still grow, because each step can at most double them. In the worst case $\rho = 2^{n-1}$.
+Wilkinson's example has 1 on the diagonal and in the last column and $-1$ below the diagonal:
+partial pivoting never swaps, and the last column doubles at every step.
 
 {{#include ../generated/linear_algebra/wilkinson_growth.md}}
 
 Such matrices are almost never met in practice: for random matrices the growth is about $n^{2/3}$, and the
-error is at the level of rounding, as the last column shows. **Complete pivoting**, searching the whole
-remaining submatrix, bounds the growth far better but costs $O(n^3)$ comparisons and is rarely used.
+error is at the level of rounding, as the last column shows. **Complete pivoting**, which searches
+the whole remaining submatrix for the largest entry and swaps columns as well as rows, bounds the
+growth far better but costs $O(n^3)$ comparisons and is rarely used.
 
 ### LU factorisation
 
-The multipliers $\ell_{ik}$ form a unit lower triangular $L$, and the reduced matrix is $U$: elimination computes
-$PA = LU$, with $P$ the permutation of the row swaps. To solve $A\mathbf x = \mathbf b$, permute $\mathbf b$, solve $L\mathbf y = P\mathbf b$ by forward
-substitution and $U\mathbf x = \mathbf y$ by back substitution, $2n^2$ flops in all. The **determinant** is
-$\det A = \pm\prod_iu_{ii}$, with the sign of the permutation. The **inverse** costs $2n^3$ flops, three times a solve's
-factorisation, and is rarely needed: $A^{-1}\mathbf b$ is computed better, and $n$ times faster, by solving.
+Elimination does more than solve one system. If the multipliers are kept instead of thrown away,
+they record everything that was done to $A$. Put them in a lower triangular matrix $L$, with
+$\ell_{ik}$ in position $(i, k)$ and ones on the diagonal (a **unit** lower triangular matrix). In
+the example,
+
+$$
+\underbrace{\begin{pmatrix} 2 & 1 & 1 \\ 4 & 3 & 3 \\ 8 & 7 & 9 \end{pmatrix}}_{A} =
+\underbrace{\begin{pmatrix} 1 & 0 & 0 \\ 2 & 1 & 0 \\ 4 & 3 & 1 \end{pmatrix}}_{L}
+\underbrace{\begin{pmatrix} 2 & 1 & 1 \\ 0 & 1 & 1 \\ 0 & 0 & 2 \end{pmatrix}}_{U},
+$$
+
+as multiplying out confirms. Each row of the product says that a row of $A$ is the matching row
+of $U$ plus the multiples of earlier rows that elimination subtracted. With row swaps the
+statement becomes $PA = LU$, where $P$ is the permutation matrix that applies all the swaps.
+
+The factorisation separates the expensive part of the work, which depends only on $A$, from the
+cheap part, which depends on $\mathbf b$. To solve $A\mathbf x = \mathbf b$:
+
+1. permute the right-hand side, $P\mathbf b$;
+2. solve $L\mathbf y = P\mathbf b$ from the top down (**forward substitution**);
+3. solve $U\mathbf x = \mathbf y$ from the bottom up (back substitution).
+
+This is correct because $LU\mathbf x = L\mathbf y = P\mathbf b = PA\mathbf x$. The two triangular solves cost
+$2n^2$ flops together, against $\tfrac23n^3$ for the factorisation, so each further right-hand
+side is almost free.
+
+Two by-products:
+
+- The **determinant** is the product of the pivots, $\det A = \pm\prod_iu_{ii}$, with a minus sign
+  if the number of row swaps is odd. In the example, $\det A = 2\cdot1\cdot2 = 4$.
+- The **inverse** can be found by solving for each column of the identity. It costs $2n^3$
+  flops, three times the factorisation, and is rarely needed: to compute $A^{-1}\mathbf b$, solving
+  the system is both more accurate and cheaper than forming the inverse and multiplying.
 
 ### Conditioning
 
-Backward stability bounds the residual; the error depends also on the condition number. For the
-notoriously ill-conditioned **Hilbert matrices** $H_{ij} = 1/(i + j - 1)$, the error grows exactly as $\kappa\varepsilon$ while the
-backward error stays at the level of rounding:
+Backward stability says that the computed solution exactly solves a nearby problem. It does not
+say that the solution is close to the true one. That depends on how sensitive the solution is to
+small changes in the data, which is a property of the matrix, not of the algorithm. It is
+measured by the **condition number**
+
+$$
+\kappa(A) = \|A\|\,\|A^{-1}\|,
+$$
+
+and the rule is
+
+$$
+\text{relative error in } \mathbf x \ \lesssim\ \kappa(A) \times \text{relative backward error}.
+$$
+
+With a backward error near $\varepsilon \approx 10^{-16}$, a matrix with $\kappa = 10^6$ loses about six
+of the sixteen digits. The notoriously ill-conditioned **Hilbert matrices**
+$H_{ij} = 1/(i + j - 1)$ show both halves of the statement: the error grows exactly as
+$\kappa\varepsilon$, while the backward error stays at the level of rounding.
 
 ![Hilbert systems](../generated/linear_algebra/hilbert.svg)
 
 Beyond order 13, $\kappa(H)$ exceeds $1/\varepsilon$: the computed inverse used to estimate it is itself meaningless, and
 the "solution" has no correct digits, although it still satisfies the system to rounding accuracy.
+A small residual $\mathbf b - A\hat{\mathbf x}$ is therefore not evidence of an accurate solution.
 
 ### Blocked and recursive factorisation
 

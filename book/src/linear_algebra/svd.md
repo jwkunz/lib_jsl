@@ -41,17 +41,53 @@ by preconditioning with QR.
 
 ### The decomposition
 
-For $A$ of size $m \times n$ with $m \ge n$, the thin SVD is $A = U\Sigma V^{\mathsf H} = \sum_i\sigma_i\mathbf u_i\mathbf v_i^{\mathsf H}$, with $U$ of size $m \times n$ (orthonormal
-columns), $\Sigma = \operatorname{diag}(\sigma_1, \ldots, \sigma_n)$ and $V$ unitary. The singular values are the square roots of the eigenvalues of
-$A^{\mathsf H}A$, and the $\mathbf v_i$ its eigenvectors, which suggests computing them that way. The reference crate does, and shows
-the flaw: forming $A^{\mathsf H}A$ squares the singular values, so those below $\sqrt\varepsilon\,\sigma_1 \approx 10^{-8}\sigma_1$ sink beneath the rounding
-error of the largest and are lost.
+Every matrix, of any shape, can be written as a rotation, followed by a scaling along the
+coordinate axes, followed by another rotation. For $A$ of size $m \times n$ with $m \ge n$, the
+(thin) **singular value decomposition** is
+
+$$
+A = U\Sigma V^{\mathsf H} = \sum_{i=1}^n\sigma_i\mathbf u_i\mathbf v_i^{\mathsf H},
+$$
+
+where $V$ is an $n \times n$ unitary matrix (orthogonal, in the real case), $U$ is $m \times n$ with
+orthonormal columns, and $\Sigma = \operatorname{diag}(\sigma_1, \ldots, \sigma_n)$ with
+$\sigma_1 \ge \sigma_2 \ge \cdots \ge 0$. The $\sigma_i$ are the **singular values**, and the columns
+$\mathbf v_i$ and $\mathbf u_i$ the right and left **singular vectors**.
+
+Multiplying the decomposition on the right by $V$ gives $A\mathbf v_i = \sigma_i\mathbf u_i$: the matrix
+maps each of the orthonormal directions $\mathbf v_i$ onto an orthogonal direction $\mathbf u_i$,
+stretched by $\sigma_i$. In geometric terms, $A$ maps the unit sphere onto an ellipsoid whose
+semi-axes have lengths $\sigma_i$ and directions $\mathbf u_i$. Much useful information can be read
+off: the largest singular value is the norm $\|A\|_2$, the number of nonzero singular values is
+the rank, and the ratio $\sigma_1/\sigma_n$ is the [condition number](lu.md#conditioning).
+
+**The connection with eigenvalues, and why not to use it.** Substituting the decomposition,
+
+$$
+A^{\mathsf H}A = V\Sigma U^{\mathsf H}U\Sigma V^{\mathsf H} = V\Sigma^2V^{\mathsf H} .
+$$
+
+So the $\mathbf v_i$ are the eigenvectors of the Hermitian matrix $A^{\mathsf H}A$ and the $\sigma_i^2$ are
+its eigenvalues. This suggests computing the SVD with a symmetric eigensolver. The reference
+crate does, and shows the flaw. An eigensolver determines eigenvalues to an absolute accuracy of
+about $\varepsilon$ times the largest, here $\varepsilon\sigma_1^2$. A singular value with
+$\sigma_i^2 < \varepsilon\sigma_1^2$, that is $\sigma_i < \sqrt\varepsilon\,\sigma_1 \approx 10^{-8}\sigma_1$, has its square
+buried beneath that rounding error and is lost. This is the squaring of the condition number
+again, as in the [normal equations](least-squares.md#the-normal-equations). The methods below work
+on $A$ itself.
 
 ### Low-rank approximation
 
-The **Eckart-Young theorem** says that the truncated SVD $A_k = \sum_{i\le k}\sigma_i\mathbf u_i\mathbf v_i^{\mathsf H}$ is the best approximation of rank $k$, in
-the 2-norm and the Frobenius norm, with error $\|A - A_k\|_2 = \sigma_{k+1}$. Smooth functions sampled on a grid give matrices whose
-singular values decay rapidly, so a few singular triplets represent them to high accuracy:
+The sum $A = \sum_i\sigma_i\mathbf u_i\mathbf v_i^{\mathsf H}$ expresses $A$ as a sum of rank-one matrices, in
+decreasing order of importance. Keeping only the first $k$ terms gives the **truncated SVD**
+$A_k = \sum_{i\le k}\sigma_i\mathbf u_i\mathbf v_i^{\mathsf H}$. The **Eckart-Young theorem** says that no matrix of
+rank $k$ is closer to $A$, in either the 2-norm or the Frobenius norm, and that the error is the
+first singular value left out: $\|A - A_k\|_2 = \sigma_{k+1}$.
+
+This is the basis of data compression and of
+[principal component analysis](../unsupervised/pca.md). If the singular values decay quickly, a
+few terms capture almost everything, and storing $k$ pairs of vectors takes $k(m + n)$ numbers
+instead of $mn$. Smooth functions sampled on a grid give matrices of this kind:
 
 ![Low-rank approximation](../generated/linear_algebra/low_rank.svg)
 
@@ -59,13 +95,27 @@ The error of the truncated SVD follows $\sigma_{k+1}$ exactly, down to the level
 
 ### Golub-Kahan bidiagonalisation
 
-Householder reflections applied alternately from the left and the right reduce $A$ to upper **bidiagonal** form,
-$B = U_0^{\mathsf H}AV_0$, nonzero only on the diagonal and the superdiagonal, in about $4mn^2 - \tfrac43n^3$ flops. (Diagonal unitary
-scalings then make $B$ real and non-negative.) The singular values of $B$ are those of $A$. They are computed by the
-**implicit-shift QR algorithm on the bidiagonal**: each step chases a bulge down $B$ with Givens rotations from the right
-and the left, which implicitly performs a QR step on the tridiagonal $B^{\mathsf T}B$ with a Wilkinson shift, without ever forming it.
-Negligible superdiagonal entries split the problem, and zero diagonal entries are chased out. The rotations accumulate
-into $U$ and $V$. This is the default method (`svd`), and that of LAPACK's `gesvd`.
+The standard algorithm follows the two-phase plan of the
+[eigensolvers](eigensolvers.md#hermitian-matrices-tridiagonalisation-and-ql): a finite reduction
+to a sparse form, then an iteration on that form.
+
+**Phase one.** For the SVD the two sides of $A$ can be transformed by *different* orthogonal
+matrices, which gives more freedom than a similarity. A Householder reflection from the left
+zeroes the first column below the diagonal; one from the right zeroes the first row beyond the
+superdiagonal; and so on, alternately. The result is upper **bidiagonal** form,
+$B = U_0^{\mathsf H}AV_0$, nonzero only on the diagonal and the superdiagonal, in about
+$4mn^2 - \tfrac43n^3$ flops. (Diagonal unitary scalings then make $B$ real and non-negative.) Because
+$U_0$ and $V_0$ are orthogonal, the singular values of $B$ are those of $A$.
+
+**Phase two.** The matrix $B^{\mathsf T}B$ is symmetric and tridiagonal, and its eigenvalues are the
+squared singular values, so the tridiagonal QR algorithm could be applied to it. But forming
+$B^{\mathsf T}B$ would square the condition number, the very thing to be avoided. The
+**implicit-shift QR algorithm on the bidiagonal** performs the same step without forming it. Each
+step applies Givens rotations alternately from the right and from the left of $B$, chasing a
+bulge down the matrix, and the result is exactly the $B$ that a QR step with Wilkinson's shift on
+$B^{\mathsf T}B$ would correspond to. Negligible superdiagonal entries split the problem into smaller
+ones, and zero diagonal entries are chased out. The rotations accumulate into $U$ and $V$. This
+is the default method (`svd`), and that of LAPACK's `gesvd`.
 
 ### One-sided Jacobi
 

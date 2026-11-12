@@ -41,25 +41,65 @@ with aggressive early deflation, which makes LAPACK much faster on large general
 
 ### Hermitian matrices: tridiagonalisation and QL
 
-Householder reflections applied from both sides, $Q^{\mathsf H}AQ = T$, zero everything outside the three central
-diagonals, at a cost of $\tfrac43n^3$ flops. For a complex Hermitian matrix, a diagonal unitary scaling then makes the
-off-diagonal of $T$ real and non-negative, so the rest of the work is in real arithmetic. The **implicit QL algorithm**
-diagonalises the real symmetric tridiagonal matrix by Givens rotations, chasing each shifted step down (or up) the
-diagonal at a cost of $O(n)$ per step, with about two steps per eigenvalue. The eigenvectors are $Q$ (accumulated in blocks,
-in the compact WY form) times the product of the rotations, formed with the matrix-multiply kernel.
+The [QR algorithm](eigen-iterations.md#the-qr-algorithm) applied to a full matrix costs $O(n^3)$
+per step. Production solvers avoid that with a two-phase plan: first transform the matrix, once
+and in a finite number of operations, to a form with many zeros that the QR algorithm preserves;
+then iterate cheaply on that form.
+
+**Phase one: reduction to tridiagonal form.** It would be ideal to reduce the matrix straight to
+diagonal form, but no finite sequence of operations can do that (it would amount to a formula
+for the roots of a polynomial). The next best thing is **tridiagonal** form, nonzero only on the
+main diagonal and the two diagonals beside it. [Householder reflections](qr.md#householder-reflections)
+achieve it. In the QR factorisation a reflection applied from the left zeroes a column below the
+diagonal. Here each reflection must be applied from both sides, $H A H$, to keep the
+transformation a similarity, and so it is designed to zero the column below the *sub*diagonal;
+applying it from the right then leaves those zeros intact and, by symmetry, zeroes the matching
+part of the row. After $n - 2$ reflections $Q^{\mathsf H}AQ = T$ is tridiagonal, at a cost of
+$\tfrac43n^3$ flops. For a complex Hermitian matrix, a diagonal unitary scaling then makes the
+off-diagonal of $T$ real and non-negative, so the rest of the work is in real arithmetic.
+
+**Phase two: iteration on the tridiagonal matrix.** A shifted QR step applied to a tridiagonal
+matrix gives another tridiagonal matrix, and it can be carried out with $n - 1$ plane (Givens)
+rotations in $O(n)$ operations instead of $O(n^3)$. The library uses the **implicit QL algorithm**,
+a variant that works from the opposite corner of the matrix. "Implicit" means that the shift is
+never actually subtracted from the diagonal: the first rotation is computed from the shifted
+matrix, and the remaining rotations are determined by the requirement to restore tridiagonal
+form, which they do by chasing a single unwanted nonzero entry along the diagonal and off the
+end. About two steps per eigenvalue are needed, as before.
+
+The eigenvectors of $A$ are $Q$ times the product of the rotations. $Q$ is accumulated in blocks
+(in the compact WY form, which represents a product of reflections so that it can be applied by
+matrix multiplications), and the product is formed with the matrix-multiply kernel.
 
 ### General matrices: Hessenberg reduction and Francis's algorithm
 
-A general matrix cannot be reduced to tridiagonal form by similarity, but it can be reduced to **upper Hessenberg**
-form, zero below the first subdiagonal, which the QR algorithm also preserves. For a real matrix with complex conjugate
-eigenvalues, a single real shift cannot converge to a complex eigenvalue, and complex shifts would force complex
-arithmetic. **Francis's double-shift step** uses the pair of eigenvalues of the trailing $2 \times 2$ block as shifts together:
-it computes the first column of $(H - \mu_1I)(H - \mu_2I)$, which is real, introduces a small "bulge" with a $3 \times 3$ reflection,
-and chases it down the matrix to restore Hessenberg form. By the implicit Q theorem the result equals two explicit
-shifted QR steps. The matrix converges to **real Schur form**, quasi-triangular with $1 \times 1$ blocks for real eigenvalues and
-$2 \times 2$ blocks for complex pairs; the library then triangularises each block to obtain the complex Schur form
-$A = ZTZ^{\mathsf H}$. Complex matrices use single shifts and Givens rotations. The eigenvectors of the triangular $T$ follow by back
-substitution, and are mapped back through $Z$.
+A nonsymmetric matrix is handled by the same two-phase plan, with three complications.
+
+**The reduced form is Hessenberg.** Without symmetry, the reflections that zero a column below
+the subdiagonal do nothing for the corresponding row. The result is **upper Hessenberg** form:
+zero below the first subdiagonal, full above. The QR algorithm preserves this form too, and a
+step costs $O(n^2)$.
+
+**Real matrices can have complex eigenvalues.** They come in conjugate pairs. A real shift can
+never converge to a complex eigenvalue, and a complex shift would force the whole computation
+into complex arithmetic. **Francis's double-shift step** resolves the dilemma by taking two steps
+at once, with a conjugate pair of shifts $\mu_1, \mu_2$, the eigenvalues of the trailing
+$2 \times 2$ block. The combined effect of the two steps is governed by the matrix
+$(H - \mu_1I)(H - \mu_2I)$, which is real because the shifts are conjugates. The step is carried
+out implicitly: compute only the first column of that product, apply a $3 \times 3$ reflection
+determined by it, which disturbs the Hessenberg form with a small "bulge" of unwanted nonzeros,
+and chase the bulge down the matrix with further reflections until it falls off the bottom. A
+result called the **implicit Q theorem** guarantees that the outcome is the same as two explicit
+shifted QR steps, although no complex number ever appears.
+
+**The limit is triangular, not diagonal.** A nonsymmetric matrix cannot in general be
+diagonalised by an orthogonal similarity, but it can always be made upper triangular. In real
+arithmetic the iteration converges to the **real Schur form**, which is "quasi-triangular": its
+diagonal carries $1 \times 1$ blocks for real eigenvalues and $2 \times 2$ blocks for complex pairs.
+The library then triangularises each $2 \times 2$ block to obtain the complex **Schur form**
+$A = ZTZ^{\mathsf H}$, with $T$ upper triangular and the eigenvalues on its diagonal. (Complex input
+matrices use single shifts and Givens rotations throughout.) The eigenvectors of a triangular
+matrix follow by back substitution, and multiplying by $Z$ maps them back to eigenvectors of $A$.
 
 ### Balancing
 

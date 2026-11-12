@@ -39,16 +39,33 @@ Sommerfeld's 1928 theory of metals introduced the asymptotic expansion of the Fe
 
 ### The Riemann zeta function
 
-The defining series converges for $s > 1$, slowly: $10^{15}$ terms would be needed for $\zeta(1.1)$ by direct
-summation. The alternating **Dirichlet eta function**
+The defining series $\zeta(s) = \sum_{k\ge1} k^{-s}$ converges for $s > 1$, but far too slowly to be
+used: its terms all have the same sign and decay only like a power, and $10^{15}$ terms would be
+needed for $\zeta(1.1)$ by direct summation.
+
+**An alternating series.** Changing the sign of every second term gives the
+**Dirichlet eta function**
 
 $$
-\eta(s) = \sum_{k=1}^\infty\frac{(-1)^{k-1}}{k^s} = (1 - 2^{1-s})\,\zeta(s)
+\eta(s) = \sum_{k=1}^\infty\frac{(-1)^{k-1}}{k^s} = 1 - \frac1{2^s} + \frac1{3^s} - \cdots .
 $$
 
-converges for all $s > 0$, and **Borwein's algorithm** sums it with weights derived from Chebyshev
-polynomials, giving an error of about $3/(3 + \sqrt8)^n$ with $n$ terms; the library's 24 terms give $10^{-18}$. For
-$s < 0$ the **functional equation**
+The two functions are simply related. Subtracting twice the even-numbered terms from the zeta
+series flips their signs, and the even-numbered terms sum to
+$\sum_j (2j)^{-s} = 2^{-s}\zeta(s)$. Hence
+
+$$
+\eta(s) = \zeta(s) - 2\cdot2^{-s}\zeta(s) = (1 - 2^{1-s})\,\zeta(s).
+$$
+
+An alternating series is a much better starting point: it converges for all $s > 0$, and
+alternating series can be accelerated. **Borwein's algorithm** replaces the partial sum by a
+weighted sum of the first $n$ terms, with weights derived from Chebyshev polynomials and chosen
+so that the errors of successive partial sums cancel. The error is about $3/(3 + \sqrt8)^n$: each
+extra term gains a factor of nearly 6. The library's 24 terms give $10^{-18}$. Dividing by
+$1 - 2^{1-s}$ then gives $\zeta(s)$.
+
+**Negative arguments.** For $s < 0$ the **functional equation**
 
 $$
 \zeta(s) = 2^s\pi^{s-1}\sin\!\big(\tfrac{\pi s}2\big)\,\Gamma(1 - s)\,\zeta(1 - s)
@@ -59,12 +76,21 @@ with residue 1, and $\zeta(0) = -\tfrac12$.
 
 ![The Riemann zeta function](../generated/special_functions/zeta.svg)
 
-The **Hurwitz zeta function** $\zeta(s, a) = \sum_{k\ge0}(k + a)^{-s}$ is computed for $s > 1$ by **Euler-Maclaurin summation**:
-sum the first $N$ terms directly, and replace the tail by its integral plus Bernoulli-number corrections.
+The **Hurwitz zeta function** $\zeta(s, a) = \sum_{k\ge0}(k + a)^{-s}$ generalises the series by
+starting it at $a$ instead of 1. It is computed for $s > 1$ by **Euler-Maclaurin summation**: sum
+the first $N$ terms directly, and replace the slowly converging tail by the integral of the
+summand, which is elementary, plus a few correction terms involving Bernoulli numbers. (This is
+the [Euler-Maclaurin formula](../integration/romberg.md#the-trapezoid-rule-and-its-error) of the
+integration chapter, used in the opposite direction: there it corrects a sum to approximate an
+integral, here it uses an integral to approximate a sum.)
 
 ### The polylogarithm
 
-No single expansion covers all real $z \le 1$; the library combines several:
+The polylogarithm is defined by the series $\operatorname{Li}_s(z) = \sum_{k\ge1} z^k/k^s$, which converges for
+$|z| \le 1$ (for $s > 1$) but quickly only when $|z|$ is small. As with the
+[hypergeometric functions](hypergeometric.md), the strategy is to use identities that move the
+argument to where some expansion converges fast. No single expansion covers all real $z \le 1$;
+the library combines several:
 
 - $|z| \le \tfrac12$: the defining series, converging like $2^{-k}$;
 - $\tfrac12 < z < 1$: the expansion in powers of $\mu = \ln z$, $\operatorname{Li}_s(e^\mu) = \Gamma(1 - s)(-\mu)^{s-1} + \sum_k\zeta(s - k)\mu^k/k!$ (with a

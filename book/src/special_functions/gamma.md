@@ -43,44 +43,88 @@ this one.
 
 ### The gamma function
 
-For $x > 0$,
+**Definition.** For $x > 0$ the gamma function is defined by Euler's integral
 
 $$
-\Gamma(x) = \int_0^\infty t^{x-1}e^{-t}\,dt, \qquad \Gamma(x + 1) = x\,\Gamma(x), \qquad \Gamma(1) = 1,
+\Gamma(x) = \int_0^\infty t^{x-1}e^{-t}\,dt .
 $$
 
-so $\Gamma(n + 1) = n!$. The recurrence continues $\Gamma$ to negative arguments, where it has simple poles
-at $0, -1, -2, \ldots$. Two further identities are indispensable: the **reflection formula**
-$\Gamma(x)\Gamma(1 - x) = \pi/\sin\pi x$, which gives $\Gamma(\tfrac12) = \sqrt\pi$ and maps negative arguments to
-positive ones, and the duplication formula $\Gamma(x)\Gamma(x + \tfrac12) = 2^{1-2x}\sqrt\pi\,\Gamma(2x)$.
+Its connection with the factorial comes from integrating by parts, differentiating $t^x$ and
+integrating $e^{-t}$:
+
+$$
+\Gamma(x + 1) = \int_0^\infty t^{x}e^{-t}\,dt = \Big[-t^x e^{-t}\Big]_0^\infty + x\int_0^\infty t^{x-1}e^{-t}\,dt = x\,\Gamma(x).
+$$
+
+The bracket vanishes at both limits. Together with $\Gamma(1) = \int_0^\infty e^{-t}\,dt = 1$, the
+**recurrence** $\Gamma(x + 1) = x\,\Gamma(x)$ gives $\Gamma(2) = 1$, $\Gamma(3) = 2$, $\Gamma(4) = 6$, and
+in general $\Gamma(n + 1) = n!$. The gamma function is the factorial, shifted by one and extended to
+non-integer arguments.
+
+**Negative arguments.** The integral diverges for $x \le 0$, but the recurrence, read backwards
+as $\Gamma(x) = \Gamma(x + 1)/x$, defines $\Gamma$ there: first on $(-1, 0)$ from the values on $(0, 1)$,
+then on $(-2, -1)$, and so on. The division by $x$ produces a simple pole at $x = 0$, which the
+recurrence copies to $-1, -2, \ldots$.
+
+**Two identities.** The **reflection formula**
+
+$$
+\Gamma(x)\,\Gamma(1 - x) = \frac{\pi}{\sin\pi x}
+$$
+
+relates the values at $x$ and $1 - x$, and so maps negative arguments to positive ones. Setting
+$x = \tfrac12$ gives $\Gamma(\tfrac12)^2 = \pi$, so $\Gamma(\tfrac12) = \sqrt\pi$. The
+**duplication formula** is $\Gamma(x)\Gamma(x + \tfrac12) = 2^{1-2x}\sqrt\pi\,\Gamma(2x)$.
 
 ![The gamma function](../generated/special_functions/gamma.svg)
 
-$\Gamma$ grows faster than any exponential and overflows double precision beyond $x \approx 171.6$; $1/\Gamma$ is
-an entire function, with zeros where $\Gamma$ has poles. For large $x$, **Stirling's series**
+**Size.** $\Gamma$ grows faster than any exponential and overflows double precision beyond
+$x \approx 171.6$. For that reason one usually computes its logarithm, $\ln\Gamma$, and exponentiates
+only at the end if at all. The reciprocal $1/\Gamma$ is better behaved: it is an entire function
+(analytic everywhere), with zeros where $\Gamma$ has poles.
+
+**Large arguments: Stirling's series.** For large $x$,
 
 $$
-\ln\Gamma(x) = (x - \tfrac12)\ln x - x + \tfrac12\ln 2\pi + \frac1{12x} - \frac1{360x^3} + \cdots
+\ln\Gamma(x) = (x - \tfrac12)\ln x - x + \tfrac12\ln 2\pi + \frac1{12x} - \frac1{360x^3} + \cdots .
 $$
 
-is asymptotic: very accurate for large $x$, divergent if summed to infinity.
+This series is **asymptotic**, a notion that recurs throughout this chapter. For a fixed $x$ its
+terms first decrease and then, eventually, grow without bound, so the infinite sum diverges. But
+if the sum is stopped while the terms are still decreasing, the error is about the size of the
+first omitted term, which for large $x$ is tiny. At $x = 10$ the two correction terms shown are
+$8 \times 10^{-3}$ and $3 \times 10^{-6}$, and the next is $8 \times 10^{-9}$. An asymptotic series is
+very accurate for large $x$ and useless for small $x$.
 
-The **Lanczos approximation** writes, for $x > 0$ and a chosen constant $g$,
+**All positive arguments: the Lanczos approximation.** Stirling's series fails for small $x$,
+and the recurrence needed to reach large $x$ loses a little accuracy at each step. Lanczos found
+a formula of Stirling's type that is accurate for every $x > 0$. For a chosen constant $g$,
 
 $$
-\Gamma(x + 1) = \sqrt{2\pi}\,(x + g + \tfrac12)^{x+1/2}e^{-(x+g+1/2)}\Big[c_0 + \sum_{k=1}^{N}\frac{c_k}{x + k}\Big],
+\Gamma(x + 1) = \sqrt{2\pi}\,(x + g + \tfrac12)^{x+1/2}e^{-(x+g+1/2)}\Big[c_0 + \sum_{k=1}^{N}\frac{c_k}{x + k}\Big].
 $$
 
-with coefficients $c_k$ that depend on $g$. With $g = 7$ and nine coefficients the relative error is
-about $10^{-15}$ for every $x > 0$, with no case analysis. The library uses it for $x \ge \tfrac12$, the
-reflection formula below, and exact products for integers up to 171.
+The factor in front is Stirling's leading approximation with a shifted argument, and the bracket
+is a correction with coefficients $c_k$ that depend on $g$ and are computed once. With $g = 7$
+and nine coefficients the relative error is about $10^{-15}$ for every $x > 0$, with no case
+analysis. The library uses it for $x \ge \tfrac12$, the reflection formula below that, and exact
+products for integers up to 171.
 
 ### The digamma function
 
-The **digamma function** $\psi(x) = \Gamma'(x)/\Gamma(x)$ satisfies $\psi(x + 1) = \psi(x) + 1/x$ and $\psi(1) = -\gamma$
-(the Euler-Mascheroni constant). It is computed by recurring upward to a large argument and summing
-its asymptotic series $\psi(x) \sim \ln x - \frac1{2x} - \sum_k\frac{B_{2k}}{2k\,x^{2k}}$ with Bernoulli numbers $B_{2k}$, and by
-reflection for negative $x$.
+The **digamma function** is the logarithmic derivative of the gamma function,
+$\psi(x) = \dfrac{d}{dx}\ln\Gamma(x) = \Gamma'(x)/\Gamma(x)$. It appears wherever a gamma function is
+differentiated, for example in maximum-likelihood fits of the gamma and beta distributions.
+Taking the logarithm of the recurrence $\Gamma(x + 1) = x\Gamma(x)$ and differentiating gives its own
+recurrence, $\psi(x + 1) = \psi(x) + 1/x$, and its value at 1 is $\psi(1) = -\gamma$, where
+$\gamma \approx 0.5772$ is the Euler-Mascheroni constant.
+
+For large $x$ it has the asymptotic series
+$\psi(x) \sim \ln x - \frac1{2x} - \sum_k\frac{B_{2k}}{2k\,x^{2k}}$, with Bernoulli numbers $B_{2k}$,
+obtained by differentiating Stirling's series. The computation combines the two facts: use the
+recurrence to step the argument upward until it is large enough for the asymptotic series to be
+accurate, sum the series there, and subtract the terms $1/x$ accumulated on the way. Negative $x$
+is handled by a reflection formula.
 
 ### The beta function
 

@@ -43,28 +43,50 @@ computers.
 
 ### Exponential integrals
 
-For $x > 0$,
+The integrals $\int e^{-t}/t\,dt$, $\int \sin t/t\,dt$ and $\int\sin t^2\,dt$ cannot be expressed
+through elementary functions, yet they arise constantly, so they are given names and treated as
+functions in their own right. For $x > 0$ the **exponential integrals** are
 
 $$
-E_1(x) = \int_x^\infty\frac{e^{-t}}{t}\,dt, \qquad E_n(x) = \int_1^\infty\frac{e^{-xt}}{t^n}\,dt, \qquad \operatorname{Ei}(x) = -\,\mathrm{PV}\!\!\int_{-x}^\infty\frac{e^{-t}}{t}\,dt,
+E_1(x) = \int_x^\infty\frac{e^{-t}}{t}\,dt, \qquad E_n(x) = \int_1^\infty\frac{e^{-xt}}{t^n}\,dt, \qquad \operatorname{Ei}(x) = -\,\mathrm{PV}\!\!\int_{-x}^\infty\frac{e^{-t}}{t}\,dt .
 $$
 
-the last a principal value defined for all real $x \ne 0$, with $\operatorname{Ei}(-x) = -E_1(x)$. For small $x$,
+The first two are related ($E_n$ with $n = 1$ is $E_1$, after the substitution $t \to xt$). The
+third is defined for all real $x \ne 0$; "PV" denotes a principal value, which means that for
+$x > 0$ the singularity of the integrand at $t = 0$ is approached symmetrically from both sides,
+so that the infinite contributions cancel. For negative arguments it reduces to the first:
+$\operatorname{Ei}(-x) = -E_1(x)$.
+
+The computational pattern is the same as for the
+[incomplete gamma function](incomplete.md#the-incomplete-gamma-function): a power series for
+small arguments, and a continued fraction or an asymptotic series for large ones.
+
+**Small $x$.** Expanding $e^{-t}$ in its Taylor series and integrating term by term gives
 
 $$
 E_1(x) = -\gamma - \ln x - \sum_{k=1}^\infty\frac{(-x)^k}{k\cdot k!},
 $$
 
-a series that converges for every $x$ but suffers cancellation for large $x$, where $E_1(x) \approx e^{-x}/x$. For
-$x > 1$ the library uses the continued fraction
+with $\gamma$ the Euler-Mascheroni constant. The $\ln x$ term describes how $E_1$ grows without bound
+as $x \to 0$. The series converges for every $x$, but that does not make it usable for every $x$.
+For large $x$ the true value is tiny, $E_1(x) \approx e^{-x}/x$, while the individual terms are
+large and alternate in sign. The small result emerges only through cancellation of large
+numbers, and the rounding errors of those numbers swamp it.
+
+**Large $x$.** For $x > 1$ the library uses the continued fraction
 
 $$
 E_n(x) = e^{-x}\cfrac{1}{x + n - \cfrac{1\cdot n}{x + n + 2 - \cfrac{2(n + 1)}{x + n + 4 - \cdots}}},
 $$
 
-evaluated by the modified Lentz algorithm. $\operatorname{Ei}(x)$ for $x > 0$ uses its power series
-$\gamma + \ln x + \sum x^k/(k\cdot k!)$ for moderate $x$ (all terms positive, no cancellation) and the asymptotic series
-$\frac{e^x}{x}\sum k!/x^k$ for large $x$.
+evaluated by the [modified Lentz algorithm](incomplete.md#the-incomplete-gamma-function). The
+factor $e^{-x}$ carries the smallness explicitly, so there is no cancellation.
+
+**$\operatorname{Ei}$ for positive $x$.** Its power series is $\gamma + \ln x + \sum x^k/(k\cdot k!)$. All the terms
+are positive, so there is no cancellation and the series can be used for moderate $x$. For large
+$x$ it needs too many terms, and the library switches to the asymptotic series
+$\frac{e^x}{x}\sum k!/x^k$ (see
+[Stirling's series](gamma.md#the-gamma-function) for what "asymptotic" means).
 
 ### Sine and cosine integrals
 
@@ -72,16 +94,24 @@ $$
 \operatorname{Si}(x) = \int_0^x\frac{\sin t}{t}\,dt, \qquad \operatorname{Ci}(x) = \gamma + \ln x + \int_0^x\frac{\cos t - 1}{t}\,dt .
 $$
 
-$\operatorname{Si}$ is odd and tends to $\pm\pi/2$; $\operatorname{Ci}$ tends to 0, oscillating, and to $-\infty$ logarithmically at 0. Both come from the
-exponential integral of an imaginary argument,
+The integrand $\sin t/t$ is finite at $t = 0$, so $\operatorname{Si}$ is defined directly. The integrand
+$\cos t/t$ is not, which is why $\operatorname{Ci}$ is defined with the divergent part $\ln x$ separated out
+and the well-behaved remainder $(\cos t - 1)/t$ integrated. $\operatorname{Si}$ is odd and tends to
+$\pm\pi/2$ as $x \to \pm\infty$. $\operatorname{Ci}$ tends to 0, oscillating, as $x \to \infty$, and to $-\infty$
+logarithmically as $x \to 0$.
+
+Both are the exponential integral in disguise. Since $e^{-it} = \cos t - i\sin t$, an exponential
+integral with an imaginary argument has a cosine integral as its real part and a sine integral
+as its imaginary part:
 
 $$
-E_1(ix) = -\operatorname{Ci}(x) + i\big(\operatorname{Si}(x) - \tfrac\pi2\big),
+E_1(ix) = -\operatorname{Ci}(x) + i\big(\operatorname{Si}(x) - \tfrac\pi2\big).
 $$
 
-so for large $x$ the library evaluates the continued fraction for $E_1$ in complex arithmetic, and for small $x$
-the power series. The value $\tfrac2\pi\operatorname{Si}(\pi) = 1.17898$ is the size of the overshoot of a Fourier series at a jump,
-the **Gibbs phenomenon**.
+So no new method is needed. For large $x$ the library evaluates the continued fraction for $E_1$
+in complex arithmetic and separates the real and imaginary parts, and for small $x$ it uses the
+power series. The value $\tfrac2\pi\operatorname{Si}(\pi) = 1.17898$ is the size of the overshoot of a Fourier
+series at a jump, the **Gibbs phenomenon**.
 
 ![Sine, cosine and exponential integrals](../generated/special_functions/sine_cosine_integrals.svg)
 

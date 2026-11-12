@@ -44,6 +44,13 @@ convention for spherical harmonics that physics still uses.
 
 ### Classical orthogonal polynomials
 
+Two functions are **orthogonal** with respect to a weight function $w(x) \ge 0$ on an interval if
+the integral of their product, weighted by $w$, is zero: $\int w(x)\,p(x)\,q(x)\,dx = 0$. This is
+the analogue for functions of two vectors having zero dot product. A family of
+**orthogonal polynomials** $p_0, p_1, p_2, \ldots$ has one polynomial of each degree, every pair
+of which is orthogonal. Each choice of weight and interval gives a different family, and the
+classical ones are:
+
 | family | weight $w(x)$ | interval | recurrence |
 |---|---|---|---|
 | Legendre $P_n$ | 1 | $[-1, 1]$ | $(n + 1)P_{n+1} = (2n + 1)xP_n - nP_{n-1}$ |
@@ -54,10 +61,18 @@ convention for spherical harmonics that physics still uses.
 | Laguerre $L_n^{(\alpha)}$ | $x^\alpha e^{-x}$ | $[0, \infty)$ | $(n + 1)L_{n+1} = (2n + 1 + \alpha - x)L_n - (n + \alpha)L_{n-1}$ |
 | Jacobi $P_n^{(\alpha,\beta)}$ | $(1 - x)^\alpha(1 + x)^\beta$ | $[-1, 1]$ | a three-term recurrence with rational coefficients |
 
-Every orthogonal family satisfies a **three-term recurrence** $p_{n+1} = (a_nx + b_n)p_n - c_np_{n-1}$, and evaluating it
-upward from $p_0$ and $p_1$ is the standard, stable way to compute the polynomials: unlike expanding them in
-powers of $x$, which cancels catastrophically ($T_{50}$ has coefficients as large as $1.3 \times 10^{18}$ but values bounded by 1).
-On the orthogonality interval the polynomials oscillate with $n$ zeros:
+The last column is the key to computing them. Every orthogonal family satisfies a
+**three-term recurrence** $p_{n+1} = (a_nx + b_n)p_n - c_np_{n-1}$: each polynomial is determined by
+the two before it. Starting from $p_0$ and $p_1$ and applying the recurrence upward gives the value
+of $p_n(x)$ in $n$ steps. For Legendre polynomials, for example, $P_0 = 1$ and $P_1 = x$ give
+$2P_2 = 3x\cdot x - 1$, so $P_2 = (3x^2 - 1)/2$.
+
+This is the standard way to evaluate the polynomials, and it is numerically stable. The obvious
+alternative, writing $p_n$ out in powers of $x$ and summing, is not. $T_{50}$ has coefficients as
+large as $1.3 \times 10^{18}$, yet its values on $[-1, 1]$ never exceed 1 in magnitude: the huge
+terms cancel almost completely, and in double precision nothing correct is left.
+
+On the orthogonality interval the polynomial of degree $n$ oscillates, with exactly $n$ zeros:
 
 ![Legendre polynomials](../generated/special_functions/legendre.svg)
 
@@ -77,13 +92,18 @@ $$
 P_l^m(x) = (-1)^m(1 - x^2)^{m/2}\frac{d^m}{dx^m}P_l(x), \qquad 0 \le m \le l,
 $$
 
-and $P_l^{-m} = (-1)^m\frac{(l - m)!}{(l + m)!}P_l^m$. The **spherical harmonics**
+and $P_l^{-m} = (-1)^m\frac{(l - m)!}{(l + m)!}P_l^m$. They arise when Laplace's equation is separated in spherical coordinates, where they describe
+the dependence on the polar angle $\theta$ through $x = \cos\theta$. Multiplying by the dependence
+on the azimuthal angle $\phi$, and normalising, gives the **spherical harmonics**
 
 $$
 Y_l^m(\theta, \phi) = \sqrt{\frac{2l + 1}{4\pi}\frac{(l - m)!}{(l + m)!}}\,P_l^m(\cos\theta)\,e^{im\phi}
 $$
 
-are orthonormal on the unit sphere and satisfy $Y_l^{-m} = (-1)^m\overline{Y_l^m}$. The **real spherical harmonics**,
+They play the role on the surface of a sphere that sines and cosines play on a circle: any
+reasonable function on the sphere can be expanded in them. The **degree** $l$ sets how rapidly the
+function varies (there are $2l + 1$ harmonics of degree $l$, with $m = -l, \ldots, l$), and the
+**order** $m$ counts the oscillations around the axis. They are orthonormal on the unit sphere and satisfy $Y_l^{-m} = (-1)^m\overline{Y_l^m}$. The **real spherical harmonics**,
 combinations $\sqrt2(-1)^m\operatorname{Re}Y_l^m$ and $\sqrt2(-1)^m\operatorname{Im}Y_l^{|m|}$, are used in chemistry and geophysics.
 
 The unnormalised $P_l^m$ grow like $(2m)!$ and overflow beyond $m \approx 150$, although the normalised functions are

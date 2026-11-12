@@ -44,54 +44,103 @@ the matrix pencil) used in radar, speech and the analysis of vibrations.
 
 ### Trigonometric interpolation
 
-Given $n$ samples $y_j = f(x_j)$ at $x_j = x_0 + jT/n$ over one period $T$, the discrete Fourier
-transform gives coefficients
+Suppose $f$ is periodic with period $T$, and we have $n$ samples $y_j = f(x_j)$ at the equally
+spaced points $x_j = x_0 + jT/n$ covering one period. We look for an interpolant made of the
+simplest periodic functions, the complex exponentials $e^{2\pi i k (x - x_0)/T}$ with integer
+frequency $k$ (each is a sine and a cosine with $k$ cycles per period).
+
+With $n$ samples we can determine $n$ coefficients. They are given by the discrete Fourier
+transform (DFT),
 
 $$
 \hat y_k = \frac1n \sum_{j=0}^{n-1} y_j\, e^{-2\pi i jk/n},
 $$
 
-and the **trigonometric interpolant** is the Fourier series built from them, with frequencies from
-$-n/2$ to $n/2$:
+and the inverse DFT states precisely that the samples are recovered from them:
+$y_j = \sum_k \hat y_k\, e^{2\pi i jk/n}$. Since $(x_j - x_0)/T = j/n$, this says that the Fourier
+series with coefficients $\hat y_k$ passes through every sample.
+
+**Which frequencies?** There is a subtlety. At the sample points, frequency $k$ and frequency
+$k + n$ are indistinguishable, because $e^{2\pi i j(k+n)/n} = e^{2\pi i jk/n}\,e^{2\pi i j}$ and
+the last factor is 1. This is **aliasing**. Any set of $n$ consecutive frequencies would
+interpolate the samples, but they would behave very differently *between* the samples. The right
+choice is the set of lowest frequencies, from $-n/2$ to $n/2$, which wiggles as little as possible:
 
 $$
 p(x) = \sum_{|k| < n/2} \hat y_k\, e^{2\pi i k (x - x_0)/T} \;\; \Big[+\, \hat y_{n/2} \cos\big(\pi n (x - x_0)/T\big) \text{ for even } n\Big].
 $$
 
-Pairing $\pm k$ keeps the interpolant real for real data. For even $n$ the highest frequency, the
-**Nyquist** frequency, appears only once in the samples, and splitting it evenly between $\pm n/2$ gives
-the cosine term above. $p$ passes through every sample, and between them it is the smoothest periodic
-function that does so: it contains no frequencies the samples cannot resolve.
+Two details of this formula deserve a comment.
 
-For a smooth periodic $f$ the Fourier coefficients decay exponentially, and so does the interpolation
-error: 24 samples of $e^{\sin 2\pi x} + 0.3\cos 6\pi x$ give a maximum error of $10^{-13}$. For data that
-is *not* periodic, the interpolant treats the jump between the last and first samples as a
-discontinuity and develops **Gibbs oscillations** near the ends:
+- For real data, $\hat y_{-k}$ is the complex conjugate of $\hat y_k$, so the terms for $+k$ and
+  $-k$ add up to a real cosine and sine. Pairing $\pm k$ keeps the interpolant real.
+- For even $n$ the highest frequency $n/2$, the **Nyquist** frequency, has no partner: $+n/2$ and
+  $-n/2$ are aliases of each other. Splitting its coefficient evenly between the two gives the
+  cosine term in brackets.
+
+The interpolant $p$ passes through every sample, and it contains no frequencies higher than the
+samples can resolve.
+
+**Accuracy.** For a smooth periodic $f$ the Fourier coefficients decay exponentially, and so does
+the interpolation error: 24 samples of $e^{\sin 2\pi x} + 0.3\cos 6\pi x$ give a maximum error of
+$10^{-13}$. For data that are *not* periodic, the interpolant still assumes that the function
+repeats, so it sees a jump between the last sample and the first. A Fourier series converges
+slowly at a jump and overshoots on both sides of it, the **Gibbs oscillations** visible near the
+ends:
 
 ![Trigonometric interpolation](../generated/interpolation/fourier_interpolation.svg)
 
 ### Prony's method
 
-Suppose the samples come from a sum of $p$ complex exponentials,
-$y_k = \sum_{i=1}^p c_i z_i^k$ with $z_i = e^{s_i \Delta t}$. Each $z_i$ is a root of the polynomial
-$z^p + a_1 z^{p-1} + \cdots + a_p$, and therefore the samples satisfy the **linear recurrence**
+Trigonometric interpolation fixes the frequencies in advance and finds the amplitudes. Prony's
+method treats the frequencies and the decay rates as unknowns too. The model is a sum of $p$
+complex exponentials sampled at interval $\Delta t$,
 
 $$
-y_{k+p} + a_1 y_{k+p-1} + \cdots + a_p y_k = 0 \quad \text{for every } k.
+y_k = \sum_{i=1}^p c_i\, e^{s_i k\Delta t} = \sum_{i=1}^p c_i z_i^k, \qquad z_i = e^{s_i \Delta t}.
 $$
 
-Prony's method uses this in three steps, each of them linear:
+The real part of $s_i$ is a growth (or, if negative, decay) rate and the imaginary part is an
+angular frequency. Fitting the $z_i$ directly would be a difficult nonlinear problem. Prony's
+insight was that it can be avoided.
 
-1. **Linear prediction**: find $a_1, \ldots, a_p$ from the recurrence written for all available $k$, an
-   overdetermined system solved by least squares.
-2. **Poles**: the $z_i$ are the roots of the polynomial, computed as the eigenvalues of its companion
-   matrix. Each pole gives a decay rate $-\operatorname{Re} s_i$ and a frequency $\operatorname{Im} s_i/2\pi$, with
-   $s_i = \ln z_i/\Delta t$.
-3. **Amplitudes**: with the $z_i$ known, $y_k = \sum c_i z_i^k$ is a linear (Vandermonde) least-squares
-   problem for the $c_i$.
+**The key observation.** Start with one exponential, $y_k = c z^k$. Each sample is $z$ times the
+one before: $y_{k+1} - z\,y_k = 0$. The samples satisfy a linear recurrence whose coefficient
+reveals $z$. The same is true for $p$ exponentials. Let
 
-For an exact exponential sum, the method recovers every frequency and damping rate exactly from just
-$2p$ samples, however close the frequencies, which is why it can outperform Fourier analysis.
+$$
+A(z) = z^p + a_1 z^{p-1} + \cdots + a_p
+$$
+
+be the polynomial whose roots are $z_1, \ldots, z_p$. Then for every $k$,
+
+$$
+y_{k+p} + a_1 y_{k+p-1} + \cdots + a_p y_k
+= \sum_{i=1}^p c_i z_i^k \big(z_i^p + a_1 z_i^{p-1} + \cdots + a_p\big)
+= \sum_{i=1}^p c_i z_i^k\,A(z_i) = 0,
+$$
+
+because each $z_i$ is a root of $A$. In words: every sample is a fixed linear combination of the
+$p$ samples before it. The combination is the same everywhere in the signal, and its coefficients
+encode the poles $z_i$.
+
+**The method.** This turns one nonlinear problem into three linear ones.
+
+1. **Linear prediction.** Write the recurrence for every available $k$. The samples are known and
+   $a_1, \ldots, a_p$ are unknown, so this is a system of linear equations, usually with more
+   equations than unknowns, solved by [least squares](../linear_algebra/least-squares.md).
+2. **Poles.** The $z_i$ are the roots of $A(z)$, computed as the eigenvalues of its
+   [companion matrix](../root_finding/polynomial-roots.md). Taking the logarithm,
+   $s_i = \ln z_i/\Delta t$, gives the decay rate $-\operatorname{Re} s_i$ and the frequency
+   $\operatorname{Im} s_i/2\pi$ of each component.
+3. **Amplitudes.** With the $z_i$ known, the model $y_k = \sum c_i z_i^k$ is linear in the $c_i$:
+   another least-squares problem, with a Vandermonde matrix of entries $z_i^k$.
+
+For an exact exponential sum, step 1 needs $p$ equations, each involving $p + 1$ consecutive
+samples, so $2p$ samples suffice to recover every frequency and damping rate exactly, however
+close the frequencies are. A Fourier transform, by contrast, cannot separate two frequencies
+closer than about one cycle over the length of the record. This is why Prony's method can
+outperform Fourier analysis on short records.
 
 ### Prony's method and noise
 

@@ -14,19 +14,28 @@
 
 ## Overview
 
-Given $n$ points with distinct abscissas, there is exactly one polynomial of degree at most $n - 1$
-passing through all of them. Finding it, and evaluating it between the points, is the oldest
-problem in numerical analysis, and the foundation of numerical integration, differentiation and
-much of approximation theory.
+Two points determine a straight line, and three points (not on a line) determine a parabola. The
+pattern continues: given $n$ points with distinct abscissas $x_0, \ldots, x_{n-1}$, there is exactly
+one polynomial of degree at most $n - 1$ passing through all of them. It is called the
+**interpolating polynomial**, or **interpolant**. Finding it, and evaluating it between the
+points, is the oldest problem in numerical analysis, and the foundation of numerical integration,
+differentiation and much of approximation theory.
 
-The library offers three forms. **Newton's divided differences** build the polynomial incrementally
-and evaluate it by Horner's rule. The **barycentric Lagrange formula** is the numerically preferred
-form for evaluation at many points. A **Chebyshev series** approximates a function you can evaluate
-anywhere, not just at given data, to near machine precision with a few dozen terms.
+Although the interpolant is unique, it can be written down in several ways, and the ways differ
+in cost and in numerical stability. The library offers three.
+
+- **Newton's divided differences** build the polynomial one point at a time and evaluate it by
+  Horner's rule.
+- The **barycentric Lagrange formula** is the numerically preferred form for evaluating the
+  interpolant at many points.
+- A **Chebyshev series** approximates a function you can evaluate anywhere, not just at given
+  data, to near machine precision with a few dozen terms.
 
 The single most important fact about polynomial interpolation is that **the choice of points
 matters enormously**. Equally spaced points can make the interpolant diverge wildly as $n$ grows,
 the **Runge phenomenon**, while Chebyshev points give rapid convergence for every smooth function.
+This entry first describes the two ways of computing the interpolant, then explains where the
+error comes from and why the points matter so much.
 
 ## History
 
@@ -51,64 +60,157 @@ exactly as interpolation points should.
 
 ### Newton's divided differences
 
-Write the interpolant as
+Newton's idea is to write the interpolant so that each new data point adds one new term and
+leaves the earlier terms alone:
 
 $$
 p(x) = a_0 + a_1(x - x_0) + a_2(x - x_0)(x - x_1) + \cdots + a_{n-1}(x - x_0)\cdots(x - x_{n-2}).
 $$
 
-Each new term vanishes at all the earlier points, so adding a point adds a term without changing
-the others. The coefficients are the **divided differences** $a_k = f[x_0, \ldots, x_k]$, defined
-recursively by $f[x_i] = y_i$ and
+The term with coefficient $a_k$ contains the factors $(x - x_0), \ldots, (x - x_{k-1})$, so it
+vanishes at $x_0, \ldots, x_{k-1}$. This lets us find the coefficients one at a time.
+
+- At $x = x_0$ every term but the first vanishes, so $p(x_0) = a_0$, and we need $a_0 = y_0$.
+- At $x = x_1$ only two terms survive: $p(x_1) = a_0 + a_1(x_1 - x_0) = y_1$, so
+  $a_1 = (y_1 - y_0)/(x_1 - x_0)$. This is the slope of the line through the first two points.
+- At $x = x_2$ three terms survive, giving one equation for $a_2$, and so on.
+
+Solving these equations in turn produces a pattern. The coefficients are the
+**divided differences** $a_k = f[x_0, \ldots, x_k]$, defined recursively by $f[x_i] = y_i$ and
 
 $$
 f[x_i, \ldots, x_{i+k}] = \frac{f[x_{i+1}, \ldots, x_{i+k}] - f[x_i, \ldots, x_{i+k-1}]}{x_{i+k} - x_i}.
 $$
 
-They are computed in place in $O(n^2)$ operations, and the polynomial is evaluated by nesting the
-products (Horner's rule) in $O(n)$.
+A divided difference over $k + 1$ points is the difference of two divided differences over $k$
+points, divided by the distance between the outermost points. They are usually laid out in a
+triangular table. For the three points $(0, 1)$, $(1, 3)$ and $(3, 13)$:
+
+| $x_i$ | $f[x_i]$ | $f[x_i, x_{i+1}]$ | $f[x_0, x_1, x_2]$ |
+|---|---|---|---|
+| 0 | 1 | $(3 - 1)/(1 - 0) = 2$ | $(5 - 2)/(3 - 0) = 1$ |
+| 1 | 3 | $(13 - 3)/(3 - 1) = 5$ | |
+| 3 | 13 | | |
+
+The coefficients are the top entries of the columns, $a_0 = 1$, $a_1 = 2$, $a_2 = 1$, so
+
+$$
+p(x) = 1 + 2(x - 0) + 1\,(x - 0)(x - 1) = x^2 + x + 1,
+$$
+
+and indeed $p(0) = 1$, $p(1) = 3$ and $p(3) = 13$.
+
+The table has $n(n-1)/2$ entries, so it costs $O(n^2)$ operations; the library computes it in
+place, overwriting the $y$ values. To evaluate $p(x)$, nest the products so that each factor
+$(x - x_k)$ is multiplied in only once:
+
+$$
+p(x) = a_0 + (x - x_0)\Big(a_1 + (x - x_1)\big(a_2 + \cdots\big)\Big).
+$$
+
+This is **Horner's rule**, and it costs $O(n)$ operations per evaluation.
 
 ### The barycentric formula
 
-Lagrange's formula $p(x) = \sum_j y_j \ell_j(x)$, with $\ell_j(x) = \prod_{k \ne j} (x - x_k)/(x_j - x_k)$,
-costs $O(n^2)$ per evaluation as written. Dividing it by the interpolant of the constant 1, which is
-exactly 1, gives the **barycentric formula**
+Lagrange wrote the same polynomial in a different way. For each node $x_j$, build a polynomial
+that equals 1 at $x_j$ and 0 at every other node:
+
+$$
+\ell_j(x) = \prod_{k \ne j} \frac{x - x_k}{x_j - x_k}.
+$$
+
+The numerator vanishes at every node except $x_j$, and the denominator scales the value at $x_j$
+to 1. Then $p(x) = \sum_j y_j\,\ell_j(x)$ passes through all the data: at $x_i$ every term
+vanishes except the $i$-th, which contributes $y_i$. This is **Lagrange's formula**. As written
+it costs $O(n^2)$ per evaluation, because each of the $n$ products has $n - 1$ factors. A little
+algebra removes the repetition.
+
+*Step 1: separate what depends on $x$ from what does not.* Let
+$\ell(x) = \prod_k (x - x_k)$ be the product over *all* nodes, and let
+$w_j = 1/\prod_{k \ne j}(x_j - x_k)$. The numerator of $\ell_j$ is $\ell(x)$ with the factor
+$(x - x_j)$ removed, so
+
+$$
+\ell_j(x) = \ell(x)\,\frac{w_j}{x - x_j}, \qquad\text{and}\qquad
+p(x) = \ell(x) \sum_j \frac{w_j}{x - x_j}\,y_j.
+$$
+
+*Step 2: eliminate $\ell(x)$.* Apply the same formula to the data $y_j = 1$ for all $j$. The
+interpolant of constant data is the constant 1, so
+
+$$
+1 = \ell(x) \sum_j \frac{w_j}{x - x_j}.
+$$
+
+*Step 3: divide.* Dividing the expression for $p(x)$ by this expression for 1 cancels $\ell(x)$
+and gives the **barycentric formula**
 
 $$
 p(x) = \frac{\displaystyle\sum_{j} \frac{w_j}{x - x_j}\, y_j}{\displaystyle\sum_{j} \frac{w_j}{x - x_j}},
 \qquad w_j = \frac{1}{\prod_{k \ne j} (x_j - x_k)}.
 $$
 
-The weights depend only on the nodes and are computed once; each evaluation is then $O(n)$. The
-formula is also remarkably stable: errors in the weights cancel between numerator and denominator,
-and Higham (2004) proved it is forward stable for well-chosen points.
+The formula is a weighted average of the data values, with weights $w_j/(x - x_j)$ that grow as $x$
+approaches $x_j$. The **barycentric weights** $w_j$ depend only on the nodes and are computed once, in
+$O(n^2)$ operations; each evaluation is then $O(n)$. The formula is also remarkably stable. Any
+error in a weight $w_j$ appears in both the numerator and the denominator and largely cancels, and
+Higham (2004) proved the formula is forward stable for well-chosen points. The one special case is
+$x = x_j$ exactly, where the formula would divide by zero; the code returns $y_j$ directly.
 
 ### The interpolation error and the Runge phenomenon
+
+So far the data were just numbers. Now suppose they are samples $y_j = f(x_j)$ of a function $f$,
+and ask how far the interpolant is from $f$ between the nodes.
 
 > **Interpolation error.** If $f$ has $n$ continuous derivatives, then for each $x$ there is a $\xi$ in
 > the interval spanned by $x$ and the nodes with
 > $$f(x) - p(x) = \frac{f^{(n)}(\xi)}{n!}\, \prod_{j=0}^{n-1} (x - x_j).$$
 
-The first factor depends on $f$; the second, the **node polynomial**, depends only on the points. For
-equally spaced points the node polynomial is far larger near the ends of the interval than in the
-middle, by a factor that grows exponentially with $n$. If the derivatives of $f$ also grow fast, as
-they do for $1/(1 + 25x^2)$ (which has poles at $\pm i/5$, close to the interval), the interpolant
-diverges near the ends:
+The formula resembles the remainder of a Taylor series, and for good reason: a Taylor polynomial
+is the limit of an interpolant as all the nodes merge into one. The error is a product of two
+factors.
+
+- The first, $f^{(n)}(\xi)/n!$, depends on $f$. It is small when the high derivatives of $f$ grow
+  more slowly than $n!$.
+- The second, the **node polynomial** $\prod_j (x - x_j)$, depends only on the points. It is zero
+  at each node, as it must be, and its size between the nodes is something we can control by
+  choosing the nodes.
+
+For equally spaced points the node polynomial is far larger near the ends of the interval than
+in the middle, by a factor that grows exponentially with $n$. Near the middle, $x$ is close to
+many nodes and the product has many small factors; near an end, most nodes are far away. If
+the derivatives of $f$ also grow fast, the error near the ends grows without bound as $n$
+increases. Runge's example is $f(x) = 1/(1 + 25x^2)$ on $[-1, 1]$. It looks harmless on the real
+line, but it has poles at $x = \pm i/5$ in the complex plane, close to the interval, and these make
+its derivatives grow very quickly. The interpolant diverges near the ends:
 
 ![The Runge phenomenon](../generated/interpolation/runge.svg)
 
+Adding more equally spaced points makes the oscillations worse, not better.
+
 ### Chebyshev points
 
-The **Chebyshev points** $x_j = \cos(\pi j/(n-1))$ are the projections onto the real axis of equally
-spaced points on a semicircle. They cluster near the ends with density proportional to
-$1/\sqrt{1 - x^2}$, exactly cancelling the growth of the node polynomial, which then becomes a scaled
-Chebyshev polynomial, equioscillating with the smallest possible maximum. For the barycentric formula
-their weights are known in closed form: $w_j = (-1)^j$, halved at the two ends.
+The cure is to choose nodes that make the node polynomial small everywhere. Take points equally
+spaced in angle around the upper half of the unit circle, and project them down onto the real axis.
+These are the **Chebyshev points**
 
-The result is a convergence theory of great elegance. If $f$ is analytic inside the ellipse with foci
-$\pm1$ and semi-axis sum $\rho > 1$ (a **Bernstein ellipse**), interpolation in Chebyshev points
-converges like $\rho^{-n}$. For the Runge function, the largest such ellipse passes through the poles
-at $\pm i/5$, giving $\rho = 1/5 + \sqrt{1 + 1/25} \approx 1.22$:
+$$
+x_j = \cos\frac{\pi j}{n-1}, \qquad j = 0, \ldots, n-1.
+$$
+
+They cluster near the ends of $[-1, 1]$, with density proportional to $1/\sqrt{1 - x^2}$. The extra
+nodes near the ends are exactly what is needed to tame the node polynomial there. With these
+points the node polynomial is a close relative of a Chebyshev polynomial. It oscillates with
+peaks of nearly the same height across the whole interval instead of growing towards the ends,
+and its maximum is within a factor of two of the smallest that any choice of nodes can achieve. For the barycentric formula the weights are known
+in closed form, with no products to compute: $w_j = (-1)^j$, halved at the two ends.
+
+The resulting convergence theory is simple to state. Draw the ellipse in the complex plane with
+foci $\pm 1$ whose semi-axes sum to $\rho > 1$ (a **Bernstein ellipse**). If $f$ is analytic
+inside it, interpolation in Chebyshev points converges like $\rho^{-n}$: the further the nearest
+singularity of $f$ lies from the interval, the larger $\rho$ can be and the faster the
+convergence. For the Runge function, the largest such ellipse passes through the poles at
+$\pm i/5$. Its semi-axes are $1/5$ and $\sqrt{1 + 1/25}$, so $\rho = 1/5 + \sqrt{1 + 1/25} \approx 1.22$:
 
 ![Convergence for the Runge function](../generated/interpolation/runge_convergence.svg)
 
@@ -117,21 +219,36 @@ methods converge at exactly the predicted rate.
 
 ### Chebyshev series
 
-When $f$ can be evaluated anywhere, it is natural to expand it in **Chebyshev polynomials**
-$T_k(\cos\theta) = \cos k\theta$:
+When $f$ can be evaluated anywhere, we are free to choose the nodes, and it is natural to
+represent the interpolant in a basis made for Chebyshev points. The **Chebyshev polynomials**
+are defined by
 
 $$
-f(x) \approx \tfrac12 c_0 + \sum_{k=1}^{n-1} c_k\, T_k(t), \qquad t = \frac{2x - a - b}{b - a}.
+T_k(\cos\theta) = \cos k\theta.
 $$
 
-Because $T_k(\cos\theta) = \cos k\theta$, this is a Fourier cosine series in disguise, and the coefficients
-are computed from samples at the Chebyshev points by a discrete cosine sum. They decay as fast as $f$
-is smooth, so trailing coefficients below a tolerance can simply be dropped (`truncate`).
+That this defines a polynomial in $x = \cos\theta$ follows from the trigonometric identities:
+$T_0 = 1$, $T_1 = x$, and since $\cos 2\theta = 2\cos^2\theta - 1$, $T_2 = 2x^2 - 1$. The function
+is expanded as
+
+$$
+f(x) \approx \tfrac12 c_0 + \sum_{k=1}^{n-1} c_k\, T_k(t), \qquad t = \frac{2x - a - b}{b - a},
+$$
+
+where the change of variable maps the interval $[a, b]$ onto $[-1, 1]$.
+
+Substituting $t = \cos\theta$ turns the right side into $\tfrac12 c_0 + \sum_k c_k \cos k\theta$. A
+Chebyshev series is therefore a Fourier cosine series in disguise, and it inherits the properties
+of Fourier series. The coefficients are computed from samples of $f$ at Chebyshev points by a
+discrete cosine sum. They decay as fast as $f$ is smooth, exponentially if $f$ is analytic, so
+trailing coefficients below a tolerance can simply be dropped (`truncate`).
+
 [`ChebyshevApproximation`](../../api/lib_jsl_interpolation/one_d/chebyshev_approximations/struct.ChebyshevApproximation.html)
 evaluates the series by **Clenshaw's recurrence**, the analogue of Horner's rule for Chebyshev
-polynomials, and differentiates or integrates it by simple recurrences on the coefficients.
-Chebyshev series are the basis of the Chebfun system and of the
-[spectral methods](../integration/spectral-methods.md) for differential equations.
+polynomials: it uses the three-term recurrence $T_{k+1} = 2tT_k - T_{k-1}$ to sum the series in
+$O(n)$ operations without ever forming the $T_k$. The series is differentiated or integrated by
+simple recurrences on the coefficients. Chebyshev series are the basis of the Chebfun system and
+of the [spectral methods](../integration/spectral-methods.md) for differential equations.
 
 ## Algorithm
 

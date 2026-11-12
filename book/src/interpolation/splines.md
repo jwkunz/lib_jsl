@@ -46,80 +46,150 @@ the shape-preserving interpolant of MATLAB and SciPy.
 
 ## The idea
 
+Throughout, the data are $(x_0, y_0), \ldots, (x_{n-1}, y_{n-1})$ with the abscissas in increasing
+order. The points $x_j$ are called **nodes** (or knots), $h_j = x_{j+1} - x_j$ is the width of
+interval $j$, and $d_j = (y_{j+1} - y_j)/h_j$ is the slope of the straight line across it, called
+the **secant**.
+
 ### Locating the interval
 
-Every piecewise method first finds the interval $[x_j, x_{j+1}]$ containing the evaluation point,
-by **bisection** in $O(\log n)$ steps. Interpolators that are evaluated at nearby points in sequence,
-as when drawing a curve, remember the last interval and check it first ("hunting"), making most
-evaluations $O(1)$. Bisection requires the abscissas to be in increasing order, and the library's
-constructors check this.
+Every piecewise method first finds the interval $[x_j, x_{j+1}]$ containing the evaluation point.
+Because the nodes are sorted, this is done by **bisection**: compare with the middle node, discard
+the half that cannot contain the point, and repeat, which takes $O(\log n)$ steps. Interpolators are often
+evaluated at many nearby points in sequence, as when drawing a curve. They remember the last
+interval and check it first ("hunting"), which makes most evaluations $O(1)$. Bisection requires
+the abscissas to be in increasing order, and the library's constructors check this.
 
 ### Linear interpolation
 
-On $[x_j, x_{j+1}]$, $p(x) = y_j + (x - x_j)\,\dfrac{y_{j+1} - y_j}{x_{j+1} - x_j}$. The error is at most
-$\tfrac{h^2}{8}\max|f''|$ with $h$ the largest interval: second order, robust, and shape-preserving,
-but with corners at every data point.
+The simplest choice joins neighbouring points by straight lines. On $[x_j, x_{j+1}]$,
+
+$$
+p(x) = y_j + (x - x_j)\,\frac{y_{j+1} - y_j}{x_{j+1} - x_j}.
+$$
+
+How accurate is this if the data are samples of a function $f$? Each piece is the polynomial
+interpolant through two points, so the
+[interpolation error formula](polynomial.md#the-interpolation-error-and-the-runge-phenomenon)
+applies with $n = 2$: the error is $\tfrac12 f''(\xi)(x - x_j)(x - x_{j+1})$. The product
+$(x - x_j)(x - x_{j+1})$ is largest in magnitude at the midpoint, where it equals $h^2/4$. The
+error is therefore at most $\tfrac{h^2}{8}\max|f''|$, with $h$ the largest interval. Linear
+interpolation is second-order accurate, robust, and never leaves the range of the data, but the
+curve has a corner at every data point.
 
 ### Cubic splines
 
-A **cubic spline** is a function that is a cubic on each interval and has continuous first and second
-derivatives at the interior points. With $n$ points there are $n - 1$ cubics, $4(n - 1)$ coefficients,
-and the interpolation and continuity conditions give $4(n - 1) - 2$ equations; two **end conditions**
-complete the system. The **natural** spline sets $S'' = 0$ at both ends, the condition satisfied by the
-draughtsman's free-ended strip.
+To remove the corners we need curved pieces. Cubics are the lowest degree with enough freedom to
+match the neighbours smoothly on both sides. A **cubic spline** is a function $S$ that is a cubic
+on each interval and whose first and second derivatives are continuous at the interior nodes.
 
-Writing the unknowns as the second derivatives $c_i$ (up to a factor) at the nodes reduces the problem
-to a **tridiagonal** linear system, diagonally dominant and solved in $O(n)$:
+**Counting the conditions.** With $n$ points there are $n - 1$ cubics, each with 4 coefficients:
+$4(n - 1)$ unknowns. The conditions are:
+
+- each cubic passes through the data at both ends of its interval: $2(n - 1)$ equations;
+- $S'$ is continuous at each of the $n - 2$ interior nodes: $n - 2$ equations;
+- $S''$ is continuous at each interior node: $n - 2$ more.
+
+That makes $4(n - 1) - 2$ equations, two short. Two **end conditions** complete the system. The
+**natural** spline sets $S'' = 0$ at both ends. The name comes from the draughtsman's spline, a
+thin flexible strip held against pins: beyond the last pin the strip is free, and a free strip is
+straight.
+
+**Reducing to a tridiagonal system.** Solving $4(n - 1)$ equations directly would be wasteful. A
+better choice of unknowns makes most of them trivial. Write the cubic on interval $i$ as
+
+$$
+S_i(x) = y_i + b_i(x - x_i) + c_i(x - x_i)^2 + d_i(x - x_i)^3,
+$$
+
+so that $c_i = \tfrac12 S''(x_i)$. The plan is to express everything in terms of the $c_i$.
+
+1. Continuity of $S''$: the second derivative $2c_i + 6d_i(x - x_i)$ must reach $2c_{i+1}$ at
+   $x_{i+1}$, which gives $d_i = (c_{i+1} - c_i)/(3h_i)$.
+2. Interpolation: $S_i(x_{i+1}) = y_{i+1}$, with $d_i$ from step 1, gives
+   $b_i = \dfrac{y_{i+1} - y_i}{h_i} - \dfrac{h_i}{3}(2c_i + c_{i+1})$.
+3. Continuity of $S'$: the slope at the right end of interval $i - 1$ must equal $b_i$, the slope
+   at the left end of interval $i$. Substituting steps 1 and 2 leaves an equation in the $c$'s alone:
 
 $$
 h_{i-1}c_{i-1} + 2(h_{i-1} + h_i)\,c_i + h_i c_{i+1} = 3\left(\frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}\right).
 $$
 
+There is one such equation for each interior node, and the natural end conditions supply
+$c_0 = c_{n-1} = 0$. Each equation involves only three neighbouring unknowns, so the matrix of the
+system is **tridiagonal**. It is also diagonally dominant (the diagonal entry $2(h_{i-1} + h_i)$ exceeds
+the sum of the other two), which guarantees that elimination without pivoting is stable. The
+system is solved in $O(n)$ operations, after which steps 1 and 2 give the remaining coefficients.
+
+**Why splines are smooth.** The natural spline has a remarkable optimality property.
+
 > **Minimum curvature.** Among all functions with a square-integrable second derivative that
 > interpolate the data, the natural cubic spline minimises $\int_{x_0}^{x_{n-1}} \big(f''(x)\big)^2\,dx$.
 
-This variational property, the mathematical form of the bent strip, explains the spline's smoothness
-and also its weakness: the curvature is spread globally, so a sudden rise in the data pulls the curve
-into oscillations on both sides.
+The integral is approximately the bending energy of a thin elastic strip, so this is the
+mathematical form of the draughtsman's tool: the strip settles into the shape of least energy. The
+property explains the spline's smoothness and also its weakness. Because the curvature is spread
+over the whole curve, a sudden rise in the data pulls the curve into oscillations on both sides.
+Every data point affects the spline everywhere, though the influence dies away with distance.
 
-The natural end condition is a compromise. If the underlying function has $f'' \ne 0$ at the ends,
-the condition is wrong there, and the error near the ends is only $O(h^2)$, although it remains $O(h^4)$
-in the interior. For $e^x$ on $[0, 1]$, the library's results show this clearly:
+**The price of the natural end condition.** If the underlying function has $f'' \ne 0$ at the
+ends, the natural condition imposes something false there. The error near the ends is then only
+$O(h^2)$, although it remains $O(h^4)$ in the interior. For $e^x$ on $[0, 1]$, whose second
+derivative is nowhere zero, the library's results show this clearly:
 
 {{#include ../generated/interpolation/spline_convergence.md}}
 
-The natural spline's maximum error falls by four per halving (second order, from the ends), while on
-the middle half of the interval it falls by sixteen (fourth order). A **clamped** spline with the true
-end slopes, or the **not-a-knot** condition, would restore fourth order everywhere.
+Each row halves $h$. The natural spline's maximum error falls by a factor of four per halving
+(second order, from the ends), while on the middle half of the interval it falls by sixteen (fourth
+order). A **clamped** spline, which uses the true end slopes, or the **not-a-knot** condition, which
+makes the first two and the last two pieces the same cubic, would restore fourth order everywhere.
 
 ### Cubic Hermite interpolation
 
-If the slopes $m_j$ at the nodes are known, each interval has a unique cubic matching the two values
-and the two slopes:
+A different way to make a smooth piecewise cubic is to decide the slope $m_j$ of the curve at
+every node first. A cubic has four coefficients, and on each interval there are four conditions:
+the values $y_j$, $y_{j+1}$ and the slopes $m_j$, $m_{j+1}$ at its two ends. So each interval has
+a unique cubic, which can be written down directly:
 
 $$
 p(x) = h_{00}(t)\,y_j + h_{10}(t)\,h\,m_j + h_{01}(t)\,y_{j+1} + h_{11}(t)\,h\,m_{j+1}, \qquad t = \frac{x - x_j}{h},
 $$
 
-with the **Hermite basis** $h_{00} = 2t^3 - 3t^2 + 1$, $h_{10} = t^3 - 2t^2 + t$, $h_{01} = -2t^3 + 3t^2$,
-$h_{11} = t^3 - t^2$. The result has a continuous first derivative but, in general, not a second. The
-methods differ only in how they choose the slopes, each from nearby data:
+where $h$ is the width of the interval and $t$ runs from 0 to 1 across it. The four cubics
 
-- **Catmull-Rom** (`cubic_basis` with tension 0): the central difference
-  $m_j = (y_{j+1} - y_{j-1})/(x_{j+1} - x_{j-1})$. Tension $\tau$ scales it by $1 - \tau$.
-- **Akima**: a weighted average of the two neighbouring secants, with weights from the changes in the
-  secants on the far sides. Where the data change abruptly on one side, the slope follows the other
-  side, which suppresses wiggles.
-- **PCHIP**: zero where the data have a local extremum (the neighbouring secants differ in sign), and
-  otherwise a weighted harmonic mean of the two secants. Fritsch and Carlson showed that this keeps the
+$$
+h_{00} = 2t^3 - 3t^2 + 1, \quad h_{10} = t^3 - 2t^2 + t, \quad h_{01} = -2t^3 + 3t^2, \quad h_{11} = t^3 - t^2
+$$
+
+are the **Hermite basis**. Each one takes care of exactly one condition: $h_{00}$ has value 1 at
+$t = 0$, value 0 at $t = 1$ and zero slope at both ends; $h_{10}$ has slope 1 at $t = 0$ and is
+otherwise zero in value and slope at the ends; $h_{01}$ and $h_{11}$ do the same at $t = 1$. (The
+factors of $h$ convert slopes with respect to $t$ into slopes with respect to $x$.)
+
+Neighbouring pieces share the value and slope at their common node, so the result has a
+continuous first derivative. The second derivative is in general discontinuous, so the curve
+is slightly less smooth than a spline. In exchange the method is **local**: no linear system is
+solved, and the curve on an interval depends only on nearby data. The methods differ only in how
+they choose the slopes.
+
+- **Catmull-Rom** (`cubic_basis` with tension 0): the slope of the line through the two neighbours,
+  $m_j = (y_{j+1} - y_{j-1})/(x_{j+1} - x_{j-1})$, a central difference. Tension $\tau$ scales it
+  by $1 - \tau$, flattening the curve at the nodes.
+- **Akima**: a weighted average of the two neighbouring secants $d_{j-1}$ and $d_j$. The weight of
+  each is the change in the secants on the *far* side of the node. Where the data change abruptly
+  on one side, the slope follows the other, smoother side, which suppresses wiggles.
+- **PCHIP** (piecewise cubic Hermite interpolating polynomial): zero where the data have a local
+  extremum (the neighbouring secants differ in sign), and otherwise a weighted harmonic mean of
+  the two secants. A harmonic mean is dominated by the smaller of its arguments, so the slope is
+  never much steeper than the flatter neighbouring secant. Fritsch and Carlson showed that this keeps the
   interpolant monotone wherever the data are monotone.
 
 ![Akima's test data](../generated/interpolation/akima_data.svg)
 
-On Akima's classic data, flat and then rising steeply, the natural spline dips below the flat values
-and overshoots the rise. Akima's interpolant follows the data with only a small ripple, and PCHIP is
-monotone throughout. In the example below, only PCHIP stays within the range of the data: Akima and
-Catmull-Rom can still overshoot slightly.
+Akima's classic data are flat and then rise steeply. The natural spline dips below the flat
+values and overshoots the rise, the global oscillation described above. Akima's interpolant
+follows the data with only a small ripple, and PCHIP is monotone throughout. In the example below,
+only PCHIP stays within the range of the data: Akima and Catmull-Rom can still overshoot slightly.
 
 ## Algorithm
 

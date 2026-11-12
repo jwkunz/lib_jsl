@@ -41,25 +41,55 @@ which established radial basis functions as a sound general method.
 
 ### Shepard's inverse distance weighting
 
+The data are values $f_i$ at points $\mathbf p_i$. A natural guess for the value at a new point
+$\mathbf p$ is an average of the data in which nearby points count for more. Shepard weighted each
+point by an inverse power of its distance:
+
 $$
 s(\mathbf p) = \frac{\sum_i w_i(\mathbf p)\, f_i}{\sum_i w_i(\mathbf p)}, \qquad w_i(\mathbf p) = \|\mathbf p - \mathbf p_i\|^{-\mu}.
 $$
 
-As $\mathbf p \to \mathbf p_i$, the weight $w_i$ dominates and $s \to f_i$, so the data are interpolated. Elsewhere
-$s$ is a convex combination of the data, so it never exceeds their range. But for $\mu > 1$ the gradient
-of $s$ vanishes at every data point, so the surface is flat there and bumpy in between: a poor model
-of a smooth function. Larger $\mu$ localises the influence of each point.
+The exponent $\mu > 0$ is chosen by the user; $\mu = 2$ is common. Three properties follow directly
+from the formula.
+
+- **It interpolates.** As $\mathbf p \to \mathbf p_i$ the weight $w_i$ grows without bound and dominates
+  both sums, so $s \to f_i$. (This is the same argument as for the
+  [barycentric formula](rational.md#barycentric-rational-functions).)
+- **It never overshoots.** The weights are positive, and dividing by their sum makes them add up
+  to 1. So $s(\mathbf p)$ is a weighted average of the data and lies between the smallest and the
+  largest $f_i$.
+- **It is flat at the data points.** For $\mu > 1$ the gradient of $s$ vanishes at every data
+  point. The surface has a little plateau at each point and bumps in between, which is a poor
+  model of a smooth function: a smooth function generally has a nonzero slope at the places where
+  it happens to have been measured.
+
+Larger $\mu$ makes the weights fall off faster and so localises the influence of each point.
 
 ### Radial basis functions
 
-The RBF interpolant is
+Radial basis functions (RBFs) take a different approach. Choose a function $\varphi(r)$ of one
+variable, the **kernel**, and centre a copy of it on every data point: the function
+$\varphi(\|\mathbf p - \mathbf p_i\|)$ depends only on the distance from $\mathbf p_i$ (it is *radial*). The
+interpolant is a weighted sum of these $n$ functions plus a plane, written here for two dimensions
+with $\mathbf p = (x, y)$:
 
 $$
-s(\mathbf p) = \sum_{i=1}^n w_i\,\varphi\big(\|\mathbf p - \mathbf p_i\|\big) + a + b\,x + c\,y,
+s(\mathbf p) = \sum_{i=1}^n w_i\,\varphi\big(\|\mathbf p - \mathbf p_i\|\big) + a + b\,x + c\,y.
 $$
 
-with the $n + 3$ unknowns determined by the $n$ interpolation conditions $s(\mathbf p_i) = f_i$ and the
-three **side conditions** $\sum_i w_i = \sum_i w_i x_i = \sum_i w_i y_i = 0$, a symmetric linear system:
+Unlike Shepard's weights, the coefficients $w_i$ are not given by a formula. They are unknowns,
+found by requiring that the interpolant pass through the data.
+
+**Setting up the equations.** There are $n + 3$ unknowns: $w_1, \ldots, w_n$ and $a, b, c$. The
+interpolation conditions $s(\mathbf p_j) = f_j$ give $n$ equations, each linear in the unknowns. The
+remaining three are the **side conditions**
+
+$$
+\sum_i w_i = 0, \qquad \sum_i w_i x_i = 0, \qquad \sum_i w_i y_i = 0,
+$$
+
+which say that the weights carry no constant or linear trend; that part of the data is left to the
+plane $a + bx + cy$. Together they form a symmetric linear system:
 
 $$
 \begin{pmatrix} \Phi & P \\ P^{\mathsf T} & 0 \end{pmatrix}
@@ -68,16 +98,29 @@ $$
 \qquad \Phi_{ij} = \varphi\big(\|\mathbf p_i - \mathbf p_j\|\big), \quad P_i = (1, x_i, y_i).
 $$
 
-The affine part makes the interpolant reproduce planes exactly with any kernel, and it is required for
-the **cubic** $r^3$ and **thin-plate spline** $r^2 \ln r$ kernels, which are only *conditionally* positive
-definite: the system is guaranteed solvable only together with the side conditions.
+The top block row is the interpolation conditions: $\Phi\mathbf w$ is the sum of kernels evaluated at
+the data points, and $P\mathbf c$ with $\mathbf c = (a, b, c)$ is the plane. The bottom block row is the
+side conditions. The matrix is dense, so solving the system costs $O(n^3)$ operations, which limits
+the method to a few thousand points.
 
-The kernels with a **shape parameter** $\varepsilon$ (Gaussian $e^{-(\varepsilon r)^2}$, multiquadric
-$\sqrt{1 + (\varepsilon r)^2}$, inverse multiquadric $1/\sqrt{1 + (\varepsilon r)^2}$) can be very accurate for smooth
-functions, but they pose a dilemma: as $\varepsilon \to 0$ the bumps flatten, the interpolant becomes more
-accurate, and the matrix $\Phi$ becomes catastrophically ill-conditioned. Choosing $\varepsilon$ is an art; a
-common rule is to make $1/\varepsilon$ comparable to the typical distance between points. The thin-plate
-spline has no parameter and is a robust default.
+**Why the plane?** It has two purposes. It makes the interpolant reproduce planes exactly with any
+kernel: if the data lie on a plane, the solution is $\mathbf w = 0$. And for some kernels it is
+needed for the system to have a solution at all. The **cubic** kernel $r^3$ and the
+**thin-plate spline** $r^2 \ln r$ are only *conditionally* positive definite, which means the system
+is guaranteed to be solvable only together with the side conditions.
+
+**Choosing a kernel.** The thin-plate spline is the two-dimensional analogue of the
+[natural cubic spline](splines.md#cubic-splines): it minimises the bending energy of a thin plate
+pinned at the data. It has no parameter and is a robust default.
+
+Other kernels contain a **shape parameter** $\varepsilon$ that sets their width: the Gaussian
+$e^{-(\varepsilon r)^2}$, the multiquadric $\sqrt{1 + (\varepsilon r)^2}$ and the inverse multiquadric
+$1/\sqrt{1 + (\varepsilon r)^2}$. They can be very accurate for smooth functions, but they pose a
+dilemma. As $\varepsilon \to 0$ the kernels become wide and flat and the interpolant becomes more
+accurate. But wide, flat kernels centred at different points look almost alike, so the rows of
+$\Phi$ become almost equal and the matrix becomes catastrophically ill-conditioned: rounding errors
+destroy the solution before the theoretical accuracy is reached. Choosing $\varepsilon$ is an art. A common rule is to make the
+kernel width $1/\varepsilon$ comparable to the typical distance between points.
 
 ### Comparison
 

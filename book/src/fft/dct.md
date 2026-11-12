@@ -35,8 +35,29 @@ modified DCT (1986), a lapped DCT-IV, underlies MP3, AAC and Vorbis audio.
 
 ### Symmetric extensions
 
-Each type corresponds to a way of extending the $n$ samples symmetrically (even or odd, about a sample or between samples) into a sequence
-whose DFT is real. With the unnormalised conventions of SciPy and FFTW:
+The DFT treats its $n$ samples as one period of a periodic signal. If the last sample differs
+from the first, the periodic signal has a jump at every period boundary, and a jump needs many
+high frequencies to represent. The cosine and sine transforms avoid this by a different
+assumption about what lies beyond the ends of the data.
+
+Take the samples and reflect them, as in a mirror, before repeating. For the samples
+$a, b, c, d$ one such extension is
+
+$$
+\ldots\ a\ b\ c\ d\ \ d\ c\ b\ a\ \ a\ b\ c\ d\ \ldots
+$$
+
+This sequence is continuous at the joins, whatever the data are. It is also even (symmetric),
+and the Fourier series of an even sequence contains only cosines. Its DFT, of length $2n$, is
+therefore real (after a phase factor accounting for the position of the mirror), and only $n$ of
+its values are independent. Those $n$ real numbers are a **discrete cosine transform** (DCT) of
+the original samples. Reflecting with a change of sign (an odd extension) gives sines instead,
+and a **discrete sine transform** (DST).
+
+There are several types, because there are choices to make: the mirror at each end can sit
+exactly on a sample or halfway between two samples, and the extension at each end can be even or
+odd. The example above, with both mirrors between samples and both extensions even, is the
+DCT-II. With the unnormalised conventions of SciPy and FFTW, the four common types of each are:
 
 | type | cosine transform $y_k$ | sine transform $y_k$ |
 |---|---|---|
@@ -45,27 +66,50 @@ whose DFT is real. With the unnormalised conventions of SciPy and FFTW:
 | III | $x_0 + 2\sum_{m\ge1}x_m\cos\frac{\pi m(2k+1)}{2n}$ | $(-1)^kx_{n-1} + 2\sum_{m<n-1}x_m\sin\frac{\pi(m+1)(2k+1)}{2n}$ |
 | IV | $2\sum x_m\cos\frac{\pi(2m+1)(2k+1)}{4n}$ | $2\sum x_m\sin\frac{\pi(2m+1)(2k+1)}{4n}$ |
 
-Types II and III are inverses of each other (up to $2n$), types I and IV are their own inverses (up to $2(n \mp 1)$ and $2n$). The **orthonormal**
-normalisation scales each to an orthogonal matrix, so its inverse is its transpose. "The DCT" usually means the DCT-II, and "the
-inverse DCT" the DCT-III.
+In the DCT-II formula the argument $\pi k(2m + 1)/2n$ places sample $m$ at the position
+$m + \tfrac12$, the midpoint of its cell, which is the "mirror between samples" of the extension.
+
+Types II and III are inverses of each other (up to a factor $2n$), and types I and IV are their
+own inverses (up to $2(n \mp 1)$ and $2n$). The **orthonormal** normalisation rescales each
+transform to an orthogonal matrix, so that its inverse is its transpose and it preserves the sum
+of squares of the data. "The DCT" usually means the DCT-II, and "the inverse DCT" the DCT-III.
 
 ### Energy compaction
 
-A smooth function on $[0, 1]$ sampled at the midpoints of $n$ cells has DFT coefficients decaying like $1/k$, because of the jump in its periodic
-extension, while its DCT-II coefficients decay like $1/k^2$:
+The smoother a periodic function is, the faster its Fourier coefficients decay. A jump gives
+coefficients that decay like $1/k$; a continuous function with a jump in its slope gives $1/k^2$.
+
+Take a smooth function on $[0, 1]$ that is not periodic, sampled at the midpoints of $n$ cells.
+Its periodic extension, which the DFT sees, has a jump, so the DFT coefficients decay like
+$1/k$. Its even extension, which the DCT-II sees, is continuous with at worst a corner, so the
+DCT-II coefficients decay like $1/k^2$:
 
 ![Energy compaction of the DCT](../generated/fft/dct_compaction.svg)
 
-Truncating the DCT therefore approximates such signals far better than truncating the DFT; JPEG quantises the high-frequency DCT
-coefficients of each $8 \times 8$ block coarsely or discards them.
+Most of the signal's energy is therefore packed into the first few DCT coefficients, and
+discarding the rest changes the signal very little. This property is called **energy
+compaction**, and it is the reason the DCT is used for compression: JPEG quantises the
+high-frequency DCT coefficients of each $8 \times 8$ block coarsely or discards them.
 
 ### Computing through the FFT
 
-Each transform is computed with one complex FFT of length about $2n$: the DCT-I of the even extension of length $2n - 2$; the DCT-II of the even
-extension of length $2n$, followed by a twiddle $e^{-\pi ik/2n}$; the DCT-III by the inverse of that; the type IV by twiddled zero-padding to
-length $2n$. The DST-I uses the odd extension of length $2n + 2$, the DST-II and DST-III reduce to the cosine transforms by
-reversing the order and alternating signs, and the DST-IV takes the imaginary part of the same twiddled FFT as the DCT-IV. All are $O(n\log n)$ and inherit the FFT's
-accuracy: compared with a direct sum with exactly reduced angles, the DCT-II is accurate to $2 \times 10^{-15}$ at $n = 4096$.
+Since each transform is the DFT of a symmetric extension, each can be computed with one complex
+FFT of length about $2n$ applied to the extended sequence, followed by a correction for the
+position of the mirror:
+
+- the DCT-I from the even extension of length $2n - 2$;
+- the DCT-II from the even extension of length $2n$, followed by multiplication by the twiddle
+  factor $e^{-\pi ik/2n}$, which shifts the origin by the half sample between the mirror and the
+  first sample;
+- the DCT-III by the inverse of that;
+- the DCT-IV by twiddled zero-padding to length $2n$;
+- the DST-I from the odd extension of length $2n + 2$;
+- the DST-II and DST-III from the corresponding cosine transforms, by reversing the order of
+  the data and alternating signs;
+- the DST-IV as the imaginary part of the same twiddled FFT as the DCT-IV.
+
+All are $O(n\log n)$ and inherit the FFT's accuracy: compared with a direct sum with exactly
+reduced angles, the DCT-II is accurate to $2 \times 10^{-15}$ at $n = 4096$.
 
 ## Algorithm
 

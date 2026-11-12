@@ -38,41 +38,95 @@ generated, adaptively planned code could approach the hardware's peak, and set t
 
 ### The radix-2 Cooley-Tukey algorithm
 
-Split the sum into even and odd $m$: with $E_k$ and $O_k$ the DFTs of length $n/2$ of $x_{2m}$ and $x_{2m+1}$,
+The DFT of $x_0, \ldots, x_{n-1}$ is
 
 $$
-X_k = E_k + \omega^kO_k, \qquad X_{k+n/2} = E_k - \omega^kO_k, \qquad 0 \le k < n/2,
+X_k = \sum_{m=0}^{n-1}x_m\,\omega^{mk}, \qquad \omega = e^{-2\pi i/n}, \qquad k = 0, \ldots, n - 1 .
 $$
 
-because $\omega^{n/2} = -1$ and $E$, $O$ have period $n/2$. Each pair of outputs costs one complex multiplication and two additions,
-a **butterfly**. Applied recursively, $\log_2n$ levels of $n/2$ butterflies give $\tfrac n2\log_2n$ complex multiplications. Done in place,
-the recursion reads the input in **bit-reversed** order (sample $m$ goes to the position whose binary index is $m$'s reversed), and
-the iterative algorithm permutes the input once and then runs the stages from short transforms to long.
+Evaluated directly, each of the $n$ outputs is a sum of $n$ terms: $n^2$ multiplications. The FFT
+reaches the same result in about $n\log_2n$ by never computing the same partial sum twice.
+
+**Step 1: split the sum.** Assume $n$ is even, and separate the even-indexed samples
+($m = 2j$) from the odd-indexed ones ($m = 2j + 1$):
+
+$$
+X_k = \sum_{j=0}^{n/2-1}x_{2j}\,\omega^{2jk} + \omega^k\sum_{j=0}^{n/2-1}x_{2j+1}\,\omega^{2jk} .
+$$
+
+**Step 2: recognise two smaller DFTs.** Both sums involve powers of $\omega^2 = e^{-2\pi i/(n/2)}$,
+which is exactly the $\omega$ of a DFT of length $n/2$. So the first sum is the DFT of the
+even-indexed samples, call it $E_k$, and the second is the DFT of the odd-indexed samples, $O_k$:
+
+$$
+X_k = E_k + \omega^kO_k .
+$$
+
+**Step 3: use each half twice.** $E$ and $O$ are DFTs of length $n/2$, so they are defined for
+$k = 0, \ldots, n/2 - 1$ and repeat with period $n/2$. The outputs in the upper half,
+$X_{k+n/2}$, therefore involve the *same* $E_k$ and $O_k$. Only the factor in front changes:
+$\omega^{k+n/2} = \omega^k\omega^{n/2} = -\omega^k$, since $\omega^{n/2} = e^{-\pi i} = -1$. Altogether
+
+$$
+X_k = E_k + \omega^kO_k, \qquad X_{k+n/2} = E_k - \omega^kO_k, \qquad 0 \le k < n/2 .
+$$
+
+Each such pair of outputs costs one complex multiplication (by the **twiddle factor**
+$\omega^k$), one addition and one subtraction. The pattern of data flow gives the operation its
+name, a **butterfly**.
+
+**The cost.** A transform of length $n$ has become two transforms of length $n/2$ plus $n/2$
+butterflies. Apply the same idea to the halves, and to their halves, down to transforms of
+length 1, which are just the samples. If $n = 2^p$ there are $p = \log_2n$ levels, and every
+level does $n/2$ butterflies in total. That is $\tfrac n2\log_2n$ complex multiplications instead of
+$n^2$: for $n = 2^{20}$, about $10^7$ instead of $10^{12}$.
+
+**Bit reversal.** The recursion sorts the samples by the parity of their index, then by the
+parity of half the index, and so on. The first split looks at the lowest binary digit of the
+index, the next at the second lowest. When the recursion bottoms out, sample $m$ has arrived at
+the position whose binary index is that of $m$ with its digits reversed. For $n = 8$ the order
+is $0, 4, 2, 6, 1, 5, 3, 7$: for instance $3 = 011_2$ lands in position $110_2 = 6$. An iterative
+FFT therefore avoids recursion altogether: it permutes the input into **bit-reversed** order
+once, and then runs the levels from the bottom up, combining transforms of length 1 into
+transforms of length 2, those into length 4, and so on, all in place.
 
 ### Split radix
 
-The even half needs no twiddles at the top level, but the odd half does. **Split radix** splits the odd samples once more, into
-those at $4m + 1$ and $4m + 3$:
+In the radix-2 formulas the even half $E_k$ enters without any multiplication, while the odd
+half needs a twiddle factor. This asymmetry can be exploited. **Split radix** treats the two
+halves differently: it leaves the even samples as one transform $U$ of length $n/2$, as before,
+but splits the odd samples once more, into those with indices $4m + 1$ and $4m + 3$, with
+transforms $Z$ and $Z'$ of length $n/4$. The four quarters of the output are then
 
 $$
 X_k = U_k + (\omega^kZ_k + \omega^{3k}Z'_k), \qquad X_{k+n/2} = U_k - (\omega^kZ_k + \omega^{3k}Z'_k),
 $$
 
 $$
-X_{k+n/4} = U_{k+n/4} - i(\omega^kZ_k - \omega^{3k}Z'_k), \qquad X_{k+3n/4} = U_{k+n/4} + i(\omega^kZ_k - \omega^{3k}Z'_k),
+X_{k+n/4} = U_{k+n/4} - i(\omega^kZ_k - \omega^{3k}Z'_k), \qquad X_{k+3n/4} = U_{k+n/4} + i(\omega^kZ_k - \omega^{3k}Z'_k) .
 $$
 
-with $U$ of length $n/2$ and $Z$, $Z'$ of length $n/4$. The factors $\pm i$ cost nothing, so it needs about $4n\log_2n - 6n + 8$ real
-operations, against $5n\log_2n$ for radix 2. For decades this was the lowest known count, until Johnson and Frigo (2007) shaved off a
+The gain comes from the factors $\pm i$ and $\pm1$ that appear when the output index is shifted
+by a quarter or half of $n$. Multiplying by $i$ only swaps the real and imaginary parts and
+changes a sign, so it costs nothing. The two products $\omega^kZ_k$ and $\omega^{3k}Z'_k$ thus serve
+four outputs. The total is about $4n\log_2n - 6n + 8$ real operations, against $5n\log_2n$ for
+radix 2. For decades this was the lowest known count, until Johnson and Frigo (2007) shaved off a
 few per cent more.
 
 ### Twiddle factors and accuracy
 
-Each output passes through $\log_2n$ butterflies, so rounding errors accumulate only logarithmically, if each twiddle factor is
-accurate to $\varepsilon$. Generating them by the recurrence $\omega^{k+1} = \omega^k\omega$, as many textbooks do, adds a rounding error at every step,
-and the error then grows like $n\varepsilon$: the reference crate's textbook engine does exactly that, and its error reaches $10^{-11}$ at
-$n = 2^{20}$ (see the [figure in the chapter introduction](index.md#accuracy)). The other engines compute every twiddle from its exact
-angle and stay below $10^{-15}$.
+The FFT is not only faster than the direct sum but also more accurate, for the same reason:
+each output is reached through only $\log_2n$ butterflies, so rounding errors accumulate only
+logarithmically. That holds provided each twiddle factor is itself accurate to $\varepsilon$.
+
+There is a tempting shortcut that spoils it. The twiddle factors of a stage are successive
+powers of one number, so many textbooks generate them by the recurrence
+$\omega^{k+1} = \omega^k\cdot\omega$, one multiplication each, instead of calling sine and cosine. But
+every multiplication adds a rounding error to a value that the next multiplication builds on,
+so the error of $\omega^k$ grows in proportion to $k$, up to $n\varepsilon$. The reference crate's textbook
+engine does exactly that, and its error reaches $10^{-11}$ at $n = 2^{20}$ (see the
+[figure in the chapter introduction](index.md#accuracy)). The other engines compute every twiddle
+from its exact angle and stay below $10^{-15}$.
 
 ### The production engines
 

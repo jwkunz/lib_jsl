@@ -26,14 +26,67 @@ Euclid's *Elements* (Book VII, c. 300 BC) gives the algorithm, the oldest still 
 
 ### Euclid's algorithm and Bézout coefficients
 
-Since $\gcd(a, b) = \gcd(b, a \bmod b)$, repeated remainders shrink the pair until the remainder is zero. The extended algorithm keeps coefficients $(s, t)$ with $as + bt$ equal to the current remainder at every step, so the last nonzero remainder comes with its Bézout coefficients. The worst case is consecutive Fibonacci numbers, where every quotient is 1 (Lamé). Random inputs need about $(12\ln 2/\pi^2)\ln n$ steps (Heilbronn, 1969):
+**The greatest common divisor.** The gcd of two integers is the largest integer dividing both.
+Factorising them is a hopelessly slow way to find it. Euclid's algorithm rests instead on one
+observation: any number that divides both $a$ and $b$ also divides the remainder
+$a \bmod b = a - qb$, and conversely any number that divides $b$ and the remainder divides $a$.
+So the pair $(a, b)$ has the same common divisors as the pair $(b, a \bmod b)$:
+
+$$
+\gcd(a, b) = \gcd(b,\ a \bmod b) .
+$$
+
+The new pair is smaller. Repeating until the remainder is zero leaves the gcd. For 252 and 198:
+
+$$
+252 = 1\cdot198 + 54, \qquad 198 = 3\cdot54 + 36, \qquad 54 = 1\cdot36 + 18, \qquad 36 = 2\cdot18 + 0,
+$$
+
+so $\gcd(252, 198) = 18$, the last nonzero remainder.
+
+**Bézout coefficients.** The gcd can always be written as a combination of the two numbers,
+$\gcd(a, b) = as + bt$ with integers $s$ and $t$. Working backwards through the example,
+$18 = 54 - 36 = 54 - (198 - 3\cdot54) = 4\cdot54 - 198 = 4(252 - 198) - 198$, so
+$18 = 4\cdot252 - 5\cdot198$. The **extended** Euclidean algorithm finds $s$ and $t$ in the forward
+pass, without backtracking: it carries along, for each remainder, a pair of coefficients that
+express it as a combination of $a$ and $b$, updating them by the same rule as the remainders.
+The last nonzero remainder then arrives with its coefficients. These coefficients are what make
+division possible in modular arithmetic (next section).
+
+**How many steps?** Each remainder is less than half the number two steps before it, so the
+number of steps is proportional to the number of digits. The worst case is a pair of consecutive
+Fibonacci numbers, where every quotient is 1 and the numbers shrink as slowly as possible
+(Lamé). Random inputs need about $(12\ln 2/\pi^2)\ln n$ steps (Heilbronn, 1969):
 
 ![Euclid steps](../generated/number_theory/euclid_steps.svg)
 
 ### Inverses and powers
 
-If $\gcd(a, m) = 1$, then $ax + my = 1$ makes $x$ the inverse of $a$ modulo $m$. [`multiplicative_inverse_modulo`](../../api/lib_jsl_number_theory/multiplicative_inverse_modulo/fn.multiplicative_inverse_modulo.html) returns it in $[0, |m|)$, or an error if none exists. To compute $b^e \bmod m$, write $e$ in binary: square the base for each bit, and multiply it into the result where the bit is 1. That takes $O(\log e)$ multiplications, each reduced modulo $m$.
-Products of residues below $m$ fit in 128 bits when $m < 2^{64}$. For larger moduli the library multiplies by double-and-add, so every positive `i128` modulus works.
+**Modular arithmetic.** Two integers are **congruent** modulo $m$, written
+$a \equiv b \pmod m$, if they leave the same remainder on division by $m$. Sums, differences and
+products can be computed on remainders alone, like arithmetic on a clock face with $m$ hours.
+
+**Division** is the subtle operation. The **inverse** of $a$ modulo $m$ is a number $x$ with
+$ax \equiv 1 \pmod m$; dividing by $a$ means multiplying by $x$. It exists exactly when
+$\gcd(a, m) = 1$, and the extended Euclidean algorithm finds it: if $ax + my = 1$, then reducing
+both sides modulo $m$ leaves $ax \equiv 1$. For example, $3\cdot5 = 15 \equiv 1 \pmod 7$, so the
+inverse of 3 modulo 7 is 5. [`multiplicative_inverse_modulo`](../../api/lib_jsl_number_theory/multiplicative_inverse_modulo/fn.multiplicative_inverse_modulo.html) returns the inverse in
+$[0, |m|)$, or an error if none exists.
+
+**Powers.** Cryptography needs $b^e \bmod m$ with exponents of hundreds of digits, so multiplying
+$e$ times is out of the question, and so is computing $b^e$ before reducing. **Square-and-multiply**
+uses the binary digits of $e$. Repeated squaring gives $b, b^2, b^4, b^8, \ldots$, each reduced
+modulo $m$, and $b^e$ is the product of those whose bit in $e$ is 1. To compute
+$3^{13} \bmod 7$, with $13 = 8 + 4 + 1$:
+
+$$
+3^1 \equiv 3, \quad 3^2 \equiv 2, \quad 3^4 \equiv 4, \quad 3^8 \equiv 2, \qquad
+3^{13} = 3^8\cdot3^4\cdot3^1 \equiv 2\cdot4\cdot3 = 24 \equiv 3 \pmod 7 .
+$$
+
+That takes $O(\log e)$ multiplications, and no number ever exceeds $m^2$. Products of residues
+below $m$ fit in 128 bits when $m < 2^{64}$. For larger moduli the library multiplies by
+double-and-add (the same idea applied to multiplication), so every positive `i128` modulus works.
 
 ### Integer square roots
 
@@ -41,7 +94,19 @@ $\lfloor\sqrt n\rfloor$ is needed exactly, which floating point cannot guarantee
 
 ### The Chinese remainder theorem
 
-If the moduli are pairwise coprime, $x \equiv r_i \pmod{m_i}$ has exactly one solution modulo $\prod m_i$. The library merges congruences one at a time. To combine $x \pmod m$ with $r \pmod{m_i}$, it solves $mt \equiv r - x \pmod{m_i}$ using $g = \gcd(m, m_i)$. The congruences are consistent only if $g$ divides $r - x$, and the merged modulus is $\mathrm{lcm}(m, m_i)$, so non-coprime moduli are handled too.
+A number is determined by its remainders. If the moduli $m_i$ are pairwise coprime, the system
+$x \equiv r_i \pmod{m_i}$ has exactly one solution modulo the product $\prod m_i$. The classical
+example asks for a number that leaves remainder 2 on division by 3, 3 on division by 5 and 2 on
+division by 7. The first two conditions are met by 8, and by every number congruent to 8 modulo
+15. Among $8, 23, 38, \ldots$ the first with remainder 2 on division by 7 is 23, and the general
+solution is $x \equiv 23 \pmod{105}$.
+
+The library solves the system the same way, merging congruences one at a time. Suppose the
+congruences so far are summarised as $x \pmod m$, and the next is $r \pmod{m_i}$. Every candidate
+has the form $x + mt$, and the new condition $x + mt \equiv r \pmod{m_i}$ is a linear congruence
+$mt \equiv r - x \pmod{m_i}$ for $t$, solved with a modular inverse. If $m$ and $m_i$ share a
+factor $g = \gcd(m, m_i)$, the congruences are consistent only if $g$ divides $r - x$; the merged
+modulus is then $\mathrm{lcm}(m, m_i)$. So moduli that are not coprime are handled too.
 
 {{#include ../generated/number_theory/rsa_facts.md}}
 

@@ -26,7 +26,22 @@ John Pollard's rho method (1975) and Richard Brent's improvement (1980) factored
 
 ### Sieves
 
-Mark every multiple of each prime $p \le \sqrt n$, starting at $p^2$. The unmarked numbers are prime. The library stores only odd numbers, one bit each, so $10^9$ needs 62 MB. A **segmented sieve** first sieves the base primes up to $\sqrt{h}$, then crosses their multiples off just the window $[l, h]$. The prime-counting function $\pi(x)$ follows by counting. By the prime number theorem it is approximately $x/\ln x$, and better approximated by the logarithmic integral $\mathrm{Li}(x)$:
+To list all the primes up to $n$, the **sieve of Eratosthenes** works by elimination. Write down
+the numbers from 2 to $n$. The first, 2, is prime; cross out all its other multiples. The next
+number not crossed out, 3, is prime; cross out its multiples. Continue. A number that is never
+crossed out has no smaller prime factor, so it is prime.
+
+Two refinements save work. A composite number $m \le n$ has a prime factor at most $\sqrt m$, so
+only the primes $p \le \sqrt n$ need be used. And the crossing out for $p$ can begin at $p^2$,
+because smaller multiples of $p$ have a smaller prime factor and are already crossed out. The
+total work is about $n\ln\ln n$ operations, almost linear.
+
+The library stores only odd numbers, one bit each, so $10^9$ needs 62 MB. When only the primes in
+a window $[l, h]$ are wanted, a **segmented sieve** first sieves the base primes up to
+$\sqrt{h}$, then crosses their multiples off just the window, using memory proportional to the
+window. The **prime-counting function** $\pi(x)$, the number of primes up to $x$, follows by
+counting. By the prime number theorem it is approximately $x/\ln x$, and better approximated by
+the logarithmic integral $\mathrm{Li}(x)$:
 
 ![Prime counting](../generated/number_theory/prime_counting.svg)
 
@@ -34,7 +49,30 @@ Mark every multiple of each prime $p \le \sqrt n$, starting at $p^2$. The unmark
 
 ### Miller–Rabin
 
-For an odd prime $n$, write $n - 1 = 2^sd$ with $d$ odd. For every base $a$, either $a^d \equiv 1$, or $a^{2^rd} \equiv -1$ for some $0 \le r < s$: the only square roots of 1 modulo a prime are $\pm1$. A composite $n$ that passes for base $a$ is a **strong pseudoprime** to that base. At most a quarter of the bases fool any composite, and composites that fool many small bases are very rare:
+A sieve is no use for testing whether one large number is prime. Primality tests rely instead
+on properties that every prime has and most composites lack.
+
+**Fermat's test.** By Fermat's little theorem, if $n$ is prime then $a^{n-1} \equiv 1 \pmod n$
+for every $a$ not divisible by $n$. The power is cheap to compute by
+[square-and-multiply](modular-arithmetic.md#inverses-and-powers). If the result is not 1, $n$ is
+certainly composite. Unfortunately the converse fails: some composites pass, and a few (the
+Carmichael numbers, such as $561 = 3\cdot11\cdot17$) pass for every base coprime to them.
+
+**The stronger test.** Miller and Rabin add a second property of primes: modulo a prime, the
+only square roots of 1 are $\pm1$. Write $n - 1 = 2^sd$ with $d$ odd. Then $a^{n-1}$ is obtained
+from $a^d$ by squaring $s$ times, and the test examines the whole chain
+
+$$
+a^d,\ a^{2d},\ a^{4d},\ \ldots,\ a^{2^sd} = a^{n-1} .
+$$
+
+If $n$ is prime the chain ends in 1, and the last entry before the 1s begin, being a square
+root of 1, must be $-1$. So for a prime, either $a^d \equiv 1$ already, or
+$a^{2^rd} \equiv -1$ for some $0 \le r < s$. A number that violates this is composite. For
+$n = 561$ and $a = 2$, $n - 1 = 2^4\cdot35$ and the chain is $263, 166, 67, 1, 1$: it reaches 1
+from 67, which is not $-1$, so 561 is exposed although it passes Fermat's test.
+
+A composite $n$ that passes for base $a$ is a **strong pseudoprime** to that base. At most a quarter of the bases fool any composite, and composites that fool many small bases are very rare:
 
 {{#include ../generated/number_theory/pseudoprimes.md}}
 
@@ -42,7 +80,28 @@ The smallest number fooling all of the first twelve primes as bases is $318\,665
 
 ### Pollard's rho
 
-Iterate $x \leftarrow x^2 + c \pmod n$. Modulo an unknown prime factor $p$ of $n$, the sequence is pseudo-random and repeats after about $\sqrt{\pi p/2}$ steps, tracing a shape like the letter ρ. When $x_i \equiv x_j \pmod p$, $\gcd(x_i - x_j, n)$ reveals $p$. Brent's variant compares against a saved value at doubling distances, and multiplies many differences together before taking one gcd. If it hits $n$ itself, it backs up and steps one at a time; if that fails too, it changes $c$:
+Knowing that a number is composite does not reveal its factors. Trial division finds a factor
+$p$ in about $p$ steps. Pollard's rho method finds it in about $\sqrt p$ steps, by a clever use
+of chance.
+
+**The idea.** Suppose $p$ is an unknown prime factor of $n$. Generate a sequence of
+pseudo-random numbers modulo $n$ by iterating $x \leftarrow x^2 + c \pmod n$. Now imagine the
+same sequence reduced modulo $p$. It takes only $p$ possible values, so it must eventually
+repeat, and by the "birthday paradox" a repeat is expected after only about $\sqrt{\pi p/2}$
+steps, far fewer than $p$. Once a value repeats, the sequence cycles for ever: drawn on paper,
+it is a tail leading into a loop, the shape of the letter ρ.
+
+**Detecting the repeat without knowing $p$.** We cannot reduce modulo $p$, since $p$ is what we
+are looking for. But if $x_i \equiv x_j \pmod p$, then $p$ divides $x_i - x_j$, and therefore
+$\gcd(x_i - x_j, n)$ is a multiple of $p$: a factor of $n$, found with
+[Euclid's algorithm](modular-arithmetic.md#euclids-algorithm-and-bézout-coefficients).
+
+**Brent's variant.** Comparing all pairs would be too slow. Brent's version compares each new
+value against one saved value, which is refreshed at distances that double (1, 2, 4, 8, ...
+steps), and it multiplies many differences together before taking one gcd, since a gcd is much
+more expensive than a multiplication. Occasionally the gcd is $n$ itself, because repeats for
+several factors were collected in the same batch. The method then backs up and steps one at a
+time; if that fails too, it changes $c$:
 
 ![Pollard's rho](../generated/number_theory/pollard_rho.svg)
 

@@ -16,6 +16,7 @@ pub mod discrete {
     pub mod fft_convolution;
     pub mod fft_cross_correlation;
     pub mod image;
+    pub mod peaks;
     pub mod sinc;
     pub mod sources;
     pub mod stream_operator;
@@ -48,6 +49,8 @@ pub mod discrete {
             pub mod iir_comb;
             pub mod iir_notch;
             pub mod iir_peak;
+            pub mod sos;
+            pub mod zero_phase;
         }
 
         pub use fir::boxcar_integrator;
@@ -67,6 +70,8 @@ pub mod discrete {
         pub use iir::iir_comb;
         pub use iir::iir_notch;
         pub use iir::iir_peak;
+        pub use iir::sos;
+        pub use iir::zero_phase;
     }
 
     pub mod transformations {

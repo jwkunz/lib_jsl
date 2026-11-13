@@ -32,6 +32,32 @@ Every entry uses the outline described in [How to read an entry](how-to-read.md)
 ## Further reading
 ```
 
+## Writing for students
+
+The reader is an advanced undergraduate meeting the algorithm for the first time. Accuracy is
+not enough: the entry must be something they can learn from. The conventions below came out of
+feedback from early readers, who found compressed derivations hard to follow.
+
+- **Motivate before defining.** Open each part of "The idea" with the question it answers or the
+  difficulty it removes, in a sentence or two, before any formula.
+- **Define every term at first use**, in **bold**, in the entry where it is used. If the full
+  treatment is elsewhere, give a one-clause definition and a link. Do not rely on the reader
+  having read another entry.
+- **Show the intermediate steps.** Do not write "it follows that" across a gap that takes more
+  than one line of algebra. Say what is being substituted into what, and what cancels. Label the
+  stages of a longer argument (**Step 1**, **Why it works**, **The catch**).
+- **Say what a formula means** in words after stating it: what each term does, and what happens
+  in the limiting cases.
+- **Give one small worked example** with actual numbers for each central idea (a $3 \times 3$
+  system, three data points, a four-symbol alphabet). Check the numbers by running them.
+- **One idea per sentence.** Prefer two short sentences to one joined by a semicolon or a colon.
+  Use a list when a paragraph enumerates cases or properties, and numbered steps for a
+  procedure.
+- **Explain numerical hazards by their mechanism** (which digits cancel, which error is
+  amplified), not only by their name.
+- **Connect to what the reader already knows**: link to the earlier entry that uses the same
+  idea, and say that it is the same idea.
+
 ## Mathematics
 
 Write LaTeX between `$...$` for inline maths and `$$...$$` for displayed equations. It is

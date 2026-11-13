@@ -65,7 +65,7 @@ only the bin centres of an FFT.
 **When it pays.** Each bin costs one real multiply per sample; the FFT costs about $\log_2N$ per
 sample for all bins. In practice the FFT's efficiency narrows the margin:
 
-<p class="caption" id="tab-15-5"><strong>Table 15.5.</strong> Columns: samples, one Goertzel bin (µs), real FFT, all bins (µs), bins before the FFT is cheaper.</p>
+<p class="caption" id="tab-15-5"><strong>Table 15.5.</strong> Goertzel against a full FFT: time and break-even number of bins.</p>
 
 {{#include ../generated/spectral/goertzel_time.md}}
 
@@ -109,7 +109,7 @@ The continuous transform $F(\omega) = \int f(x)e^{-i\omega x}dx$ of a function o
 in any range by the chirp-z transform. For smooth functions that decay at the ends of the interval, the trapezoidal rule converges
 spectrally:
 
-<p class="caption" id="tab-15-6"><strong>Table 15.6.</strong> Columns: samples on [−8, 8] (and frequencies on [0, 4]), largest error against √(2π) e^(−ω²/2).</p>
+<p class="caption" id="tab-15-6"><strong>Table 15.6.</strong> Accuracy of a Fourier integral computed with the trapezoidal rule.</p>
 
 {{#include ../generated/spectral/fourier_integral.md}}
 

@@ -91,7 +91,7 @@ then updates the errors and the predictor by Levinson's step. By the Cauchy-Schw
 coefficient of magnitude 1 would put a pole on the unit circle). For sharply resonant processes,
 Burg's estimates are far better than the autocorrelation method's:
 
-<p class="caption" id="tab-15-7"><strong>Table 15.7.</strong> Columns: samples of a sharply resonant AR(4) process, Levinson-Durbin (autocorrelation method) error, Burg error.</p>
+<p class="caption" id="tab-15-7"><strong>Table 15.7.</strong> Autocorrelation and Burg estimates of a resonant AR(4) process.</p>
 
 {{#include ../generated/spectral/ar_estimation.md}}
 

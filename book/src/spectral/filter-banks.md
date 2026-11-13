@@ -89,7 +89,7 @@ The default prototype, a low-pass whose −6 dB point is at $1/(2M)$, has shifte
 That is the oversampled synthesis bank's default, scaled for unit gain ($\sum f = D/\sum h$). With **critical sampling**, $D = M$, the images begin where the channels' transition bands do, and no FIR $f$ removes them. A critically sampled DFT bank reconstructs only if each polyphase component of the prototype is a single tap,
 as for the rectangular prototype that makes the bank a block DFT. (Critically sampled perfect reconstruction with good channel selectivity needs other structures, such as cosine-modulated banks.) Measured with white noise, after the best delay and complex gain are removed:
 
-<p class="caption" id="tab-15-10"><strong>Table 15.10.</strong> Columns: bank (16 channels), prototype filter, best delay (samples), best gain, and more.</p>
+<p class="caption" id="tab-15-10"><strong>Table 15.10.</strong> Reconstruction by the polyphase filter banks.</p>
 
 {{#include ../generated/spectral/filter_bank_reconstruction.md}}
 

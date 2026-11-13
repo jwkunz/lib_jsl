@@ -84,7 +84,7 @@ $$
 
 with $g$ the gain from integrating pulses. The fourth root makes range expensive: sixteen times the power doubles it. For an S-band radar (1 MW, 35 dB antenna, 1 MHz bandwidth, 2 dB noise figure, 5 dB losses):
 
-<p class="caption" id="tab-21-2"><strong>Table 21.2.</strong> Columns: target, RCS (m²), range for 13 dB SNR, one pulse (km), with 10 pulses integrated coherently (km).</p>
+<p class="caption" id="tab-21-2"><strong>Table 21.2.</strong> Radar detection range for typical targets, with and without pulse integration.</p>
 
 {{#include ../generated/em-waves/radar_table.md}}
 

@@ -39,11 +39,11 @@ recurrence shows the expected $O(n\varepsilon)$ growth, and is kept as a lesson.
 
 The references come from SciPy 1.17.1's `scipy.fft` (the pocketfft library), written by `book/generator/data/make_fft_refs.py`; the inputs are formulas that the generator repeats. Each entry is the largest difference relative to the largest magnitude of SciPy's result:
 
-<p class="caption" id="tab-8-1"><strong>Table 8.1.</strong> Columns: transform (SciPy reference), largest relative difference.</p>
+<p class="caption" id="tab-8-1"><strong>Table 8.1.</strong> FFTs against SciPy.</p>
 
 {{#include ../generated/fft/scipy_fft.md}}
 
-<p class="caption" id="tab-8-2"><strong>Table 8.2.</strong> Columns: DCT, DST and inverse DCT, 32 points (`fft.dct`, `fft.dst`, `fft.idct`), unnormalised (`backward`), orthonormal (`ortho`).</p>
+<p class="caption" id="tab-8-2"><strong>Table 8.2.</strong> DCT and DST against SciPy, in both normalisations.</p>
 
 {{#include ../generated/fft/scipy_trig.md}}
 

@@ -175,7 +175,7 @@ of derivative $m$.
 
 The library's default steps sit at the bottom of each V:
 
-<p class="caption" id="tab-1-3"><strong>Table 1.3.</strong> Columns: formula, truncation error, rounding error, default relative step, and more.</p>
+<p class="caption" id="tab-1-3"><strong>Table 1.3.</strong> Error terms and default steps of the finite-difference formulas.</p>
 
 {{#include ../generated/derivatives/default_steps.md}}
 

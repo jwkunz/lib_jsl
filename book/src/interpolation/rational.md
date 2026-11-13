@@ -222,7 +222,7 @@ mimic the singularities of $f$; the approximant is then often accurate far outsi
 $\ln(1 + x)$, whose Taylor series converges only for $|x| < 1$, the $[10/10]$ approximant built
 from the same 21 coefficients remains accurate far beyond:
 
-<p class="caption" id="tab-3-3"><strong>Table 3.3.</strong> Columns: $x$, $\ln(1 + x)$, Taylor polynomial, degree 20: error, Padé $[10/10]$: error.</p>
+<p class="caption" id="tab-3-3"><strong>Table 3.3.</strong> Taylor polynomial against Padé approximant for $\ln(1 + x)$.</p>
 
 {{#include ../generated/interpolation/pade_log.md}}
 

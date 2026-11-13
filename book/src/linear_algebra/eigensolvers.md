@@ -114,7 +114,7 @@ now always applied, as in LAPACK's `geev`.
 
 Both solvers are backward stable:
 
-<p class="caption" id="tab-7-8"><strong>Table 7.8.</strong> Columns: order $n$, symmetric: $\|AV - V\Lambda\|_F / \|A\|_F$, symmetric: $\|V^{\mathsf T}V - I\|_F$, general: $\|AV - V\Lambda\|_F / \|A\|_F$.</p>
+<p class="caption" id="tab-7-8"><strong>Table 7.8.</strong> Residuals and orthogonality of the production eigensolvers.</p>
 
 {{#include ../generated/linear_algebra/eigen_accuracy.md}}
 

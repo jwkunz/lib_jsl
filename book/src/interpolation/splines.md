@@ -137,7 +137,7 @@ ends, the natural condition imposes something false there. The error near the en
 $O(h^2)$, although it remains $O(h^4)$ in the interior. For $e^x$ on $[0, 1]$, whose second
 derivative is nowhere zero, the library's results show this clearly:
 
-<p class="caption" id="tab-3-2"><strong>Table 3.2.</strong> Columns: points, linear, natural spline, natural spline, middle half only, and more.</p>
+<p class="caption" id="tab-3-2"><strong>Table 3.2.</strong> Convergence of linear and natural spline interpolation.</p>
 
 {{#include ../generated/interpolation/spline_convergence.md}}
 

@@ -104,7 +104,7 @@ which raises the distance to $d = 4$. The decoder can then distinguish the two c
 error makes the overall parity odd. A double error leaves the overall parity even but gives a
 nonzero syndrome, which is reported as detected but not correctable:
 
-<p class="caption" id="tab-19-1"><strong>Table 19.1.</strong> Columns: code, bit errors, decoded correctly, detected, not corrected, and more.</p>
+<p class="caption" id="tab-19-1"><strong>Table 19.1.</strong> Outcomes of decoding Hamming codes with injected bit errors.</p>
 
 {{#include ../generated/coding/hamming_outcomes.md}}
 

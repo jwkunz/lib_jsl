@@ -104,7 +104,7 @@ a much better vector. For symmetric matrices the convergence is cubic, tripling 
 correct digits per step, at the cost of a new factorisation at each step because the shift
 changes.
 
-<p class="caption" id="tab-7-6"><strong>Table 7.6.</strong> Columns: spectrum of the $30 \times 30$ matrix, power iteration, inverse iteration, shift 10.2, Rayleigh quotient iteration.</p>
+<p class="caption" id="tab-7-6"><strong>Table 7.6.</strong> Power, inverse and Rayleigh quotient iteration on one spectrum.</p>
 
 {{#include ../generated/linear_algebra/power_iteration.md}}
 
@@ -179,7 +179,7 @@ trailing $2 \times 2$ block that is nearer to its bottom right entry. With it th
 symmetric matrix is first reduced to tridiagonal form, so the result covers it as well. The convergence is
 cubic in general:
 
-<p class="caption" id="tab-7-7"><strong>Table 7.7.</strong> Columns: order $n$, Jacobi sweeps, unshifted QR steps, Wilkinson-shifted QR steps, and more.</p>
+<p class="caption" id="tab-7-7"><strong>Table 7.7.</strong> Iterations of Jacobi and of unshifted and shifted QR against order.</p>
 
 {{#include ../generated/linear_algebra/jacobi_qr.md}}
 

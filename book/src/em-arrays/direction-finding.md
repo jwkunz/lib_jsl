@@ -63,7 +63,7 @@ $\boldsymbol\Psi = (\mathbf E_1^{\mathsf H}\mathbf E_1)^{-1}\mathbf E_1^{\mathsf
 
 For a single source, all three estimators are nearly unbiased, and their errors shrink with SNR:
 
-<p class="caption" id="tab-20-3"><strong>Table 20.3.</strong> Columns: SNR per element (dB), Capon RMS error (°), MUSIC RMS error (°), ESPRIT RMS error (°).</p>
+<p class="caption" id="tab-20-3"><strong>Table 20.3.</strong> Direction-finding error of Capon, MUSIC and ESPRIT against SNR.</p>
 
 {{#include ../generated/em-arrays/doa_rmse.md}}
 

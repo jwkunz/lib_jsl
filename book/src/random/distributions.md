@@ -165,7 +165,7 @@ For each distribution, 100 000 samples are compared with the exact moments and C
 [special functions](../special_functions/statistical.md)). The **Kolmogorov-Smirnov statistic** $D$, the largest difference between
 the empirical and the exact CDF, should be below $1.36/\sqrt n$ about 95% of the time:
 
-<p class="caption" id="tab-9-4"><strong>Table 9.4.</strong> Columns: distribution, method, sample mean (exact), sample variance (exact), and more.</p>
+<p class="caption" id="tab-9-4"><strong>Table 9.4.</strong> Sample moments of each sampler against the exact values.</p>
 
 {{#include ../generated/random/audit.md}}
 

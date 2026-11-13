@@ -152,7 +152,7 @@ nonsense. The remedy, analysed by Ramdas Kumaresan and Donald Tufts, is to fit *
 than expected: the extra poles absorb the noise as heavily damped components, and the true ones
 emerge accurately. On data with 2% noise:
 
-<p class="caption" id="tab-3-4"><strong>Table 3.4.</strong> Columns: model, oscillatory components found: damping, frequency (Hz).</p>
+<p class="caption" id="tab-3-4"><strong>Table 3.4.</strong> Damped sinusoids recovered by Prony's method.</p>
 
 {{#include ../generated/interpolation/prony_table.md}}
 

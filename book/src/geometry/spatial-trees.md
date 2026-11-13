@@ -38,7 +38,7 @@ A quadtree covers a box. Each leaf holds up to a fixed number of points (8 by de
 
 The library's [`RegionTree`](../../api/lib_jsl_geometry/algorithms/region_tree/struct.RegionTree.html) is generic over the dimension; `QuadTree` and `OctTree` are its 2D and 3D forms. Each entry carries an id chosen by the caller, so the same tree can index moving objects by removing and reinserting them.
 
-<p class="caption" id="tab-24-4"><strong>Table 24.4.</strong> Columns: points, k-d build, quadtree build, k-d query, and more.</p>
+<p class="caption" id="tab-24-4"><strong>Table 24.4.</strong> Build and query times of k-d trees and quadtrees.</p>
 
 {{#include ../generated/geometry/tree_timing.md}}
 

@@ -32,13 +32,13 @@ with the exact distribution function.
 
 The references come from SciPy 1.17.1, written by `book/generator/data/make_random_refs.py`. The unscrambled quasi-random sequences reproduce `scipy.stats.qmc` exactly (Sobol from the same Joe-Kuo direction numbers; the library's Halton sequence starts after the origin, which SciPy includes):
 
-<p class="caption" id="tab-9-1"><strong>Table 9.1.</strong> Columns: sequence (SciPy reference), largest difference.</p>
+<p class="caption" id="tab-9-1"><strong>Table 9.1.</strong> Quasi-random sequences against SciPy.</p>
 
 {{#include ../generated/random/scipy_qmc.md}}
 
 As an independent check of the samplers, which does not use the library's own distribution functions, 100 000 samples of each are counted in bins whose edges are SciPy's quantiles (20 equally likely bins) or, for discrete distributions, whose probabilities come from SciPy's `pmf` (grouped so that each bin expects at least 50 samples). The chi-square statistic then tests the counts:
 
-<p class="caption" id="tab-9-2"><strong>Table 9.2.</strong> Columns: distribution (SciPy's quantiles or probabilities), bins, chi-square, p-value.</p>
+<p class="caption" id="tab-9-2"><strong>Table 9.2.</strong> Chi-square tests of the samplers against SciPy's distributions.</p>
 
 {{#include ../generated/random/scipy_samplers.md}}
 

@@ -164,7 +164,7 @@ axes. One iteration:
 
 On the Rosenbrock function (evaluations to convergence, and the final value):
 
-<p class="caption" id="tab-5-5"><strong>Table 5.5.</strong> Columns: problem, Nelder-Mead, Powell, BFGS (exact gradient).</p>
+<p class="caption" id="tab-5-5"><strong>Table 5.5.</strong> Direct search against BFGS.</p>
 
 {{#include ../generated/optimization/direct_search.md}}
 

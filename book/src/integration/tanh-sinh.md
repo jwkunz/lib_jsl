@@ -154,7 +154,7 @@ Numerical details that matter:
 
 Tanh-sinh compared with a 100-point Gauss-Legendre rule on singular integrands over $[0, 1]$:
 
-<p class="caption" id="tab-2-11"><strong>Table 2.11.</strong> Columns: integrand on $[0,1]$, exact, tanh-sinh error, evaluations, and more.</p>
+<p class="caption" id="tab-2-11"><strong>Table 2.11.</strong> Tanh-sinh quadrature on singular integrands.</p>
 
 {{#include ../generated/integration/tanh_sinh_table.md}}
 

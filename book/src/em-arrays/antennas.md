@@ -97,7 +97,7 @@ A rectangular patch of length $L$ on a grounded substrate of permittivity $\vare
 
 ### Checks against closed forms
 
-<p class="caption" id="tab-20-2"><strong>Table 20.2.</strong> Columns: model, directivity (computed), closed form, radiation resistance (Ω, computed), and more.</p>
+<p class="caption" id="tab-20-2"><strong>Table 20.2.</strong> Directivity and radiation resistance of antenna models against closed forms.</p>
 
 {{#include ../generated/em-arrays/antenna_table.md}}
 

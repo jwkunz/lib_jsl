@@ -150,7 +150,7 @@ polynomial coefficients, keeps the transformations accurate for high orders.
 For a low-pass specification of at most 1 dB passband ripple below the edge and at least 40 dB attenuation from 1.5 times the edge
 (digital frequencies 0.2 and 0.3 of Nyquist):
 
-<p class="caption" id="tab-14-3"><strong>Table 14.3.</strong> Columns: family, order for ≤ 1 dB ripple below 0.2 and ≥ 40 dB above 0.3 (× Nyquist).</p>
+<p class="caption" id="tab-14-3"><strong>Table 14.3.</strong> Order needed by each analogue filter family for one specification.</p>
 
 {{#include ../generated/filters/orders.md}}
 

@@ -212,7 +212,7 @@ $$
 \nabla f + \tfrac23\nabla g_1 + \tfrac23\nabla g_2 = \big(-2 + \tfrac43 + \tfrac23,\ \ 0 - \tfrac23 + \tfrac23\big) = (0, 0).
 $$
 
-<p class="caption" id="tab-5-6"><strong>Table 5.6.</strong> Columns: problem, method, iterations, evaluations of $f$, and more.</p>
+<p class="caption" id="tab-5-6"><strong>Table 5.6.</strong> Constrained optimisers on test problems.</p>
 
 {{#include ../generated/optimization/constrained.md}}
 

@@ -21,7 +21,7 @@ This chapter completes the machine-learning part of the book with four topics th
 
 Test accuracy of the tree ensembles and the neural network against a single tree and a kernel machine, with default settings:
 
-<p class="caption" id="tab-13-1"><strong>Table 13.1.</strong> Columns: classifier (test accuracy), moons, circles, three Gaussian classes (4D), and more.</p>
+<p class="caption" id="tab-13-1"><strong>Table 13.1.</strong> Test accuracy of the classifiers of this chapter.</p>
 
 {{#include ../generated/learning/comparison.md}}
 

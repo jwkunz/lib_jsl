@@ -42,7 +42,7 @@ At degree 20 the coefficients reach $20! \approx 2.4 \times 10^{18}$, and their 
 
 [`TextCodedInteger`](../../api/lib_jsl_number_theory/text_coded_integer/struct.TextCodedInteger.html) holds a sign and decimal digits, normalised so that each value has one representation. Addition and subtraction work digit by digit with carries and borrows. Multiplication is the schoolbook $O(d_1d_2)$ convolution of digits. Division is long division, producing one quotient digit at a time by repeated subtraction. The quotient truncates toward zero, and the remainder has the dividend's sign, like Rust's integers. The type implements the `num_traits` integer traits, so generic numeric code can use it.
 
-<p class="caption" id="tab-22-3"><strong>Table 22.3.</strong> Columns: value, decimal digits, digits, time to compute (ms).</p>
+<p class="caption" id="tab-22-3"><strong>Table 22.3.</strong> Large factorials: size and time.</p>
 
 {{#include ../generated/number_theory/factorials.md}}
 

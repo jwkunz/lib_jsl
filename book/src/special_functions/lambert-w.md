@@ -78,7 +78,7 @@ $x \ge 1$; for $-1/e \le y < 0$ there are two, from the two real branches, one i
 
 ### Accuracy
 
-<p class="caption" id="tab-6-10"><strong>Table 6.10.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-10"><strong>Table 6.10.</strong> Accuracy of the Lambert W function.</p>
 
 {{#include ../generated/special_functions/lambert_accuracy.md}}
 

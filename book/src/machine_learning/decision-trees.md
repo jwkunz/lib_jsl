@@ -119,7 +119,7 @@ with 300 training points its standard error is about 0.02.
 The library's **feature importance** is the share of all splits that use each feature. On four informative and six pure-noise
 features:
 
-<p class="caption" id="tab-11-6"><strong>Table 11.6.</strong> Columns: feature, 0, 1, 2, and more.</p>
+<p class="caption" id="tab-11-6"><strong>Table 11.6.</strong> Feature importances of a random forest.</p>
 
 {{#include ../generated/machine_learning/forest_importances.md}}
 

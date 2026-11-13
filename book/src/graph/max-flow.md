@@ -83,7 +83,7 @@ search. It works in phases.
 After each phase the shortest source-to-sink distance in the residual network strictly
 increases, so there are at most $V$ phases, and the total cost is $O(V^2E)$.
 
-<p class="caption" id="tab-23-2"><strong>Table 23.2.</strong> Columns: vertices, arcs, Edmonds-Karp flow, Dinic flow, and more.</p>
+<p class="caption" id="tab-23-2"><strong>Table 23.2.</strong> Maximum flow by Edmonds-Karp and Dinic on random networks.</p>
 
 {{#include ../generated/graph/flow_table.md}}
 

@@ -123,7 +123,7 @@ On the Rastrigin function $10n + \sum(x_i^2 - 10\cos 2\pi x_i)$ (a bowl covered 
 local minima) and the Ackley function (a nearly flat plateau with a deep central hole), over 20
 runs each from random starting points:
 
-<p class="caption" id="tab-5-9"><strong>Table 5.9.</strong> Columns: function, method, runs reaching $f < 10^{-4}$, median best $f$, and more.</p>
+<p class="caption" id="tab-5-9"><strong>Table 5.9.</strong> Global optimisers on multimodal functions.</p>
 
 {{#include ../generated/optimization/global.md}}
 

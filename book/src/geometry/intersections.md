@@ -50,7 +50,7 @@ The closest point of a segment to $p$ is the projection of $p$ onto its line, cl
 
 The closest points between two segments minimise $|p_1 + s\,d_1 - p_2 - t\,d_2|^2$ over the unit square of $(s, t)$. The unconstrained minimum is clamped to the square, one parameter at a time, recomputing the other after each clamp. Shapes made of pieces, such as polylines, polygon boundaries and meshes, take the best of their pieces.
 
-<p class="caption" id="tab-24-5"><strong>Table 24.5.</strong> Columns: routine, brute-force check, result.</p>
+<p class="caption" id="tab-24-5"><strong>Table 24.5.</strong> Intersection routines against brute-force checks.</p>
 
 {{#include ../generated/geometry/intersection_checks.md}}
 

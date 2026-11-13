@@ -34,13 +34,13 @@ A WAV file is a list of **chunks**, each with a four-character identifier and a 
 
 Writing reverses this and clips integer formats to their range. Files written by Python and read by the library:
 
-<p class="caption" id="tab-26-3"><strong>Table 26.3.</strong> Columns: file written by Python, bytes, read by the library.</p>
+<p class="caption" id="tab-26-3"><strong>Table 26.3.</strong> WAV files written by Python and read by the library.</p>
 
 {{#include ../generated/foundations/reading_wav.md}}
 
 And files written by the library, read by SciPy's `wavfile`:
 
-<p class="caption" id="tab-26-4"><strong>Table 26.4.</strong> Columns: file written by the library (read by), result.</p>
+<p class="caption" id="tab-26-4"><strong>Table 26.4.</strong> WAV files written by the library and read by Python.</p>
 
 {{#include ../generated/foundations/interop_wav.md}}
 

@@ -85,13 +85,13 @@ The references come from SciPy 1.17.1, written by `book/generator/data/make_inte
 
 The Gaussian rules agree with `scipy.special`'s to rounding error. At 100 points the library's Legendre weights are in fact the more accurate: SciPy's differ from the exact weights by $2 \times 10^{-13}$.
 
-<p class="caption" id="tab-2-1"><strong>Table 2.1.</strong> Columns: rule (SciPy reference), largest difference.</p>
+<p class="caption" id="tab-2-1"><strong>Table 2.1.</strong> Quadrature rules against SciPy.</p>
 
 {{#include ../generated/integration/scipy_rules.md}}
 
 For one-dimensional integrals the table gives the relative error against the exact value, for the library's adaptive Gauss-Kronrod and tanh-sinh rules and for SciPy's QUADPACK `quad` and its own `tanhsinh`:
 
-<p class="caption" id="tab-2-2"><strong>Table 2.2.</strong> Columns: integral, library Gauss-Kronrod, library tanh-sinh, SciPy `quad`, and more.</p>
+<p class="caption" id="tab-2-2"><strong>Table 2.2.</strong> Integrals by Gauss-Kronrod and tanh-sinh against SciPy's `quad`.</p>
 
 {{#include ../generated/integration/scipy_quadrature.md}}
 
@@ -99,7 +99,7 @@ All four reach about double precision, except on $1/\sqrt{1 - x^2}$, where $1 - 
 
 Cubature, initial and boundary value problems, compared with `integrate.cubature`, `solve_ivp` (DOP853 for the non-stiff problem, Radau for the stiff ones) and `solve_bvp`:
 
-<p class="caption" id="tab-2-3"><strong>Table 2.3.</strong> Columns: problem (SciPy reference), result.</p>
+<p class="caption" id="tab-2-3"><strong>Table 2.3.</strong> ODE and boundary-value solvers against SciPy.</p>
 
 {{#include ../generated/integration/scipy_solvers.md}}
 

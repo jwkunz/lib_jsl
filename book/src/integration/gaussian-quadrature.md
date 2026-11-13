@@ -209,13 +209,13 @@ overflow for a few hundred points.
 
 The 5-point Gauss-Legendre rule computed by the library:
 
-<p class="caption" id="tab-2-8"><strong>Table 2.8.</strong> Columns: $i$, node $x_i$, weight $w_i$.</p>
+<p class="caption" id="tab-2-8"><strong>Table 2.8.</strong> Nodes and weights of a Gauss-Legendre rule.</p>
 
 {{#include ../generated/integration/gauss_legendre_table.md}}
 
 Exactness of the 3-point rule ends precisely at degree $2 \cdot 3 - 1 = 5$:
 
-<p class="caption" id="tab-2-9"><strong>Table 2.9.</strong> Columns: degree $k$, exact $\int_{-1}^1 x^k\,dx$, 3-point Gauss, error.</p>
+<p class="caption" id="tab-2-9"><strong>Table 2.9.</strong> Exactness of the 3-point Gauss rule on monomials.</p>
 
 {{#include ../generated/integration/gauss_legendre_exactness.md}}
 

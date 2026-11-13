@@ -89,7 +89,7 @@ from the vector $(1/K, 0)$.
 The quadrant is taken from the top two bits of the phase first, so the iterations only have to
 cover $[0, \pi/2)$. Each iteration adds about one bit of accuracy:
 
-<p class="caption" id="tab-16-1"><strong>Table 16.1.</strong> Columns: CORDIC iterations (32-bit), largest error in sin and cos, equivalent bits.</p>
+<p class="caption" id="tab-16-1"><strong>Table 16.1.</strong> CORDIC accuracy against the number of iterations.</p>
 
 {{#include ../generated/comms/cordic_accuracy.md}}
 

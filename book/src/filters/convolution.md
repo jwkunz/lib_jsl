@@ -76,7 +76,7 @@ A stream cannot be transformed whole. Both sectioned methods cut it into blocks 
 Both cost two FFTs per block (the filter's transform is computed once), about $O(\log L)$ operations per sample. Their outputs are identical
 to the direct sum:
 
-<p class="caption" id="tab-14-2"><strong>Table 14.2.</strong> Columns: filter taps (20 000 samples), direct (ms), whole-signal FFT (ms), overlap-add stream (ms), and more.</p>
+<p class="caption" id="tab-14-2"><strong>Table 14.2.</strong> Time to filter 20 000 samples by direct and FFT convolution.</p>
 
 {{#include ../generated/filters/convolution_time.md}}
 

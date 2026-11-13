@@ -92,7 +92,7 @@ Three numbers summarise how a window of length $M$ affects measurements made wit
   the worst case, where both neighbouring bins sample the main lobe on its slopes instead of at
   its peak.
 
-<p class="caption" id="tab-15-2"><strong>Table 15.2.</strong> Columns: window (64 samples, periodic), coherent gain, noise bandwidth (bins), 3 dB width (bins), and more.</p>
+<p class="caption" id="tab-15-2"><strong>Table 15.2.</strong> Figures of merit of common windows.</p>
 
 {{#include ../generated/spectral/window_merits.md}}
 
@@ -114,7 +114,7 @@ problem. The library finds that eigenvalue by bisection on Sturm sequence counts
 
 ### Testing against SciPy
 
-<p class="caption" id="tab-15-3"><strong>Table 15.3.</strong> Columns: window (lengths 16 and 17, symmetric and periodic), largest difference from SciPy.</p>
+<p class="caption" id="tab-15-3"><strong>Table 15.3.</strong> Windows against SciPy.</p>
 
 {{#include ../generated/spectral/window_reference.md}}
 

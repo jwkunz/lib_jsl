@@ -38,7 +38,7 @@ Start with a tetrahedron of four extreme points. Each face keeps an **outside se
 
 Points far inside are discarded early, so on typical data most of the work is the first few passes. The worst case is every point on the hull, such as points on a sphere, and even that is fast:
 
-<p class="caption" id="tab-24-3"><strong>Table 24.3.</strong> Columns: points, 2D, Gaussian, 3D, Gaussian, 3D, all on a sphere.</p>
+<p class="caption" id="tab-24-3"><strong>Table 24.3.</strong> Convex hull times in two and three dimensions.</p>
 
 {{#include ../generated/geometry/hull_timing.md}}
 

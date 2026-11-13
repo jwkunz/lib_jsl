@@ -127,7 +127,7 @@ kernel width $1/\varepsilon$ comparable to the typical distance between points.
 Franke's function, a standard test surface with two peaks and a dip, sampled at 100 Halton points in
 the unit square:
 
-<p class="caption" id="tab-3-8"><strong>Table 3.8.</strong> Columns: method, RMS error, maximum error.</p>
+<p class="caption" id="tab-3-8"><strong>Table 3.8.</strong> Accuracy of scattered-data interpolation methods.</p>
 
 {{#include ../generated/interpolation/scattered_table.md}}
 

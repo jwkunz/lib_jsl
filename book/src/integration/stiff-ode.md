@@ -131,7 +131,7 @@ robustness makes it a good first try on a problem whose character is unknown.
 The library's three solvers on three classic problems, all at relative tolerance $10^{-6}$ (Jacobians
 formed by finite differences, which costs $n$ extra evaluations each):
 
-<p class="caption" id="tab-2-15"><strong>Table 2.15.</strong> Columns: problem, solver, steps, rejected, and more.</p>
+<p class="caption" id="tab-2-15"><strong>Table 2.15.</strong> Steps taken by stiff and non-stiff solvers on stiff problems.</p>
 
 {{#include ../generated/integration/stiff_table.md}}
 

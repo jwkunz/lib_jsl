@@ -156,7 +156,7 @@ uses it.
 
 The library's results on a few programs:
 
-<p class="caption" id="tab-5-7"><strong>Table 5.7.</strong> Columns: program, status, solution, objective, and more.</p>
+<p class="caption" id="tab-5-7"><strong>Table 5.7.</strong> Linear programs solved by the simplex method.</p>
 
 {{#include ../generated/optimization/linear_programs.md}}
 

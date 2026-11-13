@@ -128,7 +128,7 @@ for integer and half-integer orders.
 
 ### Accuracy
 
-<p class="caption" id="tab-6-9"><strong>Table 6.9.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-9"><strong>Table 6.9.</strong> Accuracy of the zeta function and its relatives.</p>
 
 {{#include ../generated/special_functions/zeta_accuracy.md}}
 

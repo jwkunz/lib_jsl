@@ -135,7 +135,7 @@ finally $\operatorname{dn} = \sqrt{(1 - m) + m\,\operatorname{cn}^2}$.
 
 ### Accuracy
 
-<p class="caption" id="tab-6-5"><strong>Table 6.5.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-5"><strong>Table 6.5.</strong> Accuracy of the elliptic integrals and functions.</p>
 
 {{#include ../generated/special_functions/elliptic_accuracy.md}}
 

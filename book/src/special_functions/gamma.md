@@ -149,7 +149,7 @@ $\prod_{i=1}^{k}\frac{n - k + i}{i}$, dividing at each step so that intermediate
 
 ### Accuracy
 
-<p class="caption" id="tab-6-1"><strong>Table 6.1.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-1"><strong>Table 6.1.</strong> Accuracy of the gamma function and its relatives.</p>
 
 {{#include ../generated/special_functions/gamma_accuracy.md}}
 

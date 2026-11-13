@@ -94,7 +94,7 @@ $\ell_2$ penalty $\frac{\lambda}{2}\lVert W\rVert^2$ on the weights (intercepts 
 loss. The penalised minimum is unique and finite, and the less extreme probabilities it produces
 are better on new data:
 
-<p class="caption" id="tab-11-5"><strong>Table 11.5.</strong> Columns: $\lambda$, L-BFGS iterations, $\lVert W\rVert$, training log-loss, and more.</p>
+<p class="caption" id="tab-11-5"><strong>Table 11.5.</strong> Effect of the penalty on logistic regression.</p>
 
 {{#include ../generated/machine_learning/logistic_penalty.md}}
 

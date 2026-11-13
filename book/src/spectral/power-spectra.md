@@ -83,7 +83,7 @@ Segments may overlap. A tapered window gives little weight to the samples near t
 segment, so without overlap those samples would be largely wasted. Overlapping by half with a
 Hann window uses them, while the segments remain nearly independent:
 
-<p class="caption" id="tab-15-4"><strong>Table 15.4.</strong> Columns: segment length (Hann, 50% overlap), segments averaged, bin width (× fs), mean density (true 2.000), and more.</p>
+<p class="caption" id="tab-15-4"><strong>Table 15.4.</strong> Bias and variance of Welch's estimate against segment length.</p>
 
 {{#include ../generated/spectral/welch_variance.md}}
 

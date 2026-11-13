@@ -102,7 +102,7 @@ The error is exactly the variance in the directions thrown away: the mean square
 error equals the sum of the discarded eigenvalues (times $(n - 1)/n$, and divided by $p$ for a
 per-feature mean):
 
-<p class="caption" id="tab-12-11"><strong>Table 12.11.</strong> Columns: components kept, variance explained, reconstruction mean squared error, discarded eigenvalues ÷ features.</p>
+<p class="caption" id="tab-12-11"><strong>Table 12.11.</strong> Variance explained and reconstruction error of PCA.</p>
 
 {{#include ../generated/unsupervised/pca_reconstruction.md}}
 

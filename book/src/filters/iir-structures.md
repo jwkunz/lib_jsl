@@ -54,7 +54,7 @@ intermediate values small. `new` divides all coefficients by $a_0$, as `lfilter`
 The poles are the roots of $A(z)$, and the roots of a polynomial can be extremely sensitive to its coefficients. This is worst when poles
 cluster, as they do near $z = 1$ in a narrow low-pass filter. Rounding the denominator of Butterworth designs to single precision:
 
-<p class="caption" id="tab-14-4"><strong>Table 14.4.</strong> Columns: Butterworth order, cutoff (× Nyquist), largest pole radius, after rounding a to f32.</p>
+<p class="caption" id="tab-14-4"><strong>Table 14.4.</strong> Pole movement of Butterworth filters when the coefficients are rounded to single precision.</p>
 
 {{#include ../generated/filters/sensitivity.md}}
 

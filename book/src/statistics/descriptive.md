@@ -165,7 +165,7 @@ The mean and variance cost $O(n)$; the order-based statistics cost a sort, $O(n\
 Against SciPy 1.17 and NumPy 2.4 on a skewed sample of 20 values (the [kernel density](kernel-density.md) estimate is included for
 completeness):
 
-<p class="caption" id="tab-10-1"><strong>Table 10.1.</strong> Columns: quantity, library, SciPy / NumPy, relative difference.</p>
+<p class="caption" id="tab-10-1"><strong>Table 10.1.</strong> Descriptive statistics against SciPy and NumPy.</p>
 
 {{#include ../generated/statistics/scipy_descriptive.md}}
 

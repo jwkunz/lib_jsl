@@ -130,7 +130,7 @@ ends far lower. With $\nu = 0.03$, 1000 stages are not yet enough. In practice o
 Fitting each tree to a random fraction of the rows (`subsample`) both speeds training up and, by decorrelating the trees, reduces
 overfitting:
 
-<p class="caption" id="tab-13-4"><strong>Table 13.4.</strong> Columns: subsample (300 stages, ν = 0.1), test MSE (mean of 5 seeds).</p>
+<p class="caption" id="tab-13-4"><strong>Table 13.4.</strong> Effect of row subsampling on gradient boosting.</p>
 
 {{#include ../generated/learning/gb_subsample.md}}
 

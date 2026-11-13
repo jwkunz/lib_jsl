@@ -92,7 +92,7 @@ $2^n + 2n^2 + 2n + 1$ points in total; dropping the last generator and reweighti
 an **embedded** degree-5 rule on the same points, and the difference of the two estimates the
 error.
 
-<p class="caption" id="tab-2-13"><strong>Table 2.13.</strong> Columns: dimension $n$, monomials of degree $\le 7$, Genz-Malik, degree 7, tensor Gauss, 4 points per axis.</p>
+<p class="caption" id="tab-2-13"><strong>Table 2.13.</strong> Points used by the Genz-Malik rule and a tensor Gauss rule by dimension.</p>
 
 {{#include ../generated/integration/cubature_points.md}}
 

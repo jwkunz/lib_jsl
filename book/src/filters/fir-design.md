@@ -128,7 +128,7 @@ $$
 
 These make window design a recipe: choose $A$ and $\Delta\omega$, read off $\beta$ and $N$. They are accurate to about a decibel:
 
-<p class="caption" id="tab-14-5"><strong>Table 14.5.</strong> Columns: target attenuation (dB), transition width (× Nyquist), taps (kaiser_estimate_numtaps), β (kaiser_beta), and more.</p>
+<p class="caption" id="tab-14-5"><strong>Table 14.5.</strong> Kaiser-window designs: estimated taps and β against measured attenuation.</p>
 
 {{#include ../generated/filters/kaiser_design.md}}
 
@@ -189,7 +189,7 @@ frequencies. Remez's **exchange algorithm** does the search:
 At the same length, the equiripple filter has a sharper transition and an even stopband; the window design's side lobes fall away
 where no attenuation was needed. For a fixed transition, Parks-McClellan reaches more attenuation from the same number of taps:
 
-<p class="caption" id="tab-14-6"><strong>Table 14.6.</strong> Columns: taps (transition 0.2–0.3 × Nyquist), Parks-McClellan stopband (dB), Kaiser window stopband (dB).</p>
+<p class="caption" id="tab-14-6"><strong>Table 14.6.</strong> Stopband attenuation of Parks-McClellan and Kaiser-window designs of equal length.</p>
 
 {{#include ../generated/filters/remez_vs_kaiser.md}}
 

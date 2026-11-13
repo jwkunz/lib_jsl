@@ -95,7 +95,7 @@ of numerical differentiation again, with the measurement noise playing the role 
 and a far larger one. The derivative of the local fit is much better behaved, because the fit
 averages the noise over the window before differentiating. On the noisy peak above:
 
-<p class="caption" id="tab-3-5"><strong>Table 3.5.</strong> Columns: derivative estimate, RMS error.</p>
+<p class="caption" id="tab-3-5"><strong>Table 3.5.</strong> Second-derivative estimates by Savitzky-Golay filters.</p>
 
 {{#include ../generated/interpolation/savitzky_golay_derivative.md}}
 

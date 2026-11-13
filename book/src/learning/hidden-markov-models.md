@@ -118,7 +118,7 @@ the short runs near the start, where a few rolls are not enough evidence against
 decoders answer different questions. Viterbi gives the single most likely *sequence*; taking the most likely state at each time
 (**posterior decoding**) maximises the expected number of correct labels, though the resulting sequence may be impossible as a whole:
 
-<p class="caption" id="tab-13-8"><strong>Table 13.8.</strong> Columns: decoder (100 sequences of 300 rolls), fraction of rolls labelled correctly.</p>
+<p class="caption" id="tab-13-8"><strong>Table 13.8.</strong> Accuracy of Viterbi and posterior decoding.</p>
 
 {{#include ../generated/learning/hmm_decoding.md}}
 
@@ -137,7 +137,7 @@ All five random starts move quickly to a plateau, a nearly symmetric model in wh
 dozens to over a thousand iterations, until the symmetry breaks and the likelihood climbs to the level of the true model. One start
 had not escaped after 2000 iterations. Several starts, and patience, are needed. The best run recovers the casino:
 
-<p class="caption" id="tab-13-9"><strong>Table 13.9.</strong> Columns: parameter, true, Baum-Welch (best of five starts).</p>
+<p class="caption" id="tab-13-9"><strong>Table 13.9.</strong> HMM parameters estimated by Baum-Welch.</p>
 
 {{#include ../generated/learning/hmm_parameters.md}}
 
@@ -198,7 +198,7 @@ Both cost $O(TN^2)$ operations and $O(TN)$ storage.
 
 - Each Viterbi step is a full $N \times N$ scan, so time grows as $N^2$:
 
-<p class="caption" id="tab-13-10"><strong>Table 13.10.</strong> Columns: states N (1000 steps), Viterbi time (ms), ns per step per N².</p>
+<p class="caption" id="tab-13-10"><strong>Table 13.10.</strong> Viterbi time against the number of states.</p>
 
 {{#include ../generated/learning/hmm_viterbi_time.md}}
 

@@ -103,7 +103,7 @@ A quarter-wave section of impedance $\sqrt{Z_SZ_L}$ matches two real impedances 
 
 A two-port is described by the **Z** matrix ($\mathbf V = \mathbf Z\mathbf I$), its inverse **Y**, the **ABCD** chain matrix (input voltage and current from the output's), or the **S** matrix of power waves $a = (V + Z_0I)/2\sqrt{Z_0}$, $b = (V - Z_0I)/2\sqrt{Z_0}$ with $\mathbf b = \mathbf S\mathbf a$. Cascades multiply ABCD or scattering transfer (**T**) matrices. A reciprocal network has $\mathbf S = \mathbf S^{\mathsf T}$, and a lossless one has $\mathbf S^{\mathsf H}\mathbf S = \mathbf I$.
 
-<p class="caption" id="tab-21-1"><strong>Table 21.1.</strong> Columns: check, largest difference or result.</p>
+<p class="caption" id="tab-21-1"><strong>Table 21.1.</strong> Transmission-line and two-port checks.</p>
 
 {{#include ../generated/em-waves/two_port_table.md}}
 

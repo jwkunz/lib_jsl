@@ -39,7 +39,7 @@ Generic numerical code is written against two traits. [`IsLinearOperatable`](../
 
 The constants are grouped by field. Physical ones follow CODATA 2022. Exact ones are written exactly, and derived ones (the reduced Planck constant, the gas constant, the Bohr radius) are computed at compile time from their definitions, so the set is self-consistent. The book's generator checks the mathematical constants against 40-digit mpmath values, and the physical and unit constants against SciPy's CODATA 2022 tables:
 
-<p class="caption" id="tab-26-1"><strong>Table 26.1.</strong> Columns: module, reference, constants checked, largest relative difference.</p>
+<p class="caption" id="tab-26-1"><strong>Table 26.1.</strong> Physical constants against their reference values.</p>
 
 {{#include ../generated/foundations/constants.md}}
 
@@ -65,7 +65,7 @@ Comparing results by the number of representable numbers between them, rather th
 
 Each unit has a dimension, a scale to its SI base unit and, for temperatures, an offset. Converting goes through the base unit, $v_{\text{to}} = (v\, s_{\text{from}} + o_{\text{from}} - o_{\text{to}}) / s_{\text{to}}$, and units of different dimensions are refused. Symbols are matched exactly first and then, if that is unambiguous, ignoring case. Ignoring case blindly would make `mW` a megawatt and `kb` a kilobyte, so ambiguous spellings such as `mw` are refused.
 
-<p class="caption" id="tab-26-2"><strong>Table 26.2.</strong> Columns: conversion, library, exact.</p>
+<p class="caption" id="tab-26-2"><strong>Table 26.2.</strong> Unit conversions against exact values.</p>
 
 {{#include ../generated/foundations/units.md}}
 

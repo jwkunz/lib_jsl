@@ -90,13 +90,13 @@ directly.
 
 Familiar critical values, computed by the library:
 
-<p class="caption" id="tab-6-11"><strong>Table 6.11.</strong> Columns: distribution, 90%, 95%, 97.5%, and more.</p>
+<p class="caption" id="tab-6-11"><strong>Table 6.11.</strong> Quantiles of common distributions.</p>
 
 {{#include ../generated/special_functions/quantiles.md}}
 
 ### Accuracy
 
-<p class="caption" id="tab-6-12"><strong>Table 6.12.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-12"><strong>Table 6.12.</strong> Accuracy of the statistical functions.</p>
 
 {{#include ../generated/special_functions/statistical_accuracy.md}}
 

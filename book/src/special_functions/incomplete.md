@@ -169,7 +169,7 @@ $x - \tfrac23x^3 + \tfrac4{15}x^5 - \cdots$ is used.
 
 ### Accuracy
 
-<p class="caption" id="tab-6-2"><strong>Table 6.2.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-2"><strong>Table 6.2.</strong> Accuracy of the incomplete gamma and beta functions and the error function.</p>
 
 {{#include ../generated/special_functions/incomplete_accuracy.md}}
 

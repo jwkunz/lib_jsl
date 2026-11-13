@@ -116,7 +116,7 @@ The three clusters are stretched and tilted, two of them almost touching. k-mean
 cuts the clusters across. The mixture's full covariances follow the clusters' shapes and recover them; the remaining errors are in
 the region where the two lower clusters overlap. The fitted parameters match the sample statistics of the generating clusters:
 
-<p class="caption" id="tab-12-9"><strong>Table 12.9.</strong> Columns: true cluster, sample mean, fitted mean, fitted weight (true 1/3).</p>
+<p class="caption" id="tab-12-9"><strong>Table 12.9.</strong> Gaussian mixture fit: means and weights against the truth.</p>
 
 {{#include ../generated/unsupervised/gmm_parameters.md}}
 

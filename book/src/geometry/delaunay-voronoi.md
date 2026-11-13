@@ -48,7 +48,7 @@ Both predicates are computed in floating point. When four points are nearly on a
 
 A plain Bowyer–Watson insertion with a super-triangle fails both ways: 41 points on a shallow arc gave triangles overlapping to 2.4 times the hull's area, and points close to a line lost the hull's slivers to the super-triangle.
 
-<p class="caption" id="tab-24-2"><strong>Table 24.2.</strong> Columns: 30 000 points, triangles, time.</p>
+<p class="caption" id="tab-24-2"><strong>Table 24.2.</strong> Time to triangulate 30 000 points.</p>
 
 {{#include ../generated/geometry/delaunay_timing.md}}
 

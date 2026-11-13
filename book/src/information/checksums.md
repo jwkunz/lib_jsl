@@ -57,7 +57,7 @@ guarantees:
   such bursts are caught.
 - Random corruption produces a random remainder, which is zero with probability $2^{-32}$. For CRC-32, all two- and three-bit errors are caught in messages up to about 11 kB.
 
-<p class="caption" id="tab-18-7"><strong>Table 18.7.</strong> Columns: error in a 1024-byte message, trials, undetected.</p>
+<p class="caption" id="tab-18-7"><strong>Table 18.7.</strong> Undetected errors of CRC-32 by error type.</p>
 
 {{#include ../generated/information/crc_detection.md}}
 

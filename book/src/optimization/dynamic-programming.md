@@ -113,7 +113,7 @@ $$
   subproblems are the contiguous subchains; the cost of a chain is the minimum over the place of
   the last multiplication. There are $O(n^2)$ subchains and $O(n)$ split points each: $O(n^3)$.
 
-<p class="caption" id="tab-5-8"><strong>Table 5.8.</strong> Columns: problem, input, result.</p>
+<p class="caption" id="tab-5-8"><strong>Table 5.8.</strong> Dynamic programming examples.</p>
 
 {{#include ../generated/optimization/dynamic_programming.md}}
 

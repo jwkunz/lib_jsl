@@ -167,7 +167,7 @@ harder problems the picture is more varied (evaluations to a tolerance of $10^{-
 from the [next entry](newton.md), start from the ends or the midpoint of the interval, and Newton's
 count includes its evaluations of $f'$):
 
-<p class="caption" id="tab-4-3"><strong>Table 4.3.</strong> Columns: problem, bisection, false position (Illinois), Ridders, and more.</p>
+<p class="caption" id="tab-4-3"><strong>Table 4.3.</strong> Evaluations used by bracketing and open methods.</p>
 
 {{#include ../generated/root_finding/evaluations.md}}
 

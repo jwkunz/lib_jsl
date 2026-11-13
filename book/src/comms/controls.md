@@ -127,7 +127,7 @@ simulation's discretised acceleration noise differs slightly from the filter's $
 
 Because `step` reads the output after updating the state, the library's $(A, B, C, D)$ is the system that SciPy and most textbooks write as $y[k] = C'x[k] + D'u[k]$ with $C' = CA$ and $D' = CB + D$. Simulating that system with `scipy.signal.dlsim` (SciPy 1.17.1, references from `book/generator/data/make_controls_refs.py`) reproduces the library's output:
 
-<p class="caption" id="tab-16-4"><strong>Table 16.4.</strong> Columns: computation (SciPy reference), largest difference.</p>
+<p class="caption" id="tab-16-4"><strong>Table 16.4.</strong> Control and estimation routines against SciPy.</p>
 
 {{#include ../generated/comms/scipy_controls.md}}
 

@@ -105,13 +105,13 @@ minimum at $(1, 1)$, is the standard test of a local method; it appears througho
 
 The references come from SciPy 1.17.1, written by `book/generator/data/make_optimization_refs.py`. For the unconstrained problems the table gives each solution's distance from the true minimiser, for the library's method and the closest SciPy method, both run to tight tolerances:
 
-<p class="caption" id="tab-5-1"><strong>Table 5.1.</strong> Columns: problem, method (library / SciPy), library: distance from the minimiser, SciPy: distance from the minimiser.</p>
+<p class="caption" id="tab-5-1"><strong>Table 5.1.</strong> Unconstrained optimisers against SciPy.</p>
 
 {{#include ../generated/optimization/scipy_unconstrained.md}}
 
 Both Newton implementations stop at the five-variable Rosenbrock function's other local minimum, near $(-1, 1, 1, 1, 1)$, from this starting point. Nelder-Mead's distance reflects its stopping rule, which tests the spread of function values, so near a quadratic minimum it places $x$ to about the square root of the tolerance; SciPy's adaptive variant also requires the simplex itself to shrink. Golden-section search is limited the same way, and Brent's parabolic steps do better.
 
-<p class="caption" id="tab-5-2"><strong>Table 5.2.</strong> Columns: problem (SciPy reference), result.</p>
+<p class="caption" id="tab-5-2"><strong>Table 5.2.</strong> Other optimisation routines against SciPy.</p>
 
 {{#include ../generated/optimization/scipy_other.md}}
 

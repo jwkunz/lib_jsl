@@ -117,7 +117,7 @@ thousands, as geophysical models need.
 
 ### Accuracy
 
-<p class="caption" id="tab-6-8"><strong>Table 6.8.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-8"><strong>Table 6.8.</strong> Accuracy of the orthogonal polynomials.</p>
 
 {{#include ../generated/special_functions/orthogonal_accuracy.md}}
 

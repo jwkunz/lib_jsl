@@ -59,7 +59,7 @@ the data. The expected inertia of the seeding alone is within a factor $8(\ln k 
 improve it. Even so, a single run can stop in a poor local minimum. The remedy is to run several seedings and keep the best.
 On nine blobs in a 3 × 3 grid, over 200 seeds:
 
-<p class="caption" id="tab-12-3"><strong>Table 12.3.</strong> Columns: restarts (k-means++ seedings), runs reaching the best inertia, mean inertia / best, worst inertia / best.</p>
+<p class="caption" id="tab-12-3"><strong>Table 12.3.</strong> Effect of restarts on k-means.</p>
 
 {{#include ../generated/unsupervised/kmeans_restarts.md}}
 
@@ -108,7 +108,7 @@ Kaufman and Rousseeuw's **PAM** algorithm has two phases. **BUILD** chooses the 
 others, then repeatedly the point that most reduces the cost. **SWAP** then tries every exchange of a medoid with a non-medoid and makes the
 best improving one, until no exchange helps. Each SWAP pass examines $k(n - k)$ exchanges, which makes PAM much slower than k-means:
 
-<p class="caption" id="tab-12-4"><strong>Table 12.4.</strong> Columns: points, k-means, 5 restarts (ms), k-medoids, PAM (ms).</p>
+<p class="caption" id="tab-12-4"><strong>Table 12.4.</strong> Time of k-means against k-medoids.</p>
 
 {{#include ../generated/unsupervised/kmedoids_time.md}}
 

@@ -133,7 +133,7 @@ Evaluating a signal at $n + \mu$ with $0 \le \mu < 1$ means fitting a polynomial
 $v_m$ combine as $y(\mu) = v_0 + \mu(v_1 + \mu(v_2 + \cdots))$. That is the **Farrow structure**: only the cheap Horner step depends on $\mu$, so the delay can change every sample. Higher orders are exact for polynomials of higher degree and
 accurate to higher frequencies:
 
-<p class="caption" id="tab-16-2"><strong>Table 16.2.</strong> Columns: Lagrange order, error at 0.05 cycles/sample, at 0.15, at 0.30.</p>
+<p class="caption" id="tab-16-2"><strong>Table 16.2.</strong> Fractional-delay error of Lagrange (Farrow) interpolators by order and frequency.</p>
 
 {{#include ../generated/comms/farrow.md}}
 

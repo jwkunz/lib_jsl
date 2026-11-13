@@ -138,7 +138,7 @@ Both kernels have negative lobes that sharpen edges in images, at the price of s
 
 The library's errors for interpolation from a $16 \times 16$ grid over $[0, 1)^2$:
 
-<p class="caption" id="tab-3-6"><strong>Table 3.6.</strong> Columns: method, periodic $\sin 2\pi x \cos 2\pi y$, interior, non-periodic $e^{x + y/2}$, interior, non-periodic, whole grid.</p>
+<p class="caption" id="tab-3-6"><strong>Table 3.6.</strong> Accuracy of two-dimensional grid interpolation methods.</p>
 
 {{#include ../generated/interpolation/grid_accuracy.md}}
 
@@ -152,7 +152,7 @@ values beyond the grid (here they are replicated from the edge) loses accuracy.
 In three dimensions the same pattern holds; the B-spline overtakes the Lagrange interpolant as the
 grid is refined, thanks to its global smoothness:
 
-<p class="caption" id="tab-3-7"><strong>Table 3.7.</strong> Columns: grid, trilinear, tricubic Lagrange, tricubic B-spline.</p>
+<p class="caption" id="tab-3-7"><strong>Table 3.7.</strong> Accuracy of three-dimensional grid interpolation methods.</p>
 
 {{#include ../generated/interpolation/grid_3d.md}}
 

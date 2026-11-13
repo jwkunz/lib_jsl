@@ -34,7 +34,7 @@ $$
 
 A particle with velocity $\boldsymbol\beta$ has **four-velocity** $u = \gamma(1, \boldsymbol\beta)$, whose interval is always $-1$. Collinear velocities add as $(u + v)/(1 + uv)$, never reaching 1.
 
-<p class="caption" id="tab-24-7"><strong>Table 24.7.</strong> Columns: check, result.</p>
+<p class="caption" id="tab-24-7"><strong>Table 24.7.</strong> Special-relativity checks.</p>
 
 {{#include ../generated/geometry/relativity_checks.md}}
 
@@ -54,7 +54,7 @@ $$
 
 the field outside a non-rotating mass $M$ (in units $G = c = 1$).
 
-<p class="caption" id="tab-24-8"><strong>Table 24.8.</strong> Columns: point, largest symbol, finite-difference error.</p>
+<p class="caption" id="tab-24-8"><strong>Table 24.8.</strong> Christoffel symbols against finite differences of the metric.</p>
 
 {{#include ../generated/geometry/christoffel.md}}
 

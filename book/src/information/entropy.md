@@ -64,7 +64,7 @@ average, and that codes exist using fewer than $H + 1$ (coding single symbols) o
 There is a caveat about what "the source" is.
 The byte entropy only describes symbols taken one at a time. Real data has structure between symbols, and the entropy of blocks, per symbol, falls as the blocks lengthen:
 
-<p class="caption" id="tab-18-1"><strong>Table 18.1.</strong> Columns: source, entropy (bits per byte).</p>
+<p class="caption" id="tab-18-1"><strong>Table 18.1.</strong> Order-0 entropy of different sources.</p>
 
 {{#include ../generated/information/entropy_table.md}}
 
@@ -83,7 +83,7 @@ $$
 where the **Kullback-Leibler divergence** $D(p\,\Vert\,q) = \sum_x p(x)\log_2\big(p(x)/q(x)\big)$ is the extra cost. It is never negative, it is zero only when $q = p$ (Gibbs' inequality), and it is not symmetric. The cross entropy is infinite if $q$ gives zero probability to a symbol that occurs.
 In machine learning, minimising cross entropy is the same as maximising likelihood.
 
-<p class="caption" id="tab-18-2"><strong>Table 18.2.</strong> Columns: quantity (bits), library, SciPy `stats.entropy`.</p>
+<p class="caption" id="tab-18-2"><strong>Table 18.2.</strong> Entropy and divergences against SciPy.</p>
 
 {{#include ../generated/information/entropy_reference.md}}
 

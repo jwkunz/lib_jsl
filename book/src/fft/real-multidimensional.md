@@ -78,7 +78,7 @@ complex transform of the full length.
 **What it buys in practice.** The arithmetic is about halved, but the packing and untangling are
 extra $O(n)$ passes over memory, which the fast vectorised FFT does not hide. On this machine:
 
-<p class="caption" id="tab-8-3"><strong>Table 8.3.</strong> Columns: length $n$, complex `Fft` of real data, `RealFft`, ratio.</p>
+<p class="caption" id="tab-8-3"><strong>Table 8.3.</strong> Time of the real FFT against a complex FFT of real data.</p>
 
 {{#include ../generated/fft/real_fft.md}}
 

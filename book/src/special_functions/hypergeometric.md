@@ -118,13 +118,13 @@ Bessel relation, with the accurate $J_\nu$ of the [Bessel entry](bessel.md).
 
 Evaluating the library's hypergeometric functions against elementary and special functions:
 
-<p class="caption" id="tab-6-6"><strong>Table 6.6.</strong> Columns: identity (at $z = 0.37$), elementary side, hypergeometric side, relative difference.</p>
+<p class="caption" id="tab-6-6"><strong>Table 6.6.</strong> Hypergeometric identities checked numerically.</p>
 
 {{#include ../generated/special_functions/hypergeometric_identities.md}}
 
 ### Accuracy
 
-<p class="caption" id="tab-6-7"><strong>Table 6.7.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-7"><strong>Table 6.7.</strong> Accuracy of the hypergeometric functions.</p>
 
 {{#include ../generated/special_functions/hypergeometric_accuracy.md}}
 

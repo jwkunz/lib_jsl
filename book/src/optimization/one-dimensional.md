@@ -100,7 +100,7 @@ The minimum can be located only to about $\sqrt{\varepsilon} \approx 10^{-8}$ re
 precision, not $10^{-16}$. (A root, by contrast, can be found to full precision, because $f$
 changes sign there.)
 
-<p class="caption" id="tab-5-3"><strong>Table 5.3.</strong> Columns: function on $[0, 1]$, tolerance, evaluations, error in $x$.</p>
+<p class="caption" id="tab-5-3"><strong>Table 5.3.</strong> Golden-section search: evaluations and accuracy.</p>
 
 {{#include ../generated/optimization/golden_section.md}}
 

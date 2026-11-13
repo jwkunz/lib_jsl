@@ -72,7 +72,7 @@ A plane cuts each triangle it crosses along a segment, between the two points wh
 
 Every horizontal cut of a torus with radii $R$ and $r$ is two circles of radii $R \pm \sqrt{r^2 - z^2}$, so the total length is $4\pi R$ at every height:
 
-<p class="caption" id="tab-24-6"><strong>Table 24.6.</strong> Columns: height z, contours, all closed, total length, and more.</p>
+<p class="caption" id="tab-24-6"><strong>Table 24.6.</strong> Contours from slicing a torus at several heights.</p>
 
 {{#include ../generated/geometry/slicing.md}}
 

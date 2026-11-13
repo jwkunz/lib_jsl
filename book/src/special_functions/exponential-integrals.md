@@ -136,7 +136,7 @@ series for small $x$ and, for large $x$, a complex continued fraction for $\oper
 
 ### Accuracy
 
-<p class="caption" id="tab-6-3"><strong>Table 6.3.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-3"><strong>Table 6.3.</strong> Accuracy of the exponential, sine, cosine and Fresnel integrals.</p>
 
 {{#include ../generated/special_functions/exponential_accuracy.md}}
 

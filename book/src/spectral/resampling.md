@@ -73,7 +73,7 @@ $0, 0, 0, 3, 3, 3, 6, 6, 6$. Asymmetric filters must also be applied unreversed.
 [`PolyphaseArbitraryResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_arbitrary_resampling/struct.PolyphaseArbitraryResampler.html) allows a real $D$. Output $m$ takes the filtered upsampled signal at position $\lfloor mD\rfloor$, so output times are rounded to the
 nearest point below on a grid $U$ times finer than the input. The error in time is less than $1/U$ input samples:
 
-<p class="caption" id="tab-15-9"><strong>Table 15.9.</strong> Columns: up_rate, down_rate (ratio 1/1.37), error against the rounded output times, error against the exact output times.</p>
+<p class="caption" id="tab-15-9"><strong>Table 15.9.</strong> Accuracy of arbitrary-ratio resampling.</p>
 
 {{#include ../generated/spectral/arbitrary_resampling.md}}
 

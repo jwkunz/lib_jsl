@@ -76,7 +76,7 @@ Single linkage follows chains of close points, so it separates the two moons per
 a thin bridge of points between two blobs is enough to join them. Complete, average and Ward linkage prefer compact
 clusters and are not fooled by the bridge, but they cut the moons like k-means:
 
-<p class="caption" id="tab-12-5"><strong>Table 12.5.</strong> Columns: linkage, two moons (ARI), two blobs joined by a bridge of 20 points (ARI on the blobs).</p>
+<p class="caption" id="tab-12-5"><strong>Table 12.5.</strong> Linkage methods on two awkward data sets.</p>
 
 {{#include ../generated/unsupervised/linkage_table.md}}
 
@@ -84,7 +84,7 @@ clusters and are not fooled by the bridge, but they cut the moons like k-means:
 
 Merge heights from the library agree with `scipy.cluster.hierarchy.linkage` to rounding error:
 
-<p class="caption" id="tab-12-6"><strong>Table 12.6.</strong> Columns: data, compared with, merge heights or variances (largest relative difference), leading two principal axes (largest difference).</p>
+<p class="caption" id="tab-12-6"><strong>Table 12.6.</strong> Clustering and reduction routines against SciPy and scikit-learn.</p>
 
 {{#include ../generated/unsupervised/reference.md}}
 
@@ -114,7 +114,7 @@ tree is unrooted, since distances alone do not reveal where the root is.
 
 On random trees with 12 leaves, the largest relative error in the reconstructed path lengths was:
 
-<p class="caption" id="tab-12-7"><strong>Table 12.7.</strong> Columns: true tree (12 leaves, 50 random trees), UPGMA, neighbour joining.</p>
+<p class="caption" id="tab-12-7"><strong>Table 12.7.</strong> Recovery of random trees by UPGMA and neighbour joining.</p>
 
 {{#include ../generated/unsupervised/phylogeny.md}}
 

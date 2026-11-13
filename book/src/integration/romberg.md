@@ -151,7 +151,7 @@ keeps the previous row and builds the next one in place:
 
 The tableau for $\int_0^1 e^x\,dx$, as computed by the library:
 
-<p class="caption" id="tab-2-7"><strong>Table 2.7.</strong> Columns: $k$, $h$, $R(k,0)$, $R(k,1)$, and more.</p>
+<p class="caption" id="tab-2-7"><strong>Table 2.7.</strong> A Romberg tableau.</p>
 
 {{#include ../generated/integration/romberg_tableau.md}}
 

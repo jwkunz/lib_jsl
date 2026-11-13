@@ -67,7 +67,7 @@ Invertibility comes from a condition on the filters: they are orthonormal under 
 $\sum_nh_nh_{n+2s} = \delta_s$. This makes the transform an orthogonal matrix, so its inverse is
 its transpose, energy is preserved, and reconstruction is exact:
 
-<p class="caption" id="tab-15-8"><strong>Table 15.8.</strong> Columns: wavelet, filter length, largest deviation from orthonormality Σ h[n]h[n+2s] = δ_s, reconstruction error after 4 levels.</p>
+<p class="caption" id="tab-15-8"><strong>Table 15.8.</strong> Orthonormality and perfect reconstruction of the wavelet filters.</p>
 
 {{#include ../generated/spectral/wavelet_checks.md}}
 

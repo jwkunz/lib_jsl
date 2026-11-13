@@ -112,7 +112,7 @@ accurate**: their coverage error is $O(n^{-1})$ instead of $O(n^{-1/2})$.
 
 ### How well do they cover?
 
-<p class="caption" id="tab-10-5"><strong>Table 10.5.</strong> Columns: statistic (true value), $n$, $t$ interval, percentile, and more.</p>
+<p class="caption" id="tab-10-5"><strong>Table 10.5.</strong> Coverage of bootstrap confidence intervals.</p>
 
 {{#include ../generated/statistics/bootstrap_coverage.md}}
 

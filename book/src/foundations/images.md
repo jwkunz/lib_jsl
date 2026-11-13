@@ -43,7 +43,7 @@ DEFLATE replaces repeated strings by (length, distance) references to earlier te
 {{#include ../../../crates/file_io/src/deflate.rs:lz77}}
 ```
 
-<p class="caption" id="tab-26-5"><strong>Table 26.5.</strong> Columns: data, bytes, library, level 6 / 9, zlib, level 6 / 9.</p>
+<p class="caption" id="tab-26-5"><strong>Table 26.5.</strong> DEFLATE compressed sizes of the library against zlib.</p>
 
 {{#include ../generated/foundations/deflate.md}}
 
@@ -85,13 +85,13 @@ A Netpbm header is a magic number (`P1` to `P6`), the width, height and (except 
 
 Files written by Python's libraries, read by this one:
 
-<p class="caption" id="tab-26-6"><strong>Table 26.6.</strong> Columns: file written by Python, bytes, read by the library.</p>
+<p class="caption" id="tab-26-6"><strong>Table 26.6.</strong> Image files written by Python and read by the library.</p>
 
 {{#include ../generated/foundations/reading_images.md}}
 
 Files written by this library, read by Python's:
 
-<p class="caption" id="tab-26-7"><strong>Table 26.7.</strong> Columns: file written by the library (read by), result.</p>
+<p class="caption" id="tab-26-7"><strong>Table 26.7.</strong> Image files written by the library and read by Python.</p>
 
 {{#include ../generated/foundations/interop_images.md}}
 

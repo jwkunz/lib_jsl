@@ -66,7 +66,7 @@ At half a wavelength the computed current is close to the assumed sinusoid. At o
 
 {{#include ../generated/em-waves/mom_facts.md}} The resistance there is close to the 73 Ω of the induced-EMF method, and the reactance near half a wavelength is about the textbook $+42.5$ Ω plus a correction for the radius. Near a full wavelength the impedance rises to the anti-resonance.
 
-<p class="caption" id="tab-21-3"><strong>Table 21.3.</strong> Columns: interior nodes, segment ÷ radius (a = 10⁻⁴λ), Z (Ω), a = 10⁻⁴λ, segment ÷ radius (a = 10⁻³λ), and more.</p>
+<p class="caption" id="tab-21-3"><strong>Table 21.3.</strong> Method-of-moments input impedance of a dipole as the mesh is refined.</p>
 
 {{#include ../generated/em-waves/mom_convergence.md}}
 

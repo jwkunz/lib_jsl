@@ -54,7 +54,7 @@ $$
 
 applied to the smooth Cartesian components. Gradient, divergence, curl and Laplacians follow. Samples where a scale factor vanishes (the axis of a cylinder, the centre or poles of a sphere) are returned as NaN. Checking Faraday's law $\nabla \times \mathbf E = -j\omega\mu_0\mathbf H$ for a plane wave shows the fourth order:
 
-<p class="caption" id="tab-20-1"><strong>Table 20.1.</strong> Columns: samples, samples per wavelength, max ‖∇×E + jωμ₀H‖ ÷ k‖E‖, observed order, and more.</p>
+<p class="caption" id="tab-20-1"><strong>Table 20.1.</strong> Convergence of the sampled-field curl check with sampling density.</p>
 
 {{#include ../generated/em-arrays/faraday_table.md}}
 

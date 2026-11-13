@@ -152,7 +152,7 @@ full column rank, solves by back substitution. Otherwise, or when the system is 
 and returns the minimum-norm solution. It reports the numerical rank, the singular values and the residual sum of
 squares:
 
-<p class="caption" id="tab-7-5"><strong>Table 7.5.</strong> Columns: system, rank found, solution, singular values.</p>
+<p class="caption" id="tab-7-5"><strong>Table 7.5.</strong> Least squares on rank-deficient systems.</p>
 
 {{#include ../generated/linear_algebra/rank_deficient.md}}
 

@@ -110,7 +110,7 @@ chi-square goodness-of-fit tests. Bins start at `bin_min`, and the upper edge be
 
 ### Speed
 
-<p class="caption" id="tab-9-3"><strong>Table 9.3.</strong> Columns: operation, time per sample.</p>
+<p class="caption" id="tab-9-3"><strong>Table 9.3.</strong> Time per sample of the generators and samplers.</p>
 
 {{#include ../generated/random/speed.md}}
 

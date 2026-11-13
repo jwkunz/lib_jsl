@@ -126,7 +126,7 @@ within distance $t$ of a different codeword, and the decoder returns a wrong mes
 
 The simulated failure rate follows the binomial probability of more than 16 byte errors. {{#include ../generated/coding/rs_facts.md}}
 
-<p class="caption" id="tab-19-2"><strong>Table 19.2.</strong> Columns: code (n, k), parity bytes, parity vs `reedsolo`, errors t = (n − k)/2 injected, and more.</p>
+<p class="caption" id="tab-19-2"><strong>Table 19.2.</strong> Reed-Solomon parity compared with `reedsolo`, and correction of injected errors.</p>
 
 {{#include ../generated/coding/rs_reference.md}}
 

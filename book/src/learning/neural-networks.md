@@ -176,7 +176,7 @@ What a network does outside the data is therefore decided by its activation func
 units continue linearly and saturating units flatten out, and neither continues the sine. On the two
 classification benchmarks:
 
-<p class="caption" id="tab-13-2"><strong>Table 13.2.</strong> Columns: activation (32 × 32, 200 epochs), moons: test accuracy, final training loss, training time, and more.</p>
+<p class="caption" id="tab-13-2"><strong>Table 13.2.</strong> Activation functions compared.</p>
 
 {{#include ../generated/learning/mlp_activations.md}}
 
@@ -188,7 +188,7 @@ most wall-clock time, because evaluating it costs more than a ReLU comparison). 
 A network with thousands of weights can memorise 120 points. **Weight decay** adds $\frac\lambda2\sum w^2$ to the loss, shrinking the weights towards
 zero as ridge regression does:
 
-<p class="caption" id="tab-13-3"><strong>Table 13.3.</strong> Columns: weight decay λ (64 × 64, 120 training points), training accuracy, test accuracy.</p>
+<p class="caption" id="tab-13-3"><strong>Table 13.3.</strong> Effect of weight decay on an over-parameterised network.</p>
 
 {{#include ../generated/learning/mlp_weight_decay.md}}
 

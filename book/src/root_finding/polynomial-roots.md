@@ -137,7 +137,7 @@ better than the conditioning allows. The right standard is **backward stability*
 roots are the exact roots of a polynomial whose coefficients are close to the given ones. The
 companion matrix method with balancing achieves this in a norm-wise sense.
 
-<p class="caption" id="tab-4-4"><strong>Table 4.4.</strong> Columns: polynomial, real roots found, largest error.</p>
+<p class="caption" id="tab-4-4"><strong>Table 4.4.</strong> Accuracy of polynomial root finding.</p>
 
 {{#include ../generated/root_finding/polynomial_accuracy.md}}
 

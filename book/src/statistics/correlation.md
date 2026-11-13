@@ -82,7 +82,7 @@ achieves $O(n \log n)$.
 |:---:|:---:|:---:|:---:|
 | ![I](../generated/statistics/anscombe_i.svg) | ![II](../generated/statistics/anscombe_ii.svg) | ![III](../generated/statistics/anscombe_iii.svg) | ![IV](../generated/statistics/anscombe_iv.svg) |
 
-<p class="caption" id="tab-10-2"><strong>Table 10.2.</strong> Columns: set, mean of $y$, variance of $y$, Pearson $r$, and more.</p>
+<p class="caption" id="tab-10-2"><strong>Table 10.2.</strong> Anscombe's quartet.</p>
 
 {{#include ../generated/statistics/anscombe.md}}
 

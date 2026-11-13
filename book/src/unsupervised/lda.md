@@ -92,7 +92,7 @@ adjustment. The library classifies this way, using the directions it keeps. On t
 |:---:|:---:|
 | ![LDA projection](../generated/unsupervised/lda_projection.svg) | ![PCA projection](../generated/unsupervised/lda_pca_projection.svg) |
 
-<p class="caption" id="tab-12-12"><strong>Table 12.12.</strong> Columns: classifier (450 training, 900 test points), test accuracy.</p>
+<p class="caption" id="tab-12-12"><strong>Table 12.12.</strong> LDA as a classifier against other classifiers.</p>
 
 {{#include ../generated/unsupervised/lda_accuracy.md}}
 

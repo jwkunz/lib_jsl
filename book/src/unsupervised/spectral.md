@@ -99,7 +99,7 @@ them perfectly.
 
 Everything depends on building a graph whose components are the clusters:
 
-<p class="caption" id="tab-12-10"><strong>Table 12.10.</strong> Columns: similarity graph, moons (ARI), rings (ARI).</p>
+<p class="caption" id="tab-12-10"><strong>Table 12.10.</strong> Spectral clustering with different similarity graphs.</p>
 
 {{#include ../generated/unsupervised/spectral_graphs.md}}
 

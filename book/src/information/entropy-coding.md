@@ -103,7 +103,7 @@ The interval soon becomes far narrower than any floating-point number can repres
 practical coder never holds it in full. In finite precision the interval is kept as 32-bit integers $[\text{low}, \text{high}]$. Whenever it lies wholly in the lower or upper half, the leading bit of every number in it is known: the coder emits that bit and doubles the interval (E1, E2). When it straddles the middle within the central half, the next bit is
 not yet known. The coder doubles about the centre and counts a **pending** bit, emitted with the opposite value once the next E1 or E2 resolves it (E3). The decoder mirrors these steps. A symbol's sub-interval must never become empty, which requires the model's total frequency to stay below a quarter of the code range, $2^{30}$. For larger inputs the library rescales the model.
 
-<p class="caption" id="tab-18-3"><strong>Table 18.3.</strong> Columns: source (200 000 symbols), empirical entropy, Huffman, Shannon-Fano, and more.</p>
+<p class="caption" id="tab-18-3"><strong>Table 18.3.</strong> Entropy coders against the empirical entropy of synthetic sources.</p>
 
 {{#include ../generated/information/entropy_coders_table.md}}
 
@@ -114,7 +114,7 @@ so they spend 1 bit where 0.08 suffice, while the arithmetic coder matches the e
 
 {{#include ../generated/information/kjv_facts.md}} The order-0 coders all land near that figure; the [dictionary coders](dictionary-coding.md) do better by exploiting repeated words:
 
-<p class="caption" id="tab-18-4"><strong>Table 18.4.</strong> Columns: coder, compressed bytes, bits per byte, compress (MB/s), and more.</p>
+<p class="caption" id="tab-18-4"><strong>Table 18.4.</strong> Compression ratio and speed of each coder on the test text.</p>
 
 {{#include ../generated/information/kjv_table.md}}
 

@@ -76,7 +76,7 @@ from 67, which is not $-1$, so 561 is exposed although it passes Fermat's test.
 
 A composite $n$ that passes for base $a$ is a **strong pseudoprime** to that base. At most a quarter of the bases fool any composite, and composites that fool many small bases are very rare:
 
-<p class="caption" id="tab-22-2"><strong>Table 22.2.</strong> Columns: n, factors, bases it passes as a strong probable prime, is_prime.</p>
+<p class="caption" id="tab-22-2"><strong>Table 22.2.</strong> Strong pseudoprimes and the bases they fool.</p>
 
 {{#include ../generated/number_theory/pseudoprimes.md}}
 

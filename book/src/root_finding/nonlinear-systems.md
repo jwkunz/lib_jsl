@@ -179,7 +179,7 @@ the updated matrix stops giving a descent direction.
 Iterations and evaluations of $\mathbf F$ (including those for difference Jacobians and line searches) to a
 residual of $10^{-12}$:
 
-<p class="caption" id="tab-4-5"><strong>Table 4.5.</strong> Columns: system, Newton, exact Jacobian, Newton, difference Jacobian, Broyden.</p>
+<p class="caption" id="tab-4-5"><strong>Table 4.5.</strong> Newton and Broyden on nonlinear systems.</p>
 
 {{#include ../generated/root_finding/systems.md}}
 

@@ -72,7 +72,7 @@ Two tight clusters next to one diffuse one:
 With a small ε the diffuse cluster dissolves into noise, apart from a fragment. With a large ε it is found, but the two tight clusters
 merge. No single value gets all three:
 
-<p class="caption" id="tab-12-8"><strong>Table 12.8.</strong> Columns: method, clusters, noise points, ARI (noise as its own group).</p>
+<p class="caption" id="tab-12-8"><strong>Table 12.8.</strong> DBSCAN and HDBSCAN on the same data.</p>
 
 {{#include ../generated/unsupervised/density_table.md}}
 

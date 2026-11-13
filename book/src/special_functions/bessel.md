@@ -140,7 +140,7 @@ $\operatorname{Ai}(x) = \frac1\pi\sqrt{x/3}\,K_{1/3}(\zeta)$ for $x > 0$. The li
 
 ### Accuracy
 
-<p class="caption" id="tab-6-4"><strong>Table 6.4.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
+<p class="caption" id="tab-6-4"><strong>Table 6.4.</strong> Accuracy of the Bessel and Airy functions.</p>
 
 {{#include ../generated/special_functions/bessel_accuracy.md}}
 

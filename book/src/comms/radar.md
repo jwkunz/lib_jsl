@@ -77,7 +77,7 @@ compresses 200 to 1:
 The unweighted matched filter's first sidelobes are at −13.3 dB, the sinc's, and would hide the second target 20 dB down if it were closer. Weighting the
 filter by a window trades a little peak SNR (about 1.3 dB for Hamming) and width for much lower sidelobes:
 
-<p class="caption" id="tab-16-3"><strong>Table 16.3.</strong> Columns: waveform and weighting, peak sidelobe level (dB), −3 dB width (samples).</p>
+<p class="caption" id="tab-16-3"><strong>Table 16.3.</strong> Peak sidelobe level and mainlobe width of pulse-compression waveforms.</p>
 
 {{#include ../generated/comms/sidelobes.md}}
 

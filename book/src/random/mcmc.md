@@ -143,7 +143,7 @@ where $\tau$ is the **integrated autocorrelation time**, the sum of the autocorr
 lags. Comparing the two formulas, $N$ correlated samples are worth as much as $N/\tau$
 independent ones. That number is the **effective sample size**:
 
-<p class="caption" id="tab-9-5"><strong>Table 9.5.</strong> Columns: proposal step, acceptance rate, autocorrelation time $\tau$, effective samples (of 50 000), and more.</p>
+<p class="caption" id="tab-9-5"><strong>Table 9.5.</strong> Random-walk Metropolis: acceptance and autocorrelation against step size.</p>
 
 {{#include ../generated/random/mcmc_table.md}}
 

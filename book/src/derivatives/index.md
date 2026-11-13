@@ -26,11 +26,11 @@ of rounding errors (which wants large ones).
 
 SciPy 1.17.1's `scipy.differentiate` estimates derivatives adaptively: it applies central differences with a sequence of shrinking steps and extrapolates (Richardson), stopping when the estimates agree. The library uses one fixed step chosen to balance truncation and rounding. The references come from `book/generator/data/make_derivatives_refs.py`; the tables give relative errors against the exact derivatives:
 
-<p class="caption" id="tab-1-1"><strong>Table 1.1.</strong> Columns: function, f': central difference, f': five-point stencil, f': SciPy `derivative`, and more.</p>
+<p class="caption" id="tab-1-1"><strong>Table 1.1.</strong> Scalar derivatives against SciPy's adaptive `derivative`.</p>
 
 {{#include ../generated/derivatives/scipy_scalar.md}}
 
-<p class="caption" id="tab-1-2"><strong>Table 1.2.</strong> Columns: derivative (SciPy reference), library: relative error, SciPy: relative error.</p>
+<p class="caption" id="tab-1-2"><strong>Table 1.2.</strong> Gradients, Jacobians and Hessians against SciPy.</p>
 
 {{#include ../generated/derivatives/scipy_vectors.md}}
 

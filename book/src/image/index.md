@@ -22,7 +22,7 @@ Kernels have odd dimensions and are centred on the output pixel. Outside the ima
 The test images (a noisy scene of a disc and a square, drawn lines and circles, and Gaussian spots) and the reference results come from SciPy 1.17.1 and scikit-image 0.26.0, by `book/generator/data/make_image_refs.py`. The
 filtered images were stored to 12 significant digits, which limits the differences seen:
 
-<p class="caption" id="tab-17-1"><strong>Table 17.1.</strong> Columns: SciPy or scikit-image function and case, compared, result.</p>
+<p class="caption" id="tab-17-1"><strong>Table 17.1.</strong> Image routines against SciPy and scikit-image.</p>
 
 {{#include ../generated/image/reference.md}}
 

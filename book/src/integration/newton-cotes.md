@@ -137,7 +137,7 @@ where $M_n = h \sum_i f\big(a + (i + \tfrac12)h\big)$ and
 $T_n = h\big[\tfrac12 f(a) + f(a + h) + \cdots + f(b - h) + \tfrac12 f(b)\big]$. Halving $h$ divides
 both errors by four. For $\int_0^1 e^x\,dx$ the library computes
 
-<p class="caption" id="tab-2-4"><strong>Table 2.4.</strong> Columns: panels $n$, midpoint $M_n - I$, trapezoid $T_n - I$, ratio, and more.</p>
+<p class="caption" id="tab-2-4"><strong>Table 2.4.</strong> Errors of the midpoint and trapezoid rules as the panels are halved.</p>
 
 {{#include ../generated/integration/newton_cotes_midpoint_trapezoid.md}}
 
@@ -190,7 +190,7 @@ closed rules on $[0, 1]$, computed by the library from the conditions
 $\sum_i w_i x_i^k = 1/(k+1)$, show what goes wrong (only the first half of each symmetric list is
 shown):
 
-<p class="caption" id="tab-2-5"><strong>Table 2.5.</strong> Columns: points, weights on $[0, 1]$, degree, $\sum_i \lvert w_i \rvert$.</p>
+<p class="caption" id="tab-2-5"><strong>Table 2.5.</strong> Weights of the closed Newton-Cotes rules.</p>
 
 {{#include ../generated/integration/newton_cotes_weights.md}}
 
@@ -249,7 +249,7 @@ trapezoid rule given the *same number of evaluations*, on three integrands over 
 smooth peak $1/\big(10^{-3} + (x - 0.3)^2\big)$, a kink $\sqrt{\lvert x - 1/\pi \rvert}$ and a jump
 from 0 to 1 at $x = 1/\pi$:
 
-<p class="caption" id="tab-2-6"><strong>Table 2.6.</strong> Columns: integrand on $[0, 1]$, tolerance, evaluations, adaptive error, and more.</p>
+<p class="caption" id="tab-2-6"><strong>Table 2.6.</strong> Adaptive trapezoid rule: evaluations and errors.</p>
 
 {{#include ../generated/integration/adaptive_trapezoid_table.md}}
 

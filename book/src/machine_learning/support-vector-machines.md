@@ -136,7 +136,7 @@ The RBF parameter $\gamma$ sets the reach of each support vector, $1/\sqrt\gamma
 A small $\gamma$ gives a smooth, nearly linear boundary; $\gamma = 3$ follows the moons; $\gamma = 100$ draws an island around nearly every point and makes
 almost all of them support vectors. $C$ and $\gamma$ interact and must be chosen together, usually by cross-validation over a grid:
 
-<p class="caption" id="tab-11-7"><strong>Table 11.7.</strong> Columns: γ = 0.1, γ = 1, γ = 10, γ = 100.</p>
+<p class="caption" id="tab-11-7"><strong>Table 11.7.</strong> SVM test accuracy over a grid of $C$ and $\gamma$.</p>
 
 {{#include ../generated/machine_learning/svm_grid.md}}
 

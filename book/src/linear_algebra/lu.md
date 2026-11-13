@@ -95,7 +95,7 @@ $1 - 10^{20}$ and $2 - 10^{20}$ round to $-10^{20}$: the original entries 1 and 
 equation, which distinguished it from any other, have been wiped out. Back substitution gives
 $x_2 = 1$, correctly, and then $x_1 = (1 - x_2)/\varepsilon = 0$, which is completely wrong.
 
-<p class="caption" id="tab-7-2"><strong>Table 7.2.</strong> Columns: $\varepsilon$, without pivoting: $x_1$, with partial pivoting: $x_1$, exact $x_1 = 1/(1 - \varepsilon)$.</p>
+<p class="caption" id="tab-7-2"><strong>Table 7.2.</strong> A small pivot with and without partial pivoting.</p>
 
 {{#include ../generated/linear_algebra/small_pivot.md}}
 
@@ -123,7 +123,7 @@ can still grow, because each step can at most double them. In the worst case $\r
 Wilkinson's example has 1 on the diagonal and in the last column and $-1$ below the diagonal:
 partial pivoting never swaps, and the last column doubles at every step.
 
-<p class="caption" id="tab-7-3"><strong>Table 7.3.</strong> Columns: $n$, growth factor $2^{n-1}$, relative error, partial pivoting, relative error, random matrix of the same order.</p>
+<p class="caption" id="tab-7-3"><strong>Table 7.3.</strong> Element growth and error on Wilkinson's matrix and random matrices.</p>
 
 {{#include ../generated/linear_algebra/wilkinson_growth.md}}
 

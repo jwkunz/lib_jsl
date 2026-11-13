@@ -152,12 +152,25 @@ grid is refined, thanks to its global smoothness:
 
 ## Algorithm
 
-1. Locate the cell along each axis by binary search (non-uniform axes) or by division (uniform axes).
-2. Compute the one-dimensional weights for each axis.
-3. Sum the products of weights over the $2^n$, $4^n$ or $(2a)^n$ neighbouring grid values.
+**Set-up.** Most methods need none: they read the grid values directly. The B-spline interpolant
+first replaces the data by coefficients, solving the tridiagonal system
+$(c_{k-1} + 4c_k + c_{k+1})/6 = f_k$ along every line of the grid in each direction in turn (the
+prefilter). The Fourier interpolants compute a multidimensional FFT of the data.
 
-The B-spline interpolant first replaces the data by coefficients, solving the tridiagonal system
-$(c_{k-1} + 4c_k + c_{k+1})/6 = f_k$ along every line of the grid in each direction.
+**Evaluation at a point**, for a method that uses $s$ values per axis in $n$ dimensions ($s = 2$
+for multilinear, 4 for the cubic methods, $2a$ for a kernel of half-width $a$):
+
+1. **Locate the cell.** For each axis, find the grid interval containing the coordinate: by
+   binary search on a non-uniform axis, or by one division on a uniform one. This also gives the
+   fractional position within the cell.
+2. **Compute the weights.** For each axis, evaluate the method's $s$ one-dimensional weights at
+   that fractional position.
+3. **Sum.** Add up the $s^n$ neighbouring grid values, each multiplied by the product of its
+   weights along the axes. Neighbours beyond the edge of the grid are supplied by the method's
+   edge rule (see the implementation notes).
+
+The cost per point is $O(s^n)$, so the cubic methods cost 16 values in two dimensions and 64 in
+three.
 
 ## Implementation
 

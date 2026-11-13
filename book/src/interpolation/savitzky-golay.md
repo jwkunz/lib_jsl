@@ -108,11 +108,23 @@ $10^{-5}$, and 101-point windows failed as singular.)
 
 ## Algorithm
 
-1. Build the scaled Vandermonde matrix $A_{kj} = (k/m)^j$ and its pseudo-inverse by SVD.
-2. The coefficients of the $r$-th derivative filter are row $r$ of $A^{+}$, times $r!/(m\Delta)^r$.
-3. Away from the ends, correlate the coefficients with the data.
-4. Near the ends, where the window would run off the data, fit one polynomial to the first (or last)
-   full window and evaluate it, or its derivative, at the end points.
+Input: samples $y_i$ with spacing $\Delta$, a window of $2m + 1$ points, a polynomial degree $d$
+and a derivative order $r$ (0 for smoothing).
+
+1. **Build the design matrix.** Form the Vandermonde matrix in the scaled offsets,
+   $A_{kj} = (k/m)^j$ for $k = -m, \ldots, m$ and $j = 0, \ldots, d$.
+2. **Invert it once.** Compute the pseudo-inverse $A^{+}$ from the SVD of $A$.
+3. **Extract the filter.** The coefficients are row $r$ of $A^{+}$, multiplied by
+   $r!/(m\Delta)^r$. The factor $r!$ turns the polynomial coefficient into a derivative, and
+   $(m\Delta)^r$ undoes the scaling of the offsets and converts to the units of the data.
+4. **Filter the interior.** For every sample at least $m$ from both ends, the output is the sum
+   of the coefficients times the samples in the window centred there (a correlation).
+5. **Treat the ends.** For the first $m$ samples the centred window would run off the data.
+   Instead fit one polynomial of degree $d$ to the first $2m + 1$ samples, and evaluate it (or
+   its $r$-th derivative) at each of those $m$ positions. Do the same at the other end.
+
+The set-up costs one SVD of a $(2m + 1) \times (d + 1)$ matrix. Filtering costs $2m + 1$
+multiplications per sample.
 
 ## Implementation
 

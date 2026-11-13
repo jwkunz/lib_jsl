@@ -136,9 +136,23 @@ and visibly bumpy, with flat spots wherever the slice passes near a data point.
 
 ## Algorithm
 
-- **Shepard**: for each evaluation point, accumulate $w_i f_i$ and $w_i$ over all data; return $f_i$
-  exactly at a data point.
-- **RBF**: assemble the $(n + 3) \times (n + 3)$ system, solve it by LU factorisation, and evaluate the sum.
+**Shepard.** There is no set-up. For each evaluation point $\mathbf p$:
+
+1. loop over the data points, computing the distance $r_i = \|\mathbf p - \mathbf p_i\|$;
+2. if some $r_i$ is zero, return $f_i$ at once;
+3. otherwise accumulate $\sum_i r_i^{-\mu}f_i$ and $\sum_i r_i^{-\mu}$, and return their ratio.
+
+Cost: $O(n)$ per point.
+
+**Radial basis functions.**
+
+1. *Set-up.* Fill the $n \times n$ block $\Phi$ with the kernel evaluated at every pair of data
+   points, and the block $P$ with the rows $(1, x_i, y_i)$. Solve the resulting
+   $(n + 3) \times (n + 3)$ system by [LU factorisation](../linear_algebra/lu.md) for the weights
+   $w_i$ and the coefficients $a, b, c$. Report an error if the matrix is singular. Cost:
+   $O(n^3)$, once.
+2. *Evaluation.* Sum the $n$ kernels centred on the data points, weighted by the $w_i$, and add
+   the plane $a + bx + cy$. Cost: $O(n)$ per point.
 
 ## Implementation
 

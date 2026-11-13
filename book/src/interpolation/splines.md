@@ -193,13 +193,35 @@ only PCHIP stays within the range of the data: Akima and Catmull-Rom can still o
 
 ## Algorithm
 
-- **Locate** the interval by bisection, checking the cached interval first.
-- **Linear**: one line per interval.
-- **Natural spline**: solve the tridiagonal system for the $c_i$ with $c_0 = c_{n-1} = 0$ (Thomas
-  algorithm), then compute the cubic coefficients of each interval.
-- **Hermite methods**: compute the secants $d_j = (y_{j+1} - y_j)/h_j$, the node slopes by the method's
-  rule (PCHIP uses a shape-limited three-point formula at the ends; Akima extrapolates two extra
-  secants at each end), then evaluate the Hermite form.
+Every method has a set-up, done once, and an evaluation, done for each point.
+
+**Locating the interval** (shared by all the methods). Given $x$:
+
+1. if $x$ lies in the interval found by the previous call, use it;
+2. otherwise bisect: keep two indices bracketing $x$, compare $x$ with the node midway between
+   them, and move one index, until they are adjacent. Points outside the data use the first or
+   the last interval.
+
+**Linear.** No set-up. Evaluate the straight line through the two ends of the interval.
+
+**Natural cubic spline.**
+
+1. *Set-up.* Form the tridiagonal system for $c_1, \ldots, c_{n-2}$, with $c_0 = c_{n-1} = 0$.
+   Solve it by the **Thomas algorithm**, which is Gaussian elimination specialised to three
+   diagonals: one forward sweep eliminates the subdiagonal, and one backward sweep substitutes.
+   Then compute $b_i$ and $d_i$ for each interval from the $c_i$ by the formulas above. Cost:
+   $O(n)$.
+2. *Evaluation.* Locate the interval $i$ and evaluate
+   $y_i + \Delta\big(b_i + \Delta(c_i + \Delta\,d_i)\big)$ with $\Delta = x - x_i$.
+
+**Hermite methods** (Catmull-Rom, Akima, PCHIP).
+
+1. *Set-up.* Compute the secants $d_j = (y_{j+1} - y_j)/h_j$. Compute a slope $m_j$ at every node
+   by the method's rule. The rules need neighbours on both sides, so the two ends are treated
+   specially: PCHIP uses a three-point formula there, limited so that it cannot break
+   monotonicity, and Akima extrapolates two extra secants beyond each end. Cost: $O(n)$.
+2. *Evaluation.* Locate the interval, compute $t = (x - x_j)/h_j$, and evaluate the Hermite form
+   with the values and slopes at its two ends.
 
 ## Implementation
 

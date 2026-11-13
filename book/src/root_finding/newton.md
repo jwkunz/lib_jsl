@@ -183,10 +183,30 @@ against 2 for Newton's method. Measured per function evaluation, the secant meth
 
 ## Algorithm
 
-**Newton**: from $x_0$, repeat $x \leftarrow x - f(x)/f'(x)$ until the step is smaller than the tolerance.
+**Newton's method.** Input: $f$, its derivative $f'$, a starting point $x$ and a tolerance.
+Repeat at most 100 times:
 
-**Secant**: from $x_0, x_1$, repeat the secant step until the step is smaller than the tolerance and
-the two latest points confirm the root (see below).
+1. evaluate $f(x)$ and $f'(x)$;
+2. if $f(x) = 0$, return $x$; if $f'(x)$ is zero or not finite, report an error;
+3. compute the step $s = f(x)/f'(x)$ and set $x \leftarrow x - s$; if the new $x$ is not finite,
+   report an error;
+4. if $|s|$ is below the tolerance, return $x$.
+
+If the loop ends without step 4 succeeding, report failure to converge.
+
+**The secant method.** Input: $f$, two starting points $x_0, x_1$ and a tolerance. Keep the two
+latest points with their function values. Repeat at most 100 times:
+
+1. compute the next point $x_2$ from the secant formula and evaluate $f(x_2)$;
+2. if $f(x_2) = 0$, return $x_2$;
+3. if $|x_2 - x_1|$ is below the tolerance, accept $x_2$ provided the two points confirm a root
+   between or beside them: either $f$ changes sign from $x_1$ to $x_2$, or the secant through
+   these two nearby points places the root within the tolerance (see the implementation notes
+   for why a small step alone is not enough);
+4. otherwise discard the older point and continue with $x_1, x_2$.
+
+Each Newton iteration costs one evaluation of $f$ and one of $f'$; each secant iteration costs
+one evaluation of $f$.
 
 ## Implementation
 

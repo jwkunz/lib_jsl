@@ -302,11 +302,40 @@ universal fallback.
 
 ## Algorithm
 
-1. Choose the relative step $h = \varepsilon^{1/(p+m)}$ (or the user's), scale it by $\max(|x|, 1)$, and
-   make it exact with $h \leftarrow (x + h) - x$.
-2. Evaluate $f$ at the stencil points and combine them with the formula's weights.
-3. For several variables, repeat for each coordinate (and each pair, for the Hessian), restoring the
-   point after each perturbation.
+**A derivative of a function of one variable**, of order $m$, by a formula of order $p$.
+
+1. **Choose the step.** Unless the caller supplies one, take the relative step
+   $h = \varepsilon^{1/(p+m)}$ from the table above, and scale it to the size of the argument:
+   $h \leftarrow h\,\max(|x|, 1)$.
+2. **Make the step exact.** Replace $h$ by $(x + h) - x$, so that the divisor equals the distance
+   between the points at which $f$ is actually evaluated.
+3. **Evaluate** $f$ at the points of the stencil: $x \pm h$ for the central difference, and
+   $x$, $x \pm h$, $x \pm 2h$ for the five-point formulas.
+4. **Combine** the values with the weights of the formula and divide by $h^m$.
+
+The cost is two evaluations of $f$ for the central difference and four or five for a five-point
+formula (the first and third derivatives do not use the centre value).
+
+**Gradient and Jacobian at $\mathbf x \in \mathbb R^n$.** For each coordinate $j = 1, \ldots, n$:
+
+1. choose $h_j$ from $|x_j|$ as in steps 1 and 2 above;
+2. evaluate the function at $\mathbf x + h_j\mathbf e_j$ and $\mathbf x - h_j\mathbf e_j$;
+3. the difference of the two values, divided by $2h_j$, is component $j$ of the gradient, or
+   column $j$ of the Jacobian;
+4. restore $x_j$ before moving to the next coordinate.
+
+The cost is $2n$ evaluations.
+
+**Hessian.** With the steps $h_j = \varepsilon^{1/4}\max(|x_j|, 1)$:
+
+1. evaluate $f(\mathbf x)$ once;
+2. for each $i$, evaluate $f(\mathbf x \pm h_i\mathbf e_i)$ and form the diagonal entry by the three-point
+   second difference;
+3. for each pair $i < j$, evaluate $f$ at the four corners
+   $\mathbf x \pm h_i\mathbf e_i \pm h_j\mathbf e_j$, form the cross difference, and store it in both
+   positions $(i, j)$ and $(j, i)$.
+
+The cost is $1 + 2n + 2n(n - 1) = 2n^2 + 1$ evaluations.
 
 ## Implementation
 

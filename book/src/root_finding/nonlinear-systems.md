@@ -198,17 +198,34 @@ The **Bratu problem** $u'' + e^u = 0$, $u(0) = u(1) = 0$, discretised by
 
 ## Algorithm
 
-**Newton** (`newton_system`), from $\mathbf x_0$:
+**Newton's method** (`newton_system`). Input: $\mathbf F$, optionally its Jacobian, a starting point
+$\mathbf x$, and tolerances on the residual and on the step. Repeat:
 
-1. If $\|\mathbf F(\mathbf x)\|_\infty \le$ the function tolerance, stop: converged.
-2. Form $J(\mathbf x)$ (analytically, or by forward differences) and solve $J\mathbf p = -\mathbf F$ by Gaussian
-   elimination with partial pivoting; stop if $J$ is singular.
-3. Line search along $\mathbf p$, limiting the step to $100\max(\|\mathbf x\|, n)$.
-4. Stop if the relative step is below the step tolerance or the line search fails; converged if the
-   residual is below $\max(\text{tolerance}, 10^{-8})$.
+1. **Test the residual.** Evaluate $\mathbf F(\mathbf x)$. If its largest component in magnitude,
+   $\|\mathbf F(\mathbf x)\|_\infty$, is at most the function tolerance, stop: converged.
+2. **Form the Jacobian** $J(\mathbf x)$, from the supplied function or by forward differences ($n$
+   further evaluations of $\mathbf F$).
+3. **Solve** $J\mathbf p = -\mathbf F$ by Gaussian elimination with partial pivoting. If $J$ is singular,
+   stop without convergence.
+4. **Line search.** If $\mathbf p$ is longer than $100\max(\|\mathbf x\|, n)$, scale it down to that
+   length, which prevents a wild step from a nearly singular Jacobian. Then backtrack from
+   $\lambda = 1$ until the merit function satisfies the Armijo condition, and set
+   $\mathbf x \leftarrow \mathbf x + \lambda\mathbf p$.
+5. **Test the step.** If the line search could find no acceptable $\lambda$, or the relative
+   change in $\mathbf x$ is below the step tolerance, stop. The result counts as converged only if
+   the residual is below $\max(\text{tolerance}, 10^{-8})$; otherwise the iteration has stalled
+   at a point that is not a root.
 
-**Broyden** (`broyden_system`): the same, with $J$ replaced by $B$, which is updated after each
-accepted step and re-formed by differences when a step fails.
+Each iteration costs one linear solve, $O(n^3)$, plus the evaluations of $\mathbf F$.
+
+**Broyden's method** (`broyden_system`). The same loop, with these changes:
+
+- before the first iteration, form $B$ by forward differences;
+- in step 3, solve $B\mathbf p = -\mathbf F$;
+- after each accepted step, apply Broyden's update to $B$ using the step $\mathbf s$ and the change
+  $\mathbf y$ in $\mathbf F$;
+- if the line search fails with an updated $B$, form $B$ afresh by differences and try again from
+  the same point; only a failure with a fresh $B$ ends the iteration.
 
 ## Implementation
 

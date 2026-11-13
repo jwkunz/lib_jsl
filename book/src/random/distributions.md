@@ -258,6 +258,17 @@ Poisson:
 4. Show that if $X \sim \operatorname{Gamma}(a)$ and $Y \sim \operatorname{Gamma}(b)$ are independent then $X/(X + Y) \sim \operatorname{Beta}(a, b)$.
 5. Check the `MultivariateNormal` sampler by estimating the covariance of $10^5$ samples of a $3 \times 3$ case.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Solve $u = 1 - e^{-(x/\lambda)^k}$ for $x$: $x = \lambda(-\ln(1 - u))^{1/k}$, and since $1 - u$ is also uniform, $x = \lambda(-\ln u)^{1/k}$ works.
+2. For independent uniforms, $R = \sqrt{-2\ln U_1}$ and $\Theta = 2\pi U_2$ have joint density $re^{-r^2/2}/(2\pi)$ on $r > 0$, $0 \le \theta < 2\pi$. The map $(r, \theta) \mapsto (x, y) = (r\cos\theta, r\sin\theta)$ has Jacobian $r$, so $(x, y)$ has density $e^{-(x^2 + y^2)/2}/(2\pi)$, a product of two standard normal densities.
+3. The target is $f(x) = \sqrt{2/\pi}\,e^{-x^2/2}$ and the envelope $g(x) = \lambda e^{-\lambda x}$. The ratio $f/g$ is largest at $x = \lambda$, where it equals $M(\lambda) = \sqrt{2/\pi}\,e^{\lambda^2/2}/\lambda$; this is smallest for $\lambda = 1$, giving $M = \sqrt{2e/\pi} \approx 1.316$ and an acceptance rate $1/M \approx 0.76$.
+4. The joint density is $\propto x^{a-1}y^{b-1}e^{-(x+y)}$. Put $s = x + y$ and $w = x/s$ (Jacobian $s$): it factorises as $s^{a+b-1}e^{-s}\cdot w^{a-1}(1 - w)^{b-1}$, so $w \sim \operatorname{Beta}(a, b)$, independent of $s$.
+5. The sample covariance should match the target matrix to within about $1/\sqrt{10^5} \approx 0.003$ relative to the entries' scale.
+
+</details>
+
 ## Further reading
 
 - L. Devroye, *Non-Uniform Random Variate Generation*, Springer, 1986 (free online from the author).

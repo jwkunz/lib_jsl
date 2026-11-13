@@ -192,6 +192,17 @@ $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 4. Estimate the error of a Sobol integration with 10 random shifts, and compare with the true error.
 5. Plot the first 1000 Halton points in dimensions 1 and 2 and in dimensions 40 and 41, and explain the difference.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The points are $0, \tfrac12, \tfrac14, \tfrac34, \tfrac18, \tfrac58, \tfrac38, \tfrac78, \tfrac1{16}, \tfrac9{16}, \tfrac5{16}, \tfrac{13}{16}, \tfrac3{16}, \tfrac{11}{16}, \tfrac7{16}, \tfrac{15}{16}$. The first $m$ binary digits of the radical inverse are the last $m$ bits of the index reversed, and $2^m$ consecutive indices run through every pattern of those $m$ bits exactly once, so each interval $[k2^{-m}, (k + 1)2^{-m})$ receives exactly one point.
+2. Reflecting the $m$ base-$b$ digits of $n < b^m$ gives an $m$-digit number $k$ in base $b$ with $k/b^m$; the map $n \mapsto k$ is a bijection on the digit strings of length $m$.
+3. Each factor is nearly constant with decreasing variation, so the effective dimension is low: Sobol points should give an error orders of magnitude smaller than pseudo-random points for the same $N$.
+4. Use 10 independently shifted copies, take the standard deviation of the 10 estimates divided by $\sqrt{10}$ as the error estimate, and compare it with the actual error over repeated experiments; the two agree on average.
+5. In dimensions 40 and 41 the Halton bases are 173 and 179, close to each other and large compared with the number of points. With only 1000 points the pairs lie on a small number of lines, strongly correlated, and fill the square evenly only after many more points; low dimensions (bases 2 and 3) fill it at once.
+
+</details>
+
 ## Further reading
 
 - J. Dick and F. Pillichshammer, *Digital Nets and Sequences*, Cambridge University Press, 2010.

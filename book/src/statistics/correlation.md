@@ -166,6 +166,17 @@ One misrecorded response hides a strong monotone relation from Pearson's $r$; th
 4. Construct a data set with $r = 0$ but a perfect functional relation.
 5. Implement Knight's $O(n \log n)$ algorithm for $\tau$ by counting inversions during a merge sort.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $r = \dfrac{\sum a_ib_i}{\sqrt{\sum a_i^2\sum b_i^2}}$ for the centred data $a, b$; Cauchy-Schwarz gives $|\sum a_ib_i| \le \|a\|\|b\|$ with equality iff $a \propto b$, i.e. the points are collinear.
+2. Ranks of both samples are permutations of $1..n$, with $\sum r_i^2$ fixed. Expanding $\sum d_i^2 = \sum(r_i - s_i)^2 = 2\sum r_i^2 - 2\sum r_is_i$ and substituting in the Pearson formula for ranks (variance $n(n^2 - 1)/12$) gives the stated expression.
+3. For a bivariate normal with correlation $\varrho$, the probability that a pair is concordant is $\tfrac12 + \tfrac1\pi\arcsin\varrho$; then $\tau = 2P(\text{concordant}) - 1 = \tfrac2\pi\arcsin\varrho$.
+4. Take $x$ symmetric about 0, for example $x = -2, -1, 0, 1, 2$, and $y = x^2$: the relation is perfect but $r = 0$ because $\sum x_iy_i = \sum x_i^3 = 0$.
+5. Sort by $x$, then count the inversions in $y$ while merge sorting: $n_c$ and $n_d$ follow from the number of inversions, in $O(n\log n)$.
+
+</details>
+
 ## Further reading
 
 - F. J. Anscombe, "Graphs in statistical analysis", *The American Statistician* 27 (1973) 17–21.

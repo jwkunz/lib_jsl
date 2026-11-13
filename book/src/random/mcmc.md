@@ -223,6 +223,17 @@ Each step costs one evaluation of the log-density.
 4. Implement a Gibbs sampler for a bivariate normal with correlation 0.99 and compare its autocorrelation time with random-walk Metropolis.
 5. Fit the dose-response model of the example by maximum likelihood and compare with the posterior means.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The Metropolis-Hastings kernel is $q(x \to y)\min(1, \frac{p(y)q(y \to x)}{p(x)q(x \to y)})$. Then $p(x)q(x \to y)\alpha(x, y) = \min(p(x)q(x \to y), p(y)q(y \to x))$, which is symmetric in $x$ and $y$: detailed balance.
+2. For a random walk on $N(0, 1)$ the acceptance rate is $\tfrac2\pi\arctan(2/\sigma)$: about $0.84$, $0.44$ and $0.24$ for $\sigma = 0.5$, $2.4$ and $5$. Small steps are accepted but move slowly and large steps are mostly rejected, so $\tau$ is smallest in between, near $\sigma \approx 2.4$, the classical optimum in one dimension.
+3. With modes at $\pm3$ the density at the midpoint is $e^{-4.5} \approx 1\%$ of the peak and a random walk crosses regularly. With modes at $\pm6$ it is $e^{-18} \approx 10^{-8}$ of the peak and a chain with moderate steps almost never crosses.
+4. For correlation $\rho$ Gibbs sampling has autocorrelation time about $(1 + \rho^2)/(1 - \rho^2) \approx 99$ for $\rho = 0.99$: each coordinate moves only a fraction $\sqrt{1 - \rho^2}$ of the target's width per step. A random walk Metropolis with an isotropic step suffers similarly (and worse if the step is not tuned).
+5. At the optimum the posterior means and the maximum-likelihood estimates should be close when the prior is weak and the data plentiful; large differences indicate an informative prior or a skewed posterior.
+
+</details>
+
 ## Further reading
 
 - N. Metropolis, A. W. Rosenbluth, M. N. Rosenbluth, A. H. Teller and E. Teller, "Equation of state calculations by fast computing

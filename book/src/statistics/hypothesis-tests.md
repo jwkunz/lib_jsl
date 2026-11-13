@@ -299,6 +299,17 @@ the rank tests find the shorter recovery times of the other nine.
 4. Simulate the size of the $\chi^2$ goodness-of-fit test with 10 categories and expected counts of 1, 2 and 5.
 5. Run 20 independent tests on null data and estimate the probability that at least one has $p < 0.05$. How does the Bonferroni correction help?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The difference of pairs has variance $2\sigma^2(1 - \rho)$ against $2\sigma^2$ for independent samples, so the standard error is smaller by $\sqrt{1 - \rho}$ when $\rho > 0$ and the test is more powerful (although it has fewer degrees of freedom).
+2. Match $\mathbb E[V] $ and $\operatorname{Var}V$ of $V = a + b$ with $a = s_1^2/n_1$, $b = s_2^2/n_2$ to those of $c\chi^2_\nu/\nu$; solving gives $\nu = (a + b)^2/\big(a^2/(n_1 - 1) + b^2/(n_2 - 1)\big)$.
+3. $U = F(X)$ is uniform for continuous $F$, and $\sup|F_n(x) - F(x)|$ equals $\sup|G_n(u) - u|$ for the empirical distribution $G_n$ of the $U_i$, which does not involve $F$.
+4. With expected counts of 1 or 2 the chi-square approximation to the statistic is poor, so the actual size differs from the nominal 5% (it is typically conservative or irregular); simulate with many replicates for each case.
+5. The probability is $1 - 0.95^{20} \approx 0.64$. With Bonferroni each test uses $0.05/20 = 0.0025$, making the probability at least one false positive about $0.049$.
+
+</details>
+
 ## Further reading
 
 - E. L. Lehmann and J. P. Romano, *Testing Statistical Hypotheses*, 4th ed., Springer, 2022.

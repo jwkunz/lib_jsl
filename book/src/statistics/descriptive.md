@@ -206,6 +206,17 @@ One income of 1250 makes the mean more than three times the median and the stand
 4. Compute the breakdown points of the trimmed mean that discards the top and bottom 10%, and of the interquartile range.
 5. Compute the type 7 and type 6 ($h = (n + 1)p - 1$) quantiles of $1, 2, 3, 4$ at $p = 0.1$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\mathbb E\sum(x_i - \bar x)^2 = (n - 1)\sigma^2$, so dividing by $n - 1$ is unbiased and dividing by $n$ has bias $-\sigma^2/n$.
+2. $M_k = M_{k-1} + (x_k - M_{k-1})/k$ from $kM_k = (k - 1)M_{k-1} + x_k$. Then $S_k - S_{k-1} = (x_k - M_{k-1})(x_k - M_k)$ follows by expanding $\sum(x_i - M_k)^2$ in terms of $M_{k-1}$.
+3. $S_1 = \sum(x_i - \bar x)$ is zero by the definition of the mean; in floating point it is of the order of $\varepsilon\sqrt n\max|x_i - \bar x|$, which is why it corrects the rounding in $\bar x$.
+4. The 10% trimmed mean breaks down when 10% of the data are corrupted (the trimmed tail can absorb only that fraction); the interquartile range breaks down at 25%.
+5. Type 7: position $h = (n - 1)p = 0.3$ (0-based), so $1 + 0.3(2 - 1) = 1.3$. Type 6: position $(n + 1)p - 1 = -0.5$ is below the first element, so the result is clamped to the minimum, $1$.
+
+</details>
+
 ## Further reading
 
 - T. F. Chan, G. H. Golub and R. J. LeVeque, "Algorithms for computing the sample variance: analysis and recommendations", *The American

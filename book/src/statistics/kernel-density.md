@@ -180,6 +180,17 @@ The rules blur the valley between the two modes at 55 and 80 minutes; a smaller 
 4. Implement least-squares cross-validation for $h$ and compare it with the rules on the bimodal mixture.
 5. Estimate the density of an exponential sample and correct the boundary bias by reflecting the data about 0.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\int\tfrac1{nh}\sum K\big(\tfrac{x - x_i}{h}\big)dx = \tfrac1n\sum\int K(u)\,du = 1$ by substituting $u = (x - x_i)/h$; non-negativity follows from $K \ge 0$.
+2. $\mathbb E\hat f(x) = \int K(u)f(x - hu)\,du = f + \tfrac12h^2\mu_2f'' + \ldots$ for $\mu_2 = \int u^2K$ (the entry takes $\mu_2 = 1$). The variance is $\tfrac1{nh}\int K^2\cdot f(x) + o(1/(nh))$.
+3. $\mathrm{AMISE} = \tfrac14h^4\mu_2^2R(f'') + R(K)/(nh)$ with $R(g) = \int g^2$. Setting its derivative to zero gives $h^* = \big(R(K)/(\mu_2^2R(f'')n)\big)^{1/5}$; for a normal density and Gaussian kernel this is $(4/3)^{1/5}\sigma n^{-1/5} \approx 1.06\,\sigma n^{-1/5}$.
+4. Minimise $\int\hat f_h^2 - \tfrac2n\sum\hat f_{h,-i}(x_i)$ over $h$ (leaving each point out when evaluating); on the bimodal mixture it typically selects a smaller bandwidth than the normal-reference rules, which oversmooth bimodal data.
+5. For an exponential sample, the estimate leaks mass to $x < 0$ and underestimates the density near 0. Reflecting means adding the estimate of the reflected data $-x_i$ to the estimate on $x \ge 0$, which cancels the boundary bias.
+
+</details>
+
 ## Further reading
 
 - B. W. Silverman, *Density Estimation for Statistics and Data Analysis*, Chapman and Hall, 1986.

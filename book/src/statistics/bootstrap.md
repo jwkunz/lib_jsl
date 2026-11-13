@@ -200,6 +200,17 @@ coefficient of variation = 0.426, 95% BCa interval [0.262, 0.582]
    of a resample equals the sample maximum?
 5. Compare the coverage of percentile and BCa intervals for the correlation coefficient of bivariate normal data with $\varrho = 0.8$, $n = 20$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A given observation is missed by each of the $n$ draws with probability $1 - 1/n$, so it is absent with probability $(1 - 1/n)^n \to e^{-1} \approx 0.368$.
+2. The 27 resamples give sums $3, 4, 5, \ldots, 12$ with counts $1, 3, 3, 4, 6, 3, 3, 3, 1$ for sums $3, 4, 5, 6, 7, 8, 9, 10, 12$. The bootstrap mean is the sum divided by 3, with expectation $7/3$ and variance $0.5185$.
+3. $\operatorname{Var}(\bar x^*) = \sigma_{\hat F}^2/n$ with $\sigma_{\hat F}^2 = \tfrac1n\sum(x_i - \bar x)^2$, giving $\tfrac1{n^2}\sum(x_i - \bar x)^2$. This is $(n - 1)/n$ times $s^2/n$. For $\{1, 2, 4\}$ the bootstrap variance is $0.5185$ while $s^2/n = 0.7778$.
+4. The resample maximum equals the sample maximum whenever the largest observation appears at least once: probability $1 - (1 - 1/n)^n \to 1 - e^{-1} \approx 0.632$. The bootstrap distribution therefore has a large atom at the sample maximum, which the true distribution (continuous) does not have.
+5. Simulate many data sets, compute each interval, and count how often it contains $0.8$; BCa usually has coverage closer to the nominal level than the percentile interval for such a skewed statistic with $n = 20$.
+
+</details>
+
 ## Further reading
 
 - B. Efron, "Bootstrap methods: another look at the jackknife", *Annals of Statistics* 7 (1979) 1–26.

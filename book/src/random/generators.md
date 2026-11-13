@@ -174,6 +174,17 @@ makes this equivalent to $2^{128}$ steps.
 4. Run a chi-square test on 10 bins of 100 000 uniforms using `Histogram`, and on the low 3 bits of `next_u64`.
 5. Verify experimentally that streams separated by `jump` show no correlation over $10^7$ values.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. If $a$ and $c$ are odd, $x_{k+1} = ax_k + c \equiv x_k + 1 \pmod 2$, so the lowest bit alternates; the second bit has period 4, and so on.
+2. $65539 = 2^{16} + 3$, so $65539^2 = 2^{32} + 6\cdot2^{16} + 9 \equiv 6\cdot2^{16} + 9 \pmod{2^{31}}$. Then $x_{k+2} = 65539^2x_k = 6(65539 - 3)x_k + 9x_k = 6x_{k+1} - 9x_k$. Consequently $9x_k - 6x_{k+1} + x_{k+2} \equiv 0$: every triple lies on one of at most 15 planes.
+3. The standard error of $\hat\pi$ is about $1.64/\sqrt N$, so the error falls from about $0.2$ at $N = 10^2$ to about $5\times10^{-4}$ at $N = 10^7$.
+4. For a good generator, the chi-square statistic has mean equal to the degrees of freedom (9 for 10 bins) and should be above the 5% critical value (16.9) only about one time in twenty; repeat with several seeds.
+5. Compare the sample correlation of the two streams at several lags; for $10^7$ values expect values of order $3\times10^{-4}$.
+
+</details>
+
 ## Further reading
 
 - D. Blackman and S. Vigna, "Scrambled linear pseudorandom number generators", *ACM Transactions on Mathematical Software* 47

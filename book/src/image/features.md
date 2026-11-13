@@ -99,10 +99,49 @@ smallest scale. SURF is 4–6 times faster here and less discriminating, with fe
 
 ## Algorithm
 
-1. **Blobs**: for each scale, blur, take the 5-point Laplacian, multiply by $-\sigma^2$; find thresholded $3 \times 3 \times 3$ maxima; prune overlaps, strongest first.
-2. **SIFT**: build octaves of Gaussians and DoGs; find extrema; refine (up to 5 steps) and filter; assign orientations; compute descriptors.
-3. **SURF**: integral image; box-filter Hessian responses for each filter size; $3 \times 3 \times 3$ maxima above the threshold; interpolate; orientation; descriptor.
-4. **Matching**: for each query, find the two nearest; ratio test; optional mutual check.
+**Blob detection.**
+
+1. For each scale $\sigma$ of a geometric sequence: blur the image by $\sigma$; apply the
+   five-point Laplacian; multiply by $-\sigma^2$. This gives a stack of response images.
+2. Find the points of the stack that exceed the threshold and are at least as large as all
+   their 26 neighbours, 8 in their own image and 9 in each of the images at the adjacent
+   scales.
+3. Sort the detections by response. Take each in turn and discard it if it overlaps an
+   already accepted blob by more than the allowed fraction of the smaller one's area.
+
+**SIFT.**
+
+1. **Scale space.** For each octave, blur the image to a sequence of increasing widths and
+   subtract neighbouring images to form the difference-of-Gaussians (DoG) stack. Halve the
+   image for the next octave.
+2. **Extrema.** Find the points of each DoG stack that are larger, or smaller, than all 26
+   neighbours.
+3. **Refine.** For each candidate, fit a quadratic to the DoG values around it and solve for
+   the offset of the true extremum. If the offset exceeds half a sample in any direction, move
+   to the neighbouring sample and try again, up to five times. Reject the candidate if its
+   contrast is low or if it lies on an edge.
+4. **Orientation.** Build the histogram of gradient directions around the keypoint, and create
+   one keypoint for each sufficiently high peak.
+5. **Descriptor.** Compute the $4 \times 4 \times 8$ histogram in the rotated frame, normalise,
+   clip and renormalise.
+
+**SURF.**
+
+1. Compute the integral image.
+2. For each filter size, compute the box-filter approximations of $D_{xx}$, $D_{yy}$ and
+   $D_{xy}$ at every pixel, and the determinant response.
+3. Find the maxima above the threshold among the 26 neighbours in position and filter size,
+   and interpolate their position and scale.
+4. Assign an orientation from the Haar-wavelet responses, and compute the 64-number
+   descriptor.
+
+**Matching** two sets of descriptors.
+
+1. For each descriptor of the first set, find its nearest and second-nearest neighbours in
+   the second set, by Euclidean distance.
+2. Accept the match if the nearest distance is below `ratio` times the second nearest.
+3. With `mutual`, also require that the first descriptor be the nearest neighbour of its match
+   in the opposite direction.
 
 ## Implementation
 

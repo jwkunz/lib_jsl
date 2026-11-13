@@ -98,9 +98,32 @@ where $m_k$ is the measured delay. If the normalised correlation in the gate fal
 
 ## Algorithm
 
-1. **Compression**: correlate the received frame with the (weighted) pulse by FFT convolution with its matched filter; index $k$ holds the response to an echo starting at sample $k$.
-2. **Locate**: the largest correlation magnitude, refined by the parabola through it and its neighbours.
-3. **Track**: predict, search the gate, test the normalised correlation, update by α-β or coast.
+**Pulse compression** of a received frame.
+
+1. Form the matched filter: the pulse, conjugated and reversed in time, and multiplied by the
+   weighting window if side lobes are to be reduced.
+2. Convolve the frame with it, by [FFT convolution](../filters/convolution.md#algorithm).
+3. Align the output so that index $k$ holds the response to an echo that *starts* at sample
+   $k$.
+
+**Locating a pulse** (`locate_pulse`).
+
+1. Find the index of the largest magnitude of the compressed output.
+2. Fit a parabola through that magnitude and its two neighbours, and take the position of the
+   parabola's vertex as the delay, to a fraction of a sample.
+3. Report also the normalised correlation at the peak, a number between 0 and 1 that measures
+   how well the frame matches the pulse there.
+
+**Tracking** (`PulseCorrelationTracker`), for each new frame:
+
+1. **predict** the delay from the previous estimates: $\widetilde d = \hat d + \hat r$;
+2. **search** only the gate, a window of delays around the prediction, for the correlation
+   peak;
+3. **test**: if the normalised correlation at the peak is above the threshold, the pulse was
+   found. Update the delay by the fraction $\alpha$ of the difference between the measurement
+   and the prediction, and the rate by the fraction $\beta$ of it;
+4. otherwise **coast**: keep the prediction as the estimate, and count a miss. After too many
+   consecutive misses, drop the track.
 
 ## Implementation
 

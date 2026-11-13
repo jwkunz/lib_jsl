@@ -68,9 +68,37 @@ divides the image along the gradient ridges.
 
 ## Algorithm
 
-1. **Otsu**: histogram; for each $t$, update $\omega_0$ and the sum of levels incrementally and evaluate $\sigma_b^2$; take the maximiser (the middle of a tie).
-2. **Canny**: blur; Sobel; suppress non-maxima along the quantised direction; seed a queue with pixels above `high`; grow through 8-neighbours above `low`.
-3. **Watershed**: queue the markers; pop the lowest (oldest on ties); label and queue its unlabelled neighbours at the higher of the two elevations; repeat until the queue is empty.
+**Otsu's threshold.**
+
+1. Compute the histogram, and from it the total number of pixels and the total of their
+   levels.
+2. For each candidate threshold $t$ from 0 upwards, add level $t$'s count to the running
+   weight $\omega_0$ of the lower class and its contribution to the running sum of levels. The
+   means of both classes follow from these two numbers and the totals, so $\sigma_b^2(t)$
+   costs a few operations.
+3. Return the $t$ with the largest $\sigma_b^2$; if several thresholds tie, the middle of the
+   tied range.
+
+**Canny edge detection.**
+
+1. Blur the image with a Gaussian of width $\sigma$.
+2. Compute the Sobel gradient: magnitude and direction at every pixel.
+3. **Non-maximum suppression.** Round each direction to the nearest of 0°, 45°, 90° and 135°.
+   Keep a pixel only if its magnitude is at least as large as those of its two neighbours
+   along that direction (strictly larger than one of them, so that a two-pixel plateau keeps
+   one pixel).
+4. **Hysteresis.** Mark every surviving pixel whose magnitude exceeds `high` as an edge and
+   put it in a queue. While the queue is not empty: remove a pixel; mark each of its eight
+   neighbours that survived step 3, exceeds `low` and is not yet marked, and add it to the
+   queue.
+
+**Watershed** from markers, on an elevation image.
+
+1. Put every marker pixel in a priority queue, keyed by its elevation, with its label.
+2. Remove the pixel of lowest elevation (the one queued earliest, among equals).
+3. For each of its four neighbours without a label: give it the same label, and queue it at
+   the larger of its own elevation and the current pixel's.
+4. Repeat from step 2 until the queue is empty. Every pixel now has the label of one marker.
 
 ## Implementation
 

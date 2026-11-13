@@ -127,9 +127,32 @@ A model written in the usual convention therefore cannot always be entered direc
 
 ## Algorithm
 
-1. **State space**: $x \leftarrow Ax + Bu$; $y = Cx + Du$. Poles from the eigenvalues of $A$; ranks of the controllability and observability matrices by SVD.
-2. **PID**: error; proportional term; integrate the error times $\Delta t$; filter the measurement and difference it; sum; clip to the limits; under anti-windup, undo the integration if clipped and pushing outwards.
-3. **Kalman**: predict $\hat x$ and $P$; form the innovation and $S$; solve for $K$; update $\hat x$ and $P$.
+**State-space model.** `step(u)`: compute the new state $x \leftarrow Ax + Bu$, then return
+the output $y = Cx + Du$ from the *new* state. Stability: compute the eigenvalues of $A$ and
+check that all have magnitude below 1. Controllability and observability: build the matrix
+$[B\ AB\ \cdots\ A^{n-1}B]$ (or its counterpart from $C$) column block by column block, and
+count its singular values above a tolerance.
+
+**PID controller**, for each sample with setpoint $r$, measurement $y$ and time step
+$\Delta t$:
+
+1. compute the error $e = r - y$ and the proportional term $K_pe$;
+2. add $e\,\Delta t$ to the integral, and form the integral term $K_i$ times it;
+3. pass the measurement through the low-pass filter, and form the derivative term $-K_d$
+   times the difference of the filtered measurement from its previous value, divided by
+   $\Delta t$;
+4. add the three terms, and clip the sum to the actuator's limits;
+5. **anti-windup**: if the sum was clipped, and the error has the sign that would push it
+   further beyond the limit, undo the addition made to the integral in step 2.
+
+**Kalman filter**, for each time step with control $u$ and measurement $z$.
+
+1. **Predict**: $\hat x^- = F\hat x + Bu$ and $P^- = FPF^* + Q$.
+2. **Innovation**: $\nu = z - H\hat x^-$, with covariance $S = HP^-H^* + R$.
+3. **Gain**: solve $KS = P^-H^*$ for $K$ (a linear solve; $S$ is not inverted explicitly).
+4. **Update**: $\hat x = \hat x^- + K\nu$ and $P = (I - KH)P^-$.
+
+With $n$ states and $m$ measurements, a step costs $O(n^3 + m^3)$.
 
 ## Implementation
 

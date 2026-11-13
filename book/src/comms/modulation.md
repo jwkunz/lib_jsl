@@ -173,9 +173,36 @@ $m[n] = \arg(s[n]\overline{s[n-1]})\,f_s/(2\pi k_f)$, optionally followed by de-
 
 ## Algorithm
 
-1. **Map**: group bits into labels, read the constellation point; **slice**: nearest point; **soft demap**: the max-log LLR for each bit.
-2. **OFDM modulate**: place data and pilots, inverse FFT (scaled to unit power), prepend the prefix; **demodulate**: drop the prefix, FFT, divide by the channel estimate.
-3. **FM**: accumulate phase; discriminate by the argument of $s[n]\overline{s[n-1]}$.
+**Mapping bits to symbols**: take the bits $\log_2M$ at a time; read each group as the label of
+a constellation point; output the point.
+
+**Hard decision** (`slice`): return the constellation point nearest to the received sample,
+and its label.
+
+**Soft demapping**, for each received sample $y$ and each of the $\log_2M$ bit positions:
+
+1. find the smallest squared distance from $y$ to a point whose label has a 0 in that
+   position, and the smallest to a point whose label has a 1;
+2. the LLR is the second minus the first, divided by the noise variance.
+
+**OFDM modulation** of one symbol:
+
+1. place the data symbols and the known pilot values on their subcarriers, in the bins of an
+   $N$-point array; leave the unused bins zero;
+2. take the inverse FFT, scaled so that the time-domain signal has unit average power;
+3. copy the last $N_{cp}$ samples in front of the block as the cyclic prefix.
+
+**OFDM demodulation** of one symbol:
+
+1. discard the first $N_{cp}$ samples and take the FFT of the remaining $N$;
+2. obtain the channel gain $H_k$ of each subcarrier: by interpolating linearly between the
+   gains measured at the pilots (received value divided by known value), or from a previously
+   received training symbol;
+3. divide each data subcarrier by its $H_k$.
+
+**FM modulation**: for each message sample, add $2\pi k_fm[n]/f_s$ to a running phase and
+output $e^{i\phi}$. **Demodulation**: multiply each sample by the conjugate of the previous
+one, take the argument of the product (the phase advance), and scale by $f_s/(2\pi k_f)$.
 
 ## Implementation
 

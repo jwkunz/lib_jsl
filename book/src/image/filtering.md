@@ -94,11 +94,32 @@ steepens edges and adds an overshoot on either side, which the eye reads as cris
 
 ## Algorithm
 
-1. **Correlation**: for each output pixel, sum kernel × neighbourhood, mapping indices outside the image by the border rule; convolution flips the kernel first.
-2. **Separable filtering**: filter every row with the row kernel, then every column of the result with the column kernel.
-3. **Gaussian blur**: build the normalised 1D kernel; filter separably with it along both axes.
-4. **Sobel**: correlate with $G_x$ and $G_y$ (borders replicated); optionally divide by 8; form magnitude and direction.
-5. **Unsharp mask**: blur; add `amount` × (image − blur) where the detail passes the threshold.
+**Correlation** of an image with a kernel of size $(2h_r + 1) \times (2h_c + 1)$. For each output
+pixel $(r, c)$:
+
+1. for each kernel entry $(i, j)$, find the input pixel $(r + i, c + j)$; if it lies outside
+   the image, replace it according to the border rule (zero, the nearest edge pixel, or the
+   mirror image);
+2. add the kernel entry times that pixel to the sum.
+
+**Convolution** is the same with the kernel rotated by 180° first. The cost is the number of
+pixels times the number of kernel entries.
+
+**Separable filtering** with a row kernel $v$ and a column kernel $u$:
+
+1. filter every row of the image with $v$, into a temporary image;
+2. filter every column of the temporary image with $u$.
+
+**Gaussian blur** of width $\sigma$: sample the one-dimensional Gaussian at the integers from
+$-\lceil4\sigma\rceil$ to $\lceil4\sigma\rceil$; divide by the sum of the samples; filter
+separably with that kernel along both axes.
+
+**Sobel gradient**: correlate with $G_x$ and with $G_y$, replicating the border; divide both by
+8 if normalisation is requested; return the two components, the magnitude
+$\sqrt{g_x^2 + g_y^2}$ and the direction $\operatorname{atan2}(g_y, g_x)$.
+
+**Unsharp mask**: blur the image; compute the detail, image minus blur; at each pixel where
+the magnitude of the detail exceeds the threshold, add `amount` times the detail to the image.
 
 ## Implementation
 

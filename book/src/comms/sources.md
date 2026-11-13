@@ -111,9 +111,30 @@ keeps a floating-point phase, wrapped every cycle.
 
 ## Algorithm
 
-1. **NCO**: output the current phase, then add the tuning word modulo $2^{64}$.
-2. **CORDIC**: pick the quadrant from the top two bits; start from $(1/K)$ rotated by that many quarter turns; run the micro-rotations on the remaining angle with integer shifts (rounded).
-3. **Waveform**: map the phase to a sample; scale by the amplitude and add the offset.
+**Oscillator** (`next_phase`): return the current value of the 64-bit phase accumulator, then
+add the tuning word to it, letting the addition wrap round.
+
+**CORDIC**, converting a phase to a cosine and sine, in integer arithmetic.
+
+1. **Quadrant.** The top two bits of the phase say which quarter turn it lies in. Remove
+   them; what remains is an angle in $[0, \pi/2)$.
+2. **Start** from the vector $(1/K, 0)$, already rotated by that number of quarter turns (a
+   quarter turn only exchanges the two components and changes signs), with $z$ set to the
+   remaining angle.
+3. **Iterate** for $i = 0, 1, \ldots$ up to the chosen number of iterations: let $d = +1$ if
+   $z \ge 0$ and $-1$ otherwise; replace $(x, y)$ by $(x - d\,(y \gg i),\ y + d\,(x \gg i))$,
+   where $\gg i$ is a right shift by $i$ bits, with rounding; subtract $d\arctan2^{-i}$, read
+   from a table, from $z$.
+4. **Return** $x$ as the cosine and $y$ as the sine.
+
+The cost is three additions and two shifts per iteration.
+
+**A waveform sample**: take the next phase; map it to a value by the waveform's rule (the
+CORDIC for a sinusoid, the phase itself for a ramp, a fold for a triangle, a comparison with
+the duty cycle for a square wave); multiply by the amplitude and add the offset.
+
+**Frequency mixer**: multiply each input sample by $e^{i\phi}$, then advance $\phi$ by
+$2\pi f_0/f_s$ and wrap it into one cycle.
 
 ## Implementation
 

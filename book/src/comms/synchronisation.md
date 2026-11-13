@@ -133,9 +133,39 @@ Cubic interpolation (order 3), the usual choice for timing recovery, has an erro
 
 ## Algorithm
 
-1. **PLL**: derotate the input by $e^{-i\hat\phi}$; $e = \arg$ of the result; update the loop filter.
-2. **Costas**: derotate, normalise, apply the data-stripping detector; update the loop filter.
-3. **Mueller-Müller**: interpolate at the current position; decide; compute $e$ (clipped to ±1); update the period estimate $\omega$ (limited to ±0.5% of nominal) and the position $\mu \mathrel{+}= \omega + g_\mu e$.
+Each loop processes one input sample (or one symbol) at a time.
+
+**PLL.**
+
+1. Remove the estimated phase: multiply the input by $e^{-i\hat\phi}$.
+2. Detect: the error $e$ is the argument of the result.
+3. Filter and advance: $\hat\omega \leftarrow \hat\omega + K_ie$, then
+   $\hat\phi \leftarrow \hat\phi + K_pe + \hat\omega$.
+
+**Costas loop.**
+
+1. Multiply the input by $e^{-i\hat\phi}$, and normalise the result to unit magnitude, so that
+   the detector's gain does not depend on the signal level.
+2. Detect with the data-stripping rule: $\operatorname{sgn}(I)\,Q$ for BPSK, or
+   $\operatorname{sgn}(I)Q - \operatorname{sgn}(Q)I$ for QPSK.
+3. Filter and advance, as for the PLL.
+4. The derotated sample from step 1 is the output, ready for the decision device.
+
+**Mueller-Müller timing recovery**, with $\mu$ the position of the next symbol within the
+sample stream and $\omega$ the current estimate of the samples per symbol. For each symbol:
+
+1. interpolate the signal at position $\mu$ with the [Farrow filter](#fractional-delay-the-farrow-filter)
+   to get the symbol-rate sample $y_k$;
+2. decide the symbol $d_k$ (the nearest constellation point);
+3. compute the timing error from this and the previous symbol,
+   $e = \operatorname{Re}(\bar d_{k-1}y_k - \bar d_ky_{k-1})$, limited to $\pm1$;
+4. update the period estimate $\omega$ by a small multiple of $e$, keeping it within
+   $\pm0.5\%$ of its nominal value;
+5. advance the position: $\mu \leftarrow \mu + \omega + g_\mu e$.
+
+**Farrow interpolation** of order $N$ at fractional delay $\mu$: compute the $N + 1$ fixed FIR
+filter outputs $v_0, \ldots, v_N$ from the neighbouring samples, and combine them by Horner's
+rule in $\mu$.
 
 ## Implementation
 

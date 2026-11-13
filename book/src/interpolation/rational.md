@@ -248,14 +248,14 @@ Cost: $O(n^2)$ per point.
 **AAA.** Input: samples $(z_i, f_i)$, a relative tolerance and a maximum number of terms.
 
 1. Set the approximation to the mean of the $f_i$, and the support set to empty.
-2. Move the sample with the largest current error into the support set.
-3. Build the Loewner matrix, with one row for each remaining sample and one column for each
+2. Find the sample with the largest current error. If that error is below the tolerance times
+   the largest $|f_i|$, or the term limit has been reached, stop.
+3. Move that sample into the support set.
+4. Build the Loewner matrix, with one row for each remaining sample and one column for each
    support point.
-4. Compute its SVD and take the right singular vector of the smallest singular value as the
+5. Compute its SVD and take the right singular vector of the smallest singular value as the
    weights.
-5. Evaluate the new approximation at the remaining samples.
-6. Stop if the largest error is below the tolerance times the largest $|f_i|$, or if the term
-   limit is reached; otherwise go to 2.
+6. Evaluate the new approximation at the remaining samples, and go to 2.
 
 With $m$ samples and $n$ support points at the end, the cost is $O(mn^3)$, dominated by the SVDs.
 

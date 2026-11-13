@@ -164,7 +164,8 @@ Each generation costs $N_p$ evaluations.
 
 **Particle swarm.** Input: $f$ and a box of bounds.
 
-1. Draw positions uniformly in the box and velocities at random, evaluate every particle, and
+1. Draw positions uniformly in the box, give each particle an initial velocity, evaluate every
+   particle, and
    record each particle's best position and the swarm's best.
 2. For each particle: update its velocity by the formula above, limiting each component to the
    width of the box; update its position, moving any coordinate that leaves the box back to the

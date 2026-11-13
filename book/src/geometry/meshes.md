@@ -88,8 +88,7 @@ Each step costs time proportional to the number of edges.
 1. **Quadrics.** For each triangle, form the quadric of its plane, weighted by its area, and
    add it to the quadrics of its three vertices.
 2. **Costs.** For each edge, add the quadrics of its two ends, find the position that
-   minimises the sum (or fall back on an endpoint or the midpoint if the $3 \times 3$ system is
-   singular), and push the edge on a min-heap with the error at that position as its key.
+   minimises the sum (or use the midpoint of the edge if the $3 \times 3$ system is singular), and push the edge on a min-heap with the error at that position as its key.
 3. **Collapse.** Pop the cheapest edge. Skip it if it is stale (one of its ends has since
    been merged or its cost changed), or if the collapse would flip a triangle's normal or
    break the link condition. Otherwise merge its two vertices at the optimal position, add

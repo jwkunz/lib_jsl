@@ -75,8 +75,8 @@ The standard library's sorts are several times faster than these on random keys,
 **Quicksort** of a range of keys, as an introsort.
 
 1. While the range holds more than 16 keys:
-   - if the number of partitions made so far exceeds $2\log_2n$, sort the range by heapsort
-     and stop;
+   - if this range has been reached through more than $2\log_2n$ successive partitions, the
+     pivots have been bad: sort it by heapsort and stop;
    - choose the pivot as the median of the first, middle and last keys;
    - partition (Hoare): move one index rightwards from the left end until it finds a key not
      less than the pivot, and another leftwards from the right end until it finds a key not

@@ -150,10 +150,12 @@ asymptotic series, used for large ones.
 **$\operatorname{Ei}(x)$**:
 
 1. $x < 0$: return $-E_1(-x)$.
-2. Small and moderate $x > 0$: sum the power series $\gamma + \ln x + \sum x^k/(k\cdot k!)$.
-3. Large $x$: sum the asymptotic series $\frac{e^x}{x}\sum k!/x^k$, stopping at the smallest
-   term, before the terms begin to grow. The switch to this branch is made where that smallest
-   term is already below rounding error.
+2. $0 < x \le -\ln\varepsilon \approx 36$: sum the power series
+   $\gamma + \ln x + \sum x^k/(k\cdot k!)$ until a term is below $\varepsilon$ times the sum.
+3. Larger $x$: sum the asymptotic series $\frac{e^x}{x}\sum k!/x^k$, stopping when a term is
+   below $\varepsilon$, or at the smallest term if the terms begin to grow first. Beyond the
+   switching point the smallest term, about $e^{-x}$, is already below rounding error, so the
+   asymptotic series gives full precision there.
 
 **$\operatorname{Si}(x)$ and $\operatorname{Ci}(x)$**: below a threshold, sum their power series; above it,
 evaluate the continued fraction for $E_1(ix)$ in complex arithmetic and take

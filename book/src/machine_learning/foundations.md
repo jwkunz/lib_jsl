@@ -83,8 +83,8 @@ scoring 1 for identical partitions and about 0 for chance agreement.
 1. list the indices $0, \ldots, n - 1$ and shuffle them by the Fisher-Yates method, driven by a
    generator seeded from the seed: for $i$ from $n - 1$ down to 1, swap position $i$ with a
    position chosen uniformly from $0, \ldots, i$;
-2. take the first $\operatorname{round}(fn)$ shuffled indices as the test set, adjusted so that each
-   part has at least one index;
+2. take the last $\operatorname{round}(fn)$ shuffled indices as the test set (at least one, and
+   leaving at least one for training), and the rest as the training set;
 3. return the two lists of indices, from which `select_rows` and `select_labels` gather the
    data.
 

@@ -126,8 +126,10 @@ and UMAP still keep the clusters apart. UMAP is an order of magnitude faster tha
 3. **Iterate.** In each iteration:
    - compute all the $q_{ij}$ from the current positions;
    - compute the gradient for every point (using $12\,p_{ij}$ during early exaggeration);
-   - update each coordinate's **gain**, increasing it when the gradient keeps the same sign as
-     the current velocity's and decreasing it otherwise;
+   - update each coordinate's **gain**, a per-coordinate multiplier of the learning rate: add
+     0.2 to it when the gradient and the current velocity have opposite signs (the coordinate
+     is still being pushed the way it is already moving), and multiply it by 0.8 otherwise
+     (the push has reversed);
    - update the velocity (the previous velocity times the momentum, minus the learning rate
      times the gain times the gradient) and add it to the position;
    - subtract the mean position, so that the embedding stays centred.

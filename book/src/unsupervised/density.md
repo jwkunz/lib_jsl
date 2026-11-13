@@ -91,11 +91,33 @@ change slowly with it.
 
 ## Algorithm
 
-**DBSCAN**: compute all ε-neighbourhoods and mark core points. For each unlabelled core point, start a new cluster and grow it
-breadth-first: every neighbour joins, and core neighbours are expanded in turn. Unreached points are noise.
+**DBSCAN.** Input: the points, the radius $\varepsilon$ and `min_samples`.
 
-**HDBSCAN**: core distances; Prim's minimum spanning tree of $d_{\text{mr}}$ in $O(n^2)$; sort its edges to form the single-linkage tree; condense; compute
-stabilities; select by excess of mass; label points by the selected cluster they belong to.
+1. **Neighbourhoods.** For every point, list the points within distance $\varepsilon$ of it
+   (itself included). A point whose list has at least `min_samples` entries is a core point.
+2. **Grow clusters.** Take each core point that has no label yet, in order. Give it a new
+   cluster label and put it in a queue. While the queue is not empty: remove a point; give the
+   cluster's label to each of its neighbours that has none; and add those of them that are core
+   points to the queue. Border points receive a label but are not expanded.
+3. **Noise.** Points still without a label are noise.
+
+With neighbourhoods found by comparing all pairs, the cost is $O(n^2)$.
+
+**HDBSCAN.** Input: the points, `min_samples` and `min_cluster_size`.
+
+1. **Core distances.** For each point, the distance to its `min_samples`-th nearest neighbour.
+2. **Spanning tree.** Build a minimum spanning tree of the complete graph whose edge weights
+   are the mutual reachability distances, by Prim's algorithm on the dense matrix, $O(n^2)$.
+3. **Single-linkage tree.** Sort the tree's edges by weight and merge their endpoints in that
+   order, recording the hierarchy of merges.
+4. **Condense.** Walk the hierarchy from the root down. At each split, compare the sizes of the
+   two parts with `min_cluster_size`: two large parts are two new clusters; a small part is a
+   set of points falling out of the cluster that continues.
+5. **Stability.** For each cluster of the condensed tree, sum $\lambda_p - \lambda_{\text{birth}}$
+   over its points.
+6. **Select.** Working from the leaves upwards, keep a cluster if its stability exceeds the
+   combined stability of the clusters selected among its descendants; otherwise keep those.
+7. **Label** each point by the selected cluster it belongs to, or as noise.
 
 ## Implementation
 

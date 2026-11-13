@@ -119,10 +119,25 @@ first: badly scaled features slow it down.
 
 ## Algorithm
 
-1. Initialise all weights to zero.
-2. Repeat: compute the softmax probabilities (subtracting each row's maximum score for stability), the loss and the gradient;
-   take an L-BFGS step with an Armijo line search.
-3. Stop when the largest gradient component is below the tolerance or the loss stops changing.
+Input: the training features (which should be standardised), the labels and the penalty
+$\lambda$.
+
+1. **Initialise** all weights and intercepts to zero, which gives every class the same
+   probability.
+2. **Evaluate the loss and its gradient** at the current weights:
+   - compute the scores $z_{ic} = \mathbf w_c^{\mathsf T}\mathbf x_i + b_c$ for every point and class;
+   - turn each row of scores into probabilities by the softmax. For numerical safety, subtract
+     the row's largest score from every score in the row first: this does not change the
+     probabilities, and it keeps the exponentials from overflowing;
+   - the loss is the mean of $-\ln p_{i,y_i}$ plus the penalty $\tfrac\lambda2\lVert W\rVert^2$;
+   - the gradient is the mean of the prediction errors times the features, plus $\lambda W$.
+3. **Take an L-BFGS step**: compute the search direction from the stored pairs, and backtrack
+   along it from a unit step until the loss has decreased sufficiently (the Armijo condition).
+4. **Test.** Stop when the largest component of the gradient is below the tolerance, or when
+   the loss has stopped changing; otherwise go to 2.
+
+Each evaluation of the loss and gradient costs $O(npK)$ for $n$ points, $p$ features and $K$
+classes.
 
 ## Implementation
 

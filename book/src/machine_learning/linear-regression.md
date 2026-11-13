@@ -210,10 +210,40 @@ guarantee convergence to the global minimum.
 
 ## Algorithm
 
-1. **Least squares**: append a column of ones; solve by SVD for the minimum-norm solution.
-2. **Generalised**: Cholesky factor $\Sigma = LL^{\mathsf T}$ (or $\sqrt{w_i}$ for weights); solve the whitened least-squares problem.
-3. **Ridge**: centre $X$ and $\mathbf y$; solve $(X_c^{\mathsf T}X_c + \alpha I)\mathbf w = X_c^{\mathsf T}\mathbf y_c$; $b = \bar y - \bar{\mathbf x}^{\mathsf T}\mathbf w$.
-4. **Elastic net**: centre; sweep coordinates with the soft-threshold update until the largest change is below the tolerance.
+**Least squares.**
+
+1. Append a column of ones to $X$ (if an intercept is wanted).
+2. Compute the SVD of the augmented matrix and form the minimum-norm solution, treating
+   negligible singular values as zero.
+3. The last coefficient is the intercept $b$; the others are the weights $\mathbf w$.
+
+**Weighted and generalised least squares.**
+
+1. For independent errors with weights $w_i = 1/\sigma_i^2$, multiply row $i$ of $X$ and entry
+   $i$ of $\mathbf y$ by $\sqrt{w_i}$. For a general covariance, factor $\Sigma = LL^{\mathsf T}$ and
+   replace $X$ and $\mathbf y$ by $L^{-1}X$ and $L^{-1}\mathbf y$, computed by triangular solves.
+2. Solve the transformed problem by ordinary least squares.
+
+**Ridge.**
+
+1. Centre: subtract the column means $\bar{\mathbf x}$ from $X$ and the mean $\bar y$ from $\mathbf y$.
+2. Solve $(X_c^{\mathsf T}X_c + \alpha I)\mathbf w = X_c^{\mathsf T}\mathbf y_c$.
+3. Recover the intercept, $b = \bar y - \bar{\mathbf x}^{\mathsf T}\mathbf w$, so that the fitted plane passes
+   through the mean of the data.
+
+**Elastic net** (coordinate descent).
+
+1. Centre $X$ and $\mathbf y$ as for ridge. Start with $\mathbf w = \mathbf 0$ and the residual
+   $\mathbf r = \mathbf y_c$.
+2. For each feature $j$ in turn: add its current contribution back to the residual,
+   $\mathbf r \leftarrow \mathbf r + \mathbf x_jw_j$; compute the new $w_j$ by the soft-threshold formula;
+   subtract the new contribution, $\mathbf r \leftarrow \mathbf r - \mathbf x_jw_j$.
+3. If the largest change in any weight during the sweep is below the tolerance, stop;
+   otherwise repeat step 2.
+4. Recover the intercept as for ridge.
+
+One sweep costs $O(np)$, because keeping the residual up to date makes each coordinate update
+$O(n)$.
 
 ## Implementation
 

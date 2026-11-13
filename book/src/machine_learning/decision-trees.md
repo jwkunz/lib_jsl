@@ -124,10 +124,33 @@ noise once the signal is exhausted. Impurity-weighted or permutation importances
 
 ## Algorithm
 
-1. **Tree**: at each node, if pure, too small or at the depth limit, make a leaf. Otherwise, for each candidate feature, sort and scan
-   the thresholds, tracking the class counts on the left; split at the best; recurse.
-2. **Forest**: for each tree, draw a bootstrap sample and grow a tree with $m$ random candidate features per split; record out-of-bag
-   votes. Predict by averaging the trees' class proportions.
+**Growing a tree** on a set of training points. `grow(node)`:
+
+1. **Stop?** If all the node's points have the same class, or there are too few to split, or
+   the depth limit has been reached, make the node a leaf holding its class proportions.
+2. **Search for the best split.** For each candidate feature:
+   - sort the node's points by that feature;
+   - scan through them in order, moving one point at a time from the right side to the left
+     and updating the class counts of the two sides;
+   - wherever two consecutive values differ, the midpoint between them is a candidate
+     threshold: compute the weighted Gini impurity of the two sides from the counts, and
+     remember the best.
+3. **Split.** If no split reduces the impurity, make a leaf. Otherwise divide the points at the
+   best feature and threshold, and call `grow` on each side.
+
+Keeping running counts makes the scan of one feature $O(n)$ after its $O(n\log n)$ sort, so a
+node with $n$ points and $m$ candidate features costs $O(mn\log n)$.
+
+**Growing a forest** of $T$ trees. For each tree:
+
+1. draw a bootstrap sample of $n$ points with replacement;
+2. grow a tree on it as above, except that step 2 considers only $m$ features, chosen at random
+   afresh at every node;
+3. for each training point that is *not* in the bootstrap sample, add the tree's prediction to
+   that point's out-of-bag votes.
+
+**Predicting with a forest**: pass the point down every tree to a leaf, average the class
+proportions of those leaves, and return the class with the largest average.
 
 ## Implementation
 

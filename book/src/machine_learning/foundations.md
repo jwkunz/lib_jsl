@@ -78,8 +78,30 @@ scoring 1 for identical partitions and about 0 for chance agreement.
 
 ## Algorithm
 
-`StandardScaler::fit` computes column means and population standard deviations; `train_test_split` applies a seeded
-Fisher-Yates shuffle and splits off $\operatorname{round}(fn)$ indices (at least one in each part).
+**`train_test_split`**, with a test fraction $f$ and a seed:
+
+1. list the indices $0, \ldots, n - 1$ and shuffle them by the Fisher-Yates method, driven by a
+   generator seeded from the seed: for $i$ from $n - 1$ down to 1, swap position $i$ with a
+   position chosen uniformly from $0, \ldots, i$;
+2. take the first $\operatorname{round}(fn)$ shuffled indices as the test set, adjusted so that each
+   part has at least one index;
+3. return the two lists of indices, from which `select_rows` and `select_labels` gather the
+   data.
+
+**`StandardScaler`**:
+
+1. *fit*: compute the mean and the population standard deviation of each column of the
+   training data;
+2. *transform*: from each value subtract its column's mean and divide by its column's standard
+   deviation; a column with zero standard deviation is only centred.
+
+The same fitted means and standard deviations are applied to the test data. Fitting the scaler
+again on the test data would use information from it.
+
+**A classification metric from a confusion matrix**: count $m_{tp}$, the number of points of
+true class $t$ predicted as $p$. The accuracy is the sum of the diagonal divided by $n$. For
+class $c$, the precision is $m_{cc}$ divided by the sum of column $c$, the recall is $m_{cc}$
+divided by the sum of row $c$, and F1 is their harmonic mean.
 
 ## Implementation
 

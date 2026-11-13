@@ -170,6 +170,17 @@ alternating the signs of the output. Every transform costs one FFT of length abo
    solve $-u'' = f$ on $(0, 1)$.
 5. Implement the $8 \times 8$ two-dimensional DCT-II of an image block with `dct` along rows and columns.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The even extension $x_0, \ldots, x_{n-1}, x_{n-1}, \ldots, x_0$ of length $2n$ is symmetric about $n - \tfrac12$. Its DFT sums $x_j\cos(\pi k(j + \tfrac12)/n)$ times a phase $e^{i\pi k/(2n)}$: that phase is the twiddle, and the cosine sum is the DCT-II.
+2. Build the matrix $C_{kj} = \sqrt{2/n}\,c_k\cos(\pi k(2j + 1)/(2n))$ with $c_0 = 1/\sqrt2$ and check $CC^{\mathsf T} = I$ to rounding.
+3. A smooth function has rapidly decaying DCT coefficients because its even extension is also smooth, whereas the DFT's periodic extension has a jump unless the function is periodic, so DFT coefficients decay slowly. Expect the DCT error to fall much faster with $k$.
+4. The second-difference matrix $T$ (tridiagonal $(-1, 2, -1)$) satisfies $T\mathbf s_k = (2 - 2\cos\frac{\pi k}{n+1})\mathbf s_k$ for $\mathbf s_k = (\sin\frac{\pi jk}{n+1})_j$. Transform $f$ with the DST-I, divide by $(2 - 2\cos\frac{\pi k}{n+1})h^2$ and transform back.
+5. Apply the one-dimensional `dct` to each row, then to each column of the result.
+
+</details>
+
 ## Further reading
 
 - N. Ahmed, T. Natarajan and K. R. Rao, "Discrete cosine transform", *IEEE Transactions on Computers* C-23 (1974) 90–93.

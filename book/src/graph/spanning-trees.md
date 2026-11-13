@@ -161,6 +161,17 @@ Kruskal lists its edges in the order it accepts them, cheapest first.
 4. Show that single-linkage clustering into $k$ clusters is the MST with its $k - 1$ heaviest edges removed.
 5. Show that union by rank alone keeps tree heights at most $\log_2 n$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Let $e$ be the lightest edge crossing a cut. Any minimum spanning tree $T$ not containing $e$ must contain a path between its endpoints that crosses the cut by another edge $f$; swapping $f$ for $e$ gives a spanning tree no heavier. Kruskal adds the lightest edge joining two components (a cut separating the components) and Prim the lightest edge leaving the tree; both are instances of the property.
+2. If two different trees were minimum, the lightest edge in their symmetric difference would be in only one of them, and swapping it into the other would give a strictly lighter tree.
+3. If the heaviest edge $e$ of a cycle were in a tree, removing it splits the tree into two parts; some other edge of the cycle crosses the cut and is lighter, so exchanging gives a lighter tree.
+4. Kruskal merges components in order of increasing weight; stopping when $k$ components remain leaves exactly the $k - 1$ heaviest MST edges unused, and single linkage merges the closest clusters first in the same order.
+5. Union by rank links the tree with smaller rank below the other, so a tree of rank $r$ has at least $2^r$ nodes (induction); a tree with $n$ nodes therefore has rank, and hence height, at most $\log_2n$.
+
+</details>
+
 ## Further reading
 
 - J. B. Kruskal, "On the shortest spanning subtree of a graph and the traveling salesman problem", *Proceedings of the American Mathematical Society* 7 (1956) 48–50.

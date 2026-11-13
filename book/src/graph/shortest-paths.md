@@ -199,6 +199,17 @@ Floyd-Warshall: 3 → 0 costs 20, via [3, 2, 0]
 4. Prove the Floyd–Warshall recurrence, and explain why updating in place is safe.
 5. Use Johnson's reweighting $w'(u, v) = w(u, v) + p(u) - p(v)$, with $p$ from one Bellman–Ford run, to apply Dijkstra to a graph with negative edges.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Take edges $s \to a$ of weight 2, $s \to b$ of weight 3 and $b \to a$ of weight $-2$. Dijkstra fixes $a$ at distance 2 (smaller than 3) but the path $s \to b \to a$ has weight 1.
+2. A shortest path without negative cycles has at most $V - 1$ edges, and pass $k$ makes all shortest paths with at most $k$ edges correct (induction on $k$), so $V - 1$ passes suffice.
+3. Consistency, $h(u) \le w(u, v) + h(v)$ with $h(\text{goal}) = 0$, gives by induction along a path $h(u) \le$ the true distance to the goal: admissible. With a consistent $h$ the values $f = g + h$ along a path never decrease, so the first time a vertex is popped its $g$ is final and it is never reopened.
+4. $d^{(k)}_{ij} = \min(d^{(k-1)}_{ij}, d^{(k-1)}_{ik} + d^{(k-1)}_{kj})$, where $d^{(k)}$ allows intermediate vertices $1..k$. In-place updating is safe because $d_{ik}$ and $d_{kj}$ do not change in iteration $k$ (the diagonal entry $d_{kk} = 0$).
+5. For any path from $u$ to $v$ the reweighting adds $p(u) - p(v)$, which depends only on the endpoints, so shortest paths stay shortest. With $p$ the Bellman-Ford distances from a virtual source, $w' \ge 0$ for every edge, so Dijkstra applies; add $p(v) - p(u)$ to recover true distances.
+
+</details>
+
 ## Further reading
 
 - E. W. Dijkstra, "A note on two problems in connexion with graphs", *Numerische Mathematik* 1 (1959) 269–271.

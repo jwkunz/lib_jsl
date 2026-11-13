@@ -166,6 +166,17 @@ This is the classic textbook network: three saturated arcs, of capacities 12, 7 
 4. Reduce maximum bipartite matching to maximum flow, and solve a small example.
 5. Show that each Dinic phase increases the source-to-sink distance in the residual network.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. At termination there is no augmenting path, so the set $S$ of vertices reachable from the source in the residual network does not contain the sink. Every edge leaving $S$ is saturated and every edge entering it carries zero flow, so the flow value equals the capacity of the cut $(S, V\setminus S)$; no flow can exceed any cut's capacity, so this cut is minimum.
+2. Take edges $s \to a$, $s \to b$, $a \to t$ and $b \to t$ of capacity $M$ and an edge $a \to b$ of capacity 1. If the augmenting paths alternate between $s, a, b, t$ and $s, b, a, t$ (the second using the reverse of the middle edge), each pushes only 1 unit, so $2M$ augmentations are needed for a flow of $2M$.
+3. Each augmentation saturates a bottleneck edge and can add only reverse edges that point from a farther to a nearer vertex; shortest-path distances in the residual network therefore never decrease.
+4. Add a source joined to every left vertex and a sink joined from every right vertex, all capacities 1; the maximum flow equals the size of a maximum matching, and the saturated middle edges form the matching.
+5. A phase saturates the level graph, after which no source-to-sink path in the level graph remains; any new path must use a reverse edge, which goes from a deeper to a shallower level, so it is strictly longer.
+
+</details>
+
 ## Further reading
 
 - L. R. Ford and D. R. Fulkerson, "Maximal flow through a network", *Canadian Journal of Mathematics* 8 (1956) 399–404.

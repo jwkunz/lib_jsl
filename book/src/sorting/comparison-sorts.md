@@ -154,6 +154,17 @@ The two Gausses come out in first-name order because tuples compare field by fie
 4. Show that $h$-sorting an array that is already $k$-sorted leaves it $k$-sorted.
 5. Construct an input on which median-of-three quicksort without the heapsort fallback takes $\Theta(n^2)$ comparisons, and show that introsort's depth limit keeps it to $O(n \log n)$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A decision tree that distinguishes the $n!$ orderings has at least $n!$ leaves, hence depth at least $\lceil\log_2n!\rceil$. Stirling gives $\log_2n! \approx n\log_2n - n\log_2e + \tfrac12\log_2(2\pi n)$.
+2. If all keys equal to the pivot go to one side, a run of $n$ equal keys is split into parts of sizes $0$ and $n - 1$ at every level, so the cost is $\sum(n - k) = \Theta(n^2)$. Stopping both scans on equality swaps equal keys and splits the run near the middle, giving $O(n\log n)$.
+3. Heap construction sifts down each internal node: a node at height $h$ costs $O(h)$, and there are at most $n/2^{h+1}$ such nodes, so the total is $\sum_hh\,n/2^{h+1} = O(n)$.
+4. The key lemma: if $x_i \le y_i$ for every $i$, then after sorting both sequences the $j$-th smallest of $x$ is still $\le$ the $j$-th smallest of $y$. $h$-sorting sorts the chains $a_r, a_{r+h}, \ldots$; apply the lemma to a chain and the chain shifted by $k$ positions, whose elements are pairwise $\ge$ those of the first because the array is $k$-sorted.
+5. A median-of-three "killer" sequence makes every median-of-three pivot one of the smallest elements, so each partition removes only a constant number of keys, giving $\Theta(n^2)$. Introsort switches to heapsort after $2\log_2n$ levels, bounding the total at $O(n\log n)$.
+
+</details>
+
 ## Further reading
 
 - C. A. R. Hoare, "Quicksort", *The Computer Journal* 5 (1962) 10–16.

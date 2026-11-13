@@ -229,6 +229,17 @@ A radix-4 pass of the production engine (portable version):
 4. Use the FFT to multiply two polynomials of degree 1000, and check against direct multiplication.
 5. Compute the DFT of a sampled sine whose frequency is not an integer number of cycles, and explain the spectral leakage.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A radix-2 FFT has $\tfrac n2\log_2n$ butterflies (12 for $n = 8$, 32 for $n = 16$). Each butterfly with a general twiddle costs one complex multiplication (6 real flops) and two complex additions (4 real flops); count the trivial twiddles $\pm1, \pm i$ separately to see how much they save. The split-radix algorithm needs $4n\log_2n - 6n + 8$ real flops: 56 for $n = 8$ and 168 for $n = 16$.
+2. The decimation-in-time algorithm splits into even and odd samples at each stage; after $\log_2n$ stages, the sample at index $j$ ends up in the position given by the bit-reversal of $j$, so the input must be read in that order.
+3. A recurrence for the twiddles accumulates rounding error, so the error grows roughly in proportion to $n\varepsilon$; with exact (directly computed) twiddles the growth is only about $\varepsilon\log n$.
+4. Pad both coefficient vectors to a power of two above 2001, transform, multiply pointwise, transform back, and round; the result matches direct convolution to the extent allowed by rounding.
+5. A sine with a non-integer number of cycles is not periodic in the window, so the implicit periodic extension has a jump. Its spectrum is the sinc-shaped kernel of the window sampled off its peak, which spreads energy over all bins (leakage).
+
+</details>
+
 ## Further reading
 
 - J. W. Cooley and J. W. Tukey, "An algorithm for the machine calculation of complex Fourier series", *Mathematics of Computation* 19

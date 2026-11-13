@@ -174,6 +174,17 @@ stride, which is why it is copied to a buffer first.
 4. Show that the two-dimensional DFT of a separable array $x_{ij} = a_ib_j$ is the outer product of the one-dimensional DFTs.
 5. Compute the 2D power spectrum of an image with a periodic stripe pattern and locate the stripe frequency.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For real $x$, $X_{n-k} = \sum x_je^{-2\pi ij(n-k)/n} = \sum x_je^{2\pi ijk/n} = \overline{X_k}$.
+2. With $z_j = x_{2j} + ix_{2j+1}$ and $Z = \mathrm{DFT}_m(z)$, $E_k = (Z_k + \overline{Z_{m-k}})/2$ and $O_k = (Z_k - \overline{Z_{m-k}})/(2i)$ are the transforms of the even and odd samples, and $X_k = E_k + e^{-2\pi ik/n}O_k$. For $n = 4$ ($m = 2$) check each $X_k$ directly.
+3. Form $z = x + iy$ and transform; then $X_k = (Z_k + \overline{Z_{n-k}})/2$ and $Y_k = (Z_k - \overline{Z_{n-k}})/(2i)$.
+4. $X_{kl} = \sum_i\sum_ja_ib_je^{-2\pi i(ik/m + jl/n)} = \big(\sum_ia_ie^{-2\pi iik/m}\big)\big(\sum_jb_je^{-2\pi ijl/n}\big)$.
+5. A stripe pattern is a sinusoid along one direction, so its power spectrum has two symmetric peaks at $\pm$ the stripe frequency; read the position of the peak off the bin indices and convert with the image size.
+
+</details>
+
 ## Further reading
 
 - J. W. Cooley, P. A. W. Lewis and P. D. Welch, "The fast Fourier transform algorithm: programming considerations in the calculation of

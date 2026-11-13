@@ -190,6 +190,17 @@ largest 64-bit prime is_prime: true; next prime after 10^18: Some(10000000000000
 4. Explain the expected $\sqrt{\pi p/2}$ steps of Pollard's rho with the birthday paradox.
 5. Use the segmented sieve to count the primes between $10^{12}$ and $10^{12} + 10^6$, and compare with $10^6/\ln 10^{12}$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A composite number below $p^2$ has a smaller prime factor than $p$, so it has already been crossed out when the smaller primes were processed; $p^2$ is the first multiple of $p$ not yet crossed out.
+2. If $x^2 \equiv 1 \pmod p$ then $p \mid (x - 1)(x + 1)$, so $p \mid x - 1$ or $p \mid x + 1$. For $n - 1 = 2^sd$, if $n$ is prime the sequence $a^d, a^{2d}, \ldots, a^{2^sd}$ ends at $1$ and each term is the square of the previous one, so either it starts at 1 or reaches $-1$ before 1; this is the Miller-Rabin condition.
+3. $561 = 3\cdot11\cdot17$ and $560$ is divisible by $2$, $10$ and $16$, so $a^{560} \equiv 1$ for every $a$ coprime to 561 (Carmichael). With $560 = 2^4\cdot35$: $2^{35} \equiv 263$, then $166$, $67$, $1$. The sequence reaches $1$ from $67 \ne \pm1$, a nontrivial square root of 1, so base 2 exposes 561 as composite.
+4. After $k$ steps the sequence has produced about $k$ values modulo the unknown prime $p$; by the birthday paradox two of them collide modulo $p$ (while still differing modulo $n$) after about $\sqrt{\pi p/2}$ steps.
+5. The count should be near $10^6/\ln10^{12} \approx 36\,000$; the exact count differs by a few hundred.
+
+</details>
+
 ## Further reading
 
 - R. Crandall and C. Pomerance, *Prime Numbers: A Computational Perspective*, 2nd ed., Springer, 2005, chapters 3 and 5.

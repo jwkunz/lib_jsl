@@ -197,6 +197,17 @@ RSA with n = 3233, e = 17, d = 2753: 65 → 2790 → 65
 4. Show that the integer Newton iteration started above $\sqrt n$ decreases monotonically to $\lfloor\sqrt n\rfloor$, and find a starting point below the root from which it cycles.
 5. Solve $x \equiv 1 \pmod 4$, $x \equiv 3 \pmod 6$, and explain why the answer is unique modulo 12, not 24.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. If $d \mid a$ and $d \mid b$ then $d \mid a - qb = a \bmod b$, and conversely, so the common divisors of $(a, b)$ and $(b, a \bmod b)$ coincide. For the invariant: initially $a\cdot1 + b\cdot0 = a$ and $a\cdot0 + b\cdot1 = b$; each step subtracts $q$ times one equation from the other, preserving the form.
+2. If the algorithm takes $k$ steps, the smaller input is at least $F_{k+1}$; Fibonacci numbers are the smallest inputs that need that many steps because every quotient is 1. Since $F_k \sim\varphi^k/\sqrt5$, the number of steps is at most about $\log_\varphi b$ (Lamé).
+3. $3^{10} \equiv 49$, $3^{20} \equiv 401$, $3^{40} \equiv 801$, $3^{80} \equiv 601$, $3^{160} \equiv 201$ (mod 1000), and $3^{200} = 3^{160}3^{40} \equiv 201\cdot801 \equiv 1$.
+4. Let $x_{k+1} = \lfloor(x_k + \lfloor n/x_k\rfloor)/2\rfloor$. By AM-GM $x_{k+1} \ge \lfloor\sqrt n\rfloor$, and while $x_k > \lfloor\sqrt n\rfloor$ the step decreases $x$, so it descends monotonically. For $n = k^2 - 1$ starting from $x = k - 1 < \sqrt n$ the iteration jumps back above the root, which is how a cycle arises.
+5. $x \equiv 1 \pmod 4$ and $x \equiv 3 \pmod 6$ are compatible because $1 \equiv 3 \pmod 2$. The solution is $x \equiv 9 \pmod{12}$: unique modulo $\operatorname{lcm}(4, 6) = 12$, not $4\cdot6 = 24$, because the moduli share the factor 2.
+
+</details>
+
 ## Further reading
 
 - D. E. Knuth, *The Art of Computer Programming*, vol. 2, *Seminumerical Algorithms*, 3rd ed., Addison-Wesley, 1997, sections 4.5.2–4.6.3.

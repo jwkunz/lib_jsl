@@ -112,6 +112,17 @@ roots of p: [1.000000000000, 2.000000000000, 3.000000000000]
 4. Show that the roots of $x^2 - 2x + 1 + \epsilon$ move by $\sqrt\epsilon$: a double root is infinitely sensitive.
 5. Implement Karatsuba multiplication on decimal strings and find the crossover length.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $p(x) = (\cdots(a_nx + a_{n-1})x + \cdots)x + a_0$ has $n$ multiplications and $n$ additions. That no method using only additions and multiplications can do better for arbitrary coefficients was proved by Pan (1966): $n$ multiplications are necessary as well as sufficient.
+2. Expand $\det(xI - C)$ along the row or column that carries the coefficients; each step contributes one term $a_k/a_0$.
+3. If the coefficient $c$ of $x^{19}$ is perturbed, $W(r) + c\,r^{19} = 0$ gives $\mathrm dr/\mathrm dc = -r^{19}/W'(r)$. For $r = 15$, $W'(15) = -14!\,5!$, so the derivative is $15^{19}/(14!\cdot120) \approx 2.1\times10^{9}$.
+4. $x^2 - 2x + 1 + \epsilon = (x - 1)^2 + \epsilon$ has roots $1 \pm i\sqrt\epsilon$ (or $\pm\sqrt{-\epsilon}$): the change is $\sqrt\epsilon$, so $\mathrm dr/\mathrm d\epsilon = \tfrac1{2\sqrt\epsilon}$ is unbounded as $\epsilon \to 0$.
+5. Karatsuba replaces four half-size multiplications by three. The crossover with schoolbook multiplication is typically a few dozen to a few hundred digits, depending on the implementation; measure it.
+
+</details>
+
 ## Further reading
 
 - J. H. Wilkinson, "The perfidious polynomial", in G. H. Golub (ed.), *Studies in Numerical Analysis*, MAA, 1984, 1–28.

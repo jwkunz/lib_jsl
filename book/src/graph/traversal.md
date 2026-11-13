@@ -122,6 +122,17 @@ The sink component $\{5\}$ is numbered first and the source component $\{0, 1, 2
 4. Trace Tarjan's algorithm on the example's directed graph and check the low-link values.
 5. Show that the condensation of any directed graph is acyclic.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Induct on distance $d$: all vertices at distance $d$ are dequeued before any at distance $d + 1$, and a vertex at distance $d + 1$ is first discovered from a vertex at distance $d$.
+2. If the graph is acyclic every nonempty subgraph has a vertex with no incoming edge, so the algorithm never gets stuck. If there is a cycle, no vertex on it can reach in-degree zero while its predecessor on the cycle remains, so those vertices are never emitted.
+3. At each step any free vertex may come next, and choosing the smallest gives the lexicographically smallest first element among valid orders; by the same argument at each later step (induction), the whole sequence is lexicographically smallest.
+4. The low-link of a vertex is the smallest index reachable by its DFS subtree plus at most one back edge; a vertex starts a component when its low-link equals its own index.
+5. Contracting each strongly connected component to a point leaves only edges between components. If two components were joined in both directions by paths, they would belong to the same component, so a cycle among components cannot exist.
+
+</details>
+
 ## Further reading
 
 - T. H. Cormen, C. E. Leiserson, R. L. Rivest and C. Stein, *Introduction to Algorithms*, 4th ed., MIT Press, 2022, chapter 20.

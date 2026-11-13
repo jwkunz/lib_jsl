@@ -170,6 +170,17 @@ length $M < 4n$.
 4. Show that $\mathcal F^2x(t) = x(-t)$ from the integral, using $\cot\pi = \infty$ as a limit.
 5. Apply the fractional transform to a linear chirp $e^{i\pi ct^2}$ and find the order that compresses it to a spike.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\tfrac12(j^2 + k^2 - (k - j)^2) = \tfrac12(j^2 + k^2 - k^2 + 2jk - j^2) = jk$. Then $e^{-2\pi ijk/n} = e^{-\pi ij^2/n}\,e^{-\pi ik^2/n}\,e^{\pi i(k - j)^2/n}$, so $X_k = e^{-\pi ik^2/n}\sum_j\big(x_je^{-\pi ij^2/n}\big)e^{\pi i(k - j)^2/n}$: a convolution of $a_j = x_je^{-\pi ij^2/n}$ with the chirp $b_m = e^{\pi im^2/n}$.
+2. The differences $k - j$ range over $-(n - 1), \ldots, n - 1$, which is $2n - 1$ distinct values, and a circular convolution of length $M$ is a linear one only if $M \ge 2n - 1$ (otherwise the ends wrap around and contaminate the result). With $M = n$ every output is mixed with wrapped-around terms.
+3. The reduction keeps the angle $\pi(k^2 \bmod 2n)/n$ below $2\pi$ so its rounding error is $\varepsilon$-sized, while unreduced angles reach $\pi\cdot10^6$ and carry an error near $\varepsilon\pi10^6 \approx 10^{-10}$. Expect a largest difference of about that size.
+4. Apply the transform twice: the kernel product $\int K_\alpha(t, u)K_\alpha(u, s)\,du$ at $\alpha = \pi/2$ equals a delta function at $s = -t$, which is the statement $\mathcal F^2x(t) = x(-t)$ (the factor $\cot\alpha$ blows up at $\alpha = \pi$, where the kernel becomes the delta).
+5. A chirp $e^{i\pi ct^2}$ is rotated by the fractional transform of angle $\alpha$ to a spike when $\cot\alpha = -c$ in the usual scaling, i.e. $\alpha = \operatorname{arccot}(-c)$; verify by computing the transform for several $\alpha$ and looking for the narrowest result.
+
+</details>
+
 ## Further reading
 
 - L. I. Bluestein, "A linear filtering approach to the computation of discrete Fourier transform", *IEEE Transactions on Audio and

@@ -111,6 +111,17 @@ In the last line 1.0 and 4.0 are 3 apart, yet in the same class, linked through 
 4. Give a relation for which the result depends on the transitive closure, and explain why "within 2" clusters are unbounded in size.
 5. Group $n$ words into anagram classes in $O(n \log n)$ by sorting with a canonical key.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Keep a min-heap of size $m$ holding the $m$ largest seen so far; a new element larger than the minimum replaces it. On sorted (ascending) input every new element replaces the root, costing about $\log_2m$ comparisons, so $\Theta(n\log m)$.
+2. The element at position $i > m$ is among the $m$ largest of the first $i$ with probability $m/i$, so the expected number of replacements is $\sum_{i>m}m/i \approx m\ln(n/m)$.
+3. The closure adds the missing transitive pairs but keeps reflexivity and symmetry (composing a path with its reverse gives the reverse), and it is transitive by construction; hence an equivalence relation.
+4. "Within 2" ($|a - b| \le 2$) is not transitive, so the closure chains $1, 3, 5, 7, \ldots$ into one class that can contain arbitrarily many elements, and its size is unbounded.
+5. Sort the letters of each word to form a canonical key (so that anagrams share a key), then sort the words by key and group equal keys: $O(n\log n)$ comparisons of short strings.
+
+</details>
+
 ## Further reading
 
 - D. E. Knuth, *The Art of Computer Programming*, vol. 3, *Sorting and Searching*, 2nd ed., Addison-Wesley, 1998, sections 5.2.3 and 5.3.3.

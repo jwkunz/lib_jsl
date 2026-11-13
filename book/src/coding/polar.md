@@ -22,7 +22,7 @@ and the idea behind them is unusual.
 Instead of spreading the noise evenly over all the data bits, a polar code *redistributes* it. A
 simple transformation is applied to $N = 2^m$ uses of the channel. Seen by a decoder that
 recovers the input bits one at a time, in order, each input bit then has its own effective
-channel, called a **bit channel**. The transformation makes these **polarize**: most become
+channel, called a **bit channel**. The transformation makes these **polarise**: most become
 either almost perfect or almost useless, and the fraction of nearly perfect ones tends to the
 capacity of the original channel as $N$ grows.
 
@@ -35,12 +35,12 @@ channels of 5G.
 
 ## History
 
-Erdal Arıkan of Bilkent University introduced channel polarization in 2009, building on his study of sequential decoding's cutoff rate. He proved that polar codes with SC decoding achieve the capacity of any binary-input symmetric memoryless channel. At practical lengths SC decoding was weaker than LDPC or turbo decoding. Ido Tal and
+Erdal Arıkan of Bilkent University introduced channel polarisation in 2009, building on his study of sequential decoding's cutoff rate. He proved that polar codes with SC decoding achieve the capacity of any binary-input symmetric memoryless channel. At practical lengths SC decoding was weaker than LDPC or turbo decoding. Ido Tal and
 Alexander Vardy's **list decoding** (2011, published 2015), with a CRC to pick from the list, closed the gap. In 2016 3GPP adopted polar codes for the 5G control channels.
 
 ## The idea
 
-### The polarizing transform
+### The polarising transform
 
 **The channel.** Everything can be seen on the simplest noisy channel, the **binary erasure
 channel**: each transmitted bit either arrives intact or, with probability $z$, is erased and
@@ -95,7 +95,7 @@ suits a higher signal-to-noise ratio.
 
 ![Polarization](../generated/coding/polarization.svg)
 
-{{#include ../generated/coding/polar_facts.md}} The rest of the channels are still in between at this length; polarization is slow, which is why short polar codes need better decoders than SC.
+{{#include ../generated/coding/polar_facts.md}} The rest of the channels are still in between at this length; polarisation is slow, which is why short polar codes need better decoders than SC.
 
 ### Successive cancellation
 

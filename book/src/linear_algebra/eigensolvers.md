@@ -203,7 +203,7 @@ Balancing:
 **Weaknesses**
 
 - The general solver lacks multishift QR and aggressive early deflation, and falls behind LAPACK for large matrices.
-- No generalized eigenproblem ($A\mathbf v = \lambda B\mathbf v$; for symmetric positive definite $B$, reduce with the Cholesky factor of $B$), and no
+- No generalised eigenproblem ($A\mathbf v = \lambda B\mathbf v$; for symmetric positive definite $B$, reduce with the Cholesky factor of $B$), and no
   iterative methods for a few eigenvalues of large sparse matrices.
 - Eigenvalues of non-normal matrices may be inaccurate, as for any method.
 
@@ -213,7 +213,7 @@ Balancing:
 2. Count the flops of Householder tridiagonalisation.
 3. Compute the eigenvalues of the companion matrix of $\prod_{k=1}^{20}(x - k)$ with and without balancing, and explain the difference.
 4. Compute the condition numbers $1/|\mathbf y^{\mathsf H}\mathbf x|$ (with unit left and right eigenvectors) of the eigenvalues of the Grcar matrix.
-5. Solve the generalized problem $K\mathbf v = \omega^2M\mathbf v$ for a mass-spring system with non-uniform masses by transforming with $M^{-1/2}$.
+5. Solve the generalised problem $K\mathbf v = \omega^2M\mathbf v$ for a mass-spring system with non-uniform masses by transforming with $M^{-1/2}$.
 
 ## Further reading
 

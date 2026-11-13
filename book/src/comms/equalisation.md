@@ -5,9 +5,9 @@
 | | |
 |---|---|
 | **Problem** | Model what a channel does to a signal (multipath, Doppler, non-linear amplification, noise, rate and frequency changes) and undo the intersymbol interference it causes |
-| **Devised by** | Robert Lucky (1965), adaptive equalisation; Monroe Austin (1967), the decision-feedback equalizer; Bernard Widrow (1960), LMS adaptation; Dominique Godard (1974), RLS equalisation |
-| **Accuracy** | A trained equalizer removes the interference down to the noise floor (table below); RLS converges in a few dozen symbols, LMS in hundreds |
-| **Cost** | $O(N_f + N_b)$ per symbol for an LMS equalizer with $N_f$ forward and $N_b$ feedback taps; $O((N_f + N_b)^2)$ for RLS |
+| **Devised by** | Robert Lucky (1965), adaptive equalisation; Monroe Austin (1967), the decision-feedback equaliser; Bernard Widrow (1960), LMS adaptation; Dominique Godard (1974), RLS equalisation |
+| **Accuracy** | A trained equaliser removes the interference down to the noise floor (table below); RLS converges in a few dozen symbols, LMS in hundreds |
+| **Cost** | $O(N_f + N_b)$ per symbol for an LMS equaliser with $N_f$ forward and $N_b$ feedback taps; $O((N_f + N_b)^2)$ for RLS |
 | **API** | [`ChannelImpairment`](../../api/lib_jsl_dsp/discrete/transformations/channel_impairment/struct.ChannelImpairment.html), [`ChannelTransmitter`](../../api/lib_jsl_dsp/discrete/transformations/channel_transmitter/struct.ChannelTransmitter.html), [`ChannelReceiver`](../../api/lib_jsl_dsp/discrete/transformations/channel_receiver/struct.ChannelReceiver.html), [`NonLinearityTransformer`](../../api/lib_jsl_dsp/discrete/transformations/non_linearity_transformers/struct.NonLinearityTransformer.html) (`hard_clip_real`, `hard_clip_complex`, `quantize_real`, `quantize_complex`, `sigmoid`), [`DecisionFeedbackEqualizer`](../../api/lib_jsl_dsp/discrete/digital_communications/decision_feedback_equalizer/struct.DecisionFeedbackEqualizer.html), [`decision_feedback_equalizer`](../../api/lib_jsl_dsp/discrete/digital_communications/decision_feedback_equalizer/fn.decision_feedback_equalizer.html) |
 
 </div>
@@ -17,13 +17,13 @@
 Between transmitter and receiver, a signal is filtered by multipath propagation or band-limited wiring, shifted in frequency by motion (Doppler), distorted
 by amplifiers, and corrupted by noise. To test receivers, the library models these as stream operators. A transmitter front-end resamples and
 up-converts; a channel impairment applies an FIR channel, a Doppler shift, a memoryless non-linearity and white Gaussian noise; a receiver front-end
-down-converts and resamples. The channel's filtering smears each symbol into its neighbours, **intersymbol interference** (ISI), which an **equalizer** must undo. The **decision-feedback equalizer**
+down-converts and resamples. The channel's filtering smears each symbol into its neighbours, **intersymbol interference** (ISI), which an **equaliser** must undo. The **decision-feedback equaliser**
 (DFE) combines a linear filter on the received samples with a filter on its own past decisions. It cancels the interference those
-decisions cause without amplifying noise as a purely linear equalizer would.
+decisions cause without amplifying noise as a purely linear equaliser would.
 
 ## History
 
-Telephone-line data modems in the 1960s were limited by ISI. Robert Lucky (1965) at Bell Labs built the first automatic, adaptive equalizers,
+Telephone-line data modems in the 1960s were limited by ISI. Robert Lucky (1965) at Bell Labs built the first automatic, adaptive equalisers,
 and Monroe Austin (1967) proposed feeding back decisions to cancel the trailing interference. Bernard Widrow's LMS algorithm (1960) made adaptation cheap, and Dominique Godard (1974)
 applied recursive least squares for fast start-up. Adaptive DFEs remain standard in wireline and high-speed serial links.
 
@@ -46,7 +46,7 @@ A channel with impulse response $h$ turns symbol $s_n$ into $r_n = \sum_kh_ks_{n
 
 ![DFE constellation](../generated/comms/dfe_constellation.svg)
 
-### The decision-feedback equalizer
+### The decision-feedback equaliser
 
 The DFE's output is
 
@@ -96,7 +96,7 @@ RLS.
 ```
 
 - `with_main_tap` places the forward filter's reference tap later, to handle pre-cursor interference, at the cost of that much delay.
-- `decision_feedback_equalizer(received, training, …)` trains on the first symbols and equalizes the rest in one call.
+- `decision_feedback_equalizer(received, training, …)` trains on the first symbols and equalises the rest in one call.
 - `quantize_real` assumes inputs on $[-1, 1]$ and does not clip values outside it.
 
 ## In practice
@@ -114,7 +114,7 @@ The channel $(1, 0.9, 0.6)$ makes most raw decisions wrong; after 200 training s
 
 **Strengths**
 
-- Composable channel models for testing receivers; equalizers that adapt to unknown channels and track slow changes.
+- Composable channel models for testing receivers; equalisers that adapt to unknown channels and track slow changes.
 - Decision feedback removes post-cursor interference without noise enhancement.
 
 **Weaknesses**
@@ -124,10 +124,10 @@ The channel $(1, 0.9, 0.6)$ makes most raw decisions wrong; after 200 training s
 
 ## Exercises
 
-1. Show that a zero-forcing linear equalizer for $h = (1, a)$ has impulse response $(-a)^n$, and that its noise gain grows without bound as $|a| \to 1$.
+1. Show that a zero-forcing linear equaliser for $h = (1, a)$ has impulse response $(-a)^n$, and that its noise gain grows without bound as $|a| \to 1$.
 2. Show that a DFE with correct past decisions removes all post-cursor interference with a single forward tap when $h_0 \ne 0$.
 3. Simulate error propagation: inject one wrong decision and count the errors that follow.
-4. Add a Doppler shift to the channel and observe the equalizer's tracking; how fast must the shift be before it fails?
+4. Add a Doppler shift to the channel and observe the equaliser's tracking; how fast must the shift be before it fails?
 
 ## Further reading
 

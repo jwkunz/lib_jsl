@@ -62,6 +62,22 @@ frequency responses and transfer functions.
 - The imaginary unit is $i$, except in the signal-processing and electromagnetics chapters,
   which follow engineering practice and write $j$.
 
+### Symbols that change meaning
+
+A few letters are used for several things, as is the custom in the fields concerned. The meaning is always defined where the symbol
+is first used in an entry; this table is a reminder of the usual ones.
+
+| Symbol | Meanings |
+|---|---|
+| $\varepsilon$ | machine epsilon (always $\varepsilon_{\text{mach}}$ or in the sense of [Preliminaries](preliminaries.md)); a tolerance; noise; permittivity in the electromagnetics chapters |
+| $\lambda$ | an eigenvalue; a regularisation weight; a wavelength; a Poisson rate; a Lagrange multiplier; a generator in cubature rules |
+| $\mu$ | a mean; a step size (LMS); a fractional sample delay; permeability |
+| $\sigma$ | a standard deviation; a singular value; conductivity |
+| $\varphi$, $\phi$ | the golden ratio; a phase; a basis function; an angle |
+| $h$ | a step or spacing; an impulse response; a bandwidth in density estimation |
+| $n$, $N$ | a count of samples or unknowns; a sample index |
+| $i$, $j$ | the imaginary unit ($j$ in signal processing and electromagnetics); an index |
+
 ## Reading the figures
 
 Convergence plots show error against the number of function evaluations, on logarithmic axes. On

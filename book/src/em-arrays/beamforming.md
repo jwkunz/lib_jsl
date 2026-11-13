@@ -41,13 +41,13 @@ contributions from that direction add in step, while those from other directions
 The array then has a beam pointing in the chosen direction, with no moving parts. The rest of
 this entry is about choosing the weights.
 
-[`SensorArray`](../../api/lib_jsl_electromagnetics/arrays/sensor_array/struct.SensorArray.html) holds elements with positions $\mathbf p_n$ and far-field patterns $\mathbf g_n(\Omega) = (g_\theta, g_\varphi)$. The patterns are either analytic (an [antenna model](antennas.md) with an orientation) or sampled (a pattern container, which can include mutual coupling as embedded element patterns). Element $n$'s response to a wave of Jones polarization $\mathbf p$ is
+[`SensorArray`](../../api/lib_jsl_electromagnetics/arrays/sensor_array/struct.SensorArray.html) holds elements with positions $\mathbf p_n$ and far-field patterns $\mathbf g_n(\Omega) = (g_\theta, g_\varphi)$. The patterns are either analytic (an [antenna model](antennas.md) with an orientation) or sampled (a pattern container, which can include mutual coupling as embedded element patterns). Element $n$'s response to a wave of Jones polarisation $\mathbf p$ is
 $\mathbf g_n(\Omega) \cdot \mathbf p\,e^{jk\hat r \cdot \mathbf p_n}$. These responses form the steering vector, and the array pattern for weights $\mathbf w$ is $\sum_n w_n^*\mathbf g_n(\Omega)e^{jk\hat r \cdot \mathbf p_n}$. Spacing matters for a reason that is the sampling theorem in space (see [sampling and aliasing](../filters/index.md#sampling-and-aliasing)): elements $d$ apart sample the wavefront at rate $1/d$, so directions are distinguishable without ambiguity only if $d \le \lambda/2$, and wider spacing produces **grating lobes**, extra main beams at angles that alias onto the intended one. A uniform line of elements $\lambda/2$ apart sees only the angle to its axis: a source at $\theta$ and one at $\pi - \theta$ in the plane of the axis are indistinguishable.
 
 ### Scenes and covariance
 
-A **point source** of flux density $S$ and polarization coherency $\mathbf C$ contributes $S\,\mathbf A\mathbf C\mathbf A^{\mathsf H}$, with $\mathbf A$ the $N \times 2$ response matrix. A **brightness scene**, a map of noise temperature $T(\Omega)$ over the far-field sphere such as warm ground and cold sky, contributes
-$\frac{k_BB}{4\pi}\oint T(\Omega)\,\mathbf A\mathbf A^{\mathsf H}\,d\Omega$ for unpolarized emission. A lossless antenna in a uniform sky then sees exactly $k_BTB$. **Receiver noise** adds $k_BT_rB\,\mathbf I$. The [`Scene`](../../api/lib_jsl_electromagnetics/signal_models/covariance/struct.Scene.html) sums these into
+A **point source** of flux density $S$ and polarisation coherency $\mathbf C$ contributes $S\,\mathbf A\mathbf C\mathbf A^{\mathsf H}$, with $\mathbf A$ the $N \times 2$ response matrix. A **brightness scene**, a map of noise temperature $T(\Omega)$ over the far-field sphere such as warm ground and cold sky, contributes
+$\frac{k_BB}{4\pi}\oint T(\Omega)\,\mathbf A\mathbf A^{\mathsf H}\,d\Omega$ for unpolarised emission. A lossless antenna in a uniform sky then sees exactly $k_BTB$. **Receiver noise** adds $k_BT_rB\,\mathbf I$. The [`Scene`](../../api/lib_jsl_electromagnetics/signal_models/covariance/struct.Scene.html) sums these into
 $\mathbf R$, and [`synthesize_snapshots`](../../api/lib_jsl_electromagnetics/signal_models/covariance/fn.synthesize_snapshots.html) draws complex Gaussian samples with that covariance.
 
 ### Beamformers
@@ -83,8 +83,8 @@ If the training data contains the desired signal, the loss is larger and the sig
 
 ## Algorithm
 
-**Steering vector** for a direction $\Omega$ and a polarization: for each element, evaluate
-its pattern in that direction, take its component along the polarization, and multiply by the
+**Steering vector** for a direction $\Omega$ and a polarisation: for each element, evaluate
+its pattern in that direction, take its component along the polarisation, and multiply by the
 phase factor $e^{jk\hat r\cdot\mathbf p_n}$ of the element's position.
 
 **Covariance of a scene**: start from zero and add the contribution of each part. A point
@@ -145,7 +145,7 @@ The example also draws the CFM and MVDR patterns in the terminal. The system noi
 
 **Strengths**
 
-- Physically grounded covariances (element patterns, polarization, sky and ground temperatures) for any array geometry.
+- Physically grounded covariances (element patterns, polarisation, sky and ground temperatures) for any array geometry.
 - Optimal and constrained beamformers with exact figures of merit.
 
 **Weaknesses**

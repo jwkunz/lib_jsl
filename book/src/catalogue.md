@@ -17,7 +17,7 @@ The library implements **456 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimization, Special functions | 107 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 107 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 31 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 174 |
@@ -136,13 +136,13 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 - [Polynomial roots](root_finding/polynomial-roots.md)
 - [Nonlinear systems (Newton, Broyden)](root_finding/nonlinear-systems.md)
 
-### Optimization
+### Optimisation
 
-Optimization algorithms including gradient-based, gradient-free, and stochastic methods.
+Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
 Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 15 items
 
-- [Optimization traits](optimization/index.md#in-the-library)
+- [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
 - [Gradient descent](optimization/gradient-methods.md#gradient-descent)
 - [Nelder-Mead](optimization/direct-search.md#the-nelder-mead-simplex-method)
@@ -154,9 +154,9 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [Nonlinear least squares and curve fitting (Levenberg-Marquardt)](optimization/least-squares.md#the-levenberg-marquardt-method)
 - [Quasi-Newton methods (BFGS, L-BFGS)](optimization/newton-quasi-newton.md#bfgs)
 - [Nonlinear conjugate gradient](optimization/gradient-methods.md#nonlinear-conjugate-gradients)
-- [Constrained optimization (SQP, augmented Lagrangian)](optimization/constrained.md)
+- [Constrained optimisation (SQP, augmented Lagrangian)](optimization/constrained.md)
 - [Differential evolution](optimization/stochastic.md#differential-evolution)
-- [Particle swarm optimization](optimization/stochastic.md#particle-swarm-optimisation)
+- [Particle swarm optimisation](optimization/stochastic.md#particle-swarm-optimisation)
 
 ### Special functions
 
@@ -251,8 +251,8 @@ Readable reference FFT implementations for study, plus a benchmark comparing the
 Crate `lib_jsl_ffts_reference`: [API reference](../api/lib_jsl_ffts_reference/index.html) · [book chapter](fft/index.md#two-crates) · 4 items
 
 - [Simple Cooley-Tukey](fft/fft.md#the-radix-2-cooley-tukey-algorithm)
-- [Optimized radix-2](fft/fft.md#twiddle-factors-and-accuracy)
-- [Optimized split radix](fft/fft.md#split-radix)
+- [Optimised radix-2](fft/fft.md#twiddle-factors-and-accuracy)
+- [Optimised split radix](fft/fft.md#split-radix)
 - [FFT race benchmark](fft/index.md#two-crates)
 
 ## Probability, statistics and learning
@@ -329,7 +329,7 @@ Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learnin
 
 ##### Classification
 
-- [k-nearest neighbors](machine_learning/nearest-neighbours.md)
+- [k-nearest neighbours](machine_learning/nearest-neighbours.md)
 - Phylogenetic trees ([UPGMA](unsupervised/hierarchical.md#upgma-and-the-molecular-clock), [neighbour joining](unsupervised/hierarchical.md#neighbour-joining))
 - [Viterbi algorithm](learning/hidden-markov-models.md#the-viterbi-algorithm)
 - [Decision trees](machine_learning/decision-trees.md#growing-a-tree-by-gini-impurity) and [random forests](machine_learning/decision-trees.md#bagging-and-random-features)
@@ -461,7 +461,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 - [Constellations](comms/modulation.md#constellations-and-gray-labelling)
 - [Barker codes](comms/radar.md#barker-codes)
-- [Decision feedback equalizer](comms/equalisation.md#the-decision-feedback-equalizer)
+- [Decision feedback equaliser](comms/equalisation.md#the-decision-feedback-equaliser)
 - [Farrow filter](comms/synchronisation.md#fractional-delay-the-farrow-filter)
 - [Mueller timing detector](comms/synchronisation.md#timing-recovery)
 - [OFDM](comms/modulation.md#ofdm)
@@ -476,7 +476,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 - [Sobel](image/filtering.md#gradients-the-sobel-operator)
 - [Gaussian blur](image/filtering.md#gaussian-blur)
-- [Histogram equalization](image/restoration.md#histogram-equalisation)
+- [Histogram equalisation](image/restoration.md#histogram-equalisation)
 - [Sharpening](image/filtering.md#unsharp-masking)
 - [Wiener filtering](image/restoration.md#the-adaptive-wiener-filter)
 
@@ -549,10 +549,10 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 ##### Adaptive filters
 
-- [LMS and normalized LMS](filters/adaptive.md#lms-stochastic-gradient-descent)
+- [LMS and normalised LMS](filters/adaptive.md#lms-stochastic-gradient-descent)
 - [RLS](filters/adaptive.md#rls-exact-recursive-least-squares)
 
-##### Synchronization
+##### Synchronisation
 
 - [Phase-locked loop](comms/synchronisation.md#the-loop)
 - [Costas loop](comms/synchronisation.md#costas-loops)
@@ -595,7 +595,7 @@ Crate `lib_jsl_information`: [API reference](../api/lib_jsl_information/index.ht
 #### Forward error correction
 
 - [LDPC](coding/ldpc.md#belief-propagation)
-- [Polar](coding/polar.md#the-polarizing-transform)
+- [Polar](coding/polar.md#the-polarising-transform)
 - [Hamming](coding/hamming.md#the-parity-check-matrix)
 - [Reed-Solomon](coding/reed-solomon.md#decoding)
 - [Convolutional](coding/convolutional.md#maximum-likelihood-decoding-on-the-trellis)
@@ -614,7 +614,7 @@ Design and conventions: `crates/electromagnetics/DESIGN.md`
 
 - [Conventions (units, configurable time convention, media)](em-arrays/fields.md#conventions)
 - [Coordinate systems](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
-- [Polarization bases (linear, circular)](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
+- [Polarisation bases (linear, circular)](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
 - [Rigid transforms (translation, rotation)](em-arrays/fields.md#bases-interpolation-and-rigid-transforms)
 
 #### Fields
@@ -694,7 +694,7 @@ Crate `lib_jsl_number_theory`: [API reference](../api/lib_jsl_number_theory/inde
 - [Text coded integer](number-theory/polynomials.md#decimal-string-integers)
 - [Prime sieves](number-theory/primes.md#sieves)
 - [Primality testing (Miller-Rabin)](number-theory/primes.md#millerrabin)
-- [Integer factorization](number-theory/primes.md#pollards-rho)
+- [Integer factorisation](number-theory/primes.md#pollards-rho)
 - [Chinese remainder theorem](number-theory/modular-arithmetic.md#the-chinese-remainder-theorem)
 
 ### Graph

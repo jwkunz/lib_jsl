@@ -79,7 +79,7 @@ All the estimators start from the same matrix.
    for Capon; for MUSIC, the eigendecomposition and the eigenvectors of the $N - M$ smallest
    eigenvalues.
 3. For each direction of a grid, compute the array's steering vector (for its actual
-   geometry, element patterns and polarization) and evaluate the formula.
+   geometry, element patterns and polarisation) and evaluate the formula.
 4. Find the $M$ highest peaks of the resulting spectrum with
    [`spectrum_peaks`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.spectrum_peaks.html).
 
@@ -104,7 +104,7 @@ The accuracy is limited by the spacing of the grid unless the peaks are refined.
 {{#include ../../../crates/electromagnetics/src/algorithms/direction_of_arrival.rs:esprit}}
 ```
 
-- The spectra take any [`SensorArray`](../../api/lib_jsl_electromagnetics/arrays/sensor_array/struct.SensorArray.html) and polarization; ESPRIT assumes a uniform linear array of identical elements.
+- The spectra take any [`SensorArray`](../../api/lib_jsl_electromagnetics/arrays/sensor_array/struct.SensorArray.html) and polarisation; ESPRIT assumes a uniform linear array of identical elements.
 - `spectrum_peaks` returns local maxima of a 1D scan, strongest first.
 
 ## In practice

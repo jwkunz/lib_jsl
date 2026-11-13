@@ -96,7 +96,7 @@ Each extra 8 bits per sample cuts the round-trip error by $2^8$, down to the pre
 
 1. Compute the bit rate of 16-bit stereo audio at 44.1 kHz, and the size of an hour of it.
 2. Explain why 8-bit WAV samples are unsigned while all wider integer samples are signed, and how the reader centres them.
-3. Explain why a $b$-bit quantizer gives about $6.02 b + 1.76$ dB SNR on a full-scale sine wave.
+3. Explain why a $b$-bit quantiser gives about $6.02 b + 1.76$ dB SNR on a full-scale sine wave.
 4. Why does the reader scale $b$-bit integers by $2^{-(b-1)}$ rather than $1/(2^{b-1} - 1)$, and what happens to full-scale positive samples?
 5. Write the 44-byte canonical WAV header for 2 seconds of mono 16-bit audio at 8 kHz, field by field.
 

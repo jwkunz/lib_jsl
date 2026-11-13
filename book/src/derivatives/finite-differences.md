@@ -51,7 +51,7 @@ The modern question, how to choose the step in floating-point arithmetic, came w
 Its answer, that the best step balances the truncation and rounding errors and scales with a power
 of the machine precision, became standard in the optimisation literature of the 1970s, where finite
 difference gradients and Jacobians are essential; Philip Gill, Walter Murray and Margaret Wright's
-*Practical Optimization* (1981) gives a careful treatment.
+*Practical Optimisation* (1981) gives a careful treatment.
 
 ## The idea
 

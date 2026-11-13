@@ -90,7 +90,7 @@ the receiver's sensitivity. For free-space loss that is a closed form.
 
 **Two-ray model**, for given antenna heights and distance: compute the lengths of the direct
 and reflected paths and the grazing angle; compute the Fresnel reflection coefficient of the
-ground for that angle and polarization; add the two rays with their phases.
+ground for that angle and polarisation; add the two rays with their phases.
 
 **Empirical and atmospheric models**: check that the inputs lie within the range for which
 the model was fitted (Hata: 150 to 1500 MHz and 1 to 20 km; gases: below 57 or 350 GHz), and

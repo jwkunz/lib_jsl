@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Problem** | Represent electromagnetic fields sampled on surfaces and volumes, in any coordinate system and polarization basis, and integrate, interpolate, transform and differentiate them consistently |
+| **Problem** | Represent electromagnetic fields sampled on surfaces and volumes, in any coordinate system and polarisation basis, and integrate, interpolate, transform and differentiate them consistently |
 | **Devised by** | Standard electromagnetic theory (Maxwell, 1865; Poynting, 1884); Carl Friedrich Gauss (1814), Gaussian quadrature; finite differences on curvilinear grids |
 | **Accuracy** | Sphere quadrature exact to rounding for band-limited patterns (Gauss-Legendre in $\cos\theta$); fourth-order derivatives (tables below); Poynting flux conserved to all digits printed |
 | **Cost** | $O(N)$ storage and per-sample operations for $N$ samples; interpolation $O(4^d)$ per query for cubic stencils in $d$ dimensions |
@@ -15,7 +15,7 @@
 ## Overview
 
 Antennas, arrays and solvers all produce or consume **fields**: vectors attached to points of space, at one frequency (complex **phasors**) or over time. This entry describes how the library holds them. A field is a container of samples on a structured **domain**: a plane, sphere or cylinder for surfaces, or a box, spherical shell or cylinder for volumes. It carries its quantity (E, H, J, …),
-its polarization basis (Cartesian, spherical, cylindrical, or circular), and for phasors the frequency and **time convention**. Each domain carries **quadrature weights** with the Jacobian included, so every integral, from radiated power to overlap integrals, is a weighted sum. Fields can be
+its polarisation basis (Cartesian, spherical, cylindrical, or circular), and for phasors the frequency and **time convention**. Each domain carries **quadrature weights** with the Jacobian included, so every integral, from radiated power to overlap integrals, is a weighted sum. Fields can be
 converted between bases, interpolated onto other grids, rotated and translated, and differentiated (gradient, divergence, curl, Laplacians) in their native curvilinear coordinates.
 
 ## History
@@ -39,7 +39,7 @@ of degree up to $2n - 1$ exactly, and uniform azimuth samples integrate trigonom
 
 ### Bases, interpolation and rigid transforms
 
-Every polarization basis is a position-dependent map to Cartesian components, so a change of basis goes through Cartesian at each sample's position. The **circular** basis uses the right- and left-hand components transverse to the system's reference direction (IEEE handedness). Interpolation by nearest, linear or cubic (four-point Lagrange) stencils is separable over the axes. It wraps
+Every polarisation basis is a position-dependent map to Cartesian components, so a change of basis goes through Cartesian at each sample's position. The **circular** basis uses the right- and left-hand components transverse to the system's reference direction (IEEE handedness). Interpolation by nearest, linear or cubic (four-point Lagrange) stencils is separable over the axes. It wraps
 periodic axes and continues across the poles of a sphere onto the reflected samples $(\theta', \varphi + \pi)$. Vector fields are interpolated in Cartesian components, since $\hat\theta$ and $\hat\varphi$ components change sign across a pole. A **rotation** moves both the sample positions and the vectors. A **translation** of a far field multiplies it by the phase ramp $e^{jk\hat r \cdot \mathbf d}$.
 
 ### Vector calculus on curvilinear grids
@@ -72,7 +72,7 @@ measures how well two fields match, as in the coupling of a beam into a mode or 
 the one-dimensional quadrature weights of the axes and the Jacobian at that sample
 ($\sin\theta$ on a sphere, $\rho$ in a cylinder), and add them up.
 
-**Changing the polarization basis** of a vector field: at each sample, convert the components
+**Changing the polarisation basis** of a vector field: at each sample, convert the components
 to Cartesian using the unit vectors of the old basis *at that sample's position*; then take
 the components of the Cartesian vector along the unit vectors of the new basis there.
 

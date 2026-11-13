@@ -33,10 +33,10 @@ Newton's method for minimisation is Newton's method for the root of $\nabla f$. 
 
 The quasi-Newton idea came from William Davidon, a physicist at Argonne National Laboratory, who in
 1959 wanted to speed up a slow minimisation running on an unreliable computer. His report,
-"Variable metric method for minimization", was rejected by a journal and circulated as a technical
+"Variable metric method for minimisation", was rejected by a journal and circulated as a technical
 report. Roger Fletcher and Michael Powell (1963) recognised its power, simplified it and published
 the DFP method, which made it famous; the original report was finally published in the first issue
-of the *SIAM Journal on Optimization* in 1991. In 1970 four people, Broyden, Fletcher, Goldfarb and
+of the *SIAM Journal on Optimisation* in 1991. In 1970 four people, Broyden, Fletcher, Goldfarb and
 Shanno, independently derived a better update, the dual of DFP, now called BFGS. Jorge Nocedal
 (1980) showed how to apply BFGS with only a few stored vectors, and with Dong Liu (1989) made
 L-BFGS the standard method for large smooth problems.

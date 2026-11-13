@@ -68,7 +68,7 @@ a small source, and the far field in a given direction is the sum of their contr
 the phase differences appropriate to that direction. That sum is a two-dimensional Fourier
 transform of the aperture field: a wide aperture gives a narrow beam, just as a long signal has a
 narrow spectrum. The dish is modelled as a circular aperture of diameter $D$ (radius $a$) with a
-$\hat y$-polarized field $E_0(1 - \rho^2/a^2)^p$, where $\rho$ is the distance from the centre and
+$\hat y$-polarised field $E_0(1 - \rho^2/a^2)^p$, where $\rho$ is the distance from the centre and
 the exponent $p$ controls how strongly the field is tapered towards the edge. For a circular
 aperture the Fourier transform becomes a Fourier-Bessel transform:
 

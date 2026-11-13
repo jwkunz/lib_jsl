@@ -17,7 +17,7 @@
 Image files trade size against fidelity in three ways.
 - **Netpbm** files (PBM, PGM, PPM) are a text header and the raw samples. They are trivial to read and write, and large.
 - **PNG** is lossless. Each row is first transformed by a **filter** that predicts each byte from its neighbours, which turns smooth images into small numbers, and the result is compressed with **DEFLATE**, the algorithm of zip and gzip.
-- **JPEG** is lossy. It transforms 8×8 blocks with the discrete cosine transform, quantizes the coefficients (coarsely at high frequencies, where the eye is least sensitive), and entropy-codes the result. It typically stores a photograph in a tenth of the raw size with little visible change.
+- **JPEG** is lossy. It transforms 8×8 blocks with the discrete cosine transform, quantises the coefficients (coarsely at high frequencies, where the eye is least sensitive), and entropy-codes the result. It typically stores a photograph in a tenth of the raw size with little visible change.
 
 The library reads and writes all three. The [image-processing chapter](../image/index.md) uses its PNG writer for every figure with pictures in it.
 
@@ -51,7 +51,7 @@ zlib does 7–13% better on compressible data because it builds a Huffman code f
 
 1. Convert RGB to $Y C_b C_r$: brightness and two colour differences.
 2. Cut each component into 8×8 blocks and take the two-dimensional DCT of each, which concentrates a smooth block's energy in a few low-frequency coefficients.
-3. Divide each coefficient by an entry of a **quantization table** and round. Higher frequencies get larger divisors, and the tables are scaled by the quality setting.
+3. Divide each coefficient by an entry of a **quantisation table** and round. Higher frequencies get larger divisors, and the tables are scaled by the quality setting.
 4. Code the DC coefficient as its difference from the previous block's. Read the AC coefficients in zig-zag order, from low to high frequency, and code them as (run of zeros, value) pairs.
 5. Huffman-code everything with the standard tables of the JPEG specification's Annex K.
 
@@ -115,7 +115,7 @@ A decoder must not trust its header. Fuzz testing found no panics in about 36 00
 
 1. Convert each pixel from RGB to $YC_bC_r$.
 2. For each $8 \times 8$ block of each component: subtract 128, take the two-dimensional DCT,
-   divide each coefficient by its quantization table entry, and round.
+   divide each coefficient by its quantisation table entry, and round.
 3. Reorder the 64 coefficients in zig-zag order.
 4. Code the DC coefficient as its difference from the previous block's, and the AC
    coefficients as pairs (run of zeros, value), ending with an end-of-block symbol.
@@ -124,13 +124,13 @@ A decoder must not trust its header. Fuzz testing found no panics in about 36 00
 
 **Decoding a JPEG.**
 
-1. Parse the marker segments: quantization tables, the frame header (dimensions, components
+1. Parse the marker segments: quantisation tables, the frame header (dimensions, components
    and sampling factors), Huffman tables, the restart interval and the scan header.
 2. Check that the components in the scan match the frame.
 3. For each **minimum coded unit** (the group of blocks covering one sampling period),
    Huffman-decode the coefficients of each block, undoing the DC prediction and the
    zig-zag order.
-4. Multiply by the quantization table and take the inverse DCT; add 128.
+4. Multiply by the quantisation table and take the inverse DCT; add 128.
 5. Upsample the chroma components to full resolution.
 6. Convert to RGB and clamp to the range of a byte.
 
@@ -170,7 +170,7 @@ The test card's ramps and stripes are almost perfectly predictable after filteri
 
 1. Show that the Paeth predictor gives exact predictions on a linear ramp in either direction.
 2. Explain why PNG filters work on bytes rather than on pixel values, and what `bpp` means for 16-bit or sub-byte images.
-3. Show that the 8×8 DCT is orthogonal, and that quantization error in the coefficients equals the pixel error in the mean-square sense.
+3. Show that the 8×8 DCT is orthogonal, and that quantisation error in the coefficients equals the pixel error in the mean-square sense.
 4. Show that the IJG quality scaling halves the table entries going from quality 50 to 75.
 5. Design a DEFLATE input on which lazy matching beats greedy matching.
 

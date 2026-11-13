@@ -140,6 +140,17 @@ The two flashes are spacelike-separated, so their time order depends on the obse
 4. Show that $g_{\mu\nu} u^\mu u^\nu$ is conserved along a geodesic, and use it to test an integrator.
 5. Derive the orbit equation $(dw/d\phi)^2 = 2M w^3 - w^2 + 2Mw/L^2 + (E^2 - 1)/L^2$ for $w = 1/r$, and from it the perihelion advance.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A boost $\Lambda$ satisfies $\Lambda^{\mathsf T}\eta\Lambda = \eta$, which is the statement that the interval $x^{\mathsf T}\eta x$ is preserved; check it for the $2\times2$ block $\begin{pmatrix}\gamma&-\gamma\beta\\-\gamma\beta&\gamma\end{pmatrix}$ using $\gamma^2(1 - \beta^2) = 1$.
+2. Composing boosts with rapidities $\phi_1, \phi_2$ gives a boost with $\phi_1 + \phi_2$ (hyperbolic addition formulas); then $\beta = \tanh\phi$ and $\tanh(\phi_1 + \phi_2) = (\beta_1 + \beta_2)/(1 + \beta_1\beta_2)$.
+3. In spherical coordinates the non-zero symbols are $\Gamma^r_{\theta\theta} = -r$, $\Gamma^r_{\varphi\varphi} = -r\sin^2\theta$, $\Gamma^\theta_{r\theta} = 1/r$, $\Gamma^\theta_{\varphi\varphi} = -\sin\theta\cos\theta$, $\Gamma^\varphi_{r\varphi} = 1/r$, $\Gamma^\varphi_{\theta\varphi} = \cot\theta$.
+4. Along a geodesic the quantity $g_{\mu\nu}\dot x^\mu\dot x^\nu$ is constant (the affine parameter normalisation); a numerical integrator that does not conserve it shows the error growing with the step size.
+5. Using the conserved $E$ and $L$ of the Schwarzschild geodesic and $w = 1/r$, $(dw/d\phi)^2 = 2Mw^3 - w^2 + 2Mw/L^2 + (E^2 - 1)/L^2$. Differentiating gives $w'' + w = M/L^2 + 3Mw^2$; the $3Mw^2$ term causes the perihelion advance $6\pi M^2/L^2$ per orbit.
+
+</details>
+
 ## Further reading
 
 - E. F. Taylor and J. A. Wheeler, *Spacetime Physics*, 2nd ed., W. H. Freeman, 1992.

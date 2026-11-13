@@ -182,6 +182,17 @@ The second polynomial divides $x^5 - 1$, so although it is irreducible its perio
 4. Verify $\varphi(2^n - 1)/n$ for $n = 4, 6$ by listing the primitive polynomials.
 5. Use the Berlekamp-Massey algorithm to recover the polynomial of the example's register from 8 output bits.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The state evolves by multiplication by $x$ modulo $p(x)$ in $\mathrm{GF}(2)[x]/(p)$, so it is periodic, and the sequence repeats after $k$ steps if $x^k \equiv 1$ (for a nonzero state); the period divides the order of $x$ modulo $p$.
+2. In a period of $2^n - 1$ steps every nonzero $n$-bit state occurs exactly once, and exactly $2^{n-1}$ of those states have the output bit equal to 1.
+3. $u \oplus T^\tau u$ is a nonzero m-sequence satisfying the same recurrence, hence a shift $T^\sigma u$ of $u$. Over one period the agreements minus disagreements of $u$ and $T^\tau u$ are therefore $(2^{n-1} - 1) - 2^{n-1} = -1$, so the autocorrelation is $-1/(2^n - 1)$ for $\tau \ne 0$ and $1$ at $\tau = 0$.
+4. The number of primitive polynomials of degree $n$ is $\varphi(2^n - 1)/n$: $\varphi(15)/4 = 8/4 = 2$ for $n = 4$ and $\varphi(63)/6 = 36/6 = 6$ for $n = 6$.
+5. From $2n$ output bits, Berlekamp-Massey finds the shortest LFSR that generates them; with a register of length $n$, $2n$ bits suffice, so 8 bits recover a register of up to 4 stages.
+
+</details>
+
 ## Further reading
 
 - S. W. Golomb, *Shift Register Sequences*, Holden-Day, 1967; 3rd ed., World Scientific, 2017.

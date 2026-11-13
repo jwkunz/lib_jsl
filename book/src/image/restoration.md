@@ -173,6 +173,17 @@ Four equally common levels become four evenly spaced ones. The example's deconvo
 4. Show that the Fourier transform of a Gaussian blur of width $\sigma$ is a Gaussian of width $1/(2\pi\sigma)$, and explain why the inverse filter fails for it.
 5. Implement contrast-limited equalisation: clip the histogram at a multiple of its mean before forming the cumulative sum.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $P(F(X) \le u) = P(X \le F^{-1}(u)) = F(F^{-1}(u)) = u$ for continuous strictly increasing $F$.
+2. For $x = s + n$ with $s \sim N(\mu, \sigma_s^2)$ and $n \sim N(0, \nu^2)$, the conditional mean is $\mu + \dfrac{\sigma_s^2}{\sigma_s^2 + \nu^2}(x - \mu)$.
+3. Minimising $E|F - WG|^2$ with $G = HF + N$ at each frequency gives $W = H^*S_f/(|H|^2S_f + S_n)$.
+4. $\int e^{-t^2/(2\sigma^2)}e^{-j\omega t}dt \propto e^{-\sigma^2\omega^2/2}$, a Gaussian of width $1/\sigma$ in $\omega$ (i.e. $1/(2\pi\sigma)$ in cycles). The inverse filter divides by it, amplifying high-frequency noise by $e^{\sigma^2\omega^2/2}$ without bound.
+5. Clip each histogram bin at (a multiple of) the mean count, redistribute the clipped excess evenly across all bins, then form the cumulative sum; this limits the slope of the mapping and so limits noise amplification.
+
+</details>
+
 ## Further reading
 
 - R. C. Gonzalez and R. E. Woods, *Digital Image Processing*, 4th ed., Pearson, 2018, chapters 3 and 5.

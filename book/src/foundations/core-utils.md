@@ -159,6 +159,17 @@ ulp(1) = 2.220446049250313e-16, ulp(1e6) = 1.1641532182693481e-10
 4. Explain why temperature conversion needs an offset, and why converting temperature *differences* must not use it.
 5. Count the dots in a Braille cell and design the bit layout for a 2×4 grid.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\operatorname{ulp}(x) = 2^{e - 52}$ for $2^e \le |x| < 2^{e+1}$, so $\operatorname{ulp}(x)/x \in (2^{-53}, 2^{-52}]$; the ratio is largest just above each power of two and falls to half that just below the next, a sawtooth.
+2. $0.1 + 0.2 = 0.30000000000000004$ in double precision, which differs from $0.3$ (stored as $0.299999999999999989\ldots$) by $5.55\times10^{-17}$, one ulp at that magnitude.
+3. $a_0 = \hbar/(m_ec\alpha)$; its relative uncertainty combines those of $m_e$ and $\alpha$ (the SI constants $\hbar$ and $c$ are exact), and is dominated by $\alpha$, about $1.6\times10^{-10}$.
+4. Celsius to kelvin has an offset, because the scales have different zero points; a temperature difference of 1 °C equals 1 K, with no offset, since the offset cancels in a difference.
+5. A Braille cell has 6 or 8 dots: the Unicode block uses 8, with dot 1–8 mapped to bits 0–7 (offset $0\mathrm{x}2800$).
+
+</details>
+
 ## Further reading
 
 - E. Tiesinga, P. J. Mohr, D. B. Newell and B. N. Taylor, "CODATA recommended values of the fundamental physical constants: 2018", *Reviews of Modern Physics* 93 (2021) 025010; and the 2022 adjustment at physics.nist.gov/constants.

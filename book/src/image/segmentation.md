@@ -157,6 +157,17 @@ where the ridge of the smoothed gradient does not follow the true edge exactly.
 4. Show that hysteresis is a connected-component computation: an edge is a weak-pixel component containing a strong pixel.
 5. Run the watershed with a marker at every local minimum of a noisy image and count the regions.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Total variance $= \sigma_w^2 + \sigma_b^2$ (the law of total variance), and $\sigma_{\mathrm{tot}}^2$ does not depend on the threshold, so maximising $\sigma_b^2$ minimises $\sigma_w^2$.
+2. For two equal Gaussians of equal size, $\sigma_b^2 = w_0w_1(\mu_0 - \mu_1)^2$ is largest when the two classes have equal weight $w_0 = w_1$, at the midpoint. When one class is four times larger the threshold moves from the midpoint towards the larger class's mean (Otsu tends to split the larger class); check numerically.
+3. Non-maximum suppression keeps a pixel only if its gradient magnitude is a local maximum along the gradient direction, to thin the edge to one pixel; without the direction one cannot tell across which neighbours to compare. At a corner the gradient direction changes quickly so thinning may break the edge.
+4. Label the weak and strong pixels' connected components; a component that contains at least one strong pixel is kept entirely, and the others are discarded.
+5. Every local minimum, including those caused by noise, becomes a basin and a region, so the number of regions is close to the number of noise minima rather than the number of objects.
+
+</details>
+
 ## Further reading
 
 - N. Otsu, "A threshold selection method from gray-level histograms", *IEEE Transactions on Systems, Man, and Cybernetics* 9 (1979) 62–66.

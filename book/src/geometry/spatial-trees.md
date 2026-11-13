@@ -120,6 +120,17 @@ octree of a helix: 1000 points, depth 5, nearest to (1, 0, 5): Some((673, 4.3496
 4. For points uniform in the unit cube in $D$ dimensions, estimate the fraction of cells a nearest-neighbour search must examine as $D$ grows.
 5. Use a k-d tree to find all pairs of points closer than $r$ in $O(n \log n + m)$ time, where $m$ is the number of pairs.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Median splits give two children of sizes at most $\lfloor n/2\rfloor$; the number of levels until every node has one point is $\lceil\log_2(n + 1)\rceil$.
+2. The nearest point on the far side of the splitting plane is at least $|q_a - s|$ away; if that is at least the current best distance $d_k$, the far side cannot contain a closer point. The test is conservative because it compares to the distance to the plane, not to the nearest actual point in the far cell.
+3. Place points so that each split separates only one point from the rest: for example $x_i = 2^{-i}$ on a line, so each subdivision halves the region but leaves almost all points in one quadrant.
+4. As $D$ grows, the distance to the nearest neighbour approaches the typical inter-point distance, so the search ball intersects most cells; the fraction of cells examined tends to 1 and the tree degenerates to brute force.
+5. For each point query its $r$-neighbourhood in the tree; each query costs $O(\log n + m_i)$ and the total is $O(n\log n + m)$.
+
+</details>
+
 ## Further reading
 
 - J. L. Bentley, "Multidimensional binary search trees used for associative searching", *Communications of the ACM* 18 (1975) 509–517.

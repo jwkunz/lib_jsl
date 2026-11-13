@@ -146,6 +146,17 @@ The cells tile the box exactly, and the sites near the middle have the smallest 
 4. Use Euler's formula to show that a triangulation of $n$ points with $h$ on the hull has $2n - h - 2$ triangles.
 5. Construct a point set where Lawson's flips, started from an arbitrary triangulation, need $\Theta(n^2)$ flips.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For the two triangles on a quadrilateral, flipping a non-Delaunay diagonal lexicographically increases the sorted list of angles; in particular the smallest angle does not decrease (Lawson, Sibson).
+2. $d$ is inside the circle through $a, b, c$ iff its lift lies below the plane through the lifted $a, b, c$ on the paraboloid; that is the sign of the $4\times4$ determinant with columns $(x, y, x^2 + y^2, 1)$.
+3. An edge is Delaunay iff there is a circle through its endpoints with no other point inside; its centre is equidistant from the endpoints and farther from all other points, so it lies on a Voronoi edge: the dual relationship.
+4. Euler's formula $V - E + F = 2$ with $V = n$, $E = (3F_t + h)/2$ and $F = F_t + 1$ (including the outer face) gives $F_t = 2n - h - 2$.
+5. Take a set of points on two skew lines (or a spiral) arranged so each flip enables another; each flip removes one crossing, and examples exist with $\Theta(n^2)$ flips.
+
+</details>
+
 ## Further reading
 
 - B. Delaunay, "Sur la sphère vide", *Bulletin de l'Académie des Sciences de l'URSS* 6 (1934) 793–800.

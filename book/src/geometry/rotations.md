@@ -170,6 +170,17 @@ The two quarter turns combine into a third of a turn ($2\pi/3$) about the diagon
 4. Show that an extrinsic rotation sequence equals the intrinsic one with the axes in reverse order.
 5. Show that slerp has constant angular velocity, and that nlerp is fastest in the middle.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $q = \cos\tfrac\theta2 + \sin\tfrac\theta2\,\mathbf n$ the product $qvq^{-1}$ decomposes $v$ into a component along $\mathbf n$ (unchanged) and a perpendicular part rotated by $\theta$ about $\mathbf n$ (use the identity $\mathbf n\mathbf v = -\mathbf n\cdot\mathbf v + \mathbf n\times\mathbf v$).
+2. For $R = R_x(\alpha)R_y(\beta)R_z(\gamma)$ the matrix entry $R_{13} = \sin\beta$ gives $\beta$ and the ratios of entries in the first column and last row give $\alpha$ and $\gamma$ via $\operatorname{atan2}$. The second solution is $(\alpha + \pi, \pi - \beta, \gamma + \pi)$.
+3. At $\beta = \pi/2$ the middle rotation maps $x$ and $z$ axes so that $R_x(\alpha)R_y(\pi/2)R_z(\gamma) = R_y(\pi/2)R_z(\alpha + \gamma)$ up to sign convention: only the sum or difference $\alpha \pm \gamma$ matters.
+4. An extrinsic sequence about fixed axes $x, y, z$ with angles $(\alpha, \beta, \gamma)$ is the product $R_z(\gamma)R_y(\beta)R_x(\alpha)$, which is the intrinsic sequence $z, y, x$ with the angles in reversed order.
+5. Slerp travels along a great circle at constant speed. Nlerp interpolates linearly and renormalises: the angular speed is largest in the middle of the arc and smallest at the ends.
+
+</details>
+
 ## Further reading
 
 - K. Shoemake, "Animating rotation with quaternion curves", *SIGGRAPH Computer Graphics* 19 (1985) 245–254.

@@ -204,6 +204,17 @@ The blob scales are the nearest of the 12 sampled scales to the true 3 and 6. Al
 4. Show that $\mathrm{tr}(H)^2/\det(H) = (r + 1)^2/r$ when the eigenvalues of $H$ are in the ratio $r$.
 5. Write the box sum of a rectangle in terms of four integral-image values.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For a 2-D Gaussian, $\nabla^2G_\tau(0) = -1/(\pi\tau^4)$. Since $G_\sigma * G_s = G_\tau$ with $\tau^2 = \sigma^2 + s^2$, the normalised response is $\sigma^2/\big(\pi(\sigma^2 + s^2)^2\big)$; setting its derivative with respect to $\sigma^2$ to zero gives $\sigma^2 = s^2$.
+2. The heat equation gives $G_{k\sigma} - G_\sigma \approx (k\sigma - \sigma)\partial G/\partial\sigma = (k - 1)\sigma\cdot\sigma\nabla^2G_\sigma = (k - 1)\sigma^2\nabla^2G_\sigma$.
+3. Expand $D(\mathbf x + \mathbf h) \approx D + \nabla D^{\mathsf T}\mathbf h + \tfrac12\mathbf h^{\mathsf T}H\mathbf h$ and set the gradient to zero: $\mathbf h = -H^{-1}\nabla D$.
+4. With eigenvalues $\alpha = r\beta$, $\mathrm{tr}(H)^2/\det(H) = (\alpha + \beta)^2/(\alpha\beta) = (r + 1)^2/r$.
+5. For the rectangle with corners $(x_1, y_1)$ to $(x_2, y_2)$ (inclusive of the lower-right corner), the sum is $I(x_2, y_2) - I(x_1 - 1, y_2) - I(x_2, y_1 - 1) + I(x_1 - 1, y_1 - 1)$.
+
+</details>
+
 ## Further reading
 
 - T. Lindeberg, "Feature detection with automatic scale selection", *International Journal of Computer Vision* 30 (1998) 79–116.

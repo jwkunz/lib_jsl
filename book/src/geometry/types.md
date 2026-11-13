@@ -124,6 +124,17 @@ The edge was never transformed itself, but it shares points 1 and 2 with the tri
 4. Give a non-convex polygon whose fan triangulation from its first vertex covers area outside the polygon.
 5. Show that the boundary of a tetrahedral mesh is the set of faces belonging to exactly one tetrahedron.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Adding two points has no meaning as it depends on the origin (translation changes the sum), whereas an affine combination with weights summing to 1 is independent of the origin, since the translation contributes $\sum w_i\mathbf t = \mathbf t$.
+2. $x = r\sin\theta\cos\varphi$, $y = r\sin\theta\sin\varphi$, $z = r\cos\theta$; inversely $r = \sqrt{x^2 + y^2 + z^2}$, $\theta = \arccos(z/r)$, $\varphi = \operatorname{atan2}(y, x)$. The inverse is singular at the origin ($\theta$, $\varphi$ undefined) and on the $z$-axis ($\varphi$ undefined).
+3. The reflection is $H = I - 2\mathbf n\mathbf n^{\mathsf T}$, with $H^{\mathsf T}H = I$ (an isometry) and $\det H = -1$ (one eigenvalue $-1$).
+4. A polygon with a reflex vertex such as an arrow-head: the fan from a vertex that cannot see all other vertices contains a triangle that lies partly outside the polygon.
+5. Each interior triangular face is shared by exactly two tetrahedra, while a boundary face belongs to only one; so counting the tetrahedra per face identifies the boundary.
+
+</details>
+
 ## Further reading
 
 - T. DeRose, "A coordinate-free approach to geometric programming", in *Math for SIGGRAPH*, SIGGRAPH Course Notes, 1989.

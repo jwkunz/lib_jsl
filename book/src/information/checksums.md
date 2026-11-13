@@ -161,6 +161,17 @@ streamed: 414fa339 d7a8fbb307d78094
 4. Estimate, by the birthday bound, how many random messages must be hashed before two share a 32-bit CRC, and two a SHA-256 digest.
 5. Verify the padding rule: how many blocks does SHA-256 compress for messages of 55, 56 and 64 bytes?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. If $(x + 1) \mid G$ and $E(x)$ has an odd number of terms, $E(1) = 1$, so $E(x)$ is not divisible by $x + 1$ and therefore not by $G$.
+2. A burst of length $b \le \deg G$ is $x^iB(x)$ with $\deg B < \deg G$ and $B(0) = 1$. If $G$ has a non-zero constant term, $G$ and $x$ are coprime, so $G \mid x^iB$ would require $G \mid B$, impossible by degree.
+3. CRC is linear over GF(2) up to the initial value/final XOR terms, so $\mathrm{CRC}(a \oplus b) = \mathrm{CRC}(a) \oplus \mathrm{CRC}(b) \oplus \mathrm{CRC}(0)$; an attacker can change a message and adjust a few bits to restore the original CRC, so CRCs are not secure.
+4. The birthday bound gives collisions after about $\sqrt{\pi N/2}$ messages: $N = 2^{32}$ gives about $8\times10^4$, and $N = 2^{256}$ about $2^{128} \approx 4\times10^{38}$.
+5. SHA-256 appends a 1 bit and a 64-bit length: 55 bytes plus 9 bytes of padding is exactly 64 bytes, so 1 block; 56 bytes needs 65 bytes of padded data, so 2 blocks; 64 bytes needs 73 padded bytes, so 2 blocks.
+
+</details>
+
 ## Further reading
 
 - W. W. Peterson and D. T. Brown, "Cyclic codes for error detection", *Proceedings of the IRE* 49 (1961) 228–235.

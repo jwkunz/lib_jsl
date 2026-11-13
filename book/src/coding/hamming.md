@@ -183,6 +183,17 @@ r = 6: (63, 57) code, rate 0.905
 4. Find the probability of a decoding error for the $(7, 4)$ code on a binary symmetric channel with crossover $p$.
 5. Show that the Hamming bound $2^{n-k} \ge \sum_{i \le t}\binom{n}{i}$ holds for every $t$-error-correcting binary code.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $(7, 4)$, $H$ has the seven nonzero 3-bit columns; choosing the systematic form $H = [A\ I]$ gives $G = [I\ A^{\mathsf T}]$, and then $HG^{\mathsf T} = A + A = 0$ over GF(2).
+2. The distance between codewords $c_1, c_2$ is the weight of $c_1 \oplus c_2$, which is a codeword by linearity, so the minimum distance equals the minimum weight of a nonzero codeword.
+3. The $2^m - 1$ nonzero syndromes of a Hamming code correspond to the $n = 2^m - 1$ single-error patterns plus no error: $1 + n = 2^m = 2^{n-k}$, so spheres of radius 1 exactly tile the space (perfect). Adding an overall parity bit makes odd-weight patterns have even weight 4 or more, so $d = 4$.
+4. The $(7, 4)$ code corrects any single error; a decoding error occurs when two or more of the 7 bits are flipped: $P = 1 - (1 - p)^7 - 7p(1 - p)^6 \approx 21p^2$ for small $p$.
+5. The spheres of radius $t$ around the $2^k$ codewords are disjoint and contain $\sum_{i\le t}\binom ni$ points each, so $2^k\sum_{i\le t}\binom ni \le 2^n$.
+
+</details>
+
 ## Further reading
 
 - R. W. Hamming, "Error detecting and error correcting codes", *Bell System Technical Journal* 29 (1950) 147–160.

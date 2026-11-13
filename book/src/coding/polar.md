@@ -219,6 +219,17 @@ The (8, 4) polar code designed for a BEC(0.5) is the (8, 4) Reed-Muller code, wi
 4. Count the operations of SC decoding and show that it is $O(N\log N)$.
 5. Implement CRC-aided list decoding with $L = 4$ and compare its error rate with SC's.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For a BEC($\varepsilon$), the combined bit $u_1$ (the 'minus' channel) is erased unless both outputs are received: erasure probability $1 - (1 - \varepsilon)^2 = 2\varepsilon - \varepsilon^2$; the 'plus' channel is erased only if both are: $\varepsilon^2$. The capacities $1 - 2\varepsilon + \varepsilon^2 + 1 - \varepsilon^2 = 2(1 - \varepsilon)$ add up to twice the original: conserved.
+2. Over GF(2), $F = \begin{pmatrix}1&0\\1&1\end{pmatrix}$ satisfies $F^2 = I$, and the Kronecker power $F^{\otimes m}$ satisfies $(F^{\otimes m})^2 = (F^2)^{\otimes m} = I$.
+3. The rows of $F^{\otimes3}$ with indices 3, 5, 6, 7 (0-based, zero-indexed rows of weight at least 4) are those of weight 4 or 8, which span the first-order Reed-Muller code of length 8, dimension 4 and minimum distance 4.
+4. SC decoding evaluates $\log_2N$ levels of $N/2$ node operations each; the recursion is $T(N) = 2T(N/2) + O(N)$, which solves to $O(N\log N)$.
+5. A list decoder keeps the $L = 4$ best paths and selects, among those, the one that passes the CRC; compare the frame error rates at the same $E_b/N_0$.
+
+</details>
+
 ## Further reading
 
 - E. Arıkan, "Channel polarization: a method for constructing capacity-achieving codes for symmetric binary-input memoryless channels", *IEEE Transactions on Information Theory* 55 (2009) 3051–3073.

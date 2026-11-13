@@ -104,6 +104,17 @@ Each extra 8 bits per sample cuts the round-trip error by $2^8$, down to the pre
 4. Why does the reader scale $b$-bit integers by $2^{-(b-1)}$ rather than $1/(2^{b-1} - 1)$, and what happens to full-scale positive samples?
 5. Write the 44-byte canonical WAV header for 2 seconds of mono 16-bit audio at 8 kHz, field by field.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $16\cdot2\cdot44\,100 = 1\,411\,200$ bit/s, i.e. $176\,400$ bytes/s; an hour is $635\,040\,000$ bytes $\approx 635$ MB.
+2. In the WAV format, 8-bit samples are unsigned (offset 128) for historical reasons; wider samples are two's complement signed. The reader subtracts 128 to centre them.
+3. A full-scale sine has power $A^2/2$ with $A = 2^{b-1}$, while uniform quantisation noise has power $\Delta^2/12$ with $\Delta = 1$: SNR $= 10\log_{10}(1.5\cdot2^{2b}) = 6.02b + 1.76$ dB.
+4. Dividing by $2^{b-1}$ maps $-2^{b-1}$ to exactly $-1$ and the largest positive value $2^{b-1} - 1$ to just below $+1$; dividing by $2^{b-1} - 1$ would map $-2^{b-1}$ below $-1$.
+5. The 44-byte header: `RIFF`, size $36 + 32000$, `WAVE`, `fmt `, 16, format 1, 1 channel, rate 8000, byte rate 16000, block align 2, 16 bits, `data`, data size 32000.
+
+</details>
+
 ## Further reading
 
 - IBM and Microsoft, *Multimedia Programming Interface and Data Specifications 1.0*, 1991 (the RIFF and WAVE specification).

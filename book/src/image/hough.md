@@ -134,6 +134,17 @@ The cell has 50 votes; the other few of the 54 line pixels fell in neighbouring 
 4. Show that a line of length $L$ pixels at angle $\theta$ gives about $L$ votes in one cell only if the $\rho$ bin is at least about one pixel wide.
 5. Extend `hough_circles` to estimate the radius by fitting the votes of each centre over a range of radii.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The line through points $(x_1, y_1)$ and $(x_2, y_2)$ satisfies $x_i\cos\theta + y_i\sin\theta = \rho$ for both points, so the two sinusoids $\rho_i(\theta)$ intersect at that $(\theta, \rho)$.
+2. Slope-intercept $y = mx + c$ has $m \to \infty$ for vertical lines. The normal form has $\theta \in [0, \pi)$ and $|\rho| \le$ the image diagonal, both bounded.
+3. With the gradient direction the edge pixel votes only for $\theta$ along the gradient (plus or minus a small tolerance), so the cost per pixel falls from the number of angle bins to one or a few and the peaks are sharper.
+4. A line of length $L$ gives $L$ pixels whose $\rho$ values are spread over an interval of about $L|\sin\delta\theta|$ for a small angular error $\delta\theta$; a $\rho$ bin of at least one pixel keeps them in a single cell.
+5. For each centre candidate, accumulate votes at the distances $r$ to the edge pixels; the peak of this one-dimensional histogram gives the radius.
+
+</details>
+
 ## Further reading
 
 - P. V. C. Hough, "Method and means for recognizing complex patterns", US patent 3 069 654, 1962.

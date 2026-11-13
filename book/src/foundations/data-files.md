@@ -137,6 +137,17 @@ Writing back with semicolons quotes only the field containing quotes. Its comma 
 4. Convert a Fortran-order index $(i, j, k)$ of an array of shape $(a, b, c)$ to its C-order position.
 5. Why does NumPy put the data on a 64-byte boundary?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The states are: field start, in unquoted field, in quoted field, quote seen inside a quoted field. In `"a""b",c` the first quote opens a quoted field, the doubled quote yields a literal `"`, the next quote closes the field, and the comma ends it, giving fields `a"b` and `c`.
+2. The shortest round-trip representation is the shortest decimal string that parses back to the same double; by definition parsing it recovers $x$ exactly.
+3. The header string for shape `(3, 4)` is `{'descr': '<f8', 'fortran_order': False, 'shape': (3, 4), }`, 59 characters. The preamble is 10 bytes, plus the newline: 70 bytes, padded with spaces to 128, so the header length field is 118.
+4. In Fortran order the element $(i, j, k)$ is at offset $i + a(j + bk)$; in C order it is at $(ib + j)c + k$.
+5. A 64-byte boundary matches the cache-line size and the width of AVX-512 vectors, so the array data can be memory-mapped and used with aligned loads.
+
+</details>
+
 ## Further reading
 
 - Y. Shafranovich, "Common format and MIME type for comma-separated values (CSV) files", RFC 4180, 2005.

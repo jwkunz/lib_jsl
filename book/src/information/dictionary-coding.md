@@ -158,6 +158,17 @@ The [entropy coding example](entropy-coding.md#in-practice) runs all six coders 
 4. Why does LZ78 do worse than LZW on text, although LZW also emits one code per phrase?
 5. Add Huffman coding of the LZ77 tokens and measure the improvement on the test text.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For "abababababab", after emitting literals $a$ and $b$ the next token can be (distance 2, length 10): the match source overlaps the output being written and repeats the 2-character pattern.
+2. LZW with $A = 1, \ldots, Z = 26$ produces $20, 15, 2, 5, 15, 18, 14, 15, 20, 27, 29, 31, 36, 30, 32, 34$. The special case in decoding is a code that has not been defined yet: it must be the previous phrase plus its own first character.
+3. Each LZ78 phrase is a previously seen phrase plus one new character, so all phrases are distinct; there are at most $O(n/\log n)$ of them in a string of length $n$ (since distinct phrases of length at most $\ell$ number at most $|\Sigma|^{\ell + 1}$).
+4. LZ78 emits an (index, character) pair for every phrase, so each phrase carries an extra literal character. LZW emits only an index, because the character that ends one phrase is also the first character of the next, and its dictionary is pre-loaded with every single character.
+5. Compare the compressed size of the token stream (literal bytes, lengths, distances) with and without entropy coding; typically it drops by 20 to 30% on text.
+
+</details>
+
 ## Further reading
 
 - J. Ziv and A. Lempel, "A universal algorithm for sequential data compression", *IEEE Transactions on Information Theory* 23 (1977) 337–343.

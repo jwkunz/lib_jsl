@@ -167,6 +167,17 @@ The bumps are $0.01$ to $0.04$ on a tube of radius $0.3$. Laplacian smoothing re
 4. Prove that every horizontal cut of a torus has total length $4\pi R$.
 5. Explain why chaining slice segments needs a tolerance, and what goes wrong if it is too large.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A Laplacian smoothing step multiplies the frequency-$k$ component by $(1 - \lambda k)$, so a pair with $\lambda > 0$ and $\mu < 0$ multiplies it by $(1 - \lambda k)(1 - \mu k)$; the pass-band frequency satisfies $1/\lambda + 1/\mu = k_{\mathrm{pb}}$ (where the factor is 1).
+2. The squared distance to the plane $\mathbf n^{\mathsf T}\mathbf x + d = 0$ with unit normal is $(\mathbf n^{\mathsf T}\mathbf x + d)^2 = \mathbf v^{\mathsf T}\mathbf p\mathbf p^{\mathsf T}\mathbf v$ with $\mathbf v = (\mathbf x, 1)$ and $\mathbf p = (\mathbf n, d)$, a quadratic form $Q$. A sum of such forms is minimised by setting the gradient to zero, which is a $3\times3$ linear system in $\mathbf x$.
+3. The link condition: the vertex neighbourhoods of the edge's endpoints intersect exactly in the two opposite vertices of its adjacent triangles. If other common neighbours exist, the collapse glues unrelated parts of the surface and makes it non-manifold.
+4. A torus with major radius $R$ and minor radius $r$ cut at height $z$ gives two circles of radii $R + s$ and $R - s$ with $s = \sqrt{r^2 - z^2}$, whose circumferences add to $4\pi R$.
+5. Slice segments from different triangles meet at endpoints that agree only to rounding; a tolerance matches them. If it is too large, distinct nearby endpoints merge and the contour acquires false connections.
+
+</details>
+
 ## Further reading
 
 - G. Taubin, "A signal processing approach to fair surface design", *Proceedings of SIGGRAPH 95*, 351–358.

@@ -182,6 +182,17 @@ The test card's ramps and stripes are almost perfectly predictable after filteri
 4. Show that the IJG quality scaling halves the table entries going from quality 50 to 75.
 5. Design a DEFLATE input on which lazy matching beats greedy matching.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Paeth chooses among left $a$, above $b$ and upper-left $c$ the neighbour closest to $p = a + b - c$. On a ramp that depends only on $x$, $b = c$ so $p = a$ exactly; on a vertical ramp $a = c$ so $p = b$; in both cases the chosen neighbour predicts the pixel exactly.
+2. Filters operate on bytes so that the same code works at every bit depth; `bpp` is the number of bytes per complete pixel (rounded up to at least 1 for sub-byte images), the distance to the corresponding byte of the left neighbour.
+3. The 8×8 DCT is a separable orthogonal transform, so by Parseval the sum of squared coefficient errors equals the sum of squared pixel errors.
+4. IJG scale factor: $200 - 2q$ for $q \ge 50$ (as a percentage), i.e. 100% at $q = 50$ and 50% at $q = 75$: the table entries halve.
+5. Lazy matching helps when a match found at position $p$ is shorter than the one starting at $p + 1$: for example, with earlier text `abc bcdef` and later `abcdef`, greedy takes `abc` then `def` as literals or short matches, while lazy takes literal `a` and the longer match `bcdef`.
+
+</details>
+
 ## Further reading
 
 - *Portable Network Graphics (PNG) Specification*, 3rd ed., W3C Recommendation, 2025; and RFC 1950–1951 for zlib and DEFLATE.

@@ -158,6 +158,17 @@ codeword satisfies every check: true
 4. Decode a (7, 4) Hamming code by belief propagation on its Tanner graph, and explain why its short cycles hurt.
 5. Find the threshold of the (3, 6) ensemble on the binary erasure channel by density evolution, $x_{\ell+1} = \varepsilon\big(1 - (1 - x_\ell)^5\big)^2$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. If bit $i$ is 1 with probability $p_i$, the XOR of independent bits is 1 with probability $\tfrac12(1 - \prod(1 - 2p_i))$, so the probability of 0 is $\tfrac12(1 + \prod(1 - 2p_i))$. Converting to LLRs gives the tanh rule $\tanh(L/2) = \prod\tanh(L_i/2)$.
+2. $|\prod\tanh(L_i/2)| \le \min|\tanh(L_i/2)|$ and $2\operatorname{artanh}$ of the product is smaller in magnitude than the minimum $|L_i|$, so min-sum, which uses the minimum, overestimates the reliability.
+3. A regular code with column weight $w_c$ and row weight $w_r$ has $n w_c/w_r$ check equations, which may not be independent, so $n - k \le nw_c/w_r$ and $k/n \ge 1 - w_c/w_r$.
+4. Short cycles in the Tanner graph make messages return to the node they came from, so the independence assumption behind belief propagation fails and the decoder overcounts evidence; the Hamming code's Tanner graph has many 4-cycles.
+5. Iterate $x_{\ell+1} = \varepsilon(1 - (1 - x_\ell)^5)^2$ from $x_0 = \varepsilon$: it converges to 0 for $\varepsilon < \varepsilon^* \approx 0.4294$ and gets stuck at a positive fixed point for $\varepsilon > \varepsilon^*$.
+
+</details>
+
 ## Further reading
 
 - R. G. Gallager, *Low-Density Parity-Check Codes*, MIT Press, 1963.

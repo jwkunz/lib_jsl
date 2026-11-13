@@ -147,6 +147,17 @@ The cube's centre and the point in its top face are not hull vertices, and the s
 4. Find a set of $n$ points in the plane on which any comparison-based hull algorithm needs $\Omega(n \log n)$ time. (Reduce sorting to it.)
 5. Work out the entry/exit rules for union and difference from those for intersection.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. In the monotone chain scan, a point is popped if the last two points and it make a clockwise (or collinear) turn, i.e. it lies on or inside the line through its neighbours; only points on the lower hull stay.
+2. The farthest point above a face has the largest signed distance from the face plane; a plane parallel to the face through this point supports the whole point set, so it is a hull vertex.
+3. The visible faces form a connected set (they are the faces seen from a point, a topological disc on the sphere-like surface), so its boundary is a single closed curve of edges.
+4. Map sorting to hulls: given numbers $x_i$, lift them to the points $(x_i, x_i^2)$ on a parabola; all are hull vertices, and the hull lists them in sorted order, so the hull takes $\Omega(n\log n)$.
+5. With each region's edges tagged inside or outside the other polygon, intersection keeps edges inside both; union keeps edges outside both; difference keeps edges of $A$ outside $B$ and edges of $B$ inside $A$ (reversed).
+
+</details>
+
 ## Further reading
 
 - A. M. Andrew, "Another efficient algorithm for convex hulls in two dimensions", *Information Processing Letters* 9 (1979) 216–219.

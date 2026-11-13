@@ -180,6 +180,17 @@ difference spans two pixels.
 4. Find the frequency response of the 3 × 3 Sobel $G_x$ and compare it with the ideal differentiator $i\omega_x$.
 5. Find the impulse response and frequency response of unsharp masking, and show that it is a high-frequency boost.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $(u\,v^{\mathsf T}) * f = \sum_{m,n}u_mv_nf(\cdot - m, \cdot - n)$: summing over $n$ first (rows, with $v$) and then over $m$ (columns, with $u$) gives the same result.
+2. In the Fourier domain a Gaussian of variance $\sigma^2$ has transform $e^{-\sigma^2\omega^2/2}$, and the product of two such is $e^{-(\sigma_1^2 + \sigma_2^2)\omega^2/2}$.
+3. The normalised Sobel $\tfrac18(1, 2, 1)^{\mathsf T}(-1, 0, 1)$ with $\tfrac12$ for the central difference is exact for $f = ax + by$; for $f = x^2$ the central difference over spacing 2 gives $\tfrac{(x + 1)^2 - (x - 1)^2}{2} = 2x$, which is exact, and the smoothing in $y$ does not change it, so the error vanishes for $x^2$ as well; the first error appears for $x^3$.
+4. The $x$ response is $G_x(\omega_x, \omega_y) = \tfrac18\cdot2j\sin\omega_x\cdot(2 + 2\cos\omega_y)$; at low frequency this is $j\omega_x$, the ideal differentiator, and it falls below it as $\omega$ approaches $\pi$.
+5. Unsharp masking $g = f + k(f - G * f)$ has frequency response $1 + k(1 - \hat G(\omega))$, which is $1$ at DC and rises towards $1 + k$ at high frequencies: a high-frequency boost.
+
+</details>
+
 ## Further reading
 
 - R. C. Gonzalez and R. E. Woods, *Digital Image Processing*, 4th ed., Pearson, 2018, chapter 3.

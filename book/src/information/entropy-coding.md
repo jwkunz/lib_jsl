@@ -225,6 +225,17 @@ On a short message the stored model is a large overhead: 27 symbols × 5 bytes, 
 4. Show that the Huffman code of a dyadic distribution has $\ell_x = -\log_2 p(x)$ exactly.
 5. Encode "ABA" with $p(A) = 0.8$, $p(B) = 0.2$ by exact interval arithmetic, and find the shortest binary fraction inside the final interval.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Kraft: if the codeword $i$ has length $\ell_i$ and the code is prefix-free, the $2^{-\ell_i}$ subintervals of $[0, 1)$ assigned to the words are disjoint, so $\sum2^{-\ell_i} \le 1$.
+2. Huffman for $(0.4, 0.2, 0.2, 0.1, 0.1)$ gives lengths such as $(2, 2, 2, 3, 3)$ with average $2.2$ bits; the entropy is $0.4\cdot1.32 + 0.4\cdot2.32 + 0.2\cdot3.32 = 2.122$ bits.
+3. Take $p = (0.20, 0.20, 0.18, 0.17, 0.14, 0.11)$. Shannon-Fano splits $\{0.20, 0.20, 0.18\}$ from $\{0.17, 0.14, 0.11\}$ (the most even split) and gives lengths $(2, 3, 3, 2, 3, 3)$ with average $2.63$ bits; Huffman gives $(2, 2, 3, 3, 3, 3)$ with average $2.60$ bits.
+4. For dyadic probabilities $p(x) = 2^{-\ell_x}$, Huffman's tree is full and the lengths $\ell_x = -\log_2p(x)$ meet the Kraft sum with equality.
+5. $A$ takes $[0, 0.8)$; then $B$ takes $[0.64, 0.8)$; then $A$ takes $[0.64, 0.768)$. The shortest binary fraction in it is $0.11_2 = 0.75$ (two bits).
+
+</details>
+
 ## Further reading
 
 - D. A. Huffman, "A method for the construction of minimum-redundancy codes", *Proceedings of the IRE* 40 (1952) 1098–1101.

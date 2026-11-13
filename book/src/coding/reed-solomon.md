@@ -201,6 +201,17 @@ RS(20, 12): 2 errors corrected -> "Hello, RS!!!"
 4. Derive Forney's formula for the error values from the error evaluator polynomial.
 5. Show that $e$ errors and $f$ erasures are correctable when $2e + f \le n - k$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Fixing $k - 1$ coordinates of a codeword leaves at most one codeword (MDS-style argument), so $|C| \le q^{n - d + 1}$, and with $|C| = q^k$ this gives $d \le n - k + 1$. A nonzero polynomial of degree $< k$ has at most $k - 1$ roots, so an RS codeword (its evaluations) has weight at least $n - k + 1$: equality.
+2. For $n - k = 2$, $g(x) = (x - \alpha^0)(x - \alpha^1) = x^2 + (1 + \alpha)x + \alpha$ over GF(256) with $\alpha = 2$; $1 + \alpha = 3$, so $g = x^2 + 3x + 2$. Encode by dividing $m(x)x^2$ by $g$ and appending the remainder.
+3. For errors at locations $X_j$ with values $Y_j$, $S_i = \sum_jY_jX_j^i$: sums of geometric sequences. The locator $\Lambda(x) = \prod(1 - X_jx)$ annihilates them: $\sum_k\Lambda_kS_{i-k} = 0$.
+4. With $\Omega(x) = S(x)\Lambda(x) \bmod x^{2t}$, the error value at location $X_j$ is $Y_j = X_j^{1 - b}\Omega(X_j^{-1})/\Lambda'(X_j^{-1})$ (with first consecutive root $b$).
+5. Each erasure uses one unit of redundancy and each error two (locating plus correcting), so correction is possible when $2e + f \le n - k = d - 1$.
+
+</details>
+
 ## Further reading
 
 - I. S. Reed and G. Solomon, "Polynomial codes over certain finite fields", *Journal of the Society for Industrial and Applied Mathematics* 8 (1960) 300–304.

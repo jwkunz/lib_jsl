@@ -183,6 +183,17 @@ gray_decode(0b110) = 4
 4. Compute the capacity of the binary erasure channel, which loses each bit with probability $\varepsilon$.
 5. Prove that consecutive Gray codes differ in exactly one bit, and that `gray_decode` inverts `gray_code`.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. By Jensen's inequality (or Gibbs with $q$ uniform), $H(X) \le \log_2n$ with equality iff $p = $ uniform.
+2. $-D(p\Vert q) = \sum p\ln(q/p) \le \sum p(q/p - 1) = \sum q - \sum p \le 0$ using $\ln x \le x - 1$.
+3. $I(X; Y) = \sum p(x, y)\log\dfrac{p(x, y)}{p(x)p(y)} = H(X) + H(Y) - H(X, Y)$, which is symmetric in $X$ and $Y$.
+4. The BEC has capacity $1 - \varepsilon$: a bit gets through with probability $1 - \varepsilon$ and the receiver knows which ones were lost.
+5. $g(n) = n \oplus (n \gg 1)$. Consecutive $g(n)$ and $g(n + 1)$ differ in exactly one bit (the bit that flips depends on the lowest set bit of $n + 1$). The decoder $n = g \oplus (g \gg 1) \oplus (g \gg 2) \oplus \cdots$ inverts it.
+
+</details>
+
 ## Further reading
 
 - C. E. Shannon, "A mathematical theory of communication", *Bell System Technical Journal* 27 (1948) 379–423 and 623–656.

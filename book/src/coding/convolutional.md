@@ -184,6 +184,17 @@ Four wrong but weak values are outvoted by their reliable neighbours in the soft
 4. Puncture the $K = 7$ code to rate 2/3 by deleting every fourth coded bit, and decode by setting the missing LLRs to zero.
 5. Estimate the bit error rate at high SNR from the free distance: $P_b \approx c\,Q\big(\sqrt{2d_{\text{free}}RE_b/N_0}\big)$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The $(7, 5)$ code has generators $111$ and $101$ with 4 states; its free distance is 5 (the shortest path leaving and returning to the zero state has output weight 5).
+2. For the BSC (or AWGN), maximising the likelihood of a codeword is minimising its Hamming (or Euclidean) distance to the received word; with log-likelihood ratios $L_i$ the cost is $\sum_{c_i = 1}L_i$ when $L_i = \ln(P(0)/P(1))$.
+3. Encode the input bits through the shift register to get the coded pairs, flip one coded bit, and compute the branch metrics (Hamming distances) along the four-state trellis; the minimum-cost path recovers 1011 (plus the termination zeros).
+4. Puncturing deletes coded bits according to a pattern; the decoder inserts a zero LLR (no information) at each deleted position and decodes with the mother code's trellis.
+5. At high SNR the first-event error probability is dominated by the free-distance paths; $c$ counts the information bit errors on those paths, and $E_b/N_0$ appears with the code rate $R$ because the energy per coded bit is $RE_b$.
+
+</details>
+
 ## Further reading
 
 - A. J. Viterbi, "Error bounds for convolutional codes and an asymptotically optimum decoding algorithm", *IEEE Transactions on Information Theory* 13 (1967) 260–269.

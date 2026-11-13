@@ -139,6 +139,17 @@ skew segments come closest at [0.5, 0.0, 0.0] and [0.5, 0.0, 1.0], distance 1
 4. Show that clamping one parameter and recomputing the other finds the closest points of two segments.
 5. Find the intersection line of two planes given by a point and a normal each, and handle the parallel case.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Write $O + tD = V_0 + u(V_1 - V_0) + v(V_2 - V_0)$ as a $3\times3$ linear system in $(t, u, v)$ and solve by Cramer's rule, using the scalar triple product for the determinants.
+2. For $D_i = 0$ the slab $t$ interval is $(-\infty, \infty)$ if the origin is inside the slab and empty otherwise; with IEEE infinities, division by zero produces $\pm\infty$ with the correct sign.
+3. The closest point of a triangle is in the interior (face region), on an edge (3 regions), or at a vertex (3 regions): seven regions, separated by lines perpendicular to the edges through the vertices.
+4. The squared distance between points on two segments is convex in $(s, t)$ on a rectangle; the unconstrained minimum lies in the rectangle or on its boundary, and clamping one parameter and re-minimising the other solves the boundary case.
+5. The intersection line has direction $n_1 \times n_2$; a point on it satisfies both plane equations (solve with the minimum-norm solution); if $n_1\times n_2 = 0$ the planes are parallel (or the same).
+
+</details>
+
 ## Further reading
 
 - T. Möller and B. Trumbore, "Fast, minimum storage ray–triangle intersection", *Journal of Graphics Tools* 2 (1997) 21–28.

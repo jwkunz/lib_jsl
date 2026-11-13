@@ -219,6 +219,17 @@ entirely; when an integrand is known to oscillate rapidly, split the path into m
 5. Show that $\oint_{|z|=1} \bar z\,dz = 2\pi i$ and confirm it numerically. Why does this not
    contradict Cauchy's theorem?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Close the contour with a large upper semicircle. $|e^{iz}| = e^{-\operatorname{Im}z}$ decays in the upper half-plane, so the arc contributes nothing, whereas $\cos z$ grows like $e^{|\operatorname{Im}z|}$ there. The only pole inside is $z = i$, with residue $e^{-1}/(2i)$, so the integral is $2\pi i\cdot e^{-1}/(2i) = \pi/e$, whose real part is the cosine integral.
+2. The coefficients are the Fibonacci numbers $1, 1, 2, 3, 5, 8, \ldots$. The series converges inside the circle through the nearest pole, at $z = (\sqrt5 - 1)/2 \approx 0.618$ (the other pole is at $-1.618$), so circles of radius below $0.618$ work.
+3. Since $\tan$ is odd, its 20th derivative at 0 is exactly $0$, so this tests how close to zero the computed value comes. The contour radius must stay below $\pi/2$. Cauchy's formula for the 20th derivative divides by $r^{20}$, so a small radius amplifies rounding error by $r^{-20}$; a radius close to $\pi/2$ is best.
+4. $|3z| = 3 > |z^5 + 1|$ on $|z| = 1$, so by Rouché's theorem $z^5 - 3z + 1$ has the same number of zeros inside as $-3z$, namely 1. The integral should come out as $1$ (to rounding); the real root near $0.334$ is the one inside.
+5. On $|z| = 1$, $\bar z = 1/z$, so $\oint\bar z\,dz = \oint dz/z = 2\pi i$. Cauchy's theorem needs an analytic integrand and $\bar z$ is not analytic (it fails the Cauchy-Riemann equations). Green's theorem gives $2i\times\text{area} = 2\pi i$.
+
+</details>
+
 ## Further reading
 
 - A.-L. Cauchy, *Mémoire sur les intégrales définies prises entre des limites imaginaires*, Paris,

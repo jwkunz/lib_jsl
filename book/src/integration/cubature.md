@@ -209,6 +209,17 @@ the axis with the largest fourth difference.
 5. Replace the error estimate by $|I_7 - I_5|/100$ and repeat the smooth-integrand comparison. When is
    such a scaling safe?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The rule is exact for all polynomials of total degree at most 7. $x_1^4x_2^2$ has degree 6, so it is integrated exactly; $x_1^8$ has degree 8 and the rule's value differs from the exact $8/9$.
+2. A monomial of total degree at most $d$ in $n$ variables corresponds to a choice of $n + 1$ non-negative exponents (including a slack exponent) summing to $d$: by stars and bars, $\binom{n+d}{d}$. For $d = 7$ a fully symmetric rule needs only the even monomials up to permutation of variables, which are $1, x_1^2, x_1^4, x_1^2x_2^2, x_1^6, x_1^4x_2^2, x_1^2x_2^2x_3^2$: seven conditions.
+3. On the triangle $0 \le \theta \le \pi/4$, $0 \le r \le 1/\cos\theta$ the integrand $1/r$ is cancelled by the Jacobian $r$: $\int_0^{\pi/4}\sec\theta\,d\theta = \ln(1 + \sqrt2)$. The two triangles give $2\ln(1 + \sqrt2) \approx 1.7627$. The singularity is removed because it sits at the origin, which the Jacobian cancels.
+4. The exact values are $\pi$, $4\pi/3 \approx 4.189$ and $\pi^2/2 \approx 4.935$. The indicator function has a jump along the sphere, so adaptive cubature converges only slowly, by repeatedly refining boxes along the boundary.
+5. Dividing by 100 assumes the degree-5 rule is far worse than the degree-7 rule and that their difference overestimates the error of the degree-7 value by a known factor. That is safe only once the integrand is well resolved; before that, the difference can be small by accident and the scaled estimate unreliable.
+
+</details>
+
 ## Further reading
 
 - A. C. Genz and A. A. Malik, "An adaptive algorithm for numerical integration over an

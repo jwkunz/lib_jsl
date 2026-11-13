@@ -211,6 +211,17 @@ A complete program:
    [tanh-sinh quadrature](tanh-sinh.md) at the same accuracy. Explain the difference by asking how
    fast the panel adjacent to $x = 0$ improves when it is halved.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\int_{-1}^{1}x^{24}\,dx = 2/25 = 0.08$; the 15-point rule is exact up to degree 23, so its value for $x^{24}$ differs from $0.08$ by a small but nonzero amount.
+2. Adding $m = n + 1$ nodes gives $m$ free node positions and $n + m = 2n + 1$ weights: $3n + 2$ parameters, enough to satisfy conditions for degrees $0$ to $3n + 1$. The rule is symmetric for odd $n$, so odd-degree monomials integrate exactly by symmetry and one more even degree can be gained.
+3. The Gaussian has width about $7\times10^{-4}$, narrower than the spacing of the 15 nodes on $[0, 1]$, so the first panel may miss it altogether and return nearly zero with a tiny error estimate: a false convergence. Splitting at $0.123$ puts nodes on the peak and the rule resolves it.
+4. Using the raw difference overstates the error for smooth integrands (it measures the error of the Gauss rule, not of the Kronrod rule), so every integrand needs extra subdivisions; compare the evaluation counts in the table.
+5. The integral over $[0, h]$ is $h^{0.1}/0.1$, so halving the panel next to 0 reduces its contribution only by $2^{-0.1} \approx 0.93$: Gauss-Kronrod must subdivide that panel many times. Tanh-sinh's change of variables makes the singularity vanish, so it needs far fewer evaluations.
+
+</details>
+
 ## Further reading
 
 - A. S. Kronrod, *Nodes and Weights of Quadrature Formulas*, Consultants Bureau, New York, 1965

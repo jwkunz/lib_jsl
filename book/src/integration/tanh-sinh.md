@@ -194,6 +194,17 @@ A complete program, including the complement form:
 5. Compute $\int_0^1 |x - \tfrac13|^{-1/2}\,dx$ first over $[0, 1]$, then split at $x = 1/3$.
    Explain the difference.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\sinh$ maps $\mathbb R$ onto $\mathbb R$ and $\tanh$ maps it onto $(-1, 1)$, so $\phi$ is onto $(-1, 1)$. $\phi'(t) = \dfrac{\tfrac\pi2\cosh t}{\cosh^2(\tfrac\pi2\sinh t)}$. For $t = 4$: $1 - \phi(4) = 2e^{-\pi\sinh 4}/(1 + e^{-\pi\sinh 4}) \approx 1.2\times10^{-37}$.
+2. For large $t$, $1 - \phi(t) \approx 2e^{-\pi\sinh t}$ and $\phi'(t) \approx 2\pi\cosh t\,e^{-\pi\sinh t}$. Then $f(\phi)\,\phi' \approx (2e^{-\pi\sinh t})^{-1/2}\cdot2\pi\cosh t\,e^{-\pi\sinh t} \propto \cosh t\,e^{-\frac\pi2\sinh t}$, a double exponential decay, since $\sinh t$ itself grows like $e^t/2$.
+3. With $x = \tanh t$ the weight decays only like $e^{-2t}$, so the singularity at the endpoint is tamed only to a single exponential, and many more points are needed for the same accuracy than with tanh-sinh.
+4. The singular endpoint is $x = 0$ (the logarithm). At $x = 1$ the integrand is finite (its limit is $-1$), but the quotient $0/0$ is approached: for $x$ within rounding of 1 the subtraction $1 - x$ loses all its digits. A robust implementation uses the distance to the endpoint, which the transformed variable gives directly and accurately, instead of forming $1 - x$.
+5. The singularity at $1/3$ is interior, so tanh-sinh's endpoint clustering does not help there. Splitting at $1/3$ turns it into two endpoint singularities, which tanh-sinh handles easily.
+
+</details>
+
 ## Further reading
 
 - H. Takahasi and M. Mori, "Double exponential formulas for numerical integration",

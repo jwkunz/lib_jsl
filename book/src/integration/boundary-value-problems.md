@@ -193,6 +193,17 @@ both solutions of Bratu's problem:
 5. Implement multiple shooting for $y'' = \lambda^2 y$ with $k$ subintervals and show that it succeeds
    for $\lambda = 45$ when $k$ is large enough. How large must $k$ be?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The general solution is $y = A\sin x + B\cos x$; $y(0) = 0$ forces $B = 0$ and then $y(\pi) = 0$ holds for every $A$. The shooting residual $y(\pi; s)$ is identically zero as a function of the slope $s$, so there is nothing to solve for: the Jacobian of the shooting equation is singular.
+2. The Hermite cubic at the midpoint is $\tfrac12(\mathbf y_i + \mathbf y_{i+1}) + \tfrac h8(\mathbf f_i - \mathbf f_{i+1})$: evaluate the four Hermite basis functions at $t = \tfrac12$, where $h_{00} = h_{01} = \tfrac12$ and $h_{10} = -h_{11} = \tfrac18$.
+3. With refinement off, halve the mesh and tabulate the maximum error; the ratios should approach $2^4 = 16$.
+4. Increase $\lambda$ in small steps, starting each solve from the previous solution. The lower branch exists for all $\lambda < \lambda^*$; the upper branch is reached by starting from a large guess. Near $\lambda^*$ the Jacobian becomes singular, so $\lambda$ cannot be used as the continuation parameter through the turning point.
+5. The solution grows like $e^{\lambda x}$ across an interval of length 1, so one-interval shooting amplifies errors by $e^{45} \approx 10^{19}$. With $k$ subintervals the amplification per piece is $e^{45/k}$, so $45/k$ must be small enough that this is tolerable; $k$ of the order of 15 to 20 brings the amplification per piece down to about $e^{2}$ to $e^{3}$.
+
+</details>
+
 ## Further reading
 
 - H. B. Keller, *Numerical Methods for Two-Point Boundary-Value Problems*, Blaisdell, 1968.

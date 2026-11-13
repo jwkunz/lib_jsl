@@ -218,6 +218,17 @@ tools in a later chapter.
 5. For $\int_0^1 x^{-1/2}\,dx = 2$, the variance of $f$ is infinite. What happens to the Monte Carlo
    estimate and its standard error as $N$ grows?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\mathbb E[Q_N] = \tfrac VN\sum\mathbb E f(\mathbf X_i) = V\,\mathbb E f = \int_Bf$. Independence makes variances add: $\operatorname{Var}Q_N = \tfrac{V^2}{N^2}\cdot N\sigma^2 = V^2\sigma^2/N$.
+2. The hit fraction $p = \pi/4$ has standard deviation $\sqrt{p(1 - p)/N}$, so $\hat\pi = 4\hat p$ has standard error $4\sqrt{p(1 - p)/N} \approx 1.64/\sqrt N$. For six correct digits (error below $5\times10^{-7}$) you need $N \approx (1.64/5\times10^{-7})^2 \approx 10^{13}$.
+3. Base 2: $\tfrac12, \tfrac14, \tfrac34, \tfrac18, \tfrac58, \tfrac38, \tfrac78, \tfrac1{16}$. Base 3: $\tfrac13, \tfrac23, \tfrac19, \tfrac49, \tfrac79, \tfrac29, \tfrac59, \tfrac89$. The library's Halton sequence starts after the origin, so these are its first terms.
+4. The exact integral is 1. Each factor has variance $1/12$, so $\operatorname{Var}f = (13/12)^d - 1$, which grows from $0.17$ at $d = 2$ to about $12$ at $d = 32$. The function is a product of one-dimensional pieces with weak interactions, so QMC keeps a large advantage, which narrows as $d$ grows.
+5. The mean is finite, so the estimate still converges (law of large numbers), but the variance is infinite, so the central limit theorem does not apply: convergence is slower than $1/\sqrt N$ and erratic, and the sample standard error is unreliable and tends to be too small.
+
+</details>
+
 ## Further reading
 
 - N. Metropolis and S. Ulam, "The Monte Carlo method", *Journal of the American Statistical

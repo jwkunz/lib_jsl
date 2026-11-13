@@ -189,6 +189,17 @@ A complete program:
    improve the central difference $\big(f(x+h) - f(x-h)\big)/(2h)$, which has $p = 2$, and test
    it on $f = \sin$ at $x = 1$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With $T_1 = h[f(a) + f(b)]$ and $T_2 = \tfrac h2[f(a) + 2f(m) + f(b)]$, $R(1, 1) = (4T_2 - T_1)/3 = \tfrac h3[f(a) + 4f(m) + f(b)]$.
+2. $R(2, 2) = (16R(2, 1) - R(1, 1))/15$ with $R(2, 1)$ the Simpson rule on 4 panels and $R(1, 1)$ on 2: combine the weights to find $\propto(7, 32, 12, 32, 7)$ with factor $2h/45$ for step $h$.
+3. The integrand is periodic and analytic, so the trapezoid values converge geometrically and the Euler-Maclaurin series has no $h^2, h^4, \ldots$ terms to eliminate. Extrapolation then only mixes in rounding error.
+4. The error expansion contains $h^{3/2}$ along with the even powers. Richardson steps remove $h^2, h^4, \ldots$ but not $h^{3/2}$, so every column converges at roughly the rate $h^{3/2}$ (the empirical rate of the limit) and Romberg's advantage is lost.
+5. $D(h) = f'(x) + \tfrac16f'''(x)h^2 + O(h^4)$, so $(4D(h/2) - D(h))/3$ cancels the $h^2$ term and has error $O(h^4)$. For $\sin$ at $x = 1$ and $h = 0.1$ the error falls from about $9\times10^{-4}$ for the central difference to about $10^{-7}$.
+
+</details>
+
 ## Further reading
 
 - W. Romberg, "Vereinfachte numerische Integration", *Det Kongelige Norske Videnskabers Selskabs

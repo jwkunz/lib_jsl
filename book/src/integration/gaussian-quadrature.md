@@ -256,6 +256,18 @@ A complete program, from the repository's examples:
 6. Implement the Golub-Welsch algorithm for the Legendre weight with a symmetric eigensolver and
    compare its nodes and weights with `gauss_legendre(20)`.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The moment equations $\sum w_i x_i^k = \int_{-1}^1 x^k\,dx$ for $k = 0..5$ with symmetric nodes $0, \pm a$ give $w_0 + 2w_1 = 2$, $2w_1a^2 = \tfrac23$, $2w_1a^4 = \tfrac25$, so $a^2 = 3/5$, $w_1 = 5/9$, $w_0 = 8/9$. The zeros of $P_3 = (5x^3 - 3x)/2$ are $0$ and $\pm\sqrt{3/5}$.
+2. $x^{2n} = \prod_i(x - x_i)^2 + q(x)$ with $\deg q < 2n$. The rule integrates $q$ exactly and gives 0 for the product (it vanishes at the nodes), so the error is $\int\prod_i(x - x_i)^2dx$. For $n = 2$, the nodes are $\pm1/\sqrt3$ and $\int_{-1}^{1}(x^2 - \tfrac13)^2dx = \tfrac25 - \tfrac49 + \tfrac29 = \tfrac8{45}$.
+3. The kink at 0 limits the convergence to algebraic: the error falls like $n^{-2}$. Splitting at 0 makes both pieces polynomials, so the rule is exact once $n \ge 2$ on each side.
+4. The poles are at $\pm i\delta$, so the error behaves like $\rho^{-2n}$ with $\rho = \delta + \sqrt{1 + \delta^2}$: $\rho \approx 2.41, 1.105, 1.010$. For $10^{-12}$ this predicts about $16$, $140$ and $1400$ points.
+5. With $x = \sqrt2t$, $\mathbb E[\cos X] = \dfrac1{\sqrt\pi}\int e^{-t^2}\cos(\sqrt2t)\,dt \approx \dfrac1{\sqrt\pi}\sum w_i\cos(\sqrt2t_i)$. The exact value is $e^{-1/2} \approx 0.60653$.
+6. The Jacobi matrix for Legendre has zero diagonal and off-diagonal entries $k/\sqrt{4k^2 - 1}$ for $k = 1, \ldots, n - 1$. Its eigenvalues are the nodes and the weights are $2$ times the squared first components of the normalised eigenvectors.
+
+</details>
+
 ## Further reading
 
 - C. F. Gauss, "Methodus nova integralium valores per approximationem inveniendi",

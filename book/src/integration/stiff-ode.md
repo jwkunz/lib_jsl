@@ -211,6 +211,17 @@ defeats the explicit method entirely, while BDF needs about 300 steps.
 5. Integrate the Van der Pol oscillator with $\mu = 1000$ with each solver. How does the number of
    steps scale with $\mu$ for the explicit and the implicit methods?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Backward Euler: $y_{n+1} = y_n + h\lambda y_{n+1}$, so $y_{n+1} = y_n/(1 - h\lambda)$. The trapezoid rule has $R(z) = (1 + z/2)/(1 - z/2)$ with $|R| \le 1$ for $\operatorname{Re}z \le 0$ (A-stable) but $R(z) \to -1$ as $z \to -\infty$, so it is not L-stable: a very stiff component decays by a factor $\approx -1$ per step, oscillating with almost no damping.
+2. Differentiate the quadratic through $(t_{n-1}, y_{n-1})$, $(t_n, y_n)$, $(t_{n+1}, y_{n+1})$ at $t_{n+1}$ and set it equal to $f_{n+1}$: $\tfrac{3y_{n+1} - 4y_n + y_{n-1}}{2h} = f_{n+1}$.
+3. Compare the number of steps and of Jacobian evaluations at each tolerance. Higher orders pay off at tight tolerances, where larger steps are possible, while order 1 is competitive at loose ones.
+4. At $\mathbf y = (1, 3.6\times10^{-5}, 0)$ the Jacobian has eigenvalues about $-2160$, $-0.4$ and $0$. The stiff eigenvalue limits Dormand-Prince to $h \lesssim 3.3/2160 \approx 1.5\times10^{-3}$, although the solution changes on a scale of a few units of time.
+5. The explicit solver's step count grows in proportion to $\mu$ (its stability limit tracks the stiffness), while the implicit solvers' step count grows much more slowly.
+
+</details>
+
 ## Further reading
 
 - C. F. Curtiss and J. O. Hirschfelder, "Integration of stiff equations", *Proceedings of the

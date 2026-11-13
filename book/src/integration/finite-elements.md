@@ -179,6 +179,17 @@ from the right-hand side; solve the reduced system by Jacobi-preconditioned conj
 5. Prove Galerkin orthogonality, $a(u - u_h, v_h) = 0$ for all $v_h$, from the weak forms satisfied by
    $u$ and $u_h$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For linear elements the stiffness matrix of an interval of length $h$ is $\dfrac1h\begin{pmatrix}1&-1\\-1&1\end{pmatrix}$. Adding the overlapping contributions at an interior node gives $\tfrac1h(-1, 2, -1)$.
+2. The inverse of the stiffness matrix has entries $G(x_i, x_j)$ (the Green's function sampled at the nodes), and the load vector is $F_j = \int f\varphi_j$. The exact solution is $u(x_i) = \int G(x_i, s)f(s)\,ds$; since $G(x_i, \cdot)$ is piecewise linear, it equals $\sum_jG(x_i, x_j)\varphi_j(s)$, so $u(x_i) = \sum_jG(x_i, x_j)F_j = u_h(x_i)$.
+3. The solution has boundary layers of width about $\sqrt\varepsilon = 0.01$ at both ends, because $u = 0$ at $x = 0$ and $x = 1$. Put several nodes within a few multiples of $0.01$ at each end (a geometric grading) and few in the middle.
+4. The re-entrant corner of the L produces a singularity $u \sim r^{2/3}$, so the solution is not smooth enough for the usual rate: the energy-norm error falls like $h^{2/3}$ instead of $h$.
+5. For $v_h \in V_h \subset V$, $a(u, v_h) = (f, v_h)$ and $a(u_h, v_h) = (f, v_h)$. Subtracting gives $a(u - u_h, v_h) = 0$.
+
+</details>
+
 ## Further reading
 
 - R. Courant, "Variational methods for the solution of problems of equilibrium and vibrations",

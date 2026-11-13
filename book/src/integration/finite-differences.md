@@ -189,6 +189,17 @@ The Thomas algorithm:
 5. Modify the Poisson example to a $2 \times 1$ rectangle and compare the centre deflection with that of
    the square.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Insert a Fourier mode $u_j^n = g^n e^{ikjh}$ in $u_j^{n+1} = u_j^n + r(u_{j+1}^n - 2u_j^n + u_{j-1}^n)$: $g = 1 - 4r\sin^2(kh/2)$. $|g| \le 1$ for all $k$ requires $4r \le 2$, i.e. $r \le \tfrac12$.
+2. With $C = c\,\Delta t/\Delta x = 1$ leapfrog reads $u_j^{n+1} = u_{j+1}^n + u_{j-1}^n - u_j^{n-1}$. Substitute $u_j^n = f(x_j - ct_n) = f((j - n)\Delta x)$: both sides equal $f((j - n - 1)\Delta x)$, so it is exact.
+3. Conjugate gradient iterations grow like $\sqrt\kappa \propto 1/h$: halving $h$ about doubles the iteration count.
+4. The Crank-Nicolson amplification factor $(1 - 2r\sin^2)/(1 + 2r\sin^2) \to -1$ for large $r$ and high wavenumbers, so the high-frequency content of the step is not damped but flips sign each step, giving oscillations near the step. Backward Euler's factor $1/(1 + 4r\sin^2) \to 0$ damps them.
+5. The deflection of the $2\times1$ rectangle is larger than that of the unit square at the centre of the long side, since the load is carried over a longer span; compare the maximum of $u$ in both cases.
+
+</details>
+
 ## Further reading
 
 - L. F. Richardson, *Weather Prediction by Numerical Process*, Cambridge University Press, 1922.

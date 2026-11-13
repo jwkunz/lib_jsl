@@ -360,6 +360,18 @@ A complete program comparing the rules:
 6. The trapezoid engine's error on $\int_0^1 \sqrt{x}\,dx$ decreases like $h^{3/2}$, not $h^2$.
    Measure this, and explain it from the fact that $f''$ is not integrable at 0.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Take $f = x^2/2$ on $[0, 1]$. Exact $\tfrac16$; midpoint $\tfrac18$ (error $-\tfrac1{24}$); trapezoid $\tfrac14$ (error $+\tfrac1{12}$), with error defined as rule minus exact.
+2. $T_{2n} = (T_n + M_n)/2$ (the trapezoid rule on twice as many panels averages $T_n$ and the midpoint rule), and Simpson's rule is $S_{2n} = (4T_{2n} - T_n)/3 = (2T_n + 2M_n - T_n)/3 = (2M_n + T_n)/3$.
+3. The equations $\sum_iw_ix_i^k = 1/(k + 1)$ for the four nodes give $w = (1, 3, 3, 1)/8$ on $[0, 1]$, i.e. weights $\tfrac{3h}{8}(1, 3, 3, 1)$ with $h = \tfrac13$: the three-eighths rule.
+4. The integrand is analytic and periodic, so the trapezoid error decreases geometrically like $e^{-1.317n}$ (the nearest singularity is at $\theta = \pi \pm i\,\operatorname{arccosh}2$): about 28 panels give machine precision. Over $[0, \pi]$ the endpoint corrections of Euler-Maclaurin do not vanish, and the error falls only like $h^2$.
+5. Adaptive Simpson uses a fourth-order rule per panel, so panels converge like $h^4$ and far fewer subdivisions are needed on smooth parts of the integrand, such as the peak's flanks.
+6. The Euler-Maclaurin expansion of the trapezoid error for $\sqrt x$ contains a term proportional to $h^{3/2}$ (from the behaviour of $f$ at 0), because $f''\sim x^{-3/2}$ is not integrable. Measure the error against $h$ on a log-log plot to see the slope $3/2$.
+
+</details>
+
 ## Further reading
 
 - M. Ossendrijver, "Ancient Babylonian astronomers calculated Jupiter's position from the area

@@ -228,6 +228,17 @@ drift measures the accumulated error:
 5. Integrate the Arenstorf orbit over ten periods at tolerances $10^{-6}$ and $10^{-10}$. How far from
    periodic is each result, and why does the error grow so much faster than linearly with time?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For RK4, $b = (\tfrac16, \tfrac13, \tfrac13, \tfrac16)$ and $c = (0, \tfrac12, \tfrac12, 1)$. Then $\sum b_i = 1$, $\sum b_ic_i = \tfrac16 + \tfrac16 + \tfrac16 = \tfrac12$, $\sum b_ic_i^2 = \tfrac1{12}\cdot 2 + \tfrac16 = \tfrac13$, and $\sum b_ia_{ij}c_j = \tfrac13\cdot\tfrac12\cdot\tfrac12 + \tfrac16\cdot1\cdot\tfrac12 = \tfrac16$.
+2. The conditions are $b_1 + b_2 = 1$ and $b_2c_2 = \tfrac12$ with $a_{21} = c_2 = \alpha$: $b_2 = 1/(2\alpha)$, $b_1 = 1 - 1/(2\alpha)$. The midpoint method is $\alpha = \tfrac12$, Heun's is $\alpha = 1$.
+3. The solution is smooth after a fast transient, but explicit methods are limited by stability, not accuracy: $h \lesssim 3.3/1000 = 3.3\times10^{-3}$, so at least about 300 steps whatever the tolerance. Tightening the tolerance changes the step count only when accuracy becomes the stricter requirement.
+4. $y_{n+1} = y_n(1 + h + \tfrac{h^2}2 + \tfrac{h^3}6 + \tfrac{h^4}{24})$: with $f = y$ the four stages are polynomials in $h$ that multiply out to the degree-4 Taylor polynomial.
+5. Errors in the orbit's period make the phase drift: the position error grows roughly in proportion to time, and the close approaches to the Earth amplify small deviations, so the growth is faster than linear over ten periods.
+
+</details>
+
 ## Further reading
 
 - C. Runge, "Über die numerische Auflösung von Differentialgleichungen", *Mathematische Annalen* 46

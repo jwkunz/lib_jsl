@@ -177,6 +177,17 @@ The Chebyshev differentiation matrix:
    (using the general barycentric weights) and repeat the convergence experiment for
    $u = 1/(1 + 25x^2)$. What happens?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $n = 1$ the nodes are $\pm1$ and $D = \begin{pmatrix}\tfrac12&-\tfrac12\\\tfrac12&-\tfrac12\end{pmatrix}$ (the slope of the line through two points). For $n = 2$ the nodes are $1, 0, -1$ and $D$ must give $D\mathbf 1 = 0$, $D\mathbf x = \mathbf 1$ and $D\mathbf x^2 = 2\mathbf x$; check the rows against these three conditions.
+2. At the $N$ equispaced points $x_j = 2\pi j/N$, $\cos(Nx_j/2) = (-1)^j$, and the derivative $-\tfrac N2\sin(Nx/2)$ vanishes at every grid point, so the sampled derivative is 0. The Nyquist mode cannot be distinguished from its alias, and its derivative would be imaginary, so setting it to zero keeps the derivative of a real function real.
+3. Increase $n$ until the error stops falling; the solution is smooth, so the error falls geometrically and 12 digits typically need a few dozen points.
+4. The corners of the pulse are made of high wavenumbers, and each wavenumber $k$ decays like $e^{-k^2t}$, so the sharp features smooth out first.
+5. Equally spaced points suffer from the Runge phenomenon: the error in the derivative grows exponentially with $n$ instead of decaying, and the differentiation matrix becomes extremely ill-conditioned.
+
+</details>
+
 ## Further reading
 
 - J. Fourier, *Théorie analytique de la chaleur*, Paris, 1822.

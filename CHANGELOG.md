@@ -6,6 +6,14 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The book was revised for clarity and teaching flow after feedback from early readers.
+  Derivations now show their intermediate steps, terms are defined where they are first used,
+  and most entries gained small worked examples. The DSP chapters share a new background
+  section on frequency responses and transfer functions, "How to read an entry" has a study
+  guide, and "Writing an entry" records the conventions. No code or generated figure changed.
+
 ### Removed
 
 - The `mp3` and `mp3_tables` modules of `lib_jsl_file_io` (`mp3_encode`, `mp3_decode`,

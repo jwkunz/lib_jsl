@@ -69,10 +69,35 @@ Each character cell of a Braille plot holds a 2×4 grid of dots, so a 60×16-cha
 
 ## Algorithm
 
-1. **ULP**: step the bit pattern of $|x|$ by one and subtract.
-2. **ULP distance**: map negative bit patterns to $\text{MIN} - \text{bits}$, so the integer order matches the numeric order, then take the absolute difference.
-3. **Unit conversion**: look both units up; check dimensions; apply scale and offset through the base unit.
-4. **Braille plot**: map data to dot coordinates, draw segments, set bits in each cell's 8-bit pattern, and add axes, labels and legend.
+**The ULP of $x$**: take the bit pattern of $|x|$ as an integer, add 1 to obtain the next
+representable number, convert back, and subtract $|x|$.
+
+**The distance in ULPs between two numbers.** The bit patterns of positive doubles, read as
+integers, increase with the numbers themselves, but those of negative doubles run the other
+way, because the sign is a separate bit.
+
+1. Read each number's bits as a signed 64-bit integer.
+2. If the integer is negative, replace it by the most negative integer minus itself. The
+   integers now increase with the numbers across the whole range, with $-0$ and $+0$ mapped to
+   the same value.
+3. Return the absolute difference of the two integers: the number of representable numbers
+   between the two.
+
+**Unit conversion** of a value:
+
+1. look up both unit symbols, first exactly, then ignoring case if that gives a single match;
+2. check that the two units measure the same dimension;
+3. convert to the base unit, $v\,s_{\text{from}} + o_{\text{from}}$, and from it to the target,
+   subtracting $o_{\text{to}}$ and dividing by $s_{\text{to}}$.
+
+**Braille plot**: each character cell of the terminal holds a $2 \times 4$ grid of dots.
+
+1. Scale the data to dot coordinates, for a canvas of twice the width and four times the
+   height in characters.
+2. Draw each line segment by setting the dots along it.
+3. For each character cell, collect its eight dots into the bit pattern that selects the
+   corresponding Braille character.
+4. Add the axes, tick labels and legend as ordinary text.
 
 ## Implementation
 

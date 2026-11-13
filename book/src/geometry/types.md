@@ -69,9 +69,17 @@ Writing this chapter corrected the documentation of `CanShear`, which claimed to
 
 ## Algorithm
 
-1. **Build**: insert points into the registry's point table under chosen ids.
-2. **Compose**: create lines, faces, triangles and tetrahedra from point ids and the table handle; insert them into their own tables if meshes will refer to them.
-3. **Measure and transform**: methods resolve ids through the table on each call, so they always see the current positions.
+The geometric types are built in layers, each referring to the one below by identifier.
+
+1. **Points.** Insert the points into the registry's point table, each under an id of your
+   choosing.
+2. **Composite shapes.** Create lines, faces, triangles and tetrahedra by giving the ids of
+   their points and a handle to the table. A shape stores the ids, not copies of the
+   coordinates. If meshes are to refer to these shapes, insert them into their own tables in
+   turn.
+3. **Measuring and transforming.** A method such as a length, an area or a volume looks the
+   ids up in the table at the moment it is called, so it always uses the current positions.
+   Moving a point in the table therefore moves every shape that refers to it.
 
 ## Implementation
 

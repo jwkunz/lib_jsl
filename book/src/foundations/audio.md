@@ -44,8 +44,21 @@ The 32-bit and double-precision files differ by about $3 \times 10^{-8}$ because
 
 ## Algorithm
 
-1. **WAV read**: check `RIFF` and `WAVE`; walk the chunks; parse `fmt ` (following the extensible sub-format); convert the `data` samples to `f32`.
-2. **WAV write**: a 44-byte canonical header and interleaved little-endian samples.
+**Reading a WAV file.**
+
+1. Check that the file begins with the tag `RIFF`, a length, and the tag `WAVE`.
+2. Walk the **chunks** that follow. Each has a four-character tag and a length; a chunk that
+   is not recognised is skipped by its length.
+3. From the `fmt ` chunk, read the sample format (integer or floating point), the number of
+   channels, the sampling rate and the bits per sample. If the format is the "extensible"
+   one, the real format is given by a sub-format field later in the chunk.
+4. From the `data` chunk, read the samples, which are little-endian and interleaved (one
+   sample for each channel in turn), and convert them to `f32`: integer samples are divided
+   by their full-scale value, so that the result lies in $[-1, 1)$.
+
+**Writing a WAV file**: write the canonical 44-byte header (the `RIFF` tag and total length,
+the `WAVE` tag, a `fmt ` chunk of 16 bytes and the `data` tag and length), followed by the
+interleaved little-endian samples.
 
 ## Implementation
 

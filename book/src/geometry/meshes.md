@@ -70,9 +70,44 @@ The relative error $-4.46 \times 10^{-5}$ is that of the mesh itself: a regular 
 
 ## Algorithm
 
-1. **Smoothing**: neighbour sets from the triangles; for each step, every free vertex moves by a factor times its umbrella vector, computed from the old positions (Taubin alternates $\lambda$ and $\mu$).
-2. **Decimation**: area-weighted quadrics per vertex; for each edge, the optimal point and its cost into a heap; pop the cheapest, skip stale or invalid collapses, merge, and push the new edges; finally compact the vertices.
-3. **Slicing**: signed distances of the vertices; a segment per crossed triangle; drop duplicates; chain by endpoints snapped to a grid of the tolerance.
+**Smoothing.**
+
+1. From the list of triangles, build for each vertex the set of its neighbours (the vertices
+   it shares an edge with).
+2. For each step: compute the umbrella vector of every vertex from the *current* positions;
+   then move every free vertex by the step's factor times its vector. Computing all the
+   vectors before moving any vertex makes the result independent of the order of the
+   vertices.
+3. Laplacian smoothing uses the factor $\lambda$ at every step. Taubin smoothing alternates
+   $\lambda$ and $\mu$.
+
+Each step costs time proportional to the number of edges.
+
+**Decimation** to a target number of triangles.
+
+1. **Quadrics.** For each triangle, form the quadric of its plane, weighted by its area, and
+   add it to the quadrics of its three vertices.
+2. **Costs.** For each edge, add the quadrics of its two ends, find the position that
+   minimises the sum (or fall back on an endpoint or the midpoint if the $3 \times 3$ system is
+   singular), and push the edge on a min-heap with the error at that position as its key.
+3. **Collapse.** Pop the cheapest edge. Skip it if it is stale (one of its ends has since
+   been merged or its cost changed), or if the collapse would flip a triangle's normal or
+   break the link condition. Otherwise merge its two vertices at the optimal position, add
+   their quadrics, remove the two triangles on the edge, and push the edges of the merged
+   vertex with their new costs.
+4. Repeat step 3 until the target is reached or the heap is empty.
+5. **Compact.** Remove the unused vertices and renumber the triangles.
+
+**Slicing** by a plane.
+
+1. Compute the signed distance of every vertex from the plane.
+2. For each triangle whose vertices are not all on one side, find the two points where its
+   edges cross the plane, by linear interpolation of the distances, and record the segment
+   between them.
+3. Remove duplicate segments (from edges lying in the plane).
+4. Chain the segments: snap their endpoints to a grid of the tolerance, so that endpoints
+   that should coincide do, and follow each segment to the one that shares its end, until
+   each chain closes or runs out.
 
 ## Implementation
 

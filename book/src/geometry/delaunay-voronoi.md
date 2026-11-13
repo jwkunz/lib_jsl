@@ -63,11 +63,33 @@ The library builds each cell directly from the triangulation. Start with the bou
 
 ## Algorithm
 
-1. **Prepare**: drop non-finite and duplicate points, scale into the unit square, and sort lexicographically.
-2. **Start**: take points while they are collinear with the first two, then fan the first point off that line onto the chain.
-3. **Insert**: for each further point, find the visible hull edges, starting next to the previous point; add a triangle on each and replace them in the hull by two edges to the new point.
-4. **Legalise**: push each new triangle's outer edge on a stack; pop, test the opposite vertex against the circumcircle, and flip if it is inside and the quadrilateral is convex, pushing the two outer edges of the new pair.
-5. **Voronoi**: for each site, clip the box by the bisectors to its Delaunay neighbours.
+**Delaunay triangulation.**
+
+1. **Prepare.** Discard points with non-finite coordinates and duplicates. Scale the rest
+   into the unit square, so that the tolerances of the predicates are relative to the size of
+   the data. Sort the points by $x$, breaking ties by $y$.
+2. **Start.** Take points from the sorted list for as long as they are collinear with the
+   first two; they form a chain. The first point off that line, joined to each segment of the
+   chain, gives the first fan of triangles. Their outer edges form the initial convex hull.
+3. **Insert** each further point in order. Because of the sorting, it lies outside the
+   current hull. Find the hull edges it can "see" (those with the point on their outer side),
+   starting the search beside the previously inserted point, which is nearby. Add a triangle
+   on each visible edge, and replace those edges in the hull by the two edges from the new
+   point to the ends of the visible chain.
+4. **Legalise.** Push the outer edge of each new triangle (the edge opposite the new point) on
+   a stack. While the stack is not empty: pop an edge; find the vertex opposite it in the
+   neighbouring triangle; if that vertex lies inside the circumcircle, and the two triangles
+   form a convex quadrilateral, flip the edge and push the two outer edges of the new pair of
+   triangles.
+
+Sorting costs $O(n\log n)$, and for points in general position the insertions and flips cost
+about the same in total.
+
+**Voronoi diagram.** For each site:
+
+1. start with the bounding box as the cell;
+2. for each Delaunay neighbour of the site, cut the cell by the perpendicular bisector of the
+   segment joining them, keeping the side that contains the site.
 
 ## Implementation
 

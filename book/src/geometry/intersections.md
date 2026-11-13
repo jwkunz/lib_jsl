@@ -52,10 +52,42 @@ The closest points between two segments minimise $|p_1 + s\,d_1 - p_2 - t\,d_2|^
 
 ## Algorithm
 
-1. **Segment–segment**: cross products give $t$ and $u$; test both in $[0, 1]$; if parallel, test collinearity and overlap the parameter intervals.
-2. **Möller–Trumbore**: $h = d \times e_2$, $\det = e_1 \cdot h$; $u = (o - a) \cdot h / \det$; $q = (o - a) \times e_1$; $v = d \cdot q / \det$, $t = e_2 \cdot q / \det$.
-3. **Slabs**: for each axis, the entry and exit parameters; take the largest entry and the smallest exit.
-4. **Closest point on a triangle**: test the corner regions, then the edge regions, by signs of dot products; otherwise project onto the face.
+**Two segments in the plane**, $a + t\,r$ and $c + u\,s$.
+
+1. Compute $r \times s$. If it is not zero (to within the tolerance): compute $t$ and $u$ from
+   the two formulas above. The segments cross if both lie in $[0, 1]$, at the point
+   $a + t\,r$.
+2. If $r \times s$ is zero the segments are parallel. If $(c - a) \times r$ is not zero they lie
+   on different lines and do not meet. Otherwise they are collinear: project the ends of the
+   second onto the first to get an interval of the parameter $t$, and intersect it with
+   $[0, 1]$. An empty intersection means no contact; a single value, a point; a longer
+   interval, an overlap.
+
+**A ray and a triangle** (Möller-Trumbore), for the ray $o + t\,d$ and the triangle $a, b, c$
+with $e_1 = b - a$ and $e_2 = c - a$.
+
+1. Compute $h = d \times e_2$ and $\det = e_1 \cdot h$. If $\det$ is zero, the ray is parallel
+   to the triangle's plane: no hit.
+2. Compute $u = (o - a) \cdot h/\det$. If $u < 0$ or $u > 1$: no hit.
+3. Compute $q = (o - a) \times e_1$ and $v = d \cdot q/\det$. If $v < 0$ or $u + v > 1$: no hit.
+4. Compute $t = e_2 \cdot q/\det$. If $t$ is negative the triangle is behind the ray's origin:
+   no hit. Otherwise return $t$, $u$ and $v$.
+
+Each test can reject the ray early, before the later quantities are computed.
+
+**A ray and a box** (slabs): start with the parameter interval $[0, \infty)$. For each axis,
+compute the two values of $t$ at which the ray crosses the slab's planes, order them as entry
+and exit, and intersect the interval with $[\text{entry}, \text{exit}]$. If the interval
+becomes empty, there is no hit; otherwise its lower end is the hit.
+
+**The closest point of a triangle** to a point $p$ (Ericson).
+
+1. Test the three corner regions: for corner $a$, if the dot products of $p - a$ with both
+   edges leaving $a$ are non-positive, $a$ is the closest point. Similarly for $b$ and $c$.
+2. Test the three edge regions: for each edge, if $p$ projects onto the interior of the edge
+   and lies on its outer side, the closest point is that projection.
+3. Otherwise $p$ projects inside the triangle: return the projection onto its plane, computed
+   from the barycentric coordinates.
 
 ## Implementation
 

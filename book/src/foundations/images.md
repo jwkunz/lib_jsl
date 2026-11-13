@@ -91,10 +91,48 @@ Writing this chapter fixed a robustness problem in all three image decoders. Fuz
 
 ## Algorithm
 
-1. **PNG decode**: verify chunk CRCs; concatenate `IDAT`; inflate; check the length; unfilter each pass's rows; unpack bit depths; expand palettes.
-2. **PNG encode**: per row, try all five filters and keep the smallest sum; zlib-compress; write `IHDR`, `IDAT`, `IEND`.
-3. **JPEG encode**: colour transform; DCT; quantize; zig-zag; DC differences and AC run-lengths; Huffman code with byte stuffing.
-4. **JPEG decode**: parse markers; check the frame against the scan size; Huffman-decode each MCU; dequantize; inverse DCT; upsample; convert to RGB.
+**Decoding a PNG.**
+
+1. Check the signature. Read the chunks in order, verifying the CRC of each.
+2. Read the dimensions, bit depth, colour type and interlacing from `IHDR`, and the palette
+   from `PLTE` if there is one.
+3. Concatenate the contents of all the `IDAT` chunks and decompress them with inflate.
+4. Check that the decompressed length is what the header implies.
+5. Undo the filter of each row, using the row above and the pixel to the left as the filter
+   type requires. With Adam7 interlacing, do this for each of the seven passes and place the
+   pixels in their positions.
+6. Unpack samples of fewer than eight bits, scale them to eight, and replace palette indices
+   by their colours.
+
+**Encoding a PNG.**
+
+1. For each row, apply each of the five filters and keep the one whose output has the
+   smallest sum of absolute values; prefix the row with the filter's number.
+2. Compress the filtered rows as a zlib stream.
+3. Write the signature and the `IHDR`, `IDAT` and `IEND` chunks, each with its CRC.
+
+**Encoding a JPEG.**
+
+1. Convert each pixel from RGB to $YC_bC_r$.
+2. For each $8 \times 8$ block of each component: subtract 128, take the two-dimensional DCT,
+   divide each coefficient by its quantization table entry, and round.
+3. Reorder the 64 coefficients in zig-zag order.
+4. Code the DC coefficient as its difference from the previous block's, and the AC
+   coefficients as pairs (run of zeros, value), ending with an end-of-block symbol.
+5. Write the Huffman codes of these symbols. Whenever a byte of the output is 0xFF, write a
+   zero byte after it (**byte stuffing**), so that it is not mistaken for a marker.
+
+**Decoding a JPEG.**
+
+1. Parse the marker segments: quantization tables, the frame header (dimensions, components
+   and sampling factors), Huffman tables, the restart interval and the scan header.
+2. Check that the components in the scan match the frame.
+3. For each **minimum coded unit** (the group of blocks covering one sampling period),
+   Huffman-decode the coefficients of each block, undoing the DC prediction and the
+   zig-zag order.
+4. Multiply by the quantization table and take the inverse DCT; add 128.
+5. Upsample the chroma components to full resolution.
+6. Convert to RGB and clamp to the range of a byte.
 
 ## Implementation
 

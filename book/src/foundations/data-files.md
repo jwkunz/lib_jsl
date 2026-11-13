@@ -54,10 +54,35 @@ Files written by this library, read by Python's:
 
 ## Algorithm
 
-1. **CSV parse**: a two-state machine over characters (in quotes or not), emitting fields and records; strip a leading byte-order mark when reading files.
-2. **CSV write**: quote a field if it contains the delimiter, a quote, CR or LF; double embedded quotes.
-3. **npy read**: check the magic; read the header length for the version; parse `descr`, `fortran_order` and `shape`; check the data length; convert byte order; transpose Fortran order to C order.
-4. **npy write**: build the header, pad it to a multiple of 64 bytes with a final newline, append little-endian data.
+**Parsing CSV.** The parser reads one character at a time and is in one of two states.
+
+- *Outside quotes*: a delimiter ends the current field; a line ending ends the current field
+  and the record; a quote at the start of a field enters the quoted state; any other
+  character is added to the field.
+- *Inside quotes*: two quotes in a row add one quote to the field; a single quote leaves the
+  quoted state; any other character, including a delimiter or a line ending, is added to the
+  field.
+
+When reading a file, a byte-order mark at the very start is removed first.
+
+**Writing CSV**: for each field, if it contains the delimiter, a quote, a carriage return or a
+line feed, write it between quotes with every quote inside it doubled; otherwise write it as
+it is.
+
+**Reading an `.npy` file.**
+
+1. Check the six-byte magic string and read the version.
+2. Read the length of the header: two bytes in version 1, four in later versions.
+3. Parse the header, a Python dictionary written as text, for the three keys `descr` (the
+   element type and byte order), `fortran_order` and `shape`.
+4. Check that the amount of data that follows equals the product of the shape times the
+   element size.
+5. Read the elements, swapping bytes if the file's byte order differs from the machine's.
+6. If the file is in Fortran (column-major) order, transpose to C (row-major) order.
+
+**Writing an `.npy` file**: build the header dictionary; pad it with spaces and a final
+newline so that the data begins at a multiple of 64 bytes; write the magic string, version,
+header length and header; append the elements in little-endian order.
 
 ## Implementation
 

@@ -44,10 +44,33 @@ For uniformly spread points both trees answer a nearest-neighbour query in a few
 
 ## Algorithm
 
-1. **k-d build**: recursively select the median along axis `depth mod D`.
-2. **k-d search**: visit the node, recurse into the near side, then into the far side only if the split is within the current bound.
-3. **Region tree insert**: descend to the leaf containing the point; append; split the leaf if it holds more than the capacity and is above the depth limit.
-4. **Region tree k-nearest**: descend recursively, nearest child first, skipping children whose box is farther than the current $k$-th distance.
+**Building a k-d tree** on a list of point indices. `build(slice, depth)`:
+
+1. if the slice is empty, return;
+2. choose the axis `depth mod D`, cycling through the $D$ coordinates;
+3. rearrange the slice with a linear-time selection so that its middle element is the median
+   along that axis, with the smaller points before it and the larger after;
+4. the middle element is the node; call `build` on the two halves with `depth + 1`.
+
+The cost is $O(n\log n)$, and the tree needs no storage beyond the permuted indices.
+
+**Searching a k-d tree** for the $k$ nearest neighbours of $q$. `search(slice, depth)`:
+
+1. visit the node: compute its distance to $q$, and if it is among the best $k$ so far,
+   insert it into the max-heap of results (removing the worst when the heap is full);
+2. compare $q$ with the node along the splitting axis to find which half contains $q$, and
+   search that half first;
+3. search the other half only if the distance from $q$ to the splitting plane is less than
+   the current $k$-th best distance (or fewer than $k$ points have been found).
+
+**Inserting into a region tree** (quadtree or octree): descend from the root, at each cell
+choosing the child whose box contains the point, until a leaf is reached; add the point to the
+leaf. If the leaf now holds more than its capacity and is above the depth limit, divide it
+into $2^D$ equal children and move its points into them.
+
+**Nearest neighbours in a region tree**: as for the k-d tree, with the children of each cell
+visited in order of the distance from $q$ to their boxes, and a child skipped when that
+distance exceeds the current $k$-th best.
 
 ## Implementation
 

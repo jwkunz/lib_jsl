@@ -88,10 +88,36 @@ which turns at a constant angular rate about a fixed axis. If $q_0 \cdot q_1 < 0
 
 ## Algorithm
 
-1. **Euler to matrix**: multiply the three axis matrices in order.
-2. **Matrix to Euler**: read the middle angle and the outer pairs with `atan2`; map to the documented range; at gimbal lock fold the third angle into the first.
-3. **Matrix to quaternion**: Shepperd's method, sign chosen so $w \ge 0$.
-4. **Slerp**: dot product; flip sign for the short arc; near-parallel inputs fall back to nlerp; otherwise the formula above.
+**Euler angles to a matrix**: form the three elementary rotation matrices for the angles and
+the axes of the sequence, and multiply them in the order of the sequence.
+
+**A matrix to Euler angles.**
+
+1. Read the middle angle $\beta$ from the one entry of the matrix that depends on it alone
+   (through its sine, for a Tait-Bryan sequence, or its cosine, for a proper one).
+2. Read $\alpha$ and $\gamma$, each from a pair of entries, with `atan2`, which returns the
+   angle in the correct quadrant.
+3. If $\beta$ lies outside the documented range, replace the triple by the equivalent one
+   inside it.
+4. At gimbal lock, where the entries used in step 2 vanish, set $\gamma = 0$ and compute
+   $\alpha$ from other entries, so that it carries the whole of the combined angle.
+
+**A matrix to a quaternion** (Shepperd's method).
+
+1. Compute the four candidates $1 + \operatorname{tr}R$ and $1 + 2R_{kk} - \operatorname{tr}R$ for $k = 1, 2, 3$,
+   which are four times the squares of the quaternion's components.
+2. Take the largest and compute that component as half its square root.
+3. Compute the other three components from sums and differences of off-diagonal entries of
+   $R$, divided by four times the component just found.
+4. Change the sign of all four if necessary so that $w \ge 0$.
+
+**Spherical linear interpolation** between $q_0$ and $q_1$ at parameter $t$.
+
+1. Compute the dot product $c = q_0\cdot q_1$. If $c < 0$, negate $q_1$ and $c$, so as to take
+   the shorter arc.
+2. If $c$ is very close to 1, the quaternions are nearly equal and $\sin\Omega$ nearly zero:
+   interpolate linearly and normalise.
+3. Otherwise compute $\Omega = \arccos c$ and apply the formula.
 
 ## Implementation
 

@@ -72,9 +72,40 @@ The standard library's sorts are several times faster than these on random keys,
 
 ## Algorithm
 
-1. **Quicksort**: while the range has more than 16 keys, partition it, recurse into the smaller side and continue with the larger; insertion-sort the rest.
-2. **Heapsort**: sift down from $\lfloor n/2 \rfloor - 1$ to 0; then for each end position, swap the root there and sift down the shortened heap.
-3. **Shell's method**: build the gap list; for each gap from largest to 1, insertion-sort with that stride.
+**Quicksort** of a range of keys, as an introsort.
+
+1. While the range holds more than 16 keys:
+   - if the number of partitions made so far exceeds $2\log_2n$, sort the range by heapsort
+     and stop;
+   - choose the pivot as the median of the first, middle and last keys;
+   - partition (Hoare): move one index rightwards from the left end until it finds a key not
+     less than the pivot, and another leftwards from the right end until it finds a key not
+     greater than the pivot; if the indices have not crossed, swap the two keys and continue;
+     when they cross, the range is split in two;
+   - call quicksort on the smaller of the two parts, and continue this loop on the larger.
+2. Sort the remaining short range by insertion sort.
+
+Sorting the smaller part by a call, and the larger by continuing the loop, limits the depth of
+the calls to $\log_2n$.
+
+**Insertion sort**: for each key from the second on, shift the larger keys before it one place
+to the right, and put the key in the gap.
+
+**Heapsort.**
+
+1. **Build the heap.** For each index from $\lfloor n/2\rfloor - 1$ down to 0, **sift down**
+   the element there: while it is smaller than its larger child, swap it with that child.
+   Indices from $\lfloor n/2\rfloor$ on have no children and need no attention.
+2. **Extract.** For each end position from $n - 1$ down to 1: swap the root, which is the
+   largest remaining key, with the element at that position, and sift the new root down
+   within the heap that is now one shorter.
+
+**Shell's method.**
+
+1. Build the list of gaps: Ciura's sequence, extended by factors of 2.25 until the gap
+   exceeds the length.
+2. For each gap from the largest that fits down to 1: perform an insertion sort in which each
+   key is compared with, and moved past, the keys a gap apart instead of adjacent ones.
 
 ## Implementation
 

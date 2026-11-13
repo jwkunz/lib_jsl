@@ -110,13 +110,40 @@ most resembles), and only when a test shows the replacement is worthwhile.
 
 ## Algorithm
 
-**Nelder-Mead** with coefficients 1 (reflection), 2 (expansion), ½ (contraction), ½ (shrink): sort
-the vertices; stop if the spread of their values is below the tolerance; otherwise reflect, expand,
-contract or shrink as above. Trial points are projected onto the bounds, if set.
+**Nelder-Mead.** Input: $f$ and a starting point, from which the initial simplex is built. The
+moves use the standard coefficients: 1 for reflection, 2 for expansion, ½ for contraction and ½
+for shrinking. Every trial point is projected onto the bounds, if any are set. Repeat:
 
-**Powell**: for each direction, minimise along it from the current point; stop when an iteration
-reduces $f$ by less than the relative tolerance; otherwise try the extrapolated point $2\mathbf x_n - \mathbf x_0$,
-and, if the test passes, minimise along $\mathbf x_n - \mathbf x_0$ and make it a direction.
+1. **Sort** the vertices so that $f(\mathbf x_1) \le \cdots \le f(\mathbf x_{n+1})$.
+2. **Test.** If the standard deviation of the $n + 1$ function values is below the tolerance,
+   return the best vertex.
+3. **Reflect.** Compute the centroid $\bar{\mathbf x}$ of the best $n$ vertices and the reflected
+   point $\mathbf x_r$, and evaluate $f(\mathbf x_r)$.
+4. **Choose a move** by comparing $f(\mathbf x_r)$ with the values at the vertices:
+   - better than the best: evaluate the expanded point and keep the better of the two;
+   - between the best and the second worst: keep $\mathbf x_r$;
+   - worse than the second worst: evaluate the contracted point (outside if $\mathbf x_r$ beats the
+     worst vertex, inside otherwise) and keep it if it improves on the point it was contracted
+     from;
+   - if the contraction fails: shrink every vertex halfway towards the best, and evaluate $f$
+     at the $n$ moved vertices.
+5. In the first three cases the chosen point replaces the worst vertex. Go to 1.
+
+**Powell's method.** Input: $f$ and a starting point; the directions start as the coordinate
+axes. One iteration:
+
+1. Remember the starting point $\mathbf x_0$ and $f(\mathbf x_0)$.
+2. For each direction in turn, minimise $f$ along it from the current point by a
+   one-dimensional search, and move there. Note which direction gave the largest decrease. Call
+   the final point $\mathbf x_n$.
+3. **Test.** If the iteration reduced $f$ by less than the relative tolerance, return
+   $\mathbf x_n$.
+4. **Consider a new direction.** Evaluate $f$ at the extrapolated point $2\mathbf x_n - \mathbf x_0$, a
+   further step of the same size along the iteration's overall displacement. A test on that
+   value decides whether the displacement is worth adopting: it must still lead downhill, and
+   the decrease of this iteration must not have been mostly due to a single direction.
+5. If the test passes, minimise along $\mathbf x_n - \mathbf x_0$, and let it replace the direction of
+   largest decrease noted in step 2.
 
 ## Implementation
 

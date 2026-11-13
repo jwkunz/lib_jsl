@@ -171,12 +171,33 @@ time.
 
 ## Algorithm
 
-1. Evaluate $\mathbf r$ and $J$ at $\mathbf p$; set $\mu = 10^{-3}\max_i (J^{\mathsf T}J)_{ii}$.
-2. Stop if $\|J^{\mathsf T}\mathbf r\|_\infty$ is tiny.
-3. Solve $(J^{\mathsf T}J + \mu D)\mathbf h = -J^{\mathsf T}\mathbf r$; stop if $\mathbf h$ is tiny relative to $\mathbf p$.
-4. Evaluate $\mathbf r$ at $\mathbf p + \mathbf h$ (projected onto the bounds) and the gain ratio $\rho$.
-5. If $\rho > 0$, accept the step, recompute $J$ and decrease $\mu$; stop if $F$ fell by a relatively tiny
-   amount. Otherwise increase $\mu$.
+**Levenberg-Marquardt.** Input: the residual function, optionally its Jacobian, and starting
+parameters $\mathbf p$.
+
+1. **Initialise.** Evaluate $\mathbf r$ and $J$ at $\mathbf p$. Set the damping to
+   $\mu = 10^{-3}\max_i (J^{\mathsf T}J)_{ii}$, a small fraction of the scale of the matrix it will be
+   added to.
+2. **Test the gradient.** If the largest component of $J^{\mathsf T}\mathbf r$ in magnitude is tiny,
+   stop: $\mathbf p$ is a stationary point.
+3. **Compute a trial step.** Solve $(J^{\mathsf T}J + \mu D)\mathbf h = -J^{\mathsf T}\mathbf r$. If $\mathbf h$ is tiny
+   relative to $\mathbf p$, stop: the parameters have stopped changing.
+4. **Evaluate it.** Compute $\mathbf r$ at $\mathbf p + \mathbf h$ (projected onto the bounds, if set), and
+   the gain ratio $\rho$: the actual reduction in $F$ divided by the reduction the linear model
+   predicted.
+5. **Accept or reject.**
+   - If $\rho > 0$: move to $\mathbf p + \mathbf h$, recompute $J$ there, and decrease $\mu$. If $F$ fell
+     by only a relatively tiny amount, stop.
+   - Otherwise: stay at $\mathbf p$ and increase $\mu$, by a factor that doubles at each consecutive
+     rejection.
+6. Go to 2.
+
+Each trial step costs one evaluation of the residuals and an $O(n^3)$ solve; each accepted step
+also costs a Jacobian, which by forward differences is $n$ more evaluations of the residuals.
+
+**Curve fitting** (`curve_fit`). Build the residuals $r_i = (y_i - \phi(x_i; \mathbf p))/\sigma_i$,
+run the iteration above, and then compute $C = (J^{\mathsf T}J)^{-1}$ at the solution, the standard
+errors $\sqrt{C_{jj}}$ and $\chi^2$. If no $\sigma_i$ were given, use $\sigma_i = 1$ and multiply
+$C$ by the reduced chi-squared.
 
 ## Implementation
 

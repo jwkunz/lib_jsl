@@ -138,16 +138,40 @@ runs each from random starting points:
 
 ## Algorithm
 
-**Simulated annealing**: $T \leftarrow T_{\max}$; while $T > T_{\min}$: repeat `iterations_per_temperature` times:
-propose, accept or reject, record the best; then $T \leftarrow \text{cooling}\cdot T$.
+**Simulated annealing.** Input: $f$, a starting point, the temperatures $T_{\max}$ and
+$T_{\min}$, a cooling factor below 1 and a number of proposals per temperature.
 
-**Differential evolution**: initialise the population; each generation, form a trial for every
-member and keep the better; stop when the population's values agree to the tolerance or the
-generation limit is reached.
+1. Set $T = T_{\max}$, and record the starting point as the best so far.
+2. Repeat `iterations_per_temperature` times: propose a neighbour by adding Gaussian noise of
+   standard deviation $T$ to each coordinate; accept it if it is better, or otherwise with
+   probability $e^{-\Delta/T}$; if the accepted point is the best seen, record it.
+3. Multiply $T$ by the cooling factor. If $T > T_{\min}$, go to 2.
+4. Return the best point recorded.
 
-**Particle swarm**: initialise positions and velocities; each iteration, update velocities (capped at
-the box width) and positions (clamped into the box), evaluate and update the bests; stop when the
-best has not improved for `stall_iterations` iterations.
+The number of evaluations is fixed in advance by the schedule.
+
+**Differential evolution.** Input: $f$ and a box of bounds.
+
+1. Draw the population uniformly in the box (the starting point is one member) and evaluate
+   every member.
+2. For each member in turn, build a trial point by mutation and crossover, evaluate it, and let
+   it replace the member if it is no worse.
+3. Stop if the function values of the population agree to within the tolerance, or the limit on
+   generations is reached; otherwise go to 2.
+4. Return the best member.
+
+Each generation costs $N_p$ evaluations.
+
+**Particle swarm.** Input: $f$ and a box of bounds.
+
+1. Draw positions uniformly in the box and velocities at random, evaluate every particle, and
+   record each particle's best position and the swarm's best.
+2. For each particle: update its velocity by the formula above, limiting each component to the
+   width of the box; update its position, moving any coordinate that leaves the box back to the
+   boundary; evaluate; update its own best and the swarm's best.
+3. Stop if the swarm's best has not improved for `stall_iterations` iterations, or the iteration
+   limit is reached; otherwise go to 2.
+4. Return the swarm's best position.
 
 ## Implementation
 

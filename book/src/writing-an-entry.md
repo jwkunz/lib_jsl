@@ -40,7 +40,8 @@ feedback from early readers, who found compressed derivations hard to follow.
 
 - **Figures and tables are numbered automatically.** After adding one, run `python3 book/tools/captions.py`
   from `book/src`: figures get "Figure C.k" below them (the image's alt text is the caption, so make it a
-  descriptive phrase) and generated tables get "Table C.k" above them. Refer to them by number, and say
+  descriptive phrase) and generated tables get "Table C.k" above them with a placeholder listing the columns, which you should
+  replace by a short title saying what the table shows. Refer to them by number, and say
   what to look for rather than only "the figure above".
 - **Keep the library's history out of the text.** Do not write "an earlier version did...", "this chapter
   fixed...". Put the record of a fixed defect in `CHANGELOG.md`. If the mistake is one that anyone coding the

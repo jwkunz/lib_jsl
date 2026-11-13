@@ -146,12 +146,33 @@ Golub-Kahan is the fastest; Jacobi with vectors costs two to five times as much.
 
 ## Algorithm
 
-**`svd`** (Golub-Kahan): for a wide matrix work with $A^{\mathsf H}$; bidiagonalise by Householder reflections; make $B$ real; run
-implicit-shift bidiagonal QR, accumulating rotations if vectors are wanted; make the singular values non-negative and
-sort them; form $U$ and $V$ by applying the accumulated reflections (in compact WY blocks).
+**`svd`** (Golub-Kahan).
 
-**`svd_jacobi`**: for more than a few columns, factor $AP = QR$ with pivoting; sweep one-sided Jacobi rotations over the columns of
-$R^{\mathsf H}$ until all pairs are orthogonal to working precision; the singular values are the column norms; recover $U$ and $V$.
+1. **Orient.** If the matrix is wider than it is tall, work with $A^{\mathsf H}$ and exchange the
+   roles of $U$ and $V$ at the end.
+2. **Bidiagonalise** by Householder reflections applied alternately from the left and the
+   right, storing the reflectors.
+3. **Make $B$ real** by diagonal unitary scalings.
+4. **Iterate.** Apply implicit-shift QR steps to the bidiagonal matrix. Before each step, set
+   negligible superdiagonal entries to zero and work on the lowest block that is still
+   unreduced; chase out any zero on the diagonal. If vectors are wanted, accumulate the
+   rotations.
+5. **Finish.** Change the sign of any negative diagonal entry (and of the matching vector), and
+   sort the singular values into descending order.
+6. **Form $U$ and $V$** by applying the stored reflectors, in compact WY blocks, to the
+   accumulated rotations.
+
+**`svd_jacobi`**.
+
+1. **Precondition.** For more than a few columns, factor $AP = QR$ with column pivoting and
+   continue with $R^{\mathsf H}$, whose columns are already nearly orthogonal.
+2. **Sweep.** For every pair of columns $p < q$: compute their norms and their inner product; if
+   the inner product is not negligible relative to the norms, apply the plane rotation that
+   makes the two columns orthogonal, to the working matrix and to the accumulated rotations.
+3. **Repeat** the sweep until one passes without any rotation.
+4. **Read off.** The singular values are the column norms, and the normalised columns are
+   singular vectors. Sort them, and map them back through $Q$ and the permutation $P$ to obtain
+   $U$ and $V$ for the original matrix.
 
 ## Implementation
 

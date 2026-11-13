@@ -160,10 +160,29 @@ used in LAPACK's `geqp3`). The production library uses pivoted QR for
 
 ## Algorithm
 
-**Householder QR**: for $k = 1, \ldots, n$: form $\mathbf v_k$ from column $k$ (rows $k$ to $m$); apply $H_k$ to columns $k$ to $n$; store
-$\mathbf v_k$. To form $Q$ explicitly, apply the reflections in reverse order to the first $n$ columns of the identity.
+**Householder QR.** Input: an $m \times n$ matrix $A$ with $m \ge n$. For $k = 1, \ldots, n$:
 
-**With column pivoting**: before step $k$, swap the remaining column of largest (downdated) norm into position $k$.
+1. **Form the reflector.** Take $\mathbf x$, the part of column $k$ from row $k$ to row $m$. Set
+   $\mathbf v = \mathbf x + \operatorname{sign}(x_1)\|\mathbf x\|\,\mathbf e_1$ and normalise it. (If $\mathbf x$ is zero,
+   skip the step.)
+2. **Apply it** to each column $j \ge k$: replace the part $\mathbf y$ of that column in rows $k$ to
+   $m$ by $\mathbf y - 2(\mathbf v^{\mathsf T}\mathbf y)\mathbf v$. Column $k$ becomes $-\operatorname{sign}(x_1)\|\mathbf x\|$ on the
+   diagonal and zero below.
+3. **Store** $\mathbf v$ as $\mathbf v_k$.
+
+At the end the upper triangle of the array is $R$. To apply $Q^{\mathsf T}$ to a vector, apply the
+reflections in the order $1, \ldots, n$; to apply $Q$, in the order $n, \ldots, 1$. To form the thin
+$Q$ explicitly, apply $Q$ to the first $n$ columns of the identity. The factorisation costs
+about $2mn^2 - \tfrac23n^3$ flops.
+
+**With column pivoting.** Compute the squared norm of every column at the start. Before step
+$k$:
+
+1. find the remaining column $j \ge k$ of largest (downdated) norm, swap it with column $k$, and
+   record the swap in the permutation;
+2. after applying the reflection, subtract $r_{kj}^2$ from the squared norm of each remaining
+   column $j$; if the result has lost most of its digits to cancellation, recompute that norm
+   from the column itself.
 
 ## Implementation
 

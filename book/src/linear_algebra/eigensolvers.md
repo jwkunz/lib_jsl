@@ -140,12 +140,34 @@ deflation ([issue #9](https://github.com/jwkunz/lib_jsl/issues/9)).
 
 ## Algorithm
 
-**`eigh`**: tridiagonalise by Householder reflections; scale the off-diagonal to real; run implicit QL with Wilkinson-like
-shifts, accumulating rotations if vectors are wanted; sort ascending; form the eigenvectors $Q D Z$.
+**`eigh`**, for a Hermitian matrix.
 
-**`eig`**: balance; reduce to Hessenberg form; run Francis double-shift QR (real) or single-shift QR (complex) to Schur form,
-deflating negligible subdiagonal entries; triangularise $2 \times 2$ blocks; back-substitute for the eigenvectors of $T$; map back
-through $Z$ and the balancing; normalise.
+1. **Tridiagonalise.** Apply $n - 2$ Householder reflections from both sides, giving
+   $Q^{\mathsf H}AQ = T$.
+2. **Make $T$ real.** For a complex matrix, scale by a diagonal unitary matrix $D$ so that the
+   off-diagonal entries become real and non-negative.
+3. **Diagonalise $T$** by the implicit QL algorithm with shifts. If eigenvectors are wanted,
+   accumulate the rotations into a matrix $Z$. Whenever an off-diagonal entry becomes negligible
+   the problem splits there.
+4. **Sort** the eigenvalues into ascending order, permuting the columns of $Z$ to match.
+5. **Form the eigenvectors** as the product $QDZ$.
+
+**`eig`**, for a general matrix.
+
+1. **Balance** by a diagonal similarity with powers of 2.
+2. **Reduce to Hessenberg form** by Householder reflections, accumulating them into $Z$.
+3. **Iterate to Schur form.** Apply Francis double-shift steps (real matrices) or single-shift
+   steps (complex matrices). After each step, set negligible subdiagonal entries to zero; when
+   the trailing $1 \times 1$ or $2 \times 2$ block separates, deflate it and continue on the rest.
+4. **Triangularise** each remaining $2 \times 2$ block, which holds a complex conjugate pair, to
+   obtain the complex Schur form $A = ZTZ^{\mathsf H}$. The diagonal of $T$ holds the eigenvalues.
+5. **Eigenvectors of $T$.** For each eigenvalue $t_{kk}$, solve the triangular system
+   $(T - t_{kk}I)\mathbf y = \mathbf 0$ by back substitution, with $y_k = 1$ and zeros below.
+6. **Map back**: multiply by $Z$, undo the balancing, and normalise each vector.
+
+Both solvers cost $O(n^3)$: about $\tfrac43n^3$ flops for the tridiagonal reduction and
+$\tfrac{10}3n^3$ for the Hessenberg reduction, plus the iteration and the accumulation of
+vectors.
 
 ## Implementation
 

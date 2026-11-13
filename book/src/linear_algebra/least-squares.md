@@ -158,11 +158,23 @@ smallest came out as $3.5 \times 10^{-9}$. They now come from the SVD of $R$.
 
 ## Algorithm
 
-`least_squares(A, b)`:
+`least_squares(A, b)`, for an $m \times n$ matrix $A$:
 
-1. If $m \ge n$: factor $AP = QR$ with column pivoting, compute $Q^{\mathsf H}\mathbf b$. If every $|r_{ii}| > 10^3\max(m, n)\,\varepsilon|r_{11}|$, solve $R\mathbf z = (Q^{\mathsf H}\mathbf b)_{1:n}$,
-   set $\mathbf x = P\mathbf z$, and take the singular values from the SVD of $R$ and the residual from $(Q^{\mathsf H}\mathbf b)_{n+1:m}$.
-2. Otherwise compute the thin SVD, determine the rank, and form $\mathbf x = \sum_{i\le r}\sigma_i^{-1}(\mathbf u_i^{\mathsf H}\mathbf b)\mathbf v_i$.
+1. **Overdetermined or square** ($m \ge n$). Factor $AP = QR$ by Householder QR with column
+   pivoting, and apply the reflections to $\mathbf b$ to get $\mathbf c = Q^{\mathsf H}\mathbf b$.
+2. **Test the rank.** The diagonal of $R$ decreases in magnitude. If every
+   $|r_{ii}| > 10^3\max(m, n)\,\varepsilon\,|r_{11}|$, the matrix has full column rank numerically: go
+   to step 3. Otherwise go to step 4.
+3. **Full rank.** Solve the triangular system $R\mathbf z = \mathbf c_{1:n}$ by back substitution and
+   undo the column permutation, $\mathbf x = P\mathbf z$. The residual sum of squares is the squared norm
+   of the remaining components $\mathbf c_{n+1:m}$, and the singular values reported are those of
+   $R$, from its SVD. Done.
+4. **Rank deficient or underdetermined** ($m < n$, or the test failed). Compute the thin SVD
+   $A = U\Sigma V^{\mathsf H}$. Count as the rank $r$ the singular values above
+   $\max(m, n)\,\varepsilon\,\sigma_1$. Return the minimum-norm solution
+   $\mathbf x = \sum_{i\le r}\sigma_i^{-1}(\mathbf u_i^{\mathsf H}\mathbf b)\,\mathbf v_i$.
+
+The full-rank path costs one QR factorisation; the other costs one SVD, several times more.
 
 ## Implementation
 

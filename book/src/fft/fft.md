@@ -151,11 +151,31 @@ direct DFT, at well under 0.1 GFLOP/s-equivalent, is hopeless beyond a few thous
 
 ## Algorithm
 
-**Iterative radix 2**: permute the input into bit-reversed order; for $s = 1, \ldots, \log_2n$, with $m = 2^s$, combine pairs of transforms of
-length $m/2$ by butterflies with twiddles $e^{\mp2\pi ij/m}$; scale if requested.
+**Iterative radix 2.** Input: $n = 2^p$ complex samples, transformed in place.
 
-**Split radix** (recursive): transform the even samples (length $n/2$) and the two odd subsequences (length $n/4$), then combine with the
-four formulas above.
+1. **Permute.** Swap each element with the one whose index has the same $p$ binary digits in
+   reverse order (each pair is swapped once).
+2. **Combine.** For each stage $s = 1, \ldots, p$, with $m = 2^s$: the array now holds
+   consecutive transforms of length $m/2$. For each block of $m$ elements and each
+   $j = 0, \ldots, m/2 - 1$, take $u$, the element at offset $j$ in the block, and
+   $t = e^{-2\pi ij/m}$ times the element at offset $j + m/2$; replace the two elements by
+   $u + t$ and $u - t$. This is the butterfly. After the stage the array holds transforms of
+   length $m$.
+3. **Scale.** For the inverse transform, use the conjugate twiddle factors $e^{+2\pi ij/m}$ and
+   divide every element by $n$.
+
+There are $p$ stages of $n/2$ butterflies: $\tfrac n2\log_2n$ complex multiplications, and no
+storage beyond the array and a table of twiddle factors.
+
+**Split radix** (recursive). For a transform of length $n$:
+
+1. if $n$ is 1, return the sample; if $n$ is 2, return the sum and the difference;
+2. transform the even-indexed samples (length $n/2$) to get $U$;
+3. transform the samples with indices $4m + 1$ and those with indices $4m + 3$ (length $n/4$
+   each) to get $Z$ and $Z'$;
+4. for $k = 0, \ldots, n/4 - 1$, form $\omega^kZ_k$ and $\omega^{3k}Z'_k$, and combine them with
+   $U_k$ and $U_{k+n/4}$ by the four formulas above to produce the outputs $k$, $k + n/4$,
+   $k + n/2$ and $k + 3n/4$.
 
 ## Implementation
 

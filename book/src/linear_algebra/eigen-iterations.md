@@ -184,11 +184,43 @@ step $O(n)$ or $O(n^2)$ ([next entry](eigensolvers.md)).
 
 ## Algorithm
 
-- **Power iteration**: $\mathbf x \leftarrow A\mathbf x$, normalise, until the residual $\|A\mathbf x - \rho(\mathbf x)\mathbf x\|$ is below the tolerance.
-- **Rayleigh quotient iteration**: solve $(A - \rho(\mathbf x)I)\mathbf y = \mathbf x$, $\mathbf x \leftarrow \mathbf y/\|\mathbf y\|$.
-- **Cyclic Jacobi**: sweep over all pairs $p < q$, rotating to annihilate $a_{pq}$, until the off-diagonal norm is below the tolerance.
-- **Shifted QR**: while the active block has order above 1: if its last row is negligible, deflate; otherwise take a QR step
-  with Wilkinson's shift.
+**Power iteration.** Input: $A$, a starting vector $\mathbf x$ of unit length and a tolerance.
+Repeat:
+
+1. compute $\mathbf y = A\mathbf x$ and the Rayleigh quotient $\rho = \mathbf x^{\mathsf T}\mathbf y$;
+2. if the residual $\|\mathbf y - \rho\mathbf x\|$ is below the tolerance, return $\rho$ and $\mathbf x$;
+3. set $\mathbf x = \mathbf y/\|\mathbf y\|$.
+
+Each iteration costs one matrix-vector product.
+
+**Inverse iteration** with shift $\sigma$: factor $A - \sigma I$ once; then run the same loop with
+step 3 replaced by "solve $(A - \sigma I)\mathbf y = \mathbf x$ and normalise $\mathbf y$".
+
+**Rayleigh quotient iteration**: as inverse iteration, but with the shift replaced by the
+current $\rho$ at every step, so that the matrix must be factorised again each time. As the shift
+converges to an eigenvalue the matrix becomes nearly singular. That does no harm: the solution
+is then huge, but its *direction* is the eigenvector, and only the direction is kept. If the
+factorisation finds the matrix exactly singular, the shift is an eigenvalue to rounding error,
+and the iteration stops with the current vector.
+
+**Cyclic Jacobi.** Input: a symmetric $A$. Set $V = I$. Repeat:
+
+1. if the off-diagonal norm $\big(\sum_{p \ne q}a_{pq}^2\big)^{1/2}$ is below the tolerance, stop;
+2. for every pair $p < q$ in turn (one **sweep**): compute the rotation angle from $a_{pp}$,
+   $a_{qq}$ and $a_{pq}$; apply the rotation to rows and columns $p$ and $q$ of $A$, which sets
+   $a_{pq}$ to zero; apply it to columns $p$ and $q$ of $V$.
+
+The diagonal of $A$ then holds the eigenvalues and the columns of $V$ the eigenvectors. A sweep
+costs $O(n^3)$.
+
+**Shifted QR.** Input: a symmetric $A$. The **active block** is the leading part of the matrix
+not yet deflated; it starts as the whole matrix. While its order exceeds 1:
+
+1. if the off-diagonal entries of its last row are negligible compared with the neighbouring
+   diagonal entries, set them to zero, record the last diagonal entry as an eigenvalue, and
+   shrink the active block by one (deflation);
+2. otherwise compute Wilkinson's shift $\mu$ from the trailing $2 \times 2$ block, factor
+   $A - \mu I = QR$ on the active block, and replace the block by $RQ + \mu I$.
 
 ## Implementation
 

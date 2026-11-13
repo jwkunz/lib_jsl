@@ -73,8 +73,10 @@ of the sample and its two neighbours on either side.
 
 **Properties.** If the data in a window lie exactly on a polynomial of degree at most $d$, the
 least-squares fit is that polynomial, and the filter returns the data unchanged. The filter
-therefore does not distort features that are locally polynomial, while its noise reduction is
-close to that of a moving average of the same length. The moving average is itself the special
+therefore does not distort features that are locally polynomial, while it pays for this with less noise reduction than a moving average of the same length. For white noise of variance
+$\sigma^2$ the output variance is $\sigma^2\sum_i c_i^2$ (the squared weights, because the noise at different samples is
+independent). The moving average has $\sum c_i^2 = 1/N$ for a window of $N$ points; a quadratic or cubic Savitzky-Golay
+filter has about $9/(4N)$ for long windows, more than twice as much, which is the price of keeping peaks undistorted. The moving average is itself the special
 case $d = 0$: the best constant fit to a window is its mean. Degree $d = 1$ gives the same weights,
 because adding a slope to the fit over a symmetric window does not change its value at the centre.
 

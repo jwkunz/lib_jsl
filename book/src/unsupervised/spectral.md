@@ -83,7 +83,8 @@ $$
 
 Ng, Jordan and Weiss take the $k$ eigenvectors of $L_{\text{sym}}$ with the smallest eigenvalues as the columns of an $n \times k$ matrix. They scale each row to unit
 length and cluster the rows with k-means. For disconnected clusters the rows of each cluster coincide on one point of the unit
-sphere, orthogonal to the other clusters' points, and k-means cannot fail. Weak connections only perturb this picture.
+sphere, orthogonal to the other clusters' points. The clusters are then trivially separable, and k-means with sensible
+seeding finds them (Lloyd's algorithm can still stop in a poor local optimum if two initial centres fall in the same cluster). Weak connections only perturb this picture.
 
 | | |
 |:---:|:---:|

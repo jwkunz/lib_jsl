@@ -21,8 +21,9 @@ $$
 P(y = c \mid \mathbf x) = \frac{e^{\mathbf w_c^{\mathsf T}\mathbf x + b_c}}{\sum_k e^{\mathbf w_k^{\mathsf T}\mathbf x + b_k}}.
 $$
 
-The weights are fitted by maximum likelihood. The result is a linear classifier with calibrated probabilities and
-interpretable coefficients: each unit of feature $j$ multiplies the odds by $e^{w_j}$. It is the standard model for binary outcomes
+The weights are fitted by maximum likelihood. The result is a linear classifier whose probabilities are calibrated when the model fits (without regularisation, the fitted probabilities
+average to the observed fraction of positives; with strong regularisation or a poorly matched boundary they need not, and a
+reliability plot is the way to check) and whose coefficients are interpretable: each unit of feature $j$ multiplies the odds by $e^{w_j}$. It is the standard model for binary outcomes
 in medicine and the social sciences, and the output layer of most neural network classifiers.
 
 ## History

@@ -45,7 +45,17 @@ follow NumPy and SciPy, and the library's results agree with them to rounding er
 
 ### Fast convolution
 
-The DFT of a circular convolution is the product of the DFTs. Padding both sequences with zeros to a length $L \ge N + M - 1$ makes the
+The DFT of a circular convolution is the product of the DFTs. To see why, take the $L$-point DFT of the circular
+convolution $y_n = \sum_{m} h_m\,x_{(n-m) \bmod L}$ and exchange the order of summation:
+
+$$
+Y_k = \sum_{n}\sum_{m} h_m\,x_{(n-m) \bmod L}\,e^{-2\pi i kn/L}
+    = \sum_m h_m\,e^{-2\pi i km/L}\sum_{r} x_r\,e^{-2\pi i kr/L} = H_k X_k,
+$$
+
+where $r = (n - m) \bmod L$. The step uses that $e^{-2\pi i k n/L}$ is periodic in $n$ with period $L$, so replacing
+$n$ by $r + m$ only multiplies by $e^{-2\pi i km/L}$ whatever the wrap-around. This is also where the *circular*
+nature enters: indices wrap modulo $L$, so products of samples near the end of a block land at the start. Padding both sequences with zeros to a length $L \ge N + M - 1$ makes the
 circular convolution equal the linear one, so
 
 $$

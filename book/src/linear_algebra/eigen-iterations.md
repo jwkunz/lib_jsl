@@ -173,8 +173,9 @@ fall to zero in a few steps, leaving that eigenvalue isolated in the bottom corn
 $(n - 1) \times (n - 1)$ block.
 
 A good shift is available from the matrix itself. **Wilkinson's shift** is the eigenvalue of the
-trailing $2 \times 2$ block that is nearer to its bottom right entry. With it the algorithm converges for every
-symmetric matrix, cubically in general:
+trailing $2 \times 2$ block that is nearer to its bottom right entry. With it the algorithm is guaranteed (Wilkinson, 1968) to converge for every symmetric *tridiagonal* matrix. A general
+symmetric matrix is first reduced to tridiagonal form, so the result covers it as well. The convergence is
+cubic in general:
 
 {{#include ../generated/linear_algebra/jacobi_qr.md}}
 

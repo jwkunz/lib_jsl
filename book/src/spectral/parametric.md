@@ -87,7 +87,8 @@ $$
 k_m = \frac{-2\sum_nf_n^{(m-1)}b_{n-1}^{(m-1)}}{\sum_n\big((f_n^{(m-1)})^2 + (b_{n-1}^{(m-1)})^2\big)},
 $$
 
-then updates the errors and the predictor by Levinson's step. By the Cauchy-Schwarz inequality $|k_m| \le 1$, so the model is always stable. For sharply resonant processes,
+then updates the errors and the predictor by Levinson's step. By the Cauchy-Schwarz inequality $|k_m| \le 1$, with strict inequality unless the signal is perfectly predictable, so the model is stable (a reflection
+coefficient of magnitude 1 would put a pole on the unit circle). For sharply resonant processes,
 Burg's estimates are far better than the autocorrelation method's:
 
 {{#include ../generated/spectral/ar_estimation.md}}

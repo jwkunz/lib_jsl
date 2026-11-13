@@ -33,7 +33,9 @@ in cost and in numerical stability. The library offers three.
 
 The single most important fact about polynomial interpolation is that **the choice of points
 matters enormously**. Equally spaced points can make the interpolant diverge wildly as $n$ grows,
-the **Runge phenomenon**, while Chebyshev points give rapid convergence for every smooth function.
+the **Runge phenomenon**, while Chebyshev points converge for every Lipschitz-continuous function, and geometrically fast for analytic ones. How
+fast depends on how far the nearest singularity of the function lies from the interval in the complex plane, and a
+function that is only a few times differentiable converges only algebraically.
 This entry first describes the two ways of computing the interpolant, then explains where the
 error comes from and why the points matter so much.
 

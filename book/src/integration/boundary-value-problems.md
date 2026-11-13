@@ -8,6 +8,7 @@
 | **Devised by** | Shooting: in use since the early days of ballistics computation, analysed by Keller (1968). Collocation: de Boor and Swartz (1973), Ascher, Christiansen and Russell (COLSYS, 1979); the Hermite-Simpson scheme with residual control: Kierzenka and Shampine (2001) |
 | **Accuracy** | Shooting: as accurate as the initial value solver, while the problem is well conditioned. Collocation: fourth order, with the mesh refined until the defect of the solution meets the tolerance |
 | **Cost** | Shooting: $n + 1$ initial value solves per Newton iteration. Collocation: one linear system over the whole mesh per Newton iteration |
+| **Read first** | [Runge-Kutta methods](runge-kutta.md), [Nonlinear systems: Newton's and Broyden's methods](../root_finding/nonlinear-systems.md) |
 | **API** | [`solve_bvp_shooting`](../../api/lib_jsl_integration/boundary_value_problems/fn.solve_bvp_shooting.html), [`solve_bvp_collocation`](../../api/lib_jsl_integration/boundary_value_problems/fn.solve_bvp_collocation.html), [`BvpOptions`](../../api/lib_jsl_integration/boundary_value_problems/struct.BvpOptions.html), [`BvpSolution`](../../api/lib_jsl_integration/boundary_value_problems/struct.BvpSolution.html) |
 
 </div>

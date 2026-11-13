@@ -8,6 +8,7 @@
 | **Devised by** | Julius von Hann (1903, the cosine bell); Richard Hamming and John Tukey (1950s); R. B. Blackman and Tukey (1958); C. L. Dolph (1946), Chebyshev arrays; T. T. Taylor (1955); James Kaiser (1966, 1974); David Slepian (1978), prolate spheroidal sequences; Fredric Harris (1978), the standard survey |
 | **Accuracy** | All 24 windows agree with `scipy.signal.windows` to about $10^{-15}$ in both their symmetric and periodic forms ([table below](#testing-against-scipy)) |
 | **Cost** | $O(M)$ for most; $O(M^2)$ for the Dolph-Chebyshev window (a direct DFT) and $O(M)$ per iteration for the DPSS |
+| **Read first** | [Background: sampling and aliasing](../filters/index.md#sampling-and-aliasing), [The fast Fourier transform](../fft/fft.md) |
 | **API** | [`generate_window`](../../api/lib_jsl_dsp/discrete/windows/fn.generate_window.html), [`WindowType`](../../api/lib_jsl_dsp/discrete/windows/enum.WindowType.html), one function per window in [`windows`](../../api/lib_jsl_dsp/discrete/windows/index.html) (`hann`, `hamming`, `blackman`, `kaiser`, `chebwin`, `dpss`, `taylor`, `general_cosine`, …) |
 
 </div>

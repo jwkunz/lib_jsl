@@ -8,6 +8,7 @@
 | **Devised by** | Abraham Lempel and Jacob Ziv (1977, 1978), LZ77 and LZ78; Terry Welch (1984), LZW |
 | **Accuracy** | Lossless; on long inputs from a stationary ergodic source the compression rate approaches the entropy rate (universality). On the 4.6 MB test text: 2.9 bits per byte for LZ77, 3.1 for LZW |
 | **Cost** | LZ77 encoding $O(n\,c\,m)$ for $c$ candidates of length up to $m$; LZ78 and LZW $O(n)$ hash lookups; decoding $O(n)$ for all |
+| **Read first** | [Entropy coding: Huffman, Shannon-Fano and arithmetic coding](entropy-coding.md) |
 | **API** | [`lz77_compress`](../../api/lib_jsl_information/source_coders/lz77/fn.lz77_compress.html), [`try_lz77_decompress`](../../api/lib_jsl_information/source_coders/lz77/fn.try_lz77_decompress.html), [`lz78_compress`](../../api/lib_jsl_information/source_coders/lz78/fn.lz78_compress.html), [`try_lz78_decompress`](../../api/lib_jsl_information/source_coders/lz78/fn.try_lz78_decompress.html), [`lzw_compress`](../../api/lib_jsl_information/source_coders/lzw/fn.lzw_compress.html), [`try_lzw_decompress`](../../api/lib_jsl_information/source_coders/lzw/fn.try_lzw_decompress.html), and the [`SourceCoder`](../../api/lib_jsl_information/source_coders/source_coder/trait.SourceCoder.html) wrappers |
 
 </div>

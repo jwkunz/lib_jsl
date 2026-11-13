@@ -8,6 +8,7 @@
 | **Devised by** | Hidetosi Takahasi and Masatake Mori (1974) |
 | **Accuracy** | Error $\approx \exp(-c\,N/\ln N)$ with $N$ evaluations, for $f$ analytic inside the interval, even with integrable endpoint singularities |
 | **Cost** | $N$ evaluations; refinement halves the step and reuses every previous evaluation |
+| **Read first** | [Newton-Cotes rules: midpoint, trapezoid and Simpson](newton-cotes.md), [Preliminaries: complex numbers](../preliminaries.md#complex-numbers) |
 | **API** | [`TanhSinhEngine`](../../api/lib_jsl_integration/tanh_sinh/struct.TanhSinhEngine.html), [`integrate_with_error`](../../api/lib_jsl_integration/tanh_sinh/struct.TanhSinhEngine.html#method.integrate_with_error), [`integrate_with_complement`](../../api/lib_jsl_integration/tanh_sinh/struct.TanhSinhEngine.html#method.integrate_with_complement) |
 
 </div>

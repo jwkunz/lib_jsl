@@ -8,6 +8,7 @@
 | **Devised by** | W. Wesley Peterson (1961), cyclic redundancy checks; the IEEE 802.3 committee (1975–83), the CRC-32 polynomial; Guy Castagnoli and colleagues (1993), CRC-32C; the US National Security Agency (2001), SHA-256 |
 | **Accuracy** | Exact: equal to Python's `zlib.crc32` and `hashlib.sha256` on every test input, including the FIPS long vector (table below) |
 | **Cost** | CRC: one table lookup per byte (about 330 MB/s here); SHA-256: 64 rounds per 64-byte block (about 80–100 MB/s) |
+| **Read first** | [Linear feedback shift registers, m-sequences and Gold codes](lfsr.md) |
 | **API** | [`crc32`](../../api/lib_jsl_information/operators/crc32/fn.crc32.html), [`crc32c`](../../api/lib_jsl_information/operators/crc32/fn.crc32c.html), [`Crc32`](../../api/lib_jsl_information/operators/crc32/struct.Crc32.html) (`new`, `castagnoli`, `update`, `finalize`), [`sha256`](../../api/lib_jsl_information/operators/sha256/fn.sha256.html), [`Sha256`](../../api/lib_jsl_information/operators/sha256/struct.Sha256.html) (`new`, `update`, `finalize`), [`to_hex`](../../api/lib_jsl_information/operators/sha256/fn.to_hex.html) |
 
 </div>

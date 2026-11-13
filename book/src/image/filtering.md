@@ -8,6 +8,7 @@
 | **Devised by** | Irwin Sobel and Gary Feldman (1968), the Sobel operator; Jan Koenderink (1984) and Andrew Witkin (1983), Gaussian scale space; unsharp masking from photographic darkrooms (1930s) |
 | **Accuracy** | Exact (the library agrees with SciPy's `ndimage` to the 12 digits compared; see the [chapter overview](index.md#testing-against-scipy-and-scikit-image)) |
 | **Cost** | $O(k^2)$ per pixel for a $k \times k$ kernel; $O(k)$ when the kernel is separable, as the Gaussian and Sobel kernels are |
+| **Read first** | [Convolution and correlation](../filters/convolution.md) |
 | **API** | [`correlate2d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.correlate2d.html), [`convolve2d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.convolve2d.html), [`separable_convolve`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.separable_convolve.html), [`Border`](../../api/lib_jsl_dsp/discrete/image/convolution/enum.Border.html), [`gaussian_kernel_1d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.gaussian_kernel_1d.html), [`gaussian_blur`](../../api/lib_jsl_dsp/discrete/image/filters/gaussian_blur/fn.gaussian_blur.html), [`sobel`](../../api/lib_jsl_dsp/discrete/image/filters/sobel/fn.sobel.html), [`sharpening`](../../api/lib_jsl_dsp/discrete/image/filters/sharpening/fn.sharpening.html), [`sharpening_with_threshold`](../../api/lib_jsl_dsp/discrete/image/filters/sharpening/fn.sharpening_with_threshold.html) |
 
 </div>

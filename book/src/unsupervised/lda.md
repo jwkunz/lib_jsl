@@ -8,6 +8,7 @@
 | **Devised by** | Ronald Fisher (1936), the linear discriminant; C. R. Rao (1948), several classes |
 | **Accuracy** | The Bayes-optimal classifier when the classes are Gaussian with a shared covariance |
 | **Cost** | $O(np^2 + p^3)$: two scatter matrices, a Cholesky factorisation and a symmetric eigenproblem |
+| **Read first** | [Principal component analysis and kernel PCA](pca.md) |
 | **API** | [`Lda`](../../api/lib_jsl_machine_learning/unsupervised/reduction/lda/struct.Lda.html) (`new(components)`, `with_shrinkage`, `fit_labelled`, `transform`, `directions`, `eigenvalues`); implements [`Classifier`](../../api/lib_jsl_machine_learning/common/trait.Classifier.html) |
 
 </div>

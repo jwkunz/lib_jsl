@@ -8,6 +8,7 @@
 | **Devised by** | The two-for-one and half-length tricks: James Cooley, Peter Lewis and Peter Welch (1970); real-data FFTs: Henrik Sorensen, Douglas Jones, Michael Heideman and C. Sidney Burrus (1987); multidimensional transforms by separability: classical |
 | **Accuracy** | $O(\varepsilon\log n)$, as the underlying complex FFT |
 | **Cost** | Real FFT: one complex FFT of length $n/2$ plus $O(n)$ work. $d$-dimensional: $O(N\log N)$ for $N$ points in all |
+| **Read first** | [The fast Fourier transform](fft.md) |
 | **API** | [`RealFft`](../../api/lib_jsl_ffts/real_fft/struct.RealFft.html), [`rfft`](../../api/lib_jsl_ffts/real_fft/fn.rfft.html), [`irfft`](../../api/lib_jsl_ffts/real_fft/fn.irfft.html), [`fft2`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft2.html), [`ifft2`](../../api/lib_jsl_ffts/multidimensional_fft/fn.ifft2.html), [`fft3`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft3.html), [`fftn`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fftn.html), [`fft_axis`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft_axis.html), [`fftshift`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fftshift.html) |
 
 </div>

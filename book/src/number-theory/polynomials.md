@@ -8,6 +8,7 @@
 | **Devised by** | William Horner (1819), and Qin Jiushao (1247), nested evaluation; Ferdinand Georg Frobenius, the companion matrix; James Wilkinson (1959), the ill-conditioning of polynomial roots; schoolbook long arithmetic, as taught since the Middle Ages |
 | **Accuracy** | Horner's rule is backward stable; companion-matrix roots are accurate to roughly the coefficients' precision times the roots' condition, which grows explosively for clustered roots (figure below); decimal-string arithmetic is exact |
 | **Cost** | Horner $O(n)$; roots $O(n^3)$ (an eigenvalue problem); string addition $O(d)$, multiplication $O(d_1d_2)$, division $O(d_1d_2)$ for $d$-digit numbers |
+| **Read first** | [Divisibility and modular arithmetic](modular-arithmetic.md) |
 | **API** | [`polynomial_eval`](../../api/lib_jsl_number_theory/polynomial/fn.polynomial_eval.html), [`polynomial_from_roots`](../../api/lib_jsl_number_theory/polynomial/fn.polynomial_from_roots.html), [`polynomial_roots`](../../api/lib_jsl_number_theory/polynomial/fn.polynomial_roots.html), [`TextCodedInteger`](../../api/lib_jsl_number_theory/text_coded_integer/struct.TextCodedInteger.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Newton's method for minimisation: from Newton and Raphson via Thomas Simpson (1740). Quasi-Newton methods: William Davidon (1959), Roger Fletcher and Michael Powell (1963); BFGS: Charles Broyden, Roger Fletcher, Donald Goldfarb and David Shanno, independently (1970); L-BFGS: Jorge Nocedal (1980), Dong Liu and Nocedal (1989) |
 | **Accuracy** | Newton: quadratic convergence near a minimum with positive definite Hessian. BFGS and L-BFGS: superlinear (BFGS) or fast linear (L-BFGS) convergence |
 | **Cost** | Newton: a Hessian and an $O(n^3)$ solve per iteration. BFGS: one gradient and $O(n^2)$ work and memory. L-BFGS: one gradient and $O(mn)$ work and memory for $m$ stored pairs |
+| **Read first** | [Gradient descent and nonlinear conjugate gradients](gradient-methods.md), [Nonlinear systems: Newton's and Broyden's methods](../root_finding/nonlinear-systems.md) |
 | **API** | [`NewtonRaphsonMethod`](../../api/lib_jsl_optimization/newton_raphson_method/struct.NewtonRaphsonMethod.html), [`Bfgs`](../../api/lib_jsl_optimization/quasi_newton/struct.Bfgs.html), [`Lbfgs`](../../api/lib_jsl_optimization/quasi_newton/struct.Lbfgs.html) |
 
 </div>

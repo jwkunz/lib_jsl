@@ -8,6 +8,7 @@
 | **Devised by** | Francis Galton (1888), "co-relation"; Karl Pearson (1896), the product-moment coefficient; R. A. Fisher (1915), its sampling distribution; Charles Spearman (1904), rank correlation; Maurice Kendall (1938), $\tau$, and (1945) the tie-corrected $\tau_b$ |
 | **Accuracy** | Coefficients and p-values agree with SciPy to $10^{-14}$ (table in the [hypothesis tests](hypothesis-tests.md#checking-against-scipy) entry) |
 | **Cost** | Pearson $O(n)$; Spearman $O(n \log n)$; Kendall $O(n^2)$ |
+| **Read first** | [Descriptive statistics](descriptive.md) |
 | **API** | [`correlation`](../../api/lib_jsl_statistics/correlation/index.html): [`pearson`](../../api/lib_jsl_statistics/correlation/fn.pearson.html), [`spearman`](../../api/lib_jsl_statistics/correlation/fn.spearman.html), [`kendall`](../../api/lib_jsl_statistics/correlation/fn.kendall.html), `rank`, `covariance`, `covariance_matrix`, `correlation_matrix` |
 
 </div>

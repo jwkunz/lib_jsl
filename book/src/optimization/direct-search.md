@@ -8,6 +8,7 @@
 | **Devised by** | Simplex search: William Spendley, George Hext and Francis Himsworth (1962); the adaptive simplex: John Nelder and Roger Mead (1965). Conjugate directions without derivatives: Michael Powell (1964) |
 | **Accuracy** | Nelder-Mead: no general convergence guarantee, but usually reaches a local minimum to the tolerance on function values. Powell: converges on smooth functions, finitely on quadratics with exact line searches |
 | **Cost** | Nelder-Mead: one or two evaluations per iteration, $n + 1$ for a shrink. Powell: $n + 1$ line searches per iteration. Both are practical for up to about 10 to 20 variables |
+| **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like) |
 | **API** | [`NelderMeadMethod`](../../api/lib_jsl_optimization/nelder_mead_method/struct.NelderMeadMethod.html), [`PowellsMethod`](../../api/lib_jsl_optimization/powells_method/struct.PowellsMethod.html) |
 
 </div>

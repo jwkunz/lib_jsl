@@ -8,6 +8,7 @@
 | **Devised by** | The direct forms and their transposes date from the first digital filters (James Kaiser, 1960s); Leland Jackson (1970), roundoff analysis; Robert Bristow-Johnson (1990s), the "audio EQ cookbook" biquads; Sophocles Orfanidis (1996), the notch, peak and comb designs used by SciPy |
 | **Accuracy** | Notch, peak and comb coefficients agree with SciPy exactly; filtering agrees with SciPy's `lfilter` to $10^{-13}$ |
 | **Cost** | $O(n)$ multiply-adds per sample for order $n$ |
+| **Read first** | [Digital IIR design by the bilinear transform](iir-design.md) |
 | **API** | [`DiscreteLinearFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/discrete_linear_filter/struct.DiscreteLinearFilter.html) (`new(b, a)`, `step`, `StreamOperator`), [`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadFilter.html), [`BiquadCoefficients`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadCoefficients.html) (`lowpass`), [`iirnotch`](../../api/lib_jsl_dsp/discrete/filters/iir/iir_notch/fn.iirnotch.html), [`iirpeak`](../../api/lib_jsl_dsp/discrete/filters/iir/iir_peak/fn.iirpeak.html), [`iircomb`](../../api/lib_jsl_dsp/discrete/filters/iir/iir_comb/fn.iircomb.html) |
 
 </div>

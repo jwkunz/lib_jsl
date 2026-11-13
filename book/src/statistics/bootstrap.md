@@ -8,6 +8,7 @@
 | **Devised by** | Maurice Quenouille (1949) and John Tukey (1958), the jackknife; Bradley Efron (1979), the bootstrap; Efron (1987), the bias-corrected and accelerated (BCa) interval |
 | **Accuracy** | Percentile intervals are first-order accurate (coverage error $O(n^{-1/2})$); BCa intervals second-order ($O(n^{-1})$). Both under-cover for small, skewed samples (table below) |
 | **Cost** | $B$ evaluations of the statistic on resamples of size $n$ (typically $B = 1000$ to $10\,000$), plus $n$ jackknife evaluations for BCa |
+| **Read first** | [Descriptive statistics](descriptive.md), [Pseudo-random number generators](../random/generators.md) |
 | **API** | [`bootstrap`](../../api/lib_jsl_statistics/bootstrap/fn.bootstrap.html), [`BootstrapResult`](../../api/lib_jsl_statistics/bootstrap/struct.BootstrapResult.html) (`percentile_interval`, `bca_interval`) |
 
 </div>

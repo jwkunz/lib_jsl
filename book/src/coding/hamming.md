@@ -8,6 +8,7 @@
 | **Devised by** | Richard Hamming (1950); Marcel Golay (1949), the general construction from parity-check matrices |
 | **Accuracy** | Corrects every single-bit error; the extended (SECDED) code also detects every double error (exhaustive table below) |
 | **Cost** | $O(n)$ per codeword to encode and decode; the syndrome is the XOR of the positions of the set bits |
+| **Read first** | [Entropy, divergence and mutual information](../information/entropy.md) |
 | **API** | [`HammingCode`](../../api/lib_jsl_information/forward_error_correction/hamming/struct.HammingCode.html) (`new`, `new_extended`, `encode`, `decode`, `n`, `k`), [`HammingDecoded`](../../api/lib_jsl_information/forward_error_correction/hamming/struct.HammingDecoded.html), [`HammingStatus`](../../api/lib_jsl_information/forward_error_correction/hamming/enum.HammingStatus.html) |
 
 </div>

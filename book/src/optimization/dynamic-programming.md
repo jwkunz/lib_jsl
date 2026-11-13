@@ -8,6 +8,7 @@
 | **Devised by** | Richard Bellman (1950s); edit distance: Vladimir Levenshtein (1965), Robert Wagner and Michael Fischer (1974); Markov decision processes: Bellman (1957), Ronald Howard (1960) |
 | **Accuracy** | Exact for the discrete problems; value iteration converges geometrically, with error $O(\gamma^k)$ after $k$ iterations for discount $\gamma$ |
 | **Cost** | The number of subproblems times the work per subproblem: $O(nW)$ for knapsack, $O(nm)$ for edit distance, $O(n^3)$ for matrix chains, $O(|S|^2|A|)$ per value iteration |
+| **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like) |
 | **API** | [`knapsack_01`](../../api/lib_jsl_optimization/dynamic_programming/fn.knapsack_01.html), [`coin_change_min_coins`](../../api/lib_jsl_optimization/dynamic_programming/fn.coin_change_min_coins.html), [`edit_distance`](../../api/lib_jsl_optimization/dynamic_programming/fn.edit_distance.html), [`longest_common_subsequence`](../../api/lib_jsl_optimization/dynamic_programming/fn.longest_common_subsequence.html), [`longest_increasing_subsequence`](../../api/lib_jsl_optimization/dynamic_programming/fn.longest_increasing_subsequence.html), [`matrix_chain_order`](../../api/lib_jsl_optimization/dynamic_programming/fn.matrix_chain_order.html), [`FiniteMdp`](../../api/lib_jsl_optimization/dynamic_programming/struct.FiniteMdp.html) |
 
 </div>

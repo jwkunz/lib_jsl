@@ -8,6 +8,7 @@
 | **Devised by** | Martin Ester, Hans-Peter Kriegel, Jörg Sander and Xiaowei Xu (1996), DBSCAN; Mihael Ankerst, Markus Breunig, Kriegel and Sander (1999), OPTICS; Ricardo Campello, Davoud Moulavi and Sander (2013), HDBSCAN |
 | **Accuracy** | Deterministic (DBSCAN up to the assignment of border points reachable from two clusters) |
 | **Cost** | $O(n^2)$ time and memory with the dense distance matrix used here; $O(n\log n)$ with a spatial index in low dimensions |
+| **Read first** | [Hierarchical clustering and phylogenetic trees](hierarchical.md) |
 | **API** | [`Dbscan`](../../api/lib_jsl_machine_learning/unsupervised/clustering/dbscan/struct.Dbscan.html) (`new(eps, min_samples)`, `core_points`), [`Hdbscan`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hdbscan/struct.Hdbscan.html) (`new(min_cluster_size)`, `with_min_samples`, `cluster_stabilities`) |
 
 </div>

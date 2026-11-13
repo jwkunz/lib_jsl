@@ -8,6 +8,7 @@
 | **Devised by** | Eugenio Beltrami (1873) and Camille Jordan (1874); James Joseph Sylvester (1889); Erhard Schmidt (1907); Carl Eckart and Gale Young (1936), best approximation; Magnus Hestenes (1958), one-sided Jacobi; Gene Golub and William Kahan (1965), bidiagonalisation; Golub and Christian Reinsch (1970), the algorithm; James Demmel and Krešimir Veselić (1992), relative accuracy of Jacobi; Zlatko Drmač and Veselić (2008), preconditioned Jacobi |
 | **Accuracy** | Golub-Kahan: backward stable, singular values accurate to about $\varepsilon\sigma_1$ in absolute terms. One-sided Jacobi: small singular values of matrices of the form $A = BD$ ($B$ well conditioned, $D$ diagonal) to high relative accuracy |
 | **Cost** | About $4mn^2 - \tfrac43n^3$ flops for singular values, roughly $6mn^2 + 11n^3$ with vectors; Jacobi several times more |
+| **Read first** | [Symmetric and general eigensolvers](eigensolvers.md), [Linear least squares](least-squares.md) |
 | **API** | [`SVD`](../../api/lib_jsl_linalg/trait.SVD.html) (`svd`), [`SvdJacobi`](../../api/lib_jsl_linalg/trait.SvdJacobi.html) (`svd_jacobi`); reference: [`naive_svd`](../../api/lib_jsl_linalg_reference/naive_svd/index.html) |
 
 </div>

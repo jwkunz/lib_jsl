@@ -8,6 +8,7 @@
 | **Devised by** | Mervyn Stone (1974) and Seymour Geisser (1975), held-out validation; Karl Pearson (1904), contingency tables; Cornelis van Rijsbergen (1979), the F-measure; Lawrence Hubert and Phipps Arabie (1985), the adjusted Rand index; Peter Rousseeuw (1987), silhouettes |
 | **Accuracy** | Exact |
 | **Cost** | Linear in the size of the data |
+| **Read first** | [Preliminaries: probability](../preliminaries.md#probability-in-brief), [Background: bias and variance](index.md#background-bias-variance-and-generalisation) |
 | **API** | [`common`](../../api/lib_jsl_machine_learning/common/index.html) (`Regressor`, `Classifier`, `Clusterer`, `Transformer`, `MlRng`), [`datasets`](../../api/lib_jsl_machine_learning/datasets/index.html), [`preprocessing`](../../api/lib_jsl_machine_learning/preprocessing/index.html) (`StandardScaler`, `MinMaxScaler`, `train_test_split`, `polynomial_features`), [`metrics`](../../api/lib_jsl_machine_learning/metrics/index.html) |
 
 </div>

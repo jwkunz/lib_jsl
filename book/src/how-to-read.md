@@ -22,6 +22,8 @@ Every entry follows the same outline, so you can skim for what you need.
 The outline is the same everywhere, but the sections serve different purposes, and it helps to
 read them differently.
 
+- **Check "Read first".** The summary box at the top of each entry links to the entries and background
+  sections it builds on. If one of them is unfamiliar, read it first.
 - **Start with the Overview and stop.** It says what problem the algorithm solves and when you
   would use it. If that is all you need, the "Choosing a method" table in each chapter
   introduction will take you to the right entry faster than reading several.

@@ -8,6 +8,7 @@
 | **Devised by** | Claude Shannon (1948), entropy and mutual information; Solomon Kullback and Richard Leibler (1951), the divergence; Frank Gray (1947, patented 1953), the reflected binary code |
 | **Accuracy** | Exact sums; the library agrees with SciPy's `stats.entropy` to the 12 digits shown (table below) |
 | **Cost** | $O(n)$ for $n$ bytes or probabilities; $O(rc)$ for an $r \times c$ joint table |
+| **Read first** | [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
 | **API** | [`entropy`](../../api/lib_jsl_information/operators/entropy/fn.entropy.html), [`entropy_from_probabilities`](../../api/lib_jsl_information/operators/entropy/fn.entropy_from_probabilities.html), [`cross_entropy`](../../api/lib_jsl_information/operators/entropy/fn.cross_entropy.html), [`kl_divergence`](../../api/lib_jsl_information/operators/entropy/fn.kl_divergence.html), [`mutual_information`](../../api/lib_jsl_information/operators/entropy/fn.mutual_information.html), [`gray_code`](../../api/lib_jsl_information/source_coders/gray_codes/fn.gray_code.html), [`gray_decode`](../../api/lib_jsl_information/source_coders/gray_codes/fn.gray_decode.html), [`gray_code_sequence`](../../api/lib_jsl_information/source_coders/gray_codes/fn.gray_code_sequence.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Formulas up to degree 4: Tartaglia, Cardano and Ferrari (1545); none beyond: Ruffini (1799) and Abel (1824). Companion matrix eigenvalues: Cleve Moler's `roots` in MATLAB (1970s), shown backward stable by Alan Edelman and H. Murakami (1995); balancing: Beresford Parlett and Christian Reinsch (1969). Ill-conditioning: James Wilkinson (1959) |
 | **Accuracy** | Backward stable: the roots of a polynomial with nearby coefficients. The forward error depends on the conditioning of the roots, which for clustered or multiple roots can be very poor |
 | **Cost** | $O(n^3)$ operations and $O(n^2)$ memory for degree $n$ |
+| **Read first** | [Newton's method and the secant method](newton.md), [Symmetric and general eigensolvers](../linear_algebra/eigensolvers.md) |
 | **API** | [`polynomial_roots`](../../api/lib_jsl_root_finding/polynomial_roots/fn.polynomial_roots.html) (real roots), [`polynomial_roots_complex`](../../api/lib_jsl_root_finding/polynomial_roots/fn.polynomial_roots_complex.html) (all roots) |
 
 </div>

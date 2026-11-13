@@ -8,6 +8,7 @@
 | **Devised by** | Elimination: Chinese mathematicians of the *Nine Chapters* (around 200 BC), Carl Friedrich Gauss (1809); the factorisation: Myrick Doolittle (1878), Prescott Crout (1941), Alan Turing (1948); error analysis: John von Neumann and Herman Goldstine (1947), James Wilkinson (1961); recursive LU: Sivan Toledo (1997) |
 | **Accuracy** | Backward stable in practice with partial pivoting: the computed solution solves a system perturbed by a small multiple of $\varepsilon$ times the growth factor, which is almost always small |
 | **Cost** | $\tfrac23n^3$ flops to factor, $2n^2$ per right-hand side, $2n^3$ for the inverse |
+| **Read first** | [Preliminaries: norms](../preliminaries.md#norms-measuring-the-size-of-vectors-and-matrices), [Background: stability and conditioning](index.md#stability-and-conditioning) |
 | **API** | [`Solve`](../../api/lib_jsl_linalg/trait.Solve.html), [`Factorize`](../../api/lib_jsl_linalg/trait.Factorize.html), [`LuFactorization`](../../api/lib_jsl_linalg/struct.LuFactorization.html), [`Determinant`](../../api/lib_jsl_linalg/trait.Determinant.html), [`Inverse`](../../api/lib_jsl_linalg/trait.Inverse.html), [`SolveTriangular`](../../api/lib_jsl_linalg/trait.SolveTriangular.html); reference: [`gaussian_elimination`](../../api/lib_jsl_linalg_reference/gaussian_elimination/index.html), [`lu`](../../api/lib_jsl_linalg_reference/lu/index.html) |
 
 </div>

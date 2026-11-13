@@ -8,6 +8,7 @@
 | **Devised by** | Nobuyuki Otsu (1979), the threshold; John Canny (1986), the edge detector; Serge Beucher and Christian Lantuéjoul (1979), the watershed; Fernand Meyer (1991), flooding by priority queue |
 | **Accuracy** | Otsu's threshold and the watershed agree exactly with scikit-image; Canny's edges agree to within a pixel (see the [chapter overview](index.md#testing-against-scipy-and-scikit-image)) |
 | **Cost** | Otsu $O(N + L^2)$ or $O(N + L)$ for $N$ pixels and $L$ levels; Canny $O(N\sigma)$; watershed $O(N\log N)$ |
+| **Read first** | [Image filtering: convolution, Gaussian blur, Sobel gradients and sharpening](filtering.md) |
 | **API** | [`otsu`](../../api/lib_jsl_dsp/discrete/image/segmentation/otsu/fn.otsu.html), [`otsu_threshold`](../../api/lib_jsl_dsp/discrete/image/segmentation/otsu/fn.otsu_threshold.html), [`canny_edge_detection`](../../api/lib_jsl_dsp/discrete/image/segmentation/canny_edge_detection/fn.canny_edge_detection.html), [`watershed`](../../api/lib_jsl_dsp/discrete/image/segmentation/watershed/fn.watershed.html), [`watershed_masked`](../../api/lib_jsl_dsp/discrete/image/segmentation/watershed/fn.watershed_masked.html), [`label_boundaries`](../../api/lib_jsl_dsp/discrete/image/segmentation/watershed/fn.label_boundaries.html) |
 
 </div>

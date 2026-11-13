@@ -8,6 +8,7 @@
 | **Devised by** | Householder tridiagonalisation: Alston Householder (1958), Wallace Givens (1954, by rotations); the implicit QL algorithm: Hilary Bowdler, Roger Martin, Christian Reinsch and James Wilkinson (1968); Hessenberg reduction and the implicit double-shift QR step: John Francis (1961); balancing: Beresford Parlett and Christian Reinsch (1969) |
 | **Accuracy** | Backward stable: the eigenvalues of $A + \delta A$ with $\|\delta A\| \approx \varepsilon\|A\|$. For Hermitian matrices this bounds the eigenvalue errors by $\varepsilon\|A\|$; for non-normal matrices the errors can be much larger |
 | **Cost** | Hermitian: $\tfrac43n^3$ flops for eigenvalues, about $9n^3$ with vectors. General: about $10n^3$ for eigenvalues, $25n^3$ with vectors |
+| **Read first** | [Eigenvalue algorithms: power iteration, Jacobi and the QR algorithm](eigen-iterations.md) |
 | **API** | [`Eigh`](../../api/lib_jsl_linalg/trait.Eigh.html), [`EigValsh`](../../api/lib_jsl_linalg/trait.EigValsh.html), [`Eig`](../../api/lib_jsl_linalg/trait.Eig.html), [`EigVals`](../../api/lib_jsl_linalg/trait.EigVals.html) |
 
 </div>

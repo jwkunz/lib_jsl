@@ -8,6 +8,7 @@
 | **Devised by** | Exponential and logarithmic integrals: Leonhard Euler (1768), Johann von Soldner (1809); sine and cosine integrals: Euler, Lorenzo Mascheroni (1790); Fresnel integrals: Euler (1744), Augustin-Jean Fresnel (1818); the Cornu spiral: Marie Alfred Cornu (1874) |
 | **Accuracy** | About $10^{-15}$ relative, $10^{-14}$ for the Fresnel integrals at very large arguments |
 | **Cost** | A power series for small arguments, a (complex) continued fraction or asymptotic series for large ones |
+| **Read first** | [Incomplete gamma and beta functions and the error function](incomplete.md) |
 | **API** | [`exponential_integral`](../../api/lib_jsl_special_functions/exponential_integrals/fn.exponential_integral.html), [`exponential_integral_en`](../../api/lib_jsl_special_functions/exponential_integrals/fn.exponential_integral_en.html), [`exponential_integral_ei`](../../api/lib_jsl_special_functions/exponential_integrals/fn.exponential_integral_ei.html), [`sine_integral`](../../api/lib_jsl_special_functions/sine_integrals/fn.sine_integral.html), [`sine_integral_shifted`](../../api/lib_jsl_special_functions/sine_integrals/fn.sine_integral_shifted.html), [`cosine_integral`](../../api/lib_jsl_special_functions/cosine_integrals/fn.cosine_integral.html), [`fresnel_integrals`](../../api/lib_jsl_special_functions/fresnel_integrals/fn.fresnel_integrals.html) |
 
 </div>

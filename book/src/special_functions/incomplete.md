@@ -8,6 +8,7 @@
 | **Devised by** | Incomplete gamma: Adrien-Marie Legendre and Friedrich Prym (19th century); incomplete beta: Karl Pearson's tables (1934); the error function: named by James Glaisher (1871); Dawson's integral: H. G. Dawson (1897); continued-fraction evaluation: William Lentz (1976), modified by Ian Thompson and Alan Barnett (1986); Dawson by George Rybicki (1989) |
 | **Accuracy** | About $10^{-15}$ relative for moderate parameters, $10^{-13}$ for parameters in the hundreds |
 | **Cost** | A series or continued fraction of $O(\sqrt{a})$ to $O(a)$ terms; Dawson's integral, a sum of a few dozen exponentials |
+| **Read first** | [The gamma function and related functions](gamma.md) |
 | **API** | [`incomplete_gamma`](../../api/lib_jsl_special_functions/incomplete_gamma/fn.incomplete_gamma.html), [`incomplete_gamma_upper`](../../api/lib_jsl_special_functions/incomplete_gamma/fn.incomplete_gamma_upper.html), [`incomplete_beta`](../../api/lib_jsl_special_functions/incomplete_beta/fn.incomplete_beta.html), [`error_function`](../../api/lib_jsl_special_functions/error_function/fn.error_function.html), [`erfc`](../../api/lib_jsl_special_functions/error_function/fn.erfc.html), [`erf_inv`](../../api/lib_jsl_special_functions/error_function/fn.erf_inv.html), [`dawson_integral`](../../api/lib_jsl_special_functions/dawsons_integral/fn.dawson_integral.html) |
 
 </div>

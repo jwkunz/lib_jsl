@@ -8,6 +8,7 @@
 | **Devised by** | Leonhard Euler (1735–1737), $\zeta(2) = \pi^2/6$ and the product over primes; Bernhard Riemann (1859); Adolf Hurwitz (1882); the dilogarithm: Euler (1768), William Spence (1809); Enrico Fermi and Paul Dirac (1926); the acceleration used here: Peter Borwein (2000) |
 | **Accuracy** | About $10^{-15}$ relative; near $s = 0$, $\zeta$ loses a few digits to the pole of its functional equation |
 | **Cost** | Borwein's method: 24 terms; Euler-Maclaurin: a dozen terms plus a short sum; Fermi-Dirac: composite Gauss-Legendre quadrature |
+| **Read first** | [The gamma function and related functions](gamma.md) |
 | **API** | [`zeta`](../../api/lib_jsl_special_functions/zeta/fn.zeta.html), [`hurwitz_zeta`](../../api/lib_jsl_special_functions/zeta/fn.hurwitz_zeta.html), [`polylog`](../../api/lib_jsl_special_functions/polylogarithm/fn.polylog.html), [`fermi_dirac_integral`](../../api/lib_jsl_special_functions/fermi_dirac_integrals/fn.fermi_dirac_integral.html) |
 
 </div>

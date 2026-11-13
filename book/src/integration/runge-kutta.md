@@ -8,6 +8,7 @@
 | **Devised by** | Leonhard Euler (1768); Carl Runge (1895), Karl Heun (1900) and Martin Kutta (1901); order theory by John Butcher (1963); embedded pairs by Erwin Fehlberg (1969); the 5(4) pair by John Dormand and Peter Prince (1980) |
 | **Accuracy** | RK4: global error $O(h^4)$. Dormand-Prince: local error per step kept below the tolerance by adapting $h$ |
 | **Cost** | RK4: 4 evaluations of $\mathbf f$ per step. Dormand-Prince: 6 per step (7 stages, one reused) |
+| **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error) |
 | **API** | [`rk4_solve`](../../api/lib_jsl_integration/runge_kutta_4/fn.rk4_solve.html), [`dormand_prince_solve`](../../api/lib_jsl_integration/dormand_prince/fn.dormand_prince_solve.html), [`OdeOptions`](../../api/lib_jsl_integration/stiff_ode/struct.OdeOptions.html), [`OdeSolution`](../../api/lib_jsl_integration/stiff_ode/struct.OdeSolution.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Leonhard Euler (1736), graph theory; Charles Trémaux (19th century) and Edward Moore (1959), depth- and breadth-first search; Arthur Kahn (1962), topological sorting; Robert Tarjan (1972), strongly connected components |
 | **Accuracy** | Exact; strongly connected components and the lexicographically smallest topological order agree with SciPy and NetworkX (see the [chapter overview](index.md#testing-against-scipy-and-networkx)) |
 | **Cost** | $O(V + E)$ for traversals and Tarjan's algorithm; $O((V + E)\log V)$ for the smallest topological order |
+| **Read first** | Nothing beyond the [Preliminaries](../preliminaries.md) |
 | **API** | [`Graph`](../../api/lib_jsl_graph/graph/struct.Graph.html) (`from_edges`, `from_unweighted_edges`, `from_adjacency_matrix`, `add_edge`, `neighbors`, `edges`, `adjacency_matrix`, `reversed`, `breadth_first`, `depth_first`, `connected_components`), [`Edge`](../../api/lib_jsl_graph/graph/struct.Edge.html), [`topological_sort`](../../api/lib_jsl_graph/ordering/fn.topological_sort.html), [`strongly_connected_components`](../../api/lib_jsl_graph/ordering/fn.strongly_connected_components.html), [`condensation`](../../api/lib_jsl_graph/ordering/fn.condensation.html) |
 
 </div>

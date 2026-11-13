@@ -8,6 +8,7 @@
 | **Devised by** | Karl Pearson (1890s), moments, skewness and the standard deviation; B. P. Welford (1962), one-pass updating; Tony Chan, Gene Golub and Randall LeVeque (1983), analysis of variance algorithms; John Tukey (1977), the five-number summary; Frank Hampel (1974), robustness and the median absolute deviation; Rob Hyndman and Yanan Fan (1996), sample quantile definitions |
 | **Accuracy** | Mean and variance to a few units in the last place regardless of the offset of the data (figure below); values agree with SciPy and NumPy to $10^{-15}$ |
 | **Cost** | $O(n)$ for moments; $O(n \log n)$ for quantiles (a sort) |
+| **Read first** | [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
 | **API** | [`descriptive`](../../api/lib_jsl_statistics/descriptive/index.html): `mean`, `variance`, `standard_deviation`, `standard_error`, `weighted_mean`, `geometric_mean`, `harmonic_mean`, `quantile`, `median`, `interquartile_range`, `median_absolute_deviation`, `skewness`, `excess_kurtosis`, [`summary`](../../api/lib_jsl_statistics/descriptive/fn.summary.html) |
 
 </div>

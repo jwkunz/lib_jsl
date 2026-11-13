@@ -8,6 +8,7 @@
 | **Devised by** | Trigonometric interpolation: Alexis Clairaut (1754), Joseph-Louis Lagrange (1762), Carl Friedrich Gauss (1805, including the first FFT); Prony's method: Gaspard de Prony (1795) |
 | **Accuracy** | Trigonometric: exponential for smooth periodic functions. Prony: exact for exact exponential sums; with noise, reliable when more exponentials are fitted than the signal contains |
 | **Cost** | Trigonometric: $O(n^2)$ set-up (a direct DFT), $O(n)$ per evaluation. Prony: two least-squares problems and an eigenvalue problem of the model order |
+| **Read first** | [Preliminaries: complex numbers](../preliminaries.md#complex-numbers), [The fast Fourier transform](../fft/fft.md) |
 | **API** | [`FourierInterpolator1D`](../../api/lib_jsl_interpolation/one_d/fourier_1d/struct.FourierInterpolator1D.html), [`PronyModel`](../../api/lib_jsl_interpolation/one_d/pronys_method/struct.PronyModel.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Stiffness: Charles Curtiss and Joseph Hirschfelder (1952). Backward differentiation formulas: Curtiss and Hirschfelder (1952), C. William Gear (1971). Rosenbrock methods: Howard Rosenbrock (1963); the 2(3) pair of Lawrence Shampine and Mark Reichelt (1997) |
 | **Accuracy** | Rosenbrock 2(3): order 2 with an order-3 error estimate. BDF: orders 1 to 5, chosen by the user |
 | **Cost** | Per step, one Jacobian and one LU factorisation of an $n \times n$ matrix, plus a few function evaluations (Rosenbrock) or Newton iterations (BDF) |
+| **Read first** | [Runge-Kutta methods](runge-kutta.md), [Newton's method and the secant method](../root_finding/newton.md) |
 | **API** | [`rosenbrock23`](../../api/lib_jsl_integration/stiff_ode/fn.rosenbrock23.html), [`bdf`](../../api/lib_jsl_integration/stiff_ode/fn.bdf.html), [`OdeOptions`](../../api/lib_jsl_integration/stiff_ode/struct.OdeOptions.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Delimited text since the 1970s, standardised by Yakov Shafranovich in RFC 4180 (2005); Robert Kern and the NumPy developers (2007), the `.npy` format |
 | **Accuracy** | Python's `csv` module and NumPy read the library's files identically, and the library reads every tested `.npy` dtype, byte order, memory order and format version identically (tables below) |
 | **Cost** | $O(\text{size})$ |
+| **Read first** | Nothing beyond the [Preliminaries](../preliminaries.md) |
 | **API** | [`parse_csv`](../../api/lib_jsl_file_io/csv/fn.parse_csv.html), [`format_csv`](../../api/lib_jsl_file_io/csv/fn.format_csv.html), [`format_csv_f64`](../../api/lib_jsl_file_io/csv/fn.format_csv_f64.html), [`read_csv_file`](../../api/lib_jsl_file_io/csv/fn.read_csv_file.html), [`write_csv_file`](../../api/lib_jsl_file_io/csv/fn.write_csv_file.html), [`CsvTable`](../../api/lib_jsl_file_io/csv/struct.CsvTable.html) (`column_index`, `column_f64`, `to_f64_rows`), [`npy_decode`](../../api/lib_jsl_file_io/npy/fn.npy_decode.html), [`npy_encode`](../../api/lib_jsl_file_io/npy/fn.npy_encode.html), [`read_npy_file`](../../api/lib_jsl_file_io/npy/fn.read_npy_file.html), [`write_npy_file`](../../api/lib_jsl_file_io/npy/fn.write_npy_file.html), [`NpyArray`](../../api/lib_jsl_file_io/npy/struct.NpyArray.html) (`to_f64`, `from_f64`), [`NpyData`](../../api/lib_jsl_file_io/npy/enum.NpyData.html) |
 
 </div>

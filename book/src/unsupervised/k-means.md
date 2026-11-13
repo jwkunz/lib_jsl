@@ -8,6 +8,7 @@
 | **Devised by** | Hugo Steinhaus (1956); Stuart Lloyd (1957, published 1982), the alternating algorithm; James MacQueen (1967), the name k-means; Leonard Kaufman and Peter Rousseeuw (1987), k-medoids (PAM); David Arthur and Sergei Vassilvitskii (2007), k-means++ seeding |
 | **Accuracy** | Lloyd's algorithm converges to a local minimum in finitely many steps; k-means++ seeding is within $O(\log k)$ of the optimum in expectation |
 | **Cost** | Lloyd: $O(nkp)$ per iteration. PAM: $O(k^2n^2)$ per swap pass in this implementation |
+| **Read first** | [Foundations: models, data, preprocessing and metrics](../machine_learning/foundations.md) |
 | **API** | [`KMeans`](../../api/lib_jsl_machine_learning/unsupervised/clustering/k_means/struct.KMeans.html) (`new(k, seed)`, `with_restarts`, `with_limits`, `centroids`, `inertia`, `predict`), [`KMedoids`](../../api/lib_jsl_machine_learning/unsupervised/clustering/k_medoids/struct.KMedoids.html) (`new(k)`, `fit_distances`, `medoids`, `cost`) |
 
 </div>

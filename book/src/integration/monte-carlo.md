@@ -8,6 +8,7 @@
 | **Devised by** | Monte Carlo: Stanisław Ulam, John von Neumann and Nicholas Metropolis (1946–1949), after Buffon (1777). Low-discrepancy sequences: John Halton (1960), Ilya Sobol (1967). Random shifts: Roy Cranley and Thomas Patterson (1976) |
 | **Accuracy** | Monte Carlo: standard error $\sigma/\sqrt N$ in every dimension. Quasi-Monte Carlo: often close to $1/N$ in practice for smooth integrands of low effective dimension (the bound is $(\log N)^d/N$) |
 | **Cost** | One evaluation per point |
+| **Read first** | [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
 | **API** | [`monte_carlo`](../../api/lib_jsl_integration/monte_carlo_integration/fn.monte_carlo.html), [`monte_carlo_integration`](../../api/lib_jsl_integration/monte_carlo_integration/fn.monte_carlo_integration.html), [`quasi_monte_carlo_integration`](../../api/lib_jsl_integration/quasi_monte_carlo/fn.quasi_monte_carlo_integration.html), [`QuasiRandomSequence`](../../api/lib_jsl_integration/quasi_monte_carlo/enum.QuasiRandomSequence.html) |
 
 </div>

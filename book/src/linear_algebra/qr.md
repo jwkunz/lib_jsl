@@ -8,6 +8,7 @@
 | **Devised by** | Orthogonalisation: Pierre-Simon Laplace (1812), Jørgen Pedersen Gram (1883), Erhard Schmidt (1907); reflections: Alston Householder (1958); rotations: Wallace Givens (1958); column pivoting: Peter Businger and Gene Golub (1965); the stability of modified Gram-Schmidt: Åke Björck (1967) |
 | **Accuracy** | Householder: $Q$ orthogonal to machine precision, backward stable. Modified Gram-Schmidt: loss of orthogonality $\approx \kappa\varepsilon$. Classical Gram-Schmidt: $\approx \kappa^2\varepsilon$ |
 | **Cost** | $2mn^2 - \tfrac23n^3$ flops for Householder ($2mn^2$ for Gram-Schmidt) |
+| **Read first** | [Gaussian elimination and LU factorisation](lu.md) |
 | **API** | Production: used inside [`LeastSquaresSvd`](../../api/lib_jsl_linalg/trait.LeastSquaresSvd.html) and the SVD (crate-internal). Reference: [`qr`](../../api/lib_jsl_linalg_reference/qr/index.html) (`classical_gram_schmidt`, `modified_gram_schmidt`, `householder`, `orthogonality_error`) |
 
 </div>

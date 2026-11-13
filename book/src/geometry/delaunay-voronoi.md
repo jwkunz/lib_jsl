@@ -8,6 +8,7 @@
 | **Devised by** | Georgy Voronoy (1908), Boris Delaunay (1934); Charles Lawson (1977), edge flips; Adrian Bowyer and David Watson (1981), incremental insertion |
 | **Accuracy** | Exact combinatorics from floating-point predicates with a rounding-error threshold; identical triangles to Qhull on random points, and Voronoi cell areas within $2 \times 10^{-16}$ (see the [chapter overview](index.md#testing-against-scipy-and-shapely)) |
 | **Cost** | $O(n \log n)$ in practice for the triangulation; the Voronoi cells $O(n)$ more from it |
+| **Read first** | [Geometric types: points, vectors, shapes and shared tables](types.md) |
 | **API** | [`delaunay_triangulation`](../../api/lib_jsl_geometry/algorithms/delaunay_triangulation/fn.delaunay_triangulation.html), [`Triangulation`](../../api/lib_jsl_geometry/algorithms/delaunay_triangulation/struct.Triangulation.html) (`triangles`, `edges`, `locate`, `circumcenter`, `area`, `is_delaunay`), [`voronoi_diagram`](../../api/lib_jsl_geometry/algorithms/voronoi/fn.voronoi_diagram.html), [`VoronoiDiagram`](../../api/lib_jsl_geometry/algorithms/voronoi/struct.VoronoiDiagram.html), [`polygon_signed_area`](../../api/lib_jsl_geometry/algorithms/voronoi/fn.polygon_signed_area.html) |
 
 </div>

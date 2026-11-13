@@ -8,6 +8,7 @@
 | **Devised by** | Leonhard Euler (1729), the gamma and beta functions; Adrien-Marie Legendre (1811), the notation $\Gamma$; James Stirling (1730), the asymptotic series; Cornelius Lanczos (1964), the approximation used here |
 | **Accuracy** | About $10^{-15}$ relative for $\Gamma$ and $\ln\Gamma$, $10^{-14}$ for $\psi$; factorials and binomial coefficients exact in integer arithmetic while they fit |
 | **Cost** | A dozen arithmetic operations and one `exp` and `powf` |
+| **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error) |
 | **API** | [`gamma`](../../api/lib_jsl_special_functions/gamma/fn.gamma.html), [`ln_gamma`](../../api/lib_jsl_special_functions/gamma/fn.ln_gamma.html), [`digamma`](../../api/lib_jsl_special_functions/gamma/fn.digamma.html), [`beta`](../../api/lib_jsl_special_functions/beta/fn.beta.html), [`ln_beta`](../../api/lib_jsl_special_functions/beta/fn.ln_beta.html), [`factorial`](../../api/lib_jsl_special_functions/factorial/fn.factorial.html), [`factorial_f64`](../../api/lib_jsl_special_functions/factorial/fn.factorial_f64.html), [`ln_factorial`](../../api/lib_jsl_special_functions/factorial/fn.ln_factorial.html), [`binomial_coefficient`](../../api/lib_jsl_special_functions/binomial_coefficients/fn.binomial_coefficient.html), [`ln_binomial_coefficient`](../../api/lib_jsl_special_functions/binomial_coefficients/fn.ln_binomial_coefficient.html) |
 
 </div>

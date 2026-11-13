@@ -8,6 +8,7 @@
 | **Devised by** | Leonhard Euler (1775), angles and the rotation theorem; Olinde Rodrigues (1840), axis–angle formula; William Rowan Hamilton (1843), quaternions; Ken Shoemake (1985), spherical interpolation |
 | **Accuracy** | Matrices and Euler angles agree with SciPy's `Rotation` to $10^{-14}$, and slerp to $10^{-15}$ (see the [chapter overview](index.md#testing-against-scipy-and-shapely)) |
 | **Cost** | Composing: 27 multiplications for matrices, 16 for quaternions; conversions $O(1)$ |
+| **Read first** | [Geometric types: points, vectors, shapes and shared tables](types.md) |
 | **API** | [`Rotation3`](../../api/lib_jsl_geometry/algorithms/rotations/struct.Rotation3.html) (`from_axis_angle`, `from_euler`, `from_matrix`, `from_two_vectors`, `matrix`, `axis_angle`, `to_euler`, `rotate`, `inverse`, `slerp`, `angle_to`), [`Rotation2`](../../api/lib_jsl_geometry/algorithms/rotations/struct.Rotation2.html), [`EulerSequence`](../../api/lib_jsl_geometry/algorithms/rotations/struct.EulerSequence.html), [`Axis`](../../api/lib_jsl_geometry/algorithms/rotations/enum.Axis.html), [`Quaternion`](../../api/lib_jsl_geometry/algorithms/quaternions/struct.Quaternion.html), [`nearest_rotation_matrix`](../../api/lib_jsl_geometry/algorithms/rotations/fn.nearest_rotation_matrix.html), [`rotation_matrix_axis_angle`](../../api/lib_jsl_geometry/algorithms/rotations/fn.rotation_matrix_axis_angle.html) |
 
 </div>

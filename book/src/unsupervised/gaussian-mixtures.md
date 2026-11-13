@@ -8,6 +8,7 @@
 | **Devised by** | Karl Pearson (1894), mixtures of two normals; Arthur Dempster, Nan Laird and Donald Rubin (1977), the EM algorithm; Gideon Schwarz (1978), the Bayesian information criterion; Hirotugu Akaike (1974), AIC |
 | **Accuracy** | EM increases the likelihood at every step and converges to a local maximum (or saddle point) |
 | **Cost** | $O(nkp^2)$ per iteration with full covariances, plus $O(kp^3)$ for the Cholesky factors |
+| **Read first** | [k-means and k-medoids](k-means.md) |
 | **API** | [`GaussianMixture`](../../api/lib_jsl_machine_learning/unsupervised/clustering/gaussian_mixture_models/struct.GaussianMixture.html) (`new(k, covariance, seed)`, `predict_proba`, `score_samples`, `weights`, `means`, `covariances`, `bic`, `aic`), [`CovarianceType`](../../api/lib_jsl_machine_learning/unsupervised/clustering/gaussian_mixture_models/enum.CovarianceType.html) (`Full`, `Diagonal`) |
 
 </div>

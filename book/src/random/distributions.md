@@ -8,6 +8,7 @@
 | **Devised by** | Inversion: John von Neumann and Stanisław Ulam (1940s); rejection: von Neumann (1951); George Box and Mervin Muller (1958), normal pairs; Joachim Ahrens and Ulrich Dieter (1974), gamma, Poisson and binomial recursions; George Marsaglia and Wai Wan Tsang (2000), gamma |
 | **Accuracy** | Exact in distribution (up to the 53-bit resolution of the uniforms); every sampler passes a Kolmogorov-Smirnov test at 100 000 samples (table below) |
 | **Cost** | 1–60 ns per sample: one or two uniforms for inversion and Box-Muller, a few for rejection |
+| **Read first** | [Pseudo-random number generators](generators.md), [Statistical distribution functions](../special_functions/statistical.md) |
 | **API** | [`distributions`](../../api/lib_jsl_random/distributions/index.html): `uniform_distribution`, `exponential_distribution`, `weibull_distribution`, `gaussian_distribution_box_muller`, `log_normal_distribution`, `chi_square_distribution`, `students_t_distribution`, `gamma_distribution`, `beta_distribution`, `cauchy_distribution`, `bernoulli_distribution`, `geometric_distribution`, `poisson_distribution_knuth`, `binomial_distribution`, `dirichlet_distribution`, [`MultivariateNormal`](../../api/lib_jsl_random/distributions/multivariate_normal/struct.MultivariateNormal.html) |
 
 </div>

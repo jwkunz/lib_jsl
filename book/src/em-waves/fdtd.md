@@ -8,6 +8,7 @@
 | **Devised by** | Kane Yee (1966), the staggered grid; Allen Taflove (1975–80), the method's development and name; Gerrit Mur (1981), absorbing boundaries; Jean-Pierre Berenger (1994), the perfectly matched layer |
 | **Accuracy** | Second order in space and time; exact (dispersionless) in 1D at the magic time step; reflection coefficients within 0.4% of Fresnel's (tables below) |
 | **Cost** | $O(N)$ per time step for $N$ cells, with steps limited by the Courant condition |
+| **Read first** | [Finite difference methods](../integration/finite-differences.md) |
 | **API** | [`Fdtd1D`](../../api/lib_jsl_electromagnetics/algorithms/fdtd/struct.Fdtd1D.html) (`new`, `set_material`, `step`, `ez`, `hy`), [`FdtdTmz`](../../api/lib_jsl_electromagnetics/algorithms/fdtd/struct.FdtdTmz.html) (`new`, `set_permittivity`, `set_pec`, `step`, `ez`, `interior_energy`), [`gaussian_pulse`](../../api/lib_jsl_electromagnetics/algorithms/fdtd/fn.gaussian_pulse.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Gerald Goertzel (1958); Lawrence Rabiner, Ronald Schafer and Charles Rader (1969), the chirp-z transform, after Leo Bluestein (1968) |
 | **Accuracy** | The chirp-z transform agrees with SciPy's `czt` to $10^{-15}$; Fourier integrals converge spectrally for smooth, decaying functions (table below) |
 | **Cost** | Goertzel: $N$ real multiply-adds per bin. Chirp-z: three FFTs of length $\ge N + M - 1$ for $M$ output points |
+| **Read first** | [The fast Fourier transform](../fft/fft.md), [Bluestein's algorithm and the fractional Fourier transform](../fft/bluestein-fractional.md) |
 | **API** | [`goertzel`](../../api/lib_jsl_dsp/discrete/spectral/goertzel/fn.goertzel.html), [`goertzel_power`](../../api/lib_jsl_dsp/discrete/spectral/goertzel/fn.goertzel_power.html), [`goertzel_frequency`](../../api/lib_jsl_dsp/discrete/spectral/goertzel/fn.goertzel_frequency.html), [`chirpz`](../../api/lib_jsl_dsp/discrete/spectral/chirpz/fn.chirpz.html), [`fourier_integral`](../../api/lib_jsl_dsp/continuous/spectral/fourier_integrals/fn.fourier_integral.html) ([`FourierDirection`](../../api/lib_jsl_dsp/continuous/spectral/fourier_integrals/enum.FourierDirection.html)) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Jon Bentley (1975), k-d trees; Raphael Finkel and Jon Bentley (1974), quadtrees; Donald Meagher (1980), octrees |
 | **Accuracy** | Exact: the same 8 nearest neighbours as SciPy's `cKDTree` for 200 of 200 queries, and the same counts within a radius (see the [chapter overview](index.md#testing-against-scipy-and-shapely)) |
 | **Cost** | Build $O(n \log n)$; a nearest-neighbour query about $O(\log n)$ for well-spread points in low dimensions, against $O(n)$ for a scan |
+| **Read first** | [Geometric types: points, vectors, shapes and shared tables](types.md) |
 | **API** | [`KdTree`](../../api/lib_jsl_geometry/algorithms/kd_trees/struct.KdTree.html) (`new`, `nearest`, `k_nearest`, `within_radius`, `range_query`), [`RegionTree`](../../api/lib_jsl_geometry/algorithms/region_tree/struct.RegionTree.html) (`new`, `with_limits`, `from_points`, `insert`, `remove`, `nearest`, `k_nearest`, `query_radius`, `query_box`, `depth`), [`QuadTree`](../../api/lib_jsl_geometry/algorithms/quad_trees/type.QuadTree.html), [`OctTree`](../../api/lib_jsl_geometry/algorithms/oct_trees/type.OctTree.html) |
 
 </div>

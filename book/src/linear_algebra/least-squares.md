@@ -8,6 +8,7 @@
 | **Devised by** | Adrien-Marie Legendre (1805) and Carl Friedrich Gauss (1809), least squares and the normal equations; Gene Golub (1965), solution by Householder QR; Eliakim Moore (1920) and Roger Penrose (1955), the pseudoinverse; Golub and William Kahan (1965), solution by the SVD |
 | **Accuracy** | QR: backward stable, error $\propto \kappa(A)\varepsilon$ (plus $\kappa^2\varepsilon$ times the relative residual). Normal equations: error $\propto \kappa(A)^2\varepsilon$ |
 | **Cost** | QR: $2mn^2 - \tfrac23n^3$ flops. Normal equations: $mn^2 + \tfrac13n^3$. SVD: several times more |
+| **Read first** | [QR factorisation](qr.md), [Cholesky factorisation](cholesky.md) |
 | **API** | [`LeastSquaresSvd`](../../api/lib_jsl_linalg/trait.LeastSquaresSvd.html) (`least_squares`), [`LeastSquaresResult`](../../api/lib_jsl_linalg/struct.LeastSquaresResult.html); reference: [`least_squares`](../../api/lib_jsl_linalg_reference/least_squares/index.html) (`normal_equations`, `qr_least_squares`) |
 
 </div>

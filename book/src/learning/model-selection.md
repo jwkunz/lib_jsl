@@ -8,6 +8,7 @@
 | **Devised by** | Seymour Geisser (1975) and Mervyn Stone (1974), cross-validation; Peter Lachenbruch and M. Ray Mickey (1968), leave-one-out; Ron Kohavi (1995), stratified folds; Leo Breiman et al. (1984), the one-standard-error rule; Gavin Cawley and Nicola Talbot (2010), selection bias |
 | **Accuracy** | Nearly unbiased for a model trained on $(k - 1)/k$ of the data, with a variance that is hard to estimate |
 | **Cost** | $k$ fits per candidate setting; a grid over $m$ settings costs $mk$ fits |
+| **Read first** | [Background: bias and variance](../machine_learning/index.md#background-bias-variance-and-generalisation), [Foundations: models, data, preprocessing and metrics](../machine_learning/foundations.md) |
 | **API** | [`k_fold`](../../api/lib_jsl_machine_learning/model_selection/fn.k_fold.html), [`stratified_k_fold`](../../api/lib_jsl_machine_learning/model_selection/fn.stratified_k_fold.html), [`cross_validate_regressor`](../../api/lib_jsl_machine_learning/model_selection/fn.cross_validate_regressor.html), [`cross_validate_classifier`](../../api/lib_jsl_machine_learning/model_selection/fn.cross_validate_classifier.html), [`parameter_grid`](../../api/lib_jsl_machine_learning/model_selection/fn.parameter_grid.html), [`grid_search`](../../api/lib_jsl_machine_learning/model_selection/fn.grid_search.html), [`mean_score`](../../api/lib_jsl_machine_learning/model_selection/fn.mean_score.html) |
 
 </div>

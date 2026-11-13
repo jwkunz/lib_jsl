@@ -8,6 +8,7 @@
 | **Devised by** | Fourier series for the heat equation: Joseph Fourier (1807–1822). Collocation methods: Cornelius Lanczos (1938). Pseudospectral methods: Heinz-Otto Kreiss and Joseph Oliger, Steven Orszag (early 1970s). Chebyshev differentiation matrices in their modern form: Lloyd N. Trefethen (2000) |
 | **Accuracy** | Exponential in the number of points for analytic solutions; faster than any power for smooth ones |
 | **Cost** | Chebyshev: a dense $(n+1) \times (n+1)$ system. Fourier: two FFTs, $O(N \log N)$ |
+| **Read first** | [Polynomial interpolation](../interpolation/polynomial.md), [The fast Fourier transform](../fft/fft.md) |
 | **API** | [`chebyshev_points`](../../api/lib_jsl_integration/pde/spectral/fn.chebyshev_points.html), [`chebyshev_differentiation_matrix`](../../api/lib_jsl_integration/pde/spectral/fn.chebyshev_differentiation_matrix.html), [`chebyshev_bvp`](../../api/lib_jsl_integration/pde/spectral/fn.chebyshev_bvp.html), [`fourier_derivative`](../../api/lib_jsl_integration/pde/spectral/fn.fourier_derivative.html), [`periodic_heat`](../../api/lib_jsl_integration/pde/spectral/fn.periodic_heat.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Variational methods: Walther Ritz (1909), Boris Galerkin (1915); piecewise-linear elements: Richard Courant (1943); engineering development: Turner, Clough, Martin and Topp (1956), Argyris (1954–55), Clough named the method (1960); mathematical theory: Strang and Fix (1973) |
 | **Accuracy** | Linear elements: second order in the solution values, first order in the gradient (the energy norm) |
 | **Cost** | Assembly $O(N)$; a sparse symmetric positive-definite system, solved here by a tridiagonal solver (1D) or preconditioned conjugate gradients (2D) |
+| **Read first** | [Finite difference methods](finite-differences.md) |
 | **API** | [`fem_1d`](../../api/lib_jsl_integration/pde/finite_elements/fn.fem_1d.html), [`EndCondition`](../../api/lib_jsl_integration/pde/finite_elements/enum.EndCondition.html), [`fem_poisson_2d`](../../api/lib_jsl_integration/pde/finite_elements/fn.fem_poisson_2d.html), [`TriangleMesh`](../../api/lib_jsl_integration/pde/finite_elements/struct.TriangleMesh.html) |
 
 </div>

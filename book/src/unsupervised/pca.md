@@ -8,6 +8,7 @@
 | **Devised by** | Karl Pearson (1901), lines of closest fit; Harold Hotelling (1933), principal components; Kari Karhunen (1946) and Michel Loève (1955), the continuous expansion; Bernhard Schölkopf, Alexander Smola and Klaus-Robert Müller (1998), kernel PCA |
 | **Accuracy** | Exact up to the eigensolver; the variances agree with NumPy's SVD to $10^{-13}$ (table below) |
 | **Cost** | PCA: $O(np^2 + p^3)$ via the covariance matrix. Kernel PCA: $O(n^2p + n^3)$ via the Gram matrix |
+| **Read first** | [The singular value decomposition](../linear_algebra/svd.md) |
 | **API** | [`Pca`](../../api/lib_jsl_machine_learning/unsupervised/reduction/principal_component_analysis/struct.Pca.html) (`new(components)`, `components`, `explained_variance`, `explained_variance_ratio`, `inverse_transform`), [`KernelPca`](../../api/lib_jsl_machine_learning/unsupervised/reduction/kernel_pca/struct.KernelPca.html) (`new(kernel, components)`, `eigenvalues`); both implement [`Transformer`](../../api/lib_jsl_machine_learning/common/trait.Transformer.html) |
 
 </div>

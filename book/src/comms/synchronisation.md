@@ -8,6 +8,7 @@
 | **Devised by** | Henri de Bellescize (1932), the phase-locked loop; John Costas (1956), the Costas loop; Kurt Mueller and Markus Müller (1976), timing recovery; C. W. Farrow (1988), the variable fractional-delay filter |
 | **Accuracy** | A type-2 loop tracks a phase and a constant frequency offset with zero steady-state error; the Lagrange interpolator's error falls with its order (table below) |
 | **Cost** | A few operations per sample for the loops; $(N + 1)^2$ multiply-adds per output for an order-$N$ Farrow interpolator |
+| **Read first** | [Modulation: constellations, OFDM and FM](modulation.md) |
 | **API** | [`PhaseLockedLoop`](../../api/lib_jsl_dsp/discrete/synchronization/phase_locked_loop/struct.PhaseLockedLoop.html), [`LoopFilter`](../../api/lib_jsl_dsp/discrete/synchronization/phase_locked_loop/struct.LoopFilter.html), [`CostasLoop`](../../api/lib_jsl_dsp/discrete/synchronization/costas_loop/struct.CostasLoop.html) ([`CostasModulation`](../../api/lib_jsl_dsp/discrete/synchronization/costas_loop/enum.CostasModulation.html)), [`MuellerTimingRecovery`](../../api/lib_jsl_dsp/discrete/digital_communications/mueller_timing_detector/struct.MuellerTimingRecovery.html), [`mueller_timing_detector`](../../api/lib_jsl_dsp/discrete/digital_communications/mueller_timing_detector/fn.mueller_timing_detector.html), [`FarrowFilter`](../../api/lib_jsl_dsp/discrete/digital_communications/farrow_filter/struct.FarrowFilter.html), [`farrow_filter`](../../api/lib_jsl_dsp/discrete/digital_communications/farrow_filter/fn.farrow_filter.html) |
 
 </div>

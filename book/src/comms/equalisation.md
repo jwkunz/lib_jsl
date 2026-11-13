@@ -8,6 +8,7 @@
 | **Devised by** | Robert Lucky (1965), adaptive equalisation; Monroe Austin (1967), the decision-feedback equaliser; Bernard Widrow (1960), LMS adaptation; Dominique Godard (1974), RLS equalisation |
 | **Accuracy** | A trained equaliser removes the interference down to the noise floor (table below); RLS converges in a few dozen symbols, LMS in hundreds |
 | **Cost** | $O(N_f + N_b)$ per symbol for an LMS equaliser with $N_f$ forward and $N_b$ feedback taps; $O((N_f + N_b)^2)$ for RLS |
+| **Read first** | [Modulation: constellations, OFDM and FM](modulation.md), [Adaptive filters: LMS, NLMS and RLS](../filters/adaptive.md) |
 | **API** | [`ChannelImpairment`](../../api/lib_jsl_dsp/discrete/transformations/channel_impairment/struct.ChannelImpairment.html), [`ChannelTransmitter`](../../api/lib_jsl_dsp/discrete/transformations/channel_transmitter/struct.ChannelTransmitter.html), [`ChannelReceiver`](../../api/lib_jsl_dsp/discrete/transformations/channel_receiver/struct.ChannelReceiver.html), [`NonLinearityTransformer`](../../api/lib_jsl_dsp/discrete/transformations/non_linearity_transformers/struct.NonLinearityTransformer.html) (`hard_clip_real`, `hard_clip_complex`, `quantize_real`, `quantize_complex`, `sigmoid`), [`DecisionFeedbackEqualizer`](../../api/lib_jsl_dsp/discrete/digital_communications/decision_feedback_equalizer/struct.DecisionFeedbackEqualizer.html), [`decision_feedback_equalizer`](../../api/lib_jsl_dsp/discrete/digital_communications/decision_feedback_equalizer/fn.decision_feedback_equalizer.html) |
 
 </div>

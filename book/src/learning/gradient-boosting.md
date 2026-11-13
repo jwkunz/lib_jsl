@@ -8,6 +8,7 @@
 | **Devised by** | Robert Schapire (1990) and Yoav Freund and Schapire (1997), boosting and AdaBoost; Leo Breiman (1997), boosting as gradient descent; Jerome Friedman (2001), gradient boosting machines, and (2002), stochastic gradient boosting; Tianqi Chen and Carlos Guestrin (2016), XGBoost |
 | **Accuracy** | Training loss decreases at every stage; test error is controlled by the learning rate, tree depth, subsampling and the number of stages |
 | **Cost** | Each tree $O(dpn\log n)$ for depth $d$ (a sort per feature per level); $K$ trees per stage for $K$ classes |
+| **Read first** | [Decision trees and random forests](../machine_learning/decision-trees.md) |
 | **API** | [`GradientBoostingRegressor`](../../api/lib_jsl_machine_learning/ensembles/struct.GradientBoostingRegressor.html) (`feature_importances`, `training_loss`), [`GradientBoostingClassifier`](../../api/lib_jsl_machine_learning/ensembles/struct.GradientBoostingClassifier.html) (`predict_proba`, `training_loss`), [`BoostingParameters`](../../api/lib_jsl_machine_learning/ensembles/struct.BoostingParameters.html) (`stages`, `learning_rate`, `max_depth`, `min_samples_leaf`, `subsample`, `seed`), [`RegressionTree`](../../api/lib_jsl_machine_learning/ensembles/struct.RegressionTree.html) |
 
 </div>

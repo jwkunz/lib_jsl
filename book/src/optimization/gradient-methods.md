@@ -8,6 +8,7 @@
 | **Devised by** | Gradient descent: Augustin-Louis Cauchy (1847). Conjugate gradients: Magnus Hestenes and Eduard Stiefel (1952, for linear systems); for nonlinear functions, Roger Fletcher and Colin Reeves (1964), Elijah Polak and Gerard Ribière (1969), Boris Polyak (1969), Yu-Hong Dai and Ya-Xiang Yuan (1999) |
 | **Accuracy** | Gradient descent: linear convergence, with rate $(\kappa - 1)/(\kappa + 1)$ at best for condition number $\kappa$. Conjugate gradients: about $(\sqrt\kappa - 1)/(\sqrt\kappa + 1)$, and exact in $n$ steps on a quadratic with exact line searches |
 | **Cost** | One gradient per iteration (gradient descent), or one line search (conjugate gradients); $O(n)$ memory |
+| **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like), [One-dimensional minimisation and line searches](one-dimensional.md) |
 | **API** | [`GradientDescent`](../../api/lib_jsl_optimization/gradient_descent/struct.GradientDescent.html), [`NonlinearConjugateGradient`](../../api/lib_jsl_optimization/conjugate_gradient/struct.NonlinearConjugateGradient.html), [`ConjugateGradientBeta`](../../api/lib_jsl_optimization/conjugate_gradient/enum.ConjugateGradientBeta.html) |
 
 </div>

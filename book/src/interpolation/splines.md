@@ -8,6 +8,7 @@
 | **Devised by** | Splines: Isaac Schoenberg (1946), after the draughtsman's flexible spline; algorithms: Carl de Boor (1960s–70s). Cubic Hermite methods: Akima (1970), Fritsch and Carlson's monotone PCHIP (1980), Catmull and Rom (1974) |
 | **Accuracy** | Linear: $O(h^2)$. Natural cubic spline: $O(h^4)$ in the interior, $O(h^2)$ near ends where $f'' \ne 0$. PCHIP and Akima: $O(h^3)$ for smooth data |
 | **Cost** | Linear and Hermite methods: $O(n)$ set-up; spline: one tridiagonal solve. Each evaluation: a binary search, then $O(1)$ |
+| **Read first** | [Polynomial interpolation](polynomial.md) |
 | **API** | [`LinearInterpolator`](../../api/lib_jsl_interpolation/one_d/linear_interpolator/struct.LinearInterpolator.html), [`NaturalCubicSplineInterpolator`](../../api/lib_jsl_interpolation/one_d/natural_cubic_spline_interpolator/struct.NaturalCubicSplineInterpolator.html), [`pchip`](../../api/lib_jsl_interpolation/one_d/pchip/fn.pchip.html), [`akima`](../../api/lib_jsl_interpolation/one_d/akima/fn.akima.html), [`cubic_basis`](../../api/lib_jsl_interpolation/one_d/cubic_basis/fn.cubic_basis.html), [`PiecewiseHermite`](../../api/lib_jsl_interpolation/one_d/hermite/struct.PiecewiseHermite.html) |
 
 </div>

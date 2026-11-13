@@ -8,6 +8,7 @@
 | **Devised by** | Leonid Kantorovich (1939) and Tjalling Koopmans (1940s), formulation; George Dantzig (1947), the simplex method; John von Neumann (1947), duality; Robert Bland (1977), the anti-cycling rule |
 | **Accuracy** | Exact in exact arithmetic: the method finds an optimal vertex, or proves the problem infeasible or unbounded, in finitely many steps |
 | **Cost** | Each pivot costs $O(mn)$ for $m$ constraints and $n$ variables; the number of pivots is usually a small multiple of $m$, but exponential in the worst case |
+| **Read first** | [Constrained optimisation: SQP and the augmented Lagrangian method](constrained.md) |
 | **API** | [`LinearProgram`](../../api/lib_jsl_optimization/linear_programming/struct.LinearProgram.html), [`LpSolution`](../../api/lib_jsl_optimization/linear_programming/struct.LpSolution.html), [`LpStatus`](../../api/lib_jsl_optimization/linear_programming/enum.LpStatus.html) |
 
 </div>

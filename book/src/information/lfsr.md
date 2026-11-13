@@ -8,6 +8,7 @@
 | **Devised by** | Solomon Golomb (1955–67), the theory of shift-register sequences; Robert Gold (1967), families of codes with bounded cross-correlation |
 | **Accuracy** | Exact: periods, primitivity and correlation values match the theory (tables below) |
 | **Cost** | One parity and one shift per output bit; the primitivity test needs $O(n^2\log 2^n)$ bit operations plus factoring $2^n - 1$ |
+| **Read first** | [Divisibility and modular arithmetic](../number-theory/modular-arithmetic.md) |
 | **API** | [`Lfsr`](../../api/lib_jsl_information/lfsr/linear_feedback_shift_register/struct.Lfsr.html) (`new`, `from_polynomial`, `step`, `bits`, `period`), [`is_primitive_polynomial`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.is_primitive_polynomial.html), [`maximum_length_polynomial`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.maximum_length_polynomial.html), [`maximum_length_polynomials`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.maximum_length_polynomials.html), [`all_maximum_length_polynomials`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.all_maximum_length_polynomials.html), [`gold_codes`](../../api/lib_jsl_information/lfsr/gold_codes/fn.gold_codes.html), [`gold_correlation_bound`](../../api/lib_jsl_information/lfsr/gold_codes/fn.gold_correlation_bound.html) |
 
 </div>

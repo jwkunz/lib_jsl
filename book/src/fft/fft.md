@@ -8,6 +8,7 @@
 | **Devised by** | Carl Friedrich Gauss (1805, unpublished); Gordon Danielson and Cornelius Lanczos (1942); James Cooley and John Tukey (1965); split radix: R. Yavne (1968), Pierre Duhamel and Henk Hollmann (1984); cache-oblivious and adaptive FFTs: Matteo Frigo and Steven Johnson (FFTW, 1998) |
 | **Accuracy** | Relative error $O(\varepsilon\log n)$ with accurate twiddle factors |
 | **Cost** | Radix 2: $5n\log_2n$ real flops; split radix: about $4n\log_2n$; the direct DFT: $8n^2$ |
+| **Read first** | [Preliminaries: complex numbers](../preliminaries.md#complex-numbers) |
 | **API** | [`Fft`](../../api/lib_jsl_ffts/fft/struct.Fft.html), [`BestFft`](../../api/lib_jsl_ffts/best_fft/struct.BestFft.html), [`SimdFft`](../../api/lib_jsl_ffts/simd_fft/struct.SimdFft.html), [`FftEngine1D`](../../api/lib_jsl_ffts/fft_engine_trait/trait.FftEngine1D.html); reference: [`simple_cooley_tukey`](../../api/lib_jsl_ffts_reference/simple_cooley_tukey/index.html), [`optimized_radix2`](../../api/lib_jsl_ffts_reference/optimized_radix2/index.html), [`optimized_split_radix`](../../api/lib_jsl_ffts_reference/optimized_split_radix/index.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Johann Heinrich Lambert (1758) and Leonhard Euler (1783); named, and its theory and computation systematised, by Robert Corless, Gaston Gonnet, D. E. G. Hare, David Jeffrey and Donald Knuth (1996) |
 | **Accuracy** | About $10^{-16}$ relative, a few units of $10^{-16}$ near the branch point $z = -1/e$ |
 | **Cost** | An initial approximation and two or three Halley iterations |
+| **Read first** | [Newton's method and the secant method](../root_finding/newton.md) |
 | **API** | [`lambert_w0`](../../api/lib_jsl_special_functions/inverse_x_log_x/fn.lambert_w0.html), [`lambert_w_m1`](../../api/lib_jsl_special_functions/inverse_x_log_x/fn.lambert_w_m1.html), [`lambert_w`](../../api/lib_jsl_special_functions/lambert_w/fn.lambert_w.html), [`inverse_x_log_x`](../../api/lib_jsl_special_functions/inverse_x_log_x/fn.inverse_x_log_x.html), [`inverse_x_log_x_lower`](../../api/lib_jsl_special_functions/inverse_x_log_x/fn.inverse_x_log_x_lower.html) |
 
 </div>

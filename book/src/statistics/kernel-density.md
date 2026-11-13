@@ -8,6 +8,7 @@
 | **Devised by** | Murray Rosenblatt (1956) and Emanuel Parzen (1962); David Scott (1979) and Bernard Silverman (1986), bandwidth rules of thumb; Simon Sheather and Chris Jones (1991), plug-in bandwidths |
 | **Accuracy** | Mean integrated squared error $O(n^{-4/5})$ with a well-chosen bandwidth; matches `scipy.stats.gaussian_kde` to rounding |
 | **Cost** | $O(n)$ per evaluation point |
+| **Read first** | [Descriptive statistics](descriptive.md), [Background: bias and variance](../machine_learning/index.md#background-bias-variance-and-generalisation) |
 | **API** | [`GaussianKde`](../../api/lib_jsl_statistics/kernel_density/struct.GaussianKde.html) (`new`, `pdf`, `cdf`, `resample`, `bandwidth`), [`Bandwidth`](../../api/lib_jsl_statistics/kernel_density/enum.Bandwidth.html) (`Scott`, `Silverman`, `Fixed`) |
 
 </div>

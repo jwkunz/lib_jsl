@@ -8,6 +8,7 @@
 | **Devised by** | Bisection: implicit in Bolzano's intermediate value theorem (1817). False position: ancient (Egypt, China, India; Fibonacci 1202); the Illinois modification: Dowell and Jarratt (1971). Ridders' method: C. J. F. Ridders (1979). Brent's method: Theodorus Dekker (1969) and Richard Brent (1973), after van Wijngaarden and colleagues |
 | **Accuracy** | To the requested tolerance, or the limit of floating point; the root always stays bracketed |
 | **Cost** | Bisection: $\log_2((b - a)/\text{tol})$ evaluations. False position (Illinois): order 1.44 per evaluation. Ridders: order 1.41 per evaluation. Brent: order up to 1.84, never far from bisection's worst case |
+| **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error) |
 | **API** | [`bracket_root`](../../api/lib_jsl_root_finding/bracketing/fn.bracket_root.html), [`bracket_roots_scan`](../../api/lib_jsl_root_finding/bracketing/fn.bracket_roots_scan.html), [`bisection`](../../api/lib_jsl_root_finding/bisection/fn.bisection.html), [`false_position`](../../api/lib_jsl_root_finding/false_position_method/fn.false_position.html), [`ridders_method`](../../api/lib_jsl_root_finding/ridders_method/fn.ridders_method.html), [`brent_method`](../../api/lib_jsl_root_finding/van_wijngaarden_dekker_brent/fn.brent_method.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Leonard Herrmann (1976), Laplacian smoothing; Gabriel Taubin (1995), λ\|μ smoothing; Michael Garland and Paul Heckbert (1997), quadric error decimation |
 | **Accuracy** | Taubin smoothing keeps the mean radius of a noisy sphere within 0.1%; decimation to 2000 of 9216 triangles stays within 0.003 of a torus of tube radius 0.4; slices match the exact lengths to the mesh's own discretisation error (tables below) |
 | **Cost** | Smoothing $O(E)$ per iteration; decimation $O(E \log E)$; slicing $O(T)$ per plane |
+| **Read first** | [Geometric types: points, vectors, shapes and shared tables](types.md) |
 | **API** | [`laplacian_smoothing`](../../api/lib_jsl_geometry/algorithms/mesh_processing/fn.laplacian_smoothing.html), [`taubin_smoothing`](../../api/lib_jsl_geometry/algorithms/mesh_processing/fn.taubin_smoothing.html), [`decimate`](../../api/lib_jsl_geometry/algorithms/mesh_processing/fn.decimate.html), [`vertex_neighbours`](../../api/lib_jsl_geometry/algorithms/mesh_processing/fn.vertex_neighbours.html), [`boundary_vertices`](../../api/lib_jsl_geometry/algorithms/mesh_processing/fn.boundary_vertices.html), [`slice_mesh`](../../api/lib_jsl_geometry/algorithms/slicing/fn.slice_mesh.html), [`slice_mesh_levels`](../../api/lib_jsl_geometry/algorithms/slicing/fn.slice_mesh_levels.html), [`Contour`](../../api/lib_jsl_geometry/algorithms/slicing/struct.Contour.html) (`length`, `simplified`) |
 
 </div>

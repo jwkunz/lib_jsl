@@ -8,6 +8,7 @@
 | **Devised by** | Difference quotients: Newton and Leibniz (1670s), Brook Taylor (1715); difference formulas of higher order from interpolation: Newton, Stirling and Bessel (18th century); step-size analysis in floating point: the early numerical analysts, systematised in texts such as Gill, Murray and Wright (1981) |
 | **Accuracy** | Central difference: about $\varepsilon^{2/3}$ (10 digits); five-point first derivative: about $\varepsilon^{4/5}$ (13 digits); each higher derivative loses more |
 | **Cost** | Two evaluations (central), four or five (five-point); a gradient costs $2n$, a Hessian about $2n^2$ |
+| **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error) |
 | **API** | [`derivative_2_point`](../../api/lib_jsl_derivatives/derivatives_1d_scalar/fn.derivative_2_point.html), [`derivative_stencil`](../../api/lib_jsl_derivatives/derivatives_1d_scalar/fn.derivative_stencil.html), [`gradient_2_point`](../../api/lib_jsl_derivatives/derivatives_vectors/fn.gradient_2_point.html), [`hessian_2_point`](../../api/lib_jsl_derivatives/derivatives_vectors/fn.hessian_2_point.html), [`jacobian_2_point`](../../api/lib_jsl_derivatives/derivatives_vectors/fn.jacobian_2_point.html) |
 
 </div>

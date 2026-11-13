@@ -8,6 +8,7 @@
 | **Devised by** | Rudolf Kálmán (1960), state-space controllability and observability and the Kalman filter; Nicolas Minorsky (1922), PID control; John Ziegler and Nathaniel Nichols (1942), PID tuning |
 | **Accuracy** | The Kalman filter is the minimum-variance linear estimator when its model is right; on a tracking test it halves the measurement error (below) |
 | **Cost** | $O(n^2)$ per step for a state-space model with $n$ states; $O(1)$ for PID; $O(n^3 + m^3)$ per step for a Kalman filter with $m$ measurements |
+| **Read first** | [Background: frequency responses](../filters/index.md#background-frequency-responses-and-transfer-functions), [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
 | **API** | [`StateSpace`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html) (`step`, `get_poles`, `is_stable`, `is_controllable`, `is_observable`), [`PidController`](../../api/lib_jsl_dsp/discrete/controls/pid/struct.PidController.html), [`KalmanFilter`](../../api/lib_jsl_dsp/discrete/controls/kalman/struct.KalmanFilter.html) |
 
 </div>

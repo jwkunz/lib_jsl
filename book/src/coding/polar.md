@@ -8,6 +8,7 @@
 | **Devised by** | Erdal Arıkan (2009); Ido Tal and Alexander Vardy (2011–15), list decoding |
 | **Accuracy** | Capacity-achieving as $N \to \infty$; at $N = 1024$, rate 1/2, successive cancellation reaches a bit error rate of $10^{-4}$ near 3 dB (figure below) |
 | **Cost** | $O(N\log N)$ for encoding and for successive-cancellation decoding; the code construction costs $O(N\log N)$ |
+| **Read first** | [Low-density parity-check codes](ldpc.md) |
 | **API** | [`PolarCode`](../../api/lib_jsl_information/forward_error_correction/polar/struct.PolarCode.html) (`new`, `encode`, `decode`, `decode_hard`, `info_positions`, `n`, `k`) |
 
 </div>

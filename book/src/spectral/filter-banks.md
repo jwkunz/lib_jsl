@@ -8,6 +8,7 @@
 | **Devised by** | Maurice Bellanger and J. L. Daguet (1974), the polyphase DFT filter bank; Ronald Crochiere and Lawrence Rabiner (1981), weighted overlap-add; P. P. Vaidyanathan (1987–1993), perfect-reconstruction theory; fred harris (2003), polyphase channelisers for radio |
 | **Accuracy** | Analysis channels have the prototype's response (60 dB stopband by default, test below); oversampled synthesis reconstructs the input to better than −65 dB with the default prototype; critically sampled synthesis is exact only for one-tap-per-phase prototypes (table below) |
 | **Cost** | Per block of $D$ input samples: $L$ multiply-adds for a prototype of $L$ taps, and one $M$-point FFT |
+| **Read first** | [Resampling: polyphase, half-band and CIC filters](resampling.md) |
 | **API** | [`CriticallySampledPolyphaseAnalysisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/critically_sampled_polyphase_filter_bank/struct.CriticallySampledPolyphaseAnalysisFilterBank.html), [`CriticallySampledPolyphaseSynthesisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/critically_sampled_polyphase_filter_bank/struct.CriticallySampledPolyphaseSynthesisFilterBank.html), [`OversampledPolyphaseAnalysisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/oversampled_polyphase_filter_bank/struct.OversampledPolyphaseAnalysisFilterBank.html), [`OversampledPolyphaseSynthesisFilterBank`](../../api/lib_jsl_dsp/discrete/spectral/oversampled_polyphase_filter_bank/struct.OversampledPolyphaseSynthesisFilterBank.html) |
 
 </div>

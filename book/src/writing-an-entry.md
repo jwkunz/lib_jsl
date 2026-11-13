@@ -18,6 +18,7 @@ Every entry uses the outline described in [How to read an entry](how-to-read.md)
 | **Devised by** | Who, when |
 | **Accuracy** | Convergence rate or error bound |
 | **Cost** | Operations, evaluations, memory |
+| **Read first** | Links to the entries or background sections this one builds on (at most three) |
 | **API** | Links into ../../api/... |
 
 </div>

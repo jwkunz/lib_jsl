@@ -8,6 +8,7 @@
 | **Devised by** | Irving Reed and Gustave Solomon (1960); Elwyn Berlekamp (1968) and James Massey (1969), the decoding algorithm; Robert Chien (1964), the root search |
 | **Accuracy** | Corrects any $\lfloor (n - k)/2\rfloor$ byte errors, the most possible for the redundancy (MDS); parity bytes identical to the `reedsolo` package (table below) |
 | **Cost** | Encoding $O(n(n - k))$ field multiplications; decoding $O(n(n - k))$ for the syndromes and the Chien search plus $O((n - k)^2)$ for Berlekamp-Massey |
+| **Read first** | [Linear block codes and Hamming codes](hamming.md), [Polynomials and decimal-string integers](../number-theory/polynomials.md) |
 | **API** | [`ReedSolomon`](../../api/lib_jsl_information/forward_error_correction/reed_solomon/struct.ReedSolomon.html) (`new`, `encode`, `parity`, `decode`, `correct`, `error_capacity`) |
 
 </div>

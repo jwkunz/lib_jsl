@@ -8,6 +8,7 @@
 | **Devised by** | Warren McCulloch and Walter Pitts (1943), the artificial neuron; Frank Rosenblatt (1958), the perceptron; Seppo Linnainmaa (1970), reverse-mode differentiation; Paul Werbos (1974) and David Rumelhart, Geoffrey Hinton and Ronald Williams (1986), backpropagation; George Cybenko (1989) and Kurt Hornik (1991), universal approximation; Diederik Kingma and Jimmy Ba (2014), Adam |
 | **Accuracy** | Backpropagation gives exact gradients, checked against finite differences in the tests; training finds a local minimum of a nonconvex loss |
 | **Cost** | Forward and backward passes each $O(B\sum_lh_{l-1}h_l)$ per mini-batch of $B$ rows, for layer widths $h_l$ |
+| **Read first** | [Logistic regression](../machine_learning/logistic-regression.md), [Gradient descent and nonlinear conjugate gradients](../optimization/gradient-methods.md) |
 | **API** | [`MlpClassifier`](../../api/lib_jsl_machine_learning/neural_network/struct.MlpClassifier.html) (`predict_proba`, `training_loss`), [`MlpRegressor`](../../api/lib_jsl_machine_learning/neural_network/struct.MlpRegressor.html), [`MlpParameters`](../../api/lib_jsl_machine_learning/neural_network/struct.MlpParameters.html) (`hidden`, `activation`, `learning_rate`, `epochs`, `batch_size`, `weight_decay`, `seed`), [`Activation`](../../api/lib_jsl_machine_learning/neural_network/enum.Activation.html) |
 
 </div>

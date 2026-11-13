@@ -8,6 +8,7 @@
 | **Devised by** | James Morgan and John Sonquist (1963), AID; Leo Breiman, Jerome Friedman, Richard Olshen and Charles Stone (1984), CART; Ross Quinlan (1986, 1993), ID3 and C4.5; Tin Kam Ho (1995), random subspaces; Breiman (1996), bagging, and (2001), random forests |
 | **Accuracy** | Single trees are high-variance; forests are among the most accurate off-the-shelf classifiers for tabular data |
 | **Cost** | Growing a tree $O(pn\log^2n)$ (a sort per feature per node); a forest of $T$ trees $T$ times that on $\sqrt p$ features per split |
+| **Read first** | [Foundations: models, data, preprocessing and metrics](foundations.md), [The bootstrap](../statistics/bootstrap.md) |
 | **API** | [`DecisionTree`](../../api/lib_jsl_machine_learning/supervised/classification/random_forest/struct.DecisionTree.html) (`new(max_depth)`, `with_min_samples_split`, `predict_proba`, `depth`), [`RandomForest`](../../api/lib_jsl_machine_learning/supervised/classification/random_forest/struct.RandomForest.html) (`new(trees, max_depth, seed)`, `oob_accuracy`, `feature_importances`) |
 
 </div>

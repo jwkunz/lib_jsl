@@ -8,6 +8,7 @@
 | **Devised by** | Edsger Dijkstra (1959); Richard Bellman (1958), Lester Ford (1956) and Edward Moore (1959); Peter Hart, Nils Nilsson and Bertram Raphael (1968), A*; Robert Floyd (1962) and Stephen Warshall (1962) |
 | **Accuracy** | Exact; distances agree with SciPy's `csgraph` to the last digit (see the [chapter overview](index.md#testing-against-scipy-and-networkx)) |
 | **Cost** | Dijkstra $O((V + E)\log V)$; Bellman–Ford $O(VE)$, often far less with early exit; A* at most Dijkstra's, usually much less; Floyd–Warshall $O(V^3)$ time and $O(V^2)$ memory |
+| **Read first** | [Graphs, traversal and orderings](traversal.md) |
 | **API** | [`dijkstra`](../../api/lib_jsl_graph/shortest_paths/fn.dijkstra.html), [`bellman_ford`](../../api/lib_jsl_graph/shortest_paths/fn.bellman_ford.html), [`a_star`](../../api/lib_jsl_graph/shortest_paths/fn.a_star.html), [`ShortestPaths`](../../api/lib_jsl_graph/shortest_paths/struct.ShortestPaths.html) (`distance`, `predecessor`, `path_to`), [`floyd_warshall`](../../api/lib_jsl_graph/all_pairs/fn.floyd_warshall.html), [`AllPairsShortestPaths`](../../api/lib_jsl_graph/all_pairs/struct.AllPairsShortestPaths.html) (`distance`, `path`) |
 
 </div>

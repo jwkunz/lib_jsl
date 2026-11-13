@@ -8,6 +8,7 @@
 | **Devised by** | James Mercer (1909), positive-definite kernels; Vladimir Vapnik and Alexey Chervonenkis (1963–1974), maximal margins and learning theory; Bernhard Boser, Isabelle Guyon and Vapnik (1992), the kernel trick; Corinna Cortes and Vapnik (1995), soft margins; Harris Drucker et al. (1997), support vector regression; John Platt (1998), sequential minimal optimisation; Rong-En Fan, Pai-Hsuen Chen and Chih-Jen Lin (2005), second-order working sets |
 | **Accuracy** | SMO stops when the maximal KKT violation is below $10^{-3}$ (LIBSVM's default) |
 | **Cost** | Training between $O(n^2)$ and $O(n^3)$ kernel evaluations; prediction $O(n_{\text{SV}}p)$ per point |
+| **Read first** | [Logistic regression](logistic-regression.md), [Constrained optimisation: SQP and the augmented Lagrangian method](../optimization/constrained.md) |
 | **API** | [`SupportVectorMachine`](../../api/lib_jsl_machine_learning/supervised/classification/support_vector_machine/struct.SupportVectorMachine.html) (`new(kernel, c)`, `decision_function`, `support_vector_count`), [`SupportVectorRegression`](../../api/lib_jsl_machine_learning/supervised/regression/support_vector_regression/struct.SupportVectorRegression.html) (`new(kernel, c, epsilon)`), [`Kernel`](../../api/lib_jsl_machine_learning/kernels/enum.Kernel.html) (`Linear`, `Polynomial`, `Rbf`, `Sigmoid`, `gram`, `rbf_scaled`) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Paul Hough (1959, patented 1962), for bubble-chamber tracks; Richard Duda and Peter Hart (1972), the $(\rho, \theta)$ form and circles |
 | **Accuracy** | The strongest lines and circles agree with scikit-image's (see the [chapter overview](index.md#testing-against-scipy-and-scikit-image)); positions to the accumulator's resolution, one pixel and one degree by default |
 | **Cost** | $O(E\,n_\theta)$ for lines and $O(E\,r)$ per radius for circles, for $E$ edge pixels |
+| **Read first** | [Segmentation: Otsu's threshold, Canny edges and the watershed](segmentation.md) |
 | **API** | [`hough_transform`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/hough_transform/fn.hough_transform.html), [`HoughLines`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/hough_transform/struct.HoughLines.html), [`hough_line_peaks`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/hough_transform/fn.hough_line_peaks.html), [`hough_lines`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/hough_transform/fn.hough_lines.html), [`hough_circles`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/hough_transform/fn.hough_circles.html) |
 
 </div>

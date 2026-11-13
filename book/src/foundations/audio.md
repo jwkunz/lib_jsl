@@ -8,6 +8,7 @@
 | **Devised by** | Electronic Arts (1985), the IFF chunk format; IBM and Microsoft (1991), RIFF/WAVE |
 | **Accuracy** | WAV files from Python's `wave` module and hand-built headers read exactly; SciPy reads the library's WAV files to within half a quantisation step (tables below) |
 | **Cost** | $O(n)$ |
+| **Read first** | [Background: sampling and aliasing](../filters/index.md#sampling-and-aliasing) |
 | **API** | [`parse_wav`](../../api/lib_jsl_file_io/wav/fn.parse_wav.html), [`encode_wav`](../../api/lib_jsl_file_io/wav/fn.encode_wav.html), [`read_wav_file`](../../api/lib_jsl_file_io/wav/fn.read_wav_file.html), [`write_wav_file`](../../api/lib_jsl_file_io/wav/fn.write_wav_file.html), [`WavAudio`](../../api/lib_jsl_file_io/wav/struct.WavAudio.html), [`WavSampleFormat`](../../api/lib_jsl_file_io/wav/enum.WavSampleFormat.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | René Descartes (1637), coordinates; Hermann Grassmann (1844) and Josiah Willard Gibbs (1881), vector algebra; Bruce Baumgart (1972), shared-vertex boundary representations for computer models |
 | **Accuracy** | Single precision (`f32`, about seven significant digits) for the primitive types; the algorithms of the other entries work in `f64` on plain arrays |
 | **Cost** | $O(1)$ per point lookup in a hash table; $O(k)$ for a shape with $k$ vertices |
+| **Read first** | Nothing beyond the [Preliminaries](../preliminaries.md) |
 | **API** | [`concrete`](../../api/lib_jsl_geometry/concrete/index.html) (`CoordinateVector1D`–`3D`, `FreeVector2D`–`3D`, `UnitVector1D`–`3D`, `Line1D`–`3D`, `Plane1D`–`3D`, `Triangle2D`–`3D`, `PolygonFace2D`–`3D`, `Tetrahedron3D`, `Mesh2D`, `SurfaceMesh3D`, `VolumeMesh3D`), [`GeometryTableRegistry`](../../api/lib_jsl_geometry/registry/struct.GeometryTableRegistry.html), [`HashGeometryTable`](../../api/lib_jsl_geometry/tables/struct.HashGeometryTable.html), [`common`](../../api/lib_jsl_geometry/common/index.html) (ids and traits), [`coordinate_systems`](../../api/lib_jsl_geometry/coordinate_systems/index.html), [`transformation_traits`](../../api/lib_jsl_geometry/transformation_traits/index.html) |
 
 </div>

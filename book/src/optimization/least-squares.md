@@ -8,6 +8,7 @@
 | **Devised by** | Least squares: Adrien-Marie Legendre (1805) and Carl Friedrich Gauss (1809); Gauss-Newton: Gauss; damping: Kenneth Levenberg (1944) and Donald Marquardt (1963); the damping update used here: Hans Bruun Nielsen (1999) |
 | **Accuracy** | Quadratic convergence for zero-residual problems, fast linear convergence for small residuals; parameter standard errors from the covariance $(J^{\mathsf T}J)^{-1}$ |
 | **Cost** | Per iteration: one Jacobian (analytic, or $n$ extra residual evaluations by differences) and an $n \times n$ solve, with $O(mn^2)$ work to form $J^{\mathsf T}J$ |
+| **Read first** | [Newton and quasi-Newton methods: Newton, BFGS and L-BFGS](newton-quasi-newton.md), [Linear least squares](../linear_algebra/least-squares.md) |
 | **API** | [`LevenbergMarquardt`](../../api/lib_jsl_optimization/least_squares/struct.LevenbergMarquardt.html), [`curve_fit`](../../api/lib_jsl_optimization/least_squares/fn.curve_fit.html), [`CurveFitResult`](../../api/lib_jsl_optimization/least_squares/struct.CurveFitResult.html) |
 
 </div>

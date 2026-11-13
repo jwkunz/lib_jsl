@@ -8,6 +8,7 @@
 | **Devised by** | David Hilbert (1905), the integral transform; Dennis Gabor (1946), the analytic signal; Lawrence Marple (1999), the discrete-time construction by the DFT |
 | **Accuracy** | Agrees with SciPy's `hilbert` to $10^{-16}$ |
 | **Cost** | Two FFTs of the signal length |
+| **Read first** | [The fast Fourier transform](../fft/fft.md) |
 | **API** | [`analytic_signal`](../../api/lib_jsl_dsp/discrete/spectral/hilbert/fn.analytic_signal.html), [`hilbert_transform`](../../api/lib_jsl_dsp/discrete/spectral/hilbert/fn.hilbert_transform.html), [`instantaneous_attributes`](../../api/lib_jsl_dsp/discrete/spectral/hilbert/fn.instantaneous_attributes.html) ([`InstantaneousAttributes`](../../api/lib_jsl_dsp/discrete/spectral/hilbert/struct.InstantaneousAttributes.html)) |
 
 </div>

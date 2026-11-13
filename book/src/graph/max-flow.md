@@ -8,6 +8,7 @@
 | **Devised by** | Lester Ford and Delbert Fulkerson (1956), augmenting paths and the max-flow min-cut theorem; Jack Edmonds and Richard Karp (1972), shortest augmenting paths; Yefim Dinitz (1970), blocking flows in level graphs |
 | **Accuracy** | Exact for integer capacities (to rounding for real ones); both algorithms agree with SciPy's `maximum_flow`, and the cut found always equals the flow (tables below) |
 | **Cost** | Edmonds–Karp $O(VE^2)$; Dinic $O(V^2E)$, and $O(E\sqrt V)$ on unit-capacity networks |
+| **Read first** | [Shortest paths: Dijkstra, Bellman–Ford, A* and Floyd–Warshall](shortest-paths.md) |
 | **API** | [`FlowNetwork`](../../api/lib_jsl_graph/max_flow/struct.FlowNetwork.html) (`new`, `add_edge`, `edmonds_karp`, `dinic`), [`MaxFlow`](../../api/lib_jsl_graph/max_flow/struct.MaxFlow.html) (`value`, `edge_flows`, `source_side`) |
 
 </div>

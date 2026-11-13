@@ -8,6 +8,7 @@
 | **Devised by** | Robert Gallager (1960, thesis 1963); rediscovered by David MacKay and Radford Neal (1996); Tom Richardson and Rüdiger Urbanke (2001), density evolution and optimised irregular codes |
 | **Accuracy** | A regular (3, 6) code of length 1008 reaches a bit error rate of $10^{-5}$ at about 2.7 dB, 2.5 dB from the rate-1/2 Shannon limit (figure below) |
 | **Cost** | $O(E)$ per iteration for $E$ edges of the graph, with tens of iterations; encoding here $O(nk)$ from the reduced parity-check matrix |
+| **Read first** | [Linear block codes and Hamming codes](hamming.md), [Modulation: constellations, OFDM and FM](../comms/modulation.md) |
 | **API** | [`LdpcCode`](../../api/lib_jsl_information/forward_error_correction/ldpc/struct.LdpcCode.html) (`new`, `gallager`, `encode`, `decode`, `extract_info`, `is_codeword`, `info_positions`), [`LdpcDecoded`](../../api/lib_jsl_information/forward_error_correction/ldpc/struct.LdpcDecoded.html) |
 
 </div>

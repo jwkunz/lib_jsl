@@ -8,6 +8,7 @@
 | **Devised by** | Oliver Heaviside (1876–87), the telegrapher's equations; Phillip Smith (1939), the Smith chart; Robert Dicke, Carol Montgomery and Edward Purcell (1948), scattering matrices for microwave circuits |
 | **Accuracy** | Exact for uniform lines; parameter conversions and cascades agree to rounding (table below) |
 | **Cost** | A few complex operations per evaluation |
+| **Read first** | [Preliminaries: complex numbers](../preliminaries.md#complex-numbers) |
 | **API** | [`TransmissionLine`](../../api/lib_jsl_electromagnetics/networks/transmission_lines/enum.TransmissionLine.html) (`lossless`, `distributed`, `characteristic_impedance`, `propagation_constant`, `input_impedance`, `abcd`, `standing_wave`), [`reflection_coefficient`](../../api/lib_jsl_electromagnetics/networks/transmission_lines/fn.reflection_coefficient.html), [`vswr`](../../api/lib_jsl_electromagnetics/networks/transmission_lines/fn.vswr.html), [`quarter_wave_transformer`](../../api/lib_jsl_electromagnetics/networks/transmission_lines/fn.quarter_wave_transformer.html), [`single_stub_match`](../../api/lib_jsl_electromagnetics/networks/transmission_lines/fn.single_stub_match.html), [`s_parameters`](../../api/lib_jsl_electromagnetics/networks/s_parameters/index.html) (`z_to_s`, `s_to_z`, `s_to_abcd`, `abcd_to_s`, `s_to_t`, `t_to_s`, `cascade`), [`smith_chart`](../../api/lib_jsl_electromagnetics/networks/smith_chart/index.html) |
 
 </div>

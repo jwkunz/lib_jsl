@@ -8,6 +8,7 @@
 | **Devised by** | Harald Friis (1946), the transmission formula; Yoshihisa Okumura (1968) and Masaharu Hata (1980), urban path loss; the ITU-R, atmospheric attenuation (Recommendations P.676, P.838, P.840); the radar equation (1940s) |
 | **Accuracy** | Free-space and two-ray formulas are exact for their geometry; Hata reproduces the textbook 126.4 dB; the empirical and atmospheric models are approximations, accurate to a few dB within their stated ranges |
 | **Cost** | Closed-form formulas |
+| **Read first** | [Antenna models: dipoles, loops, dishes and patches](../em-arrays/antennas.md) |
 | **API** | [`path_loss`](../../api/lib_jsl_electromagnetics/propagation/path_loss/index.html) (`free_space_path_loss_db`, `friis_received_power`, `LinkBudget`, `log_distance_path_loss_db`, `okumura_hata_db`, `fraunhofer_distance`), [`multipath`](../../api/lib_jsl_electromagnetics/propagation/multipath/index.html) (`two_ray_factor`, `fresnel_reflection`, `ground_permittivity`, `fresnel_zone_radius`, `MultipathChannel`), [`atmosphere`](../../api/lib_jsl_electromagnetics/propagation/atmosphere/index.html), [`radar_equation`](../../api/lib_jsl_electromagnetics/propagation/radar_equation/index.html) (`Radar`, `range_resolution`, `unambiguous_range`, `doppler_shift`, `radar_horizon`) |
 
 </div>

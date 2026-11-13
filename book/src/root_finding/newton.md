@@ -8,6 +8,7 @@
 | **Devised by** | Newton's method: Isaac Newton (1669, for polynomials), Joseph Raphson (1690), Thomas Simpson (1740, for general functions); convergence theory by Fourier, Cauchy and Kantorovich (1948). The secant method: as old as false position; its order was analysed in the twentieth century |
 | **Accuracy** | Full precision near a simple root; convergence is local and not guaranteed |
 | **Cost** | Newton: one $f$ and one $f'$ per step, order 2. Secant: one $f$ per step, order $(1 + \sqrt 5)/2 \approx 1.618$ |
+| **Read first** | [Bracketing methods: bisection, false position, Ridders and Brent](bracketing.md) |
 | **API** | [`newton_raphson`](../../api/lib_jsl_root_finding/newton_raphson/fn.newton_raphson.html), [`secant_method`](../../api/lib_jsl_root_finding/secant_method/fn.secant_method.html) |
 
 </div>

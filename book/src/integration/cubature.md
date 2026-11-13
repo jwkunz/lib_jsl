@@ -8,6 +8,7 @@
 | **Devised by** | Product rules: classical, after Gauss. Symmetric cubature: James Clerk Maxwell (1877), Arthur Stroud (1971). Adaptive degree-7 rule: Alan Genz and A. A. Malik (1980) |
 | **Accuracy** | Tensor Gauss with $p$ points per axis: exact to degree $2p - 1$ in each variable. Genz-Malik: exact to total degree 7 on each region, with a degree-5 rule for the error estimate |
 | **Cost** | Tensor rule: $p^n$ evaluations. Genz-Malik: $2^n + 2n^2 + 2n + 1$ per region |
+| **Read first** | [Gaussian quadrature](gaussian-quadrature.md), [Adaptive Gauss-Kronrod quadrature](gauss-kronrod.md) |
 | **API** | [`tensor_gauss_legendre`](../../api/lib_jsl_integration/cubature/fn.tensor_gauss_legendre.html), [`adaptive_cubature`](../../api/lib_jsl_integration/cubature/fn.adaptive_cubature.html), [`CubatureOptions`](../../api/lib_jsl_integration/cubature/struct.CubatureOptions.html), [`CubatureResult`](../../api/lib_jsl_integration/cubature/struct.CubatureResult.html) |
 
 </div>

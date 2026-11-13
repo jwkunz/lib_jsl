@@ -8,6 +8,7 @@
 | **Devised by** | Thomas Bayes (1763) and Pierre-Simon Laplace (1774), inverse probability; Melvin Maron (1961), text classification; Pedro Domingos and Michael Pazzani (1997), why the independence assumption does little harm; Andrew Ng and Michael Jordan (2002), generative against discriminative learning |
 | **Accuracy** | Optimal when the features really are conditionally independent; otherwise often close (figures below) |
 | **Cost** | Training $O(np)$, a single pass; prediction $O(Kp)$ per point |
+| **Read first** | [Foundations: models, data, preprocessing and metrics](foundations.md) |
 | **API** | [`GaussianNaiveBayes`](../../api/lib_jsl_machine_learning/supervised/classification/naive_bayes/struct.GaussianNaiveBayes.html) (`predict_proba`, `joint_log_likelihood`), [`MultinomialNaiveBayes`](../../api/lib_jsl_machine_learning/supervised/classification/naive_bayes/struct.MultinomialNaiveBayes.html) |
 
 </div>

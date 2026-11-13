@@ -8,6 +8,7 @@
 | **Devised by** | Dwight North (1943), the matched filter; Robert Dicke (1945) and Sidney Darlington (1947), chirp pulse compression; Ronald Barker (1953), binary codes; Thomas Benedict and G. W. Bordner (1962), α-β tracking |
 | **Accuracy** | A linear-FM chirp compresses to a −13.3 dB sidelobe sinc, lowered to −42 dB by Hamming weighting; the tracker follows a pulse at 0 dB SNR per sample to a quarter of a sample (below) |
 | **Cost** | One FFT convolution per received frame; the tracker evaluates the correlation only inside a gate |
+| **Read first** | [Convolution and correlation](../filters/convolution.md) |
 | **API** | [`linear_chirp`](../../api/lib_jsl_dsp/discrete/radar/pulse_compression/fn.linear_chirp.html), [`matched_filter`](../../api/lib_jsl_dsp/discrete/radar/pulse_compression/fn.matched_filter.html), [`pulse_compress`](../../api/lib_jsl_dsp/discrete/radar/pulse_compression/fn.pulse_compress.html), [`peak_sidelobe_level_db`](../../api/lib_jsl_dsp/discrete/radar/pulse_compression/fn.peak_sidelobe_level_db.html), [`barker_code`](../../api/lib_jsl_dsp/discrete/digital_communications/barker_codes/fn.barker_code.html), [`barker_autocorrelation`](../../api/lib_jsl_dsp/discrete/digital_communications/barker_codes/fn.barker_autocorrelation.html), [`locate_pulse`](../../api/lib_jsl_dsp/discrete/digital_communications/pulse_correlation_tracker/fn.locate_pulse.html), [`PulseCorrelationTracker`](../../api/lib_jsl_dsp/discrete/digital_communications/pulse_correlation_tracker/struct.PulseCorrelationTracker.html) |
 
 </div>

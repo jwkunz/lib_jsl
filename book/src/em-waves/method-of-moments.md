@@ -8,6 +8,7 @@
 | **Devised by** | Erik Hallén (1938), the integral equation; Roger Harrington (1967–68), the method of moments; Gerald Burke and Andrew Poggio (1981), NEC |
 | **Accuracy** | Conserves power to five digits; impedances converge as long as segments stay several radii long (table below); resonance at $L \approx 0.475\lambda$ for $a = 10^{-3}\lambda$ |
 | **Cost** | $O(N^2)$ to fill the matrix with $8$-point quadrature per element, $O(N^3)$ to solve, for $N$ unknowns |
+| **Read first** | [Antenna models: dipoles, loops, dishes and patches](../em-arrays/antennas.md), [Gaussian elimination and LU factorisation](../linear_algebra/lu.md) |
 | **API** | [`WireDipole`](../../api/lib_jsl_electromagnetics/algorithms/method_of_moments/struct.WireDipole.html) (`new`, `solve`), [`WireSolution`](../../api/lib_jsl_electromagnetics/algorithms/method_of_moments/struct.WireSolution.html) (`nodes`, `currents`, `input_impedance`, `far_field_theta`, `radiated_power`) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Evelyn Fix and Joseph Hodges (1951); Thomas Cover and Peter Hart (1967), the error bound; Sahibsingh Dudani (1976), distance weighting |
 | **Accuracy** | As the sample grows, the 1-nearest-neighbour error is at most twice the optimal (Bayes) error; with $k \to \infty$ and $k/n \to 0$, $k$-NN is consistent |
 | **Cost** | No training. Prediction $O(np)$ per query by brute force |
+| **Read first** | [Foundations: models, data, preprocessing and metrics](foundations.md) |
 | **API** | [`KNearestNeighbors`](../../api/lib_jsl_machine_learning/supervised/classification/k_nearest_neighbors/struct.KNearestNeighbors.html) (`new(k)`, `distance_weighted`, `predict_proba`, `neighbours`) |
 
 </div>

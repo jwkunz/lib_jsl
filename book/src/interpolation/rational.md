@@ -8,6 +8,7 @@
 | **Devised by** | Padé approximants: Henri Padé (1892), after Jacobi and Frobenius. Rational extrapolation: Roland Bulirsch and Josef Stoer (1964). Barycentric rational interpolation: Jean-Paul Berrut (1988), Michael Floater and Kai Hormann (2007). AAA: Yuji Nakatsukasa, Olivier Sète and Lloyd N. Trefethen (2018) |
 | **Accuracy** | Floater-Hormann: $O(h^{d+1})$ on any points. Bulirsch-Stoer and AAA: often geometric, exact for rational functions of sufficient degree. Padé: matches the Taylor series to order $L + M$ |
 | **Cost** | Floater-Hormann: $O(nd)$ weights, $O(n)$ per point. Bulirsch-Stoer: $O(n^2)$ per point. AAA: an SVD per added term. Padé: one $M \times M$ linear solve |
+| **Read first** | [Polynomial interpolation](polynomial.md) |
 | **API** | [`FloaterHormann`](../../api/lib_jsl_interpolation/one_d/floater_hormann/struct.FloaterHormann.html), [`BulirschStoer`](../../api/lib_jsl_interpolation/one_d/bulirsch_stoer/struct.BulirschStoer.html), [`AaaApproximation`](../../api/lib_jsl_interpolation/one_d/aaa/struct.AaaApproximation.html), [`PadeApproximant`](../../api/lib_jsl_interpolation/one_d/pade_approximants/struct.PadeApproximant.html) |
 
 </div>

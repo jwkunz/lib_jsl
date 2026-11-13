@@ -8,6 +8,7 @@
 | **Devised by** | J. W. J. Williams (1964), heaps; Bernard Galler and Michael Fischer (1964), union-find; the bounded-heap selection is folklore |
 | **Accuracy** | Exact; results are checked against a full sort in the generator |
 | **Cost** | Selection $O(n \log m)$ time and $O(m)$ memory; equivalence classes $O(n^2)$ relation tests |
+| **Read first** | [Comparison sorting: quicksort, heapsort and Shell's method](comparison-sorts.md) |
 | **API** | [`select_m_largest`](../../api/lib_jsl_sorting/select_m_largest/fn.select_m_largest.html), [`equivalence_classes`](../../api/lib_jsl_sorting/equivalence_classes/fn.equivalence_classes.html) |
 
 </div>

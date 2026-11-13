@@ -8,6 +8,7 @@
 | **Devised by** | Simulated annealing: Scott Kirkpatrick, Daniel Gelatt and Mario Vecchi (1983), and Vlado Černý (1985), after the Metropolis algorithm (1953). Differential evolution: Rainer Storn and Kenneth Price (1995). Particle swarm optimisation: James Kennedy and Russell Eberhart (1995); constriction coefficients: Maurice Clerc and Kennedy (2002) |
 | **Accuracy** | No guarantee in finite time; success is measured statistically over runs. Population methods typically locate the global minimum of moderately rugged functions in a few dimensions |
 | **Cost** | Thousands to hundreds of thousands of evaluations; little work besides evaluating $f$ |
+| **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like), [Markov chain Monte Carlo](../random/mcmc.md) |
 | **API** | [`SimulatedAnnealing`](../../api/lib_jsl_optimization/simulated_annealing/struct.SimulatedAnnealing.html), [`DifferentialEvolution`](../../api/lib_jsl_optimization/differential_evolution/struct.DifferentialEvolution.html), [`ParticleSwarm`](../../api/lib_jsl_optimization/particle_swarm/struct.ParticleSwarm.html) |
 
 </div>

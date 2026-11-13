@@ -8,6 +8,7 @@
 | **Devised by** | Leo Bluestein (1968), the chirp transform; Lawrence Rabiner, Ronald Schafer and Charles Rader (1969), the chirp-z transform; the fractional Fourier transform: Norbert Wiener (1929), Victor Namias (1980), Luís Almeida (1994); its fast digital computation: Haldun Ozaktas, Orhan Arıkan, M. Alper Kutay and Gözde Bozdağı (1996) |
 | **Accuracy** | Bluestein: $O(\varepsilon\log n)$ with exactly reduced chirp angles. Fractional transform: a discretisation of the continuous transform, accurate to about $10^{-2}$ for well-sampled signals |
 | **Cost** | Three power-of-two FFTs of length at least $2n - 1$ |
+| **Read first** | [The fast Fourier transform](fft.md) |
 | **API** | [`BluesteinFft`](../../api/lib_jsl_ffts/bluestein_fft/struct.BluesteinFft.html) (used by [`Fft`](../../api/lib_jsl_ffts/fft/struct.Fft.html)), [`FractionalFft`](../../api/lib_jsl_ffts/fractional_fft/struct.FractionalFft.html), [`frft`](../../api/lib_jsl_ffts/fractional_fft/fn.frft.html) |
 
 </div>

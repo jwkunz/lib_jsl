@@ -8,6 +8,7 @@
 | **Devised by** | Augustin-Louis Cauchy (integral theorem 1825, residues 1826, integral formula 1831); numerical differentiation by contour integrals: James Lyness and Cleve Moler (1967) |
 | **Accuracy** | Adaptive Gauss-Kronrod to a relative tolerance on each segment; the trapezoid rule on a circle converges exponentially |
 | **Cost** | At least 60 evaluations per segment, more where the integrand varies quickly |
+| **Read first** | [Newton-Cotes rules: midpoint, trapezoid and Simpson](newton-cotes.md), [Preliminaries: complex numbers](../preliminaries.md#complex-numbers) |
 | **API** | [`contour_integral`](../../api/lib_jsl_integration/complex_path_integrals/fn.contour_integral.html), [`Contour`](../../api/lib_jsl_integration/complex_path_integrals/struct.Contour.html), [`PathSegment`](../../api/lib_jsl_integration/complex_path_integrals/enum.PathSegment.html), [`residue`](../../api/lib_jsl_integration/complex_path_integrals/fn.residue.html), [`cauchy_derivative`](../../api/lib_jsl_integration/complex_path_integrals/fn.cauchy_derivative.html), [`winding_number`](../../api/lib_jsl_integration/complex_path_integrals/fn.winding_number.html) |
 
 </div>

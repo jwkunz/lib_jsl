@@ -8,6 +8,7 @@
 | **Devised by** | John von Neumann (1946), middle-square; Derrick Lehmer (1949), linear congruential generators; George Marsaglia (2003), xorshift; Guy Steele, Doug Lea and Christine Flood (2014), SplitMix; David Blackman and Sebastiano Vigna (2018), xoshiro256++ |
 | **Accuracy** | Period $2^{256} - 1$; passes the BigCrush and PractRand test batteries; 53 random bits per floating-point number |
 | **Cost** | About 2 ns per 64-bit number; 32 bytes of state |
+| **Read first** | [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
 | **API** | [`UniformGenerator`](../../api/lib_jsl_random/uniform_generator/trait.UniformGenerator.html), [`UniformRNG`](../../api/lib_jsl_random/uniform_generator/type.UniformRNG.html), [`Xoshiro256PlusPlus`](../../api/lib_jsl_random/xoshiro256plusplus/struct.Xoshiro256PlusPlus.html), [`SplitMix64`](../../api/lib_jsl_random/split_mix_64/struct.SplitMix64.html), [`Histogram`](../../api/lib_jsl_random/histogram/struct.Histogram.html) |
 
 </div>

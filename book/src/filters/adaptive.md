@@ -8,6 +8,7 @@
 | **Devised by** | Bernard Widrow and Marcian Hoff (1960), least mean squares; Jin-ichi Nagumo and Atsuhiko Noda (1967) and Arthur Albert and Leland Gardner (1967), normalised LMS; Robin Plackett (1950) and Dominique Godard (1974), recursive least squares |
 | **Accuracy** | LMS converges in the mean for small enough steps, with an excess error proportional to the step; RLS minimises the exponentially weighted squared error exactly at every step |
 | **Cost** | LMS and NLMS: $O(M)$ per sample for $M$ taps. RLS: $O(M^2)$ per sample |
+| **Read first** | [Background: frequency responses](index.md#background-frequency-responses-and-transfer-functions), [Gradient descent and nonlinear conjugate gradients](../optimization/gradient-methods.md) |
 | **API** | [`LmsFilter`](../../api/lib_jsl_dsp/discrete/filters/adaptive/lms/struct.LmsFilter.html) (`new(taps, step_size, normalized)`, `adapt`, `adapt_block`, `filter`, `weights`), [`RlsFilter`](../../api/lib_jsl_dsp/discrete/filters/adaptive/rls/struct.RlsFilter.html) (`new(taps, forgetting, initial_inverse_correlation)`, `adapt`, `adapt_block`, `weights`) |
 
 </div>

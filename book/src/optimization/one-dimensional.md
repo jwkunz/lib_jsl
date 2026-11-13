@@ -8,6 +8,7 @@
 | **Devised by** | Golden section search: Jack Kiefer (1953, as the limit of his Fibonacci search). Line search conditions: Larry Armijo (1966), Philip Wolfe (1969) |
 | **Accuracy** | Golden section: the interval shrinks by $1/\varphi \approx 0.618$ per evaluation, down to a limit of about $\sqrt{\varepsilon}$ relative. Line search: a step satisfying the strong Wolfe conditions, which is enough for the global convergence of descent methods |
 | **Cost** | Golden section: one evaluation per iteration, $\log_{1.618}(\text{width}/\text{tol})$ in all. Line search: typically one to three evaluations of $f$ and $\nabla f$ |
+| **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like), [Bracketing methods: bisection, false position, Ridders and Brent](../root_finding/bracketing.md) |
 | **API** | [`GoldenSectionSearch`](../../api/lib_jsl_optimization/golden_section_search/struct.GoldenSectionSearch.html), [`strong_wolfe`](../../api/lib_jsl_optimization/line_search/fn.strong_wolfe.html) |
 
 </div>

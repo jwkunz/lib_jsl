@@ -8,6 +8,7 @@
 | **Devised by** | Euclid (c. 300 BC), the algorithm; Étienne Bézout (1779), the identity; Sunzi (3rd–5th century), the remainder theorem; Pingala (c. 200 BC), square-and-multiply; Newton's method for square roots goes back to Heron |
 | **Accuracy** | Exact integer arithmetic; agrees with SymPy on every reference case (see the [chapter overview](index.md#testing-against-sympy)) |
 | **Cost** | Euclid $O(\log\min(a, b))$ divisions; modular power $O(\log e)$ multiplications; integer square root $O(\log\log n)$ Newton steps; CRT $O(k)$ merges |
+| **Read first** | Nothing beyond the [Preliminaries](../preliminaries.md) |
 | **API** | [`gcd`](../../api/lib_jsl_number_theory/greatest_common_divisor/fn.gcd.html), [`extended_gcd`](../../api/lib_jsl_number_theory/greatest_common_divisor/fn.extended_gcd.html), [`multiplicative_inverse_modulo`](../../api/lib_jsl_number_theory/multiplicative_inverse_modulo/fn.multiplicative_inverse_modulo.html), [`base_exponent_in_modulus`](../../api/lib_jsl_number_theory/base_exponent_in_modulus/fn.base_exponent_in_modulus.html), [`integer_square_root_newton`](../../api/lib_jsl_number_theory/integer_square_root/fn.integer_square_root_newton.html), [`integer_square_root_binary_search`](../../api/lib_jsl_number_theory/integer_square_root/fn.integer_square_root_binary_search.html), [`chinese_remainder`](../../api/lib_jsl_number_theory/chinese_remainder_theorem/fn.chinese_remainder.html) |
 
 </div>

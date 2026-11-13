@@ -8,6 +8,7 @@
 | **Devised by** | Aleksandr Kronrod (1964), extending Gauss-Legendre rules using polynomials of Thomas Stieltjes (1894); global adaptive strategy from QUADPACK (Piessens, de Doncker-Kapenga, Überhuber and Kahaner, 1983) |
 | **Accuracy** | Each 15-point panel is exact for polynomials of degree 23; panels are bisected until the estimated total error is below the tolerance |
 | **Cost** | 15 evaluations for the first panel, then 30 per bisection |
+| **Read first** | [Gaussian quadrature](gaussian-quadrature.md) |
 | **API** | [`AdaptiveGL7K15IntegrationEngine`](../../api/lib_jsl_integration/adaptive_gl7k15_integration_engine/struct.AdaptiveGL7K15IntegrationEngine.html), [`integrate_with_error`](../../api/lib_jsl_integration/adaptive_gl7k15_integration_engine/struct.AdaptiveGL7K15IntegrationEngine.html#method.integrate_with_error) |
 
 </div>

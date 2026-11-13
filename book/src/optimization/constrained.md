@@ -8,6 +8,7 @@
 | **Devised by** | Optimality conditions: Joseph-Louis Lagrange (1788, equalities), William Karush (1939), Harold Kuhn and Albert Tucker (1951). SQP: Robert Wilson (1963), Shih-Ping Han (1977), Michael Powell (1978). Augmented Lagrangian: Magnus Hestenes and Michael Powell (1969), extended to inequalities by R. Tyrrell Rockafellar (1973) |
 | **Accuracy** | To the tolerance on the constraint violation and the optimality conditions; SQP converges superlinearly, the augmented Lagrangian method linearly in its outer iterations |
 | **Cost** | SQP: per iteration, gradients of $f$ and all constraints, a dense quadratic program and an $O(n^3)$ factorisation. Augmented Lagrangian: an unconstrained minimisation (L-BFGS) per outer iteration |
+| **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like), [Newton and quasi-Newton methods: Newton, BFGS and L-BFGS](newton-quasi-newton.md) |
 | **API** | [`sqp`](../../api/lib_jsl_optimization/constrained/fn.sqp.html), [`augmented_lagrangian`](../../api/lib_jsl_optimization/constrained/fn.augmented_lagrangian.html), [`ConstrainedProblem`](../../api/lib_jsl_optimization/constrained/trait.ConstrainedProblem.html), [`ConstrainedResult`](../../api/lib_jsl_optimization/constrained/struct.ConstrainedResult.html) |
 
 </div>

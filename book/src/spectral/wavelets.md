@@ -8,6 +8,7 @@
 | **Devised by** | Alfréd Haar (1910); Jean Morlet and Alex Grossmann (1984), the continuous wavelet transform; Stéphane Mallat (1989), multiresolution analysis and the fast algorithm; Ingrid Daubechies (1988), compactly supported orthogonal wavelets; David Donoho and Iain Johnstone (1994), wavelet shrinkage |
 | **Accuracy** | The Daubechies filters are orthonormal to $10^{-17}$, and four-level decompositions reconstruct to $10^{-15}$ (table below) |
 | **Cost** | Discrete transform $O(LN)$ for filters of length $L$, all levels together; continuous transform $O(N\log N)$ per scale |
+| **Read first** | [FIR design: windows, frequency sampling and Parks-McClellan](../filters/fir-design.md) |
 | **API** | [`Wavelet`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/enum.Wavelet.html) (`Haar`, `Daubechies(1..=10)`), [`dwt`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/fn.dwt.html), [`idwt`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/fn.idwt.html), [`wavedec`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/fn.wavedec.html), [`waverec`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/fn.waverec.html), [`max_level`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/fn.max_level.html), [`ContinuousWavelet`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/enum.ContinuousWavelet.html) (`Morlet`, `Ricker`), [`continuous_wavelet_transform`](../../api/lib_jsl_dsp/discrete/spectral/wavelet_transform/fn.continuous_wavelet_transform.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Otakar Borůvka (1926); Joseph Kruskal (1956); Vojtěch Jarník (1930), Robert Prim (1957) and Edsger Dijkstra (1959); Bernard Galler and Michael Fischer (1964) and Robert Tarjan (1975), union-find |
 | **Accuracy** | Exact; Kruskal and Prim agree with SciPy's `minimum_spanning_tree` (see the [chapter overview](index.md#testing-against-scipy-and-networkx)) |
 | **Cost** | Kruskal $O(E\log E)$; Prim $O(E\log V)$; union-find operations in near-constant amortised time, $O(\alpha(n))$ |
+| **Read first** | [Graphs, traversal and orderings](traversal.md) |
 | **API** | [`kruskal`](../../api/lib_jsl_graph/spanning_trees/fn.kruskal.html), [`prim`](../../api/lib_jsl_graph/spanning_trees/fn.prim.html), [`SpanningForest`](../../api/lib_jsl_graph/spanning_trees/struct.SpanningForest.html), [`UnionFind`](../../api/lib_jsl_graph/graph/struct.UnionFind.html) (`find`, `union`, `connected`, `set_count`) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Peter Sneath (1957), single linkage; Thorvald Sørensen (1948), complete linkage; Robert Sokal and Charles Michener (1958), average linkage (UPGMA); Joe Ward (1963), minimum variance; Godfrey Lance and William Williams (1967), the unified update; Naruya Saitou and Masatoshi Nei (1987), neighbour joining |
 | **Accuracy** | Exact for the stated criteria. UPGMA recovers a tree exactly from ultrametric distances, neighbour joining from additive ones |
 | **Cost** | $O(n^3)$ time and $O(n^2)$ memory, from a distance matrix |
+| **Read first** | [k-means and k-medoids](k-means.md) |
 | **API** | [`agglomerate`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/fn.agglomerate.html), [`Linkage`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/enum.Linkage.html), [`Dendrogram`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/struct.Dendrogram.html) (`cut_clusters`, `cut_distance`, `cophenetic_distances`), [`HierarchicalClustering`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/struct.HierarchicalClustering.html); [`upgma`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/fn.upgma.html), [`neighbor_joining`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/fn.neighbor_joining.html), [`PhylogeneticTree`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/struct.PhylogeneticTree.html) |
 
 </div>

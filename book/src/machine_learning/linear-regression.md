@@ -8,6 +8,7 @@
 | **Devised by** | Adrien-Marie Legendre (1805) and Carl Friedrich Gauss (1809), least squares; Alexander Aitken (1935), generalised least squares; Andrey Tikhonov (1943) and Arthur Hoerl and Robert Kennard (1970), ridge regression; Robert Tibshirani (1996), the lasso; Hui Zou and Trevor Hastie (2005), the elastic net; Jerome Friedman, Trevor Hastie and Robert Tibshirani (2007), coordinate descent |
 | **Accuracy** | Optimality conditions satisfied to $10^{-16}$ (least squares, ridge) and $10^{-10}$ (lasso, elastic net) |
 | **Cost** | Least squares and ridge: $O(np^2)$ by SVD or normal equations. Elastic net: $O(np)$ per sweep of coordinate descent |
+| **Read first** | [Foundations: models, data, preprocessing and metrics](foundations.md), [Linear least squares](../linear_algebra/least-squares.md) |
 | **API** | [`LinearRegression`](../../api/lib_jsl_machine_learning/supervised/regression/least_squares/struct.LinearRegression.html), [`GeneralLeastSquares`](../../api/lib_jsl_machine_learning/supervised/regression/general_least_squares/struct.GeneralLeastSquares.html), [`Ridge`](../../api/lib_jsl_machine_learning/supervised/regression/ridge/struct.Ridge.html), [`ElasticNet`](../../api/lib_jsl_machine_learning/supervised/regression/elastic_net/struct.ElasticNet.html) |
 
 </div>

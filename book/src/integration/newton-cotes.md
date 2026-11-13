@@ -8,6 +8,7 @@
 | **Devised by** | Trapezoid areas: Babylonian astronomers (c. 350–50 BCE). General rules: Isaac Newton (1670s, published 1711) and Roger Cotes (1722). Simpson's rule: Cavalieri (1639), Gregory (1668), Thomas Simpson (1743). Adaptive subdivision: Kuncir and McKeeman (1962) |
 | **Accuracy** | Composite midpoint and trapezoid: $O(h^2)$; composite Simpson: $O(h^4)$; trapezoid on smooth periodic integrands: exponential |
 | **Cost** | One evaluation per point; the adaptive rule spends evaluations where they are needed |
+| **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error), [Polynomial interpolation](../interpolation/polynomial.md) |
 | **API** | [`MidpointIntegrationEngine`](../../api/lib_jsl_integration/midpoint_integration_engine/struct.MidpointIntegrationEngine.html), [`TrapezoidalIntegrationEngine`](../../api/lib_jsl_integration/trapezoidal_integration_engine/struct.TrapezoidalIntegrationEngine.html), [`Simpson13Engine`](../../api/lib_jsl_integration/simpsons_1_3_integration_engine/struct.Simpson13Engine.html), [`AdaptiveTrapezoidIntegrationEngine`](../../api/lib_jsl_integration/adaptive_trapezoid_integration_engine/struct.AdaptiveTrapezoidIntegrationEngine.html), [`grid_points`](../../api/lib_jsl_integration/calculate_midpoints/fn.grid_points.html), [`panel_midpoints`](../../api/lib_jsl_integration/calculate_midpoints/fn.panel_midpoints.html) |
 
 </div>

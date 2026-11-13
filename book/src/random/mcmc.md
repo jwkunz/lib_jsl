@@ -8,6 +8,7 @@
 | **Devised by** | Nicholas Metropolis, Arianna and Marshall Rosenbluth, Augusta and Edward Teller (1953); W. Keith Hastings (1970); Stuart and Donald Geman (1984), Gibbs sampling; Gareth Roberts, Andrew Gelman and Walter Gilks (1997), optimal scaling; Heikki Haario, Eero Saksman and Johanna Tamminen (2001), adaptive proposals |
 | **Accuracy** | Errors of averages fall like $\sqrt{\tau/N}$, where $\tau$ is the integrated autocorrelation time of the chain |
 | **Cost** | One evaluation of the log-density per step |
+| **Read first** | [Sampling from probability distributions](distributions.md) |
 | **API** | [`metropolis_hastings`](../../api/lib_jsl_random/mcmc/fn.metropolis_hastings.html), [`MetropolisOptions`](../../api/lib_jsl_random/mcmc/struct.MetropolisOptions.html), [`MarkovChain`](../../api/lib_jsl_random/mcmc/struct.MarkovChain.html) |
 
 </div>

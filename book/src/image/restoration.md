@@ -8,6 +8,7 @@
 | **Devised by** | Norbert Wiener (1942, published 1949), the minimum-mean-square-error filter; Ernest Hall (1974) and others, histogram equalisation; Jong-Sen Lee (1980), the locally adaptive Wiener filter |
 | **Accuracy** | Equalisation maps levels exactly through the cumulative histogram; the adaptive Wiener filter agrees with SciPy's `signal.wiener` to 12 digits away from the borders |
 | **Cost** | $O(N)$ for equalisation and for the adaptive Wiener filter (box sums); $O(N\log N)$ for Wiener deconvolution by FFT, for $N$ pixels |
+| **Read first** | [Image filtering: convolution, Gaussian blur, Sobel gradients and sharpening](filtering.md) |
 | **API** | [`histogram`](../../api/lib_jsl_dsp/discrete/image/filters/histogram_equalization/fn.histogram.html), [`equalization_lut`](../../api/lib_jsl_dsp/discrete/image/filters/histogram_equalization/fn.equalization_lut.html), [`histogram_equalization`](../../api/lib_jsl_dsp/discrete/image/filters/histogram_equalization/fn.histogram_equalization.html), [`wiener_filter`](../../api/lib_jsl_dsp/discrete/image/filters/wiener_filter/fn.wiener_filter.html), [`wiener_deconvolution`](../../api/lib_jsl_dsp/discrete/image/filters/wiener_filter/fn.wiener_deconvolution.html) |
 
 </div>

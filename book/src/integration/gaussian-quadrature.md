@@ -8,6 +8,7 @@
 | **Devised by** | Carl Friedrich Gauss (1814); recast with orthogonal polynomials by Carl Gustav Jacobi (1826); general weights by Elwin Bruno Christoffel (1858) |
 | **Accuracy** | Exact for polynomials of degree $2n-1$ with $n$ nodes; error $\propto \rho^{-2n}$ for analytic $f$ |
 | **Cost** | $n$ evaluations of $f$; computing the rule costs $O(n^2)$ once |
+| **Read first** | [Newton-Cotes rules: midpoint, trapezoid and Simpson](newton-cotes.md), [Orthogonal polynomials and spherical harmonics](../special_functions/orthogonal-polynomials.md) |
 | **API** | [`gauss_legendre`](../../api/lib_jsl_integration/gaussian_quadrature/fn.gauss_legendre.html), [`GaussLegendreEngine`](../../api/lib_jsl_integration/gaussian_quadrature/struct.GaussLegendreEngine.html), [`gauss_hermite`](../../api/lib_jsl_integration/gaussian_quadrature/fn.gauss_hermite.html), [`gauss_laguerre`](../../api/lib_jsl_integration/gaussian_quadrature/fn.gauss_laguerre.html), [`QuadratureRule`](../../api/lib_jsl_integration/gaussian_quadrature/struct.QuadratureRule.html) |
 
 </div>

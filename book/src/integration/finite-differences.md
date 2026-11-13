@@ -8,6 +8,7 @@
 | **Devised by** | Difference approximations: Brook Taylor and Euler (18th century); systematic use for PDEs: Lewis Fry Richardson (1910); stability: Courant, Friedrichs and Lewy (1928), John von Neumann (1940s); Crank and Nicolson (1947); conjugate gradients: Hestenes and Stiefel (1952) |
 | **Accuracy** | Second order in space; first (explicit) or second (Crank-Nicolson, leapfrog) order in time |
 | **Cost** | Explicit schemes: $O(N)$ per step, with a stability limit on the step. Crank-Nicolson: one tridiagonal solve per step. Poisson: conjugate gradient iterations, each $O(N)$ |
+| **Read first** | [Finite difference derivatives](../derivatives/finite-differences.md), [Background: stability and conditioning](../linear_algebra/index.md#stability-and-conditioning) |
 | **API** | [`heat_equation_1d`](../../api/lib_jsl_integration/pde/finite_differences/fn.heat_equation_1d.html), [`wave_equation_1d`](../../api/lib_jsl_integration/pde/finite_differences/fn.wave_equation_1d.html), [`poisson_2d`](../../api/lib_jsl_integration/pde/finite_differences/fn.poisson_2d.html), [`solve_tridiagonal`](../../api/lib_jsl_integration/pde/finite_differences/fn.solve_tridiagonal.html), [`conjugate_gradient`](../../api/lib_jsl_integration/pde/finite_differences/fn.conjugate_gradient.html) |
 
 </div>

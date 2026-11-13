@@ -8,6 +8,7 @@
 | **Devised by** | Abraham Savitzky and Marcel Golay (1964), building on the moving polynomial least squares of actuarial graduation (Sheppard, 1913; Whittaker and Robinson, 1924) |
 | **Accuracy** | Reproduces polynomials of the filter's order exactly; reduces white-noise variance by roughly the window length |
 | **Cost** | One convolution with a fixed set of coefficients: $O(n \cdot \text{window})$ |
+| **Read first** | [Linear least squares](../linear_algebra/least-squares.md) |
 | **API** | [`savitzky_golay`](../../api/lib_jsl_interpolation/one_d/savitzky_golay/fn.savitzky_golay.html), [`savitzky_golay_coefficients`](../../api/lib_jsl_interpolation/one_d/savitzky_golay/fn.savitzky_golay_coefficients.html) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | André-Louis Cholesky (about 1910, published posthumously by Ernest Benoît in 1924); Tadeusz Banachiewicz (1938), the row-oriented form; blocked algorithms: the LAPACK project (1992) |
 | **Accuracy** | Backward stable without any pivoting: the computed factor satisfies $LL^{\mathsf H} = A + \delta A$ with $\|\delta A\| \le c\,n\,\varepsilon\|A\|$ |
 | **Cost** | $\tfrac13n^3$ flops, half of LU; $2n^2$ per solve |
+| **Read first** | [Gaussian elimination and LU factorisation](lu.md) |
 | **API** | [`Cholesky`](../../api/lib_jsl_linalg/trait.Cholesky.html), [`SolveTriangular`](../../api/lib_jsl_linalg/trait.SolveTriangular.html), [`UPLO`](../../api/lib_jsl_linalg/enum.UPLO.html), [`Diag`](../../api/lib_jsl_linalg/enum.Diag.html); reference: [`cholesky`](../../api/lib_jsl_linalg_reference/cholesky/fn.cholesky.html) |
 
 </div>

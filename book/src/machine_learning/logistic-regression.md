@@ -8,6 +8,7 @@
 | **Devised by** | Pierre-François Verhulst (1838), the logistic function; Joseph Berkson (1944), the logit model; David Cox (1958), logistic regression; Daniel McFadden (1973), the multinomial model; Dong Liu and Jorge Nocedal (1989), L-BFGS |
 | **Accuracy** | Gradient of the penalised log-loss below the tolerance ($10^{-7}$ by default) |
 | **Cost** | $O(nKp)$ per gradient evaluation for $K$ classes; typically 10–100 L-BFGS iterations |
+| **Read first** | [Linear regression: least squares, ridge, lasso and elastic net](linear-regression.md), [Newton and quasi-Newton methods: Newton, BFGS and L-BFGS](../optimization/newton-quasi-newton.md) |
 | **API** | [`LogisticRegression`](../../api/lib_jsl_machine_learning/supervised/classification/logistic_regression/struct.LogisticRegression.html) (`fit`, `predict`, `predict_proba`, `coefficients`, `intercepts`) |
 
 </div>

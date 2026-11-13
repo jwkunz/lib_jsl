@@ -8,6 +8,7 @@
 | **Devised by** | Tony Hoare (1961), quicksort; David Musser (1997), introsort; J. W. J. Williams (1964) and Robert Floyd (1964), heapsort; Donald Shell (1959), diminishing-increment sort; Marcin Ciura (2001), gap sequence |
 | **Accuracy** | Exact; every result is checked against the standard library's sort in the generator |
 | **Cost** | Quicksort $O(n \log n)$ on average, about $1.19\, n \log_2 n$ comparisons, and $O(n \log n)$ worst case with the heapsort fallback; heapsort $O(n \log n)$ worst case, about $2 n \log_2 n$ comparisons; Shell's method about $O(n^{1.25})$ empirically |
+| **Read first** | Nothing beyond the [Preliminaries](../preliminaries.md) |
 | **API** | [`quicksort`](../../api/lib_jsl_sorting/quicksort/fn.quicksort.html), [`heapsort`](../../api/lib_jsl_sorting/heapsort/fn.heapsort.html), [`shell_sort`](../../api/lib_jsl_sorting/shells_method/fn.shell_sort.html) |
 
 </div>

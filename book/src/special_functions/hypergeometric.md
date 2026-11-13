@@ -8,6 +8,7 @@
 | **Devised by** | John Wallis (1655), the name; Leonhard Euler (1769); Carl Friedrich Gauss (1812), the theory of ${}_2F_1$; Ernst Kummer (1836), transformations and the confluent function; Bernhard Riemann (1857), the differential equation |
 | **Accuracy** | About $10^{-15}$ relative for moderate parameters; $10^{-13}$ near the singular point $z = 1$ and for large $|x|$ |
 | **Cost** | A power series of tens to hundreds of terms, after a transformation that makes it converge quickly |
+| **Read first** | [The gamma function and related functions](gamma.md) |
 | **API** | [`hypergeometric`](../../api/lib_jsl_special_functions/hypergeometric_functions/fn.hypergeometric.html), [`hypergeometric_1f1`](../../api/lib_jsl_special_functions/hypergeometric_functions/fn.hypergeometric_1f1.html), [`hypergeometric_0f1`](../../api/lib_jsl_special_functions/hypergeometric_functions/fn.hypergeometric_0f1.html) |
 
 </div>

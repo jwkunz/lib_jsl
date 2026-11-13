@@ -8,6 +8,7 @@
 | **Devised by** | Hendrik Lorentz (1904) and Albert Einstein (1905), the transformations; Hermann Minkowski (1908), space-time geometry; Elwin Christoffel (1869), the symbols; Karl Schwarzschild (1916), the field of a mass |
 | **Accuracy** | Boosts preserve intervals to rounding; Christoffel symbols from finite differences agree with the exact Schwarzschild ones to $10^{-6}$ or better; an orbit integrated with them precesses by the exact amount to five digits (tables below) |
 | **Cost** | $O(1)$ per operation; $O(4^3)$ for the symbols at a point |
+| **Read first** | [Geometric types: points, vectors, shapes and shared tables](types.md), [Runge-Kutta methods](../integration/runge-kutta.md) |
 | **API** | [`SpaceTimeVector4D`](../../api/lib_jsl_geometry/dim_4/space_time_vector/struct.SpaceTimeVector4D.html) (`new`, `from_time`, `interval_squared`, `causality`, `proper_time`, `boost_matrix`, `boosted`, `four_velocity`, `gamma`, `rapidity`, `add_collinear_velocities`), [`Causality`](../../api/lib_jsl_geometry/dim_4/space_time_vector/enum.Causality.html), [`ChristoffelSymbols4D`](../../api/lib_jsl_geometry/dim_4/christoffel_symbols/struct.ChristoffelSymbols4D.html) (`from_metric_derivatives`, `from_metric_function`, `schwarzschild`, `minkowski`, `geodesic_acceleration`), [`invert_4x4`](../../api/lib_jsl_geometry/dim_4/christoffel_symbols/fn.invert_4x4.html) |
 
 </div>

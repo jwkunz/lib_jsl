@@ -8,6 +8,7 @@
 | **Devised by** | M. S. Bartlett (1948), the averaged periodogram behind the conventional scan; Jack Capon (1969), minimum variance; Ralph Schmidt (1979), MUSIC; Richard Roy, Arogyaswami Paulraj and Thomas Kailath (1986), ESPRIT |
 | **Accuracy** | MUSIC and ESPRIT resolve sources a fraction of a beamwidth apart at moderate SNR; single-source errors fall as $1/\sqrt{K\cdot\mathrm{SNR}}$ (table below) |
 | **Cost** | Spectra: one $N$-vector product per scanned direction after an $O(N^3)$ inverse or eigendecomposition; ESPRIT: two small eigenproblems, no scan |
+| **Read first** | [Arrays, scenes and beamformers](beamforming.md), [Parametric spectra: linear prediction, Burg and MUSIC](../spectral/parametric.md) |
 | **API** | [`bartlett_spectrum`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.bartlett_spectrum.html), [`capon_spectrum`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.capon_spectrum.html), [`music_spectrum`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.music_spectrum.html), [`spectrum_peaks`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.spectrum_peaks.html), [`esprit_ula`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.esprit_ula.html) |
 
 </div>

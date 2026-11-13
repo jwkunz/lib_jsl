@@ -8,6 +8,7 @@
 | **Devised by** | Karl Pearson (1900), the $\chi^2$ test; "Student" (William Sealy Gosset, 1908), the $t$ test; R. A. Fisher (1920s), significance testing and the analysis of variance; Jerzy Neyman and Egon Pearson (1933), errors of two kinds and power; Andrey Kolmogorov (1933) and Nikolai Smirnov (1939), distribution tests; Frank Wilcoxon (1945), Henry Mann and Donald Whitney (1947), rank tests; Bernard Welch (1947), unequal variances |
 | **Accuracy** | Statistics and p-values agree with SciPy to $10^{-14}$ for every test with an exact reference distribution; the Kolmogorov-Smirnov p-values are asymptotic approximations (table below) |
 | **Cost** | $O(n)$ for the $t$ tests, $\chi^2$ and ANOVA; $O(n \log n)$ for the rank and Kolmogorov-Smirnov tests |
+| **Read first** | [Descriptive statistics](descriptive.md), [Statistical distribution functions](../special_functions/statistical.md) |
 | **API** | [`hypothesis_tests`](../../api/lib_jsl_statistics/hypothesis_tests/index.html): `t_test_one_sample`, [`t_test_two_sample`](../../api/lib_jsl_statistics/hypothesis_tests/fn.t_test_two_sample.html), `t_test_paired`, `chi_square_goodness_of_fit`, `chi_square_independence`, `anova_one_way`, `ks_test_one_sample`, `ks_test_two_sample`, [`mann_whitney_u`](../../api/lib_jsl_statistics/hypothesis_tests/fn.mann_whitney_u.html), `kolmogorov_survival`, [`Alternative`](../../api/lib_jsl_statistics/hypothesis_tests/enum.Alternative.html), [`TestResult`](../../api/lib_jsl_statistics/hypothesis_tests/struct.TestResult.html) |
 
 </div>

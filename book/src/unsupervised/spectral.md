@@ -8,6 +8,7 @@
 | **Devised by** | Miroslav Fiedler (1973), algebraic connectivity; William Donath and Alan Hoffman (1973), graph partitioning by eigenvectors; Jianbo Shi and Jitendra Malik (2000), normalised cuts; Andrew Ng, Michael Jordan and Yair Weiss (2002), the normalised embedding used here |
 | **Accuracy** | Exact for graphs with $k$ disconnected components; a relaxation of the normalised-cut problem otherwise |
 | **Cost** | $O(n^2p)$ to build the graph and $O(n^3)$ for the dense eigendecomposition |
+| **Read first** | [k-means and k-medoids](k-means.md), [Symmetric and general eigensolvers](../linear_algebra/eigensolvers.md) |
 | **API** | [`SpectralClustering`](../../api/lib_jsl_machine_learning/unsupervised/clustering/spectral_clustering/struct.SpectralClustering.html) (`new(k, affinity, seed)`, `eigenvalues`), [`Affinity`](../../api/lib_jsl_machine_learning/unsupervised/clustering/spectral_clustering/enum.Affinity.html) (`Rbf { gamma }`, `NearestNeighbors { k }`) |
 
 </div>

@@ -8,6 +8,7 @@
 | **Devised by** | Claude Shannon (1948) and Robert Fano (1949), Shannon-Fano coding; David Huffman (1952), optimal prefix codes; Jorma Rissanen and Richard Pasco (1976), Ian Witten, Radford Neal and John Cleary (1987), practical arithmetic coding |
 | **Accuracy** | Huffman is within 1 bit per symbol of the entropy, Shannon-Fano within 2; arithmetic coding reaches the entropy of its model to within a few bytes per message (tables below) |
 | **Cost** | $O(n + k\log k)$ for $n$ bytes and $k$ distinct symbols; arithmetic coding is several times slower per symbol than table lookup |
+| **Read first** | [Entropy, divergence and mutual information](entropy.md) |
 | **API** | [`SourceCoder`](../../api/lib_jsl_information/source_coders/source_coder/trait.SourceCoder.html), [`try_huffman_compress`](../../api/lib_jsl_information/source_coders/huffman/fn.try_huffman_compress.html), [`try_huffman_decompress`](../../api/lib_jsl_information/source_coders/huffman/fn.try_huffman_decompress.html), [`try_shannon_fano_compress`](../../api/lib_jsl_information/source_coders/shannon_fano/fn.try_shannon_fano_compress.html), [`try_shannon_fano_decompress`](../../api/lib_jsl_information/source_coders/shannon_fano/fn.try_shannon_fano_decompress.html), [`try_arithmetic_compress`](../../api/lib_jsl_information/source_coders/arithmetic/fn.try_arithmetic_compress.html), [`try_arithmetic_decompress`](../../api/lib_jsl_information/source_coders/arithmetic/fn.try_arithmetic_decompress.html) |
 
 </div>

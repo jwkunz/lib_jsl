@@ -8,6 +8,7 @@
 | **Devised by** | Julius Stratton (1941) and Peter Debye, vector spherical wave functions; David Kerns (1963–76), planar near-field scanning; Frank Jensen (1970) and Jesper Hansen and colleagues (1988), spherical near-field measurement |
 | **Accuracy** | Spectral: the error falls exponentially with the expansion degree beyond $kr_{\min}$; planar scans are limited by truncation (tables and figures below) |
 | **Cost** | $O(N^4)$ for a degree-$N$ spherical expansion by direct projection; $O(N_xN_y)$ per direction for a planar scan |
+| **Read first** | [Fields on grids: conventions, domains, quadrature and vector calculus](../em-arrays/fields.md), [Bessel and Airy functions](../special_functions/bessel.md) |
 | **API** | [`SphericalWaveExpansion`](../../api/lib_jsl_electromagnetics/fields/spherical_waves/struct.SphericalWaveExpansion.html) (`from_far_field`, `far_field`, `field_at`, `radiated_power`, `power_by_degree`), [`vector_spherical_harmonics`](../../api/lib_jsl_electromagnetics/fields/spherical_waves/fn.vector_spherical_harmonics.html), [`spherical_near_to_far`](../../api/lib_jsl_electromagnetics/algorithms/near_field_far_field/fn.spherical_near_to_far.html), [`planar_near_to_far`](../../api/lib_jsl_electromagnetics/algorithms/near_field_far_field/fn.planar_near_to_far.html), [`scan_taper`](../../api/lib_jsl_electromagnetics/algorithms/near_field_far_field/fn.scan_taper.html) |
 
 </div>

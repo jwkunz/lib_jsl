@@ -8,6 +8,7 @@
 | **Devised by** | Werner Romberg (1955), building on Lewis Fry Richardson's extrapolation (1911, 1927) and the Euler-Maclaurin formula (Euler 1735, Maclaurin 1742) |
 | **Accuracy** | Column $j$ of the tableau has error $O(h^{2j+2})$; the diagonal converges faster than any power of $h$ for analytic $f$ |
 | **Cost** | $2^k + 1$ evaluations for $k$ levels; every evaluation is reused |
+| **Read first** | [Newton-Cotes rules: midpoint, trapezoid and Simpson](newton-cotes.md) |
 | **API** | [`RombergEngine`](../../api/lib_jsl_integration/romberg/struct.RombergEngine.html), [`integrate_with_error`](../../api/lib_jsl_integration/romberg/struct.RombergEngine.html#method.integrate_with_error), [`tableau`](../../api/lib_jsl_integration/romberg/struct.RombergEngine.html#method.tableau) |
 
 </div>

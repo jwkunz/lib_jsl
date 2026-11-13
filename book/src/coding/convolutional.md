@@ -8,6 +8,7 @@
 | **Devised by** | Peter Elias (1955), convolutional codes; Andrew Viterbi (1967), the decoding algorithm; Jim Omura (1969) and David Forney (1973), its interpretation as dynamic programming on a trellis |
 | **Accuracy** | Viterbi decoding is maximum-likelihood over the whole sequence; the K = 7 code with soft decisions reaches $10^{-5}$ at about 4 dB, 5.5 dB better than uncoded BPSK (figure below) |
 | **Cost** | $O(2^{K-1})$ add-compare-select operations per information bit, and $O(L\,2^{K-1})$ memory for $L$ bits |
+| **Read first** | [Linear block codes and Hamming codes](hamming.md), [Dynamic programming](../optimization/dynamic-programming.md) |
 | **API** | [`ConvolutionalCode`](../../api/lib_jsl_information/forward_error_correction/convolutional/struct.ConvolutionalCode.html) (`new`, `nasa_k7`, `encode`, `decode_soft`, `decode_hard`, `outputs`, `tail_len`) |
 
 </div>

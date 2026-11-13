@@ -8,6 +8,7 @@
 | **Devised by** | Arthur Schuster (1898), the periodogram; M. S. Bartlett (1948) and Peter Welch (1967), averaging segments; Dennis Gabor (1946), short-time analysis; Nicholas Lomb (1976) and Jeffrey Scargle (1982), unevenly sampled data; Daniel Griffin and Jae Lim (1984), the inverse STFT |
 | **Accuracy** | Periodogram, Welch and Lomb-Scargle values agree with SciPy to $10^{-15}$; `istft(stft(x))` reproduces $x$ to $10^{-15}$ |
 | **Cost** | $O(N\log M)$ for $N$ samples in segments of $M$; Lomb-Scargle $O(NF)$ for $F$ frequencies |
+| **Read first** | [Window functions](windows.md), [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
 | **API** | [`periodogram`](../../api/lib_jsl_dsp/discrete/spectral/welch/fn.periodogram.html), [`welch`](../../api/lib_jsl_dsp/discrete/spectral/welch/fn.welch.html) ([`SpectralScaling`](../../api/lib_jsl_dsp/discrete/spectral/welch/enum.SpectralScaling.html), [`Detrend`](../../api/lib_jsl_dsp/discrete/spectral/welch/enum.Detrend.html)), [`stft`](../../api/lib_jsl_dsp/discrete/spectral/stft/fn.stft.html), [`istft`](../../api/lib_jsl_dsp/discrete/spectral/stft/fn.istft.html), [`spectrogram`](../../api/lib_jsl_dsp/discrete/spectral/stft/fn.spectrogram.html), [`lomb_scargle`](../../api/lib_jsl_dsp/discrete/spectral/non_uniformly_sampled/fn.lomb_scargle.html), [`non_uniform_dft`](../../api/lib_jsl_dsp/discrete/spectral/non_uniformly_sampled/fn.non_uniform_dft.html), [`fit_sinusoid`](../../api/lib_jsl_dsp/discrete/spectral/non_uniformly_sampled/fn.fit_sinusoid.html) |
 
 </div>

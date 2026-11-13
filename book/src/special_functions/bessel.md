@@ -8,6 +8,7 @@
 | **Devised by** | Daniel Bernoulli (1732) and Leonhard Euler (1736); Friedrich Wilhelm Bessel (1824); Carl Neumann (1867) and Heinrich Weber (1873), the second kind; George Biddell Airy (1838); evaluation by Steed's method: A. R. Barnett and colleagues (1974), with Nico Temme's series (1976) |
 | **Accuracy** | About $10^{-14}$ relative away from zeros; near a zero of an oscillating function the absolute error, not the relative error, is small |
 | **Cost** | Continued fractions and a recurrence of $O(x + \nu)$ steps, or a series for small $x$ |
+| **Read first** | [The gamma function and related functions](gamma.md) |
 | **API** | [`bessel_jy`](../../api/lib_jsl_special_functions/bessel_functions_fractional/fn.bessel_jy.html), [`bessel_ik`](../../api/lib_jsl_special_functions/bessel_functions_fractional/fn.bessel_ik.html), [`bessel_fractional`](../../api/lib_jsl_special_functions/bessel_functions_fractional/fn.bessel_fractional.html) and the single-function forms, [`bessel_j_integer`](../../api/lib_jsl_special_functions/bessel_functions_integer/fn.bessel_j_integer.html) and its relatives, [`bessel_spherical`](../../api/lib_jsl_special_functions/bessel_functions_spherical/fn.bessel_spherical.html), [`bessel_spherical_y`](../../api/lib_jsl_special_functions/bessel_functions_spherical/fn.bessel_spherical_y.html), [`airy_ai`](../../api/lib_jsl_special_functions/airy_functions/fn.airy_ai.html), [`airy_bi`](../../api/lib_jsl_special_functions/airy_functions/fn.airy_bi.html) |
 
 </div>

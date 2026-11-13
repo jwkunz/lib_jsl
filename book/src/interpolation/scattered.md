@@ -8,6 +8,7 @@
 | **Devised by** | Inverse distance weighting: Donald Shepard (1968). Radial basis functions: Rolland Hardy's multiquadrics (1971), Jean Duchon's thin-plate splines (1976); theory by Charles Micchelli (1986) |
 | **Accuracy** | Shepard: low, with flat spots at the data points. Radial basis functions: high for smooth functions, depending on the kernel and the point spacing |
 | **Cost** | Shepard: $O(n)$ per evaluation, no set-up. RBF: an $O(n^3)$ dense solve, then $O(n)$ per evaluation |
+| **Read first** | [Polynomial interpolation](polynomial.md), [Gaussian elimination and LU factorisation](../linear_algebra/lu.md) |
 | **API** | [`RadialBasisInterpolator`](../../api/lib_jsl_interpolation/two_d/radial_basis_functions/struct.RadialBasisInterpolator.html), [`RadialKernel`](../../api/lib_jsl_interpolation/two_d/radial_basis_functions/enum.RadialKernel.html), [`Shepards`](../../api/lib_jsl_interpolation/three_d/shepards/struct.Shepards.html) |
 
 </div>

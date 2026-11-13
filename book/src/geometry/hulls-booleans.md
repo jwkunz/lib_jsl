@@ -8,6 +8,7 @@
 | **Devised by** | Ronald Graham (1972) and Andrew (1979), planar hulls; C. Bradford Barber, David Dobkin and Hannu Huhdanpaa (1996), Quickhull; Günther Greiner and Kai Hormann (1998), polygon clipping |
 | **Accuracy** | Hull vertex sets identical to Qhull's, volumes and areas within $10^{-13}$; boolean areas within $10^{-14}$ of Shapely's (see the [chapter overview](index.md#testing-against-scipy-and-shapely)) |
 | **Cost** | Planar hull $O(n \log n)$; Quickhull $O(n \log n)$ typical, $O(n^2)$ worst case; booleans $O(nm)$ for polygons of $n$ and $m$ vertices |
+| **Read first** | [Geometric types: points, vectors, shapes and shared tables](types.md) |
 | **API** | [`convex_hull_2d`](../../api/lib_jsl_geometry/algorithms/convex_hull/fn.convex_hull_2d.html), [`polygon_area_2d`](../../api/lib_jsl_geometry/algorithms/convex_hull/fn.polygon_area_2d.html), [`convex_polygon_contains_2d`](../../api/lib_jsl_geometry/algorithms/convex_hull/fn.convex_polygon_contains_2d.html), [`convex_hull_3d`](../../api/lib_jsl_geometry/algorithms/convex_hull/fn.convex_hull_3d.html), [`Hull3D`](../../api/lib_jsl_geometry/algorithms/convex_hull/struct.Hull3D.html) (`vertices`, `volume`, `surface_area`, `contains`), [`polygon_boolean`](../../api/lib_jsl_geometry/algorithms/polygon_boolean/fn.polygon_boolean.html), [`BooleanOperation`](../../api/lib_jsl_geometry/algorithms/polygon_boolean/enum.BooleanOperation.html), [`point_in_polygon`](../../api/lib_jsl_geometry/algorithms/polygon_boolean/fn.point_in_polygon.html) |
 
 </div>

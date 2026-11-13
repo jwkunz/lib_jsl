@@ -8,6 +8,7 @@
 | **Devised by** | Nasir Ahmed, T. Natarajan and K. R. Rao (1974), the DCT-II; Zhongde Wang and others (1984), the classification into types I–IV; the JPEG committee (1992), image compression; John Princen and Alan Bradley (1986), the modified DCT of audio coding |
 | **Accuracy** | $O(\varepsilon\log n)$, through complex FFTs |
 | **Cost** | One complex FFT of length about $2n$ plus $O(n)$ work |
+| **Read first** | [The fast Fourier transform](fft.md) |
 | **API** | [`dct`](../../api/lib_jsl_ffts/dct/fn.dct.html), [`idct`](../../api/lib_jsl_ffts/dct/fn.idct.html), [`dst`](../../api/lib_jsl_ffts/dct/fn.dst.html), [`idst`](../../api/lib_jsl_ffts/dct/fn.idst.html), [`TrigTransformType`](../../api/lib_jsl_ffts/dct/enum.TrigTransformType.html), [`TrigNormalization`](../../api/lib_jsl_ffts/dct/enum.TrigNormalization.html) |
 
 </div>

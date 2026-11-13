@@ -8,6 +8,7 @@
 | **Devised by** | Carl Gustav Jacobi (1846), the rotation method; Richard von Mises (1929), power iteration; Helmut Wielandt (1944), inverse iteration; Lord Rayleigh, the quotient, with cubic convergence of the iteration shown by Alexander Ostrowski (1958); Heinz Rutishauser (1958), the LR algorithm; John Francis (1961) and Vera Kublanovskaya (1961), the QR algorithm |
 | **Accuracy** | For symmetric matrices: absolute errors of about $\varepsilon\|A\|$ in the eigenvalues; Jacobi also gives small eigenvalues to high relative accuracy |
 | **Cost** | Power iteration: $O(n^2)$ per step, $O(1/\log(|\lambda_1|/|\lambda_2|))$ steps. Jacobi: $O(n^3)$ per sweep, 6–10 sweeps. QR algorithm on a full matrix: $O(n^3)$ per step, about two steps per eigenvalue with shifts |
+| **Read first** | [Gaussian elimination and LU factorisation](lu.md), [QR factorisation](qr.md) |
 | **API** | Reference: [`power_iteration`](../../api/lib_jsl_linalg_reference/power_iteration/index.html), [`jacobi_eigenvalue`](../../api/lib_jsl_linalg_reference/jacobi_eigenvalue/index.html), [`qr_algorithm`](../../api/lib_jsl_linalg_reference/qr_algorithm/index.html) |
 
 </div>

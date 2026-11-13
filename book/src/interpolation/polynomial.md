@@ -8,6 +8,7 @@
 | **Devised by** | Newton's divided differences (1687, 1711); Lagrange's form (Waring 1779, Lagrange 1795); the barycentric form (Jacobi 1825, Taylor 1945, Salzer 1972; popularised by Berrut and Trefethen 2004); Chebyshev polynomials (Pafnuty Chebyshev, 1854); the Runge phenomenon (Carl Runge, 1901) |
 | **Accuracy** | Through Chebyshev points: geometric convergence $O(\rho^{-n})$ for analytic $f$. Through equally spaced points: may diverge |
 | **Cost** | Newton: $O(n^2)$ set-up, $O(n)$ per evaluation. Barycentric: $O(n^2)$ weights, $O(n)$ per evaluation. Chebyshev series: $O(n^2)$ fit, $O(n)$ Clenshaw evaluation |
+| **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error) |
 | **API** | [`PolynomialInterpolator`](../../api/lib_jsl_interpolation/one_d/polynomial_interpolator/struct.PolynomialInterpolator.html), [`LagrangeInterpolant`](../../api/lib_jsl_interpolation/one_d/lagrange_interpolant/struct.LagrangeInterpolant.html), [`ChebyshevApproximation`](../../api/lib_jsl_interpolation/one_d/chebyshev_approximations/struct.ChebyshevApproximation.html) |
 
 </div>

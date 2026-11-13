@@ -8,6 +8,7 @@
 | **Devised by** | Andrew Viterbi (1967), the decoding algorithm; Leonard Baum, Ted Petrie, George Soules and Norman Weiss (1966–1970), the forward-backward and re-estimation algorithms; Lawrence Rabiner (1989), the tutorial and scaling |
 | **Accuracy** | Viterbi and forward-backward are exact; Baum-Welch increases the likelihood at every iteration and converges to a local maximum |
 | **Cost** | $O(TN^2)$ time for a sequence of $T$ steps and $N$ states, per pass |
+| **Read first** | [Dynamic programming](../optimization/dynamic-programming.md), [Gaussian mixture models](../unsupervised/gaussian-mixtures.md) |
 | **API** | [`viterbi_path`](../../api/lib_jsl_machine_learning/supervised/classification/viterbi_algorithm/fn.viterbi_path.html), [`HiddenMarkovModel`](../../api/lib_jsl_machine_learning/supervised/classification/viterbi_algorithm/struct.HiddenMarkovModel.html) (`new`, `random`, `sample`, `viterbi`, `log_likelihood`, `posteriors`, `baum_welch`), [`BaumWelchResult`](../../api/lib_jsl_machine_learning/supervised/classification/viterbi_algorithm/struct.BaumWelchResult.html) |
 
 </div>

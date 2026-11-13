@@ -8,6 +8,7 @@
 | **Devised by** | Geoffrey Hinton and Sam Roweis (2002), stochastic neighbour embedding; Laurens van der Maaten and Hinton (2008), t-SNE; Leland McInnes, John Healy and James Melville (2018), UMAP |
 | **Accuracy** | Nonconvex objectives: local minima, and results that depend on the initialisation and parameters |
 | **Cost** | Exact t-SNE: $O(n^2)$ per iteration. UMAP: $O(n^2)$ for the exact neighbour graph, then $O(\text{edges})$ per epoch |
+| **Read first** | [Principal component analysis and kernel PCA](pca.md), [Gradient descent and nonlinear conjugate gradients](../optimization/gradient-methods.md) |
 | **API** | [`Tsne`](../../api/lib_jsl_machine_learning/unsupervised/reduction/t_sne/struct.Tsne.html) (`new(components, perplexity)`, `with_iterations`, `with_learning_rate`, `fit_transform`, `kl_divergence`), [`Umap`](../../api/lib_jsl_machine_learning/unsupervised/reduction/umap/struct.Umap.html) (`new(components, neighbors, min_dist, seed)`, `with_epochs`, `fuzzy_graph`, `fit_transform`), [`fit_ab`](../../api/lib_jsl_machine_learning/unsupervised/reduction/umap/fn.fit_ab.html) |
 
 </div>

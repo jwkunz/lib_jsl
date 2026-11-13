@@ -26,6 +26,13 @@ Numerical Electromagnetics Code (NEC, Gerald Burke and Andrew Poggio, Lawrence L
 
 ### Hallén's equation
 
+FDTD fills space with a grid and follows the fields in time. The **method of moments** takes the
+opposite approach for a metal structure at a single frequency. The only unknown is the current
+on the metal; once it is found, the fields everywhere follow by integration. The current is
+determined by an **integral equation**, which states that the field radiated by the current,
+together with the applied voltage, satisfies the boundary condition on the conductor. The
+unknowns then live only on the wire, not in the surrounding space.
+
 A centre-fed straight wire of length $L$ and radius $a \ll \lambda$ along $z$, driven by a voltage $V$ across a narrow gap at its centre, carries a current $I(z)$ with $I(\pm L/2) = 0$. The vector potential of the current must satisfy a one-dimensional Helmholtz equation driven by the gap. Its solution gives
 
 $$
@@ -36,7 +43,14 @@ with an unknown constant $C$ fixed by the end condition. The **reduced kernel** 
 
 ### Discretisation
 
-The current is expanded in $N$ triangle functions on equally spaced interior nodes, so it is piecewise linear and zero at the ends. Matching at the $N$ nodes and at one wire end gives $N + 1$ equations for the $N$ node currents and $C$. Each matrix entry integrates a triangle against the kernel. The near-singular part $1/4\pi R$ is integrated analytically, and the smooth remainder $(e^{-jkR} - 1)/4\pi R$ by 8-point Gauss-Legendre quadrature. The input impedance is $V/I(0)$.
+An integral equation has an unknown *function*. To solve it numerically, the function is
+approximated by a combination of a finite number of simple **basis functions** with unknown
+coefficients, and the equation is enforced at a finite number of points (or, more generally, in a
+finite number of weighted averages, the "moments" that give the method its name). The result is
+an ordinary system of linear equations, with a dense matrix whose entry $(i, j)$ is the effect
+of basis function $j$ at test point $i$.
+
+Here the current is expanded in $N$ triangle functions on equally spaced interior nodes, so it is piecewise linear and zero at the ends. Matching at the $N$ nodes and at one wire end gives $N + 1$ equations for the $N$ node currents and $C$. Each matrix entry integrates a triangle against the kernel. The near-singular part $1/4\pi R$ is integrated analytically, and the smooth remainder $(e^{-jkR} - 1)/4\pi R$ by 8-point Gauss-Legendre quadrature. The input impedance is $V/I(0)$.
 
 ![MoM currents](../generated/em-waves/mom_currents.svg)
 

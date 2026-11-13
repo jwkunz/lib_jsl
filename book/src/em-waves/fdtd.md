@@ -26,7 +26,28 @@ bioelectromagnetic simulation.
 
 ### The Yee scheme in one dimension
 
-For a wave travelling along $x$ with field components $E_z$ and $H_y$, using the normalised field $\widetilde H = \eta_0H$ and the time step $\Delta t = S\Delta x/c$:
+**The equations.** Maxwell's two curl equations say that a changing magnetic field produces a
+circulating electric field, and a changing electric field a circulating magnetic one. For a
+wave travelling along $x$ with field components $E_z$ and $H_y$, they reduce to
+
+$$
+\mu\frac{\partial H_y}{\partial t} = \frac{\partial E_z}{\partial x}, \qquad
+\varepsilon\frac{\partial E_z}{\partial t} = \frac{\partial H_y}{\partial x} .
+$$
+
+The time derivative of each field is the space derivative of the other.
+
+**Yee's staggering.** The finite-difference time-domain (FDTD) method replaces all four
+derivatives by [central differences](../derivatives/finite-differences.md#truncation-error),
+which are second-order accurate. A central difference of $E$ between two neighbouring grid
+points gives the derivative at the point *halfway between* them, so that is where $H$ should
+be stored. Yee therefore placed the two fields on interleaved grids: $E_z$ at the points $i$,
+$H_y$ at the half-points $i + \tfrac12$. The same argument applies in time: $E$ is stored at the
+whole time steps $n$ and $H$ at the half steps $n + \tfrac12$. Each field is then advanced using
+the other field at the time halfway through its step, a **leapfrog** scheme. No linear system is
+solved; every update is explicit and uses only the two nearest neighbours.
+
+With the normalised field $\widetilde H = \eta_0H$ (which gives $E$ and $H$ the same units) and the time step $\Delta t = S\Delta x/c$, the two updates are
 
 $$
 \widetilde H_y^{n+1/2}(i + \tfrac12) = \widetilde H_y^{n-1/2}(i + \tfrac12) + \frac{S}{\mu_r}\big[E_z^n(i + 1) - E_z^n(i)\big],
@@ -36,7 +57,19 @@ $$
 E_z^{n+1}(i) = E_z^n(i) + \frac{S}{\varepsilon_r}\big[\widetilde H_y^{n+1/2}(i + \tfrac12) - \widetilde H_y^{n+1/2}(i - \tfrac12)\big],
 $$
 
-with a conductivity term for lossy cells. The scheme is stable for **Courant number** $S \le 1$. At $S = 1$, the "magic time step", a wave moves exactly one cell per step in vacuum, and the scheme has no dispersion at all. First-order **Mur** boundaries, $E(0)^{n+1} = E(1)^n + \frac{S - 1}{S + 1}\big(E(1)^{n+1} - E(0)^n\big)$, absorb exactly at the magic step.
+with a conductivity term for lossy cells.
+
+**Stability.** The number $S = c\Delta t/\Delta x$ is the **Courant number**: the fraction of a
+cell that light crosses in one time step. An update uses only neighbouring cells, so information
+in the computation travels at most one cell per step. If the physical wave travelled further
+than that in a step ($S > 1$), the scheme could not possibly follow it, and in fact it becomes
+unstable: errors grow without bound. The scheme is stable for $S \le 1$. At $S = 1$, the "magic
+time step", a wave moves exactly one cell per step in vacuum, and the scheme has no dispersion at
+all.
+
+**Boundaries.** The grid must end somewhere, and a wave reaching the last cell would reflect
+back as from a mirror. An **absorbing boundary condition** sets the edge value so as to mimic a
+wave leaving the grid. First-order **Mur** boundaries, $E(0)^{n+1} = E(1)^n + \frac{S - 1}{S + 1}\big(E(1)^{n+1} - E(0)^n\big)$, absorb exactly at the magic step.
 
 {{#include ../generated/em-waves/fdtd_reflection.md}}
 
@@ -44,7 +77,9 @@ A Gaussian pulse meeting a dielectric half-space reflects with the Fresnel coeff
 
 ### Numerical dispersion
 
-For $S < 1$ the Yee scheme's dispersion relation is $\sin(\omega\Delta t/2) = S\sin(k\Delta x/2)$. Waves travel slower than $c$, by an error proportional to $(\Delta x/\lambda)^2$, so ten cells per wavelength is a common minimum and twenty is safer. Measuring the phase velocity of a sinusoid in the library's solver reproduces the formula:
+On the grid, waves of different wavelengths travel at slightly different speeds, although in
+vacuum they should all travel at $c$. This artefact is **numerical dispersion**, and it distorts
+pulses over long distances. For $S < 1$ the Yee scheme's dispersion relation is $\sin(\omega\Delta t/2) = S\sin(k\Delta x/2)$. Waves travel slower than $c$, by an error proportional to $(\Delta x/\lambda)^2$, so ten cells per wavelength is a common minimum and twenty is safer. Measuring the phase velocity of a sinusoid in the library's solver reproduces the formula:
 
 {{#include ../generated/em-waves/fdtd_dispersion.md}}
 

@@ -26,25 +26,62 @@ waveguide junctions by scattering matrices (*Principles of Microwave Circuits*, 
 
 ### Lines
 
-A line with series resistance $R$, inductance $L$, shunt conductance $G$ and capacitance $C$ per metre has
+At low frequencies a cable is just a pair of wires: the voltage is the same all along it. When
+the cable is not short compared with the wavelength, that is no longer true. A signal takes time
+to travel along it, and voltage and current become **waves**. Each short piece of the line has
+some series inductance and resistance and some shunt capacitance and conductance, and a line is
+described by these four quantities per metre: $R$, $L$, $G$ and $C$.
+
+Solving the circuit equations for a chain of such pieces gives waves travelling in both
+directions, and two numbers that characterise the line:
 
 $$
 Z_0 = \sqrt{\frac{R + j\omega L}{G + j\omega C}}, \qquad \gamma = \sqrt{(R + j\omega L)(G + j\omega C)},
 $$
 
-in the $e^{+j\omega t}$ convention. A lossless line has real $Z_0$ and $\gamma = j\beta$, with the phase velocity a fraction of $c$ (0.66 for solid polyethylene coax). Looking into a length $\ell$ terminated in $Z_L$,
+in the $e^{+j\omega t}$ convention.
+
+- The **characteristic impedance** $Z_0$ is the ratio of voltage to current in a wave travelling
+  in one direction. It is a property of the line's geometry and materials (50 Ω and 75 Ω are
+  the common values for coaxial cable), not of its length.
+- The **propagation constant** $\gamma = \alpha + j\beta$ describes how such a wave changes with
+  distance, as $e^{-\gamma z}$: its real part $\alpha$ is the attenuation per metre and its
+  imaginary part $\beta = 2\pi/\lambda$ the phase change per metre.
+
+A lossless line ($R = G = 0$) has real $Z_0 = \sqrt{L/C}$ and $\gamma = j\beta$, with a phase
+velocity that is a fraction of $c$ (0.66 for solid polyethylene coax).
+
+**Reflections.** A wave arriving at the end of the line meets the load impedance $Z_L$. If
+$Z_L = Z_0$ the load absorbs the wave completely: the line is **matched**. Otherwise the ratio of
+voltage to current that the load demands differs from that of the wave, and part of the wave is
+reflected. The reflected fraction is the **reflection coefficient**
+
+$$
+\Gamma_L = \frac{Z_L - Z_0}{Z_L + Z_0},
+$$
+
+which is 0 for a matched load, $-1$ for a short circuit and $+1$ for an open circuit.
+
+**Input impedance.** The forward and reflected waves combine differently at different points
+along the line, so the impedance seen at the input depends on the length. Looking into a length $\ell$ terminated in $Z_L$,
 
 $$
 Z_{\text{in}} = Z_0\,\frac{Z_L\cosh\gamma\ell + Z_0\sinh\gamma\ell}{Z_0\cosh\gamma\ell + Z_L\sinh\gamma\ell}.
 $$
 
-A half wavelength repeats the load, and a quarter wavelength inverts it, $Z_{\text{in}} = Z_0^2/Z_L$. The voltage along the line is $V^+(e^{\gamma d} + \Gamma_Le^{-\gamma d})$ at distance $d$ from the load. Its envelope swings between $1 \pm |\Gamma|$, a ratio called the **VSWR**:
+A half wavelength repeats the load, and a quarter wavelength inverts it, $Z_{\text{in}} = Z_0^2/Z_L$. **Standing waves.** The voltage along the line is the sum of the two waves,
+$V^+(e^{\gamma d} + \Gamma_Le^{-\gamma d})$ at distance $d$ from the load. Where they are in phase
+the amplitude is $1 + |\Gamma|$ times that of the forward wave, and a quarter wavelength away,
+where they are in antiphase, it is $1 - |\Gamma|$. The ratio of the maximum to the minimum is the
+**voltage standing wave ratio** (VSWR), 1 for a matched line and infinite for total reflection:
 
 ![Standing waves](../generated/em-waves/standing_waves.svg)
 
 ### The Smith chart
 
-Mapping the normalised impedance $z = Z/Z_0$ to $\Gamma = (z - 1)/(z + 1)$ sends the whole right half-plane into the unit disc. Lines of constant resistance and reactance become circles. Moving along a lossless line toward the generator rotates $\Gamma$ clockwise by $4\pi d/\lambda$ about the centre, at constant VSWR. A point where the conductance is one (the admittance $y = 1 + jb$) can be matched with a shunt stub of susceptance $-b$:
+The Smith chart is a graphical calculator for these formulas, and still the standard way to
+visualise impedance matching. It plots the reflection coefficient instead of the impedance.
+Mapping the normalised impedance $z = Z/Z_0$ to $\Gamma = (z - 1)/(z + 1)$ sends the whole right half-plane (every impedance with positive resistance) into the unit disc. Lines of constant resistance and reactance become circles. Moving along a lossless line toward the generator rotates $\Gamma$ clockwise by $4\pi d/\lambda$ about the centre, at constant VSWR. A point where the conductance is one (the admittance $y = 1 + jb$) can be matched with a shunt stub of susceptance $-b$:
 
 ![Smith chart](../generated/em-waves/smith_chart.svg)
 

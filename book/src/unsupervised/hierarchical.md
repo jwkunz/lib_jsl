@@ -117,11 +117,36 @@ distances, neither tree fits exactly; neighbour joining's worst error over all p
 
 ## Algorithm
 
-**Agglomeration**: start with $n$ singleton clusters and the distance matrix. Repeat $n - 1$ times: find the closest pair $(A, B)$ (an $O(m^2)$
-scan); record the merge at height $d(A, B)$; replace the two rows by one, updated by Lance-Williams. The $n - 1$ scans make it $O(n^3)$.
+**Agglomerative clustering.** Input: the $n \times n$ matrix of distances and a linkage.
 
-**Neighbour joining**: while more than two taxa remain, compute the $r_i$, find the pair minimising $Q$, create a node with the branch
-lengths above, and replace the pair by the node. Join the last two with the remaining distance.
+1. Start with every point as its own cluster.
+2. Find the closest pair of clusters $(A, B)$, by scanning the matrix.
+3. Record the merge: the two clusters joined, the height $d(A, B)$ and the size of the new
+   cluster.
+4. Replace the rows and columns of $A$ and $B$ by a single one for $A \cup B$, whose distance
+   to every other cluster $C$ comes from $d(A, C)$, $d(B, C)$ and $d(A, B)$ by the
+   Lance-Williams formula.
+5. Repeat from step 2 until one cluster remains, after $n - 1$ merges.
+
+The list of merges is the dendrogram. Cutting it at a height, or into a given number of
+clusters, gives a flat clustering. A scan of $m$ remaining clusters costs $O(m^2)$, so the whole
+procedure is $O(n^3)$.
+
+**UPGMA** is the same procedure with average linkage, recording each merge as a tree node at
+height $\tfrac12d(A, B)$.
+
+**Neighbour joining.** Input: a matrix of distances between $n$ taxa. While more than two
+remain, with $m$ the number remaining:
+
+1. compute the net divergence $r_i = \sum_kd(i, k)$ of each taxon;
+2. find the pair $(i, j)$ minimising $Q(i, j) = (m - 2)d(i, j) - r_i - r_j$;
+3. create a new node $u$ joined to $i$ and $j$ by branches of the lengths $\ell_i$ and $\ell_j$
+   given above;
+4. compute the distance from $u$ to every other taxon $k$,
+   $d(u, k) = \tfrac12\big(d(i, k) + d(j, k) - d(i, j)\big)$, and replace $i$ and $j$ by $u$.
+
+Finally join the last two nodes by a branch of length equal to their distance. This too is
+$O(n^3)$.
 
 ## Implementation
 

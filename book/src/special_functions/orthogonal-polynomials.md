@@ -117,9 +117,30 @@ thousands, as geophysical models need.
 
 ## Algorithm
 
-- Each polynomial: $p_0 = 1$, $p_1$ from the family's formula, then the recurrence up to $n$.
-- $P_l^m$: $P_m^m = (-1)^m(2m - 1)!!(1 - x^2)^{m/2}$, $P_{m+1}^m = x(2m + 1)P_m^m$, then the recurrence in $l$.
-- $Y_l^m$: the normalised $\bar P_l^{|m|}(\cos\theta)$ times $e^{im\phi}$, with the symmetry for negative $m$.
+**A polynomial of degree $n$ at $x$** (Legendre, Chebyshev, Hermite, Laguerre, Jacobi).
+
+1. If $n = 0$, return $p_0 = 1$. If $n = 1$, return the family's $p_1$ (for example $x$ for
+   Legendre and Chebyshev $T$, $2x$ for Chebyshev $U$ and Hermite $H$).
+2. Keep the two latest values. For $k = 1, \ldots, n - 1$, compute $p_{k+1}$ from $p_k$ and
+   $p_{k-1}$ by the family's recurrence, and shift.
+3. Return $p_n$.
+
+The cost is $O(n)$ operations and no storage beyond two numbers.
+
+**Associated Legendre functions $P_l^m(x)$**, $0 \le m \le l$. The recurrence in the degree $l$,
+for fixed order $m$, needs two starting values, and they are available in closed form.
+
+1. Compute $P_m^m = (-1)^m(2m - 1)!!\,(1 - x^2)^{m/2}$, where $(2m - 1)!!$ is the product of the odd
+   numbers up to $2m - 1$. If $l = m$, return it.
+2. Compute $P_{m+1}^m = x(2m + 1)P_m^m$. If $l = m + 1$, return it.
+3. For $k = m + 2, \ldots, l$: $(k - m)P_k^m = x(2k - 1)P_{k-1}^m - (k + m - 1)P_{k-2}^m$.
+
+`normalized_associated_legendre` runs the same three steps on the normalised functions
+$\bar P_l^m$, with the normalising factors absorbed into the starting value and the recurrence
+coefficients, so that no intermediate quantity overflows.
+
+**Spherical harmonics $Y_l^m(\theta, \phi)$.** Compute $\bar P_l^{|m|}(\cos\theta)$ and multiply by
+$e^{i|m|\phi}$. For negative $m$, apply $Y_l^{-m} = (-1)^m\overline{Y_l^m}$.
 
 ## Implementation
 

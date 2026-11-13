@@ -25,15 +25,63 @@ Lester Ford (1956), Richard Bellman (1958) and Edward Moore (1959) found the rep
 
 ### Dijkstra
 
-Keep tentative distances, with the source at 0. Repeatedly settle the unsettled vertex of smallest tentative distance and relax its edges. With non-negative weights, no later path can make a settled vertex cheaper, so each is settled once, at its true distance. A binary heap supplies the minimum. Stale heap entries, superseded by a cheaper push, are skipped when popped.
+All four algorithms share one operation. Each vertex $v$ has a **tentative distance** $d_v$, the
+length of the best path to it found so far (infinite at the start, 0 for the source). To
+**relax** an edge $u \to v$ of weight $w$ is to ask whether going through $u$ improves on that:
+if $d_u + w < d_v$, set $d_v = d_u + w$ and record $u$ as the predecessor of $v$. The algorithms
+differ in the order in which they relax edges.
+
+Dijkstra's algorithm processes the vertices in order of their distance from the source, like a
+wave spreading outwards.
+
+1. Among the vertices not yet finished, pick the one with the smallest tentative distance. Call
+   it $u$, and declare it **settled**: its tentative distance is final.
+2. Relax every edge leaving $u$.
+3. Repeat until every vertex is settled (or the target is).
+
+**Why step 1 is safe.** Suppose $u$ has the smallest tentative distance among the unsettled
+vertices. Any other route to $u$ must leave the settled set at some point, through some other
+unsettled vertex $x$, and $d_x \ge d_u$ already. If no edge has negative weight, the rest of that
+route can only add to its length, so it cannot be shorter than $d_u$. Hence $d_u$ is the true
+distance. The argument fails with negative weights, and so does the algorithm.
+
+The vertex of smallest tentative distance is supplied by a binary heap, which makes the cost
+$O((V + E)\log V)$. When a vertex's distance improves, a new entry is pushed and the old one is
+left in the heap; such stale entries are skipped when they are popped.
 
 ### Bellman–Ford
 
-A shortest path has at most $V - 1$ edges. So relaxing every edge $V - 1$ times finds all distances, even with negative weights, provided no **negative cycle** is reachable, around which costs would decrease forever. If a $V$-th pass still improves something, there is such a cycle, and the library returns an error. It stops early as soon as a pass changes nothing, which on typical graphs takes a few passes, not $V$. In undirected graphs a negative edge is itself a negative cycle, walked back and forth.
+When some weights are negative (a cost that can also be a gain, such as a currency exchange),
+Dijkstra's greedy choice is no longer valid. Bellman-Ford makes no such choice. It simply
+relaxes *every* edge, and repeats.
+
+The reason this works: a shortest path never needs to visit a vertex twice, so it has at most
+$V - 1$ edges. After the first pass over all the edges, every vertex whose shortest path has one
+edge has its correct distance. After the second pass, so does every vertex whose shortest path
+has two edges, and so on. After $V - 1$ passes all the distances are correct, at a cost of
+$O(VE)$.
+
+The one exception is a reachable **negative cycle**, a loop whose weights sum to less than zero.
+Going round it again always lowers the cost, so no shortest path exists. Such a cycle betrays
+itself: if a $V$-th pass still improves some distance, there must be one, and the library returns
+an error. It also stops early as soon as a pass changes nothing, which on typical graphs takes a
+few passes, not $V$. In undirected graphs a negative edge is itself a negative cycle, walked back
+and forth.
 
 ### A*
 
-To find one target, A* orders the heap by $d_v + h(v)$, where $h$ estimates the remaining cost. If $h$ never overestimates (it is **admissible**) and satisfies $h(u) \le w(u, v) + h(v)$ (it is **consistent**), the first time the target is popped its path is optimal. Good heuristics, such as straight-line or Manhattan distance on maps and grids, explore far fewer vertices than Dijkstra; $h = 0$ is Dijkstra itself.
+Dijkstra's wave spreads equally in all directions, although we may want the path to just one
+target. A* aims the search. It needs a **heuristic** $h(v)$, an estimate of the remaining cost
+from $v$ to the target, and it orders the heap by $d_v + h(v)$: the cost so far plus the
+estimated cost to go. Vertices that lie in the direction of the target are tried first.
+
+The result is still guaranteed optimal under two conditions on $h$. It must never overestimate
+the true remaining cost (it is **admissible**), and it must satisfy
+$h(u) \le w(u, v) + h(v)$ for every edge (it is **consistent**), which says that the estimate
+cannot drop by more than the cost of the step taken. Then the first time the target is popped
+from the heap, its path is optimal. Straight-line distance on a map and Manhattan distance on a
+grid are consistent heuristics, since no path can be shorter than the direct one. Good heuristics
+explore far fewer vertices than Dijkstra; $h = 0$ is Dijkstra itself.
 
 ![Grid paths](../generated/graph/grid_paths.svg)
 
@@ -41,13 +89,22 @@ To find one target, A* orders the heap by $d_v + h(v)$, where $h$ estimates the 
 
 ### Floyd–Warshall
 
-Let $d^{(k)}_{ij}$ be the shortest $i \to j$ distance using only intermediate vertices $0, \ldots, k - 1$. Then
+To find the shortest paths between *all* pairs of vertices, Floyd-Warshall uses
+[dynamic programming](../optimization/dynamic-programming.md) over a cleverly chosen family of
+subproblems: restrict which vertices a path may pass through. Let $d^{(k)}_{ij}$ be the shortest
+distance from $i$ to $j$ using only the vertices $0, \ldots, k - 1$ as intermediate stops. With
+$k = 0$ no stops are allowed, and $d^{(0)}_{ij}$ is just the weight of the edge from $i$ to $j$.
+Now allow vertex $k$ as well. The best path either does not use $k$, or goes from $i$ to $k$ and
+then from $k$ to $j$, each part using only earlier vertices:
 
 $$
-d^{(k+1)}_{ij} = \min\big(d^{(k)}_{ij},\ d^{(k)}_{ik} + d^{(k)}_{kj}\big),
+d^{(k+1)}_{ij} = \min\big(d^{(k)}_{ij},\ d^{(k)}_{ik} + d^{(k)}_{kj}\big) .
 $$
 
-updated in place in one $V \times V$ matrix. A successor matrix records the first step of each path. Negative weights are allowed, and a negative diagonal entry at the end reveals a negative cycle.
+After all $V$ vertices have been allowed, the matrix holds the true distances. The update can be
+done in place in a single $V \times V$ matrix, with three nested loops, for a cost of $O(V^3)$. A
+successor matrix records the first step of each path, from which the paths can be read off.
+Negative weights are allowed, and a negative diagonal entry at the end reveals a negative cycle.
 
 ![Shortest path timings](../generated/graph/shortest_path_timing.svg)
 
@@ -55,10 +112,46 @@ Floyd–Warshall's cubic cost limits it to graphs of a few thousand vertices. Fo
 
 ## Algorithm
 
-1. **Dijkstra**: heap of (distance, vertex); pop; skip if stale; relax out-edges, pushing improvements.
-2. **Bellman–Ford**: up to $V - 1$ passes over all edges (both directions if undirected), stopping when unchanged; one more pass detects negative cycles.
-3. **A***: as Dijkstra with keys $d + h$, closing vertices when popped and stopping at the target.
-4. **Floyd–Warshall**: initialise from the edges; for each $k$, $i$, $j$ relax through $k$; check the diagonal.
+**Dijkstra** from a source.
+
+1. Set every distance to infinity, except the source's, which is 0. Push (0, source) on a
+   min-heap ordered by distance.
+2. Pop the entry (d, u) of smallest distance. If $d$ is larger than the distance now recorded
+   for $u$, the entry is stale: discard it and repeat this step.
+3. For each edge from $u$ to $v$ with weight $w$: if $d + w$ is less than the recorded
+   distance of $v$, record it, set the predecessor of $v$ to $u$, and push $(d + w, v)$.
+4. Repeat from step 2 until the heap is empty.
+
+With a binary heap the cost is $O((V + E)\log V)$.
+
+**Bellman-Ford** from a source.
+
+1. Set the distances as above.
+2. Make a pass over all the edges (in both directions, for an undirected graph), relaxing
+   each.
+3. If the pass changed nothing, stop: the distances are final.
+4. After $V - 1$ passes, make one more. If it would still improve some distance, report a
+   negative cycle.
+
+The cost is $O(VE)$ in the worst case.
+
+**A\*** from a source to a target, with a heuristic $h$: as Dijkstra, with these differences.
+The heap is ordered by $d + h(v)$. A vertex is **closed** when it is popped, and closed
+vertices are not reopened. The search stops as soon as the target is popped.
+
+**Floyd-Warshall** for all pairs.
+
+1. Initialise the matrix: 0 on the diagonal, the weight for each edge, infinity elsewhere.
+   Initialise the successor matrix to the edge's endpoint.
+2. For each $k$, and for each pair $(i, j)$: if $d_{ik} + d_{kj} < d_{ij}$, replace $d_{ij}$ by
+   the sum, and the successor of $(i, j)$ by the successor of $(i, k)$. The loop over $k$ must
+   be the outermost.
+3. If any diagonal entry is negative, report a negative cycle.
+
+The cost is $O(V^3)$ time and $O(V^2)$ memory.
+
+**Recovering a path**: from the predecessors, walk back from the target to the source and
+reverse the list; from the successor matrix, walk forward from the source.
 
 ## Implementation
 

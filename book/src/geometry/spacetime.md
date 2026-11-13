@@ -66,10 +66,29 @@ A bound orbit in the Schwarzschild field does not close: each turn its perihelio
 
 ## Algorithm
 
-1. **Boost**: build the $4 \times 4$ matrix from $\boldsymbol\beta$; multiply.
-2. **Christoffel symbols**: invert the metric by Gauss–Jordan elimination with pivoting; contract with the derivative combination.
-3. **Finite differences**: $\partial_\sigma g \approx \bigl(g(x - 2h) - 8g(x - h) + 8g(x + h) - g(x + 2h)\bigr)/(12h)$ along each coordinate.
-4. **Geodesic acceleration**: $-\Gamma^\lambda_{\mu\nu} u^\mu u^\nu$, for the caller's integrator.
+**Lorentz boost** of a four-vector by velocity $\boldsymbol\beta$: compute $\gamma$; build the
+$4 \times 4$ boost matrix, whose entries are those of the two formulas above; multiply the
+vector by it.
+
+**Christoffel symbols** at a point, from the metric $g_{\mu\nu}$ and its derivatives
+$\partial_\sigma g_{\mu\nu}$ there.
+
+1. Invert the metric by Gauss-Jordan elimination with pivoting, to obtain $g^{\lambda\sigma}$.
+2. For each $\lambda$, $\mu$ and $\nu$, sum over $\sigma$:
+   $\Gamma^\lambda_{\mu\nu} = \tfrac12g^{\lambda\sigma}(\partial_\mu g_{\sigma\nu} + \partial_\nu g_{\sigma\mu} - \partial_\sigma g_{\mu\nu})$.
+
+There are 64 symbols in four dimensions, of which 40 are independent because of the symmetry
+in $\mu$ and $\nu$.
+
+**Derivatives of a metric given as a function**: for each coordinate $\sigma$, evaluate the
+metric at the four points displaced by $\pm h$ and $\pm2h$ along that coordinate, and combine
+them by the [five-point formula](../derivatives/finite-differences.md#higher-order-stencils),
+$\partial_\sigma g \approx \bigl(g(x - 2h) - 8g(x - h) + 8g(x + h) - g(x + 2h)\bigr)/(12h)$.
+
+**Geodesic acceleration**: given a position and a four-velocity $u$, compute the symbols there
+and return $-\Gamma^\lambda_{\mu\nu}u^\mu u^\nu$, summed over $\mu$ and $\nu$. This is the right-hand
+side of the geodesic equation, written as a first-order system in position and velocity, to
+be integrated by any [ODE solver](../integration/runge-kutta.md).
 
 ## Implementation
 

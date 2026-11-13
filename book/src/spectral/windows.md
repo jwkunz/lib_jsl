@@ -119,11 +119,35 @@ They now come from SciPy. (The Kaiser window's Bessel function was corrected in 
 
 ## Algorithm
 
-1. **Cosine sum**: evaluate $\sum_ka_k\cos(k\theta_n)$ at $\theta_n$ evenly spaced on $[-\pi, \pi]$.
-2. **Kaiser**: $I_0(\beta\sqrt{1 - (2n/(M - 1) - 1)^2})/I_0(\beta)$.
-3. **Dolph-Chebyshev**: sample $T_{M-1}$, take the real DFT (with a half-sample shift for even $M$), centre, normalise to a peak of 1.
-4. **DPSS**: bisection for the largest eigenvalue, then inverse iteration; normalise to a peak of 1.
-5. **Periodic form**: compute the symmetric window of length $M + 1$ and drop the last sample.
+Every function returns a window of $M$ samples.
+
+**Cosine-sum windows** (Hann, Hamming, Blackman and the rest): for each sample $n$, compute the
+angle $\theta_n$, evenly spaced from $-\pi$ to $\pi$ across the window, and evaluate
+$\sum_ka_k\cos(k\theta_n)$ with the family's coefficients.
+
+**Kaiser**: for each sample, map $n$ to a position $t = 2n/(M - 1) - 1$ in $[-1, 1]$ and
+evaluate $I_0\big(\beta\sqrt{1 - t^2}\big)/I_0(\beta)$, where $I_0$ is the modified Bessel function
+of order zero.
+
+**Dolph-Chebyshev**, for a given side-lobe level:
+
+1. compute $\beta$ from the level, so that the Chebyshev polynomial $T_{M-1}$ reaches the
+   wanted ratio between its main lobe and its ripples;
+2. sample $T_{M-1}(\beta\cos(\pi k/M))$ at $k = 0, \ldots, M - 1$: this is the window's transform;
+3. take the real DFT of those samples (with a half-sample phase shift for even $M$), and
+   rotate the result so that the window is centred;
+4. divide by the largest value, so that the peak is 1.
+
+**DPSS**, for a half-bandwidth $NW$:
+
+1. form the symmetric tridiagonal matrix whose eigenvectors are the Slepian sequences;
+2. find its largest eigenvalue by bisection, counting with a Sturm sequence how many
+   eigenvalues lie below a trial value;
+3. find the corresponding eigenvector by inverse iteration with that eigenvalue as the shift;
+4. normalise it to a peak of 1.
+
+**Periodic form** of any window: compute the symmetric window of length $M + 1$ and drop its
+last sample.
 
 ## Implementation
 

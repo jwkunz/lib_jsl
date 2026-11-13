@@ -224,12 +224,47 @@ from the same 21 coefficients remains accurate far beyond:
 
 ## Algorithm
 
-- **Floater-Hormann**: weights by the formula above; evaluation by the barycentric formula.
-- **Bulirsch-Stoer**: for each evaluation point, build the rational tableau from the nearest data point
-  outwards, adding the corrections until they reach rounding level.
-- **AAA**: greedy support selection, a Loewner matrix and its SVD per step, until the sample error is
-  below the tolerance or the term limit is reached.
-- **Padé**: solve the $M \times M$ system for $Q$, form $P$ by convolution, evaluate both by Horner's rule.
+**Floater-Hormann.** Input: points in increasing order and the blending degree $d$.
+
+1. *Set-up.* For each node $k$, sum over the runs of $d + 1$ consecutive nodes that contain it
+   the reciprocal of the product of the distances from $x_k$ to the other nodes of the run, and
+   attach the sign $(-1)^{k-d}$. Cost: $O(nd^2)$.
+2. *Evaluation.* The [barycentric formula](polynomial.md#algorithm), unchanged. Cost: $O(n)$ per
+   point.
+
+**Bulirsch-Stoer.** There is no set-up. For each evaluation point $x$:
+
+1. find the data point nearest to $x$; if $x$ coincides with it, return its value;
+2. initialise the first column of the tableau with the data values;
+3. for each further column, combine neighbouring entries of the previous column into the
+   corrections for interpolants through one more point, and add the correction that lies on the
+   path leading away from the nearest point to the running value;
+4. stop early when a correction is at rounding level; report an error if a denominator vanishes
+   (a pole at $x$);
+5. return the value, with the last correction as the error estimate.
+
+Cost: $O(n^2)$ per point.
+
+**AAA.** Input: samples $(z_i, f_i)$, a relative tolerance and a maximum number of terms.
+
+1. Set the approximation to the mean of the $f_i$, and the support set to empty.
+2. Find the sample with the largest current error. If that error is below the tolerance times
+   the largest $|f_i|$, or the term limit has been reached, stop.
+3. Move that sample into the support set.
+4. Build the Loewner matrix, with one row for each remaining sample and one column for each
+   support point.
+5. Compute its SVD and take the right singular vector of the smallest singular value as the
+   weights.
+6. Evaluate the new approximation at the remaining samples, and go to 2.
+
+With $m$ samples and $n$ support points at the end, the cost is $O(mn^3)$, dominated by the SVDs.
+
+**Padé.** Input: Taylor coefficients $c_0, \ldots, c_{L+M}$.
+
+1. Solve the $M \times M$ linear system for $q_1, \ldots, q_M$ (with $q_0 = 1$); report an error if
+   it is singular.
+2. Form $p_i = \sum_{j=0}^{\min(i,M)} q_jc_{i-j}$ for $i = 0, \ldots, L$.
+3. To evaluate, compute $P_L(x)$ and $Q_M(x)$ by Horner's rule and divide.
 
 ## Implementation
 

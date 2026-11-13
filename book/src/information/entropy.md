@@ -34,12 +34,32 @@ $$
 H(X) = -\sum_x p(x)\log_2 p(x) \quad\text{bits},
 $$
 
-with $0\log 0 = 0$. A symbol of probability $p$ carries $-\log_2 p$ bits of **surprise**, and the entropy is the average surprise. It ranges from 0, for a certain outcome, to $\log_2 n$ for $n$ equally likely outcomes. A fair coin has 1 bit and a byte of random data 8. [`entropy`](../../api/lib_jsl_information/operators/entropy/fn.entropy.html) computes it
+with the convention $0\log 0 = 0$.
+
+The formula is an average, and the quantity being averaged has a meaning of its own. Learning
+that an event of probability $p$ has occurred conveys $-\log_2 p$ bits of information, its
+**surprise**. The definition is forced by two reasonable requirements: a rarer event should be
+more informative, and the information from two independent events should add (their
+probabilities multiply, and the logarithm turns the product into a sum). An event of probability
+$\tfrac12$ conveys 1 bit, the answer to one yes-or-no question; one of probability $\tfrac18$
+conveys 3 bits; a certain event conveys nothing. The entropy is the average surprise of the
+source's symbols.
+
+It ranges from 0, for a source whose outcome is certain, to $\log_2 n$, for $n$ equally likely
+outcomes, which is the most unpredictable a source with $n$ symbols can be. A fair coin has 1 bit
+and a byte of random data 8. A biased coin that lands heads 90% of the time has only
+$-0.9\log_20.9 - 0.1\log_20.1 = 0.47$ bits: its outcomes are mostly predictable. [`entropy`](../../api/lib_jsl_information/operators/entropy/fn.entropy.html) computes it
 for the empirical distribution of the bytes of a slice; [`entropy_from_probabilities`](../../api/lib_jsl_information/operators/entropy/fn.entropy_from_probabilities.html) for a given distribution.
 
 ![Binary entropy](../generated/information/binary_entropy.svg)
 
-The **source coding theorem** says that no lossless code can use fewer than $H$ bits per symbol on average, and that codes exist using fewer than $H + 1$ (for single symbols) or $H + \epsilon$ (for long blocks).
+Entropy is not just a measure of uncertainty; it is the answer to a practical question. Shannon's
+**source coding theorem** says that no lossless code can use fewer than $H$ bits per symbol on
+average, and that codes exist using fewer than $H + 1$ (coding single symbols) or $H + \epsilon$
+(coding long blocks). Entropy is the limit of lossless compression, and the
+[entropy coders](entropy-coding.md) approach it.
+
+There is a caveat about what "the source" is.
 The byte entropy only describes symbols taken one at a time. Real data has structure between symbols, and the entropy of blocks, per symbol, falls as the blocks lengthen:
 
 {{#include ../generated/information/entropy_table.md}}
@@ -48,7 +68,9 @@ The entropy rate of English is thought to be about 1–1.5 bits per character. D
 
 ### Cross entropy and divergence
 
-Coding a source with distribution $p$ using a code designed for $q$ costs, on average, the **cross entropy**
+An ideal code gives a symbol of probability $q(x)$ a codeword of $-\log_2 q(x)$ bits. Suppose the
+code was designed for a distribution $q$, but the symbols actually occur with distribution $p$.
+The average cost per symbol is then the **cross entropy**
 
 $$
 H(p, q) = -\sum_x p(x)\log_2 q(x) = H(p) + D(p\,\Vert\,q),
@@ -67,7 +89,9 @@ $$
 I(X; Y) = \sum_{x,y} p(x, y)\log_2\frac{p(x, y)}{p(x)\,p(y)} = H(X) - H(X \mid Y),
 $$
 
-the reduction in uncertainty about $X$ from knowing $Y$. It is the divergence of the joint distribution from the product of its marginals, so it is zero exactly when the variables are independent. [`mutual_information`](../../api/lib_jsl_information/operators/entropy/fn.mutual_information.html) takes the joint distribution as a
+where $H(X \mid Y)$ is the uncertainty about $X$ that remains, on average, once $Y$ is known. The
+**mutual information** is therefore the reduction in uncertainty about $X$ from knowing $Y$: the
+number of bits that one variable tells us about the other. It is symmetric in the two. It is also the divergence of the joint distribution from the product of its marginals, so it is zero exactly when the variables are independent. [`mutual_information`](../../api/lib_jsl_information/operators/entropy/fn.mutual_information.html) takes the joint distribution as a
 row-major table. A binary symmetric channel, which flips each bit with probability $\varepsilon$, carries $1 - H(\varepsilon)$ bits per use for a uniform input. That is its capacity:
 
 ![BSC mutual information](../generated/information/bsc_information.svg)
@@ -80,10 +104,29 @@ one bit between consecutive values, so a misread is off by at most one step. {{#
 
 ## Algorithm
 
-1. **Byte entropy**: count the 256 byte values; sum $p\log_2(1/p)$ over those present.
-2. **Divergence**: cross entropy minus entropy.
-3. **Mutual information**: marginals by summing rows and columns; sum $p\log_2\big(p/(p_rp_c)\big)$ over nonzero cells.
-4. **Gray**: encode $n \oplus (n \gg 1)$; decode $n \mathrel{\oplus}= n \gg 1, 2, 4, \ldots, 32$.
+**Entropy of a byte sequence.**
+
+1. Count the occurrences of each of the 256 byte values.
+2. For each value that occurs, with count $c$ out of $n$ bytes, add
+   $\tfrac cn\log_2\tfrac nc$ to the total. Values that do not occur contribute nothing.
+
+**Entropy of a distribution**: the same sum over the given probabilities, skipping zeros.
+
+**Cross entropy and divergence** of $p$ from $q$: sum $-p(x)\log_2q(x)$ over the symbols with
+$p(x) > 0$; the result is infinite if any of those has $q(x) = 0$. The divergence is the cross
+entropy minus the entropy of $p$.
+
+**Mutual information**, from a joint distribution given as a table.
+
+1. Sum each row to get the marginal distribution $p_r$ of the first variable, and each column
+   to get $p_c$ for the second.
+2. Sum $p\log_2\big(p/(p_rp_c)\big)$ over the cells with $p > 0$.
+
+**Gray code.** Encode: $g = n \oplus (n \gg 1)$. Decode: start with $n = g$ and apply
+$n \leftarrow n \oplus (n \gg 1)$, then with shifts of 2, 4, 8, 16 and 32. Each step doubles the
+number of leading bits that are correct, so six steps suffice for 64 bits.
+
+All of these cost one pass over the data or the table.
 
 ## Implementation
 

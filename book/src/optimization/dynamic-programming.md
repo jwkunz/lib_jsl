@@ -161,12 +161,36 @@ stage from the end, exactly, in $T$ steps.
 
 ## Algorithm
 
-For each problem: allocate the table, fill it in an order in which every entry's dependencies come
-first, and trace back from the final entry to recover a solution.
+**The table problems** all follow one pattern.
 
-**Value iteration**: from $V = 0$, repeat $V \leftarrow \max_a[r + \gamma PV]$ until the largest change is below
-$\text{tol}\,(1 - \gamma)/(2\gamma)$, which guarantees that the greedy policy is within the tolerance of
-optimal.
+1. **Allocate** a table with one entry for each subproblem, and fill in the trivial ones (no
+   items, an empty string, amount zero).
+2. **Fill** the remaining entries in an order in which every entry is computed after the entries
+   it depends on: row by row for knapsack, edit distance and the longest common subsequence; by
+   increasing amount for coin change; by increasing chain length for matrix chains. Each entry
+   takes the best over the choices in its recurrence.
+3. **Read off** the optimal value from the last entry.
+4. **Trace back** to recover a solution. Starting at the last entry, find which choice achieved
+   its value (by storing the choice when the entry was filled, or by re-testing the recurrence),
+   record it, move to the entry that choice came from, and continue to a trivial entry.
+
+The cost is the number of entries times the number of choices per entry: $O(nW)$ for knapsack,
+$O(|a|\,|b|)$ for edit distance, $O(n^3)$ for matrix chains.
+
+**Value iteration** for a discounted Markov decision process:
+
+1. start with $V(s) = 0$ for every state;
+2. compute $V'(s) = \max_a\big[r(s, a) + \gamma\sum_{s'}P(s' \mid s, a)V(s')\big]$ for every state;
+3. if the largest change $|V'(s) - V(s)|$ is below $\text{tol}\,(1 - \gamma)/(2\gamma)$, stop;
+   otherwise replace $V$ by $V'$ and go to 2;
+4. return $V'$ and the policy that takes the maximising action in each state.
+
+The threshold in step 3 is chosen so that the returned policy's value is within the tolerance
+of the optimum. One sweep costs $O(|S|^2|A|)$ for $|S|$ states and $|A|$ actions.
+
+**Backward induction** for a horizon of $T$ steps: set the values after the last step to zero,
+and apply step 2 (without discounting, if none is wanted) $T$ times, storing the maximising
+action for each state at each stage.
 
 ## Implementation
 

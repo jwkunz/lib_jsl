@@ -113,8 +113,27 @@ reduced angles, the DCT-II is accurate to $2 \times 10^{-15}$ at $n = 4096$.
 
 ## Algorithm
 
-`dct(x, kind, norm)`: validate the length (type I needs $n \ge 2$); form the extension or twiddled sequence; FFT; extract and twiddle the
-real parts; apply the normalisation. `idct` applies the inverse type with the matching scaling.
+`dct(x, kind, norm)` computes any of the four types through one complex FFT.
+
+1. **Validate** the length (type I needs at least two samples).
+2. **Build the FFT input** for the type:
+   - type I: the even extension of length $2n - 2$, that is $x_0, \ldots, x_{n-1}$ followed by
+     $x_{n-2}, \ldots, x_1$;
+   - type II: the even extension of length $2n$, that is $x_0, \ldots, x_{n-1}$ followed by
+     $x_{n-1}, \ldots, x_0$;
+   - type III: the samples multiplied by the twiddle factors $e^{\pi ik/2n}$, arranged so that
+     the transform that follows inverts type II;
+   - type IV: the samples multiplied by a twiddle factor and zero-padded to length $2n$.
+3. **Transform** with a complex FFT.
+4. **Extract.** Take the first $n$ outputs. For type II multiply output $k$ by
+   $e^{-\pi ik/2n}$, and for type IV by its own twiddle factor; keep the real parts.
+5. **Normalise.** With `norm = Ortho`, scale the outputs (the first, and for type I the last,
+   by a different factor from the rest) so that the transform is an orthogonal matrix.
+
+`idct` applies the inverse type (III for II, II for III, the same type for I and IV) with the
+scaling that makes the round trip exact. The sine transforms follow the same five steps with
+odd extensions, or reduce to a cosine transform by reversing the order of the input and
+alternating the signs of the output. Every transform costs one FFT of length about $2n$.
 
 ## Implementation
 

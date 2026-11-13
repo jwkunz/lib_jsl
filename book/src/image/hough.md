@@ -57,9 +57,35 @@ The **support** of a complete circle is about 0.9 for an 8-connected outline and
 
 ## Algorithm
 
-1. **Lines**: for each edge pixel and each $\theta_j$, increment the bin of $\rho = x\cos\theta_j + y\sin\theta_j$.
-2. **Peaks**: sort the cells above `min_votes` by votes; take each that is not suppressed, and suppress its neighbourhood (mirroring $\rho$ across the wrap in $\theta$).
-3. **Circles**: for each radius, list the distinct pixel offsets on a circle of that radius; each edge pixel increments the accumulator at each offset; keep cells above the support threshold; suppress centres closer than `min_distance` to a stronger one.
+**Line transform**, on a binary edge image.
+
+1. Allocate an accumulator with one row for each quantised distance $\rho$ and one column for
+   each of the `num_angles` angles $\theta_j$, all zero. Tabulate $\cos\theta_j$ and
+   $\sin\theta_j$.
+2. For each edge pixel $(x, y)$ and each angle: compute
+   $\rho = x\cos\theta_j + y\sin\theta_j$, find its bin, and add 1 to that cell.
+
+The cost is (number of edge pixels) × (number of angles).
+
+**Peak finding.**
+
+1. List the cells with at least `min_votes` votes, sorted by decreasing votes.
+2. Take each in turn. If it has not been suppressed, report it as a line, and suppress every
+   cell within a given neighbourhood of it. The neighbourhood wraps round in $\theta$: the
+   lines $(\rho, \theta)$ and $(-\rho, \theta + \pi)$ are the same line, so beyond the last angle
+   the neighbourhood continues at the first, with $\rho$ mirrored.
+
+**Circle transform**, for a list of candidate radii.
+
+1. For each radius, list the distinct integer pixel offsets that lie on a circle of that
+   radius.
+2. For each edge pixel and each offset, add 1 to the accumulator cell (for that radius) at the
+   pixel displaced by the offset. A true centre collects a vote from every edge pixel on its
+   circle.
+3. Keep the cells whose votes are at least `min_support` times the circumference $2\pi r$,
+   which is about the number of votes a complete circle would collect.
+4. Sort them by strength, and discard any centre closer than `min_distance` to a stronger
+   one.
 
 ## Implementation
 

@@ -93,9 +93,23 @@ features should be [standardised](foundations.md#scaling).
 
 ## Algorithm
 
-1. **Fit**: store the training points and labels.
-2. **Predict**: compute the squared distances to all training points; select the $k$ smallest with a linear-time partial sort;
-   vote (or weight by $1/d$); return the class with the largest share.
+**Fit**: store the training points and their labels. Nothing is computed.
+
+**Predict**, for one query point:
+
+1. compute the squared Euclidean distance from the query to every training point (the square
+   root is not needed to compare distances);
+2. select the $k$ smallest distances by a partial sort, which finds them in linear time without
+   sorting the rest;
+3. vote: add 1 to the tally of each neighbour's class, or $1/d$ with distance weighting. If a
+   neighbour is at distance zero under distance weighting, it alone decides;
+4. return the class with the largest tally, or the tallies divided by their sum as
+   probabilities.
+
+A prediction costs $O(np)$ for $n$ training points with $p$ features. All the work is done at
+prediction time, the opposite of most other models. For large training sets a
+[spatial tree](../geometry/spatial-trees.md) finds the neighbours without visiting every point,
+in low dimensions.
 
 ## Implementation
 

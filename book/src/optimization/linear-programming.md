@@ -195,14 +195,36 @@ are the same as the Lagrange multipliers of
 
 ## Algorithm
 
-1. Convert to standard form: shift variables with finite lower bounds, negate those with only
-   upper bounds, split free ones into two; add slack variables and rows for finite upper bounds;
-   make right-hand sides non-negative.
-2. Phase one: minimise the sum of the artificial variables. If it is positive, report infeasible.
-3. Remove artificial variables from the basis (or drop redundant rows).
-4. Phase two: pivot by Bland's rule until all reduced costs are non-negative (optimal) or a column
-   has no positive entry (unbounded).
-5. Map the standard-form solution back to the original variables.
+Input: an objective to minimise, constraints of the forms $\le$, $\ge$ and $=$, and bounds on
+the variables.
+
+1. **Convert to standard form**, so that every variable is non-negative and every constraint an
+   equation with a non-negative right-hand side:
+   - a variable with a finite lower bound $l$ is replaced by $x - l$;
+   - a variable with only an upper bound $u$ is replaced by $u - x$;
+   - a free variable is replaced by the difference of two non-negative ones;
+   - a finite upper bound on a shifted variable becomes an extra constraint row;
+   - each inequality receives a slack variable;
+   - a row with a negative right-hand side is multiplied by $-1$.
+2. **Phase one.** Add an artificial variable to each row, take them as the starting basis, and
+   minimise their sum by simplex pivots. If the minimum is positive, report the program as
+   infeasible.
+3. **Clean the basis.** An artificial variable may remain basic at value zero. Pivot it out on
+   any nonzero entry of its row in a real column; if the row has none, it is a redundant
+   constraint and is dropped.
+4. **Phase two.** Restore the true objective and pivot:
+   - compute the reduced costs; if all are non-negative, the basis is optimal;
+   - otherwise the entering variable is the one of lowest index with a negative reduced cost
+     (Bland's rule);
+   - apply the ratio test to its column; if no entry is positive, report the program as
+     unbounded; otherwise the leaving variable is the one with the smallest ratio, ties broken by
+     lowest index;
+   - pivot, and repeat.
+5. **Map back.** Undo the substitutions of step 1 to express the solution in the original
+   variables.
+
+A pivot on a tableau with $m$ rows and $N$ columns costs $O(mN)$ operations. The number of pivots
+is usually a small multiple of $m$, although in the worst case it can be exponential.
 
 ## Implementation
 

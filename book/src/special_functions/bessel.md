@@ -144,8 +144,32 @@ $x = 1000$ shifts the phase by $1000\varepsilon$: no method working in double pr
 
 ## Algorithm
 
-For `bessel_jy(ν, x)`: reflect if $\nu < 0$; run CF1 to get $J_\nu'/J_\nu$; recur downward to $\mu$; evaluate CF2 (or
-Temme's series for $x < 2$) and normalise with the Wronskian; recur $Y$ upward to $\nu$; reconstruct $J_\nu$.
+**`bessel_jy(ν, x)`** returns $J_\nu$, $Y_\nu$ and their derivatives for $x > 0$.
+
+1. **Negative order.** If $\nu < 0$, compute the functions for $-\nu$ by the steps below and
+   combine them with the reflection formulas.
+2. **Split the order.** Write $\nu = \mu + n$ with $n$ an integer and $\mu \in [-\tfrac12, \tfrac12)$.
+3. **CF1.** Evaluate the first continued fraction by the
+   [modified Lentz algorithm](incomplete.md#algorithm) to get the ratio $J_\nu'/J_\nu$. Give
+   $J_\nu$ an arbitrary small trial value, and $J_\nu'$ the value the ratio implies.
+4. **Downward recurrence.** Apply the recurrence $n$ times to carry the trial values down to
+   order $\mu$. This gives $J_\mu$ and $J_\mu'$ up to the same unknown factor.
+5. **Normalise at order $\mu$.** For $x \ge 2$, evaluate CF2, a complex continued fraction, and
+   combine its real and imaginary parts with the ratio from step 4 and the Wronskian to obtain
+   the true $J_\mu$, $Y_\mu$ and their derivatives. For $x < 2$, sum Temme's series for $Y_\mu$ and
+   $Y_{\mu+1}$ instead, and obtain $J_\mu$ from the Wronskian.
+6. **Rescale $J$.** The ratio of the true $J_\mu$ to its trial value is the unknown factor;
+   multiply the trial $J_\nu$ and $J_\nu'$ of step 3 by it.
+7. **Upward recurrence.** Apply the recurrence $n$ times to carry $Y_\mu$ up to $Y_\nu$.
+
+The cost is proportional to $n$ plus the number of terms of CF1, which grows with $x$.
+
+**`bessel_ik(ν, x)`** follows the same seven steps for $I_\nu$ and $K_\nu$, with the recurrence
+for modified functions and real continued fractions.
+
+**Spherical Bessel functions** call `bessel_jy` with order $n + \tfrac12$ and multiply by
+$\sqrt{\pi/2x}$. **Airy functions** use the Maclaurin series for $|x| \le 2$ and the Bessel
+functions of order $\tfrac13$ and $\tfrac23$ in $\zeta = \tfrac23|x|^{3/2}$ otherwise.
 
 ## Implementation
 

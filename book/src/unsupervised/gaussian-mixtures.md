@@ -138,10 +138,28 @@ more heavily than AIC once $n > e^2 \approx 7$ and tends to choose fewer compone
 
 ## Algorithm
 
-1. Run k-means; start from its hard assignments as responsibilities, and do one M-step.
-2. Repeat until the mean log-likelihood changes by less than the tolerance ($10^{-6}$), or 200 iterations: E-step (in logarithms, with
-   the log-sum-exp trick), M-step (adding `reg_covar` to each diagonal and taking a Cholesky factor).
-3. Label each point by its most responsible component.
+Input: the data, the number of components $k$ and the covariance type.
+
+1. **Initialise.** Run [k-means](k-means.md) with $k$ clusters. Treat its assignments as
+   responsibilities that are 1 for a point's own cluster and 0 for the others, and perform one
+   M-step to obtain starting weights, means and covariances.
+2. **E-step.** For each point and component, compute the logarithm of the weight times the
+   Gaussian density, using the Cholesky factor of the covariance for the quadratic form and the
+   determinant. The log of the mixture density at the point is the logarithm of the sum of the
+   exponentials of these $k$ numbers; it is computed after subtracting their maximum (the
+   **log-sum-exp** trick), so that densities too small to represent do not underflow to zero.
+   The responsibilities are the exponentials of the differences.
+3. **M-step.** Update the weights, means and covariances by the responsibility-weighted
+   formulas. Add `reg_covar` to the diagonal of each covariance and compute its Cholesky
+   factor for the next E-step.
+4. **Test.** If the mean log-likelihood changed by less than the tolerance ($10^{-6}$), or 200
+   iterations have been done, stop; otherwise go to 2.
+5. **Label** each point by the component with the largest responsibility.
+
+An iteration costs $O(nkp^2)$ with full covariances in $p$ dimensions.
+
+**Model selection**: fit the model for each candidate $k$, compute the BIC from the final
+log-likelihood and the number of parameters, and choose the smallest.
 
 ## Implementation
 

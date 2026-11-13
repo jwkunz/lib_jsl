@@ -52,8 +52,27 @@ That suits relations given only as a yes/no test. When items have a **canonical 
 
 ## Algorithm
 
-1. **Selection**: bounded min-heap of size $m$; replace the root when a larger element arrives; sort the heap's contents descending.
-2. **Equivalence classes**: union-find over indices; for each pair in different sets, test and union (smaller index as root); gather by root.
+**Selecting the $m$ largest** of $n$ elements.
+
+1. Start with an empty min-heap.
+2. For each element: if the heap holds fewer than $m$ elements, insert it. Otherwise compare
+   it with the root, the smallest element kept so far; if it is larger, replace the root by
+   it and restore the heap.
+3. Remove the heap's contents and sort them in descending order.
+
+The cost is $O(n\log m)$ at worst, and close to $n$ comparisons for random input, since most
+elements fail the comparison with the root.
+
+**Equivalence classes** of $n$ items under a relation given as a test.
+
+1. Start a union-find structure with each item in its own class.
+2. For every pair $i < j$: if the two are already in the same class, skip the pair (the test
+   is not needed); otherwise apply the test, and if it holds, merge the two classes, keeping
+   the smaller index as the root.
+3. Group the items by their root, listing the classes in order of their first member.
+
+The number of tests is at most $n(n - 1)/2$, and fewer when classes are large, because pairs
+already known to be equivalent are skipped.
 
 ## Implementation
 

@@ -252,11 +252,31 @@ of the [spectral methods](../integration/spectral-methods.md) for differential e
 
 ## Algorithm
 
-- **Newton**: divided differences in place, then Horner evaluation of the Newton form.
-- **Barycentric**: weights $w_j = 1/\prod_{k \ne j}(x_j - x_k)$; evaluation by the two sums above,
-  returning $y_j$ exactly when $x = x_j$.
-- **Chebyshev series**: sample $f$ at $x_k = \cos(\pi(k + \tfrac12)/n)$ mapped to $[a, b]$; compute
-  $c_j = \tfrac2n \sum_k f(x_k) \cos(\pi j (k + \tfrac12)/n)$; evaluate by Clenshaw's recurrence.
+**Newton form.** Input: $n$ points $(x_j, y_j)$ with distinct $x_j$.
+
+1. *Set-up.* Copy the $y_j$ into an array $a$. For $k = 1, \ldots, n - 1$, and for $j$ running
+   *downwards* from $n - 1$ to $k$, replace $a_j$ by $(a_j - a_{j-1})/(x_j - x_{j-k})$. Running
+   downwards lets each column of the divided-difference table overwrite the previous one in the
+   same array. At the end $a_k = f[x_0, \ldots, x_k]$. Cost: $O(n^2)$, once.
+2. *Evaluation at $x$.* Start with $p = a_{n-1}$ and, for $k = n - 2$ down to 0, set
+   $p \leftarrow a_k + (x - x_k)\,p$. Cost: $O(n)$ per point.
+
+**Barycentric form.** Input as above.
+
+1. *Set-up.* For each $j$, compute $w_j = 1/\prod_{k \ne j}(x_j - x_k)$. Cost: $O(n^2)$, once.
+2. *Evaluation at $x$.* If $x$ equals some node $x_j$, return $y_j$. Otherwise accumulate the two
+   sums $\sum_j \frac{w_j}{x - x_j}y_j$ and $\sum_j \frac{w_j}{x - x_j}$ in one loop and return their
+   ratio. Cost: $O(n)$ per point.
+
+**Chebyshev series.** Input: a function $f$, an interval $[a, b]$ and a number of terms $n$.
+
+1. *Sample.* Evaluate $f$ at the $n$ points $x_k = \tfrac12(a + b) + \tfrac12(b - a)\cos\big(\pi(k + \tfrac12)/n\big)$,
+   $k = 0, \ldots, n - 1$.
+2. *Coefficients.* For $j = 0, \ldots, n - 1$, compute
+   $c_j = \tfrac2n \sum_k f(x_k) \cos\big(\pi j (k + \tfrac12)/n\big)$. Cost: $O(n^2)$ as a direct sum.
+3. *Evaluation at $x$ (Clenshaw).* Map $x$ to $t = (2x - a - b)/(b - a)$. Set
+   $b_n = b_{n+1} = 0$ and, for $k = n - 1$ down to 1, $b_k = c_k + 2t\,b_{k+1} - b_{k+2}$. Return
+   $\tfrac12c_0 + t\,b_1 - b_2$. Cost: $O(n)$ per point.
 
 ## Implementation
 

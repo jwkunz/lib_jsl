@@ -113,9 +113,28 @@ array to its centre for display, as is conventional for images.
 
 ## Algorithm
 
-**`RealFft::forward`**: pack, transform with a complex FFT of length $n/2$, set $X_0$ and $X_{n/2}$ from $Z_0$, and untangle the bins $k$ and $m - k$ in pairs.
+**`RealFft::forward`**, for a real input of even length $n = 2m$.
 
-**`fftn`**: for each axis, copy each line along that axis to a buffer, transform it with an `Fft` planned for that length, and write it back.
+1. **Pack.** Form the complex sequence $z_j = x_{2j} + ix_{2j+1}$ for $j = 0, \ldots, m - 1$.
+2. **Transform** $z$ with a complex FFT of length $m$.
+3. **The two unpaired bins.** $E_0$ and $O_0$ are the real and imaginary parts of $Z_0$, so
+   $X_0 = E_0 + O_0$ and $X_m = E_0 - O_0$, both real.
+4. **Untangle the rest in pairs.** For each $k$ from 1 to $m/2$, compute $E_k$ and $O_k$ from
+   $Z_k$ and $\overline{Z_{m-k}}$, and set $X_k = E_k + e^{-2\pi ik/n}O_k$. The same two values
+   $Z_k$ and $Z_{m-k}$ also give bin $m - k$, so both are produced in one pass of the loop.
+
+The output is the $m + 1$ bins $X_0, \ldots, X_m$. The inverse runs the steps backwards. An odd
+length is transformed by a complex FFT of the full length, of which the first $(n + 1)/2$ bins
+are returned.
+
+**`fftn`**, for an array with $d$ axes. For each axis in turn:
+
+1. plan a one-dimensional `Fft` for the length of that axis;
+2. for every line of the array parallel to the axis, copy the line into a buffer, transform
+   it, and copy it back.
+
+A line along the last axis is contiguous in memory; a line along another axis is read with a
+stride, which is why it is copied to a buffer first.
 
 ## Implementation
 

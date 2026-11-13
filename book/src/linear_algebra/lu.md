@@ -217,11 +217,35 @@ reaches about 20 GFLOP/s at $n = 1024$, and LAPACK with OpenBLAS is 1.1 to 1.6 t
 
 ## Algorithm
 
-**Gaussian elimination with partial pivoting** (reference): for $k = 1, \ldots, n - 1$: find the largest $|a_{ik}|$, $i \ge k$; swap
-rows; for each $i > k$, subtract $\ell_{ik}$ times row $k$ from row $i$ (and from $\mathbf b$). Then back substitute.
+**Gaussian elimination with partial pivoting** (the reference crate). Input: an $n \times n$
+matrix $A$ and a right-hand side $\mathbf b$. For $k = 1, \ldots, n - 1$:
 
-**Recursive LU** (production): as above, on panels of at most 32 columns factorised in column-major order
-with an inner recursion; a singular pivot (below $10^{-3}\varepsilon\max|a_{ij}|$) is reported as an error.
+1. **Pivot search.** Find the row $r \ge k$ with the largest $|a_{rk}|$. If that entry is zero,
+   the matrix is singular.
+2. **Swap** rows $k$ and $r$ of $A$, and the same entries of $\mathbf b$.
+3. **Eliminate.** For each row $i > k$, compute the multiplier $\ell_{ik} = a_{ik}/a_{kk}$ and
+   subtract $\ell_{ik}$ times row $k$ from row $i$, and $\ell_{ik}b_k$ from $b_i$. Only the columns
+   to the right of $k$ need updating, since the entries below the pivot are known to become
+   zero.
+
+Then **back substitute**: for $i = n$ down to 1, $x_i = \big(b_i - \sum_{j>i}a_{ij}x_j\big)/a_{ii}$.
+
+To obtain the factorisation instead of a single solution, store each multiplier $\ell_{ik}$ in
+the position it has just zeroed, and record the swaps. At the end the array holds $U$ on and
+above the diagonal and $L$ (without its unit diagonal) below it.
+
+**Recursive LU** (the production crate) performs the same arithmetic in a different order.
+
+1. Split the matrix into **panels** of at most 32 columns.
+2. Factor the current panel with partial pivoting, by the recursion on halves of its columns
+   described above, working in column-major order.
+3. Apply the panel's row swaps to the rest of the matrix.
+4. Solve a triangular system for the block of $U$ to the right of the panel.
+5. Update the trailing submatrix with one matrix multiplication, and continue with the next
+   panel.
+
+A pivot smaller than $10^{-3}\varepsilon\max|a_{ij}|$ is reported as a singular matrix. Both
+versions cost $\tfrac23n^3$ flops.
 
 ## Implementation
 

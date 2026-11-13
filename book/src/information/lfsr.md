@@ -27,14 +27,35 @@ spacecraft, and LFSR scramblers and test patterns (PRBS) appear in nearly every 
 
 ### The recurrence and its polynomial
 
-The library's register holds bits $s_t, \ldots, s_{t+n-1}$, with the oldest in bit 0. It outputs $s_t$ and shifts in
+A **linear feedback shift register** (LFSR) is a row of $n$ one-bit cells. At each clock tick the
+bits shift along by one place, the bit that falls off the end is the output, and the vacated
+cell is filled with the XOR of a fixed selection of the old bits, the **taps**. It is about the
+cheapest circuit that can generate a long, random-looking sequence of bits.
+
+In symbols, the library's register holds bits $s_t, \ldots, s_{t+n-1}$, with the oldest in bit 0. It outputs $s_t$ and shifts in
 
 $$
 s_{t+n} = \sum_{k=0}^{n-1} c_k\,s_{t+k} \pmod 2,
 $$
 
-the parity of the state ANDed with the tap mask $c$. The **characteristic polynomial** is $p(x) = x^n + \sum_k c_kx^k$. [`Lfsr::from_polynomial`](../../api/lib_jsl_information/lfsr/linear_feedback_shift_register/struct.Lfsr.html#method.from_polynomial) takes it as a bit mask, so `0b1011` is $x^3 + x + 1$. The all-zero state is a fixed point. From any other state, the period is the
-**order** of $x$ modulo $p(x)$: the smallest $T$ with $x^T \equiv 1$. The order is at most $2^n - 1$, and reaches it exactly when $p$ is primitive.
+the parity of the state ANDed with the tap mask $c$. The **characteristic polynomial** is $p(x) = x^n + \sum_k c_kx^k$. [`Lfsr::from_polynomial`](../../api/lib_jsl_information/lfsr/linear_feedback_shift_register/struct.Lfsr.html#method.from_polynomial) takes it as a bit mask, so `0b1011` is $x^3 + x + 1$. **An example.** Take $n = 3$ and $p(x) = x^3 + x + 1$, so that $c_0 = c_1 = 1$ and the recurrence
+is $s_{t+3} = s_{t+1} + s_t$. Starting from the bits $1, 0, 0$, the sequence continues
+
+$$
+1, 0, 0, 1, 0, 1, 1,\ 1, 0, 0, 1, 0, 1, 1,\ \ldots
+$$
+
+and repeats with period 7. During one period the three-bit state takes each of the seven
+nonzero values exactly once.
+
+**The period.** The next state depends only on the current one, and there are finitely many
+states, so the sequence must eventually repeat. The all-zero state is a fixed point (the XOR of
+zeros is zero), so it must be avoided, and it cannot occur in a cycle with other states. That
+leaves $2^n - 1$ nonzero states, so the period is at most $2^n - 1$. A sequence that achieves
+this is a **maximum-length sequence**, or **m-sequence**. Whether it is achieved depends only on
+the polynomial. Algebraically, one step of the register is multiplication by $x$ modulo $p(x)$,
+so the period is the **order** of $x$ modulo $p(x)$: the smallest $T$ with $x^T \equiv 1$. The
+order equals $2^n - 1$ exactly when $p$ is a **primitive** polynomial.
 
 ### Testing primitivity
 
@@ -47,24 +68,65 @@ The counts found by [`all_maximum_length_polynomials`](../../api/lib_jsl_informa
 
 ### Properties of m-sequences
 
-An m-sequence of period $N = 2^n - 1$ has $2^{n-1}$ ones and $2^{n-1} - 1$ zeros. Every nonzero $n$-bit window appears exactly once per period. In ±1 form its periodic autocorrelation is $N$ at zero shift and $-1$ at every other shift:
+Because the state passes through every nonzero value once per period, an m-sequence of period
+$N = 2^n - 1$ has several properties expected of a random sequence.
+
+- **Balance.** It has $2^{n-1}$ ones and $2^{n-1} - 1$ zeros (the example has four ones and three
+  zeros). The missing zero corresponds to the excluded all-zero state.
+- **Windows.** Every nonzero pattern of $n$ consecutive bits appears exactly once per period.
+- **Autocorrelation.** Map the bits to $\pm1$ and compare the sequence with a cyclically shifted
+  copy of itself, adding up the products. At zero shift every product is $+1$ and the sum is $N$.
+  At every other shift the agreements and disagreements almost cancel, and the sum is exactly
+  $-1$:
 
 ![m-sequence autocorrelation](../generated/information/msequence_autocorrelation.svg)
 
-That makes them ideal for ranging and channel sounding: a correlator finds the delay unambiguously.
+A single sharp peak with a flat floor is the ideal shape for measuring a delay. That makes
+m-sequences ideal for ranging and channel sounding: a
+[correlator](../filters/convolution.md#cross-correlation-and-delay-estimation) finds the delay
+unambiguously.
 
 ### Gold codes
 
-Two m-sequences of the same length can still cross-correlate strongly. Gold showed that if $v$ is the decimation $v_t = u_{qt}$ with $q = 2^k + 1$, where $\gcd(n, k) = 1$ for odd $n$ or $\gcd(n, k) = 2$ for $n \equiv 2 \pmod 4$, then $u$ and $v$ are a preferred pair. Their cross-correlation takes only the three values $-1$, $-t(n)$ and $t(n) - 2$, with
+Systems in which many transmitters share a channel, such as satellite navigation, give each one
+its own code and separate them by correlation. That needs a large family of sequences in which
+every pair has low *cross*-correlation, at every shift. Two m-sequences of the same length can still cross-correlate strongly. Gold showed that if $v$ is the decimation $v_t = u_{qt}$ with $q = 2^k + 1$, where $\gcd(n, k) = 1$ for odd $n$ or $\gcd(n, k) = 2$ for $n \equiv 2 \pmod 4$, then $u$ and $v$ are a preferred pair. Their cross-correlation takes only the three values $-1$, $-t(n)$ and $t(n) - 2$, with
 $t(n) = 1 + 2^{\lfloor (n+2)/2\rfloor}$. The family $\{u, v, u \oplus T^\tau v\}$ of all shifts $\tau$ keeps the same three values between any two members. [`gold_codes`](../../api/lib_jsl_information/lfsr/gold_codes/fn.gold_codes.html) uses $k = 1$ ($q = 3$) for odd $n$ and $k = 2$ ($q = 5$) for $n \equiv 2 \pmod 4$. No family exists when $4 \mid n$.
 
 {{#include ../generated/information/gold_facts.md}}
 
 ## Algorithm
 
-1. **Step**: output bit 0; feedback = parity(state AND taps); shift right; put the feedback in bit $n - 1$.
-2. **Primitivity**: check $x^{2^n-1} = 1$ and $x^{(2^n-1)/q} \ne 1$ for each prime factor $q$.
-3. **Gold family**: generate one period of $u$ from the minimal-weight primitive polynomial; decimate it by $q$ to get $v$; XOR $u$ with every cyclic shift of $v$.
+**One step of the register**, with the state held in an integer of $n$ bits:
+
+1. the output is bit 0 of the state;
+2. the feedback bit is the parity of the state ANDed with the tap mask (the XOR of the tapped
+   bits);
+3. shift the state right by one, and place the feedback bit in bit $n - 1$.
+
+**Testing whether a polynomial of degree $n$ is primitive.**
+
+1. Factor $2^n - 1$ into primes by trial division.
+2. Compute $x^{2^n - 1} \bmod p(x)$ by
+   [square-and-multiply](../number-theory/modular-arithmetic.md#inverses-and-powers), in
+   arithmetic on polynomials with coefficients modulo 2 (shifts and XORs). If the result is
+   not 1, the polynomial is not primitive.
+3. For each prime factor $q$, compute $x^{(2^n - 1)/q} \bmod p(x)$. If any is 1, the order of
+   $x$ is a proper divisor of $2^n - 1$, and the polynomial is not primitive.
+4. Otherwise it is primitive.
+
+**Finding a maximum-length polynomial**: try the polynomials of degree $n$ in order of
+increasing number of terms, and within that in increasing numerical order, and return the
+first that is primitive.
+
+**A Gold family** for degree $n$.
+
+1. Generate one period, $N = 2^n - 1$ bits, of the m-sequence $u$ from the minimal-weight
+   primitive polynomial.
+2. Form $v$ by decimation: $v_t = u_{qt \bmod N}$, with $q = 3$ for odd $n$ and $q = 5$ for
+   $n \equiv 2 \pmod 4$.
+3. The family is $u$, $v$, and the XOR of $u$ with each of the $N$ cyclic shifts of $v$:
+   $N + 2$ sequences.
 
 ## Implementation
 

@@ -149,10 +149,33 @@ chapter was written.
 
 ## Algorithm
 
-1. **PCA**: subtract the column means; form $C = \widetilde X^{\mathsf T}\widetilde X/(n - 1)$; compute its eigendecomposition; keep the eigenvectors of the $q$ largest
-   eigenvalues, with the largest entry of each made positive.
-2. **Kernel PCA**: form the Gram matrix $K$ and double-centre it; compute its eigendecomposition; keep the $q$ largest, scaling each
-   eigenvector by $1/\sqrt\lambda$. To transform new points, centre their kernel rows with the stored training means.
+**PCA.**
+
+1. **Centre.** Subtract from each column of the data matrix its mean, and store the means.
+2. **Covariance.** Form $C = \widetilde X^{\mathsf T}\widetilde X/(n - 1)$.
+3. **Eigendecomposition.** Compute the eigenvalues and eigenvectors of $C$ with the
+   [symmetric eigensolver](../linear_algebra/eigensolvers.md).
+4. **Select.** Keep the eigenvectors of the $q$ largest eigenvalues as the principal axes. An
+   eigenvector is defined only up to sign, so each is given the sign that makes its largest
+   entry positive, which makes the result reproducible.
+5. **Transform** a point: subtract the stored means and take the dot product with each axis.
+   **Reconstruct** it: multiply the scores by the axes and add the means back.
+
+Forming $C$ costs $O(np^2)$ and its eigendecomposition $O(p^3)$.
+
+**Kernel PCA.**
+
+1. **Gram matrix.** Compute $K_{ij} = k(\mathbf x_i, \mathbf x_j)$ for all pairs of training points.
+2. **Centre it.** Subtract from each entry its row mean and its column mean, and add the
+   overall mean (the formula for $\widetilde K$ above). Store the row means and the overall
+   mean.
+3. **Eigendecomposition.** Compute the eigenvalues and eigenvectors of $\widetilde K$, and keep
+   the $q$ largest. Scale each eigenvector by $1/\sqrt\lambda$.
+4. **Transform a new point**: compute its kernel values with all the training points, centre
+   that row with the stored means, and take its dot product with each scaled eigenvector.
+
+The eigendecomposition of the $n \times n$ Gram matrix costs $O(n^3)$: kernel PCA scales with the
+number of points, not the number of features.
 
 ## Implementation
 

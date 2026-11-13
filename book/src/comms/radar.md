@@ -31,13 +31,43 @@ the steady-state Kalman filter of a constant-velocity target, were analysed by T
 
 ### The matched filter
 
-For a known pulse $p$ in white noise, the linear filter maximising the output signal-to-noise ratio at the pulse's end is $h[n] = \overline{p[L - 1 - n]}$, the time-reversed conjugate. Its output is the cross-correlation of the received signal with $p$, and
-its peak SNR is $E_p/N_0$, the pulse energy divided by the noise density, regardless of the pulse's shape. The shape determines only the width and sidelobes of the peak, its
-**ambiguity**.
+A radar transmits a known pulse $p$ of $L$ samples and listens for its echo, which returns weak
+and buried in noise. The receiver's task is to decide whether the pulse is present and exactly
+when it arrived. The best linear filter for the purpose is the one that maximises the ratio of
+the signal peak to the noise at its output.
+
+The answer has a simple explanation. A filter forms a weighted sum of the last $L$ received
+samples. To make the pulse's contribution as large as possible relative to the noise, each
+sample should be weighted by how much signal it is expected to contain: heavily where the pulse
+is strong, lightly where it is weak, and with the conjugate phase so that all the contributions
+add in step. That is a filter whose taps are the pulse itself, conjugated and reversed in time,
+
+$$
+h[n] = \overline{p[L - 1 - n]},
+$$
+
+the **matched filter**. (The reversal is needed because a filter's first tap multiplies the most
+recent sample.) Its output is the [cross-correlation](../filters/convolution.md#cross-correlation-and-delay-estimation)
+of the received signal with $p$, which peaks at the moment the whole pulse has arrived.
+
+A remarkable property follows: the peak signal-to-noise ratio is $E_p/N_0$, the pulse energy
+divided by the noise density, *regardless of the pulse's shape*. A long weak pulse is detected
+as well as a short strong one of the same energy. The shape determines only the width and
+sidelobes of the correlation peak, its **ambiguity**, and that is the freedom the next sections
+exploit: a long pulse can be designed so that its matched-filter output is a short, sharp
+peak.
 
 ### Chirps
 
-A linear-FM chirp $s(t) = e^{i\pi(B/T)(t - T/2)^2}$ sweeps a bandwidth $B$ in a time $T$. Its autocorrelation is close to a sinc of width $1/B$, so the **compression ratio** is the time-bandwidth product $BT$. A 10 µs, 20 MHz chirp
+A radar wants two things that conflict for a simple pulse: high energy, which needs a long pulse
+(peak power is limited), and fine range resolution, which needs a short one. **Pulse
+compression** gets both, by transmitting a long pulse whose frequency changes during the pulse.
+
+A linear-FM **chirp** $s(t) = e^{i\pi(B/T)(t - T/2)^2}$ sweeps a bandwidth $B$ in a time $T$. The width
+of a matched filter's output peak is set by the pulse's bandwidth, not its duration: the chirp's
+autocorrelation is close to a sinc of width $1/B$. The pulse of length $T$ is therefore
+compressed to a peak of length $1/B$, and the **compression ratio** is the time-bandwidth
+product $BT$. A 10 µs, 20 MHz chirp
 compresses 200 to 1:
 
 ![Pulse compression](../generated/comms/pulse_compression.svg)
@@ -68,9 +98,32 @@ where $m_k$ is the measured delay. If the normalised correlation in the gate fal
 
 ## Algorithm
 
-1. **Compression**: correlate the received frame with the (weighted) pulse by FFT convolution with its matched filter; index $k$ holds the response to an echo starting at sample $k$.
-2. **Locate**: the largest correlation magnitude, refined by the parabola through it and its neighbours.
-3. **Track**: predict, search the gate, test the normalised correlation, update by α-β or coast.
+**Pulse compression** of a received frame.
+
+1. Form the matched filter: the pulse, conjugated and reversed in time, and multiplied by the
+   weighting window if side lobes are to be reduced.
+2. Convolve the frame with it, by [FFT convolution](../filters/convolution.md#algorithm).
+3. Align the output so that index $k$ holds the response to an echo that *starts* at sample
+   $k$.
+
+**Locating a pulse** (`locate_pulse`).
+
+1. Find the index of the largest magnitude of the compressed output.
+2. Fit a parabola through that magnitude and its two neighbours, and take the position of the
+   parabola's vertex as the delay, to a fraction of a sample.
+3. Report also the normalised correlation at the peak, a number between 0 and 1 that measures
+   how well the frame matches the pulse there.
+
+**Tracking** (`PulseCorrelationTracker`), for each new frame:
+
+1. **predict** the delay from the previous estimates: $\widetilde d = \hat d + \hat r$;
+2. **search** only the gate, a window of delays around the prediction, for the correlation
+   peak;
+3. **test**: if the normalised correlation at the peak is above the threshold, the pulse was
+   found. Update the delay by the fraction $\alpha$ of the difference between the measurement
+   and the prediction, and the rate by the fraction $\beta$ of it;
+4. otherwise **coast**: keep the prediction as the estimate, and count a miss. After too many
+   consecutive misses, drop the track.
 
 ## Implementation
 

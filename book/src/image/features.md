@@ -29,6 +29,12 @@ hand-crafted methods.
 
 ### Blobs and the normalised Laplacian
 
+The aim of this entry is to find points in an image that can be found *again* in another image
+of the same scene, taken from a different distance or angle. Such **features** are the basis of
+image stitching, object recognition and 3D reconstruction. A good feature must be distinctive,
+and its detection must not depend on its size in the image. The simplest such feature is a
+**blob**: a roughly round region that is brighter or darker than its surroundings.
+
 Blurring by a Gaussian of width $\sigma$ and taking the Laplacian $\nabla^2 = \partial_x^2 + \partial_y^2$ gives a strong negative response at the centre of a bright blob. The response is strongest when $\sigma$ matches the blob's size. Raw derivatives of blurred images shrink as $\sigma$ grows,
 so the response is **normalised** by $\sigma^2$:
 
@@ -47,6 +53,13 @@ threshold. Of two detections overlapping by more than a given fraction of the sm
 
 ### SIFT
 
+The **scale-invariant feature transform** turns blob detection into a complete pipeline. It
+finds blob-like **keypoints** together with their size and orientation, and then summarises the
+image around each one by a **descriptor**, a vector of numbers computed relative to that size
+and orientation. Because the descriptor is measured in the keypoint's own frame, it comes out
+nearly the same when the image is scaled or rotated, and keypoints in two images can be paired
+by comparing descriptors.
+
 1. **Scale space.** Blur the image by Gaussians of widths $\sigma_0k^i$, with $k = 2^{1/s}$ for $s$ scales per octave. After each octave, halve the image and continue. Adjacent differences, the **difference of Gaussians** (DoG), approximate $(k - 1)\,\sigma^2\nabla^2G$, the normalised Laplacian.
 2. **Detection.** Candidates are extrema of the DoG among their 26 neighbours in position and scale.
 3. **Localisation.** Fit a quadratic to the DoG around each candidate by Newton's method: the offset $\hat{\mathbf x} = -H^{-1}\nabla D$, moving to the neighbouring sample if an offset exceeds one half. Reject candidates of low contrast, $|D(\hat{\mathbf x})| < 0.04/s$. Reject those on edges, where the ratio of principal curvatures of the $2 \times 2$ spatial Hessian exceeds 10, tested as $\mathrm{tr}^2/\det \ge (r + 1)^2/r$.
@@ -57,7 +70,12 @@ Normalising the image to $[0, 1]$ first makes the thresholds independent of brig
 
 ### SURF and the integral image
 
-The **integral image** $I(r, c) = \sum_{r' < r,\, c' < c} f(r', c')$ gives the sum over any rectangle from four lookups. SURF approximates the Gaussian second derivatives $D_{xx}, D_{yy}, D_{xy}$ by box filters (lobes of $\pm1$ and $-2$) and detects maxima of the
+SURF ("speeded-up robust features") follows the same plan as SIFT but replaces the Gaussian
+filters by crude approximations that are extremely cheap to compute. The device behind it is the
+**integral image** $I(r, c) = \sum_{r' < r,\, c' < c} f(r', c')$, in which each entry holds the
+sum of all the pixels above and to the left. The sum over any rectangle is then obtained from
+the values at its four corners, by adding two and subtracting two, whatever the rectangle's
+size. SURF approximates the Gaussian second derivatives $D_{xx}, D_{yy}, D_{xy}$ by box filters (lobes of $\pm1$ and $-2$) and detects maxima of the
 approximate Hessian determinant
 
 $$
@@ -81,10 +99,49 @@ smallest scale. SURF is 4–6 times faster here and less discriminating, with fe
 
 ## Algorithm
 
-1. **Blobs**: for each scale, blur, take the 5-point Laplacian, multiply by $-\sigma^2$; find thresholded $3 \times 3 \times 3$ maxima; prune overlaps, strongest first.
-2. **SIFT**: build octaves of Gaussians and DoGs; find extrema; refine (up to 5 steps) and filter; assign orientations; compute descriptors.
-3. **SURF**: integral image; box-filter Hessian responses for each filter size; $3 \times 3 \times 3$ maxima above the threshold; interpolate; orientation; descriptor.
-4. **Matching**: for each query, find the two nearest; ratio test; optional mutual check.
+**Blob detection.**
+
+1. For each scale $\sigma$ of a geometric sequence: blur the image by $\sigma$; apply the
+   five-point Laplacian; multiply by $-\sigma^2$. This gives a stack of response images.
+2. Find the points of the stack that exceed the threshold and are at least as large as all
+   their 26 neighbours, 8 in their own image and 9 in each of the images at the adjacent
+   scales.
+3. Sort the detections by response. Take each in turn and discard it if it overlaps an
+   already accepted blob by more than the allowed fraction of the smaller one's area.
+
+**SIFT.**
+
+1. **Scale space.** For each octave, blur the image to a sequence of increasing widths and
+   subtract neighbouring images to form the difference-of-Gaussians (DoG) stack. Halve the
+   image for the next octave.
+2. **Extrema.** Find the points of each DoG stack that are larger, or smaller, than all 26
+   neighbours.
+3. **Refine.** For each candidate, fit a quadratic to the DoG values around it and solve for
+   the offset of the true extremum. If the offset exceeds half a sample in any direction, move
+   to the neighbouring sample and try again, up to five times. Reject the candidate if its
+   contrast is low or if it lies on an edge.
+4. **Orientation.** Build the histogram of gradient directions around the keypoint, and create
+   one keypoint for each sufficiently high peak.
+5. **Descriptor.** Compute the $4 \times 4 \times 8$ histogram in the rotated frame, normalise,
+   clip and renormalise.
+
+**SURF.**
+
+1. Compute the integral image.
+2. For each filter size, compute the box-filter approximations of $D_{xx}$, $D_{yy}$ and
+   $D_{xy}$ at every pixel, and the determinant response.
+3. Find the maxima above the threshold among the 26 neighbours in position and filter size,
+   and interpolate their position and scale.
+4. Assign an orientation from the Haar-wavelet responses, and compute the 64-number
+   descriptor.
+
+**Matching** two sets of descriptors.
+
+1. For each descriptor of the first set, find its nearest and second-nearest neighbours in
+   the second set, by Euclidean distance.
+2. Accept the match if the nearest distance is below `ratio` times the second nearest.
+3. With `mutual`, also require that the first descriptor be the nearest neighbour of its match
+   in the opposite direction.
 
 ## Implementation
 

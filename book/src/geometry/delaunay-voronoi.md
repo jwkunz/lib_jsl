@@ -26,7 +26,13 @@ Georgy Voronoy defined the cells in 1908, for quadratic forms in any dimension. 
 
 ### Delaunay triangulation
 
-Two triangles $abc$ and $bad$ sharing the edge $ab$ form a quadrilateral. The edge is **legal** if $d$ lies outside the circumcircle of $abc$. If it is illegal, replacing $ab$ by the other diagonal $cd$ (a **flip**) makes both new edges legal and raises the smaller of the two triangles' smallest angles. A triangulation in which every edge is legal is Delaunay. Whether $d$ is inside the circle through $a$, $b$ and $c$ (counter-clockwise) is the sign of one determinant:
+A set of points in the plane can be joined into triangles in many ways. The
+**Delaunay triangulation** is the one in which no point lies inside the circumcircle of any
+triangle (the circle through its three corners). Among all triangulations of the points it
+makes the smallest angle as large as possible, so it avoids thin sliver triangles wherever it
+can, which is why it is the standard choice for interpolation and for finite-element meshes.
+
+The definition suggests a local test and a local repair. Two triangles $abc$ and $bad$ sharing the edge $ab$ form a quadrilateral. The edge is **legal** if $d$ lies outside the circumcircle of $abc$. If it is illegal, replacing $ab$ by the other diagonal $cd$ (a **flip**) makes both new edges legal and raises the smaller of the two triangles' smallest angles. A triangulation in which every edge is legal is Delaunay. Whether $d$ is inside the circle through $a$, $b$ and $c$ (counter-clockwise) is the sign of one determinant:
 
 $$
 \operatorname{incircle}(a, b, c, d) = \begin{vmatrix} a_x - d_x & a_y - d_y & (a_x - d_x)^2 + (a_y - d_y)^2 \\ b_x - d_x & b_y - d_y & (b_x - d_x)^2 + (b_y - d_y)^2 \\ c_x - d_x & c_y - d_y & (c_x - d_x)^2 + (c_y - d_y)^2 \end{vmatrix} > 0.
@@ -48,15 +54,42 @@ The time per point grows slowly with $n$, as sorting and hash lookups do. Points
 
 ### Voronoi diagrams
 
+The **Voronoi diagram** of a set of points (sites) divides the plane into cells, one per site:
+the cell of a site is the region closer to it than to any other. It is the **dual** of the
+Delaunay triangulation: two sites are joined by a Delaunay edge exactly when their cells share
+a boundary, and that boundary lies on the perpendicular bisector of the edge.
+
 The library builds each cell directly from the triangulation. Start with the bounding box. For each Delaunay neighbour $t$ of site $s$, keep the half-plane closer to $s$, bounded by the perpendicular bisector of $st$. A cell is the intersection of these half-planes, and only Delaunay neighbours contribute edges, so clipping by them alone gives the exact cell. Unbounded cells, on the hull, are closed off by the box.
 
 ## Algorithm
 
-1. **Prepare**: drop non-finite and duplicate points, scale into the unit square, and sort lexicographically.
-2. **Start**: take points while they are collinear with the first two, then fan the first point off that line onto the chain.
-3. **Insert**: for each further point, find the visible hull edges, starting next to the previous point; add a triangle on each and replace them in the hull by two edges to the new point.
-4. **Legalise**: push each new triangle's outer edge on a stack; pop, test the opposite vertex against the circumcircle, and flip if it is inside and the quadrilateral is convex, pushing the two outer edges of the new pair.
-5. **Voronoi**: for each site, clip the box by the bisectors to its Delaunay neighbours.
+**Delaunay triangulation.**
+
+1. **Prepare.** Discard points with non-finite coordinates and duplicates. Scale the rest
+   into the unit square, so that the tolerances of the predicates are relative to the size of
+   the data. Sort the points by $x$, breaking ties by $y$.
+2. **Start.** Take points from the sorted list for as long as they are collinear with the
+   first two; they form a chain. The first point off that line, joined to each segment of the
+   chain, gives the first fan of triangles. Their outer edges form the initial convex hull.
+3. **Insert** each further point in order. Because of the sorting, it lies outside the
+   current hull. Find the hull edges it can "see" (those with the point on their outer side),
+   starting the search beside the previously inserted point, which is nearby. Add a triangle
+   on each visible edge, and replace those edges in the hull by the two edges from the new
+   point to the ends of the visible chain.
+4. **Legalise.** Push the outer edge of each new triangle (the edge opposite the new point) on
+   a stack. While the stack is not empty: pop an edge; find the vertex opposite it in the
+   neighbouring triangle; if that vertex lies inside the circumcircle, and the two triangles
+   form a convex quadrilateral, flip the edge and push the two outer edges of the new pair of
+   triangles.
+
+Sorting costs $O(n\log n)$, and for points in general position the insertions and flips cost
+about the same in total.
+
+**Voronoi diagram.** For each site:
+
+1. start with the bounding box as the cell;
+2. for each Delaunay neighbour of the site, cut the cell by the perpendicular bisector of the
+   segment joining them, keeping the side that contains the site.
 
 ## Implementation
 

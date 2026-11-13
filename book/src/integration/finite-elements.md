@@ -46,7 +46,10 @@ established its convergence theory.
 ### The weak form
 
 Take the one-dimensional problem $-(p u')' + q u = f$ on $[a, b]$. Multiply by a **test function** $v$
-that vanishes where $u$ is prescribed, and integrate by parts:
+that vanishes where $u$ is prescribed, and integrate over the interval:
+$\int_a^b\big(-(pu')'v + quv\big)\,dx = \int_a^b fv\,dx$. The first term contains a second derivative of
+$u$. Integrating it by parts moves one derivative onto $v$,
+$-\int_a^b (pu')'v\,dx = \int_a^b pu'v'\,dx - \big[pu'v\big]_a^b$, which gives
 
 $$
 \int_a^b \big(p\,u'\,v' + q\,u\,v\big)\,dx = \int_a^b f\,v\,dx + \big[p\,u'\,v\big]_a^b.

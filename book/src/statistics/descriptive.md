@@ -122,9 +122,33 @@ and fourth powers.
 
 ## Algorithm
 
-1. **Mean**: Neumaier-compensated sum divided by $n$.
-2. **Variance**: mean $\bar x$; then $S_2 = \sum(x_i - \bar x)^2$ and $S_1 = \sum(x_i - \bar x)$; return $(S_2 - S_1^2/n)/(n - \text{ddof})$.
-3. **Quantile**: sort (rejecting NaN); interpolate at $h = (n - 1)p$.
+**Sum and mean** (Neumaier's compensated summation). Keep a running sum $s$ and a compensation
+$c$, both initially zero. For each value $x$:
+
+1. compute $t = s + x$;
+2. if $|s| \ge |x|$, add $(s - t) + x$ to $c$; otherwise add $(x - t) + s$ to $c$. In either case
+   this is the part of the smaller number that was lost when it was added to the larger;
+3. set $s = t$.
+
+The sum is $s + c$, and the mean is the sum divided by $n$.
+
+**Variance** with `ddof` degrees of freedom removed (1 for the sample variance, 0 for the
+population variance):
+
+1. compute the mean $\bar x$;
+2. in a second pass, accumulate $S_2 = \sum(x_i - \bar x)^2$ and $S_1 = \sum(x_i - \bar x)$;
+3. return $(S_2 - S_1^2/n)/(n - \text{ddof})$.
+
+**Quantile** at level $p$:
+
+1. reject data containing NaN, and sort a copy;
+2. compute the position $h = (n - 1)p$ and its integer part $k = \lfloor h\rfloor$;
+3. return $x_{(k+1)} + (h - k)\,(x_{(k+2)} - x_{(k+1)})$, or simply $x_{(n)}$ when $p = 1$.
+
+**Median absolute deviation**: compute the median $m$; form the absolute deviations
+$|x_i - m|$; return their median.
+
+The mean and variance cost $O(n)$; the order-based statistics cost a sort, $O(n\log n)$.
 
 ## Implementation
 

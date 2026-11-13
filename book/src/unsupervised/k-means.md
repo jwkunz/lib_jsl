@@ -108,11 +108,34 @@ best improving one, until no exchange helps. Each SWAP pass examines $k(n - k)$ 
 
 ## Algorithm
 
-1. **k-means++**: choose $\boldsymbol\mu_1$ uniformly from the data; for $c = 2, \ldots, k$ choose $\mathbf x_i$ with probability $D(\mathbf x_i)^2/\sum_jD(\mathbf x_j)^2$, where $D$ is the distance to the nearest chosen centre.
-2. **Lloyd**: repeat until no centre moves more than the tolerance: assign each point to the nearest centre; move each centre to
-   the mean of its points (re-seeding an empty cluster at the worst-fitted point).
-3. Repeat from step 1 `n_init` times and keep the run with the smallest inertia.
-4. **PAM**: BUILD greedily, then SWAP while the best exchange lowers the total distance.
+**k-means++ seeding.**
+
+1. Choose the first centre uniformly at random from the data points.
+2. For each data point, compute $D(\mathbf x_i)$, its distance to the nearest centre chosen so far.
+3. Choose the next centre from the data points with probability proportional to
+   $D(\mathbf x_i)^2$.
+4. Repeat steps 2 and 3 until there are $k$ centres.
+
+**Lloyd's algorithm**, from a set of centres.
+
+1. **Assign** each point to its nearest centre.
+2. **Update** each centre to the mean of the points assigned to it. If a cluster has become
+   empty, place its centre on the point that is currently farthest from its own centre.
+3. If no centre moved by more than the tolerance, stop; otherwise go to 1.
+
+Each iteration costs $O(nkp)$ for $n$ points in $p$ dimensions.
+
+**The complete method**: run the seeding and Lloyd's algorithm `n_init` times with different
+random numbers, and keep the run with the smallest inertia.
+
+**k-medoids** (PAM), on a matrix of pairwise dissimilarities.
+
+1. **BUILD.** Choose as the first medoid the point with the smallest total distance to all the
+   others. Then, until there are $k$ medoids, add the point whose addition reduces the total
+   distance from every point to its nearest medoid the most.
+2. **SWAP.** For every pair of a medoid and a non-medoid, compute the change in the total
+   distance if the two exchanged roles. If the best exchange lowers the total, make it and
+   repeat; otherwise stop.
 
 ## Implementation
 

@@ -186,10 +186,28 @@ test accuracy; too much flattens the network into a constant. Early stopping, dr
 
 ## Algorithm
 
-1. Standardise the inputs (and regression targets). Initialise the weights (Glorot or He) and zero the biases.
-2. For each epoch, shuffle the rows; for each mini-batch, run the forward pass, compute the loss, backpropagate the gradients
-   (adding $\lambda W$ for weight decay), and take an Adam step on every weight and bias.
-3. Record the mean training loss per epoch; stop with an error if it becomes infinite or NaN.
+**Training.**
+
+1. **Prepare.** Standardise the inputs, and for regression the targets. Initialise the weights
+   at random (Glorot's variance for tanh and sigmoid, He's for ReLU) and the biases to zero.
+2. **For each epoch**: shuffle the rows of the training data, and divide them into
+   mini-batches. For each mini-batch:
+   - **forward pass**: compute and store $\mathbf z^{(l)}$ and $\mathbf a^{(l)}$ for every layer, for
+     all the rows of the batch at once (as matrices with one row per sample);
+   - **loss**: the mean squared error or cross-entropy over the batch;
+   - **backward pass**: compute $\boldsymbol\delta^{(L)}$ from the output and the targets, then
+     $\boldsymbol\delta^{(l)}$ for each earlier layer, and from them the gradients of the weights and
+     biases, averaged over the batch; add $\lambda W$ to each weight gradient for weight decay;
+   - **Adam step**: update the two running averages for every weight and bias, correct their
+     bias, and move the parameter.
+3. **Monitor.** Record the mean training loss of the epoch. If it is infinite or NaN (the sign
+   of a learning rate that is far too large), stop with an error.
+
+One epoch costs a small multiple of (number of samples) × (number of weights).
+
+**Prediction.** Standardise the input with the stored means and standard deviations, run the
+forward pass, and return the class of largest probability, or for regression the output
+transformed back to the original units of the target.
 
 ## Implementation
 

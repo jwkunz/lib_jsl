@@ -186,19 +186,46 @@ the superlinear finish of BFGS.
 
 ## Algorithm
 
-**Newton** (`NewtonRaphsonMethod`): repeat: evaluate $\nabla f$ and $\nabla^2 f$; solve $\nabla^2 f\,\mathbf p = -\nabla f$; set
-$\mathbf x \leftarrow \mathbf x + \mathbf p$ (projected onto the bounds); stop when $f$ changes by less than the tolerance.
+**Newton's method** (`NewtonRaphsonMethod`). Input: $f$, its gradient and Hessian, and a starting
+point $\mathbf x$. Repeat, up to the iteration limit:
 
-**BFGS** (`Bfgs`):
+1. evaluate the gradient $\nabla f(\mathbf x)$ and the Hessian $\nabla^2 f(\mathbf x)$;
+2. solve the linear system $\nabla^2 f\,\mathbf p = -\nabla f$; a singular Hessian is an error;
+3. set $\mathbf x \leftarrow \mathbf x + \mathbf p$, projected onto the bounds if any;
+4. stop when $f$ changes by less than the tolerance.
 
-1. $H \leftarrow I$; compute $\mathbf g = \nabla f(\mathbf x)$.
-2. $\mathbf d = -H\mathbf g$ (restart with $H = I$ if this is not a descent direction).
-3. Strong Wolfe line search along $\mathbf d$ with $c_2 = 0.9$ and initial step 1.
-4. Form $\mathbf s$, $\mathbf y$; if $\mathbf y^{\mathsf T}\mathbf s > 0$, update $H$ (scaling it first, after the first step).
-5. Stop when $\|\mathbf g\|_\infty$ is below the tolerance.
+Each iteration costs one Hessian and an $O(n^3)$ solve.
 
-**L-BFGS** (`Lbfgs`): the same, with $\mathbf d$ computed by the two-loop recursion from the stored pairs
-and $H_0 = (\mathbf y^{\mathsf T}\mathbf s / \mathbf y^{\mathsf T}\mathbf y)\,I$ for the newest pair.
+**BFGS** (`Bfgs`). Input: $f$, its gradient and a starting point $\mathbf x$.
+
+1. **Initialise.** Set $H = I$ and evaluate $\mathbf g = \nabla f(\mathbf x)$.
+2. **Direction.** Compute $\mathbf d = -H\mathbf g$. If rounding has made this fail to be a descent
+   direction ($\mathbf g^{\mathsf T}\mathbf d \ge 0$), reset $H = I$ and use $\mathbf d = -\mathbf g$.
+3. **Line search.** Find a step $\alpha$ by a
+   [strong Wolfe line search](one-dimensional.md#algorithm) with $c_2 = 0.9$, trying
+   $\alpha = 1$ first. Set $\mathbf s = \alpha\mathbf d$ and move to $\mathbf x + \mathbf s$.
+4. **Update.** Evaluate the new gradient and form $\mathbf y$, the change in the gradient. If
+   $\mathbf y^{\mathsf T}\mathbf s > 0$, apply the BFGS update to $H$; before the very first update, rescale
+   $H$ to $(\mathbf y^{\mathsf T}\mathbf s/\mathbf y^{\mathsf T}\mathbf y)\,I$. If $\mathbf y^{\mathsf T}\mathbf s \le 0$, skip the update
+   and keep $H$.
+5. **Test.** Stop when the largest component of the gradient in magnitude is below the
+   tolerance; otherwise go to 2.
+
+Each iteration costs the line search plus $O(n^2)$ arithmetic, and the method stores the
+$n \times n$ matrix $H$.
+
+**L-BFGS** (`Lbfgs`). The same loop, with two changes.
+
+- No matrix is stored. Step 4 appends the pair $(\mathbf s, \mathbf y)$ to a list, discarding the oldest
+  when the list holds $m$ pairs.
+- Step 2 computes $\mathbf d = -H\mathbf g$ by the **two-loop recursion**. Start with $\mathbf q = \mathbf g$.
+  Going from the newest pair to the oldest, compute $a_i = \rho_i\,\mathbf s_i^{\mathsf T}\mathbf q$ and
+  subtract $a_i\mathbf y_i$ from $\mathbf q$. Multiply $\mathbf q$ by the scalar
+  $\mathbf y^{\mathsf T}\mathbf s/\mathbf y^{\mathsf T}\mathbf y$ of the newest pair, which plays the role of $H_0$. Then,
+  going from the oldest pair to the newest, compute $b = \rho_i\,\mathbf y_i^{\mathsf T}\mathbf q$ and add
+  $(a_i - b)\,\mathbf s_i$ to $\mathbf q$. The result is $H\mathbf g$.
+
+Each iteration costs $O(mn)$ arithmetic and the method stores $2m$ vectors.
 
 ## Implementation
 

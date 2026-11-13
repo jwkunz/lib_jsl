@@ -114,10 +114,23 @@ add $N(0, h^2)$ noise, the **smoothed bootstrap**. The samples have variance $\h
 
 ## Algorithm
 
-1. Compute the bandwidth from the rule (standard deviation and, for Silverman, the interquartile range).
-2. `pdf(x)`: sum $e^{-((x - x_i)/h)^2/2}$ over the data, divide by $nh\sqrt{2\pi}$.
-3. `cdf(x)`: average $\Phi((x - x_i)/h)$.
-4. `resample`: a uniformly chosen $x_i$ plus a normal deviate of standard deviation $h$.
+**Set-up.** Compute the bandwidth $h$ from the chosen rule: the standard deviation of the data
+for Scott's rule; the standard deviation and the interquartile range for Silverman's; or the
+value given.
+
+**`pdf(x)`**: add up the kernel $e^{-((x - x_i)/h)^2/2}$ over all the data points and divide by
+$nh\sqrt{2\pi}$.
+
+**`cdf(x)`**: average the normal distribution function $\Phi\big((x - x_i)/h\big)$ over the data
+points.
+
+**`resample`**: choose one of the data points uniformly at random and add a normal deviate with
+standard deviation $h$.
+
+Each evaluation of the density or the distribution function visits every data point, $O(n)$.
+Evaluating on a grid of $m$ points therefore costs $O(nm)$; for very large samples, binning the
+data and convolving with the kernel by FFT reduces this to about $O(n + m\log m)$, which the
+library does not do.
 
 ## Implementation
 

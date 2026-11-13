@@ -144,10 +144,39 @@ The library uses scaling in Baum-Welch and log-sum-exp in `log_likelihood` and `
 
 ## Algorithm
 
-1. **Viterbi**: $\delta_1(j) = \log\pi_j + \log B_{jo_1}$; for $t = 2, \ldots, T$ update $\delta_t$ and the back-pointers; trace back from $\arg\max_j\delta_T(j)$.
-2. **Forward-backward**: compute $\alpha$ forwards and $\beta$ backwards (in logs or scaled); combine into $\gamma$.
-3. **Baum-Welch**: repeat: scaled forward-backward on every sequence, accumulating expected initial, transition and emission counts;
-   normalise them into new parameters; stop when the relative improvement in log-likelihood falls below the tolerance.
+For a sequence of $T$ observations and a model with $N$ states.
+
+**Viterbi decoding.**
+
+1. Initialise $\delta_1(j) = \log\pi_j + \log B_{jo_1}$ for every state $j$.
+2. For $t = 2, \ldots, T$ and every state $j$: find the state $i$ maximising
+   $\delta_{t-1}(i) + \log A_{ij}$; store it as the back-pointer $\psi_t(j)$; set $\delta_t(j)$ to
+   that maximum plus $\log B_{jo_t}$.
+3. The last state of the best path is $s_T = \arg\max_j\delta_T(j)$.
+4. Trace back: for $t = T, \ldots, 2$, set $s_{t-1} = \psi_t(s_t)$.
+
+**Forward-backward.**
+
+1. Forward pass: compute $\alpha_1$, then $\alpha_t$ from $\alpha_{t-1}$ for $t = 2, \ldots, T$.
+   After each step, divide $\alpha_t$ by its sum $c_t$ and keep $c_t$.
+2. The log-likelihood is $\sum_t\log c_t$.
+3. Backward pass: set $\beta_T = 1$ and compute $\beta_t$ from $\beta_{t+1}$ for
+   $t = T - 1, \ldots, 1$, dividing by the same factors.
+4. The posterior of state $i$ at time $t$ is the product of the scaled $\alpha_t(i)$ and
+   $\beta_t(i)$.
+
+Both cost $O(TN^2)$ operations and $O(TN)$ storage.
+
+**Baum-Welch training**, from starting parameters. Repeat:
+
+1. **E-step.** Run the scaled forward-backward pass on every training sequence, and accumulate
+   three tables of expected counts: how often each state starts a sequence ($\gamma_1$); how
+   often each transition $i \to j$ is taken ($\sum_t\xi_t(i, j)$); and how often each state
+   emits each symbol ($\gamma_t(j)$ summed over the times at which that symbol was observed).
+2. **M-step.** Divide each table by its row sums, so that each row is a probability
+   distribution: these are the new $\pi$, $A$ and $B$.
+3. **Test.** Stop when the log-likelihood improves by less than the relative tolerance, or at
+   the iteration limit.
 
 ## Implementation
 

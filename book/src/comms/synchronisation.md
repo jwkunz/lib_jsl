@@ -32,25 +32,64 @@ and C. W. Farrow (1988) introduced the filter structure that interpolates at a c
 
 ### The loop
 
-Every loop here has three parts: a **phase detector** producing an error $e[n]$, a **loop filter**, and a **numerically controlled oscillator**. The proportional-integral loop filter
-updates a frequency estimate and the phase,
+A receiver's oscillator never matches the transmitter's exactly. A small frequency difference
+makes the received constellation rotate steadily, and an unknown phase leaves it at an arbitrary
+angle. Before symbols can be decided, the receiver must estimate the phase of the incoming
+carrier and follow it as it drifts. A **phase-locked loop** (PLL) does this by feedback: it
+generates its own copy of the carrier, measures how far the copy is from the input, and corrects
+the copy.
+
+Every loop here has three parts.
+
+- A **phase detector** compares the input with the local copy and produces an error $e[n]$,
+  ideally the phase difference between them.
+- A **loop filter** smooths the error and decides how to respond.
+- A **[numerically controlled oscillator](sources.md#phase-accumulation)** generates the local
+  copy at the phase $\hat\phi$ the filter commands.
+
+The loop filter is **proportional-integral**. It keeps an estimate $\hat\omega$ of the frequency
+(the phase advance per sample) as well as the phase:
 
 $$
-\hat\omega \leftarrow \hat\omega + K_ie, \qquad \hat\phi \leftarrow \hat\phi + K_pe + \hat\omega,
+\hat\omega \leftarrow \hat\omega + K_ie, \qquad \hat\phi \leftarrow \hat\phi + K_pe + \hat\omega .
 $$
 
-which makes a **type-2** loop. It tracks a constant frequency offset with no steady-state phase error. The gains follow from the normalised noise bandwidth $B_nT$ and the
-damping $\zeta$: with $\theta = B_nT/(\zeta + 1/4\zeta)$, $K_p = 4\zeta\theta/(1 + 2\zeta\theta + \theta^2)$ and $K_i = 4\theta^2/(1 + 2\zeta\theta + \theta^2)$. A wider bandwidth acquires faster and tracks better, but lets in more noise:
+The proportional term $K_pe$ corrects the phase directly. The integral term accumulates the
+error into the frequency estimate. The second is what allows the loop to follow a frequency
+offset: with a proportional term alone, a constant frequency difference would need a constant
+error to keep driving the correction, so the loop would always lag. With the integrator, the
+frequency estimate settles at the true offset and the phase error falls to zero. This is called
+a **type-2** loop.
+
+The two gains are not chosen directly. They follow from two more meaningful quantities: the
+normalised **noise bandwidth** $B_nT$, which sets how fast the loop reacts, and the **damping**
+$\zeta$, which sets how much it overshoots (0.707 is the usual choice). With
+$\theta = B_nT/(\zeta + 1/4\zeta)$, $K_p = 4\zeta\theta/(1 + 2\zeta\theta + \theta^2)$ and
+$K_i = 4\theta^2/(1 + 2\zeta\theta + \theta^2)$. A wider bandwidth acquires faster and tracks
+changes better, but it also follows more of the noise:
 
 ![PLL acquisition](../generated/comms/pll_lock.svg)
 
-The PLL's detector is $\arg(xe^{-i\hat\phi})$, exact for any phase error, so the loop pulls in from any initial phase.
+The PLL's detector is $\arg(xe^{-i\hat\phi})$: multiplying the input $x$ by $e^{-i\hat\phi}$ removes
+the estimated phase, and the angle of what remains is the error. It is exact for any phase
+error, so the loop pulls in from any initial phase.
 
 ### Costas loops
 
-For BPSK the received phase is $\phi + \pi d$ with unknown data $d$, and a phase detector must not care which way the symbol points. The Costas detector $\mathrm{sgn}(I)\,Q$ multiplies by the decision and
-strips the data, leaving $\sin\theta$ for a phase error $\theta$. It locks with a 180° ambiguity. For QPSK, $\mathrm{sgn}(I)Q - \mathrm{sgn}(Q)I$ removes the four symbols and locks with a 90° ambiguity, which differential coding or a known
-preamble resolves:
+A plain PLL needs an unmodulated carrier. A data signal has none: in BPSK the received phase is
+$\phi + \pi d$, where the data bit $d$ flips it by 180° at random. A phase detector for such a
+signal must not care which way the symbol points.
+
+The **Costas loop** achieves this by using the receiver's own decisions. After the estimated
+phase has been removed, a BPSK symbol should lie on the real axis, at $+1$ or $-1$, so its
+imaginary part $Q$ should be zero. A residual phase error $\theta$ tilts the symbol and makes
+$Q$ proportional to $\pm\sin\theta$, the sign depending on the data. Multiplying by the sign of
+the real part $I$, which is the decision about the data, cancels that sign: the detector
+$\mathrm{sgn}(I)\,Q$ gives $\sin\theta$ whichever bit was sent. Since it cannot tell a symbol from
+its negative, the loop can lock with the constellation upside down, a 180° ambiguity. For QPSK
+the detector $\mathrm{sgn}(I)Q - \mathrm{sgn}(Q)I$ removes the four symbols in the same way and
+locks with a 90° ambiguity. The ambiguity is resolved by differential coding, which puts the
+information in the *changes* of phase, or by a known preamble:
 
 ![Costas loop on QPSK](../generated/comms/costas.svg)
 
@@ -58,14 +97,25 @@ preamble resolves:
 
 ### Timing recovery
 
-At $L$ samples per symbol, the best sampling instant of each symbol must be found and tracked. The **Mueller-Müller** detector compares consecutive symbol-rate samples $y$ with their decisions $d$,
+The receiver samples the signal several times per symbol, $L$ samples per symbol, with a clock
+that is not synchronised to the transmitter's. Each symbol is a pulse, and it should be read at
+the peak of the pulse, where it is strongest and the neighbouring pulses pass through zero. The
+receiver must find that instant and track it, which is a second feedback loop of the same
+three-part form, with a **timing error detector** in place of the phase detector.
+
+The **Mueller-Müller** detector works at one sample per symbol. It compares consecutive
+symbol-rate samples $y$ with the decisions $d$ made from them:
 
 $$
-e = \mathrm{Re}\big(\bar d_{k-1}y_k - \bar d_ky_{k-1}\big),
+e = \mathrm{Re}\big(\bar d_{k-1}y_k - \bar d_ky_{k-1}\big) .
 $$
 
-which is zero on average when the samples fall at the pulse peaks and changes sign with the timing error. A loop filter turns it into the next sampling position, generally between
-two samples, where an interpolator evaluates the signal:
+If the samples are taken at the pulse peaks, each sample contains only its own symbol and the
+two terms cancel on average. If the sampling is early or late, each sample also contains a
+little of its neighbour, and the two terms no longer balance: the detector's average output is
+positive for one sign of the timing error and negative for the other. A loop filter turns it
+into the next sampling position. That position generally falls between two of the available
+samples, so an interpolator evaluates the signal there:
 
 ![Timing recovery](../generated/comms/timing_recovery.svg)
 
@@ -83,9 +133,39 @@ Cubic interpolation (order 3), the usual choice for timing recovery, has an erro
 
 ## Algorithm
 
-1. **PLL**: derotate the input by $e^{-i\hat\phi}$; $e = \arg$ of the result; update the loop filter.
-2. **Costas**: derotate, normalise, apply the data-stripping detector; update the loop filter.
-3. **Mueller-Müller**: interpolate at the current position; decide; compute $e$ (clipped to ±1); update the period estimate $\omega$ (limited to ±0.5% of nominal) and the position $\mu \mathrel{+}= \omega + g_\mu e$.
+Each loop processes one input sample (or one symbol) at a time.
+
+**PLL.**
+
+1. Remove the estimated phase: multiply the input by $e^{-i\hat\phi}$.
+2. Detect: the error $e$ is the argument of the result.
+3. Filter and advance: $\hat\omega \leftarrow \hat\omega + K_ie$, then
+   $\hat\phi \leftarrow \hat\phi + K_pe + \hat\omega$.
+
+**Costas loop.**
+
+1. Multiply the input by $e^{-i\hat\phi}$, and normalise the result to unit magnitude, so that
+   the detector's gain does not depend on the signal level.
+2. Detect with the data-stripping rule: $\operatorname{sgn}(I)\,Q$ for BPSK, or
+   $\operatorname{sgn}(I)Q - \operatorname{sgn}(Q)I$ for QPSK.
+3. Filter and advance, as for the PLL.
+4. The derotated sample from step 1 is the output, ready for the decision device.
+
+**Mueller-Müller timing recovery**, with $\mu$ the position of the next symbol within the
+sample stream and $\omega$ the current estimate of the samples per symbol. For each symbol:
+
+1. interpolate the signal at position $\mu$ with the [Farrow filter](#fractional-delay-the-farrow-filter)
+   to get the symbol-rate sample $y_k$;
+2. decide the symbol $d_k$ (the nearest constellation point);
+3. compute the timing error from this and the previous symbol,
+   $e = \operatorname{Re}(\bar d_{k-1}y_k - \bar d_ky_{k-1})$, limited to $\pm1$;
+4. update the period estimate $\omega$ by a small multiple of $e$, keeping it within
+   $\pm0.5\%$ of its nominal value;
+5. advance the position: $\mu \leftarrow \mu + \omega + g_\mu e$.
+
+**Farrow interpolation** of order $N$ at fractional delay $\mu$: compute the $N + 1$ fixed FIR
+filter outputs $v_0, \ldots, v_N$ from the neighbouring samples, and combine them by Horner's
+rule in $\mu$.
 
 ## Implementation
 

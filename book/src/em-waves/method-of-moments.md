@@ -26,6 +26,13 @@ Numerical Electromagnetics Code (NEC, Gerald Burke and Andrew Poggio, Lawrence L
 
 ### Hallén's equation
 
+FDTD fills space with a grid and follows the fields in time. The **method of moments** takes the
+opposite approach for a metal structure at a single frequency. The only unknown is the current
+on the metal; once it is found, the fields everywhere follow by integration. The current is
+determined by an **integral equation**, which states that the field radiated by the current,
+together with the applied voltage, satisfies the boundary condition on the conductor. The
+unknowns then live only on the wire, not in the surrounding space.
+
 A centre-fed straight wire of length $L$ and radius $a \ll \lambda$ along $z$, driven by a voltage $V$ across a narrow gap at its centre, carries a current $I(z)$ with $I(\pm L/2) = 0$. The vector potential of the current must satisfy a one-dimensional Helmholtz equation driven by the gap. Its solution gives
 
 $$
@@ -36,7 +43,14 @@ with an unknown constant $C$ fixed by the end condition. The **reduced kernel** 
 
 ### Discretisation
 
-The current is expanded in $N$ triangle functions on equally spaced interior nodes, so it is piecewise linear and zero at the ends. Matching at the $N$ nodes and at one wire end gives $N + 1$ equations for the $N$ node currents and $C$. Each matrix entry integrates a triangle against the kernel. The near-singular part $1/4\pi R$ is integrated analytically, and the smooth remainder $(e^{-jkR} - 1)/4\pi R$ by 8-point Gauss-Legendre quadrature. The input impedance is $V/I(0)$.
+An integral equation has an unknown *function*. To solve it numerically, the function is
+approximated by a combination of a finite number of simple **basis functions** with unknown
+coefficients, and the equation is enforced at a finite number of points (or, more generally, in a
+finite number of weighted averages, the "moments" that give the method its name). The result is
+an ordinary system of linear equations, with a dense matrix whose entry $(i, j)$ is the effect
+of basis function $j$ at test point $i$.
+
+Here the current is expanded in $N$ triangle functions on equally spaced interior nodes, so it is piecewise linear and zero at the ends. Matching at the $N$ nodes and at one wire end gives $N + 1$ equations for the $N$ node currents and $C$. Each matrix entry integrates a triangle against the kernel. The near-singular part $1/4\pi R$ is integrated analytically, and the smooth remainder $(e^{-jkR} - 1)/4\pi R$ by 8-point Gauss-Legendre quadrature. The input impedance is $V/I(0)$.
 
 ![MoM currents](../generated/em-waves/mom_currents.svg)
 
@@ -54,10 +68,23 @@ For the thinner wire every mesh has segments much longer than the radius, and th
 
 ## Algorithm
 
-1. Place $N$ (odd) interior nodes, so one sits at the feed.
-2. Fill the $(N + 1) \times (N + 1)$ matrix: triangle-kernel integrals (analytic $1/R$ part plus quadrature), and $-\cos kz$ for the unknown $C$; right-hand side $-(jV/2\eta)\sin k|z|$.
-3. Solve the dense complex system; the feed node's current gives $Z_{\text{in}}$.
-4. Far field: integrate the piecewise-linear current against $e^{jkz'\cos\theta}$ segment by segment.
+Input: the length $L$ and radius $a$ of the wire, the frequency and the number of nodes.
+
+1. **Mesh.** Place $N$ equally spaced interior nodes along the wire, with $N$ odd so that one
+   node falls exactly at the feed. The current is zero at the two ends, so the unknowns are
+   the $N$ node currents and the constant $C$.
+2. **Fill the matrix**, of size $(N + 1) \times (N + 1)$. Row $i$ enforces Hallén's equation at a
+   match point $z_i$ (the $N$ nodes and one end of the wire). Its entry in column $j$ is the
+   integral of the kernel against the triangle function of node $j$, computed as the sum of
+   an analytic integral of the $1/4\pi R$ part and an 8-point Gauss-Legendre quadrature of the
+   smooth remainder. Its entry in the last column is $-\cos kz_i$, the coefficient of $C$.
+   The right-hand side is $-(jV/2\eta)\sin k|z_i|$.
+3. **Solve** the dense complex linear system.
+4. **Input impedance**: $Z_{\text{in}} = V/I(0)$, with $I(0)$ the current at the feed node.
+5. **Far field**: integrate the piecewise-linear current against $e^{jkz'\cos\theta}$, segment
+   by segment, in closed form.
+
+Filling the matrix costs $O(N^2)$ kernel integrals and solving it $O(N^3)$.
 
 ## Implementation
 

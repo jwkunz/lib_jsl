@@ -26,11 +26,29 @@ horns, analysed as radiating apertures by Samuel Silver and colleagues (*Microwa
 
 ### Electric and magnetic dipoles
 
-A **Hertzian dipole**, a uniform current $I$ on a length $l \ll \lambda$ along $z$, radiates $E_\theta = j\eta kIl\sin\theta/(4\pi)$. Its directivity is 1.5, and $R = 80\pi^2(l/\lambda)^2$, tiny for short antennas. The model also gives its exact near field, with the $1/r^2$ and $1/r^3$ terms. A **small loop** of radius $a$ is a magnetic dipole: the same pattern with $\mathbf E$ along $\hat\varphi$, and $R = 20\pi^2(ka)^4$ per turn squared.
+A few quantities describe every antenna in this entry.
+
+- The wavelength is $\lambda$, the **wavenumber** is $k = 2\pi/\lambda$ (the phase advance per
+  metre), and $\eta \approx 377\ \Omega$ is the impedance of free space, the ratio of the electric
+  to the magnetic field in a plane wave.
+- Far from an antenna the field is a spherical wave, $e^{-jkr}/r$ times a function of direction
+  only, the **far-field pattern**. The formulas below give that function (the factor
+  $e^{-jkr}/r$ is understood), in spherical coordinates with $\theta$ measured from the $z$ axis.
+- The **directivity** $D$ is the power density the antenna radiates in its best direction,
+  divided by the average over all directions. An antenna that radiated equally in all directions
+  would have $D = 1$.
+- The **radiation resistance** $R$ is the resistance that would dissipate the same power as the
+  antenna radiates, for the same feed current: $P = \tfrac12|I|^2R$. A small $R$ means that large
+  currents are needed to radiate little power, and that the antenna is hard to feed efficiently.
+
+A **Hertzian dipole**, a uniform current $I$ on a length $l \ll \lambda$ along $z$, radiates $E_\theta = j\eta kIl\sin\theta/(4\pi)$. The factor $\sin\theta$ is the whole pattern: nothing is radiated along the wire, and the most is
+radiated broadside to it, a doughnut shape. Its directivity is 1.5, and $R = 80\pi^2(l/\lambda)^2$, tiny for short antennas. The model also gives its exact near field, with the $1/r^2$ and $1/r^3$ terms. A **small loop** of radius $a$ is a magnetic dipole: the same pattern with $\mathbf E$ along $\hat\varphi$, and $R = 20\pi^2(ka)^4$ per turn squared.
 
 ### Thin-wire dipoles
 
-A centre-fed wire of length $L$ with the standard sinusoidal current $I(z) = I_m\sin\big(k(L/2 - |z|)\big)$ radiates
+A practical dipole is not short, and its current is not uniform: it must fall to zero at the open
+ends of the wire. A longer wire can be regarded as a line of Hertzian dipoles, whose fields add
+with phases that depend on direction. A centre-fed wire of length $L$ with the standard sinusoidal current $I(z) = I_m\sin\big(k(L/2 - |z|)\big)$ radiates
 
 $$
 E_\theta = \frac{j\eta I_m}{2\pi}\,\frac{\cos\big(\tfrac{kL}{2}\cos\theta\big) - \cos\tfrac{kL}{2}}{\sin\theta}.
@@ -44,7 +62,15 @@ The radiation resistance is referred to the current maximum $I_m$, which is the 
 
 ### Apertures: the dish
 
-A reflector dish is modelled as a circular aperture of diameter $D$ with a $\hat y$-polarized field $E_0(1 - \rho^2/a^2)^p$, radiating as a Huygens source. Its far field is a Fourier-Bessel transform:
+A large antenna such as a reflector dish is best described not by its currents but by the field
+across its opening, the **aperture**. By Huygens' principle every point of the aperture acts as
+a small source, and the far field in a given direction is the sum of their contributions with
+the phase differences appropriate to that direction. That sum is a two-dimensional Fourier
+transform of the aperture field: a wide aperture gives a narrow beam, just as a long signal has a
+narrow spectrum. The dish is modelled as a circular aperture of diameter $D$ (radius $a$) with a
+$\hat y$-polarized field $E_0(1 - \rho^2/a^2)^p$, where $\rho$ is the distance from the centre and
+the exponent $p$ controls how strongly the field is tapered towards the edge. For a circular
+aperture the Fourier transform becomes a Fourier-Bessel transform:
 
 $$
 [E_\theta, E_\varphi] \propto 2^pp!\,\frac{J_{p+1}(u)}{u^{p+1}}\,\frac{1 + \cos\theta}{2}\,[\sin\varphi, \cos\varphi], \qquad u = ka\sin\theta.
@@ -69,10 +95,25 @@ A rectangular patch of length $L$ on a grounded substrate of permittivity $\vare
 
 ## Algorithm
 
-1. **Pattern**: the model's closed-form $(E_\theta, E_\varphi)$ per unit excitation (current, aperture field or edge voltage).
-2. **Power**: $P = \oint |\mathbf E|^2/2\eta\,d\Omega$ by Gauss-Legendre quadrature over the sphere (more nodes for electrically large antennas).
-3. **Directivity**: $4\pi U/P$; the peak by searching the sphere (finely in $\theta$ for rotationally symmetric patterns).
-4. **Gain patterns**: scale the pattern so that $|\mathbf E|^2$ equals the directivity times the efficiency, the normalisation the array models use.
+Every antenna model supplies one thing, its far-field pattern, and the remaining quantities
+are computed from that in the same way for all of them.
+
+1. **Pattern.** Evaluate the model's closed-form $(E_\theta, E_\varphi)$ in the requested
+   direction, for a unit excitation: a unit current for the wire antennas, a unit aperture
+   field for the dish, a unit edge voltage for the patch.
+2. **Radiated power.** Integrate the power density over the sphere,
+   $P = \oint |\mathbf E|^2/2\eta\,d\Omega$, by
+   [Gauss-Legendre quadrature](fields.md#domains-and-quadrature) in $\theta$ and uniform
+   samples in $\varphi$. Electrically large antennas have many narrow lobes and are given
+   more nodes.
+3. **Directivity.** In a given direction it is $4\pi U/P$, where $U = |\mathbf E|^2/2\eta$ is the
+   radiation intensity there. The peak directivity is found by searching the sphere, finely in
+   $\theta$ alone when the pattern is symmetric about the axis.
+4. **Radiation resistance**, for the wire antennas, whose excitation is a current: from
+   $P = \tfrac12|I|^2R$ with a unit current, $R = 2P$.
+5. **Gain pattern.** Rescale the pattern so that $|\mathbf E|^2$ equals the directivity times
+   the efficiency in every direction. This is the normalisation the
+   [array models](beamforming.md) expect.
 
 ## Implementation
 

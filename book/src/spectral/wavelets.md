@@ -104,10 +104,32 @@ and suits the detection of peaks.
 
 ## Algorithm
 
-1. **DWT level**: periodic extension; $a_k = \sum h_nx_{(2k+n) \bmod N}$, $d_k = \sum g_nx_{(2k+n) \bmod N}$.
-2. **IDWT level**: $x_{(2k+n) \bmod N} \mathrel{+}= a_kh_n + d_kg_n$.
-3. **wavedec/waverec**: repeat on the approximation for the requested number of levels (at most `max_level`).
-4. **CWT**: for each scale, correlate with the sampled wavelet (truncated at $\pm5a$) by FFT.
+**One level of the DWT**, for a signal of even length $N$ and filters of length $L$. The signal
+is extended periodically, so indices are taken modulo $N$.
+
+For $k = 0, \ldots, N/2 - 1$:
+$a_k = \sum_{n=0}^{L-1}h_n\,x_{(2k+n) \bmod N}$ and $d_k = \sum_{n=0}^{L-1}g_n\,x_{(2k+n) \bmod N}$.
+
+**One level of the inverse**: start with $x = 0$, and for every $k$ and $n$ add
+$a_kh_n + d_kg_n$ to $x_{(2k+n) \bmod N}$. This applies the transpose of the forward transform,
+which is its inverse because the transform is orthogonal.
+
+**`wavedec`** (multi-level decomposition):
+
+1. apply one level to the signal, and store the detail;
+2. apply one level to the approximation just obtained, and store its detail;
+3. continue for the requested number of levels, which cannot exceed `max_level`, the number
+   of times the length can be halved while staying at least the filter length;
+4. return the final approximation and all the details.
+
+**`waverec`** reverses it: starting from the coarsest approximation and detail, apply the
+inverse level, and repeat with each finer detail in turn.
+
+**Denoising**, as in the figure above, is a recipe built from these two functions: decompose;
+apply soft thresholding with $\lambda = \sigma\sqrt{2\ln N}$ to every detail coefficient; reconstruct.
+
+**CWT**, for a list of scales: for each scale $a$, sample the wavelet $\psi(t/a)/\sqrt a$ out to
+$\pm5a$, and correlate it with the signal by FFT. Each scale gives one row of the scalogram.
 
 ## Implementation
 

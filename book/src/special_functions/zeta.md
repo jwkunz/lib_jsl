@@ -129,9 +129,29 @@ evaluated near its pole, where it is ill-conditioned.
 
 ## Algorithm
 
-- $\zeta(s)$: $+\infty$ at 1; Borwein's sum for $\eta$ divided by $1 - 2^{1-s}$ for $s \ge 0$; the functional equation for $s < 0$.
-- $\zeta(s, a)$: Euler-Maclaurin with $N$ chosen from $s$ and $a$.
-- $\operatorname{Li}_s(z)$ and $F_j(x)$: as above.
+**$\zeta(s)$** for real $s$:
+
+1. $s = 1$: return $+\infty$ (the pole).
+2. $s \ge 0$: compute $\eta(s)$ as Borwein's weighted sum of its first 24 terms, with the
+   weights tabulated in advance, and return $\eta(s)/(1 - 2^{1-s})$.
+3. $s < 0$: compute $\zeta(1 - s)$ by step 2 and apply the functional equation. The factor
+   $\sin(\pi s/2)$ makes the result exactly zero at the negative even integers.
+
+**$\zeta(s, a)$** for $s > 1$ (Euler-Maclaurin):
+
+1. choose $N$ from $s$ and $a$ so that the correction terms decrease quickly;
+2. add the first $N$ terms $(k + a)^{-s}$ directly;
+3. add the integral of the remaining terms, $(N + a)^{1-s}/(s - 1)$, half the next term, and
+   the Bernoulli-number corrections until they fall below rounding error.
+
+**$\operatorname{Li}_s(z)$**: return the closed form if $s$ is an integer below 2; otherwise select
+the expansion for the interval containing $z$, as listed above, and sum it until its terms are
+below $\varepsilon$. The duplication and inversion formulas call the function again with an
+argument in a region already covered.
+
+**$F_j(x)$**: map the half-line onto a finite interval by a substitution that removes the
+singularity of $t^j$ at the origin, and apply composite 20-point
+[Gauss-Legendre quadrature](../integration/gaussian-quadrature.md).
 
 ## Implementation
 

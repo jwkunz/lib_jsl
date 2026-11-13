@@ -116,12 +116,43 @@ and UMAP still keep the clusters apart. UMAP is an order of magnitude faster tha
 
 ## Algorithm
 
-**t-SNE**: compute the $p_{ij}$ by bisection on each $\sigma_i$; initialise with scaled PCA; for each iteration compute all $q_{ij}$ and the gradient, update gains and
-velocities, and re-centre; remove the exaggeration after the first phase.
+**t-SNE.**
 
-**UMAP**: build the fuzzy graph; fit $a, b$; initialise with PCA scaled to ±10; for each epoch, with learning rate decreasing linearly to zero,
-visit each edge with probability $w_{ij}/\max w$, apply the clipped attractive update to both endpoints, and the repulsive update to $i$ for five
-random points.
+1. **Input similarities.** For each point $i$, find by bisection the bandwidth $\sigma_i$ whose
+   conditional distribution $p_{j \mid i}$ has the target perplexity. Symmetrise to get
+   $p_{ij}$.
+2. **Initialise** the embedding with the first two principal components of the data, scaled
+   down to a small spread.
+3. **Iterate.** In each iteration:
+   - compute all the $q_{ij}$ from the current positions;
+   - compute the gradient for every point (using $12\,p_{ij}$ during early exaggeration);
+   - update each coordinate's **gain**, a per-coordinate multiplier of the learning rate: add
+     0.2 to it when the gradient and the current velocity have opposite signs (the coordinate
+     is still being pushed the way it is already moving), and multiply it by 0.8 otherwise
+     (the push has reversed);
+   - update the velocity (the previous velocity times the momentum, minus the learning rate
+     times the gain times the gradient) and add it to the position;
+   - subtract the mean position, so that the embedding stays centred.
+
+Every iteration computes all pairs, $O(n^2)$. This is "exact" t-SNE; tree-based approximations
+reduce it to $O(n\log n)$.
+
+**UMAP.**
+
+1. **Graph.** For each point find its $k$ nearest neighbours, $\rho_i$ and, by bisection,
+   $\sigma_i$. Form the directed memberships and combine them into the symmetric weights
+   $w_{ij}$.
+2. **Curve.** Fit $a$ and $b$ to the target curve for the chosen `min_dist`.
+3. **Initialise** with the first two principal components, scaled to the range $\pm10$.
+4. **Optimise** for a fixed number of epochs, with a learning rate that decreases linearly to
+   zero. In each epoch, visit each edge $(i, j)$ with probability $w_{ij}/\max w$. For a
+   visited edge:
+   - move $\mathbf y_i$ and $\mathbf y_j$ towards each other by the attractive gradient, with each
+     component of the step clipped to a fixed range;
+   - choose five other points at random and move $\mathbf y_i$ away from each by the repulsive
+     gradient, clipped likewise.
+
+The cost per epoch is proportional to the number of edges, about $nk$.
 
 ## Implementation
 

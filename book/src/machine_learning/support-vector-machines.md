@@ -172,9 +172,35 @@ update. Adding 1 to the kernel folds the intercept into the kernel (penalising i
 
 ## Algorithm
 
-**SMO** (binary): $\boldsymbol\alpha = 0$, $G = -\mathbf e$. Repeat: $i = \arg\max_{t \in I_{\text{up}}}-y_tG_t$; $j$ among $I_{\text{low}}$ minimising $-b_{it}^2/a_{it}$ with $b_{it} = -y_iG_i + y_tG_t > 0$
-and $a_{it} = K_{ii} + K_{tt} - 2K_{it}$; stop if the violation $m(\alpha) - M(\alpha) < \varepsilon$; update $\alpha_i, \alpha_j$ analytically and clip to $[0, C]$; update $G$. The bias is the average of
-$y_tG_t$ over free support vectors.
+**Sequential minimal optimisation** for two classes. Write the dual objective as
+$\tfrac12\boldsymbol\alpha^{\mathsf T}Q\boldsymbol\alpha - \mathbf e^{\mathsf T}\boldsymbol\alpha$ with $Q_{ij} = y_iy_jK_{ij}$, and let
+$G = Q\boldsymbol\alpha - \mathbf e$ be its gradient.
+
+1. **Initialise** $\boldsymbol\alpha = \mathbf 0$, so that $G = -\mathbf e$.
+2. **Select the first variable.** Let $I_{\text{up}}$ be the indices whose $\alpha$ can still move
+   in the direction that increases $y_t\alpha_t$, and $I_{\text{low}}$ those that can move the other
+   way. Choose $i$ in $I_{\text{up}}$ maximising $-y_tG_t$: the variable that most violates the
+   optimality conditions.
+3. **Select the second variable.** Among $t$ in $I_{\text{low}}$ with
+   $b_{it} = -y_iG_i + y_tG_t > 0$, choose $j$ minimising $-b_{it}^2/a_{it}$, where
+   $a_{it} = K_{ii} + K_{tt} - 2K_{it}$. That quantity is the decrease in the objective that the
+   pair $(i, t)$ would achieve, so this picks the most profitable partner.
+4. **Test.** The gap between the largest value of $-y_tG_t$ over $I_{\text{up}}$ and the smallest
+   over $I_{\text{low}}$ measures how far the solution is from optimal. If it is below the tolerance
+   $\varepsilon$, stop.
+5. **Update the pair.** Move $\alpha_i$ and $\alpha_j$ to the minimum of the objective along the
+   line allowed by the equality constraint, and clip the result so that both stay in $[0, C]$.
+6. **Update the gradient** for the change in the two multipliers, which needs columns $i$ and
+   $j$ of the kernel matrix: $O(n)$ operations. Go to 2.
+
+When the loop ends, the bias $b$ is the average of $y_tG_t$ over the **free** support vectors
+(those with $0 < \alpha_t < C$), which lie exactly on the margin.
+
+**Prediction**: evaluate $f(\mathbf x) = \sum_i\alpha_iy_ik(\mathbf x_i, \mathbf x) + b$ over the support
+vectors only, and return its sign.
+
+**More than two classes**: train one machine for every pair of classes, on the points of those
+two classes; to predict, let every machine vote and return the class with the most votes.
 
 ## Implementation
 

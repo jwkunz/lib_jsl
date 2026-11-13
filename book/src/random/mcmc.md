@@ -163,10 +163,22 @@ Monte Carlo), tempering and problem-specific proposals address these cases.
 
 ## Algorithm
 
-1. Start at $x_0$ with $\log p(x_0)$ finite.
-2. For each step: propose $x' = x + \boldsymbol\sigma \odot \mathbf z$; accept if $\log p(x') \ge \log p(x)$ or $\ln u < \log p(x') - \log p(x)$; otherwise keep $x$.
-3. During burn-in, optionally rescale $\boldsymbol\sigma$ every 100 steps towards the target acceptance rate.
-4. After burn-in, record every `thin`-th state.
+Input: the log-density $\log p$, a starting state $x$, the proposal scales $\boldsymbol\sigma$, the
+number of burn-in steps, the number of samples wanted and the thinning interval.
+
+1. **Start.** Evaluate $\log p(x)$. It must be finite: a chain cannot start outside the support.
+2. **Propose.** Draw a vector $\mathbf z$ of independent standard normals and form
+   $x' = x + \boldsymbol\sigma \odot \mathbf z$. Evaluate $\log p(x')$.
+3. **Accept or reject.** Draw a uniform $u$. If $\log p(x') \ge \log p(x)$, or
+   $\ln u < \log p(x') - \log p(x)$, move to $x'$. Otherwise stay at $x$. (The first test is
+   implied by the second, and merely saves a logarithm.)
+4. **Adapt**, during burn-in only and only if requested: every 100 steps, compute the fraction
+   $r$ of those steps that were accepted and multiply $\boldsymbol\sigma$ by $e^{2(r - r^*)}$.
+5. **Record.** After burn-in, store the current state every `thin` steps. A rejected proposal
+   means the same state is stored again.
+6. Repeat from step 2 until enough states have been stored.
+
+Each step costs one evaluation of the log-density.
 
 ## Implementation
 

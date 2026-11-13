@@ -80,10 +80,26 @@ $x \ge 1$; for $-1/e \le y < 0$ there are two, from the two real branches, one i
 
 ## Algorithm
 
-`lambert_w0(y)`: `NaN` below $-1/e$; the branch-point series near $-1/e$; otherwise an initial guess ($\ln(1 + y)$ for
-moderate $y$, $L - \ln L$ for large $y$); then Halley iterations until the step is below rounding. `lambert_w_m1`
-likewise on the lower branch. The complex `lambert_w(k, z)` chooses its starting point by region and
-branch, and iterates Halley's method in complex arithmetic.
+**`lambert_w0(y)`**, the principal branch for real $y$:
+
+1. $y < -1/e$: return `NaN`. $y = 0$: return 0.
+2. **Starting value.** Near the branch point $-1/e$, use the series in
+   $p = \sqrt{2(ey + 1)}$, which is already accurate there (and where the iteration below would
+   converge slowly, since the derivative is infinite at the branch point). For moderate $y$ use
+   $\ln(1 + y)$. For large $y$ use $L - \ln L$ with $L = \ln y$.
+3. **Halley iteration.** Compute $f = we^w - y$ and update $w$ by the formula above. Stop when
+   the change in $w$ is below rounding error; two or three iterations are enough.
+
+**`lambert_w_m1(y)`**, the lower branch, is defined only for $-1/e \le y < 0$. It follows the
+same three steps, with the branch-point series taken with $-p$ and a starting value below $-1$
+elsewhere.
+
+**`lambert_w(k, z)`**, branch $k$ for complex $z$: choose the starting value according to the
+branch and the region ($L - \ln L$ with $L = \ln z + 2\pi ik$ away from the origin and the
+branch point, the branch-point series near $-1/e$ for the branches that meet there), and run the
+same Halley iteration in complex arithmetic.
+
+**`inverse_x_log_x(y)`**: compute $w = W(y)$ on the appropriate branch and return $e^w$.
 
 ## Implementation
 

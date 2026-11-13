@@ -105,11 +105,29 @@ tracked in [issue #10](https://github.com/jwkunz/lib_jsl/issues/10).
 
 ## Algorithm
 
-**Cholesky-Banachiewicz** (reference): for each row $i$, for $j \le i$, compute $\ell_{ij}$ from the formulas above; fail if a
-diagonal quantity is not positive.
+**Cholesky-Banachiewicz** (the reference crate). Input: a symmetric (or Hermitian) matrix $A$,
+of which only the lower triangle is read. For each row $i = 1, \ldots, n$:
 
-**Blocked Cholesky** (production): copy the given triangle into $L$; for each block of 16 columns, factor the
-diagonal block, solve for the panel, and update the trailing lower triangle with the multiply kernel.
+1. for $j = 1, \ldots, i - 1$, compute
+   $\ell_{ij} = \big(a_{ij} - \sum_{k<j}\ell_{ik}\ell_{jk}\big)/\ell_{jj}$, a dot product of the parts of
+   rows $i$ and $j$ already computed;
+2. compute $s = a_{ii} - \sum_{k<i}\ell_{ik}^2$; if $s \le 0$, stop and report that $A$ is not
+   positive definite; otherwise $\ell_{ii} = \sqrt s$.
+
+The cost is $\tfrac13n^3$ flops.
+
+**Blocked Cholesky** (the production crate). Copy the given triangle into $L$, and process the
+columns in blocks of 16. For each block, with $A_{11}$ the diagonal block, $A_{21}$ the panel
+below it and $A_{22}$ the trailing matrix:
+
+1. factor the diagonal block, $A_{11} = L_{11}L_{11}^{\mathsf T}$, by the unblocked method, failing if
+   a diagonal quantity is not positive;
+2. solve $L_{21}L_{11}^{\mathsf T} = A_{21}$ for the panel $L_{21}$ (a triangular solve for each row);
+3. update the lower triangle of the trailing matrix, $A_{22} \leftarrow A_{22} - L_{21}L_{21}^{\mathsf T}$,
+   with the matrix-multiply kernel.
+
+**Solving** $A\mathbf x = \mathbf b$ with the factor: forward substitution for $L\mathbf y = \mathbf b$, then back
+substitution for $L^{\mathsf T}\mathbf x = \mathbf y$, $2n^2$ flops in all.
 
 ## Implementation
 

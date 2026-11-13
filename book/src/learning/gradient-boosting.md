@@ -131,11 +131,30 @@ stage.
 
 ## Algorithm
 
-1. $F_0$: the mean target (regression) or smoothed log class priors (classification).
-2. For $m = 1, \ldots, M$: draw the subsample; compute pseudo-residuals and second derivatives; grow a regression tree of depth at most $d$ on
-   the subsample, choosing splits that maximise the reduction in squared error of the residuals; set each leaf to its Newton step;
-   add $\nu$ times the tree to every prediction.
-3. Feature importances: the total squared-error reduction from splits on each feature, normalised to sum to one.
+**Training**, with $M$ stages, learning rate $\nu$, tree depth $d$ and subsample fraction $s$.
+
+1. **Initial model.** Set $F_0$ to the mean of the targets (regression), or, for
+   classification, set one score per class to the smoothed logarithm of the class's share of
+   the training data.
+2. **For each stage** $m = 1, \ldots, M$:
+   - **subsample**: if $s < 1$, draw a random fraction $s$ of the rows for this stage;
+   - **derivatives**: at the current predictions, compute for each row the pseudo-residual
+     and the second derivative of the loss;
+   - **grow a tree** of depth at most $d$ on the subsample, with the pseudo-residuals as
+     targets, choosing at each node the split that most reduces their squared error;
+   - **set the leaf values**: replace the value of each leaf by its Newton step, the sum of
+     the pseudo-residuals of its rows divided by the sum of their second derivatives;
+   - **update**: add $\nu$ times the tree's prediction to the model's prediction for *every*
+     row, including those not in the subsample.
+
+   For classification with $K$ classes, the last four steps are carried out once for each
+   class, giving $K$ trees per stage.
+3. **Feature importances.** Add up, over all the splits in all the trees, the reduction in
+   squared error that each split achieved, grouped by the feature it used; divide by the total
+   so that the importances sum to one.
+
+**Prediction**: add $F_0$ and $\nu$ times the prediction of every tree. For classification,
+apply the softmax to the $K$ scores.
 
 ## Implementation
 

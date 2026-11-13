@@ -61,9 +61,33 @@ The valid angle of a planar scan is limited by the scan's size: rays from the an
 
 ## Algorithm
 
-1. **Expansion from a pattern**: sample on Gauss-Legendre × uniform points; project onto $\boldsymbol\Psi_{nm}$ and $\boldsymbol\Phi_{nm}$; scale by the far-field factors.
-2. **Spherical NF-FF**: the same projection of the near field, divided by the Hankel functions at $kr_0$.
-3. **Planar NF-FF**: for each direction, sum the sampled $E_x$ and $E_y$ times $e^{j(k_xx + k_yy)}$ (separable), shift by $e^{jk_zz_0}$, and apply the formulas above.
+**Spherical wave coefficients from a far-field pattern**, up to degree $N$.
+
+1. Sample the pattern at the Gauss-Legendre nodes in $\cos\theta$ and at equally spaced
+   azimuths.
+2. For each degree $n$ and order $m$, compute the inner products of the pattern with
+   $\boldsymbol\Phi_{nm}$ and $\boldsymbol\Psi_{nm}$ over the sphere, by quadrature.
+3. Divide by the far-field factors $j^{n+1}/k$ and $j^{n+2}/k$ to obtain $\alpha_{nm}$ and
+   $\beta_{nm}$.
+
+**Spherical near-field to far-field transformation**, from the tangential field on a sphere of
+radius $r_0$.
+
+1. Project the measured field onto $\boldsymbol\Phi_{nm}$ and $\boldsymbol\Psi_{nm}$, as in steps 1 and 2 above.
+2. Divide the projections by the radial functions at $kr_0$: $h_n^{(2)}(kr_0)$ for
+   $\alpha_{nm}$, and $-(kr_0h_n^{(2)})'/kr_0$ for $\beta_{nm}$.
+3. Evaluate the far field in any direction from the coefficients.
+
+**Planar near-field to far-field transformation**, from $E_x$ and $E_y$ sampled on a plane
+$z = z_0$. For each requested direction $(\theta, \varphi)$:
+
+1. compute the wavenumbers $k_x = k\sin\theta\cos\varphi$, $k_y = k\sin\theta\sin\varphi$ and
+   $k_z = k\cos\theta$;
+2. compute the spectrum components $A_x$ and $A_y$ as the sums of the samples times
+   $e^{j(k_xx + k_yy)}$ and the sample area. The exponential factors into a part for each
+   axis, so the double sum is done as a sum along $x$ followed by a sum along $y$;
+3. multiply by $e^{jk_zz_0}$, which refers the spectrum to the plane $z = 0$;
+4. form $F_\theta$ and $F_\varphi$ from the formulas above.
 
 ## Implementation
 

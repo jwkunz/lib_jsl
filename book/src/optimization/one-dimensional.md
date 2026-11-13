@@ -159,17 +159,40 @@ starting point. The iteration cannot stall at a point that is not stationary.
 
 ## Algorithm
 
-**Golden section search** on $[a, b]$ with tolerance $\delta$:
+**Golden section search.** Input: $f$, an interval $[a, b]$ containing the minimum, and a
+tolerance $\delta$. Let $\rho = 1/\varphi \approx 0.618$.
 
-1. Set $c = b - (b - a)/\varphi$, $d = a + (b - a)/\varphi$ and evaluate $f$ at both.
-2. While $b - a > \delta$: if $f(c) < f(d)$, set $b \leftarrow d$, $d \leftarrow c$ and evaluate a new $c$; otherwise
-   set $a \leftarrow c$, $c \leftarrow d$ and evaluate a new $d$.
+1. Place the two interior points, $c = b - \rho(b - a)$ and $d = a + \rho(b - a)$, and evaluate
+   $f(c)$ and $f(d)$.
+2. While $b - a > \delta$:
+   - if $f(c) < f(d)$, the minimum lies in $[a, d]$: set $b \leftarrow d$, then reuse the old $c$
+     as the new $d$ (with its stored value), and compute a new $c = b - \rho(b - a)$ and $f(c)$;
+   - otherwise it lies in $[c, b]$: set $a \leftarrow c$, reuse the old $d$ as the new $c$, and
+     compute a new $d = a + \rho(b - a)$ and $f(d)$.
 3. Return the midpoint of $[a, b]$.
 
-**Strong Wolfe line search** (Nocedal and Wright, algorithms 3.5 and 3.6): try the initial step;
-double it while the conditions fail and $f$ keeps decreasing; as soon as an interval is known to
-contain acceptable steps (because $f$ rose, or the slope turned positive), **zoom** into it by
-safeguarded cubic interpolation of $\varphi$ from its values and slopes at the ends.
+Each pass of the loop costs one evaluation and multiplies the width by $\rho$, so reaching
+$\delta$ takes about $\log((b - a)/\delta)/\log\varphi$ evaluations: 39 for a reduction of
+$10^{8}$, plus the few spent on the first interior points and the final value (42 in the table above).
+
+**Strong Wolfe line search** (Nocedal and Wright, algorithms 3.5 and 3.6). Input: the point, a
+descent direction, the constants $c_1 < c_2$ and an initial trial step. It has two phases.
+
+1. **Bracketing.** Try the initial step. Then repeat:
+   - if the step satisfies both conditions, return it;
+   - if it violates sufficient decrease, or $\phi$ is no lower than at the previous trial, the
+     function has started to rise: an acceptable step lies between the previous trial and this
+     one, so go to phase 2 with that interval;
+   - if the slope $\phi'$ at the step is positive, the minimum along the line has been passed:
+     again go to phase 2;
+   - otherwise $\phi$ is still falling steeply: double the step and try again.
+2. **Zoom.** Given an interval known to contain acceptable steps, choose a trial step inside it
+   by fitting a cubic to $\phi$ and $\phi'$ at the two ends and taking its minimiser, kept away
+   from the ends (**safeguarded** interpolation, falling back to bisection). Test the trial: if
+   it satisfies both conditions, return it; otherwise it replaces one end of the interval, chosen
+   so that the interval still contains acceptable steps, and the zoom repeats.
+
+Each trial costs one evaluation of $f$ and one of its gradient.
 
 ## Implementation
 

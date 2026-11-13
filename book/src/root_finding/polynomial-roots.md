@@ -167,10 +167,29 @@ steps of Newton's method.
 
 ## Algorithm
 
-1. Strip leading zero coefficients and factor out roots at zero (trailing zeros).
-2. Form the companion matrix of the monic polynomial.
-3. Balance it, reduce it to Hessenberg form, and compute its eigenvalues by the shifted QR algorithm.
-4. For real roots: filter, cluster and polish as above.
+**All complex roots** (`polynomial_roots_complex`). Input: coefficients from the highest power
+down.
+
+1. **Clean up.** Strip leading zero coefficients, which lower the true degree. Strip trailing
+   zero coefficients too: each is a root at $x = 0$, recorded and factored out.
+2. **Form the companion matrix** of the remaining polynomial, after dividing by its leading
+   coefficient.
+3. **Compute its eigenvalues**: balance the matrix, and apply the shifted QR algorithm of the
+   [general eigensolver](../linear_algebra/eigensolvers.md) (the matrix is already in Hessenberg
+   form). The eigenvalues, with the zeros from step 1, are the roots.
+
+The cost is $O(n^3)$ for degree $n$.
+
+**Distinct real roots** (`polynomial_roots`). From the complex roots:
+
+1. **Filter.** Keep an eigenvalue if its imaginary part is exactly zero, or if it is small
+   ($|\operatorname{Im} z| \le 10^{-3}\max(|z|, 1)$) and $p$ evaluated at its real part is zero to
+   within the rounding error of Horner's rule.
+2. **Cluster.** Sort the survivors. Merge neighbours into one group when they are close together
+   and $p$ is indistinguishable from zero midway between them: they are the scattered images of
+   one multiple root.
+3. **Report.** For a group of several eigenvalues, return their mean. For an isolated one,
+   polish it with up to four steps of Newton's method and return the result.
 
 ## Implementation
 

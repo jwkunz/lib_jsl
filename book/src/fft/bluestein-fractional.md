@@ -107,11 +107,36 @@ only the integer orders, computed separately, had been tested.
 
 ## Algorithm
 
-**Bluestein**: at planning, choose $M$ (a power of two $\ge 2n - 1$), tabulate the chirp $e^{\mp\pi i(k^2\bmod2n)/n}$, and transform the padded chirp $b$.
-To execute: multiply by the chirp, zero-pad, FFT, multiply by $\hat b$, inverse FFT, multiply by the chirp.
+**Bluestein's algorithm** for a DFT of any length $n$.
 
-**Fractional**: reduce $\alpha$ mod 4; return the identity, DFT, reversal or inverse DFT exactly at integer orders; otherwise shift the order into
-$[\tfrac12, \tfrac32]$ and apply chirp, convolution and chirp.
+*Planning*, done once for each length:
+
+1. choose $M$, the smallest power of two with $M \ge 2n - 1$;
+2. tabulate the chirp $w_k = e^{-\pi i(k^2 \bmod 2n)/n}$ for $k = 0, \ldots, n - 1$, reducing
+   $k^2$ modulo $2n$ in integer arithmetic before the angle is formed;
+3. build the sequence $b$ of length $M$ holding $\overline{w_k}$ at positions $k$ and $M - k$
+   (the negative indices wrap around to the end), zero elsewhere, and compute its FFT $\hat b$.
+
+*Execution*, for each input $x$:
+
+1. multiply: $a_k = x_kw_k$ for $k < n$, and pad $a$ with zeros to length $M$;
+2. transform $a$ with an FFT of length $M$;
+3. multiply the result by $\hat b$, element by element;
+4. transform back with an inverse FFT of length $M$;
+5. multiply the first $n$ results by $w_k$ again. These are $X_0, \ldots, X_{n-1}$.
+
+The inverse DFT uses the conjugate chirp and divides by $n$. Each execution costs two FFTs of
+length $M < 4n$.
+
+**Fractional Fourier transform** of order $\alpha$.
+
+1. Reduce $\alpha$ modulo 4, since four Fourier transforms are the identity.
+2. If $\alpha$ is an integer, return the exact result: the input itself (0), its DFT (1), its
+   reversal (2) or its inverse DFT (3).
+3. Otherwise bring the order into $[\tfrac12, \tfrac32]$ by applying one ordinary DFT or inverse
+   DFT, which changes the order by $\pm1$.
+4. Multiply by a chirp, convolve with a chirp using FFTs, and multiply by a chirp again, with
+   the chirp rates given by $\cot\varphi$ and $\csc\varphi$ for $\varphi = \alpha\pi/2$.
 
 ## Implementation
 

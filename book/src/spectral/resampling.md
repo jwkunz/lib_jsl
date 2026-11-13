@@ -112,10 +112,33 @@ combs, as long as the output fits, which is why the library's CIC filters work o
 
 ## Algorithm
 
-1. **Polyphase stream**: keep the recent inputs; for the next output position $p = \lfloor mD\rfloor$, once input $\lfloor p/U\rfloor$ has arrived, sum $h[p - jU]x[j]$ over the
-   inputs in range; drop inputs no future output needs. `flush` appends zeros until position $(N - 1)U + L$.
-2. **Half-band decimator**: per pair of inputs, the centre tap times the delayed sample plus the odd-offset taps.
-3. **CIC decimator**: $N$ wrapping integrators per input; every $R$-th input, $N$ combs of delay $M$.
+**Polyphase resampler** (a stream), with upsampling factor $U$, downsampling factor $D$ and a
+filter $h$ of length $L$. Positions on the upsampled time axis are numbered so that input
+sample $j$ sits at position $jU$. Output $m$ is taken at position $p = mD$ (or
+$\lfloor mD\rfloor$ for a real $D$).
+
+1. Keep the recent input samples in a buffer.
+2. The next output, at position $p$, needs the inputs up to $j = \lfloor p/U\rfloor$. Wait until
+   that sample has arrived.
+3. Compute the output as $\sum_jh[p - jU]\,x[j]$ over the inputs $j$ for which the tap index
+   $p - jU$ lies in $[0, L)$. These are the taps of one phase, $p \bmod U$.
+4. Advance to the next output position, and discard the buffered inputs that no later output
+   can reach.
+
+At the end of the stream, `flush` feeds zeros until the position $(N - 1)U + L$ has been
+passed, so that the filter's tail is emitted. Each output costs about $L/U$ multiplications.
+
+**Half-band decimator** by 2: for each pair of input samples, the output is the centre tap
+times the suitably delayed sample, plus the sum of the taps at odd offsets times their
+samples. The taps at even offsets are zero and are skipped.
+
+**CIC decimator** by $R$, with $N$ stages and differential delay $M$, on integers.
+
+1. For each input sample, pass it through the $N$ integrators in turn: each adds its input to
+   its running total, with wrapping arithmetic, and passes the total on.
+2. For every $R$-th input sample, pass the last integrator's output through the $N$ combs in
+   turn: each subtracts the value it received $M$ output samples earlier.
+3. The result of the last comb is the output sample.
 
 ## Implementation
 

@@ -31,16 +31,50 @@ The design rate is $1 - w_c/w_r$. The true dimension is $n$ minus the rank of $H
 
 ### Belief propagation
 
-Work with log-likelihood ratios. Variable $v$ starts with its channel value $L_v$. Each iteration:
+Finding the nearest codeword of a long code by search is impossible. Belief propagation instead
+lets the bits and the checks improve their estimates of one another, a little at a time, using
+only local computations.
 
-- **Check to variable**: check $c$ tells variable $v$ the LLR that the XOR of its other variables is zero,
+**The quantities.** Each bit's uncertainty is expressed as a
+[log-likelihood ratio](../comms/modulation.md#soft-demapping) (LLR), $\ln P(0)/P(1)$: positive
+means "probably 0", negative "probably 1", and the magnitude is the confidence. Variable $v$
+starts with its channel value $L_v$, what the received signal says about that bit alone.
+**Messages** are LLRs sent along the edges of the Tanner graph, in both directions.
+
+**The key rule: extrinsic information.** A message sent along an edge never uses the message
+that arrived on that same edge. A bit tells a check what it has learned *from everyone else*,
+and a check tells a bit what its *other* bits imply. Otherwise a node would be told its own
+opinion back and grow more and more confident on no new evidence.
+
+Each iteration has three steps.
+
+- **Check to variable.** A check says that its bits sum to zero (modulo 2), so any one of them
+  equals the XOR of the others. Check $c$ therefore tells variable $v$ what the other bits of the
+  check imply about it. The LLR of an XOR of independent bits is given by the "tanh rule":
+
   $$
   m_{c\to v} = 2\tanh^{-1}\prod_{v' \ne v}\tanh\frac{m_{v'\to c}}{2}.
   $$
-- **Variable to check**: $m_{v\to c} = L_v + \sum_{c' \ne c} m_{c'\to v}$.
-- **Decide**: bit $v$ is 1 if $L_v + \sum_c m_{c\to v} < 0$. Stop when every check is satisfied.
 
-On a graph without cycles this computes the exact bit posteriors (the **sum-product algorithm**). Real graphs have cycles, but if the cycles are long the messages stay nearly independent for many iterations, and the decoder works almost as well.
+  The formula behaves as common sense suggests. Its sign is the product of the signs of the
+  incoming messages: an XOR is 1 when an odd number of its inputs are. Its magnitude is a little
+  less than the smallest incoming magnitude: a conclusion drawn from several bits is no more
+  reliable than the least reliable of them.
+- **Variable to check.** Independent pieces of evidence about a bit combine by adding their
+  LLRs. Variable $v$ tells check $c$ the sum of its channel value and the messages from its
+  *other* checks: $m_{v\to c} = L_v + \sum_{c' \ne c} m_{c'\to v}$.
+- **Decide.** The bit's overall belief uses all its checks: bit $v$ is 1 if
+  $L_v + \sum_c m_{c\to v} < 0$. If the decisions satisfy every check, they form a codeword and
+  decoding stops.
+
+**Why it works, and when.** If the Tanner graph has no cycles, the evidence arriving at a node
+along different edges comes from disjoint parts of the graph and really is independent, and this
+procedure computes the exact posterior probability of every bit (it is then called the
+**sum-product algorithm**). The graphs of good codes do have cycles, so evidence eventually
+returns to where it started and is counted twice. But if the cycles are long, the messages stay
+nearly independent for many iterations, and the decoder works almost as well. This is one reason
+sparse matrices are wanted: few edges mean few short cycles. The other is cost, since each
+iteration takes work proportional to the number of edges.
 
 ![LDPC BER](../generated/coding/ldpc_ber.svg)
 
@@ -50,9 +84,35 @@ The curve falls steeply once the noise is below the code's threshold: the **wate
 
 ## Algorithm
 
-1. **Construct**: the check lists; their dense rows reduced by Gauss-Jordan elimination; pivot columns are parity, the rest information.
-2. **Encode**: place the information bits; each parity bit is the XOR of the information bits in its reduced row.
-3. **Decode**: if the hard decisions already satisfy every check, stop; otherwise iterate check and variable updates (flooding schedule) until the checks are satisfied or the iteration limit is reached.
+**Construction** of a systematic encoder from the parity-check matrix $H$, with $m$ rows and
+$n$ columns.
+
+1. Reduce a dense copy of $H$ by Gauss-Jordan elimination over GF(2): for each row, find a
+   column with a 1 to serve as its pivot, and XOR the row into every other row that has a 1
+   in that column. Rows that become zero are redundant checks.
+2. The pivot columns are the **parity** positions, and the remaining columns the
+   **information** positions. Each reduced row now expresses one parity bit as the XOR of
+   some information bits.
+
+**Encoding**: place the information bits in the information positions, and compute each parity
+bit as the XOR of the information bits that appear in its reduced row.
+
+**Decoding**, from the channel LLRs.
+
+1. Take hard decisions from the channel values. If they satisfy every check, return them: no
+   iteration is needed.
+2. Initialise every variable-to-check message to the channel value of its variable.
+3. **Check update**: for every check and each of its variables, compute the message from the
+   others by the tanh rule.
+4. **Variable update**: for every variable, add the channel value and all the incoming check
+   messages to get its total; the message to each check is the total minus the message that
+   came from that check.
+5. **Decide**: take the sign of each total. If the decisions satisfy every check, return them.
+6. If the iteration limit has been reached, return the decisions with a failure flag;
+   otherwise go to 3.
+
+Updating all the checks and then all the variables in each iteration is the **flooding**
+schedule. An iteration costs time proportional to the number of 1s in $H$.
 
 ## Implementation
 

@@ -126,10 +126,30 @@ best at powers of two).
 
 ## Algorithm
 
-**Halton**: for point $n$ and coordinate $k$, the radical inverse of $n$ in the $k$-th prime base.
+**Halton point $n$ in $d$ dimensions.** For each coordinate $k = 1, \ldots, d$, with $b$ the
+$k$-th prime, compute the radical inverse of $n$ in base $b$:
 
-**Sobol**: output the current state (scaled to $[0, 1)$); find the lowest zero bit $c$ of the index $n$; exclusive-or $v_{k,c}$ into each coordinate's
-state; increment $n$.
+1. set $r = 0$ and $f = 1/b$;
+2. while $n > 0$: add $f \times (n \bmod b)$ to $r$; replace $n$ by $\lfloor n/b\rfloor$; divide $f$
+   by $b$;
+3. coordinate $k$ is $r$.
+
+The cost is $O(\log n)$ per coordinate. Points are usually numbered from $n = 1$, since $n = 0$
+gives the corner of the cube.
+
+**Sobol points** are generated in sequence, each from the one before. The generator keeps the
+index $n$ and, for each coordinate $k$, an integer state $x_k$, initially zero.
+
+1. Output the current point: each $x_k$, read as a binary fraction, is a coordinate in $[0, 1)$.
+2. Find $c$, the position of the lowest zero bit of $n$. This is the bit that changes between
+   the Gray codes of $n$ and $n + 1$.
+3. For each coordinate, exclusive-or the direction number $v_{k,c}$ into $x_k$.
+4. Increment $n$.
+
+The cost is one exclusive-or per coordinate per point.
+
+**A randomly shifted point set**: draw one uniform vector $\mathbf u$; replace every point
+$\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 
 ## Implementation
 

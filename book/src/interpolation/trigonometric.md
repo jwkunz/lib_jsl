@@ -160,10 +160,30 @@ long after the data end.
 
 ## Algorithm
 
-- **Trigonometric**: compute the DFT coefficients directly; evaluate the paired series at any $x$,
-  extended periodically.
-- **Prony**: least squares for the prediction coefficients; companion matrix eigenvalues for the poles;
-  complex least squares for the amplitudes; evaluate $\operatorname{Re}\sum_i c_i z_i^{(x - x_0)/\Delta t}$.
+**Trigonometric interpolation.** Input: $n$ samples $y_j$ covering one period $T$ from $x_0$.
+
+1. *Set-up.* Compute the $n$ coefficients $\hat y_k$ by the DFT sum. Cost: $O(n^2)$ as a direct
+   sum, once.
+2. *Evaluation at $x$.* Add the constant $\hat y_0$; for each $k$ from 1 to just below $n/2$, add
+   the pair of terms for $+k$ and $-k$, which for real data is
+   $2\operatorname{Re}\big(\hat y_k\,e^{2\pi i k (x - x_0)/T}\big)$; for even $n$ add the Nyquist cosine
+   term. Because every term has period $T$, the result is automatically periodic. Cost: $O(n)$
+   per point.
+
+**Prony's method.** Input: $N$ equally spaced samples $y_k$ and the number of exponentials $p$
+(with $N \ge 2p$).
+
+1. *Linear prediction.* Form the $(N - p) \times p$ system whose row $k$ states
+   $a_1y_{k+p-1} + \cdots + a_py_k = -y_{k+p}$, and solve it by least squares.
+2. *Poles.* Form the companion matrix of $z^p + a_1z^{p-1} + \cdots + a_p$ and compute its
+   eigenvalues $z_1, \ldots, z_p$.
+3. *Amplitudes.* Form the $N \times p$ matrix with entries $z_i^k$ and solve
+   $\sum_ic_iz_i^k = y_k$ for the complex amplitudes $c_i$ by least squares.
+4. *Evaluation at $x$.* Return $\operatorname{Re}\sum_i c_i z_i^{(x - x_0)/\Delta t}$. The same formula
+   extrapolates beyond the data.
+
+The cost is dominated by the two least-squares solves, $O(Np^2)$, and the eigenvalue
+computation, $O(p^3)$.
 
 ## Implementation
 

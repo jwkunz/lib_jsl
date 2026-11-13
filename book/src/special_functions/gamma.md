@@ -154,9 +154,28 @@ a relative error $\delta$ in the argument of $e^{x}$ becomes an error $x\delta$ 
 
 ## Algorithm
 
-`gamma(x)`: `NaN` at the poles; the exact product for integers up to 171; reflection for $x < \tfrac12$;
-`+∞` beyond 171.7; otherwise the Lanczos formula, with the power split in two to avoid premature
-overflow. `ln_gamma` uses the logarithm of the Lanczos formula, with reflection for $x < \tfrac12$.
+**`gamma(x)`** tests the argument against a sequence of cases, in this order, and uses the first
+that applies.
+
+1. $x$ is zero or a negative integer (a pole): return `NaN`.
+2. $x$ is a positive integer up to 171: return the exact product $(x - 1)!$, accumulated by
+   multiplication.
+3. $x < \tfrac12$: apply the reflection formula, $\Gamma(x) = \pi/\big(\sin(\pi x)\,\Gamma(1 - x)\big)$,
+   which calls the function again with an argument above $\tfrac12$.
+4. $x > 171.7$: the result exceeds the largest double; return $+\infty$.
+5. Otherwise: evaluate the Lanczos formula. The factor $(x + g + \tfrac12)^{x + 1/2}$ can overflow
+   on its own although the final result is representable, so it is computed as the square of
+   its square root, with the exponential factor applied in between.
+
+**`ln_gamma(x)`** takes the logarithm of the Lanczos formula term by term, so that nothing
+overflows, and uses the reflection formula (in logarithmic form) for $x < \tfrac12$.
+
+**`digamma(x)`**: reflect if $x$ is negative; add $-1/x$ and increase $x$ by 1 until it is large
+enough for the asymptotic series; then add the series.
+
+**`beta(a, b)`**: $\exp\big(\ln\Gamma(a) + \ln\Gamma(b) - \ln\Gamma(a + b)\big)$.
+
+Every function costs a fixed, small number of operations.
 
 ## Implementation
 

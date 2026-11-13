@@ -143,10 +143,38 @@ identity above, a sum of non-negative terms.
 
 ## Algorithm
 
-- $R_F$, $R_D$, $R_J$, $R_C$: duplicate until the relative deviations are below about $10^{-3}$ (error $\propto$ deviation$^6$),
-  then sum the Taylor series.
-- $F$, $E$, $\Pi$: reduce the amplitude to $[-\tfrac\pi2, \tfrac\pi2]$, then combine Carlson integrals.
-- $\operatorname{sn}$, $\operatorname{cn}$, $\operatorname{dn}$: series near $m = 0$ and $m = 1$; otherwise the AGM and the backward amplitude recursion.
+**Carlson's $R_F(x, y, z)$.**
+
+1. Compute $\lambda = \sqrt{xy} + \sqrt{yz} + \sqrt{zx}$ and replace each argument $x$ by
+   $(x + \lambda)/4$.
+2. Compute the mean $\mu$ of the three arguments and their relative deviations from it.
+3. If the largest deviation exceeds about $10^{-3}$, go to 1.
+4. Return $\mu^{-1/2}$ times a short polynomial in the deviations (the first terms of the Taylor
+   series about equal arguments).
+
+The neglected terms of the series are of the sixth order in the deviations, so a tolerance of
+$10^{-3}$ gives an error near $10^{-18}$. Each pass divides the deviations by 4, so about a
+dozen passes suffice at most. $R_D$, $R_J$ and $R_C$ follow the same loop, with their own
+series, and $R_D$ and $R_J$ also accumulate a sum during the duplications.
+
+**Legendre's $F$, $E$ and $\Pi$.**
+
+1. Reduce the amplitude: write $\varphi = j\pi + \varphi_0$ with $|\varphi_0| \le \pi/2$.
+2. Evaluate the integral for $\varphi_0$ as a combination of Carlson integrals, as in the formula
+   for $F$ above.
+3. Add $2j$ times the complete integral.
+
+**Jacobi's $\operatorname{sn}$, $\operatorname{cn}$, $\operatorname{dn}$.**
+
+1. For $m$ within rounding of 0 or 1, use the short series about the trigonometric or
+   hyperbolic limit.
+2. Otherwise run the arithmetic-geometric mean from $a_0 = 1$, $b_0 = \sqrt{1 - m}$, storing
+   $a_n$ and $c_n$ at each step, until $c_n$ is negligible.
+3. Set $\varphi_N = 2^Na_Nu$ and recur backwards,
+   $\varphi_{n-1} = \tfrac12\big(\varphi_n + \arcsin(\tfrac{c_n}{a_n}\sin\varphi_n)\big)$, down to
+   $\varphi_0$.
+4. Return $\operatorname{sn} = \sin\varphi_0$, $\operatorname{cn} = \cos\varphi_0$ and
+   $\operatorname{dn} = \sqrt{(1 - m) + m\operatorname{cn}^2}$.
 
 ## Implementation
 

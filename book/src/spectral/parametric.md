@@ -135,10 +135,46 @@ The covariance eigenvalues confirm the model order: a gap after the $q$-th (or $
 
 ## Algorithm
 
-1. **Levinson-Durbin**: $E_0 = r_0$; for $m = 1, \ldots, p$: compute $k_m$, update $a$ and $E$; fail if $|k_m| \ge 1$.
-2. **Burg**: initialise $f = b = x$; for each order compute $k_m$ from $f$ and the lagged $b$, update both error sequences and $a$.
-3. **MUSIC**: form the forward-backward averaged sample covariance from sliding windows of $m$ samples, take its eigendecomposition,
-   evaluate the pseudospectrum on a grid, and refine the peaks by parabolic interpolation.
+**Levinson-Durbin**, from the autocorrelations $r_0, \ldots, r_p$.
+
+1. Set $E_0 = r_0$ and start with no coefficients.
+2. For $m = 1, \ldots, p$:
+   - compute the reflection coefficient
+     $k_m = -\big(r_m + \sum_{j=1}^{m-1}a_jr_{m-j}\big)/E_{m-1}$;
+   - if $|k_m| \ge 1$, the autocorrelation is not positive definite: stop with an error;
+   - update the coefficients: $a_j \leftarrow a_j + k_ma_{m-j}$ for $j = 1, \ldots, m - 1$ (using
+     the old values on the right), and $a_m = k_m$;
+   - update the error power: $E_m = E_{m-1}(1 - k_m^2)$.
+3. Return the coefficients $a_1, \ldots, a_p$ and the noise variance $E_p$.
+
+Cost: $O(p^2)$.
+
+**Burg's method**, from the samples themselves.
+
+1. Initialise the forward and backward prediction errors to the signal, $f = b = x$.
+2. For each order $m = 1, \ldots, p$:
+   - compute $k_m$ from the inner product of $f$ with $b$ delayed by one sample, and their
+     energies;
+   - update the errors: $f_n \leftarrow f_n + k_mb_{n-1}$ and $b_n \leftarrow b_{n-1} + k_mf_n$,
+     both from the old values;
+   - update the coefficients and the error power by Levinson's step.
+
+Cost: $O(Np)$.
+
+**The AR spectrum**: for each requested frequency, evaluate the polynomial
+$A(e^{i\omega}) = 1 + \sum_ka_ke^{-ik\omega}$ and return $\sigma^2/|A|^2$.
+
+**MUSIC**, for $q$ exponentials and windows of $m$ samples.
+
+1. Slide a window of length $m$ along the signal and average the outer products of the
+   windows with themselves to estimate the covariance matrix. Average it with its
+   forward-backward mirror image, which uses each window a second time, reversed and
+   conjugated.
+2. Compute the eigendecomposition; the eigenvectors of the $m - q$ smallest eigenvalues form
+   $E_n$.
+3. Evaluate the pseudospectrum on a grid of frequencies.
+4. Locate its $q$ highest peaks and refine each by fitting a parabola through the peak and its
+   two neighbours.
 
 ## Implementation
 

@@ -67,8 +67,27 @@ The danger of decision feedback is **error propagation**: a wrong decision feeds
 
 ## Algorithm
 
-1. **Channel**: FIR, Doppler mixer, non-linearity, noise, each as a stream stage.
-2. **DFE**: shift the new sample into the forward regressor; compute $y$; decide $\hat s = $ nearest constellation point; error $e = d - y$ with $d$ the training symbol or $\hat s$; update the weights (NLMS or RLS); shift $d$ into the feedback regressor.
+**Channel simulation.** Each stage is a stream operator, applied in this order to every block
+of samples: the FIR channel filter; the Doppler shift, a multiplication by a rotating phasor;
+the optional non-linearity, applied sample by sample; and the addition of complex Gaussian
+noise.
+
+**Decision-feedback equaliser**, with $N_f$ forward taps and $N_b$ feedback taps, all
+initially zero. For each received sample $r_n$:
+
+1. shift $r_n$ into the forward regressor (the last $N_f$ received samples);
+2. compute the output $y_n$: the forward taps times the forward regressor, plus the feedback
+   taps times the feedback regressor (the last $N_b$ symbols);
+3. decide: $\hat s_n$ is the constellation point nearest to $y_n$;
+4. choose the reference $d_n$: the known training symbol while training lasts, and the
+   decision $\hat s_n$ afterwards (**decision-directed** mode);
+5. compute the error $e_n = d_n - y_n$ and update all the taps together, treating the two
+   regressors as one long input vector, by the [NLMS or RLS](../filters/adaptive.md#algorithm)
+   rule;
+6. shift $d_n$ into the feedback regressor.
+
+The cost per symbol is that of the adaptive filter: $O(N_f + N_b)$ for NLMS and its square for
+RLS.
 
 ## Implementation
 

@@ -29,8 +29,37 @@ arithmetic by Jorma Rissanen and Richard Pasco (1976). Ian Witten, Radford Neal 
 
 ### Prefix codes and Kraft's inequality
 
-A binary prefix code with lengths $\ell_x$ exists if and only if $\sum_x 2^{-\ell_x} \le 1$ (**Kraft's inequality**). The average length $L = \sum_x p(x)\ell_x$ is minimised, ignoring integrality, by $\ell_x = -\log_2 p(x)$, which gives $L = H$. With
-whole-bit lengths $\ell_x = \lceil -\log_2 p(x)\rceil$ (Shannon's code), $H \le L < H + 1$.
+To compress, give frequent symbols short codewords and rare symbols long ones. The codewords are
+simply written one after another, so the decoder must be able to tell where each one ends. A
+**prefix code** guarantees this: no codeword is the beginning of another, so as soon as the bits
+read so far form a codeword, it is the right one.
+
+For example, for four symbols with probabilities $\tfrac12, \tfrac14, \tfrac18, \tfrac18$, the code
+
+| symbol | A | B | C | D |
+|---|---|---|---|---|
+| probability | 1/2 | 1/4 | 1/8 | 1/8 |
+| codeword | `0` | `10` | `110` | `111` |
+
+is a prefix code. The string `0100110` can only be read as A, B, A, C. Its average length is
+$\tfrac12\cdot1 + \tfrac14\cdot2 + \tfrac18\cdot3 + \tfrac18\cdot3 = 1.75$ bits per symbol, against 2
+bits for a fixed-length code, and 1.75 bits is exactly the [entropy](entropy.md#entropy) of this
+source.
+
+**How short can the codewords be?** Short codewords are a limited resource: a codeword of length
+$\ell$ rules out the fraction $2^{-\ell}$ of all longer bit strings, those that begin with it.
+The fractions used by all the codewords cannot exceed the whole. This is **Kraft's inequality**:
+a binary prefix code with lengths $\ell_x$ exists if and only if
+
+$$
+\sum_x 2^{-\ell_x} \le 1 .
+$$
+
+Minimising the average length $L = \sum_x p(x)\ell_x$ subject to this constraint, and ignoring for
+the moment that lengths must be whole numbers, gives $\ell_x = -\log_2 p(x)$: each symbol's ideal
+length is its surprise, and then $L = H$. Rounding the lengths up to whole bits,
+$\ell_x = \lceil -\log_2 p(x)\rceil$ (Shannon's code), still satisfies the inequality and costs
+less than one extra bit per symbol: $H \le L < H + 1$.
 
 ### Shannon-Fano coding
 
@@ -39,15 +68,39 @@ an early split that is slightly unbalanced is never revisited.
 
 ### Huffman coding
 
-Put every symbol in a priority queue keyed by frequency. Repeatedly remove the two least frequent nodes and join them under a new node whose frequency is their sum. The final tree's root-to-leaf paths are the codes. An exchange argument shows that the two least likely symbols can always be
+Huffman's algorithm builds the *optimal* prefix code, from the bottom up. A prefix code is a
+binary tree whose leaves are the symbols; the codeword of a symbol is the sequence of left (0) and
+right (1) branches on the path from the root to its leaf.
+
+Put every symbol in a priority queue keyed by frequency. Repeatedly remove the two least
+frequent nodes and join them as the two children of a new node, whose frequency is their sum,
+and put that node back in the queue. When one node remains, it is the root. In the example
+above, C and D (1/8 each) are joined first into a node of weight 1/4; that node and B (1/4) are
+joined into one of weight 1/2; and that is joined with A. The result is the code in the table.
+
+Why is the greedy choice right? An exchange argument shows that the two least likely symbols can always be
 siblings at the deepest level of an optimal tree, so the greedy merge is optimal. Ties are broken by the smallest symbol in each subtree, so encoder and decoder build the same tree from the stored frequencies.
 
 ### Arithmetic coding
 
-Divide $[0, 1)$ into sub-intervals proportional to the symbol probabilities. Encoding a symbol replaces the current interval by its sub-interval for that symbol. After $n$ symbols the interval has width $\prod p(x_i)$, and any number inside it identifies the message. About $-\log_2\prod p(x_i) = \sum -\log_2 p(x_i)$
-bits suffice, which averages to the entropy, with no rounding per symbol.
+A prefix code must spend a whole number of bits on every symbol, at least one. For a very
+predictable source that is far too many: a symbol of probability 0.99 deserves 0.014 bits.
+**Arithmetic coding** removes the restriction by encoding the whole message as a single number.
 
-In finite precision the interval is kept as 32-bit integers $[\text{low}, \text{high}]$. Whenever it lies wholly in the lower or upper half, the leading bit of every number in it is known: the coder emits that bit and doubles the interval (E1, E2). When it straddles the middle within the central half, the next bit is
+Divide the interval $[0, 1)$ into sub-intervals, one per symbol, with widths equal to the symbol
+probabilities. To encode a symbol, replace the current interval by the sub-interval for that
+symbol, and divide *that* in the same proportions for the next symbol. For two symbols A
+(probability 0.75) and B (0.25), with A assigned the lower part, the message "AB" narrows the
+interval first to $[0, 0.75)$ and then to its upper quarter, $[0.5625, 0.75)$.
+
+After $n$ symbols the interval has width $\prod p(x_i)$, the probability of the message, and any
+number inside it identifies the message. Specifying a number inside an interval of width $w$
+takes about $-\log_2w$ bits, so the message costs about
+$-\log_2\prod p(x_i) = \sum -\log_2 p(x_i)$ bits: the sum of the surprises of its symbols, with
+no rounding per symbol. On average that is the entropy.
+
+The interval soon becomes far narrower than any floating-point number can represent, so a
+practical coder never holds it in full. In finite precision the interval is kept as 32-bit integers $[\text{low}, \text{high}]$. Whenever it lies wholly in the lower or upper half, the leading bit of every number in it is known: the coder emits that bit and doubles the interval (E1, E2). When it straddles the middle within the central half, the next bit is
 not yet known. The coder doubles about the centre and counts a **pending** bit, emitted with the opposite value once the next E1 or E2 resolves it (E3). The decoder mirrors these steps. A symbol's sub-interval must never become empty, which requires the model's total frequency to stay below a quarter of the code range, $2^{30}$. For larger inputs the library rescales the model.
 
 {{#include ../generated/information/entropy_coders_table.md}}
@@ -65,11 +118,54 @@ The standard compressors combine a dictionary stage with an entropy stage (zlib:
 
 ## Algorithm
 
-1. **Model**: count the byte frequencies; store them in the header (symbol and 32-bit count for each byte present).
-2. **Shannon-Fano**: sort by frequency; split recursively at the most balanced point, appending a bit at each level.
-3. **Huffman**: merge the two least frequent nodes until one remains; read the codes off the tree; pack the bits most significant first.
-4. **Arithmetic**: narrow `[low, high]` to each symbol's cumulative range; renormalise by E1, E2 and E3 steps; finish with two bits that select the final interval.
-5. **Decoding**: rebuild the same model from the header; walk the tree bit by bit (prefix codes) or find the symbol whose range contains the scaled code value (arithmetic), until the stored length is reached.
+All three coders share the same framework.
+
+**Encoding.**
+
+1. **Model.** Count how often each byte value occurs in the input.
+2. **Header.** Write the length of the input and the model: for each byte value that occurs,
+   the value and its 32-bit count. The decoder needs these to rebuild the same code.
+3. **Code** the bytes, by one of the three methods below.
+
+**Shannon-Fano codes**: sort the symbols by decreasing frequency. `split(list)`: if the list
+has one symbol, stop; otherwise find the place that divides the list into two parts whose total
+frequencies are as nearly equal as possible, append a 0 to the codes of the first part and a 1
+to those of the second, and split each part.
+
+**Huffman codes**:
+
+1. put a leaf node for each symbol into a priority queue keyed by frequency;
+2. remove the two nodes of lowest frequency, make them the children of a new node whose
+   frequency is their sum, and insert the new node;
+3. repeat until one node remains, the root;
+4. the code of each symbol is the sequence of branches, 0 or 1, on the path from the root to
+   its leaf.
+
+For both prefix codes, the output is the codewords of the input bytes written one after
+another, packed into bytes with the most significant bit first.
+
+**Arithmetic coding**: compute the cumulative frequencies, which assign each symbol a
+sub-range of $[0, \text{total})$. Start with `low = 0` and `high` at the top of the 32-bit
+range. For each input byte:
+
+1. narrow the interval to the part that corresponds to the symbol's sub-range;
+2. renormalise: while the interval lies entirely in the lower half (E1) or the upper half
+   (E2), emit the corresponding bit, followed by any pending bits with the opposite value, and
+   double the interval; while it straddles the midpoint but lies within the middle half (E3),
+   count one more pending bit and double the interval about its centre.
+
+At the end, emit two more bits, which select a value certain to lie inside the final interval.
+
+**Decoding.**
+
+1. Read the header and rebuild the model, and from it exactly the same code or cumulative
+   table.
+2. *Prefix codes*: starting at the root of the tree, follow one branch for each input bit;
+   on reaching a leaf, output its symbol and return to the root.
+   *Arithmetic*: keep a 32-bit window of the code stream; find the symbol whose sub-range
+   contains the window's value, scaled to the current interval; output it; then narrow and
+   renormalise exactly as the encoder did, shifting new bits into the window.
+3. Stop when the number of symbols given in the header has been produced.
 
 ## Implementation
 

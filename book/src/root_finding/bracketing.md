@@ -177,12 +177,34 @@ count includes its evaluations of $f'$):
 
 ## Algorithm
 
-All four methods share the same skeleton:
+All four methods share the same skeleton. Input: a function $f$, an interval $[a, b]$ and a
+tolerance.
 
-1. Check that $f(a)$ and $f(b)$ have opposite signs (a zero at an end is returned at once).
-2. Repeat: choose a point $x$ inside the bracket by the method's rule, evaluate $f(x)$, and replace
-   the end of the bracket with the same sign as $f(x)$.
-3. Stop when the bracket (or the step) is smaller than the tolerance, or $f(x) = 0$ exactly.
+1. **Check the bracket.** Evaluate $f(a)$ and $f(b)$. If either is exactly zero, return that end.
+   If they have the same sign, report an error.
+2. **Choose a point** $x$ inside the bracket by the method's rule (below) and evaluate $f(x)$.
+3. **Shrink the bracket.** If $f(x) = 0$, return $x$. Otherwise replace the end at which $f$ has
+   the same sign as $f(x)$, so that the sign change is preserved.
+4. **Test.** Stop when the bracket, or the last step, is smaller than the tolerance. Otherwise go
+   to 2.
+
+The methods differ only in step 2:
+
+- **Bisection**: the midpoint.
+- **False position (Illinois)**: the zero of the chord through the two ends. If the same end has
+  now survived two steps running, halve its stored function value before the next step.
+- **Ridders**: evaluate $f$ at the midpoint, then apply Ridders' formula to the three points
+  (two evaluations per iteration).
+- **Brent**: the inverse quadratic or secant step if it passes the two safeguards, otherwise the
+  midpoint. Its convergence test uses the tolerance $2\varepsilon|b| + \text{tol}/2$.
+
+Bisection needs about $\log_2((b - a)/\text{tol})$ steps whatever the function. The
+others give up with an error after a fixed number of iterations (500 for false position, 100 for
+Ridders, 200 for Brent).
+
+**Finding a bracket by expansion** (`bracket_root`): while $f(a)$ and $f(b)$ have the same sign,
+move whichever end has the smaller $|f|$ outwards by 1.6 times the current width, and re-evaluate
+there; fail after 50 expansions.
 
 ## Implementation
 

@@ -202,10 +202,36 @@ one subtraction per sample, whatever $N$.
 
 ## Algorithm
 
-1. **firwin**: for each band $[f_1, f_2]$, add $f_2\operatorname{sinc}(f_2m) - f_1\operatorname{sinc}(f_1m)$ at offsets $m = n - (N - 1)/2$; multiply by the window; normalise.
-2. **firwin2**: interpolate the gains onto $2^k + 1$ points, multiply by $e^{-j\pi(N-1)f}$ ($\times j$ for antisymmetric), inverse real FFT, keep $N$ taps, window.
-3. **remez**: build a grid of 16 points per extremal frequency over the bands; divide $D$ by $Q$ and multiply $W$ by $Q$; run the exchange on $x = \cos\omega$; then recover the
-   taps by sampling the optimal response at $N$ equally spaced frequencies and inverting the DFT.
+**`firwin`** (window method), for $N$ taps and a list of passbands, with frequencies as
+fractions of the Nyquist frequency.
+
+1. For each tap $n$, compute its offset from the centre, $m = n - (N - 1)/2$.
+2. For each passband $[f_1, f_2]$, add $f_2\operatorname{sinc}(f_2m) - f_1\operatorname{sinc}(f_1m)$ to the tap: the
+   ideal response of a band is the difference of two ideal low-pass responses.
+3. Multiply the taps by the window.
+4. Scale all the taps so that the gain at the centre of the first passband is exactly 1.
+
+**`firwin2`** (frequency sampling), for a desired gain given at a list of frequencies.
+
+1. Interpolate the gain linearly onto a grid of $2^k + 1$ equally spaced frequencies from zero
+   to Nyquist.
+2. Multiply by the linear-phase factor $e^{-j\pi(N-1)f}$ (and by $j$ for an antisymmetric
+   filter), which centres the impulse response on the middle of the $N$ taps.
+3. Apply an inverse real FFT and keep the first $N$ values.
+4. Multiply by the window.
+
+**`remez`** (Parks-McClellan), for $N$ taps and a desired gain and weight on each band.
+
+1. **Grid.** Lay a dense grid over the bands, about 16 points for each extremal frequency.
+2. **Reduce to a polynomial problem.** On the grid, divide the desired response by the type's
+   fixed factor $Q(\omega)$ and multiply the weight by it. The remaining problem is to fit a
+   polynomial $P$ in $x = \cos\omega$.
+3. **Exchange.** Starting from equally spaced reference points, repeat: compute $\delta$ and
+   the interpolating polynomial for the current reference; evaluate the weighted error on the
+   whole grid; replace the reference by the local extrema of the error. Stop when the
+   reference does not change.
+4. **Recover the taps.** Sample the optimal amplitude $Q(\omega)P(\cos\omega)$ at $N$ equally
+   spaced frequencies and apply an inverse DFT.
 
 ## Implementation
 

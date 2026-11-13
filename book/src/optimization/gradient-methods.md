@@ -187,16 +187,33 @@ than $\kappa$.
 
 ## Algorithm
 
-**Gradient descent** with learning rate $\alpha$: repeat $\mathbf x \leftarrow \mathbf x - \alpha\nabla f(\mathbf x)$ (projected onto the
-bounds if any) until $f$ changes by less than the tolerance.
+**Gradient descent.** Input: $f$, its gradient, a starting point $\mathbf x$ and a learning rate
+$\alpha$. Repeat:
 
-**Nonlinear conjugate gradients**:
+1. evaluate the gradient $\nabla f(\mathbf x)$;
+2. set $\mathbf x \leftarrow \mathbf x - \alpha\nabla f(\mathbf x)$; if bounds are set, move any coordinate that has
+   left the box back to the nearest bound (**projection**);
+3. evaluate $f(\mathbf x)$, and stop when it differs from the previous value by less than the
+   tolerance, or when the iteration limit is reached.
 
-1. Set $\mathbf d_0 = -\mathbf g_0$.
-2. Find $\alpha_k$ by a strong Wolfe line search with $c_2 = 0.1$, starting from a step scaled from the
-   previous one.
-3. Compute $\mathbf g_{k+1}$ and $\beta_k$, and set $\mathbf d_{k+1} = -\mathbf g_{k+1} + \beta_k\mathbf d_k$ (with $\beta_k = 0$ every $n$ steps).
-4. Stop when $\|\mathbf g\|_\infty$ is below the tolerance.
+Each iteration costs one gradient and one function evaluation.
+
+**Nonlinear conjugate gradients.** Input: $f$, its gradient and a starting point $\mathbf x_0$.
+
+1. Evaluate $\mathbf g_0 = \nabla f(\mathbf x_0)$ and set $\mathbf d_0 = -\mathbf g_0$.
+2. **Line search.** Find $\alpha_k$ along $\mathbf d_k$ by a
+   [strong Wolfe line search](one-dimensional.md#algorithm) with $c_2 = 0.1$. The first trial
+   step is scaled from the step accepted at the previous iteration, since successive steps tend
+   to be of similar size. Set $\mathbf x_{k+1} = \mathbf x_k + \alpha_k\mathbf d_k$.
+3. **Test.** Evaluate $\mathbf g_{k+1}$. If its largest component in magnitude is below the
+   tolerance, stop.
+4. **New direction.** Compute $\beta_k$ by the chosen formula and set
+   $\mathbf d_{k+1} = -\mathbf g_{k+1} + \beta_k\mathbf d_k$. Use $\beta_k = 0$ instead (a **restart** with
+   the steepest descent direction) every $n$ iterations, or if $\mathbf d_{k+1}$ would not be a
+   descent direction. Go to 2.
+
+Besides the line search, an iteration costs only a few vector operations, $O(n)$, and the method
+stores four vectors. That is what makes it usable for very large $n$.
 
 ## Implementation
 

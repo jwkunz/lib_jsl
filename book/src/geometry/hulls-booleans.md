@@ -54,9 +54,47 @@ Results are counter-clockwise outer boundaries and clockwise holes, so signed ar
 
 ## Algorithm
 
-1. **Planar hull**: sort; build the lower and upper chains with the turn test; concatenate.
-2. **Quickhull**: tetrahedron; assign outside sets; while a face has points, take its farthest point, find the visible cap and horizon by search, cone the horizon, and reassign the cap's points.
-3. **Booleans**: insert crossings; mark entries and exits (reversed as the operation needs); trace loops; orient loops by how deeply each is nested.
+**Convex hull in the plane** (monotone chain).
+
+1. Sort the points by $x$, then $y$.
+2. **Lower chain.** For each point in order: while the chain has at least two points and the
+   last two together with the new point do not make a counter-clockwise turn, remove the last
+   point of the chain; then append the new point.
+3. **Upper chain.** Do the same through the points in reverse order.
+4. Join the two chains, omitting the endpoint each shares with the other.
+
+The sort costs $O(n\log n)$ and the two walks $O(n)$, since each point is appended once and
+removed at most once.
+
+**Convex hull in space** (quickhull).
+
+1. **Initial tetrahedron.** Choose four extreme points that are not coplanar.
+2. **Outside sets.** Assign each remaining point to one face that it lies above; discard the
+   points that lie above no face, which are inside.
+3. Take a face with a non-empty outside set, and its farthest point, the apex.
+4. **Visible cap.** Starting from that face, search across shared edges for all the faces the
+   apex lies above. The edges between a visible and an invisible face form the horizon.
+5. **Replace.** Delete the visible faces. Create a new face from each horizon edge to the
+   apex. Reassign the outside points of the deleted faces among the new faces, discarding
+   those now inside.
+6. Repeat from step 3 until no face has outside points.
+
+**Polygon boolean operations** (Greiner-Hormann), on polygons A and B.
+
+1. **Crossings.** Test every edge of A against every edge of B. Insert each crossing point
+   into both vertex lists, in order along its edge, and link the two copies.
+2. **Labels.** Decide by the even-odd test whether the first vertex of A is inside B. Walking
+   round A, label the crossings alternately as entries and exits, starting accordingly. Do the
+   same for B with respect to A. Reverse the labels as the operation requires: neither for
+   the intersection, both for the union, and those of A alone for A minus B.
+3. **Trace.** While an unvisited crossing remains: start a new loop there. Follow the current
+   polygon, forwards from an entry and backwards from an exit, adding vertices to the loop,
+   until the next crossing; jump to its copy on the other polygon; continue until the loop
+   returns to its start.
+4. **Orient.** A loop nested inside an odd number of other loops is a hole, and is made
+   clockwise; the others are outer boundaries, counter-clockwise.
+
+If no crossings are found, the result follows from whether one polygon contains the other.
 
 ## Implementation
 

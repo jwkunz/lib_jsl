@@ -31,7 +31,15 @@ negative was sandwiched with the original to boost edge contrast. It moved into 
 
 ### Convolution and border modes
 
-The library's [`correlate2d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.correlate2d.html) computes
+Most image filters work the same way: each output pixel is a weighted sum of the input pixels in
+a small neighbourhood around it, and the same table of weights, the **kernel**, is used at
+every position. The kernel alone decides what the filter does. A $3 \times 3$ kernel with every
+weight equal to $\tfrac19$ replaces each pixel by the average of itself and its eight
+neighbours, a simple blur. A kernel with positive weights on one side and negative on the other
+responds to changes of intensity, and so finds edges. This is the two-dimensional version of an
+[FIR filter](../filters/convolution.md).
+
+In symbols, the library's [`correlate2d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.correlate2d.html) computes
 
 $$
 g[r, c] = \sum_{i=-h_r}^{h_r}\sum_{j=-h_c}^{h_c} k[i, j]\, f[r + i, c + j]
@@ -43,7 +51,12 @@ image about its edge (`c b a | a b c | c b a`). These are SciPy's `constant`, `n
 
 ### Separable kernels
 
-A kernel that is an outer product, $k[i, j] = u[i]\,v[j]$, can be applied as a convolution along every row with $v$ and then along every column with $u$. That costs $O(k)$ per pixel instead of $O(k^2)$. [`separable_convolve`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.separable_convolve.html) does this,
+A $k \times k$ kernel costs $k^2$ multiplications per pixel, which becomes expensive for wide
+blurs. Many useful kernels have a structure that avoids this. A kernel that is an outer product,
+$k[i, j] = u[i]\,v[j]$, is called **separable**, and it can be applied in two one-dimensional
+passes: a convolution along every row with $v$, and then along every column with $u$. The
+two-dimensional sum factorises, because the weight of each pixel is a product of a row weight
+and a column weight. That costs $2k$ multiplications per pixel instead of $k^2$. [`separable_convolve`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.separable_convolve.html) does this,
 and the Gaussian and Sobel kernels are both separable. {{#include ../generated/image/gaussian_facts.md}}
 
 ### Gaussian blur
@@ -81,11 +94,32 @@ steepens edges and adds an overshoot on either side, which the eye reads as cris
 
 ## Algorithm
 
-1. **Correlation**: for each output pixel, sum kernel × neighbourhood, mapping indices outside the image by the border rule; convolution flips the kernel first.
-2. **Separable filtering**: filter every row with the row kernel, then every column of the result with the column kernel.
-3. **Gaussian blur**: build the normalised 1D kernel; filter separably with it along both axes.
-4. **Sobel**: correlate with $G_x$ and $G_y$ (borders replicated); optionally divide by 8; form magnitude and direction.
-5. **Unsharp mask**: blur; add `amount` × (image − blur) where the detail passes the threshold.
+**Correlation** of an image with a kernel of size $(2h_r + 1) \times (2h_c + 1)$. For each output
+pixel $(r, c)$:
+
+1. for each kernel entry $(i, j)$, find the input pixel $(r + i, c + j)$; if it lies outside
+   the image, replace it according to the border rule (zero, the nearest edge pixel, or the
+   mirror image);
+2. add the kernel entry times that pixel to the sum.
+
+**Convolution** is the same with the kernel rotated by 180° first. The cost is the number of
+pixels times the number of kernel entries.
+
+**Separable filtering** with a row kernel $v$ and a column kernel $u$:
+
+1. filter every row of the image with $v$, into a temporary image;
+2. filter every column of the temporary image with $u$.
+
+**Gaussian blur** of width $\sigma$: sample the one-dimensional Gaussian at the integers from
+$-\lceil4\sigma\rceil$ to $\lceil4\sigma\rceil$; divide by the sum of the samples; filter
+separably with that kernel along both axes.
+
+**Sobel gradient**: correlate with $G_x$ and with $G_y$, replicating the border; divide both by
+8 if normalisation is requested; return the two components, the magnitude
+$\sqrt{g_x^2 + g_y^2}$ and the direction $\operatorname{atan2}(g_y, g_x)$.
+
+**Unsharp mask**: blur the image; compute the detail, image minus blur; at each pixel where
+the magnitude of the detail exceeds the threshold, add `amount` times the detail to the image.
 
 ## Implementation
 

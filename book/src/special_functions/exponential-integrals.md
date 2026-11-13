@@ -136,10 +136,35 @@ series for small $x$ and, for large $x$, a complex continued fraction for $\oper
 
 ## Algorithm
 
-- $E_n(x)$: the continued fraction for $x > 1$, the series otherwise ($E_0 = e^{-x}/x$ in closed form).
-- $\operatorname{Ei}(x)$: $-E_1(-x)$ for $x < 0$; the power series, or the asymptotic series beyond the point where its terms
-  start to grow.
-- $\operatorname{Si}$, $\operatorname{Ci}$, $S$, $C$: power series below a threshold, the complex continued fraction above it.
+Every function chooses between a series, used for small arguments, and a continued fraction or
+asymptotic series, used for large ones.
+
+**$E_n(x)$**, $x > 0$:
+
+1. $n = 0$: return $e^{-x}/x$.
+2. $x > 1$: evaluate the continued fraction by the
+   [modified Lentz algorithm](incomplete.md#algorithm) and multiply by $e^{-x}$.
+3. Otherwise: sum the power series (for $n = 1$, the series with $-\gamma - \ln x$ shown above)
+   until a term is below $\varepsilon$ times the sum.
+
+**$\operatorname{Ei}(x)$**:
+
+1. $x < 0$: return $-E_1(-x)$.
+2. $0 < x \le -\ln\varepsilon \approx 36$: sum the power series
+   $\gamma + \ln x + \sum x^k/(k\cdot k!)$ until a term is below $\varepsilon$ times the sum.
+3. Larger $x$: sum the asymptotic series $\frac{e^x}{x}\sum k!/x^k$, stopping when a term is
+   below $\varepsilon$, or at the smallest term if the terms begin to grow first. Beyond the
+   switching point the smallest term, about $e^{-x}$, is already below rounding error, so the
+   asymptotic series gives full precision there.
+
+**$\operatorname{Si}(x)$ and $\operatorname{Ci}(x)$**: below a threshold, sum their power series; above it,
+evaluate the continued fraction for $E_1(ix)$ in complex arithmetic and take
+$\operatorname{Ci} = -\operatorname{Re}E_1(ix)$ and $\operatorname{Si} = \tfrac\pi2 + \operatorname{Im}E_1(ix)$. $\operatorname{Si}$ is extended
+to negative $x$ as an odd function.
+
+**Fresnel $S(x)$ and $C(x)$**: below a threshold, the power series; above it, a complex
+continued fraction for $\operatorname{erfc}$, from which both follow as real and imaginary parts. Both are
+odd functions.
 
 ## Implementation
 

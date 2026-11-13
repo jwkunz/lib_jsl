@@ -26,7 +26,9 @@ parameters via rotational invariance techniques, 1986–89) needed no search. Pe
 
 ### Beam-scanning spectra
 
-With $\mathbf R = \sum_i P_i\mathbf a_i\mathbf a_i^{\mathsf H} + \sigma^2\mathbf I$ for uncorrelated sources:
+The simplest way to find where signals come from is to steer a
+[beam](beamforming.md#beamformers) across all directions and plot the output power against the
+steering direction; sources appear as peaks. With $\mathbf R = \sum_i P_i\mathbf a_i\mathbf a_i^{\mathsf H} + \sigma^2\mathbf I$ for uncorrelated sources:
 
 $$
 P_{\text{Bartlett}}(\Omega) = \frac{\mathbf a^{\mathsf H}\mathbf R\mathbf a}{\mathbf a^{\mathsf H}\mathbf a}, \qquad P_{\text{Capon}}(\Omega) = \frac{1}{\mathbf a^{\mathsf H}\mathbf R^{-1}\mathbf a}\ \ (\|\mathbf a\| = 1).
@@ -35,6 +37,10 @@ $$
 Bartlett's is the power out of a conventional beam steered to $\Omega$, and Capon's the power out of an MVDR beam, which suppresses everything not from $\Omega$.
 
 ### MUSIC
+
+MUSIC applies the subspace idea of
+[spectral estimation](../spectral/parametric.md#music) to directions instead of frequencies; the
+array's steering vectors play the role of the sampled complex exponentials there.
 
 The $M$ largest eigenvalues of $\mathbf R$ belong to the signal subspace, spanned by the steering vectors of the $M$ sources. The other $N - M$ eigenvectors $\mathbf E_n$ span the noise subspace, which is orthogonal to every source's steering vector. So
 
@@ -61,9 +67,32 @@ The errors are for 100 snapshots on 8 elements, from 40 trials each. Capon and M
 
 ## Algorithm
 
-1. **Covariance**: $\hat{\mathbf R}$ from snapshots ([`sample_covariance`](../../api/lib_jsl_electromagnetics/signal_models/covariance/fn.sample_covariance.html)).
-2. **Spectra**: evaluate each formula on a grid of directions with the array's own steering vectors (any geometry, element patterns, polarization); find peaks with [`spectrum_peaks`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.spectrum_peaks.html).
-3. **ESPRIT**: eigendecomposition; least-squares $\boldsymbol\Psi$; its eigenvalues' phases; direction cosines.
+All the estimators start from the same matrix.
+
+1. **Covariance.** Estimate $\hat{\mathbf R} = \tfrac1K\sum_k\mathbf x_k\mathbf x_k^{\mathsf H}$ from $K$
+   snapshots, with
+   [`sample_covariance`](../../api/lib_jsl_electromagnetics/signal_models/covariance/fn.sample_covariance.html).
+
+**Scanning estimators** (Bartlett, Capon, MUSIC).
+
+2. Prepare what the formula needs: nothing for Bartlett; a factorisation of $\hat{\mathbf R}$
+   for Capon; for MUSIC, the eigendecomposition and the eigenvectors of the $N - M$ smallest
+   eigenvalues.
+3. For each direction of a grid, compute the array's steering vector (for its actual
+   geometry, element patterns and polarization) and evaluate the formula.
+4. Find the $M$ highest peaks of the resulting spectrum with
+   [`spectrum_peaks`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.spectrum_peaks.html).
+
+The accuracy is limited by the spacing of the grid unless the peaks are refined.
+
+**ESPRIT**, for a uniform linear array.
+
+2. Compute the eigendecomposition of $\hat{\mathbf R}$ and take the eigenvectors of the $M$
+   largest eigenvalues as the columns of $\mathbf E_s$.
+3. Let $\mathbf E_1$ be $\mathbf E_s$ without its last row and $\mathbf E_2$ without its first row.
+4. Solve $\mathbf E_1\boldsymbol\Psi = \mathbf E_2$ for the $M \times M$ matrix $\boldsymbol\Psi$ by least squares.
+5. Compute the eigenvalues $\lambda_i$ of $\boldsymbol\Psi$; the direction cosines are
+   $u_i = \arg\lambda_i/(kd)$.
 
 ## Implementation
 

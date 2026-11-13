@@ -84,9 +84,33 @@ known, nor circular as in this test, so in practice $K$ is tuned by eye.
 
 ## Algorithm
 
-1. **Equalisation**: histogram; cumulative sum; the lookup table above; map every pixel.
-2. **Adaptive Wiener**: box-filter $x$ and $x^2$ (borders reflected) for the local mean and variance; $\nu^2$ given or the mean local variance; the formula above, or the local mean where $\sigma^2 < \nu^2$.
-3. **Deconvolution**: pad by edge replication; FFT the image and the PSF (shifted so its centre is at the origin); multiply by $\overline H/(|H|^2 + K)$; inverse FFT; crop.
+**Histogram equalisation** of an 8-bit image.
+
+1. Count the pixels at each of the 256 levels.
+2. Form the cumulative counts $\mathrm{cdf}(v)$.
+3. Build a lookup table of 256 entries from the formula above.
+4. Replace each pixel by the table entry for its level.
+
+The cost is one pass to count and one to map.
+
+**Adaptive Wiener filter** with a $w \times w$ window.
+
+1. Box-filter the image and the squared image (reflecting at the borders) to obtain, at each
+   pixel, the local mean $\mu$ and the local mean square, and from them the local variance
+   $\sigma^2$.
+2. If the noise variance $\nu^2$ was not supplied, estimate it as the average of the local
+   variances over the whole image.
+3. At each pixel, output $\mu + \frac{\sigma^2 - \nu^2}{\sigma^2}(x - \mu)$ if
+   $\sigma^2 > \nu^2$, and $\mu$ otherwise.
+
+**Wiener deconvolution** with a known point spread function (PSF) and a constant $K$.
+
+1. Pad the image to power-of-two dimensions by repeating its edge pixels.
+2. Place the PSF in an array of the same size, shifted cyclically so that its centre is at
+   index $(0, 0)$; otherwise the result would be displaced.
+3. Take the two-dimensional FFT of both, giving $G$ and $H$.
+4. Multiply $G$ by $\overline H/(|H|^2 + K)$ at every frequency.
+5. Take the inverse FFT, and crop to the original size.
 
 ## Implementation
 

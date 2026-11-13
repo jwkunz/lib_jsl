@@ -221,13 +221,38 @@ constraint and the bound $x_1 \ge 1$, with the published multipliers.
 
 ## Algorithm
 
-**SQP** (`sqp`): from $\mathbf x_0$ with $B = I$: evaluate $f$, the constraints and their gradients; solve the
-QP for $\mathbf d$ and $\mathbf y$; stop if the violation is below the tolerance and the step or the KKT
-residual is too; update $\nu$ and backtrack on the merit function; update $B$ by damped BFGS.
+**Sequential quadratic programming** (`sqp`). Input: the objective, the constraints and a
+starting point $\mathbf x$, which need not be feasible. Start with $B = I$. Repeat:
 
-**Augmented Lagrangian** (`augmented_lagrangian`): from $\mathbf x_0$ with $\boldsymbol\lambda = \boldsymbol\mu = \mathbf 0$ and $\rho = 10$:
-minimise $L_\rho$ by L-BFGS; update the multipliers; stop when the (complementarity-aware) violation is
-below the tolerance; otherwise increase $\rho$ if progress was poor.
+1. **Evaluate** $f$, the constraints, and the gradients of all of them at $\mathbf x$.
+2. **Solve the quadratic program** for the step $\mathbf d$ and the multiplier estimates $\mathbf y$,
+   through its dual.
+3. **Test.** Stop if the constraint violation is below the tolerance and either the step or the
+   KKT residual (the gradient of the Lagrangian) is too.
+4. **Update the penalty.** Raise $\nu$ if necessary so that it exceeds the largest multiplier in
+   magnitude; this keeps $\mathbf d$ a descent direction for the merit function.
+5. **Line search.** Starting from a full step, shorten the step along $\mathbf d$ until the merit
+   function decreases sufficiently, and move there.
+6. **Update $B$** by the damped BFGS formula, using the step and the change in the gradient of
+   the Lagrangian.
+
+Each iteration costs one evaluation of all the gradients and the solution of one dense QP.
+
+**Augmented Lagrangian** (`augmented_lagrangian`). Input as above. Start with all multipliers
+zero and $\rho = 10$. Repeat:
+
+1. **Inner minimisation.** Minimise $L_\rho(\mathbf x, \boldsymbol\lambda, \boldsymbol\mu)$ over $\mathbf x$ with L-BFGS,
+   starting from the previous solution.
+2. **Update the multipliers**: $\boldsymbol\lambda \leftarrow \boldsymbol\lambda + \rho\,\mathbf h(\mathbf x)$ and
+   $\mu_j \leftarrow \max(0, \mu_j + \rho\,g_j(\mathbf x))$.
+3. **Test.** Measure the violation: $|h_i|$ for the equalities, and for each inequality either
+   the amount by which it is violated or, if it is satisfied with a nonzero multiplier, the
+   failure of complementarity. Stop if the largest is below the tolerance.
+4. **Update the penalty.** If the violation did not fall by a factor of four since the last
+   outer iteration, multiply $\rho$ by 10.
+
+Each outer iteration is a complete unconstrained minimisation, which is why the method needs
+many more evaluations than SQP.
 
 ## Implementation
 

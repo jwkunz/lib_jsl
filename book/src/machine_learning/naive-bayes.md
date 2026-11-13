@@ -132,10 +132,26 @@ are generated word by word independently, so its model is correct and its advant
 
 ## Algorithm
 
-1. **Fit**: class counts give the log priors; per class, the feature means and variances (Gaussian) or smoothed word
-   frequencies (multinomial).
-2. **Predict**: for each class, the log prior plus the sum of the per-feature log-likelihoods; return the largest, or normalise the
-   exponentials (after subtracting the maximum) for probabilities.
+**Fit.**
+
+1. Count the training points in each class; the log prior of a class is the logarithm of its
+   share.
+2. *Gaussian*: for each class and feature, compute the mean and the variance of that feature
+   over the points of the class, and add the smoothing term to every variance.
+3. *Multinomial*: for each class, add up the counts of each word over the documents of the
+   class, and compute the smoothed log probabilities
+   $\log\theta_{cj} = \log(N_{cj} + \alpha) - \log(N_c + \alpha p)$.
+
+Fitting is a single pass over the data, $O(np)$.
+
+**Predict**, for one point $\mathbf x$:
+
+1. for each class, compute the score: the log prior plus the sum over the features of the
+   per-feature log-likelihood (the Gaussian log-density, or $x_j\log\theta_{cj}$);
+2. to classify, return the class with the largest score;
+3. to obtain probabilities, subtract the largest score from all of them, exponentiate, and
+   divide by the sum. Subtracting the maximum first keeps the exponentials from underflowing to
+   zero for all classes at once.
 
 ## Implementation
 

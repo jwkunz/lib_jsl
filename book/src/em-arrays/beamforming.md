@@ -26,6 +26,21 @@ beamformer for seismic arrays, and Otis Frost (1972) generalised it to linear co
 
 ### Arrays and steering vectors
 
+An **array** is a set of antennas whose outputs are combined. A plane wave arriving from a given
+direction reaches the elements at slightly different times, because some are closer to the
+source than others. For a narrow-band signal a time difference is a phase difference: an element
+at position $\mathbf p_n$ receives the wave from the direction of the unit vector $\hat r$ with
+the phase factor $e^{jk\hat r \cdot \mathbf p_n}$, where $k = 2\pi/\lambda$. The list of these
+factors for all the elements, each multiplied by the element's own response, is the
+**steering vector** $\mathbf a(\Omega)$ of the direction $\Omega$. It is the array's signature of
+that direction.
+
+A **beamformer** multiplies each element's output by a complex weight and adds them, forming
+$y = \mathbf w^{\mathsf H}\mathbf x$. If the weights undo the phase differences of one direction, the
+contributions from that direction add in step, while those from other directions partly cancel.
+The array then has a beam pointing in the chosen direction, with no moving parts. The rest of
+this entry is about choosing the weights.
+
 [`SensorArray`](../../api/lib_jsl_electromagnetics/arrays/sensor_array/struct.SensorArray.html) holds elements with positions $\mathbf p_n$ and far-field patterns $\mathbf g_n(\Omega) = (g_\theta, g_\varphi)$. The patterns are either analytic (an [antenna model](antennas.md) with an orientation) or sampled (a pattern container, which can include mutual coupling as embedded element patterns). Element $n$'s response to a wave of Jones polarization $\mathbf p$ is
 $\mathbf g_n(\Omega) \cdot \mathbf p\,e^{jk\hat r \cdot \mathbf p_n}$. These responses form the steering vector, and the array pattern for weights $\mathbf w$ is $\sum_n w_n^*\mathbf g_n(\Omega)e^{jk\hat r \cdot \mathbf p_n}$. A uniform line of elements $\lambda/2$ apart sees only the angle to its axis: a source at $\theta$ and one at $\pi - \theta$ in the plane of the axis are indistinguishable.
 
@@ -37,11 +52,17 @@ $\mathbf R$, and [`synthesize_snapshots`](../../api/lib_jsl_electromagnetics/sig
 
 ### Beamformers
 
-The figure of merit is the **SINR**, $\mathbf w^{\mathsf H}\mathbf R_s\mathbf w/\mathbf w^{\mathsf H}\mathbf R_n\mathbf w$, the ratio of desired signal to interference plus noise at the output.
+The output $y = \mathbf w^{\mathsf H}\mathbf x$ has power $\mathbf w^{\mathsf H}\mathbf R\mathbf w$, where
+$\mathbf R = E[\mathbf x\mathbf x^{\mathsf H}]$ is the covariance of the element outputs. Splitting $\mathbf R$
+into the part $\mathbf R_s$ due to the desired signal and the part $\mathbf R_n$ due to interference
+and noise, the figure of merit is the **SINR**,
+$\mathbf w^{\mathsf H}\mathbf R_s\mathbf w/\mathbf w^{\mathsf H}\mathbf R_n\mathbf w$, the ratio of desired signal to
+interference plus noise at the output. Four classical choices of weights follow, from the
+simplest to the most flexible; $\mathbf a$ is the steering vector of the direction of interest.
 
 - **CFM**: $\mathbf w = \mathbf a/\|\mathbf a\|$, the matched filter, optimal in spatially white noise. For a distributed desired field it is the dominant eigenvector of $\mathbf R_s$.
 - **Max-SNR**: maximise the SINR directly. This is the generalised eigenproblem $\mathbf R_s\mathbf w = \lambda\mathbf R_n\mathbf w$, solved by whitening with the Cholesky factor of $\mathbf R_n$. Its largest eigenvalue is the optimum SINR.
-- **MVDR**: minimise the output power $\mathbf w^{\mathsf H}\mathbf R\mathbf w$ subject to unit gain toward the look direction, $\mathbf w^{\mathsf H}\mathbf a = 1$, giving $\mathbf w = \mathbf R^{-1}\mathbf a/(\mathbf a^{\mathsf H}\mathbf R^{-1}\mathbf a)$. For a point-source signal it equals max-SNR, and it needs only the total covariance.
+- **MVDR** (minimum variance distortionless response): minimise the output power $\mathbf w^{\mathsf H}\mathbf R\mathbf w$ subject to unit gain toward the look direction, $\mathbf w^{\mathsf H}\mathbf a = 1$. The constraint protects the wanted signal, so the only way to reduce the output power is to reject everything else. A [Lagrange multiplier](../optimization/constrained.md#optimality-conditions) gives $\mathbf R\mathbf w = \mu\mathbf a$, and the constraint fixes $\mu$: $\mathbf w = \mathbf R^{-1}\mathbf a/(\mathbf a^{\mathsf H}\mathbf R^{-1}\mathbf a)$. For a point-source signal it equals max-SNR, and it needs only the total covariance.
 - **LCMV**: minimise the output power subject to several responses $\mathbf C^{\mathsf H}\mathbf w = \mathbf f^*$. The solution is $\mathbf w = \mathbf R^{-1}\mathbf C(\mathbf C^{\mathsf H}\mathbf R^{-1}\mathbf C)^{-1}\mathbf f^*$, for example unit gain on the target and exact nulls on known jammers.
 
 A 16-element array of half-wave dipoles at 1.5 GHz looks for a weak signal at $\theta = 69°$ amid two jammers 43 dB above the noise, a 290 K ground, a 10 K sky and 75 K receivers:
@@ -62,10 +83,31 @@ If the training data contains the desired signal, the loss is larger and the sig
 
 ## Algorithm
 
-1. **Steering**: element patterns times the geometric phase, contracted with the polarization.
-2. **Covariance**: sum of point-source terms, the quadrature of the brightness integral, and receiver noise.
-3. **MVDR and LCMV**: LU-factorise $\mathbf R$; solve for $\mathbf R^{-1}\mathbf C$; solve the small $M \times M$ system with $\mathbf C^{\mathsf H}\mathbf R^{-1}\mathbf C$.
-4. **Max-SNR**: Cholesky $\mathbf R_n = \mathbf L\mathbf L^{\mathsf H}$; dominant eigenvector $\mathbf v$ of $\mathbf L^{-1}\mathbf R_s\mathbf L^{-\mathsf H}$; $\mathbf w = \mathbf L^{-\mathsf H}\mathbf v$.
+**Steering vector** for a direction $\Omega$ and a polarization: for each element, evaluate
+its pattern in that direction, take its component along the polarization, and multiply by the
+phase factor $e^{jk\hat r\cdot\mathbf p_n}$ of the element's position.
+
+**Covariance of a scene**: start from zero and add the contribution of each part. A point
+source adds $S\,\mathbf A\mathbf C\mathbf A^{\mathsf H}$. A brightness map adds its integral over the sphere,
+computed by quadrature: the weighted sum of $T(\Omega)\,\mathbf A\mathbf A^{\mathsf H}$ over the quadrature
+directions. The receivers add a multiple of the identity.
+
+**Beamformer weights.**
+
+- *CFM*: normalise the steering vector, or take the dominant eigenvector of $\mathbf R_s$.
+- *MVDR and LCMV*: factor $\mathbf R$ by LU; solve $\mathbf R\mathbf X = \mathbf C$ for $\mathbf X = \mathbf R^{-1}\mathbf C$,
+  where the columns of $\mathbf C$ are the constraint vectors (the single steering vector, for
+  MVDR); form the small matrix $\mathbf C^{\mathsf H}\mathbf X$ and solve it against $\mathbf f^*$; multiply the
+  solution by $\mathbf X$.
+- *Max-SNR*: factor $\mathbf R_n = \mathbf L\mathbf L^{\mathsf H}$ by Cholesky; form $\mathbf L^{-1}\mathbf R_s\mathbf L^{-\mathsf H}$
+  by triangular solves; find its dominant eigenvector $\mathbf v$; return
+  $\mathbf w = \mathbf L^{-\mathsf H}\mathbf v$.
+
+**Evaluating a beamformer**: the output SINR is
+$\mathbf w^{\mathsf H}\mathbf R_s\mathbf w/\mathbf w^{\mathsf H}\mathbf R_n\mathbf w$, and the beam pattern is
+$|\mathbf w^{\mathsf H}\mathbf a(\Omega)|^2$ over a grid of directions.
+
+With $N$ elements, each set of adaptive weights costs $O(N^3)$.
 
 ## Implementation
 

@@ -182,6 +182,17 @@ relative precision.
 5. Compute the probability that a fair coin shows at least 600 heads in 1000 tosses, exactly with
    `binomial_cdf` and by the normal approximation with continuity correction.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The chi-square density is $\propto x^{k/2-1}e^{-x/2}$, which is the gamma density with shape $k/2$ and scale $2$.
+2. Differentiating $\Pr(N \le k) = e^{-\lambda}\sum_{j\le k}\lambda^j/j!$ with respect to $\lambda$ telescopes to $-e^{-\lambda}\lambda^k/k!$, and the same is true of $Q(k + 1, \lambda)$; both are 1 at $\lambda = 0$.
+3. The Cauchy density is $\dfrac1{\pi(1 + t^2)}$; its integral is $\tfrac12 + \tfrac1\pi\arctan t$. Compare `student_t_cdf(t, 1.0)` at several $t$ to rounding.
+4. Newton on the CDF converges in a handful of iterations from a good start, but it fails when the density is nearly zero (far tails) or when a step leaves the support; bisection never fails but needs about 50 iterations.
+5. The exact tail is $1.36\times10^{-10}$; the normal approximation with continuity correction gives $1.56\times10^{-10}$, a relative error of about 14%, because the normal approximation is poor so far out in the tail.
+
+</details>
+
 ## Further reading
 
 - N. L. Johnson, S. Kotz and N. Balakrishnan, *Continuous Univariate Distributions*, 2nd ed., Wiley,

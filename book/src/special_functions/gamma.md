@@ -218,6 +218,17 @@ Every function costs a fixed, small number of operations.
 4. Verify the duplication formula numerically for several $x$ and estimate the rounding error.
 5. Compute $\binom{1000}{500}$ as $\exp(\ln\binom{1000}{500})$. How many correct digits does it have, and why?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\Gamma(x + 1) = \int_0^\infty t^xe^{-t}dt = [-t^xe^{-t}]_0^\infty + x\int t^{x-1}e^{-t}dt = x\Gamma(x)$. For $\Gamma(\tfrac12)$ put $t = s^2$: $\int_0^\infty2e^{-s^2}ds = \sqrt\pi$.
+2. $\ln n! = n\ln n - n + \tfrac12\ln(2\pi n) + \tfrac1{12n} - \tfrac1{360n^3} + \ldots$. With two terms beyond Stirling's leading ones the error is of order $10^{-9}$ for $n = 100$, and with three it is below $10^{-13}$.
+3. The volume is $V_n = \pi^{n/2}/\Gamma(n/2 + 1)$, which increases to a maximum at $n = 5$ ($V_5 \approx 5.264$) and then decreases to zero.
+4. The duplication formula is $\Gamma(x)\Gamma(x + \tfrac12) = 2^{1-2x}\sqrt\pi\,\Gamma(2x)$; compare both sides for several $x$ and expect relative differences of a few $\varepsilon$.
+5. $\ln\binom{1000}{500} \approx 689.5$, so the logarithm carries an absolute rounding error of about $689\varepsilon \approx 10^{-13}$, and exponentiating turns that into a relative error of the same size: about 13 correct digits out of 16.
+
+</details>
+
 ## Further reading
 
 - P. J. Davis, "Leonhard Euler's integral: a historical profile of the gamma function", *American

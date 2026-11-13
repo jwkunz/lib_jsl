@@ -193,6 +193,17 @@ For $x < -10$ use the Bessel relation with $z = 2\sqrt{-x}$.
 5. Estimate the number of digits lost summing ${}_1F_1(a; b; -x)$ directly for $x = 20$, and check with
    `hypergeometric_1f1`, which uses Kummer's transformation.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The term ratio is $\dfrac{(a + n)(b + n)}{(c + n)(n + 1)}z \to z$, so by the ratio test the series converges for $|z| < 1$.
+2. ${}_2F_1(1, 1; 2; -z) = \sum\dfrac{(1)_n(1)_n}{(2)_nn!}(-z)^n = \sum\dfrac{(-z)^n}{n + 1}$, since $(1)_n = n!$ and $(2)_n = (n + 1)!$. Then $z\sum(-z)^n/(n + 1) = \sum(-1)^nz^{n+1}/(n + 1) = \ln(1 + z)$.
+3. Pfaff: ${}_2F_1(a, b; c; z) = (1 - z)^{-a}{}_2F_1(a, c - b; c; \tfrac z{z - 1})$. With $a = b = 1$, $c = 2$, $z = -10$: $\tfrac1{11}{}_2F_1(1, 1; 2; \tfrac{10}{11}) = \tfrac1{11}\cdot\dfrac{\ln 11}{10/11} = \tfrac{\ln11}{10}$.
+4. ${}_2F_1(-2, 3; 1; t) = 1 - 6t + 6t^2$; with $t = (1 - x)/2$ this is $\tfrac12(3x^2 - 1) = P_2(x)$.
+5. The terms of ${}_1F_1(a; b; -x)$ grow to about $e^{x}$ in size while the sum is of order $x^{-a}$ (much smaller), so about $x/\ln 10 \approx 9$ digits are lost at $x = 20$. Kummer's transformation ${}_1F_1(a; b; -x) = e^{-x}{}_1F_1(b - a; b; x)$ has positive terms and loses nothing.
+
+</details>
+
 ## Further reading
 
 - G. E. Andrews, R. Askey and R. Roy, *Special Functions*, Cambridge University Press, 1999, chapters 2

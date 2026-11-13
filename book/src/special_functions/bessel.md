@@ -219,6 +219,17 @@ The Airy function through the order-⅓ Bessel functions:
 4. Show that the Airy function solves $y'' = xy$ by differentiating $\frac1\pi\sqrt{x/3}\,K_{1/3}(\tfrac23x^{3/2})$.
 5. The intensity of the Airy disc is $(2J_1(x)/x)^2$. Find the radius of the first dark ring.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With $y = \sqrt{2/(\pi x)}\sin x$, $x^2y'' + xy' + (x^2 - \tfrac14)y = 0$ reduces, after substituting $y = x^{-1/2}u$, to $u'' + u = 0$, which $u = \sin x$ solves.
+2. The upward recurrence $J_{n+1} = (2n/x)J_n - J_{n-1}$ is unstable for $n > x$ because $J_n$ decays like $1/n!$ while the other solution, $Y_n$, grows: rounding errors excite the growing solution and the error grows by a factor of about $2n/x$ each step. Miller's algorithm runs the recurrence downward from a large $n$ (where the solution decays in the direction of iteration), from arbitrary starting values, and normalises with $J_0 + 2\sum J_{2k} = 1$.
+3. Zeros of $J_0$: $2.405, 5.520, 8.654$; of $J_1$: $3.832, 7.016, 10.173$; of $J_2$: $5.136, 8.417, 11.620$. In order of frequency: $2.405 (J_0), 3.832 (J_1), 5.136 (J_2), 5.520 (J_0), 7.016 (J_1), 8.417 (J_2), 8.654 (J_0), 10.173 (J_1), 11.620 (J_2)$.
+4. Differentiate twice with the Bessel recurrences for $K_{1/3}$ and collect terms; the result reduces to $y'' = xy$ because $K_\nu$ satisfies the modified Bessel equation of order $1/3$ in the variable $\tfrac23x^{3/2}$.
+5. The first dark ring is the first zero of $J_1$: $x \approx 3.8317$.
+
+</details>
+
 ## Further reading
 
 - G. N. Watson, *A Treatise on the Theory of Bessel Functions*, 2nd ed., Cambridge University Press,

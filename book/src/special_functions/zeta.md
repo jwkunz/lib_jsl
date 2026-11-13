@@ -199,6 +199,17 @@ The Dirichlet eta function by Borwein's algorithm:
 5. Derive the first Sommerfeld correction, $F_{1/2}(x) \approx \frac{x^{3/2}}{\Gamma(5/2)}\big(1 + \frac{\pi^2}{8x^2}\big)$, and compare with
    `fermi_dirac_integral` for $x = 5, 10, 20$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\eta(s) = \sum(-1)^{k-1}k^{-s} = \zeta(s) - 2\sum_{k\text{ even}}k^{-s} = \zeta(s) - 2\cdot2^{-s}\zeta(s) = (1 - 2^{1-s})\zeta(s)$.
+2. Expand $(1 - p^{-s})^{-1} = \sum_jp^{-js}$ and multiply over all primes: the product of the series contains each $n^{-s}$ exactly once, by unique factorisation.
+3. The tail after $N$ terms of $\sum k^{-2}$ is about $1/N$, so 15 digits need about $10^{15}$ terms. Borwein's algorithm needs about $20$ terms, since its error is about $3/(3 + \sqrt8)^n$.
+4. The functional equation $\zeta(s) = 2^s\pi^{s-1}\sin(\pi s/2)\Gamma(1 - s)\zeta(1 - s)$ at $s = -1$ gives $\zeta(-1) = \tfrac12\pi^{-2}(-1)\Gamma(2)\zeta(2) = -\tfrac1{2\pi^2}\cdot\tfrac{\pi^2}6 = -\tfrac1{12}$.
+5. The Sommerfeld expansion applies to $\int_0^\infty\dfrac{t^{1/2}}{e^{t - x} + 1}dt$ for large $x$: replace the Fermi function by a step and expand the difference about $t = x$, which gives the leading term $\tfrac23x^{3/2}$ times corrections in $\pi^2/(8x^2)$. The error of the two-term formula falls rapidly with $x$.
+
+</details>
+
 ## Further reading
 
 - H. M. Edwards, *Riemann's Zeta Function*, Academic Press, 1974 (Dover reprint, 2001).

@@ -186,6 +186,17 @@ The shared recurrence driver:
 5. Evaluate the Hermite functions for $n = 50$ at $x = 10$ and compare $H_n(x)e^{-x^2/2}$ computed directly with a
    normalised recurrence. Which overflows?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\cos((n + 1)t) + \cos((n - 1)t) = 2\cos t\cos nt$ is the recurrence $T_{n+1} = 2xT_n - T_{n-1}$ with $x = \cos t$. Since $|\cos nt| \le 1$, $|T_n(x)| \le 1$ for $x \in [-1, 1]$.
+2. With $n + 1$-point Gauss-Legendre quadrature the product $P_mP_n$ is integrated exactly when $m + n \le 2n_{\text{pts}} - 1$, so the numerical inner products should match $2/(2n + 1)\delta_{mn}$ to rounding.
+3. $T_{50}(0.99) = \cos(50\arccos0.99) = 0.70115$. The recurrence is stable on $[-1, 1]$ and reproduces it to full precision; the power-series coefficients of $T_{50}$ are of order $10^{18}$ with alternating signs, so summing them loses all digits to cancellation.
+4. Unsöld's theorem follows from the addition theorem for spherical harmonics at coincident points, $P_l(1) = 1$; for the numerical check, evaluate the sum for $l = 10$ at several $(\theta, \phi)$.
+5. Compare the magnitudes of $H_{50}(10)$ and $e^{-50}$ separately: their product is moderate while the factors differ by many orders of magnitude, so for larger $n$ or $x$ the direct product overflows or underflows. The normalised recurrence for the Hermite functions stays in range throughout.
+
+</details>
+
 ## Further reading
 
 - G. Szegő, *Orthogonal Polynomials*, 4th ed., American Mathematical Society, 1975.

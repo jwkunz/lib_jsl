@@ -206,6 +206,17 @@ odd functions.
 5. Compute the Gibbs overshoot by summing the Fourier series of a square wave to $N$ terms, and compare
    its maximum with $\tfrac2\pi\operatorname{Si}(\pi)$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Integrate $E_n(x) = \int_1^\infty e^{-xt}t^{-n}\,\mathrm dt$ by parts to get $nE_{n+1} = e^{-x} - xE_n$. Each upward step multiplies the error in $E_n$ by $x/n$, which exceeds 1 when $x > n$, so errors grow.
+2. Repeated integration by parts gives $E_1(x) \sim \dfrac{e^{-x}}x\sum_{k\ge0}(-1)^k\dfrac{k!}{x^k}$. The terms decrease until $k \approx x$, so truncate near $k = 10$ for $x = 10$; the smallest term, $10!/10^{10} \approx 3.6\times10^{-4}$, is the accuracy limit.
+3. Substitute $t = \ln u$ in $\operatorname{li}(x) = \int_0^x\mathrm du/\ln u$ to get $\operatorname{Ei}(\ln x)$. Compare $\operatorname{li}(10^k)$ with $\pi(10^k)$: the ratio tends to 1 slowly and $\operatorname{li}$ is always slightly larger in this range.
+4. For the Cornu spiral $x(t) = C(t)$, $y(t) = S(t)$ the speed is $1$ and the tangent angle is $\pi t^2/2$, so the curvature is $\mathrm d(\text{angle})/\mathrm ds = \pi t$.
+5. The partial sums of the square-wave series overshoot near the jump by about $\tfrac2\pi\operatorname{Si}(\pi) \approx 1.1790$ (an overshoot of about 9% of the jump height 2), independent of $N$.
+
+</details>
+
 ## Further reading
 
 - W. Gautschi and W. F. Cahill, "Exponential integral and related functions", in M. Abramowitz and

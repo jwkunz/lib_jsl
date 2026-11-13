@@ -137,6 +137,17 @@ same Halley iteration in complex arithmetic.
 4. Find all real solutions of $2^x = 5x$ using both real branches, as in the example, and check them.
 5. Plot $W_k(z)$ for $k = -2, \ldots, 2$ at $z = 1$ in the complex plane. How do the branches approach $\ln z + 2\pi ik$?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $x\ln x = \ln 10$. With $y = \ln x$, $ye^y = \ln10$, so $y = W(\ln10)$ and $x = e^{W(\ln10)} = \ln10/W(\ln10) \approx 2.5062$.
+2. Differentiating $We^W = z$ gives $W'(e^W + We^W) = 1$, so $W' = \dfrac1{e^W(1 + W)} = \dfrac W{z(1 + W)}$. Halley's method on $f(w) = we^w - z$ uses $f' = e^w(w + 1)$ and $f'' = e^w(w + 2)$.
+3. Put $x = 5 + w$: $5 + w = 5(1 - e^{-5}e^{-w})$ gives $w = -5e^{-5}e^{-w}$, i.e. $we^w = -5e^{-5}$, so $w = W_0(-5e^{-5})$. The value is $x \approx 4.9651$ (so $w \approx -0.0349$); the other root of the original equation is $x = 0$ (the $W_{-1}$ branch).
+4. $2^x = 5x$ has two real solutions, $x \approx 0.2355$ and $x \approx 4.4880$, one from each real branch of $W$ (put $x = -W(-\ln2/5)/\ln2$ and use $W_0$ and $W_{-1}$).
+5. As $|z| \to \infty$ the branch $W_k(z)$ is approximately $\ln z + 2\pi ik - \ln(\ln z + 2\pi ik)$; the difference from $\ln z + 2\pi ik$ is $O(\ln\ln z)$, which becomes relatively small as $|z|$ grows (at $z = 1$ the agreement is only rough).
+
+</details>
+
 ## Further reading
 
 - R. M. Corless, G. H. Gonnet, D. E. G. Hare, D. J. Jeffrey and D. E. Knuth, "On the Lambert W function",

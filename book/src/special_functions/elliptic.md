@@ -227,6 +227,17 @@ The Jacobian elliptic functions:
 4. Verify $\operatorname{sn}^2 + \operatorname{cn}^2 = 1$ and $\operatorname{dn}^2 + m\operatorname{sn}^2 = 1$ numerically, and that $\frac{d}{du}\operatorname{sn} = \operatorname{cn}\operatorname{dn}$.
 5. Prove the duplication theorem for $R_C(x, y) = \tfrac12\int_0^\infty(t + x)^{-1/2}(t + y)^{-1}\,dt$ by a change of variable.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For the pendulum $\ddot\theta = -(g/L)\sin\theta$, energy conservation gives $T = 4\sqrt{L/g}\int_0^{\pi/2}\mathrm d\varphi/\sqrt{1 - k^2\sin^2\varphi}$ with $k = \sin(\theta_0/2)$ after the substitution $\sin(\theta/2) = k\sin\varphi$. Since $K(k) = \tfrac\pi2(1 + k^2/4 + \ldots)$ and $k^2 \approx \theta_0^2/4$, $T \approx 2\pi\sqrt{L/g}\,(1 + \theta_0^2/16)$.
+2. $K(k) = \dfrac{\pi}{2\,\mathrm{AGM}(1, \sqrt{1 - k^2})}$. The AGM converges quadratically, so five or six steps reach full double precision except very close to $k = 1$.
+3. Parametrise the ellipse as $(a\cos t, b\sin t)$: the arc length element is $a\sqrt{1 - e^2\sin^2t}\,\mathrm dt$, and integrating over the quarter turn gives $aE(e)$. Ramanujan's approximation is accurate to about $10^{-4}$ relative or better for moderate eccentricity and degrades for very elongated ellipses.
+4. Compute $\operatorname{sn}$, $\operatorname{cn}$, $\operatorname{dn}$ at several $u$ and $m$ and check the identities to rounding; for the derivative use a central difference with $h \sim 10^{-5}$.
+5. Since $R_C(x, y) = R_F(x, y, y)$, the theorem reads $R_C(x, y) = R_C\big(\tfrac{x + \lambda}4, \tfrac{y + \lambda}4\big)$ with $\lambda = 2\sqrt{xy} + y$. Write $a = \sqrt x$, $b = \sqrt y$: then $x + \lambda = (a + b)^2$ and $y + \lambda = 2b(a + b)$. Substituting $t = 4t' + \lambda$ turns the right-hand side into $\int_\lambda^\infty\mathrm dt/\big((t + y)\sqrt{t + x}\big)$, which is twice the integral over $(\lambda, \infty)$ of the left-hand integrand's half; so the claim is that $\int_0^\lambda$ and $\int_\lambda^\infty$ of $1/((t + y)\sqrt{t + x})$ are equal. Check that numerically first, then look for the substitution that exchanges the two intervals.
+
+</details>
+
 ## Further reading
 
 - B. C. Carlson, "Computing elliptic integrals by duplication", *Numerische Mathematik* 33 (1979)

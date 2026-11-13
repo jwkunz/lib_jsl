@@ -252,6 +252,17 @@ The continued fraction for $I_x(a, b)$:
    they agree to six digits?
 5. Implement the modified Lentz algorithm for the continued fraction of $\tan x$ and compare with `f64::tan`.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $P(1, x) = \int_0^xe^{-t}dt = 1 - e^{-x}$. For integer $n$, $P(n, x) = 1 - e^{-x}\sum_{k<n}x^k/k!$, which is the probability that a Poisson process of rate 1 has at least $n$ events by time $x$.
+2. $\operatorname{erf}x = \tfrac2{\sqrt\pi}\int_0^xe^{-s^2}ds$; with $t = s^2$ this is $\tfrac1{\Gamma(1/2)}\int_0^{x^2}t^{-1/2}e^{-t}dt = P(\tfrac12, x^2)$.
+3. Integrate by parts: $\int_0^xt^{a-1}e^{-t}dt = \tfrac{x^a}ae^{-x} + \tfrac1a\int_0^xt^ae^{-t}dt$. Repeating gives $\gamma(a, x) = x^ae^{-x}\sum_{n\ge0}x^n/(a(a + 1)\cdots(a + n))$.
+4. The first correction to the asymptotic formula is a relative $-1/(2x^2)$, so even at $x = 25$ the formula is off by about $8\times10^{-4}$: six-digit agreement is not reached anywhere in $1 \le x \le 25$ (and the function underflows near $x = 26.5$).
+5. Use $\tan x = x/(1 - x^2/(3 - x^2/(5 - \cdots)))$ with the modified Lentz algorithm (tiny-value protection for zero denominators); the continued fraction converges quickly for $|x| < 1$ but needs more terms near $\pi/2$.
+
+</details>
+
 ## Further reading
 
 - W. J. Lentz, "Generating Bessel functions in Mie scattering calculations using continued fractions",

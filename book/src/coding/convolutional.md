@@ -14,8 +14,22 @@
 
 ## Overview
 
-A **convolutional encoder** passes the data through a shift register of $K - 1$ memory cells. For each input bit it emits $n$ output bits, each the parity of a fixed subset of the register and the input, given by the **generator polynomials**. Since every output depends on the last $K$ inputs, an error affects a
-stretch of output and can be corrected from the bits around it. The encoder is a finite-state machine with $2^{K-1}$ states. Its possible outputs over time form a **trellis**, and the **Viterbi algorithm** finds the path through the trellis closest to what was received. It works equally well on hard bits or **soft** reliabilities.
+A block code encodes each block of data separately. A **convolutional code** has no blocks: it
+encodes a continuous stream, and each output bit depends on the current input bit and on several
+previous ones.
+
+The encoder is a shift register. It remembers the last $K - 1$ input bits, and for each new
+input bit it emits $n$ output bits (so the rate is $1/n$). Each output bit is the parity (XOR) of
+a fixed subset of the current input and the remembered bits; the subsets are specified by the
+**generator polynomials**. The number $K$ is the **constraint length**. Because every input bit
+influences $K$ successive groups of outputs, the information about each bit is spread over a
+stretch of the transmitted stream, and an error can be corrected from the bits around it.
+
+The decoder exploits the encoder's structure. The encoder is a finite-state machine with
+$2^{K-1}$ states (the contents of its memory), and its possible behaviours over time can be
+drawn as a graph called a **trellis**. Every possible message is a path through the trellis.
+The **Viterbi algorithm** finds the path whose output is closest to what was received. It works
+equally well on hard bit decisions or on **soft** reliabilities.
 
 ## History
 
@@ -26,13 +40,72 @@ NASA standard $K = 7$, rate-1/2 code, generators 171 and 133 octal, it flew on V
 
 ### The encoder
 
-For constraint length $K$, the register holds the current input and the $K - 1$ previous ones. Generator $g_j$, a $K$-bit mask whose most significant bit multiplies the newest input, gives output $j$ as the parity of the masked register. The classic $K = 3$ code with generators $(7, 5)$ octal = $(111, 101)$ has **free distance** 5:
-any two distinct output sequences differ in at least 5 bits, so it corrects 2 errors within a constraint span. The $K = 7$ code has free distance 10. **Termination** appends $K - 1$ zeros to return the register to the zero state, which costs a little rate but makes the end of the trellis known.
+For constraint length $K$, the register holds the current input and the $K - 1$ previous ones.
+Generator $g_j$ is a $K$-bit mask, whose most significant bit multiplies the newest input; output
+$j$ is the parity of the register bits selected by the mask. Generators are conventionally
+written in octal.
+
+**An example.** The classic $K = 3$ code has generators $(7, 5)$ in octal, that is $111$ and
+$101$ in binary. With input $u$ and the two previous inputs $s_1$ (most recent) and $s_2$, the
+two outputs are $u \oplus s_1 \oplus s_2$ and $u \oplus s_2$. Starting from an empty register,
+the input $1, 0, 1, 1$ is encoded as follows:
+
+| input $u$ | memory $s_1s_2$ | outputs |
+|---|---|---|
+| 1 | 00 | 11 |
+| 0 | 10 | 10 |
+| 1 | 01 | 00 |
+| 1 | 10 | 01 |
+
+The four states are the four possible contents of the memory. From each state there are two
+transitions, one for each input bit, each labelled with its pair of output bits; drawing the
+states at successive times, joined by these transitions, gives the trellis.
+
+**Distance.** The measure of a convolutional code's strength is its **free distance**: the
+smallest number of positions in which two different output sequences can differ. For the
+$(7, 5)$ code it is 5, so two errors within a constraint span can be corrected. The $K = 7$ code
+has free distance 10.
+
+**Termination.** Appending $K - 1$ zeros to the message returns the register to the all-zero
+state. This costs a little rate, but the decoder then knows where the path ends, which protects
+the last bits of the message as well as the rest.
 
 ### Maximum-likelihood decoding on the trellis
 
-Over AWGN, with channel log-likelihood ratios $L_i = \ln P(c_i = 0)/P(c_i = 1)$, the most likely codeword minimises $\sum_{i: c_i = 1} L_i$. That cost is additive along a trellis path, so dynamic programming applies. For each state, keep only the cheapest path reaching it (the **survivor**). At each step, extend each survivor by both input bits
-(**add**), compare the candidates entering each new state, and keep the cheaper (**select**). At the end, trace back from the zero state (or the cheapest state if unterminated). Hard decisions are the special case $L_i = \pm 1$, where the cost is the Hamming distance.
+**What to minimise.** The best decoder chooses the codeword that is most likely to have
+produced the received signal. For each transmitted bit $c_i$, the demodulator supplies a
+[log-likelihood ratio](../comms/modulation.md#soft-demapping)
+$L_i = \ln P(c_i = 0)/P(c_i = 1)$, positive when the bit looks like a 0. Compared with the
+all-zero codeword, a candidate codeword changes the log-likelihood by $-L_i$ for every position
+where it has a 1. So the most likely codeword is the one that minimises the cost
+
+$$
+\sum_{i:\,c_i = 1}L_i ,
+$$
+
+the total evidence it contradicts. With hard decisions, $L_i = \pm1$, this is equivalent to
+minimising the Hamming distance from the received bits.
+
+**Why dynamic programming applies.** A message of $N$ bits corresponds to one of $2^N$ paths
+through the trellis, too many to try. But the cost is a sum of contributions from the successive
+transitions of the path. If two paths arrive at the same state at the same time, their futures
+are identical, so whichever has the higher cost so far can never win and may be discarded. This
+is the [principle of optimality](../optimization/dynamic-programming.md#bellmans-principle), and
+the resulting procedure is the Viterbi algorithm (the same one that
+[decodes hidden Markov models](../learning/hidden-markov-models.md#the-viterbi-algorithm)).
+
+**The algorithm.** For each state, keep only the cheapest path reaching it, the **survivor**,
+with its cost. At each time step:
+
+1. **Add.** Extend every survivor by both possible input bits, adding the cost of the output
+   bits on each transition.
+2. **Compare.** Two candidate paths enter each new state.
+3. **Select.** Keep the cheaper as the new survivor and record which it was.
+
+At the end, trace back from the zero state (or from the cheapest state, if the code was not
+terminated) through the recorded choices to read off the message. The work per bit is
+proportional to the number of states, $2^{K-1}$, which is why practical constraint lengths are
+small.
 
 ![Viterbi BER](../generated/coding/viterbi_ber.svg)
 

@@ -14,8 +14,26 @@
 
 ## Overview
 
-A **Reed-Solomon** (RS) code treats each byte as an element of the finite field GF(256). A message of $k$ bytes defines a polynomial of degree less than $k$, and the codeword holds its values at $n$ distinct points, or, in the systematic form used here, the message followed by $n - k$ parity bytes. Two different polynomials of degree below $k$ agree at fewer than $k$ points,
-so codewords differ in at least $n - k + 1$ bytes. That is the largest distance any code of these dimensions can have. RS codes correct $t = \lfloor (n - k)/2\rfloor$ arbitrary byte errors. A burst of up to $8(t - 1) + 1$ bits never touches more than $t$ bytes, so they also correct long bursts.
+Hamming codes work on bits and correct one of them. **Reed-Solomon** (RS) codes work on whole
+bytes and correct many, by a construction based on polynomials.
+
+The idea is a familiar one. A polynomial of degree less than $k$ is determined by its values at
+any $k$ points. So let the $k$ message bytes be the coefficients of such a polynomial, and
+transmit its values at $n > k$ points. The extra $n - k$ values are redundant: any $k$ correct
+values would be enough to recover the polynomial. Two *different* polynomials of degree below
+$k$ can agree at no more than $k - 1$ points (their difference would otherwise have too many
+roots), so two codewords differ in at least $n - k + 1$ positions. That is the largest minimum
+distance any code with these parameters can have.
+
+With that distance an RS code corrects $t = \lfloor (n - k)/2\rfloor$ byte errors, wherever they
+are and however many bits of each byte are wrong. This makes RS codes especially good against
+**bursts**, runs of consecutive bit errors: a burst of up to $8(t - 1) + 1$ bits never touches
+more than $t$ bytes. The library uses the *systematic* form of the code, in which the codeword is
+the message itself followed by $n - k$ parity bytes.
+
+For the arithmetic to work, the bytes must be elements of a number system in which one can add,
+subtract, multiply and divide, a **field**, with exactly 256 elements. That is the finite field
+GF(256).
 
 ## History
 
@@ -26,26 +44,81 @@ RS codes were then used everywhere: Voyager's images (concatenated with a convol
 
 ### The field GF(256)
 
-Bytes are polynomials of degree below 8 over GF(2), added by XOR and multiplied modulo the primitive polynomial $x^8 + x^4 + x^3 + x^2 + 1$ (0x11D). Every nonzero element is a power of $\alpha = 2$, so multiplication is an addition of logarithms in a 255-entry table.
+Ordinary integer arithmetic modulo 256 will not do, because division is not always possible in
+it (2 has no inverse). The field GF(256) is built differently. A byte is read as a polynomial of
+degree below 8 whose coefficients are its bits; for example $00010011$ is $x^4 + x + 1$.
+
+- **Addition** adds the polynomials, with coefficients modulo 2. That is the XOR of the bytes.
+  Every element is its own negative, so subtraction is the same operation.
+- **Multiplication** multiplies the polynomials and takes the remainder on division by a fixed
+  polynomial of degree 8, here $x^8 + x^4 + x^3 + x^2 + 1$ (0x11D), which keeps the result within
+  eight bits. Because this polynomial cannot be factored, every nonzero element has an inverse,
+  just as the integers modulo a prime do.
+
+The polynomial is also **primitive**, which means that the powers of the element $\alpha = x$ (the
+byte 2) run through all 255 nonzero elements before repeating. Every nonzero element is thus
+$\alpha^i$ for some $i$, its "logarithm". Multiplication becomes addition of logarithms modulo
+255, done with two small tables.
 
 ### Systematic encoding
 
-The **generator polynomial** has $n - k$ consecutive powers of $\alpha$ as roots,
+In the systematic form, the code is described through polynomial roots. Regard a word of $n$
+bytes as the coefficients of a polynomial $c(x)$ of degree below $n$. The codewords are defined
+to be the polynomials that vanish at $n - k$ consecutive powers of $\alpha$, that is, the
+multiples of the **generator polynomial**
 
 $$
-g(x) = \prod_{j=0}^{n-k-1}(x - \alpha^j).
+g(x) = \prod_{j=0}^{n-k-1}(x - \alpha^j) .
 $$
 
-The parity bytes are the remainder of $m(x)\,x^{n-k}$ divided by $g(x)$, so the codeword $c(x) = m(x)x^{n-k} - (\text{remainder})$ is a multiple of $g$ and vanishes at every root. The division is a shift register over GF(256). Codes may be **shortened** to any $n \le 255$ by fixing leading message bytes at zero and not sending them.
+To encode a message polynomial $m(x)$ so that its bytes appear unchanged in the codeword, shift
+it up by $n - k$ places, $m(x)\,x^{n-k}$, leaving room for the parity bytes, and divide by
+$g(x)$. Subtracting the remainder makes the result exactly divisible:
+
+$$
+c(x) = m(x)\,x^{n-k} - \big(m(x)\,x^{n-k} \bmod g(x)\big) .
+$$
+
+The remainder has degree below $n - k$, so it occupies only the low positions: those are the
+parity bytes, and the high positions still hold the message. The division is carried out by a
+shift register over GF(256). Codes may be **shortened** to any $n \le 255$ by fixing leading
+message bytes at zero and not sending them.
 
 ### Decoding
 
-1. **Syndromes**: $S_j = r(\alpha^j)$ for $j = 0, \ldots, n - k - 1$. All zero means no detectable error. Otherwise $S_j = \sum_{\ell} e_\ell X_\ell^j$, where $X_\ell = \alpha^{i_\ell}$ marks the error positions and $e_\ell$ the error values.
-2. **Error locator**: the **Berlekamp-Massey** algorithm finds the shortest recurrence $\sigma(x) = 1 + \sigma_1x + \cdots + \sigma_\nu x^\nu$ generating the syndromes. Its roots are the inverses $X_\ell^{-1}$. If $\nu > t$, the word is uncorrectable.
-3. **Chien search**: evaluate $\sigma$ at every $\alpha^{-i}$; its zeros give the error positions. Fewer than $\nu$ roots within the codeword means uncorrectable.
-4. **Error values**: solve the linear system $S_j = \sum_\ell e_\ell X_\ell^j$ (here by Gauss-Jordan elimination; Forney's formula is the usual faster alternative) and subtract.
+The received polynomial is $r(x) = c(x) + e(x)$, where the error polynomial $e(x)$ has a nonzero
+coefficient at each corrupted position. Suppose there are $\nu$ errors, at positions
+$i_1, \ldots, i_\nu$ with values $e_1, \ldots, e_\nu$. The decoder must find both the positions and
+the values: $2\nu$ unknowns. It has $n - k$ equations, which is why it can handle $\nu \le t$.
 
-With more than $t$ errors the decoder usually reports failure. Rarely, it lands on a different codeword and returns a wrong message.
+1. **Syndromes.** Evaluate the received polynomial at the roots of $g$: $S_j = r(\alpha^j)$ for
+   $j = 0, \ldots, n - k - 1$. Since every codeword vanishes there, $S_j = e(\alpha^j)$: as with
+   Hamming codes, the syndromes depend only on the errors. If all are zero there is no
+   detectable error. Otherwise, writing $X_\ell = \alpha^{i_\ell}$ for the **error locators**,
+
+$$
+S_j = \sum_{\ell=1}^\nu e_\ell X_\ell^j .
+$$
+
+   These equations are nonlinear in the unknown $X_\ell$, and solving them directly is hard. The
+   classical method solves for the locations first, by a detour.
+2. **Error-locator polynomial.** Define the polynomial whose roots are the inverses of the
+   locators, $\sigma(x) = \prod_\ell(1 - X_\ell x) = 1 + \sigma_1x + \cdots + \sigma_\nu x^\nu$. Each
+   syndrome is a sum of powers $X_\ell^j$, and such sums satisfy a *linear recurrence* whose
+   coefficients are those of $\sigma$:
+   $S_j + \sigma_1S_{j-1} + \cdots + \sigma_\nu S_{j-\nu} = 0$. (This is the same fact that
+   [Prony's method](../interpolation/trigonometric.md#pronys-method) rests on.) The
+   **Berlekamp-Massey** algorithm finds the shortest recurrence that generates the observed
+   syndromes, and hence $\sigma$. If its length $\nu$ exceeds $t$, the word is uncorrectable.
+3. **Chien search.** Find the roots of $\sigma$ by trying every candidate: evaluate it at
+   $\alpha^{-i}$ for each position $i$. A zero means position $i$ is in error. If fewer than
+   $\nu$ roots are found within the codeword, the word is uncorrectable.
+4. **Error values.** With the locators known, the syndrome equations are *linear* in the values
+   $e_\ell$. Solve them (here by Gauss-Jordan elimination; Forney's formula is the usual faster
+   alternative) and subtract the errors from the received word.
+
+With more than $t$ errors the decoder usually reports failure. Rarely, the corrupted word lies
+within distance $t$ of a different codeword, and the decoder returns a wrong message.
 
 ![RS failure probability](../generated/coding/rs_failure.svg)
 

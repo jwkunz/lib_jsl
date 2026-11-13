@@ -25,15 +25,42 @@ Otakar Borůvka (1926) solved the problem to plan Moravia's electrical network. 
 
 ### The cut property
 
-For any division of the vertices into two sets, the cheapest edge crossing between them belongs to some minimum spanning tree. Both greedy algorithms only ever add such an edge, so both are correct. If the weights are distinct, the MST is unique.
+A **spanning tree** of a connected graph is a set of edges that connects all the vertices
+without forming a cycle; it has exactly $V - 1$ edges. A **minimum spanning tree** (MST) is one
+of least total weight: the cheapest network that links everything. Both classical algorithms are
+greedy, and both are justified by a single fact.
+
+> **Cut property.** Divide the vertices into two sets in any way. The cheapest edge crossing
+> between the two sets belongs to some minimum spanning tree.
+
+*Proof.* Take any minimum spanning tree and suppose it does not contain that cheapest crossing
+edge $e$. Adding $e$ to the tree creates a cycle. The cycle crosses from one set to the other
+along $e$, so it must cross back along some other edge $e'$ of the tree, and $e'$ costs at least
+as much as $e$. Removing $e'$ leaves a spanning tree again, no more expensive than before and
+containing $e$. $\blacksquare$
+
+So an edge that is the cheapest across some cut is always safe to choose. Both algorithms only
+ever add such an edge. If the weights are all distinct, the MST is unique.
 
 ### Kruskal
 
-Sort the edges by weight. Take each in turn, and keep it if its endpoints are in different components, merging them. An edge whose endpoints are already connected would close a cycle, and is the most expensive edge on that cycle, so it can be skipped.
+Kruskal's algorithm grows a forest. Sort the edges by weight, and take each in turn, cheapest
+first. If its endpoints are in different components of the forest built so far, keep it, which
+merges the two components. If they are already connected, discard it: it would close a cycle.
+
+Each edge kept is safe by the cut property: it is the cheapest edge leaving the component of
+one of its endpoints, since every cheaper edge has already been considered. The test "are these
+two vertices already connected?" is answered by the [union-find](#union-find) structure below.
+The cost is dominated by the sort, $O(E\log E)$.
 
 ### Prim
 
-Start from a root. A heap holds the edges leaving the tree. Pop the cheapest; if it reaches a new vertex, add it and push that vertex's edges. Stale edges, to vertices already in the tree, are skipped. On dense graphs Prim is preferred, since Kruskal must sort every edge.
+Prim's algorithm grows a single tree from a root. At each step it adds the cheapest edge that
+leads from the tree to a vertex outside it, which is safe by the cut property applied to the cut
+between the tree and the rest. A heap holds the candidate edges leaving the tree. Pop the
+cheapest; if it reaches a new vertex, add the vertex and push its edges. Edges that lead to
+vertices already in the tree have gone stale and are skipped. On dense graphs Prim is preferred,
+since Kruskal must sort every edge.
 
 ![Euclidean MST](../generated/graph/euclidean_mst.svg)
 
@@ -41,7 +68,22 @@ Start from a root. A heap holds the edges leaving the tree. Pop the cheapest; if
 
 ### Union-find
 
-Each set is a tree of parent pointers whose root represents the set. `find` follows parents to the root, halving the path as it goes (each visited node is pointed to its grandparent). `union` hangs the root of lower **rank** (an upper bound on height) under the other. Together these keep the trees almost flat.
+Kruskal's algorithm needs to keep track of a collection of disjoint sets (the components) under
+two operations: find which set an element belongs to, and merge two sets. The **union-find**
+structure does both in almost constant time.
+
+Each set is stored as a tree of parent pointers, and the root of the tree serves as the name of
+the set. `find` follows parent pointers up to the root; two elements are in the same set exactly
+when they have the same root. `union` makes one root the child of the other. Two refinements
+keep the trees shallow, which is what keeps `find` fast.
+
+- **Union by rank.** `union` hangs the root of lower **rank** (an upper bound on the tree's
+  height) under the other, so the height grows only when two trees of equal rank are merged.
+- **Path halving.** As `find` walks up, it points each node it visits at its grandparent, so the
+  path is half as long the next time.
+
+Together these make a sequence of operations cost almost constant time each: the average is
+bounded by the inverse Ackermann function, which is at most 4 for any conceivable input size.
 
 ## Algorithm
 

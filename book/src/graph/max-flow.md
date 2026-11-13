@@ -25,15 +25,63 @@ Lester Ford and Delbert Fulkerson (1956) proved the max-flow min-cut theorem and
 
 ### Residual networks and augmenting paths
 
-For each arc $u \to v$ with capacity $c$ and flow $f$, the residual network has a forward arc of residual capacity $c - f$ and a backward arc of capacity $f$, which can cancel flow. Any source-to-sink path of positive residual capacity can carry its bottleneck amount more. When no such path remains, the vertices reachable from the source in the residual network form a cut whose arcs are all saturated, so the flow equals the cut capacity and both are optimal.
+**The problem.** A **flow network** is a directed graph in which each arc has a **capacity**,
+like a pipe that can carry so many litres per second. A **flow** assigns to each arc an amount
+no greater than its capacity, such that at every vertex other than the **source** and the
+**sink**, what flows in flows out. The task is to send as much as possible from the source to
+the sink.
+
+**Augmenting paths.** The natural approach is to find a path from source to sink along arcs
+that still have spare capacity, push as much flow along it as its tightest arc (the
+**bottleneck**) allows, and repeat. On its own this can get stuck with a poor answer, because an
+early path may have used an arc that a better solution needs for something else. The remedy is
+to allow later paths to *undo* earlier decisions.
+
+That is the purpose of the **residual network**. For each arc $u \to v$ with capacity $c$
+carrying flow $f$, it has
+
+- a forward arc $u \to v$ of residual capacity $c - f$, the room still left, and
+- a backward arc $v \to u$ of residual capacity $f$, which represents the option of cancelling
+  flow already sent.
+
+A path from source to sink in the residual network is an **augmenting path**. Pushing flow along
+a backward arc reduces the flow on the original arc, rerouting it. Any augmenting path of
+positive residual capacity can carry its bottleneck amount more, so the flow is not yet maximal.
+
+**When to stop: the max-flow min-cut theorem.** A **cut** is a division of the vertices into
+two sets, one containing the source and the other the sink; its capacity is the total capacity
+of the arcs leading from the source's side to the sink's. Every unit of flow must cross the cut,
+so no flow can exceed the capacity of any cut. Now suppose no augmenting path remains. Let $S$ be
+the set of vertices still reachable from the source in the residual network; the sink is not
+among them. Every arc leaving $S$ must be full (or it would extend the reachable set), and every
+arc entering $S$ must be empty (or its backward arc would). So the flow across this cut equals
+the cut's capacity. A flow equal to the capacity of some cut cannot be exceeded, so the flow is
+maximal, and the cut is a minimum cut. The maximum flow equals the minimum cut.
 
 ### Edmonds–Karp
 
-Choosing the augmenting path by breadth-first search, so it has the fewest arcs, guarantees that the distance from source to sink never decreases. Each arc can be the bottleneck only $O(V)$ times. Hence at most $O(VE)$ augmentations, each $O(E)$.
+The method above does not say *which* augmenting path to choose, and a bad choice can take a
+very long time. **Edmonds-Karp** always chooses a path with the fewest arcs, found by
+[breadth-first search](traversal.md#breadth-first-and-depth-first-search). With that rule, the
+distance from the source to any vertex in the residual network never decreases, and it follows
+that each arc can be the bottleneck only $O(V)$ times. Hence there are at most $O(VE)$
+augmentations, each costing one search, $O(E)$: $O(VE^2)$ in all, whatever the capacities.
 
 ### Dinic
 
-Breadth-first search labels each vertex with its distance from the source. The **level graph** keeps only arcs from one level to the next. A **blocking flow** in it saturates at least one arc of every shortest path. It is found by depth-first searches that remember, for each vertex, which arc to try next (the current-arc pointer), and retreat past dead ends. After each phase the source-to-sink distance strictly increases, so there are at most $V$ phases.
+Edmonds-Karp runs a fresh search for every path. Dinic's algorithm finds many shortest paths per
+search. It works in phases.
+
+1. Breadth-first search labels each vertex with its distance from the source in the residual
+   network. The **level graph** keeps only the arcs that lead from one level to the next, so
+   every path in it is a shortest path.
+2. Find a **blocking flow** in the level graph: push flow along its paths until every path from
+   source to sink contains a saturated arc. This is done by depth-first searches that remember,
+   for each vertex, which arc to try next (the **current-arc pointer**), so that an arc found to
+   be a dead end is never tried again in the same phase.
+
+After each phase the shortest source-to-sink distance in the residual network strictly
+increases, so there are at most $V$ phases, and the total cost is $O(V^2E)$.
 
 {{#include ../generated/graph/flow_table.md}}
 

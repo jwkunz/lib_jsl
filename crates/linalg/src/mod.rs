@@ -305,7 +305,7 @@ impl<T: Scalar, S: Data<Elem = T>> LeastSquaresSvd<T> for ArrayBase<S, Ix2> {
                 }
                 // The singular values of A are those of R. (Taking them as the square roots of
                 // eig(RᴴR) squared the condition number: σ = 1e-10 next to σ = 1 came out 3.5e-9.)
-                let singular_values = Array1::from_vec(svd::thin_svd(&qr.upper())?.sigma);
+                let singular_values = Array1::from_vec(svd::singular_values(&qr.upper())?);
                 let residual = (m > n).then(|| qtb[n..].iter().map(|v| v.abs_sqr()).sum::<f64>());
                 return Ok(LeastSquaresResult { solution: to_array1(x), singular_values, rank: n, residual_sum_of_squares: residual });
             }

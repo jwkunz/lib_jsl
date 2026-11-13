@@ -15,6 +15,15 @@ All crates in the workspace share one version. The format follows
   guide, and "Writing an entry" records the conventions. Notes about the library's own development
   history were moved out of the chapters (see Fixed below). No code or generated figure changed.
 
+### Performance
+
+- `least_squares` (in `lib_jsl_linalg`) computes only the singular values of `R` for its report,
+  instead of a full SVD with vectors that were discarded. On a 512 × 256 problem this halves the
+  time (38 ms to 20 ms single-threaded on a 2.1 GHz Xeon; OpenBLAS takes 12 ms).
+- Householder QR with column pivoting is blocked for 192 columns and more (LAPACK's `laqps`): the
+  trailing update is deferred within blocks of 32 columns and applied by matrix multiplication.
+  It is 1.3× faster at 1024 × 512 and 1.65× faster at 2048 × 1024 (#11).
+
 ### Fixed
 
 Defects found and corrected while the book's chapters were first written. The notes were moved here from the

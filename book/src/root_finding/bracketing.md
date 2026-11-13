@@ -18,7 +18,10 @@ If a continuous function is negative at $a$ and positive at $b$, it must cross z
 between. This **intermediate value theorem** is the basis of the most reliable methods in numerical
 analysis. A **bracket** $[a, b]$ with $f(a)$ and $f(b)$ of opposite signs is a trap for a root:
 evaluate $f$ at a point inside, keep the half (or part) of the interval where the sign still changes,
-and repeat. The trap only shrinks, so the method cannot fail.
+and repeat. The trap only shrinks, so the method cannot fail to converge to a point where $f$ changes sign.
+The theorem needs $f$ to be continuous on $[a, b]$: a sign change can also be produced by a pole or a
+jump, and then the method converges just as confidently to a point that is not a root (see
+*In practice*).
 
 The methods of this entry differ in how they choose the point inside. **Bisection** takes the
 midpoint, which is slow but has a guaranteed rate. **False position** and **Ridders' method** use the
@@ -242,6 +245,15 @@ The heart of Brent's method is the choice between interpolation and bisection:
 - Brent's method is nearly as fast as the open methods on smooth functions.
 - Bisection's cost is known in advance and independent of $f$.
 
+**A sign change is not always a root.** The guarantee is about the sign, and the sign can change
+without $f$ passing through zero. Bisection on $f(x) = \tan x$ over $[1, 2]$ starts with
+$f(1) > 0$ and $f(2) < 0$ and converges, in the usual number of steps, to $\pi/2$, where $|f|$ is
+unbounded. The returned point has a tiny bracket but an enormous residual. Two habits protect against
+this: check $|f(x^*)|$ (it should be small compared with $|f|$ at the ends of the original bracket),
+and know whether your function is continuous on the bracket. The opposite failure is also real: a
+bracket exists only where the sign changes, so a double root such as $(x-1)^2$ never has one, and
+an interval holding two roots has the same signs at both ends.
+
 **Weaknesses**
 
 - A bracket is needed, and finding one is not always easy.
@@ -261,6 +273,8 @@ The heart of Brent's method is the choice between interpolation and bisection:
    is exact when $x$ is a quadratic function of $y$.
 5. Use `bracket_roots_scan` and `brent_method` to find all the roots of $\sin(1/x)$ in $[0.05, 1]$. How
    fine must the scan be to find them all?
+6. What does bisection return for $f(x) = 1/(x - 1)$ on $[0, 3]$? Is the result a root? What does
+   the residual tell you?
 
 ## Further reading
 

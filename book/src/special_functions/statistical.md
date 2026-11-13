@@ -97,6 +97,13 @@ Familiar critical values, computed by the library:
 The quantile errors near $p = 1$ (for example $x_{0.999999}$) reflect the conditioning: $1 - p$ is known only to about $10^{-10}$
 relative when $p$ is a double close to 1.
 
+The largest `student_t_cdf` error, $5\times10^{-12}$ at $(t, \nu) = (-1, 10000)$, has a different cause. The
+function evaluates the incomplete beta function at $x = \nu/(\nu + t^2) = 10000/10001$. For large $\nu$ this
+argument is squeezed against 1, where it is stored with an absolute error of about $10^{-16}$ while the
+quantity that matters, $1 - x \approx 10^{-4}$, is smaller by four orders of magnitude. The relative error of
+the result therefore grows to about $10^{-16}/10^{-4}$, which matches the table. It is the same loss of digits
+as in $1 - p$ above, now in the argument rather than the output.
+
 ## Algorithm
 
 **A cumulative distribution function.**

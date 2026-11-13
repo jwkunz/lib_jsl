@@ -140,8 +140,14 @@ derivative is nowhere zero, the library's results show this clearly:
 {{#include ../generated/interpolation/spline_convergence.md}}
 
 Each row halves $h$. The natural spline's maximum error falls by a factor of four per halving
-(second order, from the ends), while on the middle half of the interval it falls by sixteen (fourth
-order). A **clamped** spline, which uses the true end slopes, or the **not-a-knot** condition, which
+(second order, from the ends). The middle-half column does not follow a single pattern: its ratios are
+about 17, then far larger, then 16 again. The reason is that the end error does not stay at the ends.
+It is a disturbance that dies out as one moves inward, by roughly a factor $2 - \sqrt3 \approx 0.27$
+at every knot. The middle half lies a quarter of the interval from either end, which is a number of
+knots that doubles each time $h$ is halved, so the leftover disturbance shrinks much faster than any
+power of $h$ (hence the very large ratios) until it falls below the interior's own $O(h^4)$ error,
+after which the ratio settles at sixteen. This is why the natural end condition is acceptable in
+practice: its damage stays near the boundary. A **clamped** spline, which uses the true end slopes, or the **not-a-knot** condition, which
 makes the first two and the last two pieces the same cubic, would restore fourth order everywhere.
 
 ### Cubic Hermite interpolation

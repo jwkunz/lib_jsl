@@ -14,7 +14,7 @@ chemical reaction or an electrical circuit, the step of an implicit
   with a guarantee. For a system of $n$ equations in $n$ unknowns there is no such trap, and the
   methods are generalisations of Newton's.
 - **Is a bracket available?** If you know $a$ and $b$ with $f(a)$ and $f(b)$ of opposite signs, a
-  [bracketing method](bracketing.md) cannot fail. If you know only a starting guess, the faster
+  [bracketing method](bracketing.md) is guaranteed to converge to a sign change, provided $f$ is continuous on the bracket. If you know only a starting guess, the faster
   [open methods](newton.md) can converge spectacularly or diverge.
 - **Is the derivative available?** Newton's method uses $f'$ and converges quadratically; the secant
   method and Brent's method use only values of $f$ and are almost as fast.

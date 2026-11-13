@@ -168,11 +168,14 @@ because gradient-based training is sensitive to scales.
 
 A ReLU network is piecewise linear, with kinks wherever a unit switches on. A tanh network is smooth. Both fit the sine
 where there are data. Beyond the data, on the right, both continue along straight lines, since every unit is saturated or linear there.
-Neural networks do not extrapolate. On the two classification benchmarks:
+What a network does outside the data is therefore decided by its activation function, not by the data: ReLU
+units continue linearly and saturating units flatten out, and neither continues the sine. On the two
+classification benchmarks:
 
 {{#include ../generated/learning/mlp_activations.md}}
 
-The sigmoid trains slowest. Its derivative is at most 1/4, so gradients shrink at every layer, the **vanishing gradient** problem that ReLU avoids.
+The sigmoid converges slowest per epoch: its final training loss is the highest in both columns (tanh happens to take the
+most wall-clock time, because evaluating it costs more than a ReLU comparison). Its derivative is at most 1/4, so gradients shrink at every layer, the **vanishing gradient** problem that ReLU avoids.
 
 ### Overfitting and weight decay
 

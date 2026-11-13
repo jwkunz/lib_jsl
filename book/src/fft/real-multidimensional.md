@@ -80,8 +80,9 @@ extra $O(n)$ passes over memory, which the fast vectorised FFT does not hide. On
 
 {{#include ../generated/fft/real_fft.md}}
 
-`RealFft` takes a quarter to a third less time than a complex FFT of the real data for lengths of a few thousand or more, but gains
-nothing for short signals. The untangling loop was much slower until recently: it took two integer remainders per bin to handle the
+`RealFft` takes 14% to 32% less time than a complex FFT of the real data from about four thousand points up, with the saving growing
+with length. For short signals it is about one and a half times *slower*: the transform itself is so cheap there that the $O(n)$ packing
+and untangling passes dominate. The untangling loop was much slower until recently: it took two integer remainders per bin to handle the
 wrap-around at $k = 0$ and $k = m$, and `RealFft` was 1.6 to 2.1 times *slower* than the complex FFT it is meant to replace. It now
 handles those two bins separately and computes the bins $k$ and $m - k$ together.
 
@@ -162,7 +163,7 @@ stride, which is why it is copied to a buffer first.
 
 **Weaknesses**
 
-- The real FFT's $O(n)$ passes limit its gain to about a quarter to a third; a dedicated real-data algorithm would do better.
+- The real FFT's $O(n)$ passes limit its gain to between about a seventh and a third of the time at the lengths measured, and turn it into a loss for short signals; a dedicated real-data algorithm would do better.
 - The row-column method copies every line; transposition-based or vector-radix algorithms make better use of cache for large arrays.
 
 ## Exercises

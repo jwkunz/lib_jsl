@@ -40,8 +40,10 @@ Sommerfeld's 1928 theory of metals introduced the asymptotic expansion of the Fe
 ### The Riemann zeta function
 
 The defining series $\zeta(s) = \sum_{k\ge1} k^{-s}$ converges for $s > 1$, but far too slowly to be
-used: its terms all have the same sign and decay only like a power, and $10^{15}$ terms would be
-needed for $\zeta(1.1)$ by direct summation.
+used: its terms all have the same sign and decay only like a power. Comparing the tail with an integral,
+$\sum_{k>N} k^{-s} \approx \int_N^\infty x^{-s}\,dx = N^{1-s}/(s-1)$, so for $s = 1.1$ the error after $N$
+terms is about $10\,N^{-0.1}$. Even $N = 10^{15}$ terms leave an error near $0.3$ (not one correct
+digit of $\zeta(1.1) \approx 10.58$), and sixteen digits would need about $10^{170}$ terms.
 
 **An alternating series.** Changing the sign of every second term gives the
 **Dirichlet eta function**

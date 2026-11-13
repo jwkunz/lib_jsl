@@ -6,7 +6,7 @@
 |---|---|
 | **Problem** | Approximate integrals over boxes in many dimensions, where grids and cubature rules are too expensive |
 | **Devised by** | Monte Carlo: Stanisław Ulam, John von Neumann and Nicholas Metropolis (1946–1949), after Buffon (1777). Low-discrepancy sequences: John Halton (1960), Ilya Sobol (1967). Random shifts: Roy Cranley and Thomas Patterson (1976) |
-| **Accuracy** | Monte Carlo: standard error $\sigma/\sqrt N$ in every dimension. Quasi-Monte Carlo: close to $1/N$ for smooth integrands |
+| **Accuracy** | Monte Carlo: standard error $\sigma/\sqrt N$ in every dimension. Quasi-Monte Carlo: often close to $1/N$ in practice for smooth integrands of low effective dimension (the bound is $(\log N)^d/N$) |
 | **Cost** | One evaluation per point |
 | **API** | [`monte_carlo`](../../api/lib_jsl_integration/monte_carlo_integration/fn.monte_carlo.html), [`monte_carlo_integration`](../../api/lib_jsl_integration/monte_carlo_integration/fn.monte_carlo_integration.html), [`quasi_monte_carlo_integration`](../../api/lib_jsl_integration/quasi_monte_carlo/fn.quasi_monte_carlo_integration.html), [`QuasiRandomSequence`](../../api/lib_jsl_integration/quasi_monte_carlo/enum.QuasiRandomSequence.html) |
 
@@ -130,7 +130,10 @@ one of them, and in higher dimensions the same holds for somewhat larger boxes. 
 > $$\left| \frac1N \sum_{i=1}^N f(\mathbf x_i) - \int_{[0,1]^d} f \right| \le V_{\mathrm{HK}}(f)\, D^*_N.$$
 
 The error therefore separates into a property of the integrand and a property of the points, and
-low-discrepancy points give an error of order $(\log N)^d/N$, close to $1/N$ for moderate $d$.
+low-discrepancy points give an error bound of order $(\log N)^d/N$. That bound is asymptotic and pessimistic: for
+$d = 5$ and $N = 65\,536$, $(\ln N)^5 \approx 1.7\times10^5$ is larger than $N$, so the bound says nothing yet. The
+$N^{-1}$ behaviour seen below is an observation about smooth integrands whose variation is concentrated in a few
+coordinates, not a consequence of the inequality.
 
 ### Randomised quasi-Monte Carlo
 

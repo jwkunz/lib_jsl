@@ -129,7 +129,7 @@ For $\sigma_j^2 \gg \alpha$ this factor is close to 1 and the component is untou
 $\sigma_j^2 \ll \alpha$ it is close to 0 and the component is suppressed. Ridge damps precisely the
 directions where noise is amplified most.
 
-**The trade-off.** The penalised weights are biased towards zero, but vary less from one
+**The trade-off** (the [bias-variance decomposition](index.md#background-bias-variance-and-generalisation) explains it). The penalised weights are biased towards zero, but vary less from one
 training sample to another. A little bias in exchange for a large reduction in variance improves
 the predictions; too much makes them worse. The error on test data is lowest at an intermediate
 $\alpha$:

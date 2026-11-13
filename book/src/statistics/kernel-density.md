@@ -36,6 +36,8 @@ bandwidths that estimate the curvature of the density from the data.
 
 ### Bias, variance and the bandwidth
 
+This is the [bias-variance trade-off](../machine_learning/index.md#background-bias-variance-and-generalisation) in a density estimate.
+
 The estimate places a small bump, the kernel, of width $h$ on each observation and adds the
 bumps up. Everything depends on the **bandwidth** $h$, and the two ways of getting it wrong have
 names.

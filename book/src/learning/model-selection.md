@@ -40,6 +40,8 @@ generalisation, but of a model trained on $(k - 1)/k$ of the data. **Leave-one-o
 
 ### Bias and variance of the estimate
 
+The two words here refer to the *error estimate*, not to the model; for the model's own bias and variance see the [background section](../machine_learning/index.md#background-bias-variance-and-generalisation) of the machine learning chapter.
+
 For a 7-nearest-neighbour classifier on 200 independent data sets of 60 points, compared with the true error of the model fitted to
 all 60 points (measured on 5000 fresh points):
 

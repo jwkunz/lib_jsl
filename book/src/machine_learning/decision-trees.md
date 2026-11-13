@@ -76,7 +76,7 @@ slivers; a forest of 200 trees averages them into a boundary that follows the mo
 ### Bagging and random features
 
 A fully grown tree fits its training data perfectly and is very sensitive to it: a slightly
-different training set can produce a quite different tree. In statistical terms it has low bias
+different training set can produce a quite different tree. In the language of the [bias-variance decomposition](index.md#background-bias-variance-and-generalisation) it has low bias
 and high variance. Averaging is the classical cure for variance, and a **random forest** is an
 average of many trees.
 

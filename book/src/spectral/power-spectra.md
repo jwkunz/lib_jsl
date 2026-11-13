@@ -85,7 +85,7 @@ Hann window uses them, while the segments remain nearly independent:
 
 A single 16 384-point periodogram is as noisy as possible (ratio 0.98), with bins of width $6 \times 10^{-5} f_s$. 511 segments of 64 points have a ratio of 0.04, but bins 256 times wider. The ratio
 follows $1/\sqrt K$ closely: Hann segments overlapping by half are nearly uncorrelated, so the overlap buys almost twice as many useful
-averages from the same data. The choice of segment length is the familiar bias-variance trade-off.
+averages from the same data. The choice of segment length is the [bias-variance trade-off](../machine_learning/index.md#background-bias-variance-and-generalisation): short segments give many averages (low variance) but coarse frequency resolution (bias).
 
 ### The short-time Fourier transform and the spectrogram
 

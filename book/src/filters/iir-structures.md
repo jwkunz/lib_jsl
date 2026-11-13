@@ -88,9 +88,34 @@ of mains hum and of other periodic interference:
 
 ## Algorithm
 
-1. **Transposed direct form II**: per sample, $y = b_0x + d_0$, then $d_k = d_{k+1} + b_{k+1}x - a_{k+1}y$ for $k = 0, \ldots, N - 1$ (with $d_N = 0$).
-2. **Notch**: $\omega_0$ and $\Delta\omega = \omega_0/Q$ in radians per sample, $b = 1/(1 + \tan(\Delta\omega/2))$, coefficients as above.
-3. **Comb**: $N = f_s/f_0$, $\beta = \tan(N\Delta\omega/4)$, and a numerator and denominator in $z^{-N}$ whose constants depend on notch or peak type.
+**Filtering in transposed direct form II.** The state is $N$ numbers $d_0, \ldots, d_{N-1}$,
+where $N$ is the larger of the two orders, initially zero. Missing coefficients count as zero.
+For each input sample $x$:
+
+1. compute the output $y = b_0x + d_0$;
+2. update the state, for $k = 0, \ldots, N - 1$ in increasing order:
+   $d_k \leftarrow d_{k+1} + b_{k+1}x - a_{k+1}y$, with $d_N$ taken as zero.
+
+Each sample costs about $2N$ multiplications. The order of the updates matters: each $d_k$ is
+computed from the old $d_{k+1}$, which has not yet been overwritten.
+
+**Notch filter** at frequency $f_0$ with quality factor $Q$:
+
+1. convert to radians per sample, $\omega_0 = 2\pi f_0/f_s$, and compute the bandwidth
+   $\Delta\omega = \omega_0/Q$;
+2. compute $b = 1/(1 + \tan(\Delta\omega/2))$;
+3. the numerator is $b\,(1, -2\cos\omega_0, 1)$ and the denominator
+   $(1, -2b\cos\omega_0, 2b - 1)$.
+
+The **peak** filter has the same denominator and the numerator $(1 - b)(1, 0, -1)$.
+
+**Comb filter** removing $f_0$ and its harmonics:
+
+1. $N = f_s/f_0$, which must be an integer;
+2. compute the bandwidth as above and $\beta = \tan(N\Delta\omega/4)$;
+3. form a numerator and a denominator that are nonzero only at the powers $z^0$ and
+   $z^{-N}$, with constants that depend on $\beta$ and on whether a notch or a peak comb is
+   wanted.
 
 ## Implementation
 

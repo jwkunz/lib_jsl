@@ -149,12 +149,42 @@ derived from each $F_n$.
 
 ## Algorithm
 
-1. **Butterworth**: poles on the unit circle; gain 1.
-2. **Chebyshev I**: $\varepsilon = \sqrt{10^{r_p/10} - 1}$, poles on the ellipse; gain chosen so the DC gain is 1 (odd $n$) or $1/\sqrt{1 + \varepsilon^2}$ (even $n$).
-3. **Chebyshev II**: invert the poles of a Chebyshev I filter with $\varepsilon = 1/\sqrt{10^{r_s/10} - 1}$, place zeros at $\pm j/\cos\theta_k$, and set unit DC gain.
-4. **Elliptic**: solve for the elliptic modulus from the order and ripples (degree equation), compute zeros and poles from Jacobi elliptic functions, and normalise the gain.
-5. **Bessel**: find the roots of the reverse Bessel polynomial and rescale them according to the normalisation.
-6. **Transform**: map zeros, poles and gain as in the table; zeros at infinity (excess poles) map to zeros at $s = 0$ (high-pass) or at $\pm j\omega_0$ (band-stop).
+Every design function returns the zeros, poles and gain of a low-pass prototype with cutoff
+1 rad/s.
+
+**Butterworth**, order $n$: place the $n$ poles at $e^{j\pi(2k + n + 1)/2n}$; there are no
+zeros; the gain is 1.
+
+**Chebyshev I**, order $n$ and passband ripple $r_p$ dB:
+
+1. $\varepsilon = \sqrt{10^{r_p/10} - 1}$ and $a = \tfrac1n\operatorname{arsinh}(1/\varepsilon)$;
+2. poles at $-\sinh a\sin\theta_k + j\cosh a\cos\theta_k$;
+3. the gain is the product of the negated poles, which makes the gain at zero frequency 1,
+   divided by $\sqrt{1 + \varepsilon^2}$ if $n$ is even, because an even-order response starts at
+   the bottom of its ripple.
+
+**Chebyshev II**, order $n$ and stopband attenuation $r_s$ dB:
+
+1. $\varepsilon = 1/\sqrt{10^{r_s/10} - 1}$, and the Chebyshev I poles for this $\varepsilon$;
+2. the poles are the reciprocals of those;
+3. zeros at $\pm j/\cos\theta_k$ (one fewer pair for odd $n$, whose middle zero is at infinity);
+4. the gain is chosen to make the gain at zero frequency 1.
+
+**Elliptic**: solve the **degree equation**, which links the order, the two ripples and the
+elliptic modulus, for the modulus; compute the zeros and poles from Jacobi elliptic functions
+at equally spaced arguments; normalise the gain as for Chebyshev I.
+
+**Bessel**: compute the roots of the reverse Bessel polynomial of degree $n$ and scale them
+according to the chosen normalisation.
+
+**Frequency transformation** of a prototype in zero-pole-gain form:
+
+1. replace each zero and pole by its image, or pair of images, under the substitution in the
+   table. For the band transformations, a pole $p$ becomes the two roots of
+   $s^2 - Bps + \omega_0^2 = 0$;
+2. a prototype with more poles than zeros has zeros "at infinity". They also move: to $s = 0$
+   for a high-pass or band-pass filter, and to $\pm j\omega_0$ for a band-stop filter;
+3. rescale the gain so that the passband gain is unchanged.
 
 ## Implementation
 

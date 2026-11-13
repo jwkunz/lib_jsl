@@ -84,11 +84,45 @@ principle of the **matched filter** used in radar (pulse compression) and commun
 
 ## Algorithm
 
-1. **Direct**: for each output index, sum $h[k]x[n - k]$ over the overlap; then trim to the requested mode.
-2. **FFT**: zero-pad to the next power of two $\ge N + M - 1$, transform, multiply, inverse-transform, trim.
-3. **Overlap-save stream**: keep the last $M - 1$ inputs; when $B$ new samples have arrived, transform [history, block], multiply by the filter's
-   spectrum, inverse-transform, output the last $B$ values, and update the history. `flush` pads with zeros to emit the remainder
-   and the $M - 1$-sample tail, so the stream's total output is the full convolution.
+For an input of $N$ samples and a filter of $M$ taps.
+
+**Direct convolution.**
+
+1. For each output index $n = 0, \ldots, N + M - 2$, sum $h[k]\,x[n - k]$ over the values of $k$
+   for which both indices are in range.
+2. Trim the result to the requested mode: all of it (full), the central $N$ samples (same), or
+   the $N - M + 1$ samples computed from complete overlaps (valid).
+
+Cost: about $NM$ multiply-adds.
+
+**FFT convolution.**
+
+1. Choose $L$, the next power of two at or above $N + M - 1$.
+2. Pad both sequences with zeros to length $L$ and transform them.
+3. Multiply the two transforms element by element.
+4. Inverse-transform, keep the first $N + M - 1$ values, and trim to the mode.
+
+Cost: three FFTs of length $L$.
+
+**Overlap-save**, for a stream processed in blocks of $B$ samples, with an FFT length
+$L \ge B + M - 1$. The transform of the zero-padded filter is computed once. The state is the
+last $M - 1$ input samples, initially zeros.
+
+1. Wait until $B$ new samples have arrived.
+2. Form the buffer of the $M - 1$ remembered samples followed by the $B$ new ones (padded to
+   $L$ if necessary) and transform it.
+3. Multiply by the filter's transform and inverse-transform.
+4. Discard the first $M - 1$ outputs, which are corrupted by wrap-around, and emit the next
+   $B$.
+5. Remember the last $M - 1$ input samples for the next block.
+
+At the end of the stream, `flush` pads the remaining input with zeros, so as to emit the last
+partial block and the $M - 1$ samples of the filter's tail. The total output is then the full
+convolution.
+
+**Overlap-add** uses the same blocks: transform each block of $B$ new samples (zero-padded to
+$L$), multiply, inverse-transform to get $B + M - 1$ outputs, add the saved tail of the
+previous block to the first $M - 1$ of them, emit $B$, and save the new tail.
 
 ## Implementation
 

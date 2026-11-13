@@ -94,8 +94,29 @@ The oversampled banks reconstruct to the level of the 60 dB filters, delayed by 
 
 ## Algorithm
 
-1. **Analysis**: keep the last $L$ inputs; every $D$ inputs, form $v_j = \sum_rh[rM + j]\,x[\text{newest} - rM - j]$ for $j = 0, \ldots, M - 1$ (arranged in reverse order for the FFT), and transform.
-2. **Synthesis**: inverse-transform each frame; add $f[v]\,z_t[v \bmod M]$ into an accumulator from output sample $m_t + 1 - M$ on; emit the $D$ samples that no later frame can change.
+For $M$ channels, decimation $D$ and a prototype $h$ of length $L$.
+
+**Analysis bank** (a stream).
+
+1. Keep the last $L$ input samples.
+2. After every $D$ new samples, form the $M$ polyphase sums: for $j = 0, \ldots, M - 1$,
+   $v_j = \sum_rh[rM + j]\,x[\text{newest} - rM - j]$, the products of every $M$-th tap, starting
+   at tap $j$, with the samples the same distances back from the newest.
+3. Arrange the $v_j$ in the order the FFT expects (reversed), and take an $M$-point FFT. Its
+   outputs are the $M$ channel samples for this block.
+
+Each block costs $L$ multiply-adds and one FFT of length $M$.
+
+**Synthesis bank** (a stream), with a synthesis filter $f$.
+
+1. Take the unnormalised inverse FFT of each incoming frame of $M$ channel samples, giving
+   $z_t[0], \ldots, z_t[M - 1]$.
+2. Add $f[v]\,z_t[v \bmod M]$, for every tap index $v$ of the synthesis filter, into an
+   accumulator, starting at the output sample $m_t + 1 - M$, where $m_t$ is the index of the
+   newest input sample of the frame. The frame's $M$ values are thus repeated periodically
+   under the filter.
+3. Emit the $D$ oldest samples of the accumulator, which no later frame can change, and shift
+   the accumulator.
 
 ## Implementation
 

@@ -113,9 +113,34 @@ above the average sample rate can be detected. `normalize` divides by the total 
 
 ## Algorithm
 
-1. **Welch**: for each segment of $M$ samples starting every $M - \text{overlap}$, detrend, window, real FFT, accumulate $|X_k|^2$; scale and double the interior bins.
-2. **STFT**: the same without averaging; **ISTFT** by inverse FFT and weighted overlap-add.
-3. **Lomb-Scargle**: remove the mean; for each frequency compute $\tau$ and the four sums.
+**Welch's method**, for segments of $M$ samples with a given overlap.
+
+1. Step through the signal in strides of $M - \text{overlap}$ samples; each position at which a
+   full segment fits gives one segment.
+2. For each segment: remove its mean or linear trend, if detrending is requested; multiply by
+   the window; take a real FFT; and add $|X_k|^2$ to a running total for each bin $k$.
+3. Divide the totals by the number of segments.
+4. Scale by $1/(f_s\sum w^2)$ for a density or $1/(\sum w)^2$ for a spectrum, and double every
+   bin except DC and Nyquist.
+
+The **periodogram** is the special case of a single segment covering the whole signal.
+
+**STFT**: steps 1 and 2 without the squaring and averaging; the complex spectrum of each frame
+is kept. **ISTFT**:
+
+1. inverse-FFT each frame and multiply it by the window again;
+2. add the frames into the output at their positions (overlap-add), and add the squared window
+   into a second array at the same positions;
+3. divide the output by the second array wherever it is not negligible.
+
+**Lomb-Scargle**, for samples $y_j$ at arbitrary times $t_j$.
+
+1. Subtract the mean from the samples.
+2. For each requested angular frequency $\omega$: compute $\tau$ from
+   $\tan2\omega\tau = \sum\sin2\omega t_j/\sum\cos2\omega t_j$; then compute the four sums over the
+   data in the formula for $P(\omega)$, and combine them.
+
+The cost is $O(n)$ per frequency, with no FFT.
 
 ## Implementation
 

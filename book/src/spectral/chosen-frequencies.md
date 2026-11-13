@@ -112,9 +112,34 @@ frequencies requested, and the result aliases.
 
 ## Algorithm
 
-1. **Goertzel**: run the recursion over the block; apply the final complex correction (or the power formula).
-2. **Chirp-z**: premultiply by $A^{-n}W^{n^2/2}$; convolve with $W^{-m^2/2}$ for $m = -(N - 1), \ldots, M - 1$ by zero-padded FFTs; postmultiply by $W^{k^2/2}$.
-3. **Fourier integral**: sample $f$ at $M$ points with trapezoidal weights, and evaluate the sum at the requested frequencies with the chirp-z transform.
+**Goertzel**, for one frequency $\omega$ and a block of $N$ samples.
+
+1. Precompute $c = 2\cos\omega$. Set $s_{-1} = s_{-2} = 0$.
+2. For each sample $x_n$: $s_n = x_n + c\,s_{n-1} - s_{n-2}$. Only the two latest values of $s$
+   are kept.
+3. After the last sample, compute the complex bin
+   $X = e^{-i\omega(N-1)}(s_{N-1} - e^{-i\omega}s_{N-2})$, or the power
+   $s_{N-1}^2 + s_{N-2}^2 - c\,s_{N-1}s_{N-2}$.
+
+Cost: one multiplication and two additions per sample.
+
+**Chirp-z transform**, for $N$ samples and $M$ output points $z_k = AW^{-k}$.
+
+1. Premultiply: $a_n = x_nA^{-n}W^{n^2/2}$ for $n = 0, \ldots, N - 1$.
+2. Form the chirp $W^{-m^2/2}$ for $m = -(N - 1), \ldots, M - 1$.
+3. Convolve the two with FFTs of a power-of-two length at least $N + M - 1$.
+4. Postmultiply: $X(z_k)$ is the convolution output for lag $k$ times $W^{k^2/2}$,
+   $k = 0, \ldots, M - 1$.
+
+**Fourier integral** of $f$ over $[a, b]$ at $M$ equally spaced frequencies.
+
+1. Sample $f$ at $M$ equally spaced points and multiply by the trapezoidal weights (the
+   spacing, halved at the two ends).
+2. Evaluate the resulting sum $\sum_nw_nf(x_n)e^{-i\omega x_n}$ at all the requested frequencies
+   at once with the chirp-z transform, taking $W$ from the product of the sample spacing and
+   the frequency spacing and $A$ from the first frequency.
+3. Multiply by the phase factor $e^{-i\omega a}$ that accounts for the starting point of the
+   interval.
 
 ## Implementation
 

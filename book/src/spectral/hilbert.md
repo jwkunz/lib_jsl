@@ -77,10 +77,25 @@ and the analytic signal is one particular, well-behaved choice; Bedrosian's theo
 
 ## Algorithm
 
-1. FFT the real signal.
-2. Double bins $1, \ldots, \lceil N/2\rceil - 1$, keep DC (and Nyquist for even $N$), zero the rest.
-3. Inverse FFT; the imaginary part is the Hilbert transform.
-4. Attributes: envelope $|z|$, unwrapped phase $\arg z$, frequency $\Delta\phi\,f_s/2\pi$ between samples.
+**Analytic signal** of a real signal of $N$ samples.
+
+1. Take the FFT of the signal.
+2. Modify the bins: leave bin 0 (DC) unchanged; double bins $1, \ldots, \lceil N/2\rceil - 1$
+   (the positive frequencies); leave the Nyquist bin $N/2$ unchanged if $N$ is even; set the
+   remaining bins (the negative frequencies) to zero.
+3. Take the inverse FFT. The result $z$ is complex: its real part is the original signal and
+   its imaginary part is the Hilbert transform.
+
+**Attributes** computed from $z$:
+
+1. the envelope is $|z_n|$;
+2. the instantaneous phase is $\arg z_n$, **unwrapped**: whenever the phase jumps by more than
+   $\pi$ between consecutive samples, a multiple of $2\pi$ is added to remove the jump, so that
+   the phase is continuous;
+3. the instantaneous frequency is the difference of the unwrapped phase between consecutive
+   samples, times $f_s/2\pi$. It has one value fewer than the signal.
+
+The cost is two FFTs.
 
 ## Implementation
 

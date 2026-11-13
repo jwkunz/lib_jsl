@@ -171,9 +171,32 @@ The price of RLS grows with the square of the length:
 
 ## Algorithm
 
-1. **LMS/NLMS**: shift the new sample into the regressor; $y = \mathbf w^{\mathsf H}\mathbf u$, $e = d - y$; step $\mu$ (or $\mu/(\epsilon + \lVert\mathbf u\rVert^2)$); $\mathbf w \leftarrow \mathbf w + \text{step}\cdot\bar e\,\mathbf u$.
-2. **RLS**: initialise $P = \delta I$ with large $\delta$ (little confidence in the zero initial weights). Each sample: $\boldsymbol\pi = P\mathbf u$, $\mathbf k = \boldsymbol\pi/(\lambda + \mathbf u^{\mathsf H}\boldsymbol\pi)$, $e$, $\mathbf w$ update, then
-   $P \leftarrow (P - \mathbf k\boldsymbol\pi^{\mathsf H})/\lambda$ on one triangle, mirrored.
+All three filters keep a **regressor** $\mathbf u$, the $M$ most recent input samples, and the
+weights $\mathbf w$, initially zero. For each new input sample $x$ with desired value $d$:
+
+**LMS.**
+
+1. Shift $x$ into the regressor, discarding the oldest sample.
+2. Compute the output $y = \mathbf w^{\mathsf H}\mathbf u$ and the error $e = d - y$.
+3. Update the weights: $\mathbf w \leftarrow \mathbf w + \mu\,\bar e\,\mathbf u$.
+
+**NLMS**: the same, with the step $\mu/(\epsilon + \lVert\mathbf u\rVert^2)$ in place of $\mu$ in
+step 3.
+
+Both cost $O(M)$ per sample.
+
+**RLS** also keeps the matrix $P$, initialised to $\delta I$ with a large $\delta$, which
+expresses little confidence in the zero initial weights.
+
+1. Shift $x$ into the regressor.
+2. Compute $\boldsymbol\pi = P\mathbf u$ and the gain $\mathbf k = \boldsymbol\pi/(\lambda + \mathbf u^{\mathsf H}\boldsymbol\pi)$.
+3. Compute the output $y = \mathbf w^{\mathsf H}\mathbf u$ and the error $e = d - y$, using the weights
+   *before* the update (the a priori error).
+4. Update the weights: $\mathbf w \leftarrow \mathbf w + \mathbf k\,\bar e$.
+5. Update $P \leftarrow (P - \mathbf k\boldsymbol\pi^{\mathsf H})/\lambda$, computing one triangle and copying it
+   to the other.
+
+The cost is $O(M^2)$ per sample, from the matrix-vector product and the update of $P$.
 
 ## Implementation
 

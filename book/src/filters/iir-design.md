@@ -141,10 +141,28 @@ axis on $[-f_s/2, f_s/2)$ rather than $[0, f_s)$.
 
 ## Algorithm
 
-1. Validate the edges and prewarp them: $\Omega = 2f_s\tan(\pi f/f_s)$.
-2. Build the prototype and transform it in zero-pole-gain form (band edges $\Omega_1, \Omega_2$ become $\omega_0 = \sqrt{\Omega_1\Omega_2}$ and $B = \Omega_2 - \Omega_1$).
-3. Map each zero and pole by $c \mapsto (2f_s + c)/(2f_s - c)$, add zeros at $-1$ for the excess poles, and scale the gain by $\prod(2f_s - z_i)/\prod(2f_s - p_i)$.
-4. If requested, expand to polynomials and normalise $a_0 = 1$.
+`butter`, `cheby1`, `cheby2`, `ellip` and `bessel` share one procedure. Input: the order, the
+ripple parameters of the family, the band edges and the band type.
+
+1. **Validate and prewarp.** Check that the edges lie between zero and the Nyquist frequency
+   and are in increasing order. Replace each edge $f$ by the analogue frequency
+   $\Omega = 2f_s\tan(\pi f/f_s)$.
+2. **Prototype.** Build the family's [analogue prototype](analog-prototypes.md#algorithm) of
+   the requested order, as zeros, poles and gain.
+3. **Frequency transformation.** Transform the prototype to the requested band type at the
+   prewarped edges. For a band-pass or band-stop filter with edges $\Omega_1 < \Omega_2$, the
+   centre is $\omega_0 = \sqrt{\Omega_1\Omega_2}$ and the width $B = \Omega_2 - \Omega_1$.
+4. **Bilinear transform.** Map each zero and pole $c$ to $(2f_s + c)/(2f_s - c)$. Add a zero
+   at $z = -1$ for each pole in excess of the zeros. Multiply the gain by
+   $\prod(2f_s - z_i)/\prod(2f_s - p_i)$, taken over the analogue zeros and poles, which keeps
+   the response's level the same.
+5. **Output.** Return the zeros, poles and gain; or, if coefficients are requested, multiply
+   out the factors into the polynomials $b$ and $a$, with $a_0 = 1$.
+
+**Order selection** (`buttord` and its companions): prewarp the passband and stopband edges;
+reduce the specification to the selectivity of the equivalent low-pass prototype; evaluate
+the family's closed-form expression for the order and round it up; and compute the critical
+frequency to pass to the design function.
 
 ## Implementation
 

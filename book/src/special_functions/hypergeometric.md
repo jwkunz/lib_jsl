@@ -125,11 +125,32 @@ Evaluating the library's hypergeometric functions against elementary and special
 
 ## Algorithm
 
-- ${}_2F_1$: `NaN` for $z > 1$ (unless the series terminates) or $c$ a non-positive integer; Gauss's theorem at $z = 1$; the
-  Pfaff transformation for $z < -\tfrac12$; the connection formula for $z \ge \tfrac12$ unless $c - a - b$ is an integer; otherwise the
-  series.
-- ${}_1F_1$: the series for $x \ge 0$, Kummer's transformation for $x < 0$.
-- ${}_0F_1$: the series, or the Bessel relation for $x < -10$.
+Each function first disposes of the special arguments, then chooses the transformation that
+puts the argument where its series converges quickly.
+
+**${}_2F_1(a, b; c; z)$**, in this order:
+
+1. $c$ is zero or a negative integer: return `NaN`.
+2. $a$ or $b$ is zero or a negative integer: the series terminates; sum it for any $z$.
+3. $z > 1$: return `NaN` (the function is not real there).
+4. $z = 1$: return the value given by Gauss's theorem if $c - a - b > 0$, and $\infty$
+   otherwise.
+5. $z < -\tfrac12$: apply the Pfaff transformation and start again with the new argument
+   $z/(z - 1)$, which lies in $(\tfrac13, 1)$.
+6. $z \ge \tfrac12$ and $c - a - b$ is not an integer: apply the connection formula, summing two
+   series in $1 - z$.
+7. Otherwise: sum the defining series.
+
+**Summing a hypergeometric series.** Start with term $= 1$ and sum $= 1$. For $n = 0, 1, \ldots$,
+multiply the term by $\frac{(a + n)(b + n)}{(c + n)(n + 1)}z$ and add it to the sum. Stop when the
+term is below $\varepsilon$ times the sum, or is exactly zero (a terminating series).
+
+**${}_1F_1(a; b; x)$**: for $x \ge 0$ sum the series, with term ratio $\frac{a + n}{(b + n)(n + 1)}x$.
+For $x < 0$ apply Kummer's transformation and sum the series for $M(b - a, b, -x)$, then
+multiply by $e^x$.
+
+**${}_0F_1(; b; x)$**: for $x \ge -10$ sum the series, with term ratio $\frac{x}{(b + n)(n + 1)}$.
+For $x < -10$ use the Bessel relation with $z = 2\sqrt{-x}$.
 
 ## Implementation
 

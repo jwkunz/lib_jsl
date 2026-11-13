@@ -99,10 +99,37 @@ relative when $p$ is a double close to 1.
 
 ## Algorithm
 
-- CDFs: map the parameters and argument to the incomplete gamma or beta function as in the table,
-  choosing the tail that is computed directly.
-- Normal quantile: Acklam's approximation in three regions (two tails and the centre), then Halley.
-- Other quantiles: bracket and bisect the CDF (for $t$, the smaller tail by symmetry).
+**A cumulative distribution function.**
+
+1. Check the parameters, and return 0 or 1 for arguments outside the support.
+2. Map the argument and parameters to those of the incomplete gamma or beta function, as in the
+   table.
+3. Evaluate that function. Where the distribution has two tails, compute the smaller tail
+   directly and obtain the other by subtraction: for Student's $t$, for instance, the incomplete
+   beta function gives the tail beyond $|t|$, and the CDF is that tail or one minus it according
+   to the sign of $t$.
+
+**A probability mass or density function**: assemble the logarithm of the value from logarithms
+of gamma functions and of the parameters, and exponentiate once at the end.
+
+**The normal quantile $x_p$.**
+
+1. Return $-\infty$ or $+\infty$ for $p = 0$ or 1.
+2. Evaluate Acklam's rational approximation, which has one formula for the central region and
+   another, in the variable $\sqrt{-2\ln p}$, for each tail.
+3. Apply one step of Halley's method to $\Phi(x) - p = 0$, using the density as the derivative.
+
+**Other quantiles.**
+
+1. Find an interval containing the quantile: start from a guess and double the width until the
+   CDF values at the ends lie on either side of $p$.
+2. Bisect on the CDF until the interval is a few units of $\varepsilon$ wide, relative to its
+   position.
+
+For Student's $t$, which is symmetric, the search is always carried out in the *smaller* tail:
+with $q = \min(p, 1 - p)$, find $t > 0$ with $P(T \le -t) = q$, and return $-t$ if
+$p < \tfrac12$ and $t$ otherwise. A small $p$ is thus inverted as it stands, with its full
+relative precision.
 
 ## Implementation
 

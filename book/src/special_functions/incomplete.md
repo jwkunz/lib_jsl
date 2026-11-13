@@ -169,10 +169,38 @@ $x - \tfrac23x^3 + \tfrac4{15}x^5 - \cdots$ is used.
 
 ## Algorithm
 
-- $P(a, x)$, $Q(a, x)$: the series if $x < a + 1$, otherwise the continued fraction; the other function
-  by subtraction from 1.
-- $I_x(a, b)$: the continued fraction directly if $x < (a + 1)/(a + b + 2)$, otherwise through the symmetry.
-- $\operatorname{erf}$, $\operatorname{erfc}$: $P(\tfrac12, x^2)$ and $Q(\tfrac12, x^2)$, with $\operatorname{erf}$ odd and $\operatorname{erfc}(-x) = 2 - \operatorname{erfc} x$.
+**$P(a, x)$ and $Q(a, x)$.**
+
+1. If $x < a + 1$: sum the series for $P$, multiplying each term by $x/(a + n)$ to get the next,
+   until a term is below $\varepsilon$ times the sum. Then $Q = 1 - P$.
+2. Otherwise: evaluate the continued fraction for $Q$ by the modified Lentz algorithm (below).
+   Then $P = 1 - Q$.
+
+In both cases the common factor $x^ae^{-x}/\Gamma(a)$ is computed as
+$\exp(a\ln x - x - \ln\Gamma(a))$ to avoid overflow.
+
+**$I_x(a, b)$.**
+
+1. Return 0 or 1 at the ends $x = 0$ and $x = 1$.
+2. If $x < (a + 1)/(a + b + 2)$: evaluate the continued fraction by the modified Lentz algorithm
+   and multiply by the prefactor.
+3. Otherwise: compute $I_{1-x}(b, a)$ by step 2 and return 1 minus it.
+
+**$\operatorname{erf}$ and $\operatorname{erfc}$.** For $x \ge 0$, return $P(\tfrac12, x^2)$ and $Q(\tfrac12, x^2)$. For
+$x < 0$ use the symmetries $\operatorname{erf}(-x) = -\operatorname{erf}x$ and $\operatorname{erfc}(-x) = 2 - \operatorname{erfc}x$.
+
+**The modified Lentz algorithm** evaluates a continued fraction
+$b_0 + \cfrac{a_1}{b_1 + \cfrac{a_2}{b_2 + \cdots}}$ from the top down.
+
+1. Set $f = b_0$, $C = f$ and $D = 0$.
+2. For $j = 1, 2, \ldots$: set $D \leftarrow b_j + a_jD$ and $C \leftarrow b_j + a_j/C$; then
+   $D \leftarrow 1/D$; then multiply $f$ by $\Delta = CD$.
+3. Stop when $|\Delta - 1|$ is below a few $\varepsilon$.
+
+$C$ and $D$ are ratios of successive numerators and of successive denominators of the
+convergents, so $\Delta$ is the ratio of one convergent to the previous one. The modification
+is a guard: whenever $f$, $C$ or $D$ (before inversion) is exactly zero it is replaced by a tiny
+number such as $10^{-30}$, which prevents a division by zero without affecting the result.
 
 ## Implementation
 

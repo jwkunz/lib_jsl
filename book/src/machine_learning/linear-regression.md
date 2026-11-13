@@ -204,7 +204,7 @@ zero.
 
 **Coordinate descent** cycles through the weights, updating each by this formula and keeping
 the residual up to date, until the weights stop changing. Optimising one coordinate at a time
-does not work for every function, but it does here: the objective is convex, and its
+does not work for every function, but it does here: the objective is convex (so, as the [optimisation background](../optimization/index.md#background-what-a-minimum-looks-like) shows, any stationary point is the global minimum), and its
 non-differentiable part is a sum of terms each involving a single weight, which together
 guarantee convergence to the global minimum.
 

@@ -15,6 +15,53 @@ unconstrained minimum the gradient vanishes, so minimisation is root finding for
 is more structure to exploit (the Hessian is symmetric, and progress can be measured by the
 value of $f$) and more ways to fail (a stationary point may be a maximum or a saddle).
 
+## Background: what a minimum looks like
+
+Every method in this chapter searches for a point that satisfies some condition. It helps to state the conditions once. Say
+$\mathbf x^*$ is a **local minimum** of $f$ if $f(\mathbf x^*) \le f(\mathbf x)$ for all $\mathbf x$ near $\mathbf x^*$, and a **global
+minimum** if the inequality holds for all $\mathbf x$. Take $f$ twice continuously differentiable, with gradient $\nabla f$ (the vector of partial derivatives) and
+Hessian $H = \nabla^2 f$ (the symmetric matrix of second derivatives). Taylor's theorem says that a small step $\mathbf p$ changes $f$ by
+
+$$
+f(\mathbf x + \mathbf p) = f(\mathbf x) + \nabla f(\mathbf x)^{\mathsf T}\mathbf p + \tfrac12\,\mathbf p^{\mathsf T} H(\mathbf x)\,\mathbf p + o(\lVert\mathbf p\rVert^2).
+$$
+
+**First-order necessary condition.** At a local minimum, $\nabla f(\mathbf x^*) = 0$. If the gradient were not zero, the step
+$\mathbf p = -t\,\nabla f$ with $t > 0$ small would change $f$ by about $-t\lVert\nabla f\rVert^2 < 0$, a decrease, so $\mathbf x^*$ would not be a minimum.
+A point with $\nabla f = 0$ is **stationary**. Minimising is root finding for $\nabla f$, but stationary points
+include maxima and saddles too.
+
+**Second-order conditions.** At a stationary point the linear term vanishes and the quadratic term decides. If $\mathbf x^*$ is a minimum then
+$H(\mathbf x^*)$ must be **positive semidefinite** ($\mathbf p^{\mathsf T}H\mathbf p \ge 0$ for every $\mathbf p$: no direction curves downward). If instead
+$H(\mathbf x^*)$ is **positive definite** ($\mathbf p^{\mathsf T}H\mathbf p > 0$ for all $\mathbf p \ne 0$, equivalently all eigenvalues
+positive), then $\mathbf x^*$ is certainly a strict local minimum. The gap between the two statements is real:
+
+| Function | Stationary point | Hessian there | Nature |
+|---|---|---|---|
+| $x^2 + y^2$ | origin | $\mathrm{diag}(2, 2)$, positive definite | minimum |
+| $x^2 - y^2$ | origin | $\mathrm{diag}(2, -2)$, indefinite | **saddle**: a minimum along $x$, a maximum along $y$ |
+| $x^4$ | $0$ | $0$, semidefinite | minimum, though the test is inconclusive |
+| $x^3$ | $0$ | $0$, semidefinite | neither: an inflection point |
+
+The eigenvalues of the Hessian also describe the *shape* of the valley around the minimum: long, narrow valleys have eigenvalues of very different sizes,
+and their ratio (the condition number) governs how fast [gradient descent](gradient-methods.md) converges. Newton's method divides the gradient by the
+Hessian, which is why it needs $H$ positive definite for the step to be a descent direction.
+
+**Convexity makes local global.** A function is **convex** if $f(\mathbf y) \ge f(\mathbf x) + \nabla f(\mathbf x)^{\mathsf T}(\mathbf y - \mathbf x)$ for all $\mathbf x, \mathbf y$:
+the graph lies above every tangent plane (equivalently, $H$ is positive semidefinite everywhere). Then a stationary point is a global
+minimum, in one line: put $\nabla f(\mathbf x^*) = 0$ in the inequality to get $f(\mathbf y) \ge f(\mathbf x^*)$ for every $\mathbf y$. The
+leading example is the quadratic $f(\mathbf x) = \tfrac12\mathbf x^{\mathsf T}A\mathbf x - \mathbf b^{\mathsf T}\mathbf x$ with $A$ symmetric positive definite: its
+gradient is $A\mathbf x - \mathbf b$, so the unique global minimum solves the linear system $A\mathbf x = \mathbf b$. That is the link between optimisation, [least squares](least-squares.md)
+and the iterative linear solvers of [conjugate gradients](gradient-methods.md).
+
+**What a stopping test certifies.** Methods stop when $\lVert\nabla f\rVert$ is small. That shows only that $\mathbf x$ is nearly stationary. If in addition $H \succeq m I$ with
+$m > 0$ (the function is *strongly convex*), then $f(\mathbf x) - f(\mathbf x^*) \le \lVert\nabla f(\mathbf x)\rVert^2/(2m)$, so a small gradient does bound the
+remaining error, but only in terms of the curvature $m$, which a flat valley makes small. Without convexity a small gradient may mean a saddle or a
+local minimum.
+
+**With constraints** the gradient need not vanish at the solution: the constraint can be what stops the descent. The first-order condition becomes the
+balance of $\nabla f$ against the gradients of the active constraints, which is the KKT system of [constrained optimisation](constrained.md).
+
 ## The central questions
 
 - **What information is available?** Only values of $f$ (direct search, stochastic methods), also

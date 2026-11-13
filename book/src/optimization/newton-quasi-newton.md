@@ -67,7 +67,7 @@ $$
 \nabla^2 f(\mathbf x_k)\,\mathbf p_k = -\nabla f(\mathbf x_k), \qquad \mathbf x_{k+1} = \mathbf x_k + \mathbf p_k .
 $$
 
-The stationary point of $m$ is a minimum only if the Hessian is **positive definite** (the model
+The stationary point of $m$ is a minimum only if the Hessian is **positive definite** (the second-order condition of the [background section](index.md#background-what-a-minimum-looks-like)) (the model
 curves upward in every direction). There is another way to read the same formula: a minimum of
 $f$ is a root of the system $\nabla f(\mathbf x) = \mathbf 0$, and this is exactly
 [Newton's method for systems](../root_finding/nonlinear-systems.md#newtons-method) applied to

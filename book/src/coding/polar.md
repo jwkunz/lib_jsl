@@ -14,8 +14,24 @@
 
 ## Overview
 
-A **polar code** transforms $N = 2^m$ uses of a channel so that, seen by a decoder that decides one input bit at a time, the $N$ synthesized **bit channels** **polarize**. Most become almost perfect and the rest almost useless, and the fraction of good ones tends to the channel capacity. Information goes on the $k$ most reliable bit channels.
-The others are **frozen** to known zeros. Encoding is a butterfly network like the FFT's, and **successive-cancellation** (SC) decoding walks the same network recursively. Polar codes were the first codes proven to achieve capacity with low complexity, and with list decoding they protect the control channels of 5G.
+Shannon proved that every noisy channel has a **capacity**: a rate, in data bits per transmitted
+bit, below which communication can be made as reliable as desired. For sixty years no code was
+known that provably reached capacity with a practical decoder. **Polar codes** were the first,
+and the idea behind them is unusual.
+
+Instead of spreading the noise evenly over all the data bits, a polar code *redistributes* it. A
+simple transformation is applied to $N = 2^m$ uses of the channel. Seen by a decoder that
+recovers the input bits one at a time, in order, each input bit then has its own effective
+channel, called a **bit channel**. The transformation makes these **polarize**: most become
+either almost perfect or almost useless, and the fraction of nearly perfect ones tends to the
+capacity of the original channel as $N$ grows.
+
+Coding is then simple. The $k$ data bits are sent on the $k$ most reliable bit channels. The
+others carry nothing: they are **frozen** to zeros that the decoder knows in advance. Encoding
+is a network of XORs with the same butterfly structure as the
+[FFT](../fft/fft.md#the-radix-2-cooley-tukey-algorithm), and **successive-cancellation** (SC)
+decoding walks the same network recursively. With list decoding, polar codes protect the control
+channels of 5G.
 
 ## History
 
@@ -26,12 +42,56 @@ Alexander Vardy's **list decoding** (2011, published 2015), with a CRC to pick f
 
 ### The polarizing transform
 
-Combine two independent uses of a channel $W$ by sending $(u_1 \oplus u_2, u_2)$. Deciding $u_1$ first, with $u_2$ unknown, faces a worse channel $W^-$. Deciding $u_2$ with $u_1$ known sees two noisy copies of it, a better channel $W^+$. Capacity is conserved, $I(W^-) + I(W^+) = 2I(W)$. Repeating the step $m$ times gives the transform
-$x = u\,F^{\otimes m}$ with $F = \begin{pmatrix}1 & 0\\1 & 1\end{pmatrix}$, computed by $m$ butterfly stages. The library uses the natural order, without Arıkan's bit-reversal permutation, so the first split decides the most significant bit of a channel's index.
+**The channel.** Everything can be seen on the simplest noisy channel, the **binary erasure
+channel**: each transmitted bit either arrives intact or, with probability $z$, is erased and
+arrives as "unknown". Its capacity is $1 - z$, the fraction of bits that get through.
+
+**One step.** Take two independent uses of the channel and two input bits $u_1, u_2$. Instead of
+sending them directly, send
+
+$$
+x_1 = u_1 \oplus u_2, \qquad x_2 = u_2 .
+$$
+
+The decoder recovers $u_1$ first and then $u_2$.
+
+- *Deciding $u_1$, with $u_2$ unknown.* Since $u_1 = x_1 \oplus x_2$, both transmitted bits must
+  arrive. $u_1$ is lost if either is erased, which has probability
+  $1 - (1 - z)^2 = 2z - z^2$. This is a *worse* channel than the original; call it $W^-$.
+- *Deciding $u_2$, with $u_1$ now known.* There are two ways to learn $u_2$: directly, from
+  $x_2$, or from $x_1$, as $u_2 = x_1 \oplus u_1$. It is lost only if both are erased, with
+  probability $z^2$. This is a *better* channel, $W^+$.
+
+With $z = 0.5$, the two bit channels have erasure probabilities 0.75 and 0.25. Nothing has been
+gained or lost overall: the capacities add up to $(1 - z)^2 + (1 - z^2) = 2(1 - z)$, twice the
+original. In general, writing $I(W)$ for the capacity of a channel $W$,
+$I(W^-) + I(W^+) = 2I(W)$. The step has only moved reliability from one bit to the other.
+
+**Repeating.** Apply the same step to two copies of $W^-$ and to two copies of $W^+$, giving four
+bit channels, two of them more extreme than before; then again, and so on, $m$ times. At each
+level every channel splits into a worse and a better one. A channel that is already nearly
+perfect or nearly useless hardly changes, while those in the middle keep being pushed apart, so
+after many levels almost all have drifted to one extreme or the other.
+
+In matrix form, one step is $x = uF$ with $F = \begin{pmatrix}1 & 0\\1 & 1\end{pmatrix}$ over
+GF(2), and $m$ steps give $x = u\,F^{\otimes m}$, the $m$-fold Kronecker power, computed by $m$
+stages of XOR butterflies in $\tfrac N2\log_2N$ operations. The library uses the natural order,
+without Arıkan's bit-reversal permutation, so the first split decides the most significant bit
+of a channel's index.
 
 ### Choosing the frozen set
 
-For a binary erasure channel the polarized erasure probabilities follow exactly: $W^-$ erases with probability $2z - z^2$ and $W^+$ with $z^2$. For other channels these **Bhattacharyya parameters** are upper bounds. The library designs a code by running this recursion from a design erasure probability and freezing the $N - k$ worst channels. A lower design value suits a higher signal-to-noise ratio.
+To build a code we must know which bit channels are the good ones. For the erasure channel the
+two formulas above give the answer exactly: starting from the erasure probability $z$ of the
+channel, each level replaces every value $z$ by the pair $2z - z^2$ (for $W^-$) and $z^2$ (for
+$W^+$). After $m$ levels there are $N$ values, one per bit channel.
+
+For other channels, such as the Gaussian channel, there is no such exact formula. The reliability
+of a channel is then measured by its **Bhattacharyya parameter**, a number between 0 (perfect)
+and 1 (useless) that bounds its error probability, and for which the same recursion gives upper
+bounds. The library designs a code by running the recursion from a chosen *design* erasure
+probability and freezing the $N - k$ channels with the largest values. A lower design value
+suits a higher signal-to-noise ratio.
 
 ![Polarization](../generated/coding/polarization.svg)
 
@@ -39,13 +99,39 @@ For a binary erasure channel the polarized erasure probabilities follow exactly:
 
 ### Successive cancellation
 
-Decode the bits in index order, each using the channel outputs and the decisions already made. Recursively, for a block of LLRs split into halves $a$ and $b$:
+The decoder mirrors the analysis: it decides the bits in index order, each using the channel
+outputs together with the decisions already made. It works with
+[log-likelihood ratios](../comms/modulation.md#soft-demapping) (LLRs), positive for "probably 0",
+and applies the two cases of the single step recursively. For a block of LLRs split into a first
+half $a$ and a second half $b$ (the LLRs of the $x_1$ and $x_2$ parts):
 
-- decode the first half from $f(a, b) = \operatorname{sgn}a\,\operatorname{sgn}b\,\min(|a|, |b|)$ (min-sum for the XOR);
-- re-encode its decisions $\hat v$, and decode the second half from $g = b + (-1)^{\hat v}a$;
-- return the re-encoded partial sums of both halves.
+1. **The worse channel first.** The first half of the inputs was XORed into the first half of
+   the outputs, so its LLRs are those of the XOR of the two halves,
 
-Frozen bits are set to zero whatever the LLR. A wrong early decision is never revisited, which is SC's weakness. List decoders keep the $L$ best paths instead.
+   $$
+   f(a, b) = \operatorname{sgn}a\,\operatorname{sgn}b\,\min(|a|, |b|) .
+   $$
+
+   The sign is that of an XOR, and the confidence is that of the weaker of the two inputs. (This
+   is the min-sum form of the check-node rule of [LDPC decoding](ldpc.md#belief-propagation).)
+   Decode the first half recursively from these.
+2. **Then the better channel.** Re-encode the decisions just made to get the bits $\hat v$ that
+   were XORed onto the first half. Each bit of the second half now has two independent
+   observations, $b$ directly and $a$ with the known bit removed, and independent LLRs add:
+
+   $$
+   g = b + (-1)^{\hat v}a .
+   $$
+
+   Decode the second half recursively from these.
+3. Return the re-encoded bits of both halves to the level above.
+
+At the bottom of the recursion a single bit is decided: a frozen bit is set to zero whatever its
+LLR, and an information bit takes the sign of its LLR.
+
+The weakness of SC decoding is that a decision, once made, is never revisited. A wrong early bit
+corrupts everything that follows. **List decoders** keep the $L$ most likely partial paths
+instead of one, and choose among them at the end, usually with the help of a checksum.
 
 ![Polar BER](../generated/coding/polar_ber.svg)
 

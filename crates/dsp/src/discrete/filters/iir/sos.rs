@@ -317,7 +317,7 @@ mod tests {
         ] {
             let (z, p, k) = butter_zpk(order, &wn, band);
             let sos = zpk2sos(&z, &p, k).unwrap();
-            assert_eq!(sos.len(), (p.len() + 1) / 2);
+            assert_eq!(sos.len(), p.len().div_ceil(2));
             let (b, a) = sos2tf(&sos);
             let reference = match butter(order, &wn, band, None, None).unwrap() {
                 ButterOutput::Ba(r) => r,

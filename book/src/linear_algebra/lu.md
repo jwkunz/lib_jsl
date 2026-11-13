@@ -308,7 +308,7 @@ The production recursion:
 2. A unit lower triangular matrix has an inverse of the same form (back substitution on the identity gives ones on the diagonal and zeros above). Elimination subtracts $\ell_{ik} = a_{ik}/a_{kk}$ times row $k$ from row $i$, and those are the entries of $L$.
 3. With partial pivoting $|\ell_{ik}| \le 1$, so each step at most doubles the largest entry: after $n - 1$ steps at most $2^{n-1}$. Wilkinson's matrix (ones on the diagonal and in the last column, $-1$ below the diagonal) doubles the last column at every step.
 4. $\kappa(H_{10}) \approx 1.6\times10^{13}$. A perturbation of $10^{-10}$ in one entry of $\mathbf b$ can change $\mathbf x$ by a relative amount up to about $\kappa\times$ (relative perturbation), potentially of order $10^{3}$; the actual change depends on the direction of the perturbation.
-5. $\det A = \pm\prod u_{ii}$ is a product of 200 numbers each of size around 10, so it is near $10^{200}$ times a factor that can easily exceed $10^{100}$: more than $10^{308}$. Compute $\ln|\det A| = \sum_i\ln|u_{ii}|$ instead.
+5. Scaling a $200\times200$ matrix by 10 multiplies its determinant by $10^{200}$. For a matrix of standard normal entries $|\det|$ is typically near $\sqrt{200!} \approx 10^{187}$, so the result is around $10^{387}$, beyond the largest double ($1.8\times10^{308}$). Compute $\ln|\det A| = \sum_i\ln|u_{ii}|$ instead.
 
 </details>
 

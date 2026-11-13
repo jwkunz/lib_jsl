@@ -26,7 +26,9 @@ parameters via rotational invariance techniques, 1986–89) needed no search. Pe
 
 ### Beam-scanning spectra
 
-With $\mathbf R = \sum_i P_i\mathbf a_i\mathbf a_i^{\mathsf H} + \sigma^2\mathbf I$ for uncorrelated sources:
+The simplest way to find where signals come from is to steer a
+[beam](beamforming.md#beamformers) across all directions and plot the output power against the
+steering direction; sources appear as peaks. With $\mathbf R = \sum_i P_i\mathbf a_i\mathbf a_i^{\mathsf H} + \sigma^2\mathbf I$ for uncorrelated sources:
 
 $$
 P_{\text{Bartlett}}(\Omega) = \frac{\mathbf a^{\mathsf H}\mathbf R\mathbf a}{\mathbf a^{\mathsf H}\mathbf a}, \qquad P_{\text{Capon}}(\Omega) = \frac{1}{\mathbf a^{\mathsf H}\mathbf R^{-1}\mathbf a}\ \ (\|\mathbf a\| = 1).
@@ -35,6 +37,10 @@ $$
 Bartlett's is the power out of a conventional beam steered to $\Omega$, and Capon's the power out of an MVDR beam, which suppresses everything not from $\Omega$.
 
 ### MUSIC
+
+MUSIC applies the subspace idea of
+[spectral estimation](../spectral/parametric.md#music) to directions instead of frequencies; the
+array's steering vectors play the role of the sampled complex exponentials there.
 
 The $M$ largest eigenvalues of $\mathbf R$ belong to the signal subspace, spanned by the steering vectors of the $M$ sources. The other $N - M$ eigenvectors $\mathbf E_n$ span the noise subspace, which is orthogonal to every source's steering vector. So
 

@@ -173,7 +173,7 @@ tolerance $\delta$. Let $\rho = 1/\varphi \approx 0.618$.
 
 Each pass of the loop costs one evaluation and multiplies the width by $\rho$, so reaching
 $\delta$ takes about $\log((b - a)/\delta)/\log\varphi$ evaluations: 39 for a reduction of
-$10^{8}$.
+$10^{8}$, plus the few spent on the first interior points and the final value (42 in the table above).
 
 **Strong Wolfe line search** (Nocedal and Wright, algorithms 3.5 and 3.6). Input: the point, a
 descent direction, the constants $c_1 < c_2$ and an initial trial step. It has two phases.

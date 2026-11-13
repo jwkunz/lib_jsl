@@ -93,8 +93,9 @@ bounded by the inverse Ackermann function, which is at most 4 for any conceivabl
 2. Start a union-find structure with every vertex in its own set.
 3. For each edge $(u, v)$ in order: if $u$ and $v$ are in different sets, add the edge to the
    tree and merge the two sets.
-4. Stop when $V - 1$ edges have been added, or the edges run out. In a disconnected graph the
-   result is a spanning tree of each component, a spanning **forest**.
+4. When the edges run out, the kept edges are the tree (a connected graph yields exactly
+   $V - 1$ of them). In a disconnected graph the result is a spanning tree of each component,
+   a spanning **forest**.
 
 The cost is $O(E\log E)$, dominated by the sort.
 

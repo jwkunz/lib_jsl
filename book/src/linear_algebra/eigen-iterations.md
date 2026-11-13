@@ -184,17 +184,20 @@ step $O(n)$ or $O(n^2)$ ([next entry](eigensolvers.md)).
 
 ## Algorithm
 
-**Power iteration.** Input: $A$, a starting vector $\mathbf x$ of unit length and a tolerance.
-Repeat:
+**Power iteration.** Input: $A$, a starting vector $\mathbf x$, normalised to unit length, and a
+tolerance. Repeat, up to an iteration limit:
 
-1. compute $\mathbf y = A\mathbf x$ and the Rayleigh quotient $\rho = \mathbf x^{\mathsf T}\mathbf y$;
-2. if the residual $\|\mathbf y - \rho\mathbf x\|$ is below the tolerance, return $\rho$ and $\mathbf x$;
-3. set $\mathbf x = \mathbf y/\|\mathbf y\|$.
+1. multiply: $\mathbf y = A\mathbf x$;
+2. normalise: $\mathbf x = \mathbf y/\|\mathbf y\|$;
+3. estimate the eigenvalue by the Rayleigh quotient of the new vector,
+   $\rho = \mathbf x^{\mathsf T}A\mathbf x$;
+4. if the residual $\|A\mathbf x - \rho\mathbf x\|$ is below the tolerance, return $\rho$ and $\mathbf x$.
 
-Each iteration costs one matrix-vector product.
+Each iteration costs two matrix-vector products as written (one would do, if $A\mathbf x$ from
+step 3 were reused as the next $\mathbf y$).
 
 **Inverse iteration** with shift $\sigma$: factor $A - \sigma I$ once; then run the same loop with
-step 3 replaced by "solve $(A - \sigma I)\mathbf y = \mathbf x$ and normalise $\mathbf y$".
+step 1 replaced by "solve $(A - \sigma I)\mathbf y = \mathbf x$".
 
 **Rayleigh quotient iteration**: as inverse iteration, but with the shift replaced by the
 current $\rho$ at every step, so that the matrix must be factorised again each time. As the shift
@@ -205,7 +208,8 @@ and the iteration stops with the current vector.
 
 **Cyclic Jacobi.** Input: a symmetric $A$. Set $V = I$. Repeat:
 
-1. if the off-diagonal norm $\big(\sum_{p \ne q}a_{pq}^2\big)^{1/2}$ is below the tolerance, stop;
+1. if the off-diagonal norm $\big(\sum_{p \ne q}a_{pq}^2\big)^{1/2}$ is below the tolerance times the
+   Frobenius norm of the original matrix, stop;
 2. for every pair $p < q$ in turn (one **sweep**): compute the rotation angle from $a_{pp}$,
    $a_{qq}$ and $a_{pq}$; apply the rotation to rows and columns $p$ and $q$ of $A$, which sets
    $a_{pq}$ to zero; apply it to columns $p$ and $q$ of $V$.
@@ -216,8 +220,8 @@ costs $O(n^3)$.
 **Shifted QR.** Input: a symmetric $A$. The **active block** is the leading part of the matrix
 not yet deflated; it starts as the whole matrix. While its order exceeds 1:
 
-1. if the off-diagonal entries of its last row are negligible compared with the neighbouring
-   diagonal entries, set them to zero, record the last diagonal entry as an eigenvalue, and
+1. if the norm of the off-diagonal entries of its last row is below the tolerance times the
+   Frobenius norm of the original matrix, set them to zero, record the last diagonal entry as an eigenvalue, and
    shrink the active block by one (deflation);
 2. otherwise compute Wilkinson's shift $\mu$ from the trailing $2 \times 2$ block, factor
    $A - \mu I = QR$ on the active block, and replace the block by $RQ + \mu I$.

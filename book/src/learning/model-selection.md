@@ -93,10 +93,37 @@ choice, or use **nested cross-validation**, in which an inner loop chooses the h
 
 ## Algorithm
 
-1. **k-fold**: shuffle $0, \ldots, n - 1$ (optionally); fold $j$ is positions $\lfloor jn/k\rfloor$ to $\lfloor(j + 1)n/k\rfloor - 1$ of the order.
-2. **Stratified**: shuffle each class's indices and deal them round-robin across the folds, continuing the count from one class to the next.
-3. **Cross-validate**: for each split, build a fresh model, fit on the training rows, predict the test rows, and score.
-4. **Grid search**: evaluate each candidate (typically the mean cross-validation score), skip failures and NaNs, and keep the best.
+**k-fold splitting** of $n$ samples.
+
+1. List the indices $0, \ldots, n - 1$, and shuffle them if a seed is given.
+2. Fold $j$ consists of positions $\lfloor jn/k\rfloor$ to $\lfloor(j + 1)n/k\rfloor - 1$ of the list,
+   for $j = 0, \ldots, k - 1$. The fold sizes differ by at most one.
+3. Split $j$ uses fold $j$ as the test set and all the other folds as the training set.
+
+**Stratified splitting.**
+
+1. Group the indices by class, and shuffle within each class.
+2. Deal the indices out to the folds one at a time, in rotation, like cards: the first index
+   to fold 0, the next to fold 1, and so on, going straight on from one class to the next
+   without restarting at fold 0. Every fold then has each class in nearly its overall
+   proportion, and the folds have nearly equal sizes.
+
+**Cross-validation** of a model on a set of splits. For each split:
+
+1. build a fresh, untrained model;
+2. fit it on the training rows;
+3. predict the test rows and compute the score.
+
+Return the scores; their mean is the cross-validation estimate, and their standard deviation
+divided by $\sqrt k$ a rough standard error.
+
+**Grid search** over a list of candidate settings.
+
+1. For each candidate, compute its score, usually the mean cross-validation score.
+2. Skip any candidate whose evaluation fails or returns NaN.
+3. Return the candidate with the best score, and the scores of all of them.
+
+The cost is (number of candidates) × (number of folds) model fits.
 
 ## Implementation
 

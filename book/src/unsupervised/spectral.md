@@ -104,10 +104,21 @@ nearest-neighbour graph adapts to the local density and works over a wide range 
 
 ## Algorithm
 
-1. Build $W$ (RBF or symmetrised $k$-NN) with zero diagonal, and the degrees $D_{ii}$.
-2. Form $L_{\text{sym}} = I - D^{-1/2}WD^{-1/2}$ and compute its eigendecomposition.
-3. Take the eigenvectors of the $k$ smallest eigenvalues as columns, and normalise each row to unit length.
-4. Run k-means with 10 restarts on the rows.
+Input: the data, the number of clusters $k$ and the choice of graph.
+
+1. **Build the graph.** Compute the weight matrix $W$: either the RBF similarities, or the
+   $k$-nearest-neighbour graph made symmetric by joining two points if either is among the
+   other's nearest neighbours. Set its diagonal to zero. Compute the degrees $D_{ii}$.
+2. **Form the normalised Laplacian** $L_{\text{sym}} = I - D^{-1/2}WD^{-1/2}$.
+3. **Eigenvectors.** Compute the eigendecomposition of $L_{\text{sym}}$ with the
+   [symmetric eigensolver](../linear_algebra/eigensolvers.md), and take the eigenvectors of the
+   $k$ smallest eigenvalues as the columns of an $n \times k$ matrix.
+4. **Normalise the rows.** Scale each row of that matrix to unit length. Row $i$ is now the
+   image of point $i$ in a $k$-dimensional space in which the clusters are compact.
+5. **Cluster the rows** with k-means, using 10 restarts.
+
+The cost is dominated by the dense eigendecomposition, $O(n^3)$, which limits the method to a
+few thousand points.
 
 ## Implementation
 

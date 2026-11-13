@@ -97,10 +97,25 @@ discriminant costs six points of accuracy.
 
 ## Algorithm
 
-1. Compute the class means, $S_w$ and $S_b$; add the ridge to $S_w$.
-2. Cholesky-factorise $S_w = LL^{\mathsf T}$; form $M = L^{-1}S_bL^{-\mathsf T}$ by two triangular solves, and symmetrise it.
-3. Compute the eigenvectors of $M$ for the largest eigenvalues; back-substitute $\mathbf w = L^{-\mathsf T}\mathbf v$; normalise, making the largest entry positive.
-4. For classification, store the projected class means, the log-priors and the within-class variance along each direction.
+**Fit.**
+
+1. **Scatter matrices.** Compute the mean of each class and the overall mean, and from them
+   $S_w$ and $S_b$. Add the ridge to the diagonal of $S_w$.
+2. **Whiten.** Compute the Cholesky factor $S_w = LL^{\mathsf T}$. Form $M = L^{-1}S_bL^{-\mathsf T}$ by
+   two sets of triangular solves, and replace $M$ by $\tfrac12(M + M^{\mathsf T})$ to remove the
+   slight asymmetry that rounding introduces.
+3. **Eigenvectors.** Compute the eigenvectors $\mathbf v$ of $M$ belonging to its largest
+   eigenvalues, at most $K - 1$ of them.
+4. **Map back.** Solve $L^{\mathsf T}\mathbf w = \mathbf v$ for each discriminant direction, normalise it
+   to unit length, and fix its sign so that its largest entry is positive.
+5. **Prepare the classifier.** Store the projections of the class means onto the directions,
+   the logarithms of the class priors, and the within-class variance along each direction.
+
+**Transform** a point: take its dot product with each direction.
+
+**Classify** a point: project it; for each class, compute the squared distance from the
+projected class mean, with each direction divided by its within-class variance; subtract twice
+the log prior; return the class with the smallest result.
 
 ## Implementation
 

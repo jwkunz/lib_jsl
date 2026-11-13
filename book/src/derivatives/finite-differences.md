@@ -392,6 +392,17 @@ The central difference and the five-point formulas:
    on $f(x, y) = \sin(xy)$ near $(10^3, 10^{-3})$. Why does the default relative step work poorly here,
    and what would you do?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The error is about $\tfrac12 h|f''| + \varepsilon|f|/h$ (truncation plus rounding). Setting the derivative with respect to $h$ to zero gives $h \sim \varepsilon^{1/2}$ and an error of the same size, about $10^{-8}$. For the central difference the truncation term is $\tfrac16 h^2|f'''|$, so the best step is $h \sim \varepsilon^{1/3}$ and the error $\sim\varepsilon^{2/3} \approx 10^{-11}$: three more digits for one more evaluation.
+2. The central difference is $D(h) = f' + \tfrac16 h^2 f''' + O(h^4)$. Eliminate the $h^2$ term with $\tfrac43 D(h) - \tfrac13 D(2h)$, which equals $\big[8(f(x+h) - f(x-h)) - (f(x+2h) - f(x-2h))\big]/(12h)$.
+3. Replace $\varepsilon$ by $10^{-8}$ in the balance of exercise 1: $h \sim (10^{-8})^{1/3} \approx 2\times10^{-3}$ and an error near $(10^{-8})^{2/3} \approx 5\times10^{-6}$, up to the constants set by $f$. Noisy functions need large steps and give few digits.
+4. There is no subtraction in $\operatorname{Im} f(x + ih)/h$, so $h = 10^{-20}$ is fine and the result is correct to nearly full precision. The central difference is best near $h \approx 10^{-5}$ with an error around $10^{-10}$ and degrades on both sides. The function must be analytic and written without `abs`, comparisons or conjugation.
+5. Look at how much each coordinate step changes the product $xy$, which is what $\sin(xy)$ responds to: relative steps in $x$ and $y$ are scaled by very different magnitudes. Second differences want a change of order $\varepsilon^{1/4}$ in the argument. Rescaling the variables so both are of order one, or choosing the steps by hand, removes the problem.
+
+</details>
+
 ## Further reading
 
 - B. Taylor, *Methodus incrementorum directa et inversa*, London, 1715.

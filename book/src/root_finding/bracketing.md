@@ -276,6 +276,18 @@ an interval holding two roots has the same signs at both ends.
 6. What does bisection return for $f(x) = 1/(x - 1)$ on $[0, 3]$? Is the result a root? What does
    the residual tell you?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. About 53 halvings for a root near 1: the bracket cannot become narrower than the spacing of doubles, which is about $\varepsilon|x|$. Beyond that, the midpoint of two adjacent doubles is one of them and the bracket stops shrinking. (A root near 0 has finer spacing and needs more steps.)
+2. $f$ is convex and increasing, so the chord from $(a, f(a))$ to $(2, 2)$ always crosses zero to the left of the root: $a$ is replaced and $b = 2$ never moves. With $b$ fixed, the error ratio tends to $1 - f'(r)(b - r)/f(b) = 1 - 2\sqrt2(2 - \sqrt2)/2 = 3 - 2\sqrt2 \approx 0.17$: linear convergence.
+3. Put $g(x) = f(x)e^{Qx}$ and require the three values $g_1, g_3, g_2$ at the equally spaced points $x_1, x_3, x_2$ to be collinear, $g_1 + g_2 = 2g_3$. With $R = e^{Qh}$ this is $f_1 - 2f_3R + f_2R^2 = 0$, so $R = (f_3 \pm \sqrt{f_3^2 - f_1f_2})/f_2$. False position on $g$ then gives $x_4 = x_3 + (x_3 - x_1)\,\mathrm{sign}(f_1 - f_2)\,f_3/\sqrt{f_3^2 - f_1f_2}$.
+4. Regard $x$ as a function of $y$ and interpolate it through $(f_a, a), (f_b, b), (f_c, c)$ with Lagrange's formula; evaluate at $y = 0$: $x = \dfrac{a f_bf_c}{(f_a - f_b)(f_a - f_c)} + \dfrac{b f_af_c}{(f_b - f_a)(f_b - f_c)} + \dfrac{c f_af_b}{(f_c - f_a)(f_c - f_b)}$. If $x$ is exactly quadratic in $y$, the interpolant is $x(y)$ itself.
+5. The zeros are $x = 1/(k\pi)$, and $k = 1, \ldots, 6$ lie in $[0.05, 1]$ ($1/(6\pi) \approx 0.053$, $1/(7\pi) \approx 0.045$). The two closest, $1/(5\pi)$ and $1/(6\pi)$, are $0.0106$ apart, so the scan step must be smaller than that: at least about 90 subintervals.
+6. It converges to $x = 1$, where $f$ is unbounded, because $f$ changes sign there. The result is not a root: the residual $|f|$ is of the order of $1/(\text{bracket width})$, enormous rather than small.
+
+</details>
+
 ## Further reading
 
 - R. P. Brent, *Algorithms for Minimization without Derivatives*, Prentice-Hall, 1973 (Dover reprint,

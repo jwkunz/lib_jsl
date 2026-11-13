@@ -260,6 +260,17 @@ The secant method needs more care in deciding that it has converged:
 5. Compare Newton and secant on Kepler's equation for eccentricities $e = 0.1, 0.5, 0.9, 0.99$ starting
    from $E_0 = M$. Which starting guess would you use for $e$ close to 1?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $f = x^2 - a$, $x - (x^2 - a)/(2x) = (x + a/x)/2$. For $f = 1/x - a$, $f' = -1/x^2$ and $x - (1/x - a)/(-1/x^2) = x + x^2(1/x - a) = x(2 - ax)$: only multiplications.
+2. $x_1 = x_0 - (1 + x_0^2)\arctan x_0 = -x_0$ gives $2x_0 = (1 + x_0^2)\arctan x_0$. The positive root is $x_0 \approx 1.3917$: Newton's method converges for starting points with $|x_0|$ below it and diverges above it.
+3. Write $f = (x - r)^m g(x)$ with $g(r) \ne 0$. Then $f/f' \approx (x - r)/m$ near $r$, so $e_{k+1} \approx (1 - 1/m)e_k$. With the step $m f/f'$ the linear factor cancels and the next term is quadratic in $e_k$.
+4. Expand $f$ about the root: $e_{k+1} \approx \dfrac{f''(r)}{2f'(r)}\,e_ke_{k-1}$. If $|e_{k+1}| \approx C|e_k|^p$ then $p^2 = p + 1$, so $p = (1 + \sqrt5)/2$.
+5. Kepler's equation is $E - e\sin E = M$. For $e$ near 1, $f'(E) = 1 - e\cos E$ is nearly zero near $E = 0$ and Newton's method from $E_0 = M$ can overshoot badly. A start at $E_0 = \pi$ is a standard safe choice.
+
+</details>
+
 ## Further reading
 
 - T. J. Ypma, "Historical development of the Newton-Raphson method", *SIAM Review* 37 (1995) 531–551.

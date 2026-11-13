@@ -244,6 +244,17 @@ The real roots:
 5. Find the poles of a Butterworth filter of order 8 as the roots of $1 + (-s^2)^8$ and check that they
    lie on a circle.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Expand the determinant along the row or column that holds the coefficients, or use induction on $n$: each expansion step contributes one coefficient to the polynomial built so far.
+2. For $W(x) = \prod_{k=1}^{20}(x - k)$, $W'(r) = \prod_{j \ne r}(r - j) = \pm(r - 1)!\,(20 - r)!$. The factor $r^{19}/|W'(r)|$ peaks for $r = 16$ at about $2.4\times10^{9}$, with the roots 14 to 17 all above $10^{9}$; the smallest and largest roots are far less sensitive.
+3. A perturbation of size $\varepsilon$ in the constant term gives $(x - 1)^m = \pm\varepsilon$, whose roots are $1 + \varepsilon^{1/m}e^{2\pi ik/m}$: a circle of radius $\varepsilon^{1/m}$ about 1. For $m = 8$ and $\varepsilon \approx 10^{-16}$ the radius is about $0.01$.
+4. For each coefficient $a_k$ the sensitivity of a root $r$ is $|a_k||r|^k/|p'(r)|$. The roots of $T_{20}$ lie in $[-1, 1]$ and are well separated, so $|p'(r)|$ is not small and $|r|^k \le 1$; for $W$ the roots go up to 20, so the powers $r^k$ are huge while the root spacing is only 1.
+5. $1 + (-s^2)^8 = 0$ is $s^{16} = -1$, so $|s| = 1$ and the sixteen roots are equally spaced on the unit circle, at angles $(2k + 1)\pi/16$. The eight in the left half-plane are the filter's poles.
+
+</details>
+
 ## Further reading
 
 - J. H. Wilkinson, "The evaluation of the zeros of ill-conditioned polynomials", *Numerische

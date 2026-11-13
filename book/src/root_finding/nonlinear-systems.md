@@ -278,6 +278,17 @@ Broyden's update:
 5. Compare the evaluations used by Newton with difference Jacobians and by Broyden for the Bratu
    problem with $n = 10, 20, 40, 80$. How does the ratio grow with $n$?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The Newton direction is $\mathbf p = -J^{-1}\mathbf F$ and the gradient of $\tfrac12\|\mathbf F\|^2$ is $J^{\mathsf T}\mathbf F$. Then $\mathbf p^{\mathsf T}J^{\mathsf T}\mathbf F = -\mathbf F^{\mathsf T}\mathbf F < 0$. Steepest descent is $-J^{\mathsf T}\mathbf F$, which equals $\mathbf p$ only when $J^{\mathsf T}J$ is a multiple of the identity.
+2. $B_{k+1} = B_k + (\mathbf y - B_k\mathbf s)\mathbf s^{\mathsf T}/(\mathbf s^{\mathsf T}\mathbf s)$. Applying it to $\mathbf s$ gives $B_k\mathbf s + \mathbf y - B_k\mathbf s = \mathbf y$. For $\mathbf v^{\mathsf T}\mathbf s = 0$ the correction term vanishes.
+3. At the fold the Jacobian becomes singular (its smallest singular value tends to zero), so the Newton step is undefined or huge. Following the solution past a turning point needs continuation in an arclength parameter rather than in $\lambda$.
+4. Adding and subtracting: $(x + y)^2 = 6$ and $(x - y)^2 = 2$, so the solutions are $\pm(1.932, 0.518)$ and $\pm(0.518, 1.932)$. Start from points in each quadrant, and from both sides of the line $y = x$.
+5. A finite-difference Jacobian costs $n + 1$ evaluations of $\mathbf F$ per iteration, Broyden's method one. With similar iteration counts, the ratio should grow roughly in proportion to $n$.
+
+</details>
+
 ## Further reading
 
 - C. G. Broyden, "A class of methods for solving nonlinear simultaneous equations", *Mathematics of

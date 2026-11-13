@@ -26,14 +26,48 @@ Herrmann (1993) searched for 32-bit polynomials with better distance properties;
 
 ### CRC: division over GF(2)
 
-Read the message's bits as the coefficients of $M(x)$. With a generator $G(x)$ of degree 32, the CRC is the remainder $R(x) = x^{32}M(x) \bmod G(x)$, and the transmitted word $x^{32}M(x) + R(x)$ is a multiple of $G$. An error pattern $E(x)$ goes undetected only if $G$ divides $E$. So all single-bit errors are caught when $G$ has more than one term, and
-all bursts of length 32 or less when $G$ has a nonzero constant term. Random corruption escapes with probability $2^{-32}$. For CRC-32, all two- and three-bit errors are caught in messages up to about 11 kB.
+A **checksum** is a short value computed from a message and sent along with it. The receiver
+recomputes it, and a mismatch reveals that the message was corrupted. A **cyclic redundancy
+check** (CRC) is a checksum defined by polynomial division, which gives it guaranteed detection
+properties that a simple sum of the bytes lacks.
+
+**The definition.** Read the message's bits as the coefficients of a polynomial $M(x)$, with
+arithmetic on the coefficients modulo 2 (so addition and subtraction are both XOR). Fix a
+**generator polynomial** $G(x)$ of degree 32. The CRC is the remainder
+
+$$
+R(x) = x^{32}M(x) \bmod G(x),
+$$
+
+a polynomial of degree below 32, that is, 32 bits. Multiplying by $x^{32}$ shifts the message up
+to make room, and the transmitted word $x^{32}M(x) + R(x)$ is the message followed by its CRC.
+Since the remainder has been added back, that word is an exact multiple of $G$. (This is the
+same construction as the [systematic Reed-Solomon code](../coding/reed-solomon.md#systematic-encoding),
+over the field of two elements.)
+
+**What it detects.** Corruption adds an error polynomial $E(x)$, with a 1 at each flipped bit.
+The receiver finds a multiple of $G$ plus $E$, and the check fails unless $G$ happens to divide
+$E$. So an error goes undetected only if its pattern is a multiple of the generator. That gives
+guarantees:
+
+- A single-bit error is $E = x^i$, which no $G$ with more than one term divides: all single-bit
+  errors are caught.
+- A burst of errors confined to 32 consecutive bits or fewer is $x^i$ times a polynomial of
+  degree below 32, which $G$ (of degree 32, with a nonzero constant term) cannot divide: all
+  such bursts are caught.
+- Random corruption produces a random remainder, which is zero with probability $2^{-32}$. For CRC-32, all two- and three-bit errors are caught in messages up to about 11 kB.
 
 {{#include ../generated/information/crc_detection.md}}
 
 In practice the CRC is computed a byte at a time with a 256-entry table of remainders, in **reflected** bit order (least significant bit first, matching serial transmission). The register starts at all ones, so leading zero bytes are not invisible, and the result is inverted. The table for 0xEDB88320, the bit reversal of 0x04C11DB7, gives the standard CRC-32. {{#include ../generated/information/crc32c_facts.md}}
 
 ### SHA-256
+
+A CRC protects against accidents, not against people: because it is linear, it is easy to alter a
+message deliberately so that the CRC still matches. A **cryptographic hash function** is designed
+so that this is infeasible. It maps a message of any length to a fixed-size **digest** in such a
+way that nobody can find a message with a given digest, or two messages with the same digest,
+faster than by trying an astronomical number of candidates. SHA-256 produces a 256-bit digest.
 
 The message is padded with a 1 bit, zeros and its 64-bit length to a multiple of 512 bits. The 256-bit state, initially fixed constants, is updated by each 512-bit block. The block is expanded into 64 words with rotations and shifts. Then 64 rounds mix them into eight working variables, using the nonlinear choice and majority functions
 $\mathrm{Ch}(e, f, g) = (e \wedge f) \oplus (\neg e \wedge g)$ and $\mathrm{Maj}(a, b, c)$, rotations, and 64 round constants from the cube roots of the first 64 primes. The result is added to the state. The final state is the digest.

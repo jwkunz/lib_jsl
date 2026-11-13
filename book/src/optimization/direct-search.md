@@ -197,6 +197,17 @@ gradient is available, is far cheaper.
 5. Add noise of size $10^{-6}$ to the Rosenbrock function and compare the accuracy reached by Nelder-Mead
    and by BFGS with finite-difference gradients.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The simplex reflects its worst vertex through the centroid of the others, so early steps move towards the origin, expand if the reflection is a big improvement, and contract as it nears the minimum; sketch the triangles from the printed vertices.
+2. Minimising along $\mathbf d$ from $\mathbf p$ means $\mathbf d^{\mathsf T}\nabla f(\mathbf p) = 0$, and likewise at $\mathbf q$. For a quadratic $\nabla f(\mathbf q) - \nabla f(\mathbf p) = A(\mathbf q - \mathbf p)$, so $\mathbf d^{\mathsf T}A(\mathbf q - \mathbf p) = 0$.
+3. The minimiser is the kink at the origin. Nelder-Mead and Powell use only function values and approach it; BFGS relies on a gradient that is discontinuous there, so expect its line searches to stall at modest accuracy.
+4. Use the parameters given in the entry. Nelder-Mead's simplex repeatedly contracts onto a line that does not contain the minimum and stalls at a point where the gradient is not zero.
+5. Nelder-Mead sees only noisy function values and reaches an $f$ within the noise but locates $\mathbf x$ only to about the square root of the noise, $10^{-3}$. BFGS with finite-difference gradients needs steps well above the noise level and loses accuracy quickly as the noise grows.
+
+</details>
+
 ## Further reading
 
 - J. A. Nelder and R. Mead, "A simplex method for function minimization", *The Computer Journal* 7

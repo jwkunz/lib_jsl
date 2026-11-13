@@ -242,6 +242,17 @@ The bracketing phase of the line search:
 5. Run gradient descent on the Rosenbrock function with exact line searches (golden section on
    each line). Compare the number of evaluations with the Wolfe line search.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With $\varphi = (1 + \sqrt5)/2$, $1/\varphi = \varphi - 1$, so $1/\varphi^2 = 1 - 1/\varphi$ is $(\varphi - 1)^2 = 2 - \varphi$, i.e. $\varphi^2 = \varphi + 1$, true. This says the new interior point of the shrunken interval coincides with the old interior point on the other side, so one evaluation can be reused.
+2. $\log(10^{6})/\log\varphi \approx 28.7$, so about 29 reductions (plus the two initial evaluations). Bisection for a root needs $\log_2 10^6 \approx 20$ evaluations: it uses the sign of $f$ and halves the interval each time, while golden section shrinks it only by $0.618$ per evaluation.
+3. The minimum of the parabola is $x = b - \tfrac12\dfrac{(b - a)^2(f_b - f_c) - (b - c)^2(f_b - f_a)}{(b - a)(f_b - f_c) - (b - c)(f_b - f_a)}$. It makes progress when the parabola opens upwards and the minimum lies inside the bracket; Brent's method falls back to a golden-section step when it does not, or when the step is too small.
+4. Let $\phi(\alpha) = f(\mathbf x + \alpha\mathbf d)$. Since $\phi$ is bounded below it must cross the line $\phi(0) + c_1\alpha\phi'(0)$ again after $\alpha = 0$; at the first crossing the mean value theorem gives a step with $\phi'(\alpha) = c_1\phi'(0) > c_2\phi'(0)$, and the strong Wolfe conditions hold in an interval around such points.
+5. Exact line searches use many more evaluations per iteration (about 30 for each golden-section search), so expect far more total evaluations than with a Wolfe search, for similar numbers of iterations.
+
+</details>
+
 ## Further reading
 
 - J. Kiefer, "Sequential minimax search for a maximum", *Proceedings of the American Mathematical

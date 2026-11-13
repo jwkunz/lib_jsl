@@ -268,6 +268,17 @@ is usually a small multiple of $m$, although in the worst case it can be exponen
    Chebyshev fit) as an LP, and solve it for a few points.
 5. The transportation problem in the table has integer data. Why is its optimal solution integral?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The Wyndor problem is $\max\ 3x + 5y$ subject to $x \le 4$, $2y \le 12$, $3x + 2y \le 18$. Starting with the three slack variables basic, enter $y$ (the most negative reduced cost, $-5$), which the second row limits to $y = 6$; then enter $x$, limited by the third row to $x = 2$. The optimum is $(2, 6)$ with value $36$.
+2. The dual is $\min\ 4u_1 + 12u_2 + 18u_3$ subject to $u_1 + 3u_3 \ge 3$, $2u_2 + 2u_3 \ge 5$, $u \ge 0$. Its optimum is $\mathbf u = (0, \tfrac32, 1)$ with value $0 + 18 + 18 = 36$, equal to the primal value.
+3. Dantzig's rule on the Klee-Minty cube visits all $2^3 = 8$ vertices, i.e. 7 pivots; count Bland's rule's pivots on the same data and compare.
+4. Minimise $t$ over $(a, b, t)$ subject to $-t \le y_i - ax_i - b \le t$ for every $i$: two linear inequalities per point.
+5. The constraint matrix of a transportation problem is totally unimodular, so every vertex of the feasible region has integer coordinates when the supplies and demands are integers, and the simplex method ends at a vertex.
+
+</details>
+
 ## Further reading
 
 - G. B. Dantzig, *Linear Programming and Extensions*, Princeton University Press, 1963.

@@ -305,6 +305,17 @@ The augmented Lagrangian outer iteration:
 5. Solve the box problem of the example program with the constraint $x + y + z \le 2.5$ added. Which
    constraints are active?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. At $(1, 1)$: $\nabla f + \mu_1\nabla g_1 + \mu_2\nabla g_2 = (-2, 0) + \mu_1(2, -1) + \mu_2(1, 1) = 0$ gives $2\mu_1 + \mu_2 = 2$ and $-\mu_1 + \mu_2 = 0$, so $\mu_1 = \mu_2 = 2/3 \ge 0$. Both constraints are active ($g_1 = g_2 = 0$), so complementarity holds.
+2. With $L = x + y + \lambda(x^2 + y^2 - 2)$, stationarity gives $1 + 2\lambda x = 0$ and $1 + 2\lambda y = 0$, so $x = y = \pm1$. The minimum is $(-1, -1)$ with $f = -2$ and $\lambda = \tfrac12 > 0$. With this sign convention $\lambda = -\mathrm dp^*/\mathrm dc$ for the constraint $x^2 + y^2 = c$: the rate at which the optimal value falls as the circle is enlarged ($f^* = -\sqrt{2c}$, so $-\mathrm df^*/\mathrm dc = 1/\sqrt{2c} = \tfrac12$ at $c = 2$).
+3. At the penalty minimiser $\nabla f + \rho\,\mathbf h\,\nabla\mathbf h = 0$, so $\mathbf h = -\boldsymbol\lambda^*/\rho + o(1/\rho)$, where $\boldsymbol\lambda^*$ is the multiplier: the violation is $O(1/\rho)$. The Hessian is $\nabla^2 L + \rho\nabla\mathbf h\nabla\mathbf h^{\mathsf T}$: it has eigenvalues of size $\rho$ along the constraint normals and of size $O(1)$ in the tangent directions, so its condition number is $O(\rho)$.
+4. With $L = \tfrac12\mathbf d^{\mathsf T}B\mathbf d + \mathbf g^{\mathsf T}\mathbf d + \boldsymbol\lambda^{\mathsf T}(A\mathbf d + \mathbf c)$, stationarity gives $\mathbf d = -B^{-1}(\mathbf g + A^{\mathsf T}\boldsymbol\lambda)$. Substituting, the dual is $\max_{\boldsymbol\lambda}\; -\tfrac12(\mathbf g + A^{\mathsf T}\boldsymbol\lambda)^{\mathsf T}B^{-1}(\mathbf g + A^{\mathsf T}\boldsymbol\lambda) + \mathbf c^{\mathsf T}\boldsymbol\lambda$, an unconstrained concave quadratic.
+5. The problem as stated is infeasible: since $(x + y + z)^2 \ge 3(xy + yz + zx) = 9$, the surface-area constraint forces $x + y + z \ge 3$, and the unit cube (sum 3) is already the smallest. Try a bound above 3 (say $3.3$) to see an active inequality, or a bound on a single side such as $x \le 0.8$.
+
+</details>
+
 ## Further reading
 
 - J. Nocedal and S. J. Wright, *Numerical Optimization*, 2nd ed., Springer, 2006, chapters 12, 17

@@ -244,6 +244,17 @@ $C$ by the reduced chi-squared.
    estimates matches the standard errors.
 5. Fit a sum of two Gaussians to data from a single Gaussian. What happens to the covariance?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $\boldsymbol\phi = A\mathbf p$ the Jacobian is the constant matrix $A$, so the Gauss-Newton step solves $A^{\mathsf T}A\,\mathbf h = -A^{\mathsf T}\mathbf r$ and the quadratic objective is minimised exactly in one step.
+2. The constrained problem has the Lagrangian $\tfrac12\|\mathbf r + J\mathbf h\|^2 + \tfrac\mu2(\|D^{1/2}\mathbf h\|^2 - \Delta^2)$, whose stationarity condition is $(J^{\mathsf T}J + \mu D)\mathbf h = -J^{\mathsf T}\mathbf r$: the Levenberg-Marquardt equation. The radius is then $\Delta = \|D^{1/2}\mathbf h\|$.
+3. Regression on $\ln y$ minimises errors in $\ln y$, which weights small $y$ values much more strongly and corresponds to multiplicative (log-normal) noise. For additive Gaussian noise the direct nonlinear fit is the maximum-likelihood estimate.
+4. The covariance of the estimates is $\sigma^2(J^{\mathsf T}J)^{-1}$ at the solution. With 1000 realisations the sample standard deviations should agree with the standard errors to within a few per cent (about $1/\sqrt{2000}$).
+5. The two components are not separately identifiable (swapping them, or splitting the amplitude between them, fits equally well), so $J^{\mathsf T}J$ is nearly singular and the covariance has enormous, strongly correlated entries.
+
+</details>
+
 ## Further reading
 
 - K. Levenberg, "A method for the solution of certain non-linear problems in least squares",

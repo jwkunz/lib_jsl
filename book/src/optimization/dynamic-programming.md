@@ -239,6 +239,17 @@ action for each state at each stage.
 5. Implement policy iteration for `FiniteMdp` using `evaluate_policy`, and compare its iterations with
    value iteration for $\gamma = 0.99$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $\{1, 3, 4\}$ and the amount 6, greedy gives $4 + 1 + 1$ (three coins) while $3 + 3$ uses two. For $\{1, 5, 10, 25\}$ greedy is optimal (the system is *canonical*); verify it by comparing greedy with the dynamic program for every amount up to 100.
+2. A substitution then costs the same as a deletion plus an insertion, so it is never worth using, and the distance becomes $n + m - 2\,\mathrm{LCS}$: it counts the characters that must be deleted from one string and inserted into the other, the length of the longest common subsequence being the part kept.
+3. The number of ways to parenthesise a chain of $n$ matrices is the Catalan number $C_{n-1} \sim 4^{n}/n^{3/2}$, exponential, while the dynamic program takes $O(n^3)$ because it solves each of the $O(n^2)$ subchains once, trying $O(n)$ split points.
+4. For value functions $V, W$, $|\max_a x_a - \max_a y_a| \le \max_a|x_a - y_a|$, so $|(TV)(s) - (TW)(s)| \le \gamma\max_a\sum_{s'}P(s'|s, a)|V(s') - W(s')| \le \gamma\|V - W\|_\infty$.
+5. Policy iteration usually converges in a handful of iterations because each evaluation is exact, while value iteration needs of the order of $\log(\text{tol})/\log\gamma$ sweeps, hundreds when $\gamma = 0.99$.
+
+</details>
+
 ## Further reading
 
 - R. Bellman, *Dynamic Programming*, Princeton University Press, 1957 (Dover reprint, 2003).

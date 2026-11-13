@@ -284,6 +284,17 @@ The L-BFGS two-loop recursion:
 5. Run L-BFGS on the $n$-dimensional Rosenbrock function for $n = 10, 100, 1000$ with $m = 3, 10, 30$ and
    compare iterations and time.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With $\mathbf x = B\mathbf z$ and $g(\mathbf z) = f(B\mathbf z)$: $\nabla g = B^{\mathsf T}\nabla f$ and $\nabla^2 g = B^{\mathsf T}HB$. The Newton step in $\mathbf z$ is $-(B^{\mathsf T}HB)^{-1}B^{\mathsf T}\nabla f = -B^{-1}H^{-1}\nabla f$, which maps to the same step in $\mathbf x$. The gradient step maps to $-BB^{\mathsf T}\nabla f \ne -\nabla f$.
+2. With $\rho = 1/\mathbf y^{\mathsf T}\mathbf s$ the update is $H_{k+1} = (I - \rho\mathbf s\mathbf y^{\mathsf T})H(I - \rho\mathbf y\mathbf s^{\mathsf T}) + \rho\mathbf s\mathbf s^{\mathsf T}$. Since $(I - \rho\mathbf y\mathbf s^{\mathsf T})\mathbf y = \mathbf y - \mathbf y = 0$, the first term kills $\mathbf y$ and the second gives $\rho\mathbf s(\mathbf s^{\mathsf T}\mathbf y) = \mathbf s$.
+3. For $\mathbf v \ne 0$ put $\mathbf w = (I - \rho\mathbf y\mathbf s^{\mathsf T})\mathbf v$: then $\mathbf v^{\mathsf T}H_{k+1}\mathbf v = \mathbf w^{\mathsf T}H_k\mathbf w + \rho(\mathbf s^{\mathsf T}\mathbf v)^2$. Both terms are non-negative, and they cannot both vanish: if $\mathbf w = 0$ then $\mathbf v \propto \mathbf y$ with $\mathbf s^{\mathsf T}\mathbf v \ne 0$.
+4. Keep the pairs $(\mathbf s_i, \mathbf y_i)$ for all iterations (when $m$ is at least that number) and apply the recursion to $\mathbf g$; compare with $H_k\mathbf g$ from the dense updates started from the same $H_0$.
+5. Expect the iteration count to fall as $m$ grows while the cost per iteration rises in proportion to $m$; the best trade-off is usually modest $m$.
+
+</details>
+
 ## Further reading
 
 - W. C. Davidon, "Variable metric method for minimization", *SIAM Journal on Optimization* 1 (1991)

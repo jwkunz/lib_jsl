@@ -263,6 +263,17 @@ stores four vectors. That is what makes it usable for very large $n$.
 5. Replace the fixed learning rate with a backtracking (Armijo) line search, and compare on the
    Rosenbrock function.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The gradient is $A\mathbf x$, so each step gives $\mathbf x - \alpha A\mathbf x$, which multiplies the component along the eigenvector with eigenvalue $\lambda_i$ by $1 - \alpha\lambda_i$. The worst factor over $[\mu, L]$ is smallest when $1 - \alpha\mu = -(1 - \alpha L)$, i.e. $\alpha = 2/(L + \mu)$, giving the rate $(L - \mu)/(L + \mu)$.
+2. The exact line search along $-\mathbf g_k$ makes $\mathrm d f(\mathbf x_k - \alpha\mathbf g_k)/\mathrm d\alpha = -\nabla f(\mathbf x_{k+1})^{\mathsf T}\mathbf g_k = 0$, i.e. $\mathbf g_{k+1} \perp \mathbf g_k$.
+3. Fletcher-Reeves is $\beta = \|\mathbf g_{k+1}\|^2/\|\mathbf g_k\|^2$; Polak-Ribière is $\mathbf g_{k+1}^{\mathsf T}(\mathbf g_{k+1} - \mathbf g_k)/\|\mathbf g_k\|^2$. On a quadratic with exact line searches the gradients are mutually orthogonal, so $\mathbf g_{k+1}^{\mathsf T}\mathbf g_k = 0$ and the two coincide.
+4. Gradient descent's iteration count grows in proportion to $\kappa = n$, conjugate gradients' in proportion to $\sqrt\kappa = \sqrt n$ (and never beyond $n$ in exact arithmetic).
+5. Expect the Armijo version to be far more robust than a badly chosen fixed rate but still slow on Rosenbrock's curved valley, needing thousands of iterations.
+
+</details>
+
 ## Further reading
 
 - A. Cauchy, "Méthode générale pour la résolution des systèmes d'équations simultanées", *Comptes

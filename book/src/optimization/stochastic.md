@@ -225,6 +225,17 @@ Each generation costs $N_p$ evaluations.
 5. Replace the global best in the particle swarm with the best of each particle's two neighbours on a
    ring. How does reliability change?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With a symmetric proposal, the Metropolis acceptance probability is $A(\mathbf x \to \mathbf y) = \min(1, e^{-(f(\mathbf y) - f(\mathbf x))/T})$. Then $p(\mathbf x)A(\mathbf x \to \mathbf y) = p(\mathbf y)A(\mathbf y \to \mathbf x)$ (both equal $\min(p(\mathbf x), p(\mathbf y))$), which is detailed balance and implies invariance.
+2. Slower cooling (0.99) and higher starting temperatures cost more evaluations and typically succeed more often on Rastrigin's many local minima; count successes over many seeds before comparing, since single runs are noisy.
+3. Tabulate the success rate against both parameters over many seeds. Moderate $F$ and a high $CR$ are common good choices, but the best region depends on the problem and the population size.
+4. Differential evolution finds the right basin cheaply; BFGS then converges to full precision in a few dozen evaluations, so the hybrid usually reaches much higher accuracy for a similar or smaller budget.
+5. A ring topology spreads information slowly, which slows convergence but reduces premature convergence to a poor local minimum, so reliability usually improves on multimodal functions.
+
+</details>
+
 ## Further reading
 
 - S. Kirkpatrick, C. D. Gelatt and M. P. Vecchi, "Optimization by simulated annealing", *Science* 220

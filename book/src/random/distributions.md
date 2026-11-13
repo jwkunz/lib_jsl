@@ -174,7 +174,35 @@ seeds its mean is within $1.3$ standard errors). The histograms show three of th
 
 ## Algorithm
 
-See the sections above; each sampler is a few lines.
+Each sampler is a few lines; these are the main ones.
+
+**Exponential** with rate $\lambda$ (inversion): draw $U$; return $-\ln(1 - U)/\lambda$.
+
+**Normal** (Box-Muller): draw $U_1$ and $U_2$; compute $r = \sqrt{-2\ln U_1}$ (taking care that the argument of the logarithm is never zero) and
+$\theta = 2\pi U_2$; return the pair $r\cos\theta$, $r\sin\theta$. For $N(\mu, \sigma^2)$ return
+$\mu + \sigma Z$.
+
+**Gamma** with shape $\alpha \ge 1$ (Marsaglia and Tsang). Set $d = \alpha - \tfrac13$ and
+$c = 1/\sqrt{9d}$. Repeat:
+
+1. draw a standard normal $Z$ and set $V = (1 + cZ)^3$; if $V \le 0$, start again;
+2. draw a uniform $U$; if $\ln U < \tfrac12Z^2 + d - dV + d\ln V$, return $dV$.
+
+For $\alpha < 1$, sample with shape $\alpha + 1$ and multiply by $U^{1/\alpha}$. Multiply by the
+scale parameter at the end.
+
+**Beta**$(a, b)$: draw $X \sim \operatorname{Gamma}(a)$ and $Y \sim \operatorname{Gamma}(b)$; return $X/(X + Y)$.
+
+**Poisson** with a small rate $\lambda$ (Knuth): set $L = e^{-\lambda}$, $k = 0$ and $p = 1$;
+repeat "multiply $p$ by a new uniform and add 1 to $k$" until $p \le L$; return $k - 1$. For
+a large rate, use the recursion on the time of the $m$-th event described above, which ends
+in a call with a small rate.
+
+**Multivariate normal** $N(\boldsymbol\mu, \Sigma)$: factor $\Sigma = LL^{\mathsf T}$ once; for each sample draw
+a vector $\mathbf z$ of independent standard normals and return $\boldsymbol\mu + L\mathbf z$.
+
+**A discrete distribution by inversion**: draw $U$; add up the probabilities
+$P(0), P(1), \ldots$ until the running total reaches $U$; return the index reached.
 
 ## Implementation
 

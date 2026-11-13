@@ -91,9 +91,33 @@ one point and is not significant.
 
 ## Algorithm
 
-1. **Pearson**: means; sums of cross-products and squares about them; $r$; $t$ statistic and p-value.
-2. **Spearman**: average ranks of each variable by sorting; Pearson's $r$ of the ranks.
-3. **Kendall**: count $S = C - D$ over all pairs; tie group sizes of each variable; $\tau_b$; variance of $S$ with tie corrections; normal p-value.
+**Pearson's $r$.**
+
+1. Compute the means $\bar x$ and $\bar y$.
+2. In a second pass, accumulate $S_{xy} = \sum(x_i - \bar x)(y_i - \bar y)$,
+   $S_{xx} = \sum(x_i - \bar x)^2$ and $S_{yy} = \sum(y_i - \bar y)^2$.
+3. Return $r = S_{xy}/\sqrt{S_{xx}S_{yy}}$, clamped to $[-1, 1]$.
+4. For the p-value, compute $t = r\sqrt{(n - 2)/(1 - r^2)}$ and the two-sided tail of Student's
+   $t$ distribution with $n - 2$ degrees of freedom.
+
+**Spearman's $\rho$.**
+
+1. Rank each variable: sort its values, and give each value its position in the sorted order,
+   counted from 1. A group of tied values all receive the average of the positions they occupy.
+2. Compute Pearson's $r$ of the two lists of ranks.
+
+**Kendall's $\tau_b$.**
+
+1. For every pair of observations $i < j$, compare the signs of $x_i - x_j$ and $y_i - y_j$:
+   equal signs make the pair concordant, opposite signs discordant, and a zero difference makes
+   it a tie in that variable.
+2. Count $C$, $D$ and the pairs tied in $x$ ($n_1$) and in $y$ ($n_2$).
+3. Return $\tau_b = (C - D)/\sqrt{(n_0 - n_1)(n_0 - n_2)}$ with $n_0 = n(n - 1)/2$.
+4. For the p-value, divide $S = C - D$ by the square root of its variance under independence,
+   corrected for the sizes of the tie groups, and use the normal distribution.
+
+Pearson's $r$ costs $O(n)$, Spearman's $O(n\log n)$ for the sorts, and Kendall's $O(n^2)$ for the
+direct count.
 
 ## Implementation
 

@@ -128,10 +128,26 @@ for the skewness, and covers the true value.
 
 ## Algorithm
 
-1. For $b = 1, \ldots, B$: draw $n$ indices uniformly with replacement; evaluate $\hat\theta^*_b$ on the resample.
-2. Standard error: the standard deviation of the replicates; bias: their mean minus $\hat\theta$.
-3. Percentile interval: quantiles of the sorted replicates.
-4. BCa: $z_0$ from the fraction below $\hat\theta$; $a$ from the $n$ jackknife values; adjusted quantile levels.
+Input: the data, a function that computes the statistic, the number of replicates $B$ and a
+confidence level $1 - \alpha$.
+
+1. **Compute** the statistic $\hat\theta$ on the original data.
+2. **Resample.** For $b = 1, \ldots, B$: draw $n$ indices uniformly from $1, \ldots, n$ with
+   replacement, form the resample from those observations, and evaluate the statistic on it to
+   get $\hat\theta^*_b$.
+3. **Standard error and bias.** The standard error is the standard deviation of the $B$
+   replicates. The bias estimate is their mean minus $\hat\theta$.
+4. **Percentile interval.** Sort the replicates and take their $\alpha/2$ and $1 - \alpha/2$
+   quantiles.
+5. **BCa interval.**
+   - Compute $z_0$ from the fraction of replicates below $\hat\theta$.
+   - Compute the $n$ jackknife values, each the statistic with one observation left out, and
+     from them the acceleration $a$.
+   - Compute the two adjusted levels from $z_0$, $a$ and $z_\alpha$, and take the replicate
+     quantiles at those levels.
+
+The cost is $B$ evaluations of the statistic, plus $n$ more for the jackknife if the BCa
+interval is requested.
 
 ## Implementation
 

@@ -115,7 +115,27 @@ panicked at the upper edge; both are fixed.
 
 ## Algorithm
 
-`next_u64`: `result = rotl(s0 + s3, 23) + s0`; `t = s1 << 17`; `s2 ^= s0; s3 ^= s1; s1 ^= s2; s0 ^= s3; s2 ^= t; s3 = rotl(s3, 45)`.
+**`next_u64`**, one step of xoshiro256++, on the state words $s_0, s_1, s_2, s_3$:
+
+1. **Output.** Compute `result = rotl(s0 + s3, 23) + s0`, with wrapping 64-bit additions, from
+   the state as it stands.
+2. **Update the state**, in this order:
+   `t = s1 << 17`; `s2 ^= s0`; `s3 ^= s1`; `s1 ^= s2`; `s0 ^= s3`; `s2 ^= t`;
+   `s3 = rotl(s3, 45)`.
+3. Return `result`.
+
+The whole step is about ten machine instructions, with no multiplication and no branch.
+
+**`next_f64`**: take `next_u64`, shift it right by 11 bits to keep the top 53, and multiply by
+$2^{-53}$.
+
+**Seeding** from a 64-bit seed: run SplitMix64 four times from the seed, and use the four
+outputs as $s_0, \ldots, s_3$.
+
+**`jump`**: start a new state at zero. For each bit of a fixed 256-bit constant, in order: if
+the bit is 1, exclusive-or the current state into the new state; then advance the generator one
+step. Finally replace the state by the new state. The constant encodes the polynomial that
+makes this equivalent to $2^{128}$ steps.
 
 ## Implementation
 

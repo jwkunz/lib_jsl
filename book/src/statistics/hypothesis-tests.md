@@ -219,9 +219,31 @@ the $t$ test barely gains power with the shift, while the rank and Kolmogorov-Sm
 
 ## Algorithm
 
-All tests follow the same pattern: compute the statistic from sums, ranks or sorted samples; evaluate the tail of the reference
-distribution ($t$, $\chi^2$, $F$, normal or Kolmogorov) with the [special functions](../special_functions/statistical.md), using the lower tail of symmetric
-distributions to avoid cancellation.
+Every test has the same three steps, and they differ only in the first two.
+
+1. **Compute the statistic** from the data.
+2. **Identify the reference distribution** and its parameters (degrees of freedom).
+3. **Evaluate the tail probability** with the
+   [distribution functions](../special_functions/statistical.md). For a two-sided test on a
+   symmetric distribution, the p-value is twice the lower tail at $-|t|$; the tail is always
+   computed directly, never as one minus a CDF.
+
+The first two steps for each test:
+
+| Test | Statistic from | Reference distribution |
+|---|---|---|
+| One-sample and paired $t$ | mean and standard deviation (of the differences, if paired) | $t$ with $n - 1$ degrees of freedom |
+| Student's two-sample $t$ | two means and the pooled variance | $t$ with $n_1 + n_2 - 2$ |
+| Welch's $t$ | two means and two variances | $t$ with the Welch-Satterthwaite $\nu$ |
+| Chi-square goodness of fit | observed and expected counts | $\chi^2$ with $k - 1$ |
+| Chi-square independence | table, with expected counts from its margins | $\chi^2$ with $(r - 1)(c - 1)$ |
+| One-way ANOVA | group means and sums of squares | $F$ with $(k - 1, N - k)$ |
+| Kolmogorov-Smirnov | sorted sample; largest gap to $F$, checked just before and just after each data point | Kolmogorov, with Stephens' correction |
+| Mann-Whitney | ranks of the pooled samples, with average ranks for ties | normal, with tie and continuity corrections |
+
+For the Kolmogorov-Smirnov statistic the empirical distribution function is a staircase, so
+its largest distance from a continuous $F$ occurs at a data point, on one side or the other of
+the jump: with the data sorted, $D = \max_i\max\big(i/n - F(x_{(i)}),\ F(x_{(i)}) - (i - 1)/n\big)$.
 
 ## Implementation
 

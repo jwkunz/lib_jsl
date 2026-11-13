@@ -133,6 +133,16 @@ The channel $(1, 0.9, 0.6)$ makes most raw decisions wrong; after 200 training s
 3. Simulate error propagation: inject one wrong decision and count the errors that follow.
 4. Add a Doppler shift to the channel and observe the equaliser's tracking; how fast must the shift be before it fails?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The inverse of $1 + az^{-1}$ is $\sum(-a)^nz^{-n}$, which is the impulse response $(-a)^n$; its noise gain $\sum a^{2n} = 1/(1 - a^2)$ grows without bound as $|a| \to 1$.
+2. With past decisions $\hat s_{n-k}$ correct, subtract $\sum_{k\ge1}h_k\hat s_{n-k}$ from the received sample $r_n = h_0s_n + \sum_{k\ge1}h_ks_{n-k} + v_n$ and divide by $h_0$.
+3. After one wrong decision the feedback term is wrong for the next $L$ symbols; each subsequent decision may be wrong with probability that depends on the channel tail $h_k/h_0$. Count the errors over many trials.
+4. A Doppler shift makes the channel time-varying: the adaptive equaliser can track it if its adaptation time is short compared with the channel's coherence time, about $1/(\text{Doppler shift})$.
+
+</details>
+
 ## Further reading
 
 - J. G. Proakis and M. Salehi, *Digital Communications*, 5th ed., McGraw-Hill, 2008, chapters 9–10.

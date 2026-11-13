@@ -177,6 +177,17 @@ locate_pulse: delay 300.00, normalised correlation 1.000
 4. Compute the SNR loss of Hamming weighting, $(\sum w)^2/(N\sum w^2)$, for a long pulse.
 5. Derive the α-β filter as the steady-state Kalman filter for a constant-velocity target with white acceleration noise, and relate $\alpha$ and $\beta$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Output SNR is $|\int h(t)s(T - t)\,dt|^2/(N_0/2\int|h|^2)$; by Cauchy-Schwarz it is at most $\int|s|^2/(N_0/2)$, with equality for $h(t) = s^*(T - t)$. The maximum is $E_p/N_0$ in the entry's noise convention (with the other common convention for the noise density it is $2E_p/N_0$).
+2. The chirp $e^{j\pi(B/T)t^2}$ has an autocorrelation that is the Fourier transform of its (nearly flat, width $B$) spectrum magnitude squared, so it is approximately $T\operatorname{sinc}(B\tau)$.
+3. Barker 13 is $+++++--++-+-+$. The aperiodic autocorrelation at shift $k$ is the sum of $13 - k$ products; for this sequence each equals $0$ or $\pm1$ (the sequence is chosen for that), peak 13.
+4. For Hamming, $\sum w/N = 0.54$ and $\sum w^2/N = 0.54^2 + 0.46^2/2 = 0.3974$, so the loss is $0.54^2/0.3974 = 0.734$, i.e. $-1.34$ dB.
+5. The constant-velocity model with white acceleration noise has a steady-state Kalman gain that depends on $\lambda = \sigma_a T^2/\sigma_v$ ($\sigma_a$ the acceleration noise, $\sigma_v$ the measurement noise); the gains satisfy $\beta = 2(2 - \alpha) - 4\sqrt{1 - \alpha}$, the Kalata relation.
+
+</details>
+
 ## Further reading
 
 - M. A. Richards, *Fundamentals of Radar Signal Processing*, 2nd ed., McGraw-Hill, 2014, chapters 4 and 9.

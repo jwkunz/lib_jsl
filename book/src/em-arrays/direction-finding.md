@@ -144,6 +144,17 @@ With ten elements and sources 8° apart at 5 dB SNR, the conventional beam merge
 4. Simulate two fully correlated sources and show that MUSIC fails; restore it with forward spatial smoothing.
 5. Compute the Cramér-Rao bound for one source on a uniform line, and compare it with the table above.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For one source with white noise, $R = \sigma_s^2\mathbf a\mathbf a^{\mathsf H} + \sigma^2I$. The Bartlett power $\mathbf a^{\mathsf H}R\mathbf a$ is maximised at the true steering vector (Cauchy-Schwarz); Capon's $1/\mathbf a^{\mathsf H}R^{-1}\mathbf a$ and MUSIC's $1/\lVert E_n^{\mathsf H}\mathbf a\rVert^2$ also peak there.
+2. $R\mathbf e = \lambda\mathbf e$; for $\mathbf e \perp$ the signal subspace span of the columns of $A$, $R\mathbf e = \sigma^2\mathbf e$, so these are the noise eigenvectors and $A^{\mathsf H}\mathbf e = 0$.
+3. Two subarrays offset by one element satisfy $A_2 = A_1\Phi$ with $\Phi = \operatorname{diag}(e^{jkd\sin\theta_i})$; as the signal subspace is $E_s = AT$, $E_2 = A_2T = A_1\Phi T = E_1T^{-1}\Phi T$, i.e. $E_2 = E_1\Psi$ with $\Psi = T^{-1}\Phi T$.
+4. With fully correlated sources the signal covariance $P$ is rank 1, so the signal subspace has dimension 1 and MUSIC sees one source; forward spatial smoothing averages the covariances of overlapping subarrays and restores the rank.
+5. The CRB for one source on an $N$-element uniform line is $\sigma_\theta^2 \ge \dfrac{6}{\mathrm{SNR}\cdot K\cdot N(N^2 - 1)\,(\pi\cos\theta)^2}$ for half-wavelength spacing, in radians$^2$ for $K$ snapshots.
+
+</details>
+
 ## Further reading
 
 - H. Krim and M. Viberg, "Two decades of array signal processing research", *IEEE Signal Processing Magazine* 13:4 (1996) 67–94.

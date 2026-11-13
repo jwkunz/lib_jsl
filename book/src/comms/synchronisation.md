@@ -227,6 +227,17 @@ residual error comes from the crude linear pulse, not from the loop.
 4. Derive the cubic Lagrange interpolation coefficients as polynomials in $\mu$.
 5. Measure how long the PLL takes to lock as a function of $B_nT$ for a fixed frequency offset, and compare with the loop's theoretical acquisition time.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Linearising, the loop with PI filter $K_p + K_i/s$ and an NCO integrator is $H(s) = (K_ps + K_i)/(s^2 + K_ps + K_i)$ (with unit detector gain), so $\omega_n = \sqrt{K_i}$ and $2\zeta\omega_n = K_p$.
+2. $\mathrm{sgn}(I)\cdot Q$ with $I = d\cos\theta$ and $Q = d\sin\theta$, where $d = \pm1$: $\operatorname{sgn}(d\cos\theta)\,d\sin\theta = \operatorname{sgn}(\cos\theta)\sin\theta$ because $d^2 = 1$. The error is unchanged under $\theta \to \theta + \pi$, which is why the loop locks to either phase.
+3. For a Nyquist pulse the intersymbol interference at the sampling instants is zero, so the expected product of the sample difference and the symbol decision vanishes at the correct sampling phase.
+4. Cubic Lagrange through samples at $-1, 0, 1, 2$ at fractional offset $\mu$: $c_{-1} = -\mu(\mu - 1)(\mu - 2)/6$, $c_0 = (\mu + 1)(\mu - 1)(\mu - 2)/2$, $c_1 = -(\mu + 1)\mu(\mu - 2)/2$, $c_2 = (\mu + 1)\mu(\mu - 1)/6$.
+5. Lock time falls as the loop bandwidth $B_nT$ rises (acquisition time of the order of $1/B_n$ or longer for a frequency offset); plot the measured time against $B_nT$ on a log-log scale.
+
+</details>
+
 ## Further reading
 
 - F. M. Gardner, *Phaselock Techniques*, 3rd ed., Wiley, 2005.

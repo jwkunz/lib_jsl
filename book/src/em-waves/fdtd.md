@@ -166,6 +166,17 @@ proportional to the number of cells.
 4. Measure the transmission through a dielectric slab with an FDTD pulse and compare it with the Fabry-Pérot formula.
 5. Reduce the PML to four cells and measure how the reflected energy grows.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Faraday: $\partial B/\partial t = -\partial E/\partial x$; Ampère: $\partial D/\partial t = -\partial H/\partial x$. Centred differences on the staggered grid give $H^{n+1/2}_{i+1/2} = H^{n-1/2}_{i+1/2} - \tfrac{\Delta t}{\mu\Delta x}(E^n_{i+1} - E^n_i)$ and the analogous $E$ update.
+2. Insert $e^{j(\omega n\Delta t - kx\Delta x)}$ into the update equations: $\sin(\omega\Delta t/2)/(c\Delta t/2) = \sin(k\Delta x/2)/(\Delta x/2)$, i.e. $\sin(\omega\Delta t/2) = S\sin(k\Delta x/2)$ with $S = c\Delta t/\Delta x$. For $S = 1$ this gives $\omega = ck$ exactly.
+3. For $S > 1$ and $k\Delta x = \pi$, $\sin(\omega\Delta t/2) = S > 1$ has no real solution: $\omega$ is complex and the corresponding mode grows exponentially.
+4. Compare the simulated transmission spectrum (ratio of transmitted to incident Fourier amplitudes) with the Fabry-Pérot formula for a slab of thickness $d$ and index $n$: $T = 1/\big(1 + \big(\tfrac{n^2 - 1}{2n}\big)^2\sin^2(nkd)\big)$.
+5. Reflection from a PML grows as its thickness decreases, because the absorption profile must increase gradually to avoid a reflection at the interface; measure the reflected energy for 4, 8, 16 cells.
+
+</details>
+
 ## Further reading
 
 - A. Taflove and S. C. Hagness, *Computational Electrodynamics: The Finite-Difference Time-Domain Method*, 3rd ed., Artech House, 2005.

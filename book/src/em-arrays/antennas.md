@@ -174,6 +174,17 @@ The example then draws four polar pattern cuts in the terminal.
 4. Find the length at which a dipole's broadside lobe vanishes, and explain why the radiation resistance referred to the feed diverges for a full-wave dipole.
 5. Design a patch for 2.45 GHz on FR-4 ($\varepsilon_r = 4.4$, $h = 1.6$ mm) and find its 50 Ω inset.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $D = 4\pi U_{\max}/P_{\mathrm{rad}}$ with $U \propto \sin^2\theta$: $\int\sin^2\theta\,\mathrm d\Omega = 2\pi\int_0^\pi\sin^3\theta\,\mathrm d\theta = 8\pi/3$, so $D = 4\pi/(8\pi/3) = 3/2$.
+2. For $kL \ll 1$ the current is triangular with average $I_m/2$ (since $\sin(k(L/2 - |z|)) \approx k(L/2 - |z|)$), and the radiation field is that of an element carrying the average current over length $L$.
+3. For a uniform aperture, the effective area equals the physical area $\pi D^2/4$, so $D = 4\pi A_e/\lambda^2 = (\pi D/\lambda)^2$. A taper reduces the aperture efficiency to $\dfrac{|\int f\,\mathrm dA|^2}{A\int|f|^2\mathrm dA}$.
+4. The pattern $[\cos(\tfrac{kL}2\cos\theta) - \cos\tfrac{kL}2]/\sin\theta$ at broadside is $1 - \cos\tfrac{kL}2$, which vanishes for $kL/2 = 2\pi$, i.e. $L = 2\lambda$. A full-wave dipole has $\sin(kL/2) = 0$, so the feed current is zero and $R_{\mathrm{feed}} = P_{\mathrm{rad}}/(I_{\mathrm{feed}}^2/2)$ diverges.
+5. Use the transmission-line model of the patch: $W = \tfrac{c}{2f}\sqrt{2/(\varepsilon_r + 1)} \approx 37$ mm and $\varepsilon_{\mathrm{eff}} \approx 4.1$, giving $L \approx 29$ mm after the fringing extension; the 50 Ω inset follows from $R_{\mathrm{in}}(y_0) = R_{\mathrm{edge}}\cos^2(\pi y_0/L)$.
+
+</details>
+
 ## Further reading
 
 - C. A. Balanis, *Antenna Theory: Analysis and Design*, 4th ed., Wiley, 2016, chapters 4, 5, 12 and 14.

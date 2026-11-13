@@ -154,6 +154,17 @@ The first Fresnel zone, 5.6 m in radius at mid-path, must be kept clear of obsta
 4. How much more transmit power doubles a radar's range? How many coherently integrated pulses would do the same?
 5. Oxygen absorbs about 15 dB/km at 60 GHz. Find the extra loss over 100 m and over 10 km, and explain why 60 GHz suits short-range links that should not interfere at a distance.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The received power is $P_r = S\,A_{er}$ with power density $S = P_tG_t/(4\pi d^2)$ and $A_{er} = G_r\lambda^2/(4\pi)$, so $P_r = P_tG_tG_r\big(\lambda/(4\pi d)\big)^2$.
+2. Two-ray received power is $P_tG_tG_r(\lambda/4\pi d)^2|1 + \Gamma e^{-j\Delta\phi}|^2$. With $\Gamma = -1$ and a path difference $\Delta \approx 2h_th_r/d$, for $d \gg 4\pi h_th_r/\lambda$, $|1 - e^{-jk\Delta}|^2 \approx (k\Delta)^2 = (4\pi h_th_r/(\lambda d))^2$, giving $P_tG_tG_rh_t^2h_r^2/d^4$.
+3. Delay spread: with powers $p_i$ and delays $\tau_i$, compute the mean $\bar\tau = \sum p_i\tau_i/\sum p_i$ and $\sigma_\tau = \sqrt{\sum p_i\tau_i^2/\sum p_i - \bar\tau^2}$ using the table's values.
+4. Radar power received is proportional to $1/R^4$: doubling the range needs $2^4 = 16$ times the transmit power (12 dB). Coherently integrating $N$ pulses gains a factor $N$ in SNR, so 16 pulses give the same.
+5. Extra loss: $15\ \mathrm{dB/km}\times0.1 = 1.5$ dB over 100 m, and $150$ dB over 10 km. The signal is useful at short range but is absorbed completely far away, so different links hardly interfere.
+
+</details>
+
 ## Further reading
 
 - T. S. Rappaport, *Wireless Communications: Principles and Practice*, 2nd ed., Prentice Hall, 2002, chapters 3–5.

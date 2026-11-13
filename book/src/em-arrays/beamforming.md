@@ -165,6 +165,17 @@ The example also draws the CFM and MVDR patterns in the terminal. The system noi
 4. Find the array factor of $N$ isotropic elements spaced $d$ apart, and the spacing at which grating lobes appear.
 5. Simulate sample-matrix inversion with the desired signal included in the training data, and compare the loss with the figure above.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The output SNR is $|\mathbf w^{\mathsf H}\mathbf a|^2\sigma_s^2/(\sigma^2\mathbf w^{\mathsf H}\mathbf w)$, maximised (Cauchy-Schwarz) by $\mathbf w \propto \mathbf a$.
+2. Minimise $\mathbf w^{\mathsf H}R\mathbf w$ subject to $\mathbf w^{\mathsf H}\mathbf a = 1$: the Lagrange condition gives $\mathbf w = R^{-1}\mathbf a/(\mathbf a^{\mathsf H}R^{-1}\mathbf a)$, and the output power is $\mathbf w^{\mathsf H}R\mathbf w = 1/(\mathbf a^{\mathsf H}R^{-1}\mathbf a)$.
+3. With $R = \sigma_s^2\mathbf a\mathbf a^{\mathsf H} + R_n$, the matrix inversion lemma gives $R^{-1}\mathbf a = R_n^{-1}\mathbf a/(1 + \sigma_s^2\mathbf a^{\mathsf H}R_n^{-1}\mathbf a)$, proportional to $R_n^{-1}\mathbf a$.
+4. $\mathrm{AF}(\psi) = \sum_{n=0}^{N-1}e^{jn\psi}$ with $\psi = kd(\cos\theta - \cos\theta_0)$ has magnitude $|\sin(N\psi/2)/\sin(\psi/2)|$. Extra main lobes (grating lobes) appear when $\psi = \pm2\pi$ falls in the visible range, i.e. when $d > \lambda/(1 + |\cos\theta_0|)$; $d \le \lambda/2$ suffices for all scan angles.
+5. When the desired signal is in the training data, MVDR treats it as interference and cancels it if its look direction is slightly in error: the SINR loss grows with the signal level and with steering error, unlike the clean-training case in the figure.
+
+</details>
+
 ## Further reading
 
 - H. L. Van Trees, *Optimum Array Processing*, Wiley, 2002.

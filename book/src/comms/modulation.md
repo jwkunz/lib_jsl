@@ -264,6 +264,17 @@ FM: |baseband| = 1.000 everywhere; message error 2.6e-15
 4. Compute the OFDM efficiency (data subcarriers and prefix overhead) of the Wi-Fi-like layout.
 5. Show that FM demodulation by $\arg(s[n]\overline{s[n-1]})$ is exact for $|2\pi k_fm/f_s| < \pi$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Gray-coded QPSK is two independent BPSK streams on orthogonal carriers, each with energy $E_b$ per bit and noise density $N_0/2$ per dimension, so each has the same error probability $Q(\sqrt{2E_b/N_0})$ as BPSK.
+2. The max-log approximation replaces each log-sum by its largest term: $\log\sum e^{-d_k} \approx -\min_kd_k$, giving $\mathrm{LLR} \approx (\min_{b=1}|y - s|^2 - \min_{b=0}|y - s|^2)/\sigma^2$.
+3. With a cyclic prefix at least as long as the channel's memory, the received block is the circular convolution of the transmitted block with the channel, and the DFT turns circular convolution into pointwise multiplication.
+4. Efficiency $= \dfrac{\text{data subcarriers}}{\text{FFT size}}\times\dfrac{\text{FFT size}}{\text{FFT size} + \text{CP length}}$; insert the layout's numbers (for 802.11a style: $48/64 \times 64/80 = 0.6$).
+5. $s[n]\overline{s[n-1]} = e^{j(\phi_n - \phi_{n-1})}$ has argument equal to the phase increment $2\pi k_fm[n]/f_s$ (up to the principal value), which is recovered exactly if its magnitude is below $\pi$.
+
+</details>
+
 ## Further reading
 
 - J. G. Proakis and M. Salehi, *Digital Communications*, 5th ed., McGraw-Hill, 2008.

@@ -182,6 +182,17 @@ The quarter-wave section turns 100 Ω into $50^2/100 = 25$ Ω, and the half wave
 4. Find the bandwidth over which a single quarter-wave transformer from 50 to 200 Ω keeps $|\Gamma| < 0.1$.
 5. Show that a reciprocal, lossless two-port that is matched at both ports transmits all its power.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Voltage $V(z) = V^+e^{-j\beta z} + V^-e^{j\beta z}$ and $I(z) = (V^+e^{-j\beta z} - V^-e^{j\beta z})/Z_0$, with the load at $z = 0$ where $V^-/V^+ = \Gamma_L = (Z_L - Z_0)/(Z_L + Z_0)$; then $Z_{\mathrm{in}} = V(-l)/I(-l)$ gives $Z_0\dfrac{Z_L + jZ_0\tan\beta l}{Z_0 + jZ_L\tan\beta l}$.
+2. On a lossless line $\Gamma(z) = \Gamma_Le^{2j\beta z}$ has constant magnitude; the VSWR is $|V|_{\max}/|V|_{\min} = (1 + |\Gamma|)/(1 - |\Gamma|)$.
+3. $r = (1 - |\Gamma|^2)/|1 + \Gamma|^2$ rearranges to $(u - \tfrac r{1 + r})^2 + v^2 = (\tfrac1{1 + r})^2$ for $\Gamma = u + jv$.
+4. For $Z_0 = 50$, $Z_L = 200$ ($Z_t = 100$) and $|\Gamma| < 0.1$, $\cos\theta_m = \dfrac{2\sqrt{Z_0Z_L}}{|Z_L - Z_0|}\dfrac{\Gamma_m}{\sqrt{1 - \Gamma_m^2}} = 0.134$, so $\theta_m = 1.436$ rad and the fractional bandwidth is $2 - \tfrac4\pi\theta_m \approx 0.17$.
+5. For a matched, reciprocal, lossless two-port, $S_{11} = S_{22} = 0$, $S_{12} = S_{21}$ and unitarity requires $|S_{11}|^2 + |S_{21}|^2 = 1$, so $|S_{21}| = 1$: all power is transmitted.
+
+</details>
+
 ## Further reading
 
 - D. M. Pozar, *Microwave Engineering*, 4th ed., Wiley, 2012, chapters 2–5.

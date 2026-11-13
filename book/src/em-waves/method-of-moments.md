@@ -131,6 +131,17 @@ L = 1λ: Z_in = 2005.55 -2191.41j Ω, |I(feed)| = 0.34 mA, radiated 0.114 mW for
 4. Explain why the resonant length falls below $\lambda/2$ as the wire gets thicker.
 5. Extend the solver to two parallel dipoles and compute their mutual impedance.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With $\mathbf E^{\mathrm{tot}}_z = 0$ on the wire, $E_z^s = -E_z^i$. Expressing $E_z^s$ through the vector potential $A_z$ and the scalar potential and eliminating the latter with the Lorenz gauge gives $\int I(z')G(z - z')\,\mathrm dz' = C\cos kz - \tfrac{j}{2\eta}V\sin k|z|$ (Hallén's equation) with $C$ fixed by the end condition $I(\pm L/2) = 0$.
+2. $\int\dfrac{\mathrm dz'}{\sqrt{(z - z')^2 + a^2}} = -\operatorname{arsinh}\dfrac{z - z'}a$, and $\int\dfrac{z'\mathrm dz'}{\sqrt{(z - z')^2 + a^2}}$ can be obtained by writing $z' = z - (z - z')$.
+3. The complex power delivered by the source is $\tfrac12VI^*$; its real part equals the power radiated through a large sphere, which can be computed from the far field. A mismatch indicates an error in the solution.
+4. A thicker wire has a larger end capacitance and fringing, which effectively lengthens the wire electrically, so the resonant length is shorter.
+5. Add a second wire with its own unknowns; the off-diagonal blocks of the impedance matrix give the mutual coupling, and $Z_{12}$ follows from the voltage induced on wire 2 by unit current on wire 1.
+
+</details>
+
 ## Further reading
 
 - R. F. Harrington, *Field Computation by Moment Methods*, Macmillan, 1968.

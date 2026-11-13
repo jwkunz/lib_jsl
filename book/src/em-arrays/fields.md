@@ -155,6 +155,17 @@ The exact near field of a Hertzian dipole carries the same power through a spher
 4. Show that the Poynting flux of the dipole's exact near field through a sphere is independent of the radius.
 5. Compute the overlap of two Gaussian beams of different waists, and check it against `overlap_integral`.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. If $E(t) = \operatorname{Re}[\mathbf Ee^{j\omega t}] = \operatorname{Re}[\mathbf E^*e^{-j\omega t}]$, the phasor in the other convention is the complex conjugate. $\nabla\times\mathbf E = -j\omega\mu\mathbf H$ becomes $\nabla\times\mathbf E = +i\omega\mu\mathbf H$.
+2. A degree-$l$ spherical harmonic is $e^{im\varphi}P_l^m(\cos\theta)$: the uniform azimuth rule integrates $e^{im\varphi}$ exactly for $|m| < 2n$, and the product of $P_l^m$ factors in $\cos\theta$ is a polynomial of degree at most $2l$; with $n$ Gauss-Legendre nodes that is exact up to degree $2n - 1$.
+3. In spherical coordinates, $\nabla\cdot\mathbf F = \dfrac1{r^2}\partial_r(r^2F_r) + \dfrac1{r\sin\theta}\partial_\theta(\sin\theta F_\theta) + \dfrac1{r\sin\theta}\partial_\varphi F_\varphi$, which follows from the scale factors $(1, r, r\sin\theta)$ in the general divergence formula.
+4. The time-averaged Poynting flux through a closed surface equals the power radiated by the source (lossless medium), independent of the surface; the exact near field includes reactive terms that average to zero over a period.
+5. The overlap of two Gaussian beams of waists $w_1, w_2$ at a common plane is $\eta = \big(2w_1w_2/(w_1^2 + w_2^2)\big)^2$ for aligned beams with matched curvature.
+
+</details>
+
 ## Further reading
 
 - C. A. Balanis, *Advanced Engineering Electromagnetics*, 2nd ed., Wiley, 2012, chapters 1–6.

@@ -136,6 +136,17 @@ A $2\lambda$ dipole has $kr_{\min} = 2\pi$, and degrees above 10 carry two milli
 4. Derive the planar far-field formula from the plane-wave spectrum by stationary phase.
 5. Find the largest valid angle of a $\pm 4\lambda$ planar scan $1\lambda$ in front of an antenna $1\lambda$ across.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The field of a $z$-directed Hertzian dipole has $E_\theta \ne 0$, $H_\varphi \ne 0$ and no $E_\varphi$: a TM mode. Its pattern $\sin\theta$ is the $n = 1$, $m = 0$ vector spherical harmonic.
+2. For large argument $h_n^{(2)}(x) \approx j^{n+1}e^{-jx}/x$; inserting it in the field expansion gives the far-field factors $j^{n+1}/k$ and $j^{n+2}/k$ for the two mode types.
+3. For $n > x$ the spherical Hankel function grows rapidly ($h_n \sim -j(2n - 1)!!/x^{n+1}$) so these modes do not radiate: modes beyond $n \approx kr_{\min}$ carry exponentially little power to a sphere of radius $r_{\min}$.
+4. Writing the field as a plane-wave spectrum $\int\tilde E(k_x, k_y)e^{-j\mathbf k\cdot\mathbf r}\mathrm dk_x\mathrm dk_y$, the large-$r$ stationary-phase point is at $\mathbf k = k\hat r$, giving $E_{\mathrm{far}} \propto jk\cos\theta\,\tilde E(k\sin\theta\cos\varphi, k\sin\theta\sin\varphi)\,e^{-jkr}/r$.
+5. Draw the geometry: the far field at angle $\theta$ is reliable only if the scan plane, at distance $z_0$ and extent $\pm L_s$, captures the part of the antenna's field that radiates towards $\theta$. Use the validity criterion in the entry with the antenna's extent $D$ and the scan edge as seen from the antenna's edge, and expect a result well short of $90°$ for this short scan distance.
+
+</details>
+
 ## Further reading
 
 - J. E. Hansen (ed.), *Spherical Near-Field Antenna Measurements*, Peter Peregrinus, 1988.

@@ -187,6 +187,17 @@ CORDIC sin/cos(0.5) = 0.479425540, 0.877582562 (exact 0.479425539, 0.877582562)
 4. Mix a real 1 kHz tone with a real 1.1 kHz cosine and identify the two products; repeat with a complex exponential.
 5. Generate a band-limited square wave by summing odd harmonics below Nyquist, and compare its spectrum with `SquareWave`'s.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The tuning word is $\operatorname{round}(2^{32}\cdot1000/48000) = 89\,478\,485$ and the actual frequency is $89\,478\,485\cdot48000/2^{32} = 999.9999963$ Hz, an error of about $-3.7\ \mu$Hz.
+2. $K = \prod_{i\ge0}\sqrt{1 + 2^{-2i}} \to 1.64676$; the product converges quickly because the factors approach 1 like $2^{-2i}/2$.
+3. $\sum_{i\ge0}\arctan2^{-i} = 0.7854 + 0.4636 + 0.2450 + 0.1244 + 0.0624 + 0.0312 + \cdots \approx 1.7433 > \pi/2 = 1.5708$.
+4. A real mix of 1 kHz and 1.1 kHz tones gives products at 100 Hz and 2.1 kHz; a complex exponential mixed with a complex exponential gives only one product, at the sum or difference frequency, without the mirror image.
+5. Sum $\tfrac4\pi\sum_{k\text{ odd}}\sin(k\omega t)/k$ for $k\omega < \pi f_s$; the library's square wave is not band-limited unless the entry says so, so compare the harmonic levels and the aliases of the rest.
+
+</details>
+
 ## Further reading
 
 - J. E. Volder, "The CORDIC trigonometric computing technique", *IRE Transactions on Electronic Computers* 8 (1959) 330–334.

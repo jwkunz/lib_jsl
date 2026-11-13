@@ -30,20 +30,64 @@ synthesiser: a phase accumulator addressing a sine table. NCOs of this kind are 
 
 ### Phase accumulation
 
-With a $B$-bit accumulator, the tuning word for frequency $f$ at rate $f_s$ is $\Delta = \mathrm{round}(2^Bf/f_s)$, and the phase after $n$ samples is $n\Delta \bmod 2^B$, read as a fraction of a turn. Integer
-overflow is exactly the wrap-around of the phase. The library uses $B = 64$, so the frequency is exact to $f_s/2^{64}$ (about $10^{-14}$ Hz at 1 MHz), and the phase never accumulates
-rounding error, however long the oscillator runs. `next_phase_modulated` adds a per-sample offset, giving frequency modulation.
+A **numerically controlled oscillator** (NCO) generates the samples of a sinusoid,
+$\cos(2\pi fn/f_s)$, one after another. It does so in two stages: keep track of the phase, then
+convert the phase to an amplitude.
+
+The phase advances by the same amount, $f/f_s$ of a full turn, at every sample. The obvious
+implementation adds that amount to a floating-point variable, and has two flaws: each addition
+rounds, so the phase slowly drifts, and the phase must be wrapped back into one turn from time
+to time. Both disappear if the phase is kept as an unsigned *integer* that represents a fraction
+of a turn. With a $B$-bit **phase accumulator**, the value $2^B$ stands for one full turn. The
+**tuning word** for frequency $f$ at rate $f_s$ is
+
+$$
+\Delta = \mathrm{round}(2^Bf/f_s),
+$$
+
+and the phase after $n$ samples is $n\Delta \bmod 2^B$. Integer addition is exact, so no error
+accumulates however long the oscillator runs, and the overflow of the integer *is* the
+wrap-around of the phase, at no cost. The only error is the rounding of $\Delta$ itself, which
+makes the frequency inexact by at most $f_s/2^{B+1}$. The library uses $B = 64$, so the frequency
+is exact to $f_s/2^{64}$ (about $10^{-14}$ Hz at 1 MHz). `next_phase_modulated` adds a per-sample
+offset to the phase, giving frequency modulation.
 
 ### CORDIC
 
-To rotate the vector $(1, 0)$ by an angle $\theta$, CORDIC performs $k$ micro-rotations by the fixed angles $\pm\arctan2^{-i}$, choosing each sign to drive the residual angle towards zero:
+The second stage converts the phase to $\cos$ and $\sin$. A table lookup or a library call would
+do, but hardware and fixed-point processors often have no multiplier to spare. **CORDIC**
+(coordinate rotation digital computer) computes sines and cosines using only shifts and
+additions.
+
+**The idea.** The point $(\cos\theta, \sin\theta)$ is the vector $(1, 0)$ rotated by the angle
+$\theta$. A rotation by an angle $\alpha$ can be written
 
 $$
-x_{i+1} = x_i - d_iy_i2^{-i}, \qquad y_{i+1} = y_i + d_ix_i2^{-i}, \qquad z_{i+1} = z_i - d_i\arctan2^{-i}.
+x' = \cos\alpha\,(x - y\tan\alpha), \qquad y' = \cos\alpha\,(y + x\tan\alpha) .
 $$
 
-Each step is two shifts and three additions. The micro-rotations stretch the vector by $K = \prod\sqrt{1 + 2^{-2i}} \approx 1.6468$, which is pre-compensated by starting from $1/K$.
-The quadrant is taken from the top two bits of the angle first, so the iterations only cover $[0, \pi/2)$. Each iteration adds about one bit of accuracy:
+If $\tan\alpha$ is a power of two, $\tan\alpha = 2^{-i}$, the multiplications inside the brackets
+are just shifts of a binary number. So CORDIC builds the rotation by $\theta$ out of
+**micro-rotations** by the fixed angles $\alpha_i = \arctan2^{-i}$ ($45°$, $26.6°$, $14.0°$,
+$7.1°$, ...), each applied either forwards or backwards. Any angle in the first quadrant can be
+approximated by such a sum of signed angles, much as a number is approximated by binary digits.
+A third variable $z$ holds the angle still to be rotated, and the sign $d_i = \pm1$ of each
+micro-rotation is chosen to drive $z$ towards zero:
+
+$$
+x_{i+1} = x_i - d_iy_i2^{-i}, \qquad y_{i+1} = y_i + d_ix_i2^{-i}, \qquad z_{i+1} = z_i - d_i\arctan2^{-i} .
+$$
+
+Each step is two shifts and three additions; the angles $\arctan2^{-i}$ come from a small table.
+
+**The gain.** The formulas above omit the factor $\cos\alpha_i$ of each micro-rotation, so every
+step also stretches the vector slightly, by $1/\cos\alpha_i = \sqrt{1 + 2^{-2i}}$. Because every
+micro-rotation is performed, in one direction or the other, the total stretch is the same for
+every angle: $K = \prod\sqrt{1 + 2^{-2i}} \approx 1.6468$. It is compensated in advance by starting
+from the vector $(1/K, 0)$.
+
+The quadrant is taken from the top two bits of the phase first, so the iterations only have to
+cover $[0, \pi/2)$. Each iteration adds about one bit of accuracy:
 
 {{#include ../generated/comms/cordic_accuracy.md}}
 

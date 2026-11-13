@@ -32,8 +32,27 @@ bandwidth rule (1922, refined 1939) is still the engineering estimate.
 
 ### Constellations and Gray labelling
 
-The library's constellations are normalised to unit average energy. Phase-shift keying places $M$ points on the unit circle; square QAM places them on a grid. Labels are Gray-coded, so
-that nearest neighbours differ in exactly one bit:
+A radio wave of a given frequency has two properties that can be varied to carry information:
+its amplitude and its phase. Both are captured by one complex number, whose magnitude is the
+amplitude and whose angle is the phase. Its real and imaginary parts are called the **in-phase**
+($I$) and **quadrature** ($Q$) components. Digital modulation sends a sequence of such complex
+numbers, called **symbols**, each chosen from a finite set, the **constellation**. With $M$
+points in the set, each symbol carries $\log_2M$ bits.
+
+- **Phase-shift keying** (PSK) places $M$ points evenly on the unit circle, so the information
+  is in the phase alone. BPSK has two points ($\pm1$, one bit per symbol) and QPSK four (two
+  bits).
+- **Quadrature amplitude modulation** (QAM) places the points on a square grid, varying both
+  amplitude and phase: 16-QAM carries four bits per symbol, 64-QAM six.
+
+The library's constellations are normalised to unit average energy, so that different
+constellations can be compared at the same transmitted power. Packing more points into the same
+energy puts them closer together, and so makes them easier to confuse when noise is added.
+
+The assignment of bit patterns to points matters too. When noise causes an error, the receiver
+almost always mistakes a point for one of its nearest neighbours. Labels are therefore
+**Gray-coded**, arranged so that nearest neighbours differ in exactly one bit, and the commonest
+symbol errors cost only one bit error each:
 
 ![Constellations](../generated/comms/constellations.svg)
 
@@ -41,12 +60,81 @@ that nearest neighbours differ in exactly one bit:
 
 ### Decisions and bit error rates
 
-With additive white Gaussian noise of variance $N_0/2$ per dimension, the best hard decision picks the nearest point (`slice`). The bit error rate depends on the energy per bit $E_b$
-relative to $N_0$; for BPSK and Gray-coded QPSK it is $Q(\sqrt{2E_b/N_0})$, and for square $M$-QAM approximately $\frac{4}{\log_2M}(1 - \frac1{\sqrt M})\,Q\big(\sqrt{3\log_2M\,E_b/((M - 1)N_0)}\big)$:
+The standard model of a channel adds **white Gaussian noise** to each symbol: an independent
+Gaussian random number of variance $N_0/2$ in each of the $I$ and $Q$ components. The received
+point is the transmitted one displaced by a random amount. The best guess at what was sent is
+the constellation point nearest to the received point (`slice`); this is a **hard decision**.
+
+An error occurs when the noise carries the received point closer to a wrong point. For BPSK,
+with points at $\pm1$, that means a noise component larger than the distance to the midpoint. The
+probability that a standard Gaussian variable exceeds $x$ is written $Q(x)$, the upper tail of
+the normal distribution, which equals $\tfrac12\operatorname{erfc}(x/\sqrt2)$. Performance is expressed
+through the ratio $E_b/N_0$ of the energy spent per bit to the noise density, which allows fair
+comparison of schemes with different numbers of bits per symbol. For BPSK and Gray-coded QPSK the
+bit error rate is $Q(\sqrt{2E_b/N_0})$, and for square $M$-QAM approximately
+$\frac{4}{\log_2M}(1 - \frac1{\sqrt M})\,Q\big(\sqrt{3\log_2M\,E_b/((M - 1)N_0)}\big)$:
 
 ![Bit error rates](../generated/comms/ber.svg)
 
 The simulations (markers) follow the theory (lines). Each doubling of the bits per symbol costs several decibels of $E_b/N_0$. QPSK matches BPSK per bit, because its two components are independent BPSK channels.
+
+### Soft demapping
+
+A hard decision throws information away: a received point that lies almost midway between two
+constellation points is reported with the same assurance as one that lands squarely on a point.
+An [error-correcting decoder](../coding/index.md) can do much better if it is told how reliable
+each bit is. The standard measure is the **log-likelihood ratio** (LLR) of each bit,
+$\log P(b = 0 \mid y)/P(b = 1 \mid y)$: positive if the bit is more probably 0, negative if more
+probably 1, and large in magnitude when the evidence is strong.
+
+Computing it exactly requires a sum over all the constellation points. The library uses the
+**max-log** approximation, which keeps only the nearest point of each kind: the nearest point
+whose label has the bit equal to 0, and the nearest whose label has it equal to 1.
+
+$$
+L(b) \approx \frac{1}{\sigma^2}\Big(\min_{s: b = 1}|y - s|^2 - \min_{s: b = 0}|y - s|^2\Big) .
+$$
+
+If the received point $y$ is much nearer to a "0" point than to any "1" point, the value is
+large and positive. Its sign is the hard decision, and its magnitude the confidence. Soft
+decisions gain about 2 dB in coded systems.
+
+### OFDM
+
+**The problem.** A radio channel is rarely a single path. Reflections arrive later than the
+direct signal, so each symbol is smeared into the following ones (**intersymbol interference**),
+and in the frequency domain the channel's gain varies across the band. Undoing this for a fast
+stream of short symbols needs a long, carefully adapted [equaliser](equalisation.md).
+
+**The idea.** **Orthogonal frequency-division multiplexing** (OFDM) avoids the problem by
+sending many slow streams side by side instead of one fast one. The band is divided into $N$
+narrow **subcarriers**, each carrying its own QAM symbol. A subcarrier is so narrow that the
+channel's gain is practically constant across it, so each one sees the channel as a single
+complex number. The transmitter does not need $N$ oscillators: placing the symbols in the bins
+of an $N$-point inverse FFT produces the sum of all the modulated subcarriers at once, and the
+receiver separates them again with an FFT.
+
+**The cyclic prefix.** One detail makes this exact. The FFT's property of turning convolution
+into multiplication holds for *circular* convolution, whereas a channel performs ordinary
+convolution, in which the echoes of one block spill into the next. The **cyclic prefix** fixes
+this: a copy of the last $N_{cp}$ samples of each block is transmitted in front of it. Provided
+the channel's echoes are shorter than the prefix, they affect only the prefix, which the receiver
+discards, and within the block the channel's action looks exactly circular. Each subcarrier $k$
+is then simply multiplied by the channel's gain $H_k$ at its frequency, and is recovered by one
+division (**one-tap equalisation**).
+
+OFDM places $N_d$ data symbols, plus known **pilots**, on subcarriers $k$ of an $N$-point inverse FFT. `OfdmParams::wifi_like()`
+uses 64 subcarriers, a 16-sample prefix, 48 data and 4 pilot subcarriers, as IEEE 802.11a does. {{#include ../generated/comms/ofdm_facts.md}}
+
+The receiver must estimate $H_k$. The library offers linear interpolation between the pilots of each symbol (`demodulate`), and a full estimate from a known training
+symbol (`estimate_channel` and `demodulate_with_channel`):
+
+![OFDM constellation](../generated/comms/ofdm_constellation.svg)
+
+{{#include ../generated/comms/ofdm_table.md}}
+
+Four pilots cannot follow a channel whose response changes several times across the band. That is why Wi-Fi uses training symbols for the channel estimate,
+and pilots only to track phase.
 
 ### Soft demapping
 

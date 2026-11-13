@@ -40,14 +40,30 @@ The method first builds a symmetric weight matrix $W$ with $W_{ij} \ge 0$ large 
 
 ### The Laplacian and its null space
 
-With degrees $D_{ii} = \sum_jW_{ij}$, the **graph Laplacian** $L = D - W$ satisfies
+Think of the points as the vertices of a graph, with $W_{ij}$ the weight of the edge between
+points $i$ and $j$. A clustering assigns a label to each vertex, and a good one seldom gives
+different labels to strongly connected vertices. That requirement can be expressed with a
+matrix. Let the **degree** of vertex $i$ be the total weight of its edges,
+$D_{ii} = \sum_jW_{ij}$, collected in a diagonal matrix $D$. The **graph Laplacian** is
+$L = D - W$. For any vector $\mathbf f$ that assigns a number $f_i$ to each vertex, expanding
+$\mathbf f^{\mathsf T}D\mathbf f - \mathbf f^{\mathsf T}W\mathbf f = \sum_iD_{ii}f_i^2 - \sum_{i,j}W_{ij}f_if_j$ and
+using the symmetry of $W$ gives
 
 $$
 \mathbf f^{\mathsf T}L\mathbf f = \tfrac12\sum_{i,j}W_{ij}(f_i - f_j)^2 \ge 0,
 $$
 
-which is small when $\mathbf f$ is nearly constant across strongly weighted edges. A vector constant on each connected component makes it
-zero, so a graph with $k$ components has eigenvalue 0 with multiplicity $k$, and the indicator vectors of the components span its null space.
+This quantity adds up, over all edges, the squared difference of $\mathbf f$ across the edge,
+weighted by the edge's strength. It is small when $\mathbf f$ is nearly constant across strongly
+weighted edges, which is exactly what we want of a labelling.
+
+It is zero only if $f_i = f_j$ wherever $W_{ij} > 0$, that is, if $\mathbf f$ is constant on each
+connected component of the graph. Since $\mathbf f^{\mathsf T}L\mathbf f \ge 0$ always, such vectors are
+eigenvectors of $L$ with eigenvalue 0, the smallest possible. So a graph with $k$ components has
+the eigenvalue 0 with multiplicity $k$, and the corresponding eigenvectors are combinations of
+the **indicator vectors** of the components (1 on one component, 0 elsewhere). The clusters can
+be read off from the eigenvectors of smallest eigenvalue. That is the whole idea of spectral
+clustering; the rest is about making it robust when the clusters are not perfectly separated.
 Clusters that are almost disconnected give $k$ eigenvalues near zero and a jump, the **eigengap**, after them:
 
 ![Laplacian eigenvalues](../generated/unsupervised/spectral_eigengap.svg)

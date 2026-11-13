@@ -26,7 +26,13 @@ Georgy Voronoy defined the cells in 1908, for quadratic forms in any dimension. 
 
 ### Delaunay triangulation
 
-Two triangles $abc$ and $bad$ sharing the edge $ab$ form a quadrilateral. The edge is **legal** if $d$ lies outside the circumcircle of $abc$. If it is illegal, replacing $ab$ by the other diagonal $cd$ (a **flip**) makes both new edges legal and raises the smaller of the two triangles' smallest angles. A triangulation in which every edge is legal is Delaunay. Whether $d$ is inside the circle through $a$, $b$ and $c$ (counter-clockwise) is the sign of one determinant:
+A set of points in the plane can be joined into triangles in many ways. The
+**Delaunay triangulation** is the one in which no point lies inside the circumcircle of any
+triangle (the circle through its three corners). Among all triangulations of the points it
+makes the smallest angle as large as possible, so it avoids thin sliver triangles wherever it
+can, which is why it is the standard choice for interpolation and for finite-element meshes.
+
+The definition suggests a local test and a local repair. Two triangles $abc$ and $bad$ sharing the edge $ab$ form a quadrilateral. The edge is **legal** if $d$ lies outside the circumcircle of $abc$. If it is illegal, replacing $ab$ by the other diagonal $cd$ (a **flip**) makes both new edges legal and raises the smaller of the two triangles' smallest angles. A triangulation in which every edge is legal is Delaunay. Whether $d$ is inside the circle through $a$, $b$ and $c$ (counter-clockwise) is the sign of one determinant:
 
 $$
 \operatorname{incircle}(a, b, c, d) = \begin{vmatrix} a_x - d_x & a_y - d_y & (a_x - d_x)^2 + (a_y - d_y)^2 \\ b_x - d_x & b_y - d_y & (b_x - d_x)^2 + (b_y - d_y)^2 \\ c_x - d_x & c_y - d_y & (c_x - d_x)^2 + (c_y - d_y)^2 \end{vmatrix} > 0.
@@ -47,6 +53,11 @@ Writing this chapter replaced the earlier Bowyer–Watson version, which failed 
 The time per point grows slowly with $n$, as sorting and hash lookups do. Points on a circle are fast: each is seen from just one hull edge, and no flips are needed.
 
 ### Voronoi diagrams
+
+The **Voronoi diagram** of a set of points (sites) divides the plane into cells, one per site:
+the cell of a site is the region closer to it than to any other. It is the **dual** of the
+Delaunay triangulation: two sites are joined by a Delaunay edge exactly when their cells share
+a boundary, and that boundary lies on the perpendicular bisector of the edge.
 
 The library builds each cell directly from the triangulation. Start with the bounding box. For each Delaunay neighbour $t$ of site $s$, keep the half-plane closer to $s$, bounded by the perpendicular bisector of $st$. A cell is the intersection of these half-planes, and only Delaunay neighbours contribute edges, so clipping by them alone gives the exact cell. Unbounded cells, on the hull, are closed off by the box.
 

@@ -30,21 +30,43 @@ Leonhard Euler showed in 1775 that every rotation of a rigid body about a fixed 
 
 ### Rotation matrices and Euler angles
 
-The rotations about the coordinate axes are
+A rotation of three-dimensional space is described by a $3 \times 3$ matrix $R$ that is
+orthogonal ($R^{\mathsf T}R = I$, so lengths and angles are preserved) and has determinant $+1$ (so
+it is not a reflection). Its columns are the images of the three coordinate axes. Nine numbers
+with six constraints leave three degrees of freedom, and the different representations of a
+rotation are different ways of choosing three numbers (or four, with one constraint).
+
+The simplest rotations are those about the coordinate axes. About $x$,
 
 $$
 R_x(\alpha) = \begin{pmatrix} 1 & 0 & 0 \\ 0 & \cos\alpha & -\sin\alpha \\ 0 & \sin\alpha & \cos\alpha \end{pmatrix},
 $$
 
-with $R_y$ and $R_z$ alike. Rodrigues' formula gives the matrix of a turn by $\theta$ about a unit axis $n$: $R = \cos\theta\, I + \sin\theta\, [n]_\times + (1 - \cos\theta)\, n n^{\mathsf T}$, where $[n]_\times$ is the cross-product matrix.
+with $R_y$ and $R_z$ alike. By Euler's theorem, *every* rotation is a turn by some angle about
+some axis. Rodrigues' formula gives the matrix of a turn by $\theta$ about a unit axis $n$: $R = \cos\theta\, I + \sin\theta\, [n]_\times + (1 - \cos\theta)\, n n^{\mathsf T}$, where $[n]_\times$ is the cross-product matrix.
 
-An **Euler sequence** names three axes, consecutive ones different: twelve sequences in all. The six with all three different (XYZ, ZYX, …) are **Tait–Bryan** angles, such as roll–pitch–yaw. The six repeating the first axis (ZXZ, …) are **proper Euler** angles, used for orbits and spinning tops. The library's sequences are **intrinsic**: each turn is about an axis of the already-turned body, so XYZ with angles $(\alpha, \beta, \gamma)$ is $R = R_x(\alpha)\,R_y(\beta)\,R_z(\gamma)$. Recovering the angles from a matrix reads $\beta$ from one entry, and $\alpha$ and $\gamma$ from pairs of others with `atan2`. Each rotation has two angle triples, related by $(\alpha + \pi, \pi - \beta, \gamma + \pi)$ for Tait–Bryan sequences. The library returns the one with $\beta \in [-\pi/2, \pi/2]$ (or $[0, \pi]$ for proper sequences), as SciPy does. Writing this chapter fixed this: before, either triple could come back, whatever the documentation said.
+**Euler angles** describe a rotation as three successive turns about coordinate axes, which is
+how an aircraft's attitude or a robot's wrist is usually specified. An **Euler sequence** names three axes, consecutive ones different: twelve sequences in all. The six with all three different (XYZ, ZYX, …) are **Tait–Bryan** angles, such as roll–pitch–yaw. The six repeating the first axis (ZXZ, …) are **proper Euler** angles, used for orbits and spinning tops. The library's sequences are **intrinsic**: each turn is about an axis of the already-turned body, so XYZ with angles $(\alpha, \beta, \gamma)$ is $R = R_x(\alpha)\,R_y(\beta)\,R_z(\gamma)$. Recovering the angles from a matrix reads $\beta$ from one entry, and $\alpha$ and $\gamma$ from pairs of others with `atan2`. Each rotation has two angle triples, related by $(\alpha + \pi, \pi - \beta, \gamma + \pi)$ for Tait–Bryan sequences. The library returns the one with $\beta \in [-\pi/2, \pi/2]$ (or $[0, \pi]$ for proper sequences), as SciPy does. Writing this chapter fixed this: before, either triple could come back, whatever the documentation said.
 
-At **gimbal lock** ($\beta = \pm\pi/2$ for Tait–Bryan, $0$ or $\pi$ for proper), the first and third axes line up and only $\alpha \pm \gamma$ is determined. The library then sets $\gamma = 0$. The same convention applies to [`Quaternion::to_euler`](../../api/lib_jsl_geometry/algorithms/quaternions/struct.Quaternion.html#method.to_euler) (Z–Y–X roll, pitch and yaw). Writing this chapter fixed that function at a pitch of $-90°$, where it negated the roll and so returned a different rotation.
+Euler angles have an unavoidable defect. At **gimbal lock** ($\beta = \pm\pi/2$ for Tait–Bryan, $0$ or $\pi$ for proper), the first and third axes line up and only $\alpha \pm \gamma$ is determined. The library then sets $\gamma = 0$. The same convention applies to [`Quaternion::to_euler`](../../api/lib_jsl_geometry/algorithms/quaternions/struct.Quaternion.html#method.to_euler) (Z–Y–X roll, pitch and yaw). Writing this chapter fixed that function at a pitch of $-90°$, where it negated the roll and so returned a different rotation.
 
 ### Quaternions
 
-Quaternions $w + xi + yj + zk$ multiply by the rules $i^2 = j^2 = k^2 = ijk = -1$. A unit quaternion rotates a vector $v$ by $v \mapsto q\,v\,q^{-1}$, treating $v$ as $0 + v_x i + v_y j + v_z k$. Composition is multiplication: $q_2 q_1$ applies $q_1$ first. $q$ and $-q$ give the same rotation, a double cover that matters for interpolation. A matrix becomes a quaternion by **Shepperd's method**, which takes the square root of whichever of $1 + \operatorname{tr} R$ and $1 + 2R_{kk} - \operatorname{tr} R$ is largest, so it never divides by a small number.
+Quaternions avoid gimbal lock, and are the representation of choice for composing and
+interpolating rotations. A **quaternion** $w + xi + yj + zk$ is a four-component number, with
+three imaginary units that multiply by the rules $i^2 = j^2 = k^2 = ijk = -1$ (so that, for
+example, $ij = k$ but $ji = -k$: the multiplication is not commutative, just as rotations are
+not).
+
+The connection with rotations is direct. A turn by the angle $\theta$ about the unit axis
+$n = (n_x, n_y, n_z)$ corresponds to the quaternion
+
+$$
+q = \cos\frac\theta2 + \sin\frac\theta2\,(n_xi + n_yj + n_zk),
+$$
+
+which has unit length. It stores the axis and the (half) angle almost explicitly. A unit quaternion rotates a vector $v$ by $v \mapsto q\,v\,q^{-1}$, treating $v$ as $0 + v_x i + v_y j + v_z k$. Composition is multiplication: $q_2 q_1$ applies $q_1$ first. Because of the half angle, $q$ and $-q$ give the same rotation (turning by $\theta + 2\pi$
+changes the sign of $q$ but not the rotation). This **double cover** matters for interpolation. A matrix becomes a quaternion by **Shepperd's method**, which takes the square root of whichever of $1 + \operatorname{tr} R$ and $1 + 2R_{kk} - \operatorname{tr} R$ is largest, so it never divides by a small number.
 
 Rounding accumulates when many rotations are composed. A matrix product slowly stops being orthogonal, and a quaternion product slowly stops having unit norm:
 

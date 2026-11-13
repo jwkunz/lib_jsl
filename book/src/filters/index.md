@@ -84,6 +84,45 @@ polynomials in the complex variable $s$, and the frequency response is its value
 imaginary axis $s = j\Omega$. A pole $p$ contributes $e^{pt}$ to the impulse response, so an
 analogue filter is stable when all its poles lie in the left half-plane, $\operatorname{Re}p < 0$.
 
+### Sampling and aliasing
+
+Where do the samples come from, and what is lost by taking them? Sample a continuous signal $x(t)$ every $1/f_s$ seconds. A
+cosine of frequency $f$ then gives $\cos(2\pi f n/f_s)$. Now add any whole multiple $k f_s$ to the frequency:
+
+$$
+\cos\!\Big(2\pi\,\frac{f + k f_s}{f_s}\,n\Big) = \cos\!\Big(2\pi\,\frac{f}{f_s}\,n + 2\pi k n\Big) = \cos\!\Big(2\pi\,\frac{f}{f_s}\,n\Big),
+$$
+
+because $2\pi k n$ is a whole number of turns. The samples cannot tell $f$ from $f + k f_s$ (nor from $-f$, since cosine is even).
+This is **aliasing**: a 7 Hz cosine sampled 10 times a second produces $\cos(1.4\pi n) = \cos(0.6\pi n)$, exactly the samples
+of a 3 Hz cosine. In general a frequency $f$ is seen as the distance from $f$ to the nearest multiple of $f_s$, a number always
+between $0$ and $f_s/2$. The signal has been **folded** about multiples of $f_s/2$.
+
+The same fact in the frequency domain: sampling **replicates the spectrum**. If $X(f)$ is the spectrum of $x(t)$, the sampled signal has
+the spectrum $f_s\sum_k X(f - kf_s)$, copies of $X$ centred at every multiple of the sampling rate. (The derivation is the Poisson
+summation formula; the picture is what matters.) The copies overlap, and information is destroyed, unless $X$ occupies a band narrower than $f_s$.
+That gives the **sampling theorem** (Nyquist, Shannon, Whittaker, Kotelnikov): *if $x(t)$ contains no frequencies at or above $f_s/2$,
+it is determined by its samples, and*
+
+$$
+x(t) = \sum_{n} x[n]\,\operatorname{sinc}(f_s t - n), \qquad \operatorname{sinc}(u) = \frac{\sin\pi u}{\pi u}.
+$$
+
+Sampling above twice the highest frequency present loses nothing, and no processing afterwards can undo the damage if it was
+done below. Much of the practice in this and the following chapters is an application of these three sentences:
+
+- **Anti-alias filter before decimating.** Keeping every $D$-th sample divides the sampling rate by $D$, so anything above the new
+  Nyquist frequency folds into the band. The low-pass filter must come *first* ([resampling](../spectral/resampling.md)).
+- **Upsampling creates images.** Inserting zeros compresses the spectrum and leaves extra copies, which a low-pass filter must remove.
+- **Non-band-limited waveforms alias when generated.** A square wave has harmonics without end, so any sampled version has some folded back.
+- **The DFT sees one period.** The spectrum computed from a finite record is a sampled version of the spectrum of a periodic extension,
+  and [windows](../spectral/windows.md) control the leakage that results.
+- **Space can be sampled too.** An antenna array samples the wavefront at the element positions. A plane wave arriving at angle $\theta$
+  from broadside has a spatial frequency $\sin\theta/\lambda$ along the array, which lies in $[-1/\lambda, 1/\lambda]$. Elements
+  spaced $d$ apart sample space at rate $1/d$ and can distinguish spatial frequencies only within a band $1/d$ wide, so unambiguous
+  coverage of all angles needs $2/\lambda \le 1/d$, that is $d \le \lambda/2$. Wider spacing makes distinct directions look alike: these
+  are the **grating lobes** of [beamforming](../em-arrays/beamforming.md), the spatial version of aliasing.
+
 ## Testing against SciPy
 
 Each design function mirrors a SciPy function. For 45 cases, covering every IIR family and band type, order selection,

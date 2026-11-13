@@ -62,7 +62,7 @@ series with coefficients $\hat y_k$ passes through every sample.
 
 **Which frequencies?** There is a subtlety. At the sample points, frequency $k$ and frequency
 $k + n$ are indistinguishable, because $e^{2\pi i j(k+n)/n} = e^{2\pi i jk/n}\,e^{2\pi i j}$ and
-the last factor is 1. This is **aliasing**. Any set of $n$ consecutive frequencies would
+the last factor is 1. This is **aliasing** (the same phenomenon as in [sampled signals](../filters/index.md#sampling-and-aliasing)). Any set of $n$ consecutive frequencies would
 interpolate the samples, but they would behave very differently *between* the samples. The right
 choice is the set of lowest frequencies, from $-n/2$ to $n/2$, which wiggles as little as possible:
 

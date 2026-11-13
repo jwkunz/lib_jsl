@@ -15,7 +15,7 @@
 ## Overview
 
 Audio moves between 44.1 and 48 kHz, radios decimate from megasamples to kilosamples per second, and images are scaled. Changing a sampling rate by $U/D$
-means conceptually: insert $U - 1$ zeros between samples (**upsampling**, which creates spectral **images**), low-pass filter, and keep every $D$-th sample (**downsampling**, which **aliases** anything above the new Nyquist). Done literally,
+means conceptually (the reasons for each step are in [sampling and aliasing](../filters/index.md#sampling-and-aliasing)): insert $U - 1$ zeros between samples (**upsampling**, which creates spectral **images**), low-pass filter, and keep every $D$-th sample (**downsampling**, which **aliases** anything above the new Nyquist). Done literally,
 most of the multiplications are by the inserted zeros or produce samples that are thrown away. **Polyphase** filtering computes only the outputs that are kept, from only the
 nonzero inputs. Two special filters push the cost down further: **half-band** filters, with almost half their taps zero, for factors of two, and **CIC** filters,
 which need no multiplications at all, for large factors.

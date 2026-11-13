@@ -6,6 +6,17 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Second-order sections in `lib_jsl_dsp::discrete::filters::iir::sos`: `zpk2sos` (SciPy's pairing and
+  ordering), `tf2sos`, `sos2tf`, `sosfilt` and `sosfilt_zi`.
+- Zero-phase filtering in `lib_jsl_dsp::discrete::filters::iir::zero_phase`: `lfilter`, `lfilter_zi`,
+  `filtfilt` and `sosfiltfilt`, with SciPy's odd, even and constant padding.
+- Peak finding in `lib_jsl_dsp::discrete::peaks`: `find_peaks` (height, threshold, distance,
+  prominence, width and plateau criteria), `peak_prominences`, `peak_widths` and `local_maxima`.
+- Book entries "Second-order sections and zero-phase filtering" and "Peak finding", with SciPy
+  comparisons: filtering agrees to rounding, and `find_peaks` returns identical peaks and properties.
+
 ## [1.1.0] - 2026-11-13
 
 ### Changed

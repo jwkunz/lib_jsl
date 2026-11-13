@@ -64,7 +64,7 @@ Without taps, it designs a Kaiser-window low-pass with cutoff $1/\max(U, D)$ of 
 
 ![Interpolation by 4](../generated/spectral/interpolation.svg)
 
-<p class="caption" id="fig-15-11"><strong>Figure 15.11.</strong> Interpolation by 4.</p>
+<p class="caption" id="fig-15-12"><strong>Figure 15.12.</strong> Interpolation by 4.</p>
 
 A polyphase resampler must push each stuffed zero into the history before computing the output due after it. Computing all $U$ outputs from the same history makes them equal: upsampling by 3 would turn $0, 3, 6$ into
 $0, 0, 0, 3, 3, 3, 6, 6, 6$. Asymmetric filters must also be applied unreversed. A test with a single unit tap shows neither error.
@@ -74,7 +74,7 @@ $0, 0, 0, 3, 3, 3, 6, 6, 6$. Asymmetric filters must also be applied unreversed.
 [`PolyphaseArbitraryResampler`](../../api/lib_jsl_dsp/discrete/resampling/polyphase_arbitrary_resampling/struct.PolyphaseArbitraryResampler.html) allows a real $D$. Output $m$ takes the filtered upsampled signal at position $\lfloor mD\rfloor$, so output times are rounded to the
 nearest point below on a grid $U$ times finer than the input. The error in time is less than $1/U$ input samples:
 
-<p class="caption" id="tab-15-9"><strong>Table 15.9.</strong> Accuracy of arbitrary-ratio resampling.</p>
+<p class="caption" id="tab-15-11"><strong>Table 15.11.</strong> Accuracy of arbitrary-ratio resampling.</p>
 
 {{#include ../generated/spectral/arbitrary_resampling.md}}
 
@@ -88,7 +88,7 @@ where it is $\frac12$:
 
 ![Half-band filter](../generated/spectral/halfband.svg)
 
-<p class="caption" id="fig-15-12"><strong>Figure 15.12.</strong> Half-band filter.</p>
+<p class="caption" id="fig-15-13"><strong>Figure 15.13.</strong> Half-band filter.</p>
 
 {{#include ../generated/spectral/halfband_facts.md}}
 
@@ -112,7 +112,7 @@ with nulls at every multiple of the output rate, where aliases would land, and n
 
 ![CIC response](../generated/spectral/cic_response.svg)
 
-<p class="caption" id="fig-15-13"><strong>Figure 15.13.</strong> CIC response.</p>
+<p class="caption" id="fig-15-14"><strong>Figure 15.14.</strong> CIC response.</p>
 
 More stages deepen the nulls and widen the attenuation around them, but also increase the **droop**, the falling gain across the passband, which a short compensating FIR filter at
 the low rate corrects. The integrators' registers overflow by design. In two's complement arithmetic the wrap-around cancels exactly in the

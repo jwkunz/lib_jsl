@@ -13,14 +13,14 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **456 algorithms and components in 23 crates**:
+The library implements **460 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 107 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 31 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
-| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 174 |
+| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 178 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
 
@@ -385,7 +385,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 116 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 120 items
 
 #### Continuous
 
@@ -517,6 +517,9 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 - [Comb](filters/iir-structures.md#comb-filters)
 - [Notch](filters/iir-structures.md#notch-and-peak-filters)
 - [Peak](filters/iir-structures.md#notch-and-peak-filters)
+- [Second-order sections (zpk2sos, tf2sos, sosfilt)](filters/sos-zero-phase.md#second-order-sections)
+- [Steady-state initial conditions (lfilter_zi, sosfilt_zi)](filters/sos-zero-phase.md#starting-in-steady-state)
+- [Zero-phase filtering (filtfilt, sosfiltfilt)](filters/sos-zero-phase.md#zero-phase)
 
 ##### Resampling
 
@@ -538,6 +541,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 - [Short-time Fourier transform and spectrogram](spectral/power-spectra.md#the-short-time-fourier-transform-and-the-spectrogram)
 - [Hilbert transform and analytic signal](spectral/hilbert.md)
 - [Goertzel algorithm](spectral/chosen-frequencies.md#goertzels-recursion)
+- [Peak finding (prominence, width)](spectral/peaks.md)
 
 ##### Transformations
 

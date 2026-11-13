@@ -112,7 +112,7 @@ stopband:
 
 ![Window-method filters](../generated/filters/fir_windows.svg)
 
-<p class="caption" id="fig-14-11"><strong>Figure 14.11.</strong> Window-method filters.</p>
+<p class="caption" id="fig-14-13"><strong>Figure 14.13.</strong> Window-method filters.</p>
 
 [`firwin`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin/fn.firwin.html) builds the ideal response from sinc functions, one difference of two per band, applies the window, and scales the result to unit gain at the
 centre of the first passband. Its window can be any of the library's
@@ -129,7 +129,7 @@ $$
 
 These make window design a recipe: choose $A$ and $\Delta\omega$, read off $\beta$ and $N$. They are accurate to about a decibel:
 
-<p class="caption" id="tab-14-5"><strong>Table 14.5.</strong> Kaiser-window designs: estimated taps and β against measured attenuation.</p>
+<p class="caption" id="tab-14-7"><strong>Table 14.7.</strong> Kaiser-window designs: estimated taps and β against measured attenuation.</p>
 
 {{#include ../generated/filters/kaiser_design.md}}
 
@@ -142,7 +142,7 @@ attaches the linear-phase factor, inverse-transforms by FFT, and windows the res
 
 ![Frequency sampling](../generated/filters/firwin2.svg)
 
-<p class="caption" id="fig-14-12"><strong>Figure 14.12.</strong> Frequency sampling.</p>
+<p class="caption" id="fig-14-14"><strong>Figure 14.14.</strong> Frequency sampling.</p>
 
 More taps follow the specification more closely, but discontinuities still ring.
 
@@ -185,12 +185,12 @@ frequencies. Remez's **exchange algorithm** does the search:
 
 ![Equiripple against window](../generated/filters/fir_remez.svg)
 
-<p class="caption" id="fig-14-13"><strong>Figure 14.13.</strong> Equiripple against window.</p>
+<p class="caption" id="fig-14-15"><strong>Figure 14.15.</strong> Equiripple against window.</p>
 
 At the same length, the equiripple filter has a sharper transition and an even stopband; the window design's side lobes fall away
 where no attenuation was needed. For a fixed transition, Parks-McClellan reaches more attenuation from the same number of taps:
 
-<p class="caption" id="tab-14-6"><strong>Table 14.6.</strong> Stopband attenuation of Parks-McClellan and Kaiser-window designs of equal length.</p>
+<p class="caption" id="tab-14-8"><strong>Table 14.8.</strong> Stopband attenuation of Parks-McClellan and Kaiser-window designs of equal length.</p>
 
 {{#include ../generated/filters/remez_vs_kaiser.md}}
 
@@ -205,7 +205,7 @@ data. It is accurate at low frequencies only, and suppresses the rest:
 
 ![Differentiators](../generated/filters/differentiators.svg)
 
-<p class="caption" id="fig-14-14"><strong>Figure 14.14.</strong> Differentiators.</p>
+<p class="caption" id="fig-14-16"><strong>Figure 14.16.</strong> Differentiators.</p>
 
 The [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/fir/boxcar_integrator/struct.BoxcarIntegrator.html) is the opposite case, a moving sum of the last $N$ samples computed with one addition and
 one subtraction per sample, whatever $N$.

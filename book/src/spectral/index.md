@@ -36,6 +36,7 @@ resamplers in `discrete::resampling`, and Fourier integrals in `continuous::spec
 | A few DFT bins, a zoomed band, or a Fourier integral | `goertzel`, `chirpz`, `fourier_integral` | [Spectra at chosen frequencies](chosen-frequencies.md) |
 | An envelope or instantaneous frequency | `analytic_signal`, `hilbert_transform`, `instantaneous_attributes` | [Hilbert transform](hilbert.md) |
 | Resolution beyond the DFT; a linear-prediction model | `levinson_durbin`, `linear_predictive_coding`, `burg`, `music` | [Parametric spectra](parametric.md) |
+| The peaks of a signal or spectrum, with their prominences and widths | `find_peaks`, `peak_prominences`, `peak_widths` | [Peak finding](peaks.md) |
 | Multiscale analysis, compression or denoising | `dwt`, `wavedec`, `waverec`, `continuous_wavelet_transform` | [Wavelet transforms](wavelets.md) |
 | A different sampling rate | `PolyphaseIntegerResampler`, `PolyphaseArbitraryResampler`, `HalfBandDecimator`, `CicDecimator` | [Resampling](resampling.md) |
 | Many frequency channels, and recombining them | `*PolyphaseAnalysisFilterBank`, `*PolyphaseSynthesisFilterBank` | [Polyphase filter banks](filter-banks.md) |

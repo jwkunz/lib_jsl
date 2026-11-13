@@ -148,5 +148,6 @@ which defaults to 2 so that edges are fractions of Nyquist.
 | An analogue low-pass prototype or a band transformation | `buttap`, `cheb1ap`, `cheb2ap`, `ellipap`, `besselap`, `lp2*_zpk`, `freqs` | [Analogue prototypes](analog-prototypes.md) |
 | A digital IIR filter meeting a specification | `buttord`/`butter`, `cheb1ord`/`cheby1`, `cheb2ord`/`cheby2`, `ellipord`/`ellip`, `bessel`, `freqz` | [Digital IIR design](iir-design.md) |
 | To run an IIR filter; to remove one tone or a harmonic series | `DiscreteLinearFilter`, `BiquadFilter`, `iirnotch`, `iirpeak`, `iircomb` | [IIR structures](iir-structures.md) |
+| A high-order IIR filter that stays stable; filtering without phase delay | `zpk2sos`, `tf2sos`, `sosfilt`, `sosfilt_zi`, `lfilter`, `lfilter_zi`, `filtfilt`, `sosfiltfilt` | [Second-order sections and zero-phase filtering](sos-zero-phase.md) |
 | A linear-phase FIR filter | `firwin`, `firwin2`, `remez`, `kaiser_beta`, `generate_derivative_taps` | [FIR design](fir-design.md) |
 | A filter that learns | `LmsFilter`, `RlsFilter` | [Adaptive filters](adaptive.md) |

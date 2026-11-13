@@ -168,7 +168,7 @@ With white input all three reach the noise floor, RLS in a few dozen samples, LM
 (a first-order autoregressive process with coefficient 0.9, eigenvalue spread 113 for 8 taps), LMS needs thousands of samples, while RLS is unaffected.
 The price of RLS grows with the square of the length:
 
-<p class="caption" id="tab-14-7"><strong>Table 14.7.</strong> Cost per sample of NLMS and RLS adaptive filters.</p>
+<p class="caption" id="tab-14-9"><strong>Table 14.9.</strong> Cost per sample of NLMS and RLS adaptive filters.</p>
 
 {{#include ../generated/filters/adaptive_cost.md}}
 

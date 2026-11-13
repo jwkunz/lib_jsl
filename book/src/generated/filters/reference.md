@@ -45,3 +45,13 @@
 | convolve same | 1.6e-16 |
 | convolve valid | 0.0e0 |
 | correlate full | 1.6e-16 |
+| zpk2sos butter 8 lowpass 0.15 | 1.1e-16 |
+| zpk2sos ellip 5 1/50 dB lowpass 0.3 | 3.1e-13 |
+| zpk2sos cheby1 4 0.5 dB bandpass 0.2-0.5 | 2.8e-16 |
+| sosfilt_zi butter 8 lowpass 0.15 | 8.2e-16 |
+| sosfilt butter 8 lowpass 0.15 | 3.6e-15 |
+| sosfiltfilt butter 8 lowpass 0.15 | 5.5e-15 |
+| lfilter_zi butter 4 lowpass 0.2 | 3.8e-15 |
+| filtfilt butter 4 lowpass 0.2 (odd) | 6.3e-15 |
+| filtfilt butter 4 lowpass 0.2 (even) | 5.2e-15 |
+| filtfilt butter 4 lowpass 0.2 (constant, 20) | 5.6e-15 |

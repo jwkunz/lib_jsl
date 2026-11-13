@@ -11,3 +11,12 @@
 | stft hann 64/16 | 2.1e-16 |
 | spectrogram hann 64/16 density | 4.3e-16 |
 | square period 8 | 0.0e0 |
+| find_peaks all | 0.0e0 |
+| find_peaks height 0.8 | 0.0e0 |
+| find_peaks threshold 0.4 | 0.0e0 |
+| find_peaks distance 12 | 0.0e0 |
+| find_peaks prominence 1 | 0.0e0 |
+| find_peaks prominence 1 wlen 15 | 0.0e0 |
+| find_peaks width 2-6 | 0.0e0 |
+| find_peaks width 3 rel_height 1 | 0.0e0 |
+| find_peaks plateau_size 2 (rounded signal) | 0.0e0 |

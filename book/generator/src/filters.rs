@@ -34,6 +34,8 @@ use lib_jsl_dsp::discrete::filters::fft_fir::FftFir;
 use lib_jsl_dsp::discrete::filters::overlap_and_add_fir::OverlapAddFir;
 use lib_jsl_dsp::discrete::filters::adaptive::lms::LmsFilter;
 use lib_jsl_dsp::discrete::filters::adaptive::rls::RlsFilter;
+use lib_jsl_dsp::discrete::filters::sos::{Section, sosfilt, sosfilt_zi, zpk2sos};
+use lib_jsl_dsp::discrete::filters::zero_phase::{Padding, filtfilt, lfilter, lfilter_zi, sosfiltfilt};
 use lib_jsl_dsp::discrete::stream_operator::StreamOperator;
 use lib_jsl_dsp::discrete::windows::{kaiser_beta, kaiser_estimate_numtaps};
 use lib_jsl_random::uniform_generator::UniformGenerator;
@@ -51,6 +53,7 @@ pub fn generate() {
     structure_figures();
     fir_figures();
     adaptive_figures();
+    sos_figures();
 }
 
 fn md_table(header: &[&str], rows: &[Vec<String>]) -> String {
@@ -70,6 +73,20 @@ pub(crate) fn ba(out: ButterOutput) -> Ba {
         ButterOutput::Ba(r) => (r.beta.iter().map(|c| c.re).collect(), r.alpha.iter().map(|c| c.re).collect()),
         ButterOutput::Zpk(_) => panic!("expected ba output"),
     }
+}
+
+
+/// Second-order sections of a design, through its zeros, poles and gain.
+pub(crate) fn sections(out: ButterOutput) -> Vec<Section> {
+    match out {
+        ButterOutput::Zpk(z) => zpk2sos(&z.z.to_vec(), &z.p.to_vec(), z.k.re).expect("valid design"),
+        ButterOutput::Ba(_) => panic!("expected zpk output"),
+    }
+}
+
+/// The test signal of the second-order-section and zero-phase reference cases.
+fn sos_signal() -> Vec<f64> {
+    (0..200).map(|i| (0.07 * i as f64).sin() + 0.3 * (0.9 * i as f64).cos() + ((i * 37) % 11) as f64 / 10.0).collect()
 }
 
 /// The library's value for each named reference case, as lists matching the reference file.
@@ -150,6 +167,21 @@ fn library_case(name: &str) -> Option<Vec<Vec<f64>>> {
         "convolve same" => vec![convolve(&x[..20], &y, ConvolveMode::Same, ConvolveMethod::Direct).ok()?],
         "convolve valid" => vec![convolve(&x[..20], &y, ConvolveMode::Valid, ConvolveMethod::Direct).ok()?],
         "correlate full" => vec![cross_correlate(&x[..20], &y, CorrelationMode::Full, ConvolveMethod::Direct).ok()?],
+        "zpk2sos butter 8 lowpass 0.15" => vec![sections(butter(8, &[0.15], Band::Lowpass, Some(ButterOutputType::Zpk), None).ok()?).concat()],
+        "zpk2sos ellip 5 1/50 dB lowpass 0.3" => vec![sections(ellip(5, 1.0, 50.0, &[0.3], Band::Lowpass, Some(ButterOutputType::Zpk), None).ok()?).concat()],
+        "zpk2sos cheby1 4 0.5 dB bandpass 0.2-0.5" => vec![sections(cheby1(4, 0.5, &[0.2, 0.5], Band::Bandpass, Some(ButterOutputType::Zpk), None).ok()?).concat()],
+        "sosfilt_zi butter 8 lowpass 0.15" => vec![sosfilt_zi(&sections(butter(8, &[0.15], Band::Lowpass, Some(ButterOutputType::Zpk), None).ok()?)).ok()?.concat()],
+        "sosfilt butter 8 lowpass 0.15" => vec![sosfilt(&sections(butter(8, &[0.15], Band::Lowpass, Some(ButterOutputType::Zpk), None).ok()?), &sos_signal(), None).ok()?.0],
+        "sosfiltfilt butter 8 lowpass 0.15" => vec![sosfiltfilt(&sections(butter(8, &[0.15], Band::Lowpass, Some(ButterOutputType::Zpk), None).ok()?), &sos_signal(), Padding::Odd, None).ok()?],
+        "lfilter_zi butter 4 lowpass 0.2" => {
+            let (b, a) = ba(butter(4, &[0.2], Band::Lowpass, None, None).ok()?);
+            vec![lfilter_zi(&b, &a).ok()?]
+        }
+        n if n.starts_with("filtfilt butter 4 lowpass 0.2") => {
+            let (b, a) = ba(butter(4, &[0.2], Band::Lowpass, None, None).ok()?);
+            let (padding, padlen) = if n.ends_with("(odd)") { (Padding::Odd, None) } else if n.ends_with("(even)") { (Padding::Even, None) } else { (Padding::Constant, Some(20)) };
+            vec![filtfilt(&b, &a, &sos_signal(), padding, padlen).ok()?]
+        }
         _ => return None,
     })
 }
@@ -592,4 +624,89 @@ fn adaptive_figures() {
         rows.push(vec![format!("{taps}"), format!("{:.0}", t_lms / 5000.0 * 1e9), format!("{:.0}", t_rls / 5000.0 * 1e9)]);
     }
     write(CHAPTER, "adaptive_cost.md", &md_table(&["taps", "NLMS (ns per sample)", "RLS (ns per sample)"], &rows));
+}
+
+// ------------------------------------------------------------------ second-order sections and zero-phase filtering
+
+/// Pseudo-random noise of standard deviation about `sigma` (a sum of four uniforms), reproducible.
+fn noise(n: usize, sigma: f64, seed: u64) -> Vec<f64> {
+    let mut s = seed;
+    let mut u = || {
+        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        (s >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+    };
+    (0..n).map(|_| sigma * (u() + u() + u() + u()) * 3f64.sqrt()).collect()
+}
+
+pub(crate) fn sos_figures() {
+    // Direct form against sections: the step response of narrow Butterworth low-pass filters.
+    let mut rows = Vec::new();
+    let step = vec![1.0; 6000];
+    let mut plot = Plot::new("Step response of a 12th-order Butterworth low-pass, cutoff 0.02 × Nyquist", "sample", "output");
+    for (order, wn) in [(4usize, 0.05), (8, 0.05), (12, 0.05), (12, 0.02), (16, 0.05), (20, 0.1)] {
+        let (b, a) = ba(butter(order, &[wn], Band::Lowpass, None, None).unwrap());
+        let sos = sections(butter(order, &[wn], Band::Lowpass, Some(ButterOutputType::Zpk), None).unwrap());
+        let (direct, _) = lfilter(&b, &a, &step, None).unwrap();
+        let (cascade, _) = sosfilt(&sos, &step, None).unwrap();
+        let describe = |y: &[f64]| {
+            let last = y[y.len() - 1];
+            let peak = y.iter().fold(0.0f64, |m, v| m.max(v.abs()));
+            if !last.is_finite() || peak > 1e6 {
+                format!("diverges (output reaches {peak:.0e})")
+            } else {
+                format!("{:.1e}", (last - 1.0).abs())
+            }
+        };
+        rows.push(vec![format!("{order}"), format!("{wn}"), describe(&direct), describe(&cascade)]);
+        if (order, wn) == (12, 0.02) {
+            plot.series.push(Series::new("direct form (b, a)", direct[..1500].iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Line, 1));
+            plot.series.push(Series::new("second-order sections", cascade[..1500].iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Line, 0));
+        }
+    }
+    plot.y_range = Some((-1.0, 3.0));
+    plot.legend = Legend::TopRight;
+    write(CHAPTER, "sos_step.svg", &plot.render());
+    write(CHAPTER, "sos_vs_ba.md", &md_table(&["Butterworth order", "cutoff (× Nyquist)", "direct form: final error of the unit step", "sections: final error"], &rows));
+
+    // One pass against two: a noisy pulse train through a 4th-order low-pass.
+    let n = 600;
+    let clean: Vec<f64> = (0..n).map(|i| {
+        let t = i as f64;
+        [120.0, 300.0, 460.0].iter().map(|c| (-((t - c) / 18.0).powi(2)).exp()).sum::<f64>() + if (200..260).contains(&i) { 0.6 } else { 0.0 }
+    }).collect();
+    let x: Vec<f64> = clean.iter().zip(noise(n, 0.15, 7)).map(|(c, e)| c + e).collect();
+    let sos = sections(butter(4, &[0.04], Band::Lowpass, Some(ButterOutputType::Zpk), None).unwrap());
+    let (once, _) = sosfilt(&sos, &x, None).unwrap();
+    let twice = sosfiltfilt(&sos, &x, Padding::Odd, None).unwrap();
+    let mut plot = Plot::new("A noisy signal low-pass filtered once and forwards-backwards", "sample", "value");
+    plot.series.push(Series::new("noisy input", x.iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Line, 7));
+    plot.series.push(Series::new("one pass (sosfilt)", once.iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Line, 1));
+    plot.series.push(Series::new("zero phase (sosfiltfilt)", twice.iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Line, 0));
+    plot.series.push(Series::new("clean signal", clean.iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Dashed, 6));
+    plot.legend = Legend::TopRight;
+    plot.y_range = Some((-0.6, 1.8));
+    write(CHAPTER, "zero_phase.svg", &plot.render());
+
+    // The ends of the record: padding choices on a ramp plus a sine, where the true low-pass output is known.
+    let n = 400;
+    let base: Vec<f64> = (0..n).map(|i| 1.0 + 0.004 * i as f64 + 0.5 * (2.0 * PI * i as f64 / 150.0).sin()).collect();
+    let (b, a) = ba(butter(3, &[0.05], Band::Lowpass, None, None).unwrap());
+    let mut rows = Vec::new();
+    for (name, padding) in [("odd (default)", Padding::Odd), ("even", Padding::Even), ("constant", Padding::Constant), ("none", Padding::None)] {
+        let y = filtfilt(&b, &a, &base, padding, None).unwrap();
+        let edge = |range: std::ops::Range<usize>| range.map(|i| (y[i] - base[i]).abs()).fold(0.0f64, f64::max);
+        rows.push(vec![name.to_string(), format!("{:.1e}", edge(0..30)), format!("{:.1e}", edge(185..215)), format!("{:.1e}", edge(n - 30..n))]);
+    }
+    // Starting from rest instead of the steady state (no initial conditions, odd padding).
+    let edge_len = 3 * b.len().max(a.len());
+    let mut ext: Vec<f64> = (1..=edge_len).rev().map(|k| 2.0 * base[0] - base[k]).collect();
+    ext.extend_from_slice(&base);
+    ext.extend((1..=edge_len).map(|k| 2.0 * base[n - 1] - base[n - 1 - k]));
+    let (f, _) = lfilter(&b, &a, &ext, None).unwrap();
+    let r: Vec<f64> = f.iter().rev().copied().collect();
+    let (g, _) = lfilter(&b, &a, &r, None).unwrap();
+    let y: Vec<f64> = g.iter().rev().copied().collect::<Vec<f64>>()[edge_len..edge_len + n].to_vec();
+    let edge = |range: std::ops::Range<usize>| range.map(|i| (y[i] - base[i]).abs()).fold(0.0f64, f64::max);
+    rows.push(vec!["odd, but each pass starting from rest".to_string(), format!("{:.1e}", edge(0..30)), format!("{:.1e}", edge(185..215)), format!("{:.1e}", edge(n - 30..n))]);
+    write(CHAPTER, "filtfilt_edges.md", &md_table(&["padding", "largest error, first 30 samples", "in the middle", "last 30 samples"], &rows));
 }

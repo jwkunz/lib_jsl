@@ -12,14 +12,14 @@ work as well as use them.
   undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
 - **Catalogue:** the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html) lists everything the library
-  implements (456 items), grouped by subject, and what it deliberately does not cover.
+  implements (460 items), grouped by subject, and what it deliberately does not cover.
 
 ## Status
 
 | | |
 |---|---|
 | Version | 1.1.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
-| Algorithms | 456 algorithms and components across 23 library crates |
+| Algorithms | 460 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; a book of 149 entries covering every subject of the catalogue, each with its idea, algorithm, measured results and exercises |

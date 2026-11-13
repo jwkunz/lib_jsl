@@ -68,3 +68,13 @@ out("stft hann 64/16", z.real.ravel(), z.imag.ravel())
 f, t, s = signal.spectrogram(x, fs=10.0, window=win, nperseg=64, noverlap=48, detrend=False, scaling="density", mode="psd")
 out("spectrogram hann 64/16 density", s.T.ravel())
 out("square period 8", signal.square(2 * np.pi * np.arange(40) / 8))
+# Peak finding (1.2.0), on the same signal; the plateau case rounds it to one decimal.
+for case, kw in [
+    ("all", {}), ("height 0.8", dict(height=0.8)), ("threshold 0.4", dict(threshold=0.4)), ("distance 12", dict(distance=12)),
+    ("prominence 1", dict(prominence=1.0)), ("prominence 1 wlen 15", dict(prominence=1.0, wlen=15)),
+    ("width 2-6", dict(width=(2, 6))), ("width 3 rel_height 1", dict(width=3, rel_height=1.0)),
+]:
+    p, props = signal.find_peaks(x, **kw)
+    out(f"find_peaks {case}", p, *[props[k] for k in sorted(props)])
+p, props = signal.find_peaks(np.round(x, 1), plateau_size=2)
+out("find_peaks plateau_size 2 (rounded signal)", p, props["left_edges"], props["plateau_sizes"], props["right_edges"])

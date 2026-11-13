@@ -31,6 +31,8 @@ use lib_jsl_dsp::discrete::windows::{self, WindowType, generate_window};
 use num_complex::Complex;
 use std::f64::consts::PI;
 
+use lib_jsl_dsp::discrete::peaks::{Bounds, PeakOptions, find_peaks};
+
 const CHAPTER: &str = "spectral";
 
 pub fn generate() {
@@ -43,6 +45,7 @@ pub fn generate() {
     wavelet_figures();
     resampling_figures();
     filter_bank_figures();
+    peak_figures();
 }
 
 pub(crate) fn md_table(header: &[&str], rows: &[Vec<String>]) -> String {
@@ -130,6 +133,44 @@ fn library_case(name: &str, data: &std::collections::HashMap<String, Vec<Vec<f64
             let r: Vec<f64> = (0..9).map(|k| x[..256 - k].iter().zip(&x[k..]).map(|(a, b)| a * b).sum::<f64>() / 256.0).collect();
             // SciPy solves R a = r[1..]; Levinson returns A(z) = 1 + Σ a_k z^-k with the opposite sign.
             vec![levinson_durbin(&r, 8).ok()?.coefficients[1..].iter().map(|v| -v).collect()]
+        }
+        n if n.starts_with("find_peaks ") => {
+            let o = |f: fn(&mut PeakOptions)| {
+                let mut o = PeakOptions::default();
+                f(&mut o);
+                o
+            };
+            let (signal, options) = match &n["find_peaks ".len()..] {
+                "all" => (x.clone(), PeakOptions::default()),
+                "height 0.8" => (x.clone(), o(|o| o.height = Some(Bounds::at_least(0.8)))),
+                "threshold 0.4" => (x.clone(), o(|o| o.threshold = Some(Bounds::at_least(0.4)))),
+                "distance 12" => (x.clone(), o(|o| o.distance = Some(12.0))),
+                "prominence 1" => (x.clone(), o(|o| o.prominence = Some(Bounds::at_least(1.0)))),
+                "prominence 1 wlen 15" => (x.clone(), o(|o| { o.prominence = Some(Bounds::at_least(1.0)); o.wlen = Some(15.0) })),
+                "width 2-6" => (x.clone(), o(|o| o.width = Some(Bounds::between(2.0, 6.0)))),
+                "width 3 rel_height 1" => (x.clone(), o(|o| { o.width = Some(Bounds::at_least(3.0)); o.rel_height = 1.0 })),
+                "plateau_size 2 (rounded signal)" => (x.iter().map(|v| (v * 10.0).round() / 10.0).collect(), o(|o| o.plateau_size = Some(Bounds::at_least(2.0)))),
+                _ => return None,
+            };
+            let p = find_peaks(&signal, &options).ok()?;
+            let ints = |v: &[usize]| v.iter().map(|&i| i as f64).collect::<Vec<f64>>();
+            // The properties in SciPy's (alphabetical) order.
+            let mut out = vec![ints(&p.indices)];
+            if let (Some(l), Some(s), Some(r)) = (&p.left_edges, &p.plateau_sizes, &p.right_edges) {
+                out.extend([ints(l), ints(s), ints(r)]);
+            }
+            match (&p.prominences, &p.widths) {
+                (Some(pr), Some(w)) => out.extend([ints(&pr.left_bases), w.left_ips.clone(), pr.prominences.clone(), ints(&pr.right_bases), w.right_ips.clone(), w.width_heights.clone(), w.widths.clone()]),
+                (Some(pr), None) => out.extend([ints(&pr.left_bases), pr.prominences.clone(), ints(&pr.right_bases)]),
+                _ => {}
+            }
+            if let Some(h) = &p.peak_heights {
+                out.push(h.clone());
+            }
+            if let (Some(l), Some(r)) = (&p.left_thresholds, &p.right_thresholds) {
+                out.extend([l.clone(), r.clone()]);
+            }
+            out
         }
         _ => return None,
     })
@@ -666,4 +707,76 @@ fn filter_bank_figures() {
         rows.push(vec![name.to_string(), prototype.to_string(), format!("{}", best.1), format!("{:.4}", best.2.norm()), format!("{:.1e}", best.0.sqrt())]);
     }
     write(CHAPTER, "filter_bank_reconstruction.md", &md_table(&["bank (16 channels)", "prototype filter", "best delay (samples)", "best gain", "relative RMS error after removing delay and gain"], &rows));
+}
+
+// ------------------------------------------------------------------ peak finding
+
+/// A synthetic spectrum-like signal: seven Gaussian peaks of different heights and widths on a
+/// slow baseline, plus noise, and the true peak positions.
+fn peak_test_signal() -> (Vec<f64>, Vec<usize>) {
+    let centres = [60.0, 140.0, 165.0, 260.0, 330.0, 410.0, 470.0];
+    let heights = [1.0, 0.8, 0.5, 1.4, 0.35, 0.9, 0.6];
+    let widths = [6.0, 5.0, 5.0, 14.0, 4.0, 8.0, 3.0];
+    let mut s = 11u64;
+    let mut u = || {
+        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        (s >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+    };
+    let x = (0..520)
+        .map(|i| {
+            let t = i as f64;
+            let peaks: f64 = centres.iter().zip(&heights).zip(&widths).map(|((c, h), w)| h * (-0.5 * ((t - c) / w).powi(2)).exp()).sum();
+            peaks + 0.2 * (t / 160.0).sin() + 0.06 * (u() + u() + u() + u()) * 3f64.sqrt()
+        })
+        .collect();
+    (x, centres.iter().map(|&c| c as usize).collect())
+}
+
+pub(crate) fn peak_figures() {
+    let (x, truth) = peak_test_signal();
+    let all = find_peaks(&x, &PeakOptions::default()).unwrap();
+    let chosen = find_peaks(&x, &PeakOptions { prominence: Some(Bounds::at_least(0.25)), width: Some(Bounds::at_least(0.0)), ..Default::default() }).unwrap();
+    let mut plot = Plot::new("Local maxima, and the peaks with prominence at least 0.25", "sample", "value");
+    plot.series.push(Series::new("signal", x.iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Line, 7));
+    plot.series.push(Series::new("every local maximum", all.indices.iter().map(|&i| (i as f64, x[i])).collect(), Style::Markers, 4));
+    plot.series.push(Series::new("prominence ≥ 0.25", chosen.indices.iter().map(|&i| (i as f64, x[i])).collect(), Style::Markers, 0));
+    let p = chosen.prominences.as_ref().unwrap();
+    let w = chosen.widths.as_ref().unwrap();
+    for (k, &i) in chosen.indices.iter().enumerate() {
+        let label = if k == 0 { "prominence" } else { "" };
+        plot.series.push(Series::new(label, vec![(i as f64, x[i]), (i as f64, x[i] - p.prominences[k])], Style::Line, 1));
+        let label = if k == 0 { "width at half prominence" } else { "" };
+        plot.series.push(Series::new(label, vec![(w.left_ips[k], w.width_heights[k]), (w.right_ips[k], w.width_heights[k])], Style::Line, 2));
+    }
+    plot.legend = Legend::TopRight;
+    plot.y_range = Some((-0.4, 2.0));
+    write(CHAPTER, "peaks.svg", &plot.render());
+
+    let count = |o: PeakOptions| find_peaks(&x, &o).unwrap();
+    let matched = |idx: &[usize]| truth.iter().filter(|&&t| idx.iter().any(|&i| i.abs_diff(t) <= 3)).count();
+    let mut rows = Vec::new();
+    for (name, o) in [
+        ("none (every local maximum)", PeakOptions::default()),
+        ("height ≥ 0.3", PeakOptions { height: Some(Bounds::at_least(0.3)), ..Default::default() }),
+        ("threshold ≥ 0.02", PeakOptions { threshold: Some(Bounds::at_least(0.02)), ..Default::default() }),
+        ("distance ≥ 20", PeakOptions { distance: Some(20.0), ..Default::default() }),
+        ("prominence ≥ 0.25", PeakOptions { prominence: Some(Bounds::at_least(0.25)), ..Default::default() }),
+        ("prominence ≥ 0.25, width ≥ 4", PeakOptions { prominence: Some(Bounds::at_least(0.25)), width: Some(Bounds::at_least(4.0)), ..Default::default() }),
+    ] {
+        let r = count(o);
+        rows.push(vec![name.to_string(), r.indices.len().to_string(), format!("{} of {}", matched(&r.indices), truth.len())]);
+    }
+    write(CHAPTER, "peak_criteria.md", &md_table(&["criterion", "peaks found", "true peaks found (within 3 samples)"], &rows));
+
+    let n = 100_000;
+    let big: Vec<f64> = (0..n).map(|i| x[i % x.len()] + 1e-3 * ((i * 7919) % 101) as f64).collect();
+    let t_all = time(|| { std::hint::black_box(find_peaks(&big, &PeakOptions::default()).unwrap()); });
+    let t_prom = time(|| { std::hint::black_box(find_peaks(&big, &PeakOptions { prominence: Some(Bounds::at_least(0.25)), ..Default::default() }).unwrap()); });
+    let t_width = time(|| { std::hint::black_box(find_peaks(&big, &PeakOptions { prominence: Some(Bounds::at_least(0.25)), width: Some(Bounds::at_least(4.0)), ..Default::default() }).unwrap()); });
+    let rows = vec![
+        vec!["local maxima only".to_string(), format!("{:.2} ms", t_all * 1e3)],
+        vec!["with prominence".to_string(), format!("{:.2} ms", t_prom * 1e3)],
+        vec!["with prominence and width".to_string(), format!("{:.2} ms", t_width * 1e3)],
+    ];
+    write(CHAPTER, "peak_timing.md", &md_table(&["find_peaks on 100 000 samples", "time"], &rows));
 }

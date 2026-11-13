@@ -61,7 +61,7 @@ The default prototype is a Kaiser-window low-pass with cutoff at half a channel 
 
 ![Channel responses](../generated/spectral/filter_bank_channels.svg)
 
-<p class="caption" id="fig-15-14"><strong>Figure 15.14.</strong> Channel responses.</p>
+<p class="caption" id="fig-15-15"><strong>Figure 15.15.</strong> Channel responses.</p>
 
 Each channel is a shifted copy of the prototype's response, with 60 dB of rejection outside its band.
 
@@ -90,7 +90,7 @@ The default prototype, a low-pass whose −6 dB point is at $1/(2M)$, has shifte
 That is the oversampled synthesis bank's default, scaled for unit gain ($\sum f = D/\sum h$). With **critical sampling**, $D = M$, the images begin where the channels' transition bands do, and no FIR $f$ removes them. A critically sampled DFT bank reconstructs only if each polyphase component of the prototype is a single tap,
 as for the rectangular prototype that makes the bank a block DFT. (Critically sampled perfect reconstruction with good channel selectivity needs other structures, such as cosine-modulated banks.) Measured with white noise, after the best delay and complex gain are removed:
 
-<p class="caption" id="tab-15-10"><strong>Table 15.10.</strong> Reconstruction by the polyphase filter banks.</p>
+<p class="caption" id="tab-15-12"><strong>Table 15.12.</strong> Reconstruction by the polyphase filter banks.</p>
 
 {{#include ../generated/spectral/filter_bank_reconstruction.md}}
 

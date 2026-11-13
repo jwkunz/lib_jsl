@@ -62,9 +62,10 @@ cluster, as they do near $z = 1$ in a narrow low-pass filter. Rounding the denom
 A narrow eighth-order filter becomes unstable from rounding in the seventh significant digit. The same problem appears in double
 precision for higher orders: NumPy's `roots` puts a pole of the 16th-order design at radius 1.07, outside the unit circle, from the
 exact double-precision coefficients. The remedy is to factor the filter into **second-order sections** $H = \prod_iH_i$, each with two poles, so that every
-pole is set by a quadratic, whose roots are well conditioned. The library designs filters in zero-pole-gain form, but it has no
-second-order-section filter; [`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadFilter.html) runs one section in direct form I, and only its low-pass coefficients are provided.
-For high-order or narrow-band IIR filters, cascade biquads built from the zeros and poles rather than filtering with `b` and `a`.
+pole is set by a quadratic, whose roots are well conditioned. The library designs filters in zero-pole-gain form, and
+[`zpk2sos`](../../api/lib_jsl_dsp/discrete/filters/iir/sos/fn.zpk2sos.html) and [`sosfilt`](../../api/lib_jsl_dsp/discrete/filters/iir/sos/fn.sosfilt.html)
+turn a design into such a cascade and apply it; [Second-order sections and zero-phase filtering](sos-zero-phase.md) develops this.
+[`BiquadFilter`](../../api/lib_jsl_dsp/discrete/filters/iir/biquad/struct.BiquadFilter.html) runs a single section in direct form I, sample by sample.
 
 ### Notch and peak filters
 
@@ -159,7 +160,7 @@ a 20-sample delay at 1 kHz, removes both.
 
 **Weaknesses**
 
-- Direct forms of high-order or narrow-band filters are numerically fragile; the library lacks a second-order-section filter.
+- Direct forms of high-order or narrow-band filters are numerically fragile; use [second-order sections](sos-zero-phase.md) for them.
 - Combs need an integer period; poles near the unit circle ring for a long time after transients.
 
 ## Exercises

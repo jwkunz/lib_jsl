@@ -79,3 +79,23 @@ for f in order:
     new="\n".join(out)
     if new!=open(f).read(): open(f,'w').write(new); changed+=1
 print(changed,"files",{k:v for k,v in count.items() if k[1]=='F'} and sum(v for k,v in count.items() if k[1]=='F'),"figures",sum(v for k,v in count.items() if k[1]=='T'),"tables")
+
+# Renumber every caption in reading order, so that inserting an entry, figure or table shifts the
+# numbers after it. Captions keep their text; only "Figure C.k" / "Table C.k" and the ids change.
+cap = re.compile(r'<p class="caption" id="(fig|tab)-\d+-\d+"><strong>(Figure|Table) \d+\.\d+\.</strong>')
+seen = {}
+renumbered = 0
+for f in order:
+    if '/' not in f: continue
+    c = chap[f.split('/')[0]]
+    s = open(f).read()
+    def renum(m):
+        kind = m.group(1)
+        k = seen.get((c, kind), 0) + 1
+        seen[(c, kind)] = k
+        word = "Figure" if kind == "fig" else "Table"
+        return f'<p class="caption" id="{kind}-{c}-{k}"><strong>{word} {c}.{k}.</strong>'
+    t = cap.sub(renum, s)
+    if t != s:
+        open(f, 'w').write(t); renumbered += 1
+print(renumbered, "files renumbered")

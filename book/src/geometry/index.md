@@ -22,14 +22,6 @@ The references come from SciPy 1.17.1's `spatial` module (Qhull for triangulatio
 
 {{#include ../generated/geometry/reference.md}}
 
-Writing this chapter fixed nine problems:
-- The **Delaunay triangulation** produced overlapping triangles on nearly cocircular points and lost the hull's sliver triangles on thin point sets. It is now a sweep with Lawson flips and error-bounded predicates.
-- The **3D convex hull** took 46 s for 10 000 points on a sphere. It is now Quickhull and takes under 0.1 s. Its documentation had also claimed that points on faces are never vertices.
-- **`Quaternion::to_euler`** returned the wrong roll at a pitch of $-90°$.
-- **`EulerSequence::from_matrix`** returned angles outside its documented ranges, and at gimbal lock split the angle between the first and third axes by rounding noise.
-- **Mesh slicing** reported edges lying in the plane twice, breaking the contours.
-- The documentation of **polygon booleans** said unions cannot have holes, and that of **`CanShear`** described a shear the code does not do.
-
 ## In the library
 
 All of these are in `lib_jsl_geometry` ([API reference](../../api/lib_jsl_geometry/index.html)).

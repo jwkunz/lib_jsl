@@ -18,8 +18,6 @@ The references come from SciPy 1.17.1's `sparse.csgraph` and NetworkX 3.7, on ra
 
 {{#include ../generated/graph/reference.md}}
 
-Writing this chapter fixed one problem: the topological sort promised to break ties by vertex index but used a first-in-first-out queue, so its order depended on edge insertion. It now returns the lexicographically smallest order.
-
 ## In the library
 
 All of these are in `lib_jsl_graph` ([API reference](../../api/lib_jsl_graph/index.html)).

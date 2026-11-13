@@ -18,8 +18,6 @@ Each method is checked against what it must satisfy:
 - power conservation in the moment method;
 - Fresnel reflection and the Yee dispersion relation in the FDTD solvers.
 
-Writing this chapter found no defects in these modules.
-
 ## In the library
 
 All of these are in `lib_jsl_electromagnetics` ([API reference](../../api/lib_jsl_electromagnetics/index.html)): `networks`, `propagation`, `fields::spherical_waves`, and `algorithms`.

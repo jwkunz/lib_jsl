@@ -97,8 +97,7 @@ true value, as the normal distribution predicts.
 
 A stopping rule must use this standard error. It is tempting to stop "when the estimate stops
 changing", but successive running averages share almost all their samples, so they agree with each
-other long before they agree with the integral. (An earlier version of this library made exactly
-that mistake.) [`monte_carlo_integration`](../../api/lib_jsl_integration/monte_carlo_integration/fn.monte_carlo_integration.html)
+other long before they agree with the integral. [`monte_carlo_integration`](../../api/lib_jsl_integration/monte_carlo_integration/fn.monte_carlo_integration.html)
 samples in batches until the standard error falls below the requested target.
 
 ### Low-discrepancy sequences

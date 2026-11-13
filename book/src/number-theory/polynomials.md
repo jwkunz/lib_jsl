@@ -79,8 +79,6 @@ operations.
 ```
 
 - Polynomial functions take real or complex coefficients (anything implementing `IsAnalytic`) and evaluate at complex points.
-- Writing this chapter fixed `TextCodedInteger`, which compared its digit strings instead of its values ("9" > "10"), accepted malformed text, and had an incorrect `abs_sub` and panicking checked operations.
-
 ## In practice
 
 ```rust,ignore

@@ -82,8 +82,8 @@ extra $O(n)$ passes over memory, which the fast vectorised FFT does not hide. On
 
 `RealFft` takes 14% to 32% less time than a complex FFT of the real data from about four thousand points up, with the saving growing
 with length. For short signals it is about one and a half times *slower*: the transform itself is so cheap there that the $O(n)$ packing
-and untangling passes dominate. The untangling loop was much slower until recently: it took two integer remainders per bin to handle the
-wrap-around at $k = 0$ and $k = m$, and `RealFft` was 1.6 to 2.1 times *slower* than the complex FFT it is meant to replace. It now
+and untangling passes dominate. The untangling loop must be written with care: taking two integer remainders per bin to handle the
+wrap-around at $k = 0$ and $k = m$ makes `RealFft` 1.6 to 2.1 times *slower* than the complex FFT it is meant to replace. The library
 handles those two bins separately and computes the bins $k$ and $m - k$ together.
 
 ### Multidimensional transforms

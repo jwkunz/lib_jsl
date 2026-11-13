@@ -15,8 +15,6 @@ Sorting puts data in order so that it can be searched, merged, ranked and groupe
 
 Each sort is run on a million keys in five arrangements (random, nearly sorted, sorted, reversed, and only three distinct values), and its output is checked against the standard library's. Comparisons are counted by sorting a key type whose `Ord` implementation counts its calls.
 
-Writing this chapter fixed quicksort, which took quadratic time on runs of equal keys. Its documentation also called its partition Hoare-style when it was Lomuto's. It now uses Hoare's partition, and falls back to heapsort as introsort does, so even an adversary cannot make it quadratic.
-
 ## In the library
 
 All of these are in `lib_jsl_sorting` ([API reference](../../api/lib_jsl_sorting/index.html)).

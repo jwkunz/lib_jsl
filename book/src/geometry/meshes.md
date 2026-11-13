@@ -58,7 +58,7 @@ The vertices of the full mesh lie exactly on the torus, but its flat triangles f
 
 ### Slicing
 
-A plane cuts each triangle it crosses along a segment, between the two points where the triangle's edges pass through the plane. Chaining the segments end to end, by matching their endpoints, gives the contours: closed loops for a closed surface. A vertex exactly on the plane (within a tolerance) counts as a crossing. An edge lying in the plane is reported by both of its triangles and is kept once. Writing this chapter added that rule: before, a plane through a ring of vertices produced duplicate segments that chained into hundreds of tiny loops.
+A plane cuts each triangle it crosses along a segment, between the two points where the triangle's edges pass through the plane. Chaining the segments end to end, by matching their endpoints, gives the contours: closed loops for a closed surface. A vertex exactly on the plane (within a tolerance) counts as a crossing. An edge lying in the plane is reported by both of its triangles and is kept once. Without that rule, a plane through a ring of vertices produces duplicate segments that chain into hundreds of tiny loops.
 
 ![Slices](../generated/geometry/slices.svg)
 

@@ -34,7 +34,7 @@ Choose a **pivot**, rearrange the slice so that smaller keys come before it and 
 - recursion goes into the **smaller** side and loops on the larger, so the stack depth is at most $\log_2 n$;
 - after $2 \log_2 n$ partitions, a range still unsorted is finished by **heapsort** (introsort).
 
-Both of Hoare's scans stop at keys equal to the pivot. That seems wasteful, but it splits a run of equal keys evenly between the sides. A partition that sends all equal keys to one side takes $O(n^2)$ on input with few distinct values. The library's partition used to do exactly that: 40 000 equal keys took 0.7 s. Writing this chapter fixed it, first with a three-way partition and then with Hoare's, after the three-way partition turned out to rearrange sorted input badly (a million sorted keys took 4 s).
+Both of Hoare's scans stop at keys equal to the pivot. That seems wasteful, but it splits a run of equal keys evenly between the sides. A partition that sends all equal keys to one side takes $O(n^2)$ on input with few distinct values. Such a partition took 0.7 s on 40 000 equal keys. A three-way partition cures that but rearranges sorted input badly (a million sorted keys took 4 s), so the library uses Hoare's partition.
 
 ```rust,ignore
 {{#include ../../../crates/sorting/src/quicksort.rs:partition}}
@@ -42,7 +42,7 @@ Both of Hoare's scans stop at keys equal to the pivot. That seems wasteful, but 
 
 Median-of-three makes sorted, reversed and organ-pipe inputs fast, but an adversary can still build inputs that make every pivot bad (Musser's "median-of-3 killer" sequences). Douglas McIlroy's "killer adversary" (1999) finds such an input for any quicksort. It treats every key as undecided "gas" until the sort compares two of them, then fixes values so that the current pivot is as bad as possible. Against the library's quicksort it forced about $n^2/4$ comparisons: 16 million for 8000 keys.
 
-**Introsort** (Musser, 1997) bounds the damage. Balanced partitions finish in about $\log_2 n$ levels, so a range still unsorted after $2 \log_2 n$ partitions is a sign of bad pivots, and it is handed to heapsort. Typical inputs never reach the limit and run as plain quicksort. Writing this chapter added the fallback, which holds the adversary to $3.7\, n \log_2 n$ comparisons. Rust's standard `sort_unstable` (pattern-defeating quicksort) uses the same safeguard.
+**Introsort** (Musser, 1997) bounds the damage. Balanced partitions finish in about $\log_2 n$ levels, so a range still unsorted after $2 \log_2 n$ partitions is a sign of bad pivots, and it is handed to heapsort. Typical inputs never reach the limit and run as plain quicksort. The fallback holds an adversary to $3.7\, n \log_2 n$ comparisons. Rust's standard `sort_unstable` (pattern-defeating quicksort) uses the same safeguard.
 
 ```rust,ignore
 {{#include ../../../crates/sorting/src/quicksort.rs:introsort}}

@@ -17,7 +17,6 @@ All curves are bit error rates for BPSK over additive white Gaussian noise, agai
 ## Testing
 
 Reed-Solomon parity bytes are compared with the Python `reedsolo` package (version 1.7.0), configured with the same field and generator, by `book/generator/data/make_coding_refs.py`. The other codes are checked against their defining properties: exhaustive error patterns for Hamming codes, error rates against theory, and genie-aided channel reliabilities for polar codes.
-Writing this chapter fixed one problem. The **polar code construction** ranked the bit channels in bit-reversed order, so information bits went on the wrong channels.
 
 ## In the library
 

@@ -37,7 +37,7 @@ A PNG file is a signature and a series of **chunks** (`IHDR` for the header, `PL
 
 The decoder handles every colour type (greyscale, RGB, palette, each with or without alpha) at every bit depth, palette transparency and Adam7 interlacing. Low bit depths are scaled to 8 bits, and 16-bit images stay 16-bit.
 
-DEFLATE replaces repeated strings by (length, distance) references to earlier text, up to 32 KiB back. It then codes literals, lengths and distances with Huffman codes. The library's encoder finds matches with **hash chains**: each position is filed under a hash of its next three bytes, so earlier occurrences of the same three bytes are linked in a list, searched further at higher levels. It writes them with DEFLATE's fixed Huffman code, and falls back to stored blocks when compression would expand the data. Writing this chapter added that fallback; before it, random data grew by 6%. The decoder handles all three block types, including dynamic Huffman codes.
+DEFLATE replaces repeated strings by (length, distance) references to earlier text, up to 32 KiB back. It then codes literals, lengths and distances with Huffman codes. The library's encoder finds matches with **hash chains**: each position is filed under a hash of its next three bytes, so earlier occurrences of the same three bytes are linked in a list, searched further at higher levels. It writes them with DEFLATE's fixed Huffman code, and falls back to stored blocks when compression would expand the data. Without that fallback, random data grows by about 6%. The decoder handles all three block types, including dynamic Huffman codes.
 
 ```rust,ignore
 {{#include ../../../crates/file_io/src/deflate.rs:lz77}}
@@ -65,7 +65,7 @@ The encoder writes 4:4:4 (no chroma subsampling) with the Annex K tables scaled 
 
 {{#include ../generated/foundations/jpeg_rate.md}}
 
-Chroma subsampling (4:2:0, Pillow's default) stores colour at half resolution. At the same quality setting it saves 13–22% of the bytes here. PSNR, which weighs colour errors like brightness errors, rates it no better at equal size; its advantage is perceptual, because the eye resolves colour less finely than brightness. The library's decoder accepts any subsampling, custom tables and restart intervals. It upsamples chroma as libjpeg does, interpolating linearly between chroma sample centres: for 2:1 factors that weights the nearer sample $\tfrac34$ and the farther $\tfrac14$ in each direction. Writing this chapter replaced the earlier replication, which decoded subsampled files up to 82 levels away from libjpeg at colour edges and 0.6 dB worse in PSNR; the decodes now agree to within 2 levels.
+Chroma subsampling (4:2:0, Pillow's default) stores colour at half resolution. At the same quality setting it saves 13–22% of the bytes here. PSNR, which weighs colour errors like brightness errors, rates it no better at equal size; its advantage is perceptual, because the eye resolves colour less finely than brightness. The library's decoder accepts any subsampling, custom tables and restart intervals. It upsamples chroma as libjpeg does, interpolating linearly between chroma sample centres: for 2:1 factors that weights the nearer sample $\tfrac34$ and the farther $\tfrac14$ in each direction. Plain replication of the chroma samples would decode up to 82 levels away from libjpeg at colour edges and 0.6 dB worse in PSNR; with interpolation the decodes agree to within 2 levels.
 
 ```rust,ignore
 {{#include ../../../crates/file_io/src/jpeg.rs:upsample}}
@@ -87,7 +87,7 @@ Files written by this library, read by Python's:
 
 {{#include ../generated/foundations/interop_images.md}}
 
-Writing this chapter fixed a robustness problem in all three image decoders. Fuzz testing found no panics in about 36 000 truncated or corrupted files, but a header claiming an enormous image made each allocate before checking the data. A 24-byte Netpbm file asked for 320 GB and aborted the process. Each decoder now checks the claim against the data first.
+A decoder must not trust its header. Fuzz testing found no panics in about 36 000 truncated or corrupted files, but a header claiming an enormous image can make a decoder allocate before it checks the data: a 24-byte Netpbm file asked for 320 GB and aborted the process. Each of the three decoders therefore checks the claim against the data first.
 
 ## Algorithm
 

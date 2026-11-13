@@ -15,13 +15,6 @@ Underneath the numerical chapters are the pieces every program needs: one error 
 
 The references come from `book/generator/data/make_foundations_refs.py`. It writes small files with Pillow 12.2, NumPy 2.4 and the Python standard library, embeds them in the reference file for the library to read, and reads back files written by the library. Constants are checked against mpmath and SciPy's CODATA 2022 values. The results are on the [audio](audio.md), [image](images.md) and [data-file](data-files.md) pages.
 
-Writing this chapter fixed seven problems:
-- The trailing digits of six **constants** were wrong or truncated.
-- **Unit conversion** ignored case, so `mW` was a megawatt and `kb` a kilobyte. It also treated the torr as the mmHg, and rounded the psi to 13 digits.
-- The **Netpbm, PNG and JPEG decoders** allocated for whatever size a header claimed, so a few bytes could abort the process.
-- The **DEFLATE encoder** expanded incompressible data instead of storing it.
-- The **JPEG decoder** replicated subsampled chroma instead of interpolating it as libjpeg does.
-
 ## In the library
 
 | You need | Use | Entry |

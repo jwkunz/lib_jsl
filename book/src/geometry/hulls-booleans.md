@@ -38,7 +38,7 @@ Points far inside are discarded early, so on typical data most of the work is th
 
 {{#include ../generated/geometry/hull_timing.md}}
 
-Writing this chapter replaced the earlier 3D hull, which inserted points in input order and rebuilt a map of every face edge for each one: 10 000 points on a sphere took 46 s. Taking the farthest point first also keeps points that lie on a face or an edge of the hull from becoming vertices. A $5 \times 5 \times 5$ grid now gives its 8 corners, where the old version kept 32.
+Inserting points in input order and rebuilding a map of every face edge for each one is slow: 10 000 points on a sphere took 46 s. Quickhull, which takes the farthest point first, is far faster and also keeps points that lie on a face or an edge of the hull from becoming vertices. A $5 \times 5 \times 5$ grid gives its 8 corners, where the naive insertion kept 32.
 
 ### The Greiner–Hormann algorithm
 
@@ -50,7 +50,7 @@ If a vertex lies exactly on the other polygon's boundary, or two edges overlap, 
 
 ![Polygon booleans](../generated/geometry/booleans.svg)
 
-Results are counter-clockwise outer boundaries and clockwise holes, so signed areas add up to the true area. A union can enclose a hole, as here. Writing this chapter corrected the documentation, which said holes came only from differences.
+Results are counter-clockwise outer boundaries and clockwise holes, so signed areas add up to the true area. A union can enclose a hole, as here.
 
 ## Algorithm
 

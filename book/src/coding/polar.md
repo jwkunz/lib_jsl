@@ -181,7 +181,6 @@ $O(N\log N)$.
 {{#include ../../../crates/information/src/forward_error_correction/polar.rs:sc_decode}}
 ```
 
-- Writing this chapter fixed the construction, which ranked the bit channels in bit-reversed order and so placed information on the wrong channels.
 - Lengths up to $2^{20}$ are supported; decoding takes soft LLRs or hard bits.
 
 ## In practice

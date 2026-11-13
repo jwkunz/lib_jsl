@@ -62,9 +62,8 @@ The default prototype is a Kaiser-window low-pass with cutoff at half a channel 
 
 Each channel is a shifted copy of the prototype's response, with 60 dB of rejection outside its band.
 
-Writing this chapter fixed both analysis banks. They multiplied the sample $rM + j$ places back by the tap $h[rM + M - 1 - j]$, reversing the prototype within each block of $M$
-taps. With the default prototype the channels' side lobes were only 15–20 dB down. The tests used a prototype of ones, which the reversal leaves
-unchanged.
+The sample $rM + j$ places back must be multiplied by the tap $h[rM + j]$. Reversing the prototype within each block of $M$
+taps leaves a prototype of ones unchanged, so a test with that prototype cannot see the error, but with the default prototype the channels' side lobes are only 15–20 dB down.
 
 ### Critical sampling and oversampling
 

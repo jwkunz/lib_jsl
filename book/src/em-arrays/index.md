@@ -19,8 +19,6 @@ Everything here is checked against closed forms:
 - overlap integrals of Gaussian beams;
 - the Reed-Mallett-Brennan law for sample-matrix inversion.
 
-Writing this chapter corrected two documentation details: a demonstration compared the dish beamwidth with 1.02 λ/D instead of the exact 1.029 λ/D, and the crate's description omitted most of its contents.
-
 ## In the library
 
 All of these are in `lib_jsl_electromagnetics` ([API reference](../../api/lib_jsl_electromagnetics/index.html)). Run the demonstrations with `cargo run --release -p lib_jsl_electromagnetics --example <name>`.

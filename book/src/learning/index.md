@@ -33,14 +33,6 @@ Backpropagation is checked against finite differences for every activation and o
 enumeration of all paths, and the forward algorithm against an explicit sum over paths. Boosting's training loss and Baum-Welch's
 likelihood are checked to be monotone, and Baum-Welch to recover a generating model.
 
-Writing this chapter fixed four problems:
-
-- An MLP with one input feature and two hidden layers could not be trained: a weight gradient came back column-major and the
-  optimiser panicked reading it as a row-major slice.
-- MLP predictions broadcast inputs with the wrong number of features instead of rejecting them.
-- Gradient boosting predictions panicked on rows with too few features.
-- The Baum-Welch likelihood history was documented as describing the model after each iteration; it describes the model before.
-
 ## In the library
 
 All four are in `lib_jsl_machine_learning` ([API reference](../../api/lib_jsl_machine_learning/index.html)). The networks and boosted

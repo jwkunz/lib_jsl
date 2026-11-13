@@ -222,11 +222,9 @@ transformed back to the original units of the target.
 {{#include ../../../crates/machine_learning/src/neural_network.rs:adam}}
 ```
 
-- The weight gradient is assigned into a row-major array. Writing this chapter found that with a single input feature the matrix
-  product came back column-major, and the Adam step, which reads gradients and weights as flat slices, panicked: no
-  one-feature network with two hidden layers could be trained.
-- Predictions check the number of features. (Before this chapter they broadcast a one-column input against two training features
-  without complaint.)
+- The weight gradient is assigned into a row-major array. The Adam step reads gradients and weights as flat slices, so a
+  column-major matrix product (which can occur with a single input feature) would be read in the wrong order.
+- Predictions check the number of features, so a one-column input is not silently broadcast against two training features.
 - Training is deterministic for a given `seed`, which sets both the initial weights and the shuffling.
 
 ## In practice

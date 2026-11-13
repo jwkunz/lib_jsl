@@ -41,11 +41,6 @@ of the chapter, the median relative error is a few units of $10^{-16}$ and the l
 for a few oscillatory functions far out along their oscillations, where every computed value inherits
 the rounding error in the argument.
 
-Writing these tables uncovered three errors, which have been fixed: the Jacobian elliptic
-function dn was computed as $0/0$ at the quarter period, ${}_0F_1$ lost seven digits to cancellation
-for large negative arguments, and the Student's $t$ quantile lost six digits of small lower-tail
-probabilities.
-
 ## Choosing a function
 
 | You need | Entry |

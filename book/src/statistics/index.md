@@ -25,9 +25,7 @@ of earlier chapters.
 Every statistic and p-value was compared with SciPy 1.17 on fixed data sets
 ([hypothesis tests](hypothesis-tests.md#checking-against-scipy), [descriptive statistics](descriptive.md#implementation)):
 all agree to about $10^{-14}$, except the Kolmogorov-Smirnov p-values, which are asymptotic approximations. Simulations
-check that the tests reject a true null hypothesis at the stated rate. Writing this chapter fixed the analysis-of-variance
-p-value, which was computed as $1 - \text{CDF}$ and lost every digit below $10^{-16}$, and documented the accuracy of the two-sample
-Kolmogorov-Smirnov p-value.
+check that the tests reject a true null hypothesis at the stated rate.
 
 ## In the library
 

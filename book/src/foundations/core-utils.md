@@ -41,7 +41,7 @@ The constants are grouped by field. Physical ones follow CODATA 2022. Exact ones
 
 {{#include ../generated/foundations/constants.md}}
 
-The physical differences are those between constants derived from the exact definitions and CODATA's separately adjusted values, well inside CODATA's uncertainties (the Bohr radius, for example, is known to $1.6 \times 10^{-10}$). Writing this chapter corrected the trailing digits of six constants, including the 99.9% normal quantile and the electron $g$-factor.
+The physical differences are those between constants derived from the exact definitions and CODATA's separately adjusted values, well inside CODATA's uncertainties (the Bohr radius, for example, is known to $1.6 \times 10^{-10}$).
 
 ### Machine epsilon and ULPs
 
@@ -59,7 +59,7 @@ Comparing results by the number of representable numbers between them, rather th
 
 ### Unit conversion
 
-Each unit has a dimension, a scale to its SI base unit and, for temperatures, an offset. Converting goes through the base unit, $v_{\text{to}} = (v\, s_{\text{from}} + o_{\text{from}} - o_{\text{to}}) / s_{\text{to}}$, and units of different dimensions are refused. Symbols are matched exactly first and then, if that is unambiguous, ignoring case. Writing this chapter changed the lookup: ignoring case had made `mW` a megawatt and `kb` a kilobyte. Ambiguous spellings such as `mw` are now refused.
+Each unit has a dimension, a scale to its SI base unit and, for temperatures, an offset. Converting goes through the base unit, $v_{\text{to}} = (v\, s_{\text{from}} + o_{\text{from}} - o_{\text{to}}) / s_{\text{to}}$, and units of different dimensions are refused. Symbols are matched exactly first and then, if that is unambiguous, ignoring case. Ignoring case blindly would make `mW` a megawatt and `kb` a kilobyte, so ambiguous spellings such as `mw` are refused.
 
 {{#include ../generated/foundations/units.md}}
 

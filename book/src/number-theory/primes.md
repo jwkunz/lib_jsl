@@ -155,8 +155,6 @@ Each base costs one modular power, $O(\log n)$ multiplications.
 ```
 
 - 64-bit products are formed in 128 bits ([`mul_mod`](../../api/lib_jsl_number_theory/primality/fn.mul_mod.html)).
-- Writing this chapter fixed three problems here: `factorize(0)` looped forever; Pollard's $x^2 + c$ could overflow for $n$ near $2^{64}$; and the segmented sieve overflowed for windows ending near `u64::MAX`. It also corrected the documented pseudoprime bound.
-
 ## In practice
 
 ```rust,ignore

@@ -65,8 +65,6 @@ Capabilities are traits shared across the types: `IsLine`, `IsPolygon`, `IsTrian
 - `CanMirror` reflects it in a plane, by $p \mapsto p - 2\,((p - p_0) \cdot n)\,n$;
 - `CanShear` applies $x \leftarrow x + k y$, with $k$ the length of a line.
 
-Writing this chapter corrected the documentation of `CanShear`, which claimed to shear along the line's direction.
-
 ## Algorithm
 
 The geometric types are built in layers, each referring to the one below by identifier.

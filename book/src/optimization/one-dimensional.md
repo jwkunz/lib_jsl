@@ -208,8 +208,6 @@ The bracketing phase of the line search:
 
 - `GoldenSectionSearch` takes its interval from `bounds`, which are required; the initial
   parameters only fix the dimension, which must be 1. Its `iterations` counts evaluations.
-- An earlier version evaluated both interior points in every iteration, doubling the cost of the
-  method, and panicked when no bounds were set.
 - `strong_wolfe` returns `None` if $\mathbf d$ is not a descent direction. If it cannot meet the conditions
   to rounding precision it returns the best decreasing point found, so the calling method can still
   make progress.

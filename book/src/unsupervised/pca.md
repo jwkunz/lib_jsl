@@ -143,9 +143,7 @@ pair, like a sine and a cosine), and the third separates the inner ring from the
 
 ![Kernel PCA eigenvalues](../generated/unsupervised/kpca_eigenvalues.svg)
 
-The centred Gram matrix always has the eigenvalue zero (the constant vector) and, for smooth kernels, many tiny ones. That
-rank deficiency exposed a convergence bug in the library's [symmetric eigensolver](../linear_algebra/eigensolvers.md#implementation), fixed while the previous
-chapter was written.
+The centred Gram matrix always has the eigenvalue zero (the constant vector) and, for smooth kernels, many tiny ones.
 
 ## Algorithm
 

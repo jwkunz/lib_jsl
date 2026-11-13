@@ -35,12 +35,6 @@ recovers random additive trees exactly. The other methods are checked against th
 the likelihood, the Laplacian has one zero eigenvalue per connected component, and the PCA reconstruction error equals the
 discarded variance.
 
-Writing this chapter fixed three problems:
-
-- The documentation of `KMeans` was attached to a private type alias, so the public struct appeared undocumented.
-- `GaussianMixture` reported the log-likelihood (and BIC and AIC) of the previous parameters when it stopped at the iteration limit.
-- A kernel PCA test claimed a scaling difference between kernel and linear PCA scores that does not exist; the scores are identical.
-
 k-means, compared with the best of twenty k-means++ starts of SciPy's `cluster.vq.kmeans2` on four separated clusters, finds the same partition:
 
 {{#include ../generated/unsupervised/scipy_kmeans.md}}

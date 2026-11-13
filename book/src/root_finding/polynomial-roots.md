@@ -208,9 +208,9 @@ The real roots:
 - Coefficients run from the highest power down, as in MATLAB and NumPy: `[1, 0, -2]` is $x^2 - 2$.
 - The "rounding error" in evaluating $p(x)$ by Horner's rule is bounded by a small multiple of
   $n\varepsilon\sum_i |a_i|\,|x|^{n-i}$; values below it carry no information about the sign of $p$.
-- An earlier version isolated the real roots between the roots of $p'$, found recursively. It reported
-  critical points as roots (25 "roots" for degree 10) and overflowed at degree 20; it was replaced by
-  the eigenvalue method.
+- The library does not isolate the real roots recursively between the roots of $p'$: an implementation of that
+  approach reported critical points as roots (25 "roots" for degree 10) and overflowed at degree 20. It uses the
+  eigenvalue method instead.
 
 ## In practice
 

@@ -164,8 +164,6 @@ modulo $M = 1$. For each congruence $r \pmod{m_i}$:
 ```
 
 - Arguments are `i128` (gcd, inverses, powers, CRT) or `u128` (square roots); the GCD is never negative.
-- Writing this chapter fixed four problems here: the Newton square root looped forever on $n = k^2 - 1$; the modular power accepted a zero modulus (its checks used bitwise NOT) and overflowed for moduli above about $10^{19}$; the GCD could be negative; and a negative modulus gave a negative inverse.
-
 ## In practice
 
 ```rust,ignore

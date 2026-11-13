@@ -32,8 +32,6 @@ are dropped and counted as an **overrun**, not written over the block being read
 
 ## Fixes
 
-Writing this chapter fixed one documentation problem: the [`KalmanFilter`](../../api/lib_jsl_dsp/discrete/controls/kalman/struct.KalmanFilter.html)'s description was attached to its result type, so the filter itself appeared undocumented.
-
 ## In the library
 
 All of these are in `lib_jsl_dsp` ([API reference](../../api/lib_jsl_dsp/index.html)): sources in `discrete::sources`, communications blocks in `discrete::digital_communications`,

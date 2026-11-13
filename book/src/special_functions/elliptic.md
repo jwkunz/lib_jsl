@@ -136,9 +136,9 @@ finally $\operatorname{dn} = \sqrt{(1 - m) + m\,\operatorname{cn}^2}$.
 The errors of $10^{-12}$ at $k = 0.999999$ come from the logarithmic singularity: $1 - k^2$ is formed with a relative error
 near $10^{-10}$, and $K$ depends on it logarithmically.
 
-The table includes points at the quarter period $u = K$, where an earlier version computed dn as
-$\operatorname{cn}/\cos(\varphi_1 - \varphi_0)$, following Abramowitz and Stegun. Both factors vanish there, and the quotient was
-0.2418 instead of 0.2236 for $m = 0.95$: spikes in the plot above, at every minimum of dn. It now uses the
+The table includes points at the quarter period $u = K$, where the formula
+$\operatorname{dn} = \operatorname{cn}/\cos(\varphi_1 - \varphi_0)$ of Abramowitz and Stegun fails. Both factors vanish there, and the quotient is
+0.2418 instead of 0.2236 for $m = 0.95$, giving spikes at every minimum of dn. The library uses the
 identity above, a sum of non-negative terms.
 
 ## Algorithm

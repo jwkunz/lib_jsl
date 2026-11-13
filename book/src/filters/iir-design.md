@@ -121,9 +121,8 @@ critical frequency to pass to the design function: for Butterworth, the 3 dB fre
 for Chebyshev II, the stopband edge that meets it. For **band-stop** filters, SciPy also moves each passband edge, within its
 allowed range, to the place that minimises the order.
 
-Writing this chapter fixed that refinement. `cheb2ord` and `ellipord` searched for the optimal edges with a golden-section search whose
-bracket moved the wrong way, and `buttord` and `cheb1ord` skipped the refinement altogether. All four returned an order one higher than
-SciPy for band-stop specifications. One corrected search now serves all four.
+One golden-section search for the optimal edges serves `buttord`, `cheb1ord`, `cheb2ord` and `ellipord`; without it, band-stop
+specifications come out one order higher than SciPy's.
 
 ### Phase
 

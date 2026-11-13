@@ -354,10 +354,10 @@ The central difference and the five-point formulas:
 {{#include ../../../crates/derivatives/src/derivatives_1d_scalar.rs:five_point}}
 ```
 
-- An earlier version of the library used a fixed absolute step of $10^{-6}$ for every formula. That
-  is near-optimal for the central difference at $x \approx 1$, but for the five-point fourth derivative
-  the rounding error $\varepsilon/h^4$ is then about $10^8$: the formula returned noise. The default steps
-  now depend on the formula, as in the table above.
+- One fixed absolute step cannot suit every formula. A step of $10^{-6}$ is near-optimal for the central
+  difference at $x \approx 1$, but for the five-point fourth derivative the rounding error $\varepsilon/h^4$
+  is then about $10^8$ and the formula returns noise. The default steps therefore depend on the formula, as
+  in the table above.
 - The step for each coordinate is chosen separately, scaled by that coordinate's magnitude.
 
 ## In practice

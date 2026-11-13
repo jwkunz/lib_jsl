@@ -63,9 +63,8 @@ Without taps, it designs a Kaiser-window low-pass with cutoff $1/\max(U, D)$ of 
 
 ![Interpolation by 4](../generated/spectral/interpolation.svg)
 
-Writing this chapter fixed both polyphase resamplers. They pushed an input and its $U - 1$ stuffed zeros into the history and then computed every
-output due for that input from the same history. All outputs between two inputs were therefore equal: upsampling by 3 turned $0, 3, 6$ into
-$0, 0, 0, 3, 3, 3, 6, 6, 6$. They also applied asymmetric filters reversed. The tests used a single unit tap, for which neither error shows.
+A polyphase resampler must push each stuffed zero into the history before computing the output due after it. Computing all $U$ outputs from the same history makes them equal: upsampling by 3 would turn $0, 3, 6$ into
+$0, 0, 0, 3, 3, 3, 6, 6, 6$. Asymmetric filters must also be applied unreversed. A test with a single unit tap shows neither error.
 
 ### Arbitrary ratios
 

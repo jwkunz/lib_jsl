@@ -106,8 +106,7 @@ no guarantee.
 ### Histograms
 
 `Histogram` counts samples in equal bins over $[\text{min}, \text{max}]$, the quickest visual check of a sampler, and the basis of
-chi-square goodness-of-fit tests. Writing this chapter revealed that it placed its bins from 0 rather than from `bin_min`, and
-panicked at the upper edge; both are fixed.
+chi-square goodness-of-fit tests. Bins start at `bin_min`, and the upper edge belongs to the last bin.
 
 ### Speed
 

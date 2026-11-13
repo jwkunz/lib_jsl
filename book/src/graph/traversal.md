@@ -33,7 +33,7 @@ Breadth-first search keeps a queue. It takes the oldest vertex, and appends its 
 
 ### Topological sorting
 
-**Kahn's algorithm** counts each vertex's incoming edges and repeatedly removes a vertex with none left, decrementing its successors' counts. If vertices remain when none is free, they lie on a cycle and no topological order exists. The library always removes the smallest free vertex, using a min-heap, so the result is the **lexicographically smallest** topological order, a canonical answer when many exist. Writing this chapter fixed this: the original version used a first-in-first-out queue, which does not give the order it documented.
+**Kahn's algorithm** counts each vertex's incoming edges and repeatedly removes a vertex with none left, decrementing its successors' counts. If vertices remain when none is free, they lie on a cycle and no topological order exists. The library always removes the smallest free vertex, using a min-heap, so the result is the **lexicographically smallest** topological order, a canonical answer when many exist. A first-in-first-out queue would instead give an order that depends on the order in which edges were inserted.
 
 ### Strongly connected components
 

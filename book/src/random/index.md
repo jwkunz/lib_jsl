@@ -26,10 +26,7 @@ evenness matters more than independence, **quasi-random** sequences do better th
 ## Testing the library
 
 Every sampler is checked in the [distributions entry](distributions.md) by comparing 100 000 samples
-with the exact distribution function. Writing this chapter uncovered three errors, now fixed: the Poisson sampler
-returned $-1$ for every rate (one uniform reused, a loop condition inverted); `Histogram` ignored its lower bin
-edge and panicked at its upper one; and a helper that draws vectors of normal samples returned two extra values for
-even lengths, which made chi-square samples with even degrees of freedom sum two extra squares.
+with the exact distribution function. 
 
 ### Against SciPy
 

@@ -17,16 +17,6 @@ The references come from SymPy 1.14, by `book/generator/data/make_number_theory_
 
 {{#include ../generated/number_theory/reference.md}}
 
-Writing this chapter fixed nine problems:
-- The integer **Newton square root** looped forever on $n = k^2 - 1$.
-- The **modular power** accepted a zero modulus, because its checks used bitwise NOT, and then panicked; it also overflowed for moduli above about $10^{19}$.
-- The **gcd** could be negative.
-- A negative modulus gave a negative **modular inverse**.
-- **`factorize(0)`** never returned.
-- **Pollard's rho** could overflow for numbers near $2^{64}$, and so could the **segmented sieve** near `u64::MAX`.
-- **`TextCodedInteger`** ordered its digit strings rather than its values, accepted malformed text, and had a wrong `abs_sub` and unimplemented checked operations.
-- The documented **Miller–Rabin bound** quoted the thirteen-base value.
-
 ## In the library
 
 All of these are in `lib_jsl_number_theory` ([API reference](../../api/lib_jsl_number_theory/index.html)).

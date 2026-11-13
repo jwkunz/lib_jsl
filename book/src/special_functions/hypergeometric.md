@@ -110,8 +110,7 @@ ${}_0F_1(; b; x) = \sum\frac{x^n}{(b)_n\,n!}$ is a Bessel function in disguise:
 ${}_0F_1(; b; -z^2/4) = \Gamma(b)(z/2)^{1-b}J_{b-1}(z)$, and with $I_{b-1}$ for positive argument. For $x > 0$ the series has positive
 terms. For large negative $x$ its terms alternate and grow to about $e^{2\sqrt{|x|}}$ times the result before
 decreasing, so the series can lose up to $0.87\sqrt{|x|}$ digits; at $x = -100$ it lost seven. Below $x = -10$ the library therefore uses the
-Bessel relation, with the accurate $J_\nu$ of the [Bessel entry](bessel.md). (An earlier version always
-summed the series.)
+Bessel relation, with the accurate $J_\nu$ of the [Bessel entry](bessel.md).
 
 ### Special cases
 

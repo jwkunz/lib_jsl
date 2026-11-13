@@ -35,8 +35,8 @@ read them differently.
   beside each one says what to look for. Ask what the figure would look like if the claim in the
   text were false.
 - **Treat "Algorithm" and "Implementation" as a second pass.** They are easier once the idea is
-  clear, and the implementation notes often record a mistake that an earlier version of the code
-  made. Those are worth reading closely: they are the mistakes you are likely to make too.
+  clear, and the implementation notes often describe a mistake that is easy to make when coding the
+  method. Those are worth reading closely: they are the mistakes you are likely to make too.
 - **Do some exercises.** The early ones in each list check the derivations; the later ones ask
   you to run or change the example program.
 

@@ -222,8 +222,8 @@ The secant method needs more care in deciding that it has converged:
 
 - A small step usually means convergence, but not always. On $x^{10} - 1$ from 0 and 1.3, the secant
   method throws an iterate out to $2.2 \times 10^6$, where $f$ is $10^{63}$; the secant through that point is
-  almost vertical, and the next step is tiny, at $x = 0.18$, nowhere near a root. An earlier version of
-  the library returned 0.18. Now a small step is accepted only if $f$ changes sign across it, or if the
+  almost vertical, and the next step is tiny, at $x = 0.18$, nowhere near a root. Returning 0.18 would be wrong, so
+  a small step is accepted only if $f$ changes sign across it, or if the
   slope between the two nearby points (not the distant one) puts the root within the tolerance.
 - Newton's method reports an error for a zero or non-finite derivative or a non-finite iterate; when
   it diverges, the derivative usually underflows to zero first, and that is the error reported.

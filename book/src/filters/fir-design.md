@@ -183,10 +183,8 @@ where no attenuation was needed. For a fixed transition, Parks-McClellan reaches
 
 {{#include ../generated/filters/remez_vs_kaiser.md}}
 
-Writing this chapter replaced the library's `remez`. The previous version, a simplified exchange, stopped well short of the optimum.
-On a 51-tap low-pass filter its largest error was 12 times SciPy's (−65 dB against −87 dB). It also rejected even lengths,
-differentiators and Hilbert transformers, and its tests compared against files the library had generated itself. The new
-implementation follows Parks, McClellan and Rabiner for all four types and matches SciPy on six reference designs.
+The implementation follows Parks, McClellan and Rabiner for all four types and matches SciPy on six reference designs. A simplified
+exchange stops well short of the optimum: on a 51-tap low-pass filter such a version was 12 times worse than SciPy's (−65 dB against −87 dB).
 
 ### Differentiators and integrators
 
@@ -196,8 +194,7 @@ data. It is accurate at low frequencies only, and suppresses the rest:
 
 ![Differentiators](../generated/filters/differentiators.svg)
 
-Writing this chapter also fixed `generate_derivative_taps`. Every order above one returned first-derivative taps, and the gain
-was 0.995 instead of 1. The [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/fir/boxcar_integrator/struct.BoxcarIntegrator.html) is the opposite case, a moving sum of the last $N$ samples computed with one addition and
+The [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/fir/boxcar_integrator/struct.BoxcarIntegrator.html) is the opposite case, a moving sum of the last $N$ samples computed with one addition and
 one subtraction per sample, whatever $N$.
 
 ## Algorithm

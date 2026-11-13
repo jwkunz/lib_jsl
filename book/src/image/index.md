@@ -25,8 +25,7 @@ filtered images were stored to 12 significant digits, which limits the differenc
 {{#include ../generated/image/reference.md}}
 
 Everything agrees except the Gaussian blur at σ = 2.3, where the library's kernel radius ($\lceil 4\sigma\rceil = 10$) is one longer than SciPy's ($\mathrm{round}(4\sigma) = 9$), and the Hough lines' $\rho$, whose bins are placed differently. Canny's edges
-match to within a pixel; scikit-image interpolates the gradient in non-maximum suppression, where the library compares with the nearest neighbours. Writing this chapter fixed one documentation mistake: the support of a complete Hough
-circle was said to be about 1, but depends on how the circle is drawn.
+match to within a pixel; scikit-image interpolates the gradient in non-maximum suppression, where the library compares with the nearest neighbours.
 
 ## In the library
 

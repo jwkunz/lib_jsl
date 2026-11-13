@@ -38,6 +38,10 @@ The reader is an advanced undergraduate meeting the algorithm for the first time
 not enough: the entry must be something they can learn from. The conventions below came out of
 feedback from early readers, who found compressed derivations hard to follow.
 
+- **Keep the library's history out of the text.** Do not write "an earlier version did...", "this chapter
+  fixed...". Put the record of a fixed defect in `CHANGELOG.md`. If the mistake is one that anyone coding the
+  method could make, state it as a pitfall in the present tense ("a partition that sends equal keys to one
+  side takes quadratic time") and, where it fits, make it an exercise.
 - **Motivate before defining.** Open each part of "The idea" with the question it answers or the
   difficulty it removes, in a sentence or two, before any formula.
 - **Define every term at first use**, in **bold**, in the entry where it is used. If the full

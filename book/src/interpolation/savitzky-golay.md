@@ -104,9 +104,9 @@ polynomial of degree $d$ cannot follow the signal across the whole window, and t
 The Vandermonde matrix in the raw offsets $k = -m, \ldots, m$ is badly conditioned for wide windows and
 high orders (its columns $k^j$ range from 1 to $m^d$), and forming the normal equations $A^{\mathsf T}A$
 squares the condition number. The library scales the offsets to $t = k/m \in [-1, 1]$ and computes the
-pseudo-inverse from an SVD, then adjusts the derivative factors for the scaling. (An earlier version
-formed the normal equations directly: a 51-point, order-8 filter reproduced its own polynomials only to
-$10^{-5}$, and 101-point windows failed as singular.)
+pseudo-inverse from an SVD, then adjusts the derivative factors for the scaling. (Forming the normal equations
+directly is visibly worse: a 51-point, order-8 filter reproduces its own polynomials only to
+$10^{-5}$, and 101-point windows fail as singular.)
 
 ## Algorithm
 

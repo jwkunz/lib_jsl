@@ -44,7 +44,7 @@ The library inserts the points in lexicographic order of $(x, y)$. Each new poin
 
 Both predicates are computed in floating point. When four points are nearly on a circle, or three nearly on a line, the sign can come out wrong, and an algorithm that trusts it can loop or produce overlapping triangles. Here each determinant is compared with the sum of the magnitudes of its terms, which bounds its rounding error. Values below $10^{-12}$ of that bound count as zero: as collinear for the hull, and as cocircular (no flip) for the empty-circle test. Exactly cocircular points, such as a square grid, have several Delaunay triangulations, and the library returns one of them.
 
-Writing this chapter replaced the earlier Bowyer–Watson version, which failed both ways: 41 points on a shallow arc gave triangles overlapping to 2.4 times the hull's area, and points close to a line lost the hull's slivers to the super-triangle.
+A plain Bowyer–Watson insertion with a super-triangle fails both ways: 41 points on a shallow arc gave triangles overlapping to 2.4 times the hull's area, and points close to a line lost the hull's slivers to the super-triangle.
 
 {{#include ../generated/geometry/delaunay_timing.md}}
 

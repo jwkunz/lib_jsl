@@ -134,17 +134,6 @@ results agree with SciPy 1.17.1:
 The band-stop critical frequencies differ by about $10^{-7}$ because SciPy's bounded minimiser stops within $10^{-5}$ of the optimal edge, where the library's search
 converges fully.
 
-Writing this chapter fixed six problems:
-
-- `remez` did not find the equiripple optimum (its worst error was up to 12 times SciPy's), rejected even lengths, differentiators and
-  Hilbert transformers, and was tested against its own output. It is now a full Parks-McClellan implementation.
-- `buttord`, `cheb1ord`, `cheb2ord` and `ellipord` returned band-stop orders one too high: two of them searched for the optimal passband
-  edges in the wrong direction, and two did not search at all.
-- `generate_derivative_taps` returned the first derivative for every order.
-- The Kaiser window's Bessel function was accurate to only seven digits.
-- `DiscreteLinearFilter` silently assumed $a_0 = 1$.
-- Fourteen modules' descriptions were attached to `use` statements, where the API reference does not show them.
-
 ## In the library
 
 The crate is `lib_jsl_dsp` ([API reference](../../api/lib_jsl_dsp/index.html)). Analogue designs are under `continuous::filter`; digital filters under `discrete::filters`

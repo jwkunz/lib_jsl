@@ -79,8 +79,8 @@ $n$. Since $M < 4n$, the cost is still $O(n\log n)$, a few times that of a power
 
 **Chirp accuracy.** The chirp angle $\pi k^2/n$ reaches $\pi n$ radians. Computed in floating point, its rounding error is about $\varepsilon\pi n$, so for
 $n = 10^5$ every chirp value is wrong by $10^{-11}$. Since $e^{\pi im/n}$ has period $2n$ in $m$, the library reduces $k^2 \bmod 2n$ exactly in integer
-arithmetic first. An earlier version did not, and lost five digits at $n = 2^{20}$
-([figure](index.md#accuracy)); it is now accurate to rounding at every length.
+arithmetic first. Without that reduction five digits are lost at $n = 2^{20}$
+([figure](index.md#accuracy)); with it the chirp is accurate to rounding at every length.
 
 ### The fractional Fourier transform
 
@@ -102,8 +102,7 @@ The rectangular pulse turns, as $\alpha$ grows from 0 to 1, through Fresnel-like
 
 The discretisation omits the oversampling step of Ozaktas's algorithm, so it approximates the continuous transform to about
 $10^{-2}$: the Gaussian is reproduced to $10^{-3}$ near the integer orders and to $6 \times 10^{-2}$ at $\alpha = \tfrac12$, and energy is preserved to
-about 1%. An earlier version also lost a factor of $\sqrt n$ in the convolution, so intermediate orders returned $1/n$ of the input energy;
-only the integer orders, computed separately, had been tested.
+about 1%. 
 
 ## Algorithm
 

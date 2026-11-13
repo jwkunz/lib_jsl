@@ -197,6 +197,17 @@ function's transform converges only at second order, because the box is disconti
 4. Explain why the trapezoidal rule converges spectrally for a function whose derivatives vanish at both ends of the interval.
 5. Choose a block length for DTMF detection at 8 kHz so that all eight tones are within 0.2 bins of integer bins.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The recursion is $s_n = x_n + 2\cos\omega\,s_{n-1} - s_{n-2}$: the denominator $(1 - e^{i\omega}z^{-1})(1 - e^{-i\omega}z^{-1}) = 1 - 2\cos\omega z^{-1} + z^{-2}$ is real, and the numerator $1 - e^{-i\omega}z^{-1}$ is applied once at the end.
+2. After $N$ steps $X(k) = e^{i\omega}s_{N-1} - s_{N-2}$ up to a phase; take its squared modulus: $s_{N-1}^2 - 2\cos\omega\,s_{N-1}s_{N-2} + s_{N-2}^2$.
+3. $nk = \tfrac12(n^2 + k^2 - (k - n)^2)$ by expanding the square. The chirp-z transform needs one convolution of length at least $N + M - 1$, so three FFTs of that length (rounded up to a convenient size): two forward and one inverse.
+4. The Euler-Maclaurin error terms of the trapezoidal rule are the odd derivatives at the end points; if all of them vanish the error is smaller than every power of the step: spectral accuracy.
+5. No block length achieves 0.2 bins for all eight DTMF tones at 8 kHz up to $N = 1000$: the best is $N = 299$ (worst deviation $0.22$ bins). The classical $N = 205$ gives $0.27$ bins, which is why a threshold of about $0.3$ bins is used in practice.
+
+</details>
+
 ## Further reading
 
 - G. Goertzel, "An algorithm for the evaluation of finite trigonometric series", *American Mathematical Monthly* 65 (1958) 34–35.

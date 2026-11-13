@@ -185,6 +185,17 @@ wrap-around at the ends. The Morlet transform locates the burst at samples 200â€
 4. Show that soft thresholding is the solution of $\min_y\frac12(y - d)^2 + \lambda|y|$.
 5. Denoise the example signal with hard thresholding ($d \mapsto d$ if $|d| > \lambda$, else 0) and compare the error and the visual artefacts.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Orthogonality conditions on $h$ are $\sum_nh_nh_{n+2k} = \delta_{k0}$. Substitute $g_n = (-1)^nh_{L-1-n}$: the sign changes and the reversal make $\sum g_nh_{n+2k}$ cancel term by term.
+2. $\phi = \mathbb 1_{[0,1)}$ satisfies $\phi(t) = \phi(2t) + \phi(2t - 1)$, so $h = (1, 1)/\sqrt2$ after normalisation; the wavelet filter is $g = (1, -1)/\sqrt2$.
+3. The filter $g$ has two vanishing moments: $\sum g_n = 0$ and $\sum ng_n = 0$, so constants and linear ramps give zero output.
+4. For $y > 0$ the objective's derivative is $y - d + \lambda$, so $y = d - \lambda$ if $d > \lambda$; symmetrically for $d < -\lambda$; otherwise the minimum is at 0: $y = \operatorname{sign}(d)\max(|d| - \lambda, 0)$.
+5. Hard thresholding keeps large coefficients exactly, so it has lower bias but produces visible discontinuities (spurious oscillations) near jumps that soft thresholding smooths.
+
+</details>
+
 ## Further reading
 
 - I. Daubechies, *Ten Lectures on Wavelets*, SIAM, 1992.

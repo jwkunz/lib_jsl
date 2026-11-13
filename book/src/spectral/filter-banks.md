@@ -175,6 +175,17 @@ the prototype's stopband leakage, more than 74 dB down.
 4. Derive the frequency-domain expression for $Y(\nu)$ above from the analysis and synthesis formulas.
 5. Show that a critically sampled DFT bank with an FIR synthesis filter reconstructs only if every polyphase component of the prototype is a monomial.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $H_c(z) = \sum_nh[n]e^{2\pi icn/M}z^{-n}$. Split $n = rM + j$: the factor $e^{2\pi icj/M}$ depends only on $j$ (the phase) and $e^{2\pi icrM/M} = 1$, so each channel is the same polyphase sum with an extra DFT across $j$.
+2. A one-tap-per-phase prototype has $h[rM + j]$ nonzero only for $r = 0$: each output is the DFT of a block of $M$ input samples (times the taps), i.e. a block DFT, and the synthesis bank applies the inverse DFT.
+3. With decimation by $M/2$ the spectrum repeats every $2/M$ of the sampling rate while channels are spaced $1/M$ apart; adjacent channels overlap in aliases unless the transition band is narrower than the gap of $1/M$.
+4. Write the decimated channel outputs as $\sum_ah$ shifts and apply the synthesis filters; sum over channels and decimation phases to get $Y(\nu) = \sum_aT_a(\nu)X(\nu - a/M)$, with the $a \ne 0$ terms being aliases.
+5. Without decimation redundancy, aliasing cancellation requires each polyphase component of the (FIR) prototype to be invertible by a causal FIR filter, which for FIR polyphase components means a pure delay with a gain: a monomial.
+
+</details>
+
 ## Further reading
 
 - M. G. Bellanger and J. L. Daguet, "TDM-FDM transmultiplexer: digital polyphase and FFT", *IEEE Transactions on Communications* 22 (1974) 1199–1205.

@@ -191,6 +191,17 @@ CIC R = 16, N = 4: steady output 6553600 = 100 × gain 65536
 4. Show that $N$ integrators followed by $N$ combs compute the $N$-fold moving sum even when the integrators overflow in two's complement arithmetic.
 5. Find how many bits a CIC decimator with $R = 64$, $M = 1$, $N = 5$ and 16-bit input needs in its registers (Hogenauer's rule).
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Inserting $U - 1$ zeros between samples replaces $X(\omega)$ by $X(U\omega)$: the spectrum is compressed by $U$ and repeated $U$ times over $[0, 2\pi)$, i.e. $U - 1$ images. Keeping every $D$-th sample sums $D$ shifted, stretched copies of the spectrum, $D - 1$ of which fold onto the original.
+2. The upsampled sequence is zero at $U - 1$ out of $U$ positions, so only every $U$-th tap meets a non-zero sample: $\lceil L/U\rceil$ taps per output.
+3. Half-band: $H(f) + H(\tfrac12 - f) = 1$ is the sum of the response and its mirror about $f = \tfrac14$; the inverse transform of a constant is a single impulse, so every other sample of $h$ (except the centre) is zero.
+4. Two's complement arithmetic is a ring modulo $2^b$, so the combs' differences are computed correctly modulo $2^b$ even if the integrators overflow, as long as the true result fits in the register.
+5. Hogenauer: register width $= B_{\text{in}} + N\log_2(RM) = 16 + 5\cdot6 = 46$ bits.
+
+</details>
+
 ## Further reading
 
 - R. E. Crochiere and L. R. Rabiner, *Multirate Digital Signal Processing*, Prentice Hall, 1983.

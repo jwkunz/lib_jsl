@@ -184,6 +184,17 @@ changes nothing in the output.
 4. With white noise of variance $\sigma^2$ added to a delayed copy of a unit-power signal of length $N$, compute the ratio of the correlation peak to the background's standard deviation.
 5. Implement overlap-add with FFTs of length $2B$ for a block length $B$, and check it against `convolve`.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Linear convolution has $N + M - 1$ non-zero outputs, which fit into $L \ge N + M - 1$ without wrapping. With $L = N + M - 2$ the last output wraps onto the first and the two are summed.
+2. Each block costs about $2\cdot\tfrac L2\log_2L$ complex multiplications for the two FFTs plus $L$ for the pointwise product, and produces $B = L - M + 1$ outputs. Minimise the cost per output over $L$; for $M = 255$ the best $L$ is a power of two near $2$ to $4$ times $M$ (for example 2048).
+3. $r_{xy}[k] = \sum_nx[n]y^*[n - k]$ is the convolution of $x$ with $h[n] = y^*[-n]$.
+4. The peak is $\sum|s_n|^2 = N$ (unit power) while the background has variance $N\sigma^2$, so the ratio of peak to background standard deviation is $\sqrt N/\sigma$.
+5. Split the input into blocks of $B$, convolve each with the filter via FFT length $2B$ (taps up to $B$), and add the overlapping tails of consecutive blocks.
+
+</details>
+
 ## Further reading
 
 - T. G. Stockham, "High-speed convolution and correlation", *Proceedings of the AFIPS Spring Joint Computer Conference* 28 (1966) 229–233.

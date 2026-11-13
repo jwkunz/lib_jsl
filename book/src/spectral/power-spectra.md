@@ -191,6 +191,17 @@ The flat-top window with spectrum scaling reads the tone's power exactly; the We
 4. Show that the Lomb-Scargle power at frequency $\omega$ equals the reduction in residual sum of squares of the best sinusoidal fit at that frequency (divided by two).
 5. Sample a sinusoid of frequency 3 at 50 random times in $[0, 10]$ (an average rate of 5), and find it with `lomb_scargle`. What would an evenly sampled DFT show?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The one-sided density doubles the two-sided $\sigma^2/f_s$ (variance spread evenly over $[-f_s/2, f_s/2]$), so it is $2\sigma^2/f_s$ on $[0, f_s/2]$.
+2. At an interior bin the real and imaginary parts of the DFT of Gaussian white noise are independent Gaussians of equal variance; the periodogram is their sum of squares, a $\chi^2_2$ variable (exponential), whose standard deviation equals its mean.
+3. For the periodic Hann window, $w^2 = \tfrac38 - \tfrac12\cos\theta + \tfrac18\cos2\theta$ and the shifted sum with $H = M/4$ cancels the cosine terms, leaving $\tfrac38\cdot\tfrac MH = 1.5$.
+4. The residual sum of squares of the best sinusoid at frequency $\omega$ falls by $P_{\mathrm{LS}}(\omega)\times$ a constant: Lomb-Scargle is the least-squares fit to $a\cos\omega t + b\sin\omega t$ at each $\omega$.
+5. An average rate of 5 samples per second leaves the Nyquist frequency near 2.5, below 3, but random sampling has no single Nyquist frequency and Lomb-Scargle finds the 3 Hz peak. An evenly sampled DFT at 5 samples per second would alias the 3 Hz sine to 2 Hz.
+
+</details>
+
 ## Further reading
 
 - P. D. Welch, "The use of fast Fourier transform for the estimation of power spectra", *IEEE Transactions on Audio and Electroacoustics* 15 (1967) 70–73.

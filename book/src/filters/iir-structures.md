@@ -169,6 +169,17 @@ a 20-sample delay at 1 kHz, removes both.
 4. Factor a sixth-order Butterworth design into three second-order sections by pairing conjugate poles, and compare its response under single-precision coefficients with the direct form.
 5. Estimate how long (in samples) the notch filter's impulse response takes to decay by 60 dB for $Q = 30$ at $\omega_0 = \pi/4$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Direct form I has two delay lines ($N + M$ delays), direct form II shares them ($\max(N, M)$ delays); both have $N + M + 1$ multipliers, and the transposed form II has the same counts as form II.
+2. $H(1) = b\dfrac{2 - 2\cos\omega_0}{1 - 2b\cos\omega_0 + 2b - 1} = b\dfrac{2(1 - \cos\omega_0)}{2b(1 - \cos\omega_0)} = 1$, and likewise $H(-1) = b\dfrac{2(1 + \cos\omega_0)}{2b(1 + \cos\omega_0)} = 1$. At $z = e^{j\omega_0}$ the numerator $1 - 2\cos\omega_0z^{-1} + z^{-2}$ is zero.
+3. The denominator minus $b$ times the notch numerator is $(1 - b) + (-2b\cos\omega_0 + 2b\cos\omega_0)z^{-1} + (2b - 1 - b)z^{-2} = (1 - b)(1 - z^{-2})$, so $1 - H_{\text{notch}}$ has numerator $(1 - b)(1, 0, -1)$ over the same denominator: the peak filter.
+4. Group the six poles into conjugate pairs and form three biquads; with single-precision coefficients the direct form's poles move much more than the biquads' because sensitivity of the roots to the coefficients grows with the order.
+5. The denominator $z^2 - 2b\cos\omega_0z + (2b - 1)$ has poles of radius $r = \sqrt{2b - 1}$. For $Q = 30$ and $\omega_0 = \pi/4$: $\Delta\omega = 0.02618$, $b = 0.98708$, $r = 0.98699$. The response decays like $r^n$, so $r^n = 10^{-3}$ gives $n = \ln10^{-3}/\ln r \approx 530$ samples.
+
+</details>
+
 ## Further reading
 
 - L. B. Jackson, "Roundoff-noise analysis for fixed-point digital filters realized in cascade or parallel form", *IEEE Transactions on Audio and Electroacoustics* 18 (1970) 107–122.

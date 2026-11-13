@@ -233,6 +233,17 @@ the sixth, the signal subspace of three real sinusoids.
 4. Show that the steering vector of a true frequency is orthogonal to the noise subspace of $R$.
 5. Fit AR models of orders 2 to 30 to the two-tone example and plot the spectra. Where do spurious peaks appear?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The error $e_n = x_n + \sum a_kx_{n-k}$ is orthogonal to $x_{n-j}$ for $j = 1, \ldots, p$ at the optimum. Taking expectations gives $r_{j} + \sum_ka_kr_{j-k} = 0$, the Yule-Walker equations.
+2. The Levinson update $E_m = E_{m-1}(1 - |k_m|^2)$ follows from the order update of the prediction error. For a positive definite autocorrelation, all $E_m > 0$ so $|k_m| < 1$.
+3. Burg minimises $\sum(f_m^2 + b_m^2)$ over $k_m$ with $f' = f + kb$, $b' = b + kf$; setting the derivative to zero gives $k = -2\sum fb/\sum(f^2 + b^2)$, and by the Cauchy-Schwarz inequality $|2\sum fb| \le \sum(f^2 + b^2)$, so $|k| \le 1$.
+4. The signal subspace is spanned by the steering vectors of the true frequencies, and the noise subspace is its orthogonal complement.
+5. Spurious peaks appear when the order is too high relative to the data length, especially for noisy data; compare against the true tones' positions.
+
+</details>
+
 ## Further reading
 
 - S. L. Marple, *Digital Spectral Analysis with Applications*, Prentice Hall, 1987 (2nd ed., Dover, 2019).

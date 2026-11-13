@@ -138,6 +138,16 @@ instantaneous frequency: mean 100.000 Hz
 3. Compute the instantaneous frequency of $\cos t + 0.5\cos 3t$ and find where it is negative.
 4. Explain why the analytic signal's DC and Nyquist bins must not be doubled.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The spectrum of $\cos\omega t$ is two impulses at $\pm\omega$; the transform multiplies positive frequencies by $-j$ and negative by $+j$, giving $\sin\omega t$. Applying it twice multiplies each non-zero frequency by $(-j)^2 = -1$ (for positive) and $(j)^2 = -1$ (for negative), so $\mathcal H^2x = -x$.
+2. $\mathcal H[a\cos\omega_0t] = a\,\mathcal H[\cos\omega_0t] = a\sin\omega_0t$ when the spectrum of $a$ does not overlap that of the carrier; then the analytic signal $x + j\mathcal Hx = ae^{j\omega_0t}$.
+3. The analytic signal is $z = e^{it} + 0.5e^{3it}$ and the instantaneous frequency is $\operatorname{Im}(z'/z) = \dfrac{1.75 + 2\cos2t}{1.25 + \cos2t}$. It is negative where $\cos2t < -\tfrac78$, i.e. near $t = \pi/2 + k\pi$ (within about $\pm0.25$ rad): negative instantaneous frequency arises because the signal is not a single narrow-band component.
+4. The DC and Nyquist bins are their own conjugates (they have no mirror image to cancel), so doubling them would change the real part; they are left unscaled, and only the positive-frequency bins are doubled.
+
+</details>
+
 ## Further reading
 
 - D. Gabor, "Theory of communication", *Journal of the IEE, Part III* 93 (1946) 429–457.

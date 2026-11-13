@@ -220,6 +220,17 @@ passes with a gain inside the 0.5 dB ripple band (0.679 of 0.707), and the 2 kHz
 4. Explain why impulse invariance aliases a high-pass prototype but the bilinear transform does not.
 5. Derive the Butterworth order formula from $|H|^2 = 1/(1 + (\Omega/\Omega_c)^{2n})$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $s = \dfrac{2}{T}\dfrac{z - 1}{z + 1}$ gives $z = \dfrac{1 + sT/2}{1 - sT/2}$. Then $|z|^2 = \dfrac{(1 + \sigma T/2)^2 + (\omega T/2)^2}{(1 - \sigma T/2)^2 + (\omega T/2)^2} < 1$ iff $\sigma < 0$.
+2. With $s = j\Omega$ and $z = e^{j\omega}$: $j\Omega = 2f_s\dfrac{e^{j\omega} - 1}{e^{j\omega} + 1} = 2jf_s\tan(\omega/2)$, so $\Omega = 2f_s\tan(\omega/2)$.
+3. $H(z) = \dfrac1{2f_s\frac{z - 1}{z + 1} + 1}$ with $f_s = 2$: $\dfrac{z + 1}{5z - 3}$; check the first coefficients against the reference.
+4. Impulse invariance samples the analogue response, whose spectrum periodically repeats at $f_s$; a high-pass response does not vanish at $f_s/2$, so the copies overlap (alias). The bilinear transform maps the whole $j\Omega$ axis onto one turn of the unit circle, so there is nothing to alias.
+5. Require $|H(\Omega_s)|^2 \le 10^{-A_s/10}$ at the stopband edge: $1 + (\Omega_s/\Omega_c)^{2n} \ge 10^{A_s/10}$, so $n \ge \dfrac{\ln(10^{A_s/10} - 1)}{2\ln(\Omega_s/\Omega_c)}$, rounded up.
+
+</details>
+
 ## Further reading
 
 - A. V. Oppenheim and R. W. Schafer, *Discrete-Time Signal Processing*, 3rd ed., Pearson, 2010, section 7.2.

@@ -250,6 +250,17 @@ machine precision.
 4. Derive the RLS update of $P$ from the matrix inversion lemma.
 5. Set up a noise canceller: a sinusoid plus noise $v$ as the desired signal, and a filtered copy of $v$ as the input. Show that the error converges to the sinusoid.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $J(\mathbf w) = \sigma_d^2 - 2\mathbf w^{\mathsf H}\mathbf p + \mathbf w^{\mathsf H}R\mathbf w$ with $R = \mathbb E[\mathbf u\mathbf u^{\mathsf H}]$ and $\mathbf p = \mathbb E[\mathbf ud^*]$. Setting the gradient $2(R\mathbf w - \mathbf p)$ to zero gives $R\mathbf w_o = \mathbf p$.
+2. With $\mathbf e_n = \mathbf w_n - \mathbf w_o$ the mean recursion is $\mathbb E\mathbf e_{n+1} = (I - \mu R)\mathbb E\mathbf e_n$. It decays in every eigendirection iff $|1 - \mu\lambda_i| < 1$, i.e. $0 < \mu < 2/\lambda_{\max}$.
+3. NLMS: $\mathbf w_{n+1} = \mathbf w_n + \mu\,\mathbf u_ne_n^*/\lVert\mathbf u_n\rVert^2$. Then $d_n - \mathbf w_{n+1}^{\mathsf H}\mathbf u_n = e_n - \mu e_n = (1 - \mu)e_n$, which is zero for $\mu = 1$.
+4. Write $P_n = (\lambda P_{n-1}^{-1} + \mathbf u\mathbf u^{\mathsf H})^{-1}$ and apply the Sherman-Morrison formula: $P_n = \lambda^{-1}\big(P_{n-1} - \mathbf k\mathbf u^{\mathsf H}P_{n-1}\big)$ with gain $\mathbf k = P_{n-1}\mathbf u/(\lambda + \mathbf u^{\mathsf H}P_{n-1}\mathbf u)$.
+5. The canceller can only produce what is correlated with its input (the filtered noise). The sinusoid is uncorrelated with the noise reference, so the optimum filter removes the noise and the error tends to the sinusoid.
+
+</details>
+
 ## Further reading
 
 - B. Widrow and M. E. Hoff, "Adaptive switching circuits", *IRE WESCON Convention Record* 4 (1960) 96–104.

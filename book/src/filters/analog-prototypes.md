@@ -242,6 +242,17 @@ edge of the ripple band. The 3 zeros of the band-pass filter sit at $s = 0$, one
 4. Show that the group delay of a pole at $s = -\sigma + j\omega_p$ is $\sigma/(\sigma^2 + (\omega - \omega_p)^2)$, and explain the delay peaks.
 5. Compute the order a Butterworth filter needs for 60 dB of attenuation one octave above its 3 dB cutoff.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $1/(1 + \omega^{2n}) = 1 - \omega^{2n} + \omega^{4n} - \cdots$, so the first non-zero derivative at 0 is the $2n$-th; the first $2n - 1$ vanish (maximal flatness).
+2. Set $\cos(n\theta)$ with $\theta = \alpha + j\beta$ in $T_n(s/j) = \pm j/\varepsilon$; $\cos(n\alpha)\cosh(n\beta) = 0$ gives $\alpha_k = (2k - 1)\pi/(2n)$ and $\sinh(n\beta) = 1/\varepsilon$, so the poles are $-\sinh\beta\sin\alpha_k + j\cosh\beta\cos\alpha_k$, on an ellipse.
+3. With $s \to (s^2 + \omega_0^2)/(Bs)$, the points where $(\omega^2 - \omega_0^2)/(B\omega) = \pm1$ satisfy $\omega^2 \mp B\omega - \omega_0^2 = 0$. The two positive roots $\omega_1, \omega_2$ have $\omega_1\omega_2 = \omega_0^2$ and $\omega_2 - \omega_1 = B$.
+4. The phase of $1/(s + \sigma - j\omega_p)$ at $s = j\omega$ is $-\arctan\big((\omega - \omega_p)/\sigma\big)$; its negative derivative is $\sigma/(\sigma^2 + (\omega - \omega_p)^2)$. The peak, height $1/\sigma$, occurs at $\omega = \omega_p$: poles near the imaginary axis (small $\sigma$) give sharp delay peaks.
+5. $|H|^2 = 1/(1 + 2^{2n})$ at one octave ($\omega = 2$). For 60 dB, $2^{2n} = 10^6 - 1$, so $n = 9.97$: a tenth-order filter.
+
+</details>
+
 ## Further reading
 
 - S. Butterworth, "On the theory of filter amplifiers", *Experimental Wireless and the Wireless Engineer* 7 (1930) 536–541.

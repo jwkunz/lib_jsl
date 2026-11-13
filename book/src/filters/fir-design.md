@@ -291,6 +291,17 @@ With the stopband weighted ten times the passband, Parks-McClellan meets 60 dB w
 4. State the alternation theorem, and check it numerically on a `remez` design by counting the extrema of its weighted error.
 5. Design a 31-tap Hilbert transformer with `remez` and compare its magnitude with that of a windowed ideal Hilbert impulse response $2\sin^2(\pi n/2)/(\pi n)$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For even length $N$ and symmetry $h[n] = h[N - 1 - n]$, $A(\omega) = 2\sum_{n < N/2}h[n]\cos\big(\omega(n - \tfrac{N-1}2)\big)$ and each cosine argument at $\omega = \pi$ is an odd multiple of $\pi/2$, so $A(\pi) = 0$.
+2. A band-pass between $\omega_1$ and $\omega_2$ is the difference of two ideal low-passes: $h[n] = \dfrac{\sin\omega_2m}{\pi m} - \dfrac{\sin\omega_1m}{\pi m}$ with $m = n - (N - 1)/2$, then multiply by the window.
+3. The window method multiplies the ideal response by $w$, which convolves its frequency response with $W(\omega)$; the result is a symmetric convolution, so the ripple on either side of the transition is mirrored.
+4. The alternation theorem says the optimal weighted-Chebyshev approximation has at least $r + 1$ alternating extrema of equal height, where $r$ is the number of free coefficients; count the extrema of the weighted error in each band including the band edges.
+5. Compare the equiripple design's passband and stopband errors with the windowed one; the Remez design has a flat ripple and typically a narrower transition for the same length.
+
+</details>
+
 ## Further reading
 
 - T. W. Parks and J. H. McClellan, "Chebyshev approximation for nonrecursive digital filters with linear phase", *IEEE Transactions on Circuit Theory* 19 (1972) 189–194.

@@ -198,6 +198,17 @@ periodic Hann(5):  [0.0, 0.34549150281252633, 0.9045084971874737, 0.904508497187
 4. Compute the scalloping loss of the rectangular window, $20\log_{10}(\pi/2)$, and check it against the table.
 5. Explain why the Dolph-Chebyshev window of very large length has impulsive end samples, and why Taylor's modification avoids them.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The periodic Hann window is $w_n = \tfrac12 - \tfrac12\cos(2\pi n/M)$, a constant plus two complex exponentials, so its DFT has non-zero entries only at $k = 0, \pm1$.
+2. Choose $a_0$ and $a_1 = 1 - a_0$ so that the Dirichlet kernel terms cancel at the first side-lobe peak: this gives $a_0 = 25/46 \approx 0.5435$ (rounded to 0.54) and $a_1 = 21/46 \approx 0.4565$ (0.46).
+3. Equivalent noise bandwidth is $M\sum w^2/(\sum w)^2 \ge 1$ by Cauchy-Schwarz, with equality iff $w$ is constant.
+4. A tone midway between bins sees the window's response at half a bin: for the rectangle $\operatorname{sinc}(\tfrac12) = 2/\pi$, i.e. a loss of $-20\log_{10}(\pi/2) \approx -3.92$ dB.
+5. Dolph-Chebyshev windows have all side lobes at equal height; for large lengths the only way to keep them equal is an impulsive pair of samples at the ends. Taylor windows let the far side lobes decay, which removes the impulses.
+
+</details>
+
 ## Further reading
 
 - F. J. Harris, "On the use of windows for harmonic analysis with the discrete Fourier transform", *Proceedings of the IEEE* 66 (1978) 51–83.

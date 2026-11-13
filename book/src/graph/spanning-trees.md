@@ -96,12 +96,16 @@ bounded by the inverse Ackermann function, which is at most 4 for any conceivabl
 4. Stop when $V - 1$ edges have been added, or the edges run out. In a disconnected graph the
    result is a spanning tree of each component, a spanning **forest**.
 
+The cost is $O(E\log E)$, dominated by the sort.
+
 **Prim.** For each vertex not yet in a tree, start a new tree there:
 
 1. mark the vertex as in the tree and push its edges on a min-heap ordered by weight;
 2. pop the cheapest edge. If it leads to a vertex already in the tree, it is stale: discard
    it. Otherwise add the edge to the tree, mark the new vertex, and push its edges;
 3. repeat from step 2 until the heap is empty.
+
+The cost is $O(E\log E)$ for the heap operations.
 
 **Union-find.**
 

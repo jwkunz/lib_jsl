@@ -198,7 +198,7 @@ The methods differ only in step 2:
 - **Brent**: the inverse quadratic or secant step if it passes the two safeguards, otherwise the
   midpoint. Its convergence test uses the tolerance $2\varepsilon|b| + \text{tol}/2$.
 
-Bisection needs $\lceil\log_2((b - a)/\text{tol})\rceil$ steps whatever the function. The
+Bisection needs about $\log_2((b - a)/\text{tol})$ steps whatever the function. The
 others give up with an error after a fixed number of iterations (500 for false position, 100 for
 Ridders, 200 for Brent).
 

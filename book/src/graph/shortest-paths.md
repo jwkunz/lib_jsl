@@ -122,6 +122,8 @@ Floyd–Warshall's cubic cost limits it to graphs of a few thousand vertices. Fo
    distance of $v$, record it, set the predecessor of $v$ to $u$, and push $(d + w, v)$.
 4. Repeat from step 2 until the heap is empty.
 
+With a binary heap the cost is $O((V + E)\log V)$.
+
 **Bellman-Ford** from a source.
 
 1. Set the distances as above.
@@ -130,6 +132,8 @@ Floyd–Warshall's cubic cost limits it to graphs of a few thousand vertices. Fo
 3. If the pass changed nothing, stop: the distances are final.
 4. After $V - 1$ passes, make one more. If it would still improve some distance, report a
    negative cycle.
+
+The cost is $O(VE)$ in the worst case.
 
 **A\*** from a source to a target, with a heuristic $h$: as Dijkstra, with these differences.
 The heap is ordered by $d + h(v)$. A vertex is **closed** when it is popped, and closed
@@ -143,6 +147,8 @@ vertices are not reopened. The search stops as soon as the target is popped.
    the sum, and the successor of $(i, j)$ by the successor of $(i, k)$. The loop over $k$ must
    be the outermost.
 3. If any diagonal entry is negative, report a negative cycle.
+
+The cost is $O(V^3)$ time and $O(V^2)$ memory.
 
 **Recovering a path**: from the predecessors, walk back from the target to the source and
 reverse the list; from the successor matrix, walk forward from the source.

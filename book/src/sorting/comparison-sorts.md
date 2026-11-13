@@ -88,6 +88,9 @@ The standard library's sorts are several times faster than these on random keys,
 Sorting the smaller part by a call, and the larger by continuing the loop, limits the depth of
 the calls to $\log_2n$.
 
+The expected cost is $O(n\log n)$ comparisons, and the heapsort fallback makes that the
+worst case as well.
+
 **Insertion sort**: for each key from the second on, shift the larger keys before it one place
 to the right, and put the key in the gap.
 
@@ -99,6 +102,8 @@ to the right, and put the key in the gap.
 2. **Extract.** For each end position from $n - 1$ down to 1: swap the root, which is the
    largest remaining key, with the element at that position, and sift the new root down
    within the heap that is now one shorter.
+
+Building the heap costs $O(n)$ and the extraction $O(n\log n)$, for every input.
 
 **Shell's method.**
 

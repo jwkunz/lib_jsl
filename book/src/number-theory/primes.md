@@ -117,6 +117,8 @@ time; if that fails too, it changes $c$:
    between are even, and are not stored.)
 3. The primes are 2 and the unmarked odd numbers.
 
+The cost is about $n\ln\ln n$ bit operations and $n/16$ bytes of memory.
+
 **Miller-Rabin test** of $n$.
 
 1. Divide $n$ by each of the first twelve primes. If one divides it, $n$ is prime only if it
@@ -126,6 +128,8 @@ time; if that fails too, it changes $c$:
    $n - 1$, this base passes. Otherwise square $x$ up to $s - 1$ times; if it becomes
    $n - 1$, the base passes; if it becomes 1, or never reaches $n - 1$, then $n$ is composite.
 4. If every base passes, $n$ is prime.
+
+Each base costs one modular power, $O(\log n)$ multiplications.
 
 **Factorisation** of $n$.
 

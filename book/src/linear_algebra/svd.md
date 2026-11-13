@@ -162,6 +162,8 @@ Golub-Kahan is the fastest; Jacobi with vectors costs two to five times as much.
 6. **Form $U$ and $V$** by applying the stored reflectors, in compact WY blocks, to the
    accumulated rotations.
 
+The cost is $O(mn^2)$, dominated by the bidiagonalisation and the forming of the vectors.
+
 **`svd_jacobi`**.
 
 1. **Precondition.** For more than a few columns, factor $AP = QR$ with column pivoting and

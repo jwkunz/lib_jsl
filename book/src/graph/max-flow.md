@@ -105,6 +105,8 @@ arc's residual capacity and adds it to the partner's.
 4. Walk back again, pushing the bottleneck amount along every arc of the path. Add it to the
    total flow, and go to 1.
 
+Each augmentation costs $O(E)$, and there are at most $O(VE)$ of them.
+
 **Dinic.**
 
 1. Run a breadth-first search from the source over arcs with positive residual capacity,
@@ -116,6 +118,8 @@ arc's residual capacity and adds it to the partner's.
    nowhere, it advances the vertex's pointer past it for good. When it reaches the sink, push
    the bottleneck of the path found.
 4. Repeat step 3 until the search finds no path, which completes one phase; then go to 1.
+
+There are at most $V$ phases, each costing $O(VE)$.
 
 **Minimum cut**, after either algorithm: run a breadth-first search from the source over arcs
 with positive residual capacity. The vertices reached form the source side, and the original

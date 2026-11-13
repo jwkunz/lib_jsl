@@ -183,8 +183,13 @@ Two practical details complete the picture.
   exception is a function that oscillates on a scale of one at large $x$, such as $\sin x$ at
   $x = 10^8$; it needs a smaller step, passed explicitly.
 - The sum $x + h$ is rounded to the nearest floating-point number, so the step actually taken is
-  not quite $h$. The library replaces $h$ by $(x + h) - x$, a subtraction that floating-point
-  arithmetic performs exactly, so the denominator matches the points at which $f$ is evaluated.
+  not quite $h$. The discrepancy is about $\varepsilon|x|$, which relative to the step is
+  $\varepsilon|x|/h$: for $x = 1$ and $h = 6 \times 10^{-6}$ that is $4 \times 10^{-11}$, as large as
+  the whole error budget of the central difference. The library therefore replaces $h$ by
+  $(x + h) - x$, the step actually taken. When $h$ is much smaller than $|x|$, which is the case
+  that matters, the two numbers being subtracted are within a factor of two of each other, and
+  floating-point arithmetic then performs the subtraction exactly (Sterbenz's lemma). The divisor
+  thus matches the points at which $f$ is evaluated.
 
 ### Higher-order stencils
 
@@ -307,8 +312,8 @@ universal fallback.
 1. **Choose the step.** Unless the caller supplies one, take the relative step
    $h = \varepsilon^{1/(p+m)}$ from the table above, and scale it to the size of the argument:
    $h \leftarrow h\,\max(|x|, 1)$.
-2. **Make the step exact.** Replace $h$ by $(x + h) - x$, so that the divisor equals the distance
-   between the points at which $f$ is actually evaluated.
+2. **Use the step actually taken.** Replace $h$ by $(x + h) - x$, so that the divisor equals the
+   distance between the points at which $f$ is actually evaluated.
 3. **Evaluate** $f$ at the points of the stencil: $x \pm h$ for the central difference, and
    $x$, $x \pm h$, $x \pm 2h$ for the five-point formulas.
 4. **Combine** the values with the weights of the formula and divide by $h^m$.

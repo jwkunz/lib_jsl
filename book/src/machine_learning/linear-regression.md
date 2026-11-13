@@ -308,6 +308,17 @@ real features, drops the near-copy $x_3$, and comes closest to the noise level o
 4. Show that if $\alpha \ge \max_j\frac1n|\mathbf x_j^{\mathsf T}\mathbf y_c|$ the lasso solution is $\mathbf w = 0$.
 5. Show that the generalised least-squares estimator has covariance $(X^{\mathsf T}\Sigma^{-1}X)^{-1}$, and that it is no larger than that of ordinary least squares.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\nabla\lVert\mathbf y - X\mathbf w\rVert^2 = -2X^{\mathsf T}(\mathbf y - X\mathbf w) = 0$ gives $X^{\mathsf T}(\mathbf y - X\mathbf w) = 0$, which says that the residual is orthogonal to every column of $X$.
+2. $\lVert\mathbf y - X\mathbf w\rVert^2 + \alpha\lVert\mathbf w\rVert^2$ is the squared norm of the stacked residual $\begin{pmatrix}\mathbf y\\ \mathbf 0\end{pmatrix} - \begin{pmatrix}X\\ \sqrt\alpha I\end{pmatrix}\mathbf w$.
+3. For $\min_w\tfrac1{2n}\lVert\mathbf r - w\mathbf x_j\rVert^2 + \alpha|w|$, with $z = \mathbf x_j^{\mathsf T}\mathbf r/n$ and $s = \mathbf x_j^{\mathsf T}\mathbf x_j/n$, the subgradient condition gives $w = \operatorname{sign}(z)\max(|z| - \alpha, 0)/s$.
+4. At $\mathbf w = 0$ the subgradient condition requires $|\mathbf x_j^{\mathsf T}\mathbf y_c|/n \le \alpha$ for every $j$; this is exactly the stated bound.
+5. The GLS estimator is $(X^{\mathsf T}\Sigma^{-1}X)^{-1}X^{\mathsf T}\Sigma^{-1}\mathbf y$ with covariance $(X^{\mathsf T}\Sigma^{-1}X)^{-1}$. By the Gauss-Markov theorem applied to the whitened model it is the best linear unbiased estimator, so its covariance is no larger than OLS's.
+
+</details>
+
 ## Further reading
 
 - T. Hastie, R. Tibshirani and J. Friedman, *The Elements of Statistical Learning*, 2nd ed., Springer, 2009, chapter 3.

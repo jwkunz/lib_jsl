@@ -219,6 +219,17 @@ spotting outliers. Extra components barely raise the likelihood and take many mo
 4. Show that the likelihood is unbounded without regularisation, by centring a component on a data point.
 5. Fit a mixture to data drawn from a single uniform square, and plot the BIC against $k$. What does it choose, and why?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Maximise $\sum_i\sum_kr_{ik}\big[\ln\pi_k + \ln\mathcal N(\mathbf x_i|\boldsymbol\mu_k, \Sigma_k)\big]$ over the parameters with $\sum\pi_k = 1$: $\pi_k = \tfrac1n\sum r_{ik}$, $\boldsymbol\mu_k = \sum r_{ik}\mathbf x_i/\sum r_{ik}$, $\Sigma_k = \sum r_{ik}(\mathbf x_i - \boldsymbol\mu_k)(\mathbf x_i - \boldsymbol\mu_k)^{\mathsf T}/\sum r_{ik}$.
+2. Jensen's inequality gives $\ln p(\mathbf x|\theta) \ge Q(\theta|\theta_t) + H$ with equality at $\theta = \theta_t$; maximising $Q$ therefore cannot decrease the likelihood.
+3. With $\Sigma = \sigma^2I$ and $\sigma \to 0$ the responsibilities become 0 or 1 (each point goes to its nearest mean) and the means become cluster averages: Lloyd's algorithm.
+4. Centre one component on a data point and let its covariance shrink to 0: its density at that point grows without bound while the other points keep a positive density from the other components, so the likelihood is unbounded.
+5. A uniform square is not Gaussian, so BIC typically selects more than one component (several tile the square). It does not indicate several real clusters, only that the Gaussian shape assumption is wrong.
+
+</details>
+
 ## Further reading
 
 - A. P. Dempster, N. M. Laird and D. B. Rubin, "Maximum likelihood from incomplete data via the EM algorithm", *Journal of the Royal Statistical

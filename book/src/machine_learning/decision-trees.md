@@ -205,6 +205,17 @@ share of splits per feature: [0.299, 0.251, 0.246, 0.204]
 4. Construct the XOR problem and show that no single axis-parallel split reduces the Gini impurity, but two levels separate it.
 5. Implement permutation importance (the drop in out-of-bag accuracy when a feature's values are shuffled) and compare with split counts.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A rule that labels at random with the node's proportions $p_k$ is wrong with probability $\sum_kp_k(1 - p_k) = 1 - \sum_kp_k^2$, which is the Gini impurity.
+2. For predictors of variance $\sigma^2$ and pairwise correlation $\rho$, $\operatorname{Var}\bar f = \sigma^2\big(\rho + \tfrac{1 - \rho}T\big)$. As $T \to \infty$ it tends to $\rho\sigma^2$: averaging removes only the part of the variance that is not shared, which is why forests decorrelate the trees.
+3. Each of the $n$ draws misses a given point with probability $1 - 1/n$, so the probability that it is never drawn is $(1 - 1/n)^n \to e^{-1}$.
+4. Take points $(0, 0), (1, 1)$ of one class and $(0, 1), (1, 0)$ of the other. Any split on one coordinate puts one point of each class on each side, leaving the impurity at $\tfrac12$. After splitting on $x_1$, each child can be split perfectly on $x_2$.
+5. Compare the accuracy on out-of-bag samples before and after shuffling one feature's column; a large drop means the forest relies on that feature. Unlike split counts, it is not biased toward features with many possible split points.
+
+</details>
+
 ## Further reading
 
 - L. Breiman, J. H. Friedman, R. A. Olshen and C. J. Stone, *Classification and Regression Trees*, Wadsworth, 1984.

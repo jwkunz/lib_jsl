@@ -141,6 +141,16 @@ class 2: [2, 0, 47]  precision 0.98 recall 0.96 F1 0.97
 3. Show that F1 is the harmonic mean of precision and recall and lies between their minimum and their arithmetic mean.
 4. Compute the adjusted Rand index of two random labellings of 1000 points into 3 groups, over many trials.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Construct data in which the feature mean is very different in the test portion (for instance a drifting feature). Scaling with statistics from all the data moves the test points toward the training distribution, changing the test accuracy from what an unseen test set would give.
+2. Accuracy $99\%$, recall $0$, and precision is $0/0$ (undefined; conventionally 0), so F1 is also 0: accuracy is misleading on imbalanced data.
+3. $F_1 = 2PR/(P + R)$ is the harmonic mean. For $P \le R$, $\min \le \text{harmonic mean} \le \text{geometric mean} \le \text{arithmetic mean}$.
+4. The adjusted Rand index of independent random labellings has mean $0$ and standard deviation of order $10^{-3}$ for 1000 points; values near zero (and sometimes slightly negative) are what the adjustment is for.
+
+</details>
+
 ## Further reading
 
 - T. Hastie, R. Tibshirani and J. Friedman, *The Elements of Statistical Learning*, 2nd ed., Springer, 2009 (free online).

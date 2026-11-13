@@ -178,6 +178,17 @@ The diffuse cluster has the smallest stability: it is found, but it is the least
 4. Use a k-d tree to find ε-neighbourhoods and measure the speed-up over the dense distance matrix for $n = 10^4$ points in the plane.
 5. Compute the stabilities by hand for six points on a line at 0, 0.1, 0.2, 5, 5.1, 5.2 with `min_cluster_size` = 3.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Core points within $\varepsilon$ of each other are density-connected; DBSCAN's cluster of a core point is everything reachable from it through chains of such core points, which is the connected component of the core-point graph.
+2. $d_{\mathrm{mr}}(a, b) = \max(c(a), c(b), d(a, b))$ with $c$ the core distance: symmetry is clear, and the triangle inequality follows from $d(a, c) \le d(a, b) + d(b, c)$ and $\max(\cdot)$ being monotone in each argument.
+3. Cutting the single-linkage tree at height $\varepsilon$ joins exactly the pairs with $d_{\mathrm{mr}} \le \varepsilon$, i.e. core points within $\varepsilon$ of each other.
+4. A k-d tree answers radius queries in about $O(\log n + m)$ time for $m$ results, so the neighbourhood computation falls from $O(n^2)$ to nearly $O(n\log n)$.
+5. The mutual-reachability graph joins the points within each triple at distances of about $0.1$ to $0.2$ and the two triples by one edge of length about $4.8$. Compute each triple's stability as the sum of $(\lambda_p - \lambda_{\text{birth}})$ with $\lambda = 1/\text{distance}$; expect the two triples to be selected because their combined stability exceeds that of the merged cluster.
+
+</details>
+
 ## Further reading
 
 - M. Ester, H.-P. Kriegel, J. Sander and X. Xu, "A density-based algorithm for discovering clusters in large spatial databases with noise",

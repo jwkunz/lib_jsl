@@ -198,6 +198,17 @@ slightly optimistic.
 4. Implement nested cross-validation and apply it to the random-label experiment above.
 5. Implement random search and compare it with grid search on the SVM example for the same number of evaluations.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The training set of fold $i$ is all points but $i$, that of fold $j$ is all points but $j$; they share all points except $i$ and $j$, which is $n - 2$ of the $n - 1$.
+2. Deleting point $i$ changes the fit by $\hat{\mathbf w}_{(i)} = \hat{\mathbf w} - (X^{\mathsf T}X)^{-1}\mathbf x_ie_i/(1 - h_{ii})$ (Sherman-Morrison), so the prediction error at $i$ is $e_i/(1 - h_{ii})$ with $h_{ii} = \mathbf x_i^{\mathsf T}(X^{\mathsf T}X)^{-1}\mathbf x_i$.
+3. Selecting the features that correlate best with the labels on all the data uses the validation labels in the selection, so the validation score is biased upward. With 5000 pure-noise features and 50 samples, the best 10 features correlate with the labels by chance and give cross-validated accuracy well above 50%.
+4. In nested cross-validation the inner loop selects features or hyperparameters using only the outer training fold; on random labels the outer score should then be about 50%.
+5. Random search samples hyperparameters from distributions; for the same budget it covers each individual hyperparameter more densely than a grid, which helps when only a few of them matter.
+
+</details>
+
 ## Further reading
 
 - M. Stone, "Cross-validatory choice and assessment of statistical predictions", *Journal of the Royal Statistical Society B* 36 (1974) 111–147.

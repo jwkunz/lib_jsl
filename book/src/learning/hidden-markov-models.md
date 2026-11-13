@@ -249,6 +249,17 @@ path (−103.5) is a small part of the total over all paths (−98.8).
 4. Show that the expected time spent in the loaded state per visit is $1/0.1 = 10$ rolls, and that durations are geometric.
 5. Extend the model to Gaussian emissions and derive the M-step for the means and variances.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Each of the $T$ time steps does an $N\times N$ matrix-vector product, so $O(TN^2)$. Summing over all $N^T$ state paths, each costing $O(T)$, gives $O(TN^T)$.
+2. Posterior decoding picks the most probable state at each time separately. If $A \to A$ has probability zero but the marginal probabilities favour $A$ at both times 1 and 2 (because the two likely paths are $A, B$ and $B, A$), the decoded path $A, A$ has probability zero.
+3. Maximise $\sum_{t}\sum_{i,j}\xi_t(i, j)\ln a_{ij}$ subject to each row of $A$ summing to 1; the Lagrange condition gives $a_{ij} = \sum_t\xi_t(i, j)/\sum_t\gamma_t(i)$.
+4. The state is left with probability $0.1$ each step, so the duration is geometric with $P(d) = 0.9^{d-1}\cdot0.1$ and mean $1/0.1 = 10$.
+5. Weighting each observation by $\gamma_t(i)$, the M-step gives $\mu_i = \sum_t\gamma_t(i)x_t/\sum_t\gamma_t(i)$ and $\sigma_i^2 = \sum_t\gamma_t(i)(x_t - \mu_i)^2/\sum_t\gamma_t(i)$.
+
+</details>
+
 ## Further reading
 
 - L. R. Rabiner, "A tutorial on hidden Markov models and selected applications in speech recognition", *Proceedings of the IEEE* 77 (1989) 257–286.

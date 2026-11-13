@@ -233,6 +233,17 @@ that lies in the two-dimensional subspace is kept.
 4. Show that kernel PCA with the linear kernel reproduces the PCA scores exactly, up to sign.
 5. Derive the double-centring formula from $\widetilde\varphi(\mathbf x) = \varphi(\mathbf x) - \frac1n\sum_j\varphi(\mathbf x_j)$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With $L = \mathbf u^{\mathsf T}C\mathbf u - \lambda(\mathbf u^{\mathsf T}\mathbf u - 1)$ the stationarity condition is $C\mathbf u = \lambda\mathbf u$, and the value is $\mathbf u^{\mathsf T}C\mathbf u = \lambda$: take the largest eigenvalue.
+2. With centred data $X = U\Sigma V^{\mathsf T}$, $C = X^{\mathsf T}X/(n - 1) = V\Sigma^2V^{\mathsf T}/(n - 1)$, so the principal axes are the columns of $V$ and $\lambda_j = \sigma_j^2/(n - 1)$.
+3. The reconstruction error of $\mathbf x$ with $q$ components is the squared norm of its projection on the discarded axes; averaging over the data gives $\tfrac1n\sum_i\lVert\cdot\rVert^2 = \tfrac{n - 1}n\sum_{j>q}\lambda_j$.
+4. The Gram matrix of the centred data is $XX^{\mathsf T} = U\Sigma^2U^{\mathsf T}$, so the kernel PCA scores $U\Sigma$ equal the PCA scores $XV$, up to the sign of each eigenvector.
+5. With centred features $\tilde\varphi = \varphi - \bar\varphi$, $\tilde K_{ij} = \tilde\varphi_i^{\mathsf T}\tilde\varphi_j = K_{ij} - \tfrac1n\sum_kK_{ik} - \tfrac1n\sum_kK_{kj} + \tfrac1{n^2}\sum_{kl}K_{kl}$, i.e. $\tilde K = K - \mathbf 1K - K\mathbf 1 + \mathbf 1K\mathbf 1$ with $\mathbf 1 = \tfrac1n\mathbf e\mathbf e^{\mathsf T}$.
+
+</details>
+
 ## Further reading
 
 - I. T. Jolliffe, *Principal Component Analysis*, 2nd ed., Springer, 2002.

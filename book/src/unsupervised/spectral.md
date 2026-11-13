@@ -164,6 +164,17 @@ smallest Laplacian eigenvalues for three blobs: [-0.0000, 0.0000, 0.0000, 0.0882
 4. Show that the eigenvalues of $L_{\text{sym}}$ lie in $[0, 2]$.
 5. Relate the second eigenvector of $L$ (the Fiedler vector) to the ratio-cut problem for $k = 2$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\mathbf f^{\mathsf T}L\mathbf f = \sum_id_if_i^2 - \sum_{ij}W_{ij}f_if_j = \tfrac12\sum_{ij}W_{ij}(f_i - f_j)^2 \ge 0$ since $d_i = \sum_jW_{ij}$.
+2. $L\mathbf f = 0$ implies $\mathbf f^{\mathsf T}L\mathbf f = 0$, so $f_i = f_j$ whenever $W_{ij} > 0$: $\mathbf f$ is constant on each connected component, giving a null space of dimension equal to the number of components.
+3. The path graph has eigenvalues $2 - 2\cos(\pi k/n)$ for $k = 0, \ldots, n - 1$ and the cycle graph $2 - 2\cos(2\pi k/n)$ for $k = 0, \ldots, n - 1$.
+4. $L_{\mathrm{sym}} = I - D^{-1/2}WD^{-1/2}$ and the eigenvalues of $D^{-1/2}WD^{-1/2}$ lie in $[-1, 1]$ because it is similar to the random-walk matrix $D^{-1}W$, whose rows sum to 1 with non-negative entries.
+5. Ratio cut minimises $\mathrm{cut}(A, \bar A)(1/|A| + 1/|\bar A|)$. Relaxing the discrete indicator vector to a real vector orthogonal to $\mathbf 1$ turns the problem into minimising $\mathbf f^{\mathsf T}L\mathbf f/\mathbf f^{\mathsf T}\mathbf f$, whose solution is the Fiedler vector.
+
+</details>
+
 ## Further reading
 
 - A. Y. Ng, M. I. Jordan and Y. Weiss, "On spectral clustering: analysis and an algorithm", *Advances in Neural Information Processing Systems* 14 (2002).

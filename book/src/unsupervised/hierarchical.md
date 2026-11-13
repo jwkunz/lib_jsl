@@ -210,6 +210,18 @@ slowly evolving C and D, because A is closer to them (7 and 8) than to its true 
 5. Show that the four-point condition $d(i, j) + d(k, l) \le \max(d(i, k) + d(j, l), d(i, l) + d(j, k))$ holds for path lengths in a tree.
 6. Centroid linkage (distance between cluster means) can produce inversions. Find three points in the plane where it does.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. When clusters $A$ and $B$ merge, $d(A\cup B, C) = \alpha_Ad(A, C) + \alpha_Bd(B, C) + \beta d(A, B) + \gamma|d(A, C) - d(B, C)|$: single linkage has $\alpha = \tfrac12$, $\gamma = -\tfrac12$; complete has $\alpha = \tfrac12$, $\gamma = +\tfrac12$; average has $\alpha_A = |A|/(|A| + |B|)$ and $\beta = \gamma = 0$.
+2. Kruskal's algorithm adds the lightest edges in order, and single linkage merges the two closest clusters in the same order; cutting into $k$ clusters removes the $k - 1$ longest MST edges.
+3. The increase of the within-cluster sum of squares on merging $A$ and $B$ is $|A|\lVert\bar{\mathbf x}_A - \bar{\mathbf x}\rVert^2 + |B|\lVert\bar{\mathbf x}_B - \bar{\mathbf x}\rVert^2$, with $\bar{\mathbf x}$ the merged mean; substituting $\bar{\mathbf x} = (|A|\bar{\mathbf x}_A + |B|\bar{\mathbf x}_B)/(|A| + |B|)$ gives the stated formula.
+4. In an ultrametric every triangle is isosceles with the two largest sides equal. By induction on the merges, UPGMA's average distance between the two merged groups equals every pairwise distance between them.
+5. Along tree paths $d(i, j) + d(k, l)$ is the sum of two disjoint paths when $\{i, j\}\{k, l\}$ is the topology; the other two sums then share the middle edge and are equal and larger.
+6. Take an equilateral triangle with side 1. Two vertices merge at distance 1, and the centroid at their midpoint is only $\sqrt3/2 \approx 0.87$ from the third vertex: the next merge height is smaller than the previous one.
+
+</details>
+
 ## Further reading
 
 - G. N. Lance and W. T. Williams, "A general theory of classificatory sorting strategies. 1. Hierarchical systems", *The Computer Journal* 9 (1967) 373–380.

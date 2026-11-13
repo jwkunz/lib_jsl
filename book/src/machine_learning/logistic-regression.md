@@ -187,6 +187,17 @@ The fitted log-odds recover the true model ($-6 + 0.8\,\text{study} + 0.5\,\text
 4. Show that the softmax model with $K = 2$ is equivalent to binary logistic regression with $\mathbf w = \mathbf w_1 - \mathbf w_0$.
 5. Implement Newton's method (iteratively reweighted least squares) for binary logistic regression and compare its iteration count with L-BFGS.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\sigma' = e^{-z}/(1 + e^{-z})^2 = \sigma(1 - \sigma)$. For cross-entropy $-\sum[y\ln p + (1 - y)\ln(1 - p)]$ with $p = \sigma(\mathbf x^{\mathsf T}\mathbf w)$ the gradient is $X^{\mathsf T}(\mathbf p - \mathbf y)$.
+2. The Hessian is $X^{\mathsf T}SX$ with $S = \operatorname{diag}(p_i(1 - p_i)) \succeq 0$, which is positive semidefinite.
+3. If a direction $\mathbf w_0$ separates the classes, multiplying it by $t \to \infty$ drives every term of the loss to zero without reaching it, so there is no minimum (the weights diverge).
+4. With $p_1 = e^{z_1}/(e^{z_0} + e^{z_1}) = 1/(1 + e^{-(z_1 - z_0)}) = \sigma(z_1 - z_0)$, and $z_1 - z_0 = (\mathbf w_1 - \mathbf w_0)^{\mathsf T}\mathbf x$.
+5. IRLS (Newton) takes a few iterations (typically 5 to 10) each costing a weighted least-squares solve; L-BFGS takes more iterations of lower cost each.
+
+</details>
+
 ## Further reading
 
 - D. R. Cox, "The regression analysis of binary sequences", *Journal of the Royal Statistical Society B* 20 (1958) 215–242.

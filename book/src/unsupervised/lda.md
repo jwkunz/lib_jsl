@@ -166,6 +166,17 @@ test accuracy 0.912
 4. Derive the linear discriminant scores from Gaussian class densities with a shared covariance, and show that the boundaries are hyperplanes.
 5. For two classes, show that the LDA direction is proportional to the least-squares regression coefficients for a ±1 class indicator.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Maximise $J(\mathbf w) = (\mathbf w^{\mathsf T}\mathbf d)^2/(\mathbf w^{\mathsf T}S_w\mathbf w)$ with $\mathbf d = \boldsymbol\mu_1 - \boldsymbol\mu_0$: setting the gradient to zero gives $S_w\mathbf w \propto \mathbf d$.
+2. $S_b = \sum_kn_k(\boldsymbol\mu_k - \boldsymbol\mu)(\boldsymbol\mu_k - \boldsymbol\mu)^{\mathsf T}$ is a sum of $K$ rank-one terms whose weighted mean vectors satisfy $\sum n_k(\boldsymbol\mu_k - \boldsymbol\mu) = 0$, so the rank is at most $K - 1$.
+3. $S_b\mathbf w_i = \lambda_iS_w\mathbf w_i$: multiplying by $\mathbf w_j^{\mathsf T}$ and by $\mathbf w_i^{\mathsf T}$, and using the symmetry of both matrices, gives $(\lambda_i - \lambda_j)\mathbf w_j^{\mathsf T}S_w\mathbf w_i = 0$.
+4. For Gaussian densities with shared $\Sigma$, the log density difference between classes is $(\boldsymbol\mu_k - \boldsymbol\mu_l)^{\mathsf T}\Sigma^{-1}\mathbf x + \text{const}$: linear in $\mathbf x$, so boundaries are hyperplanes.
+5. The normal equations for regressing a $\pm1$ indicator on the centred features reduce to $(S_w + c\,\mathbf d\mathbf d^{\mathsf T})\mathbf w \propto \mathbf d$, whose solution is proportional to $S_w^{-1}\mathbf d$.
+
+</details>
+
 ## Further reading
 
 - R. A. Fisher, "The use of multiple measurements in taxonomic problems", *Annals of Eugenics* 7 (1936) 179–188.

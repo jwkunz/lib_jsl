@@ -256,6 +256,17 @@ perfectly.
 4. Show that the RBF kernel matrix is positive definite for distinct points.
 5. Derive the two-variable SMO update for $y_i \ne y_j$ and its clipping bounds.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. The hyperplanes $\mathbf w^{\mathsf T}\mathbf x + b = \pm1$ are the margin boundaries; the distance between them is $2/\lVert\mathbf w\rVert$.
+2. The Lagrangian gives $\mathbf w = \sum\alpha_iy_i\mathbf x_i$, $\sum\alpha_iy_i = 0$ and $0 \le \alpha_i \le C$. Complementarity then implies $\alpha_i = C$ for points with margin violation (strictly inside the margin or misclassified).
+3. $(\mathbf x^{\mathsf T}\mathbf x' + 1)^2 = \varphi(\mathbf x)^{\mathsf T}\varphi(\mathbf x')$ with $\varphi(\mathbf x) = (1, \sqrt2x_1, \sqrt2x_2, x_1^2, x_2^2, \sqrt2x_1x_2)$.
+4. Bochner's theorem: the Gaussian kernel is the Fourier transform of a positive measure with full support, so for distinct points $\sum c_ic_jk(\mathbf x_i, \mathbf x_j) = \int|\sum c_ie^{i\boldsymbol\omega\cdot\mathbf x_i}|^2\mathrm d\mu > 0$ unless all $c_i = 0$.
+5. Fix all multipliers but $\alpha_i, \alpha_j$. The constraint $\sum\alpha_ky_k = 0$ keeps $\alpha_i - \alpha_j$ constant when $y_i \ne y_j$; optimise the resulting quadratic in one variable, and clip to $L = \max(0, \alpha_j - \alpha_i)$, $H = \min(C, C + \alpha_j - \alpha_i)$.
+
+</details>
+
 ## Further reading
 
 - C. Cortes and V. Vapnik, "Support-vector networks", *Machine Learning* 20 (1995) 273–297.

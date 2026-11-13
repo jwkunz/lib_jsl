@@ -215,6 +215,17 @@ generalisation.
 4. Explain why the training loss of full-sample boosting with Newton leaves for squared error can never increase.
 5. Implement early stopping: hold out 20% of the training data and stop when its error has not improved for 20 stages.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $L = \tfrac12(y - F)^2$ the negative gradient is $y - F$. For $L = |y - F|$ it is $\operatorname{sign}(y - F)$.
+2. With $p = \sigma(F)$ the gradient is $p - y$ and the Hessian $p(1 - p)$, so the Newton leaf value is $\sum_{i\in\text{leaf}}(y_i - p_i)\big/\sum_{i\in\text{leaf}}p_i(1 - p_i)$.
+3. Each stump depends on a single feature, so the sum of stumps is $\sum_jf_j(x_j)$ with $f_j$ collecting the stumps on feature $j$: no interaction terms.
+4. With squared loss the Newton leaf value is the mean residual, which exactly minimises the squared error in each leaf; a leaf value of 0 (no change) is always available, so the loss cannot increase.
+5. Track the validation loss after each stage and stop (returning to the best stage) once it has not improved for 20 consecutive stages.
+
+</details>
+
 ## Further reading
 
 - J. H. Friedman, "Greedy function approximation: a gradient boosting machine", *Annals of Statistics* 29 (2001) 1189–1232.

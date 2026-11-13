@@ -158,6 +158,16 @@ by distant points while the weighted vote still works.
 3. Sketch the proof of the Cover-Hart bound for two classes: as $n \to \infty$, $P(\text{error}) \to 2\eta(1 - \eta)$ at a point with $P(y = 1) = \eta$.
 4. Implement a k-d tree search for two-dimensional data and compare its speed with brute force for $n = 10^5$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Compute the full distance matrix ($O(n^2p)$), exclude each point from its own neighbours, and read off the leave-one-out error for every $k$ from the sorted neighbour lists.
+2. For $n$ points uniform in the unit ball in $p$ dimensions the median distance from the centre to the nearest point is $(1 - 2^{-1/n})^{1/p}$; for $n = 500$ it is about $0.52$ at $p = 10$. The nearest point is therefore as far as the boundary of the ball: neighbourhoods are no longer local in high dimension.
+3. At a point with $P(y = 1) = \eta$, the 1-NN rule predicts the label of a neighbour that, as $n \to \infty$, is at the same location and has an independent label. It errs if the two labels differ: $\eta(1 - \eta) + (1 - \eta)\eta = 2\eta(1 - \eta)$.
+4. A k-d tree answers 2D neighbour queries in $O(\log n)$ expected time against $O(n)$ for brute force, a speed-up of two to three orders of magnitude at $n = 10^5$.
+
+</details>
+
 ## Further reading
 
 - T. M. Cover and P. E. Hart, "Nearest neighbor pattern classification", *IEEE Transactions on Information Theory* 13 (1967) 21–27.

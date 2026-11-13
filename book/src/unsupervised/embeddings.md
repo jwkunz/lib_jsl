@@ -207,6 +207,17 @@ distances between 10 and 23 from each other. Neither arrangement means anything.
 4. Show that the fuzzy union $a + b - ab$ is the probability that at least one of two independent events with probabilities $a$ and $b$ occurs.
 5. Start t-SNE from a random layout instead of PCA (by permuting the PCA scores), and compare the KL divergence reached on the Swiss roll.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For a uniform distribution over $k$ neighbours $H = -\sum\tfrac1k\log_2\tfrac1k = \log_2k$ bits, and perplexity is $2^H = k$.
+2. With $C = \sum p_{ij}\ln(p_{ij}/q_{ij})$ and $q_{ij} \propto(1 + \lVert\mathbf y_i - \mathbf y_j\rVert^2)^{-1}$, differentiate $-\sum p_{ij}\ln q_{ij}$ with respect to $\mathbf y_i$; the normalising constant contributes $\sum q$ terms and the result is $4\sum_j(p_{ij} - q_{ij})(\mathbf y_i - \mathbf y_j)(1 + \lVert\mathbf y_i - \mathbf y_j\rVert^2)^{-1}$.
+3. At most 3 points in the plane can be mutually equidistant (the corners of an equilateral triangle), so ten equidistant neighbours need 9 dimensions. When a high-dimensional neighbourhood is squeezed into 2D, the neighbours crowd and are pushed together; the heavy tails of the $t$ distribution relieve this.
+4. The union of two independent events has probability $a + b - ab$ by inclusion-exclusion.
+5. Compare the final KL divergences over several seeds; initialising from PCA typically gives lower and more reproducible values and better global structure than a random start.
+
+</details>
+
 ## Further reading
 
 - L. van der Maaten and G. Hinton, "Visualizing data using t-SNE", *Journal of Machine Learning Research* 9 (2008) 2579–2605.

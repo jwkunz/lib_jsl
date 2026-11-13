@@ -204,6 +204,17 @@ The tie goes to the first medoid, a reminder that ties are common with integer-v
 4. Show that $W = \frac12\sum_c\frac{1}{|C_c|}\sum_{i, j \in C_c}\lVert\mathbf x_i - \mathbf x_j\rVert^2$, so k-means also minimises within-cluster pairwise distances.
 5. Implement MacQueen's online update, which moves the nearest centre a step $1/n_c$ towards each new point, and compare it with Lloyd's algorithm.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\sum\lVert\mathbf x_i - \boldsymbol\mu\rVert^2$ has gradient $-2\sum(\mathbf x_i - \boldsymbol\mu)$, zero at the mean. In one dimension $\sum|x_i - m|$ has subgradient $\#\{x_i < m\} - \#\{x_i > m\}$, which changes sign at the median.
+2. There are finitely many partitions. Each step does not increase the inertia (assigning to the nearest centre, then recentring on the mean) and strictly decreases it unless the partition is unchanged, so no partition repeats and the algorithm stops.
+3. Take the corners of a rectangle of width $w$ and length $L = \sqrt2w$. Pairing the corners along the short sides (centres at the midpoints of the short sides) gives total inertia $w^2$; pairing them along the long sides gives $L^2 = 2w^2$. Both clusterings are fixed points of Lloyd's algorithm (each corner is nearer its own centre), so a seeding at the midpoints of the long sides ends at twice the optimal inertia.
+4. Expanding $\sum_{i,j\in C}\lVert\mathbf x_i - \mathbf x_j\rVert^2 = 2|C|\sum_{i\in C}\lVert\mathbf x_i - \bar{\mathbf x}\rVert^2$ gives the identity.
+5. MacQueen's update is a stochastic-gradient step: each centre becomes a running mean of its assigned points; it converges more slowly and depends on the point order.
+
+</details>
+
 ## Further reading
 
 - S. P. Lloyd, "Least squares quantization in PCM", *IEEE Transactions on Information Theory* 28 (1982) 129–137.

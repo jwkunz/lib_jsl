@@ -197,6 +197,16 @@ vocabulary: free, winner, money, meeting, report, lunch, click, project
 3. Duplicate a feature $m$ times and show how naive Bayes's posterior changes. Why does the predicted class often not?
 4. Derive the Laplace-smoothed estimate as the posterior mean under a Dirichlet prior.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With shared variance $\sigma_j^2$, the log posterior ratio $\sum_j\big[-(x_j - \mu_{1j})^2 + (x_j - \mu_{0j})^2\big]/(2\sigma_j^2)$ has its $x_j^2$ terms cancel, leaving a function linear in $\mathbf x$.
+2. The log posterior is $\log\pi_c + \sum_wn_w\log\theta_{cw}$, which is linear in the counts $n_w$ with weights $\log\theta_{cw}$; the boundary between two classes has weights $\log(\theta_{1w}/\theta_{0w})$.
+3. A feature repeated $m$ times contributes $m$ times its log-likelihood ratio, so the posterior becomes overconfident (it moves towards 0 or 1). The predicted class changes only if the repeated feature's evidence flips the sign of the total, which happens only when the other evidence is close to tied.
+4. With a Dirichlet$(\alpha, \ldots, \alpha)$ prior on the word probabilities and counts $n_w$ of $N$ words, the posterior mean is $(n_w + \alpha)/(N + \alpha V)$; Laplace smoothing is $\alpha = 1$.
+
+</details>
+
 ## Further reading
 
 - P. Domingos and M. Pazzani, "On the optimality of the simple Bayesian classifier under zero-one loss", *Machine Learning* 29 (1997) 103–130.

@@ -267,6 +267,17 @@ sine: MSE against sin x 0.00377
 4. Show that Adam's bias correction makes $\hat m$ an unbiased estimate of the mean gradient when the gradients are stationary.
 5. Train the same network with ten different seeds and report the spread of the test accuracy.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. A composition of affine maps is affine: $W_2(W_1\mathbf x + \mathbf b_1) + \mathbf b_2 = (W_2W_1)\mathbf x + (W_2\mathbf b_1 + \mathbf b_2)$.
+2. For softmax outputs $\hat y_k = e^{z_k}/\sum e^{z_j}$ and cross-entropy $-\sum y_k\ln\hat y_k$, $\partial L/\partial z_k = \hat y_k - y_k$ since $\sum y_k = 1$.
+3. Take $h_1 = \operatorname{ReLU}(x_1 + x_2)$, $h_2 = \operatorname{ReLU}(x_1 + x_2 - 1)$ and output $h_1 - 2h_2$: the inputs $(0,0), (1,0), (0,1), (1,1)$ give $0, 1, 1, 0$.
+4. With $m_t = (1 - \beta_1)\sum_k\beta_1^{t-k}g_k$ and stationary $\mathbb E g_k = \mu$, $\mathbb Em_t = (1 - \beta_1^t)\mu$; dividing by $1 - \beta_1^t$ removes the bias.
+5. Report the mean and the standard deviation (or range) of the test accuracy over the ten seeds; the spread shows how much of any difference between two configurations is just initialisation noise.
+
+</details>
+
 ## Further reading
 
 - D. E. Rumelhart, G. E. Hinton and R. J. Williams, "Learning representations by back-propagating errors", *Nature* 323 (1986) 533–536.

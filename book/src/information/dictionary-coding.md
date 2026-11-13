@@ -26,8 +26,16 @@ GIF and early modems, and its patent caused the "GIF controversy" of the 1990s. 
 
 ### LZ77: a sliding window
 
-At each position, find the longest earlier string, within the window, that matches the bytes ahead. If it is long enough, emit a **back-reference** (offset, length) and skip ahead. Otherwise emit the byte as a **literal**. The decoder copies from its own output. A match may overlap the bytes being produced:
-offset 1 with length 100 repeats one byte 100 times.
+Entropy coders exploit the unequal frequencies of single symbols. Dictionary coders exploit
+*repetition*: real data contain strings that have occurred before, and a repeated string can be
+replaced by a short reference to its earlier occurrence. The three methods differ in what counts
+as "the dictionary". In LZ77 it is simply the most recent stretch of the data itself, the
+**window**.
+
+At each position, find the longest earlier string, within the window, that matches the bytes ahead. If it is long enough, emit a **back-reference** (offset, length) and skip ahead. Otherwise emit the byte as a **literal**. The decoder needs no dictionary of its own: a back-reference points into the output it has
+already produced, and it simply copies from there. A match may even overlap the bytes being
+produced, because the copy proceeds byte by byte: offset 1 with length 100 repeats the previous
+byte 100 times.
 
 The library's format groups literals into runs of up to 128 behind a control byte. A back-reference takes 3 bytes: a control byte holding the length (3 to 130) and a 16-bit offset (up to 65 535). To find matches it indexes every position by its first three bytes and tries the 256 most recent positions with the same prefix.
 
@@ -38,7 +46,26 @@ Read the longest phrase already in the dictionary, then the next byte. Emit (the
 
 ### LZW: no explicit byte
 
-Start with the 256 single bytes in the dictionary. Read the longest known phrase $w$ and emit its code. The next byte $k$ begins the next phrase, and $wk$ is added to the dictionary. The decoder can infer $k$, since it is the first byte of the next phrase it decodes. The one awkward case, a code that refers to the entry being created, has phrase $w$ plus the first byte of $w$.
+LZW removes the explicit byte from each LZ78 token, so that the output consists of dictionary
+codes alone. Start with the 256 single bytes already in the dictionary. Read the longest known
+phrase $w$ and emit its code. The next byte $k$ is not emitted; it begins the next phrase. The
+string $wk$ is added to the dictionary.
+
+For the input `ABABABA`, with A and B known at the start:
+
+| phrase read | code emitted | entry added |
+|---|---|---|
+| A | A | AB |
+| B | B | BA |
+| AB | [AB] | ABA |
+| ABA | [ABA] | |
+
+Seven bytes become four codes. The decoder rebuilds the same dictionary one step behind the
+encoder: it learns the byte $k$ that completes each entry only when it decodes the *next* phrase,
+of which $k$ is the first byte. That leads to one awkward case, visible in the last row: the
+code [ABA] refers to an entry the decoder has not yet completed. It can only arise when the new
+phrase is the previous phrase $w$ followed by the first byte of $w$ itself, so the decoder can
+reconstruct it.
 The library uses fixed 16-bit codes and freezes the dictionary when full. Unix `compress` instead grew the code width from 9 bits and reset a full dictionary.
 
 ### Universality and its pace

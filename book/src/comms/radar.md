@@ -31,13 +31,43 @@ the steady-state Kalman filter of a constant-velocity target, were analysed by T
 
 ### The matched filter
 
-For a known pulse $p$ in white noise, the linear filter maximising the output signal-to-noise ratio at the pulse's end is $h[n] = \overline{p[L - 1 - n]}$, the time-reversed conjugate. Its output is the cross-correlation of the received signal with $p$, and
-its peak SNR is $E_p/N_0$, the pulse energy divided by the noise density, regardless of the pulse's shape. The shape determines only the width and sidelobes of the peak, its
-**ambiguity**.
+A radar transmits a known pulse $p$ of $L$ samples and listens for its echo, which returns weak
+and buried in noise. The receiver's task is to decide whether the pulse is present and exactly
+when it arrived. The best linear filter for the purpose is the one that maximises the ratio of
+the signal peak to the noise at its output.
+
+The answer has a simple explanation. A filter forms a weighted sum of the last $L$ received
+samples. To make the pulse's contribution as large as possible relative to the noise, each
+sample should be weighted by how much signal it is expected to contain: heavily where the pulse
+is strong, lightly where it is weak, and with the conjugate phase so that all the contributions
+add in step. That is a filter whose taps are the pulse itself, conjugated and reversed in time,
+
+$$
+h[n] = \overline{p[L - 1 - n]},
+$$
+
+the **matched filter**. (The reversal is needed because a filter's first tap multiplies the most
+recent sample.) Its output is the [cross-correlation](../filters/convolution.md#cross-correlation-and-delay-estimation)
+of the received signal with $p$, which peaks at the moment the whole pulse has arrived.
+
+A remarkable property follows: the peak signal-to-noise ratio is $E_p/N_0$, the pulse energy
+divided by the noise density, *regardless of the pulse's shape*. A long weak pulse is detected
+as well as a short strong one of the same energy. The shape determines only the width and
+sidelobes of the correlation peak, its **ambiguity**, and that is the freedom the next sections
+exploit: a long pulse can be designed so that its matched-filter output is a short, sharp
+peak.
 
 ### Chirps
 
-A linear-FM chirp $s(t) = e^{i\pi(B/T)(t - T/2)^2}$ sweeps a bandwidth $B$ in a time $T$. Its autocorrelation is close to a sinc of width $1/B$, so the **compression ratio** is the time-bandwidth product $BT$. A 10 µs, 20 MHz chirp
+A radar wants two things that conflict for a simple pulse: high energy, which needs a long pulse
+(peak power is limited), and fine range resolution, which needs a short one. **Pulse
+compression** gets both, by transmitting a long pulse whose frequency changes during the pulse.
+
+A linear-FM **chirp** $s(t) = e^{i\pi(B/T)(t - T/2)^2}$ sweeps a bandwidth $B$ in a time $T$. The width
+of a matched filter's output peak is set by the pulse's bandwidth, not its duration: the chirp's
+autocorrelation is close to a sinc of width $1/B$. The pulse of length $T$ is therefore
+compressed to a peak of length $1/B$, and the **compression ratio** is the time-bandwidth
+product $BT$. A 10 µs, 20 MHz chirp
 compresses 200 to 1:
 
 ![Pulse compression](../generated/comms/pulse_compression.svg)

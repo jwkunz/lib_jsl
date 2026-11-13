@@ -31,20 +31,37 @@ radar trackers.
 
 ### State-space models
 
-The library's model is
+A dynamic system has memory: its output depends on past inputs as well as the present one. The
+**state** $x$ is a vector that summarises everything about the past that matters for the future
+(for a moving object, its position and velocity, say). A linear **state-space model** says how
+the state evolves under an input $u$ and what output $y$ is observed. The library's model is
 
 $$
 x[k+1] = Ax[k] + Bu[k], \qquad y[k] = Cx[k+1] + Du[k],
 $$
 
-so each [`step`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html#method.step) updates the state first, then reads the output from the new state. Without input, $x[k] = A^kx[0]$, which decays to zero for every $x[0]$ exactly when every eigenvalue of
-$A$ (the **poles**) lies strictly inside the unit circle: `is_stable`. The input reaches the states through $B, AB, A^2B, \ldots$, so the system is controllable when the **controllability matrix**
-$[B \; AB \; \cdots \; A^{n-1}B]$ has rank $n$. Dually, the states show in the output through $C, CA, \ldots$, so it is observable when the stacked **observability matrix** has rank $n$. The library computes ranks from the
+where $A$ describes how the state evolves by itself, $B$ how the input acts on it, and $C$ and $D$
+how the state and the input appear in the output. Each [`step`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html#method.step) updates the state first, then reads the output from the new state. Three questions are asked of such a model.
+
+- **Is it stable?** Without input, $x[k] = A^kx[0]$. Along an eigenvector of $A$ the state is
+  multiplied by the eigenvalue at each step, so it decays to zero for every $x[0]$ exactly when
+  every eigenvalue of $A$ (the **poles** of the system) lies strictly inside the unit circle:
+  `is_stable`.
+- **Is it controllable?** Can the input drive the state anywhere? An input applied now affects
+  the state through $B$; one step later that effect has become $AB$, then $A^2B$, and so on. The
+  reachable states are the combinations of these, so the system is controllable when the
+  **controllability matrix** $[B \; AB \; \cdots \; A^{n-1}B]$ has rank $n$, the dimension of the
+  state.
+- **Is it observable?** Can the state be deduced from the outputs? The output shows the state
+  through $C$ now, $CA$ a step later, and so on, so the system is observable when the stacked
+  **observability matrix** of $C, CA, \ldots, CA^{n-1}$ has rank $n$. The library computes ranks from the
 [singular values](../linear_algebra/svd.md).
 
 ### PID control
 
-With error $e(t) = r - y(t)$ for setpoint $r$,
+A **controller** adjusts the input $u$ of a system (the "plant") so that its output $y$ follows
+a desired value, the **setpoint** $r$. The PID controller is by far the most widely used. It
+needs no model of the plant, only the error, and combines three responses to it. With error $e(t) = r - y(t)$,
 
 $$
 u(t) = K_pe(t) + K_i\int_0^te\,d\tau - K_d\frac{d y_f}{dt}.
@@ -65,8 +82,17 @@ an overshoot. **Anti-windup** by conditional integration stops the integral whil
 
 ### The Kalman filter
 
-The filter assumes the model $x_k = Fx_{k-1} + Bu_k + w_k$, $z_k = Hx_k + v_k$, with white Gaussian process noise $w$ of covariance $Q$ and measurement noise $v$ of covariance $R$. It keeps a state estimate $\hat x$ and its error covariance $P$. Each
-step **predicts**,
+The Kalman filter estimates the state of a system from noisy measurements. It has two sources
+of information, a model that predicts how the state evolves and measurements that observe it
+imperfectly, and it combines them, trusting each in proportion to its reliability.
+
+The filter assumes the model $x_k = Fx_{k-1} + Bu_k + w_k$, $z_k = Hx_k + v_k$. The **process noise**
+$w$, with covariance $Q$, represents what the model does not capture; the **measurement noise**
+$v$, with covariance $R$, the inaccuracy of the sensor. Both are assumed white and Gaussian. The
+filter keeps a state estimate $\hat x$ and also the covariance $P$ of its error, a running
+account of how uncertain the estimate is. Each step first **predicts**: the estimate is advanced
+by the model, and its uncertainty grows, both because the old uncertainty is carried forward
+and because process noise is added,
 
 $$
 \hat x^- = F\hat x + Bu, \qquad P^- = FPF^* + Q,
@@ -78,7 +104,12 @@ $$
 S = HP^-H^* + R, \qquad K = P^-H^*S^{-1}, \qquad \hat x = \hat x^- + K(z - H\hat x^-), \qquad P = (I - KH)P^-.
 $$
 
-The **gain** $K$ weighs the innovation $z - H\hat x^-$ by how uncertain the prediction is relative to the measurement. For a linear Gaussian model, $\hat x$ is the exact conditional mean of the state given all the measurements, and for any noise it is the best linear estimate.
+The **innovation** $z - H\hat x^-$ is the difference between the measurement and what the
+prediction said it would be; $S$ is its covariance. The estimate is corrected by a fraction $K$
+of the innovation, the **Kalman gain**. For a single measured quantity the gain is
+$P^-/(P^- + R)$: close to 1 when the prediction is much less certain than the measurement, so
+the measurement is believed, and close to 0 in the opposite case, so it is nearly ignored. The
+last formula records that the measurement has reduced the uncertainty. For a linear Gaussian model, $\hat x$ is the exact conditional mean of the state given all the measurements, and for any noise it is the best linear estimate.
 Estimating a constant ($F = H = 1$, $Q = 0$) gives the running average, as the example below shows. Tracking a constant-velocity target from position measurements alone recovers the velocity too:
 
 ![Kalman tracking](../generated/comms/kalman_track.svg)

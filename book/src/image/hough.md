@@ -40,6 +40,8 @@ and $\rho$ into bins of `rho_resolution` pixels, covering $\pm$ the image diagon
 
 ![Hough accumulator](../generated/image/hough_accumulator.svg)
 
+<p class="caption" id="fig-17-9"><strong>Figure 17.9.</strong> Hough accumulator.</p>
+
 ### Finding peaks
 
 One physical line spreads its votes over neighbouring cells, so [`hough_line_peaks`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/hough_transform/fn.hough_line_peaks.html) takes the strongest cell, suppresses cells within $\pm$`min_rho_bins` and $\pm$`min_theta_bins` of it, and repeats.
@@ -52,6 +54,8 @@ pixels meet at its centre. [`hough_circles`](../../api/lib_jsl_dsp/discrete/imag
 The **support** of a complete circle is about 0.9 for an 8-connected outline and up to 1.3 for a thicker, 4-connected one.
 
 ![Hough transform](../generated/image/hough.svg)
+
+<p class="caption" id="fig-17-10"><strong>Figure 17.10.</strong> Hough transform.</p>
 
 {{#include ../generated/image/hough_facts.md}}
 

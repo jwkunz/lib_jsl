@@ -137,6 +137,8 @@ ends, the natural condition imposes something false there. The error near the en
 $O(h^2)$, although it remains $O(h^4)$ in the interior. For $e^x$ on $[0, 1]$, whose second
 derivative is nowhere zero, the library's results show this clearly:
 
+<p class="caption" id="tab-3-2"><strong>Table 3.2.</strong> Columns: points, linear, natural spline, natural spline, middle half only, and more.</p>
+
 {{#include ../generated/interpolation/spline_convergence.md}}
 
 Each row halves $h$. The natural spline's maximum error falls by a factor of four per halving
@@ -191,6 +193,8 @@ they choose the slopes.
   interpolant monotone wherever the data are monotone.
 
 ![Akima's test data](../generated/interpolation/akima_data.svg)
+
+<p class="caption" id="fig-3-4"><strong>Figure 3.4.</strong> Akima's test data.</p>
 
 Akima's classic data are flat and then rise steeply. The natural spline dips below the flat
 values and overshoots the rise, the global oscillation described above. Akima's interpolant

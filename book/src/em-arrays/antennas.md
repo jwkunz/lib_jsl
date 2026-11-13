@@ -58,6 +58,8 @@ At $L = \lambda/2$ this gives $D = 1.64$ and $R = 30\,\mathrm{Cin}(2\pi) = 73.1\
 
 ![Dipole patterns](../generated/em-arrays/dipole_patterns.svg)
 
+<p class="caption" id="fig-20-2"><strong>Figure 20.2.</strong> Dipole patterns.</p>
+
 The radiation resistance is referred to the current maximum $I_m$, which is the feed current only for odd multiples of a half wavelength.
 
 ### Apertures: the dish
@@ -80,6 +82,8 @@ Uniform illumination ($p = 0$) gives the maximum directivity $(\pi D/\lambda)^2$
 
 ![Dish patterns](../generated/em-arrays/dish_patterns.svg)
 
+<p class="caption" id="fig-20-3"><strong>Figure 20.3.</strong> Dish patterns.</p>
+
 {{#include ../generated/em-arrays/dish_table.md}}
 
 ### Microstrip patches
@@ -89,7 +93,11 @@ A rectangular patch of length $L$ on a grounded substrate of permittivity $\vare
 
 ![Patch patterns](../generated/em-arrays/patch_patterns.svg)
 
+<p class="caption" id="fig-20-4"><strong>Figure 20.4.</strong> Patch patterns.</p>
+
 ### Checks against closed forms
+
+<p class="caption" id="tab-20-2"><strong>Table 20.2.</strong> Columns: model, directivity (computed), closed form, radiation resistance (Ω, computed), and more.</p>
 
 {{#include ../generated/em-arrays/antenna_table.md}}
 

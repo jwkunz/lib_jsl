@@ -40,6 +40,8 @@ If $r \times s$ is zero the segments are parallel. They meet only if they are co
 
 ![Ray casting and closest features](../generated/geometry/intersections.svg)
 
+<p class="caption" id="fig-24-9"><strong>Figure 24.9.</strong> Ray casting and closest features.</p>
+
 The left image was made entirely with these tests. One ray per pixel finds the nearest of a sphere, a box and the 20 triangles of an icosahedron. A second ray from the floor towards the light decides whether that point is in shadow.
 
 ### Closest points
@@ -47,6 +49,8 @@ The left image was made entirely with these tests. One ray per pixel finds the n
 The closest point of a segment to $p$ is the projection of $p$ onto its line, clamped to the segment. For a triangle there are seven cases: the closest point may be inside the face, on one of the three edges, or at one of the three corners. The plane around a triangle divides into seven **Voronoi regions of its features**, shown on the right. Ericson's method decides the region with a handful of dot products, testing the corners first, then the edges, and computes the point only for that region. It returns the barycentric coordinates too, so the zero weights tell which feature was closest.
 
 The closest points between two segments minimise $|p_1 + s\,d_1 - p_2 - t\,d_2|^2$ over the unit square of $(s, t)$. The unconstrained minimum is clamped to the square, one parameter at a time, recomputing the other after each clamp. Shapes made of pieces, such as polylines, polygon boundaries and meshes, take the best of their pieces.
+
+<p class="caption" id="tab-24-5"><strong>Table 24.5.</strong> Columns: routine, brute-force check, result.</p>
 
 {{#include ../generated/geometry/intersection_checks.md}}
 

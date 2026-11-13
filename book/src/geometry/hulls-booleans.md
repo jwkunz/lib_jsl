@@ -34,7 +34,11 @@ Start with a tetrahedron of four extreme points. Each face keeps an **outside se
 
 ![Hulls](../generated/geometry/hulls.svg)
 
+<p class="caption" id="fig-24-5"><strong>Figure 24.5.</strong> Hulls.</p>
+
 Points far inside are discarded early, so on typical data most of the work is the first few passes. The worst case is every point on the hull, such as points on a sphere, and even that is fast:
+
+<p class="caption" id="tab-24-3"><strong>Table 24.3.</strong> Columns: points, 2D, Gaussian, 3D, Gaussian, 3D, all on a sphere.</p>
 
 {{#include ../generated/geometry/hull_timing.md}}
 
@@ -49,6 +53,8 @@ Inserting points in input order and rebuilding a map of every face edge for each
 If a vertex lies exactly on the other polygon's boundary, or two edges overlap, the entry/exit labels become ambiguous. The library then moves the clip polygon by a random relative $10^{-9}$ and retries, so results are exact up to that tolerance. If the outlines never cross, the answer follows from whether one contains the other.
 
 ![Polygon booleans](../generated/geometry/booleans.svg)
+
+<p class="caption" id="fig-24-6"><strong>Figure 24.6.</strong> Polygon booleans.</p>
 
 Results are counter-clockwise outer boundaries and clockwise holes, so signed areas add up to the true area. A union can enclose a hole, as here.
 

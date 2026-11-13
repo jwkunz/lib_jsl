@@ -111,6 +111,8 @@ stopband:
 
 ![Window-method filters](../generated/filters/fir_windows.svg)
 
+<p class="caption" id="fig-14-11"><strong>Figure 14.11.</strong> Window-method filters.</p>
+
 [`firwin`](../../api/lib_jsl_dsp/discrete/filters/fir/firwin/fn.firwin.html) builds the ideal response from sinc functions, one difference of two per band, applies the window, and scales the result to unit gain at the
 centre of the first passband. Its window can be any of the library's
 [window functions](../spectral/windows.md), which a later chapter treats in detail.
@@ -126,6 +128,8 @@ $$
 
 These make window design a recipe: choose $A$ and $\Delta\omega$, read off $\beta$ and $N$. They are accurate to about a decibel:
 
+<p class="caption" id="tab-14-5"><strong>Table 14.5.</strong> Columns: target attenuation (dB), transition width (× Nyquist), taps (kaiser_estimate_numtaps), β (kaiser_beta), and more.</p>
+
 {{#include ../generated/filters/kaiser_design.md}}
 
 The passband ripple of a window design equals its stopband ripple, so a 60 dB filter also has 60 dB passband accuracy, whether that is needed or not.
@@ -136,6 +140,8 @@ The passband ripple of a window design equals its stopband ripple, so a 60 dB fi
 attaches the linear-phase factor, inverse-transforms by FFT, and windows the result. Any shape can be specified:
 
 ![Frequency sampling](../generated/filters/firwin2.svg)
+
+<p class="caption" id="fig-14-12"><strong>Figure 14.12.</strong> Frequency sampling.</p>
 
 More taps follow the specification more closely, but discontinuities still ring.
 
@@ -178,8 +184,12 @@ frequencies. Remez's **exchange algorithm** does the search:
 
 ![Equiripple against window](../generated/filters/fir_remez.svg)
 
+<p class="caption" id="fig-14-13"><strong>Figure 14.13.</strong> Equiripple against window.</p>
+
 At the same length, the equiripple filter has a sharper transition and an even stopband; the window design's side lobes fall away
 where no attenuation was needed. For a fixed transition, Parks-McClellan reaches more attenuation from the same number of taps:
+
+<p class="caption" id="tab-14-6"><strong>Table 14.6.</strong> Columns: taps (transition 0.2–0.3 × Nyquist), Parks-McClellan stopband (dB), Kaiser window stopband (dB).</p>
 
 {{#include ../generated/filters/remez_vs_kaiser.md}}
 
@@ -193,6 +203,8 @@ its desired value is a slope per cycle per sample, as in SciPy. [`generate_deriv
 data. It is accurate at low frequencies only, and suppresses the rest:
 
 ![Differentiators](../generated/filters/differentiators.svg)
+
+<p class="caption" id="fig-14-14"><strong>Figure 14.14.</strong> Differentiators.</p>
 
 The [`BoxcarIntegrator`](../../api/lib_jsl_dsp/discrete/filters/fir/boxcar_integrator/struct.BoxcarIntegrator.html) is the opposite case, a moving sum of the last $N$ samples computed with one addition and
 one subtraction per sample, whatever $N$.

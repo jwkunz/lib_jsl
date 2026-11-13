@@ -70,6 +70,8 @@ changes better, but it also follows more of the noise:
 
 ![PLL acquisition](../generated/comms/pll_lock.svg)
 
+<p class="caption" id="fig-16-7"><strong>Figure 16.7.</strong> PLL acquisition.</p>
+
 The PLL's detector is $\arg(xe^{-i\hat\phi})$: multiplying the input $x$ by $e^{-i\hat\phi}$ removes
 the estimated phase, and the angle of what remains is the error. It is exact for any phase
 error, so the loop pulls in from any initial phase.
@@ -92,6 +94,8 @@ locks with a 90° ambiguity. The ambiguity is resolved by differential coding, w
 information in the *changes* of phase, or by a known preamble:
 
 ![Costas loop on QPSK](../generated/comms/costas.svg)
+
+<p class="caption" id="fig-16-8"><strong>Figure 16.8.</strong> Costas loop on QPSK.</p>
 
 {{#include ../generated/comms/costas_facts.md}} The estimate fluctuates with the noise in proportion to the loop bandwidth.
 
@@ -119,6 +123,8 @@ samples, so an interpolator evaluates the signal there:
 
 ![Timing recovery](../generated/comms/timing_recovery.svg)
 
+<p class="caption" id="fig-16-9"><strong>Figure 16.9.</strong> Timing recovery.</p>
+
 {{#include ../generated/comms/timing_facts.md}}
 
 ### Fractional delay: the Farrow filter
@@ -126,6 +132,8 @@ samples, so an interpolator evaluates the signal there:
 Evaluating a signal at $n + \mu$ with $0 \le \mu < 1$ means fitting a polynomial through neighbouring samples. Lagrange interpolation of order $N$ through $N + 1$ samples is a set of $N + 1$ fixed FIR filters whose outputs
 $v_m$ combine as $y(\mu) = v_0 + \mu(v_1 + \mu(v_2 + \cdots))$. That is the **Farrow structure**: only the cheap Horner step depends on $\mu$, so the delay can change every sample. Higher orders are exact for polynomials of higher degree and
 accurate to higher frequencies:
+
+<p class="caption" id="tab-16-2"><strong>Table 16.2.</strong> Columns: Lagrange order, error at 0.05 cycles/sample, at 0.15, at 0.30.</p>
 
 {{#include ../generated/comms/farrow.md}}
 

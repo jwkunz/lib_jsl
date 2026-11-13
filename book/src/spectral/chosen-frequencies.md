@@ -65,6 +65,8 @@ only the bin centres of an FFT.
 **When it pays.** Each bin costs one real multiply per sample; the FFT costs about $\log_2N$ per
 sample for all bins. In practice the FFT's efficiency narrows the margin:
 
+<p class="caption" id="tab-15-5"><strong>Table 15.5.</strong> Columns: samples, one Goertzel bin (µs), real FFT, all bins (µs), bins before the FFT is cheaper.</p>
+
 {{#include ../generated/spectral/goertzel_time.md}}
 
 Here one Goertzel bin costs half an FFT, so Goertzel pays off for one or two frequencies, or when samples arrive one at a time and
@@ -95,6 +97,8 @@ record:
 
 ![Chirp-z zoom](../generated/spectral/chirpz_zoom.svg)
 
+<p class="caption" id="fig-15-5"><strong>Figure 15.5.</strong> Chirp-z zoom.</p>
+
 The FFT's bins fall on either side of the two peaks; 400 chirp-z points over the band trace the response between them. Zooming adds
 points, not resolution. The two peaks are resolved because they are more than one bin apart, and the chirp-z transform shows the shape
 the FFT samples coarsely. (Zero-padding the FFT would do the same, at the cost of transforming the whole circle.)
@@ -104,6 +108,8 @@ the FFT samples coarsely. (Zero-padding the FFT would do the same, at the cost o
 The continuous transform $F(\omega) = \int f(x)e^{-i\omega x}dx$ of a function on $[a, b]$ is approximated by the trapezoidal rule on $M$ equally spaced samples, and evaluated at $M$ equally spaced frequencies
 in any range by the chirp-z transform. For smooth functions that decay at the ends of the interval, the trapezoidal rule converges
 spectrally:
+
+<p class="caption" id="tab-15-6"><strong>Table 15.6.</strong> Columns: samples on [−8, 8] (and frequencies on [0, 4]), largest error against √(2π) e^(−ω²/2).</p>
 
 {{#include ../generated/spectral/fourier_integral.md}}
 

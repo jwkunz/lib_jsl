@@ -41,6 +41,8 @@ On a sphere of radius $r_0$ enclosing the antenna, the tangential field's projec
 
 ![Spherical near-to-far](../generated/em-waves/spherical_nf_ff.svg)
 
+<p class="caption" id="fig-21-8"><strong>Figure 21.8.</strong> Spherical near-to-far.</p>
+
 The error falls exponentially once the degree exceeds the source's electrical size, $kr_{\min} \approx 2.7$, and reaches $10^{-9}$ at $N = 14$.
 
 ### Planar near-field to far-field
@@ -54,6 +56,8 @@ $$
 Only the forward half-space is covered, and samples must be at most $\lambda/2$ apart. A finite scan truncates the field, which rings like a rectangular window. Tapering the scan's edges with [`scan_taper`](../../api/lib_jsl_electromagnetics/algorithms/near_field_far_field/fn.scan_taper.html) helps, and a larger scan helps more:
 
 ![Planar near-to-far](../generated/em-waves/planar_nf_ff.svg)
+
+<p class="caption" id="fig-21-9"><strong>Figure 21.9.</strong> Planar near-to-far.</p>
 
 {{#include ../generated/em-waves/planar_table.md}}
 

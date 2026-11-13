@@ -67,6 +67,8 @@ blocking and bidiagonalisation buy. `cargo bench -p lib_jsl_linalg_reference` ra
 
 The references come from SciPy 1.17.1's `scipy.linalg`, which calls LAPACK (through OpenBLAS), on random matrices written by `book/generator/data/make_linear_algebra_refs.py`. Each entry is the largest difference relative to the largest entry of SciPy's result; factors determined only up to sign are compared in absolute value:
 
+<p class="caption" id="tab-7-1"><strong>Table 7.1.</strong> Columns: computation (SciPy reference), `lib_jsl_linalg`, `lib_jsl_linalg_reference`.</p>
+
 {{#include ../generated/linear_algebra/scipy_reference.md}}
 
 Both crates agree with LAPACK to a few units of rounding error on these well-conditioned matrices. Where their algorithms differ in stability, as in the SVD through $A^{\mathsf T}A$ or the normal equations, the difference shows only on ill-conditioned problems, which the entries of this part examine.

@@ -165,12 +165,16 @@ For each distribution, 100 000 samples are compared with the exact moments and C
 [special functions](../special_functions/statistical.md)). The **Kolmogorov-Smirnov statistic** $D$, the largest difference between
 the empirical and the exact CDF, should be below $1.36/\sqrt n$ about 95% of the time:
 
+<p class="caption" id="tab-9-4"><strong>Table 9.4.</strong> Columns: distribution, method, sample mean (exact), sample variance (exact), and more.</p>
+
 {{#include ../generated/random/audit.md}}
 
 All pass; the Weibull's $D$ sits at the critical value, which is to be expected for one of seventeen tests at the 5% level (with other
 seeds its mean is within $1.3$ standard errors). The histograms show three of the samples against their densities:
 
 ![Histograms against densities](../generated/random/histograms.svg)
+
+<p class="caption" id="fig-9-1"><strong>Figure 9.1.</strong> Histograms against densities.</p>
 
 ## Algorithm
 

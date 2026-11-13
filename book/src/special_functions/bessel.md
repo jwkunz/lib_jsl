@@ -65,6 +65,8 @@ $J_\nu(x) \approx (x/2)^\nu/\Gamma(\nu + 1)$ tends to zero (or to 1 for $\nu = 0
 
 ![Bessel functions J and Y](../generated/special_functions/bessel_jy.svg)
 
+<p class="caption" id="fig-6-6"><strong>Figure 6.6.</strong> Bessel functions J and Y.</p>
+
 **The recurrence, and its danger.** Functions of neighbouring orders are linked. Both $J$ and $Y$
 (and the modified functions below, with a change of sign) satisfy
 
@@ -134,7 +136,11 @@ $\operatorname{Ai}(x) = \frac1\pi\sqrt{x/3}\,K_{1/3}(\zeta)$ for $x > 0$. The li
 
 ![Modified Bessel functions and Airy functions](../generated/special_functions/bessel_ik_airy.svg)
 
+<p class="caption" id="fig-6-7"><strong>Figure 6.7.</strong> Modified Bessel functions and Airy functions.</p>
+
 ### Accuracy
+
+<p class="caption" id="tab-6-4"><strong>Table 6.4.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/bessel_accuracy.md}}
 

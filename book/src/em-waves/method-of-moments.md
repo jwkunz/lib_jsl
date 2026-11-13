@@ -54,13 +54,19 @@ Here the current is expanded in $N$ triangle functions on equally spaced interio
 
 ![MoM currents](../generated/em-waves/mom_currents.svg)
 
+<p class="caption" id="fig-21-10"><strong>Figure 21.10.</strong> MoM currents.</p>
+
 At half a wavelength the computed current is close to the assumed sinusoid. At one wavelength the sinusoid predicts zero current at the feed and an infinite impedance, but the actual current there is small and finite, so the impedance is large and finite.
 
 ### Impedance and resonance
 
 ![MoM impedance](../generated/em-waves/mom_impedance.svg)
 
+<p class="caption" id="fig-21-11"><strong>Figure 21.11.</strong> MoM impedance.</p>
+
 {{#include ../generated/em-waves/mom_facts.md}} The resistance there is close to the 73 Ω of the induced-EMF method, and the reactance near half a wavelength is about the textbook $+42.5$ Ω plus a correction for the radius. Near a full wavelength the impedance rises to the anti-resonance.
+
+<p class="caption" id="tab-21-3"><strong>Table 21.3.</strong> Columns: interior nodes, segment ÷ radius (a = 10⁻⁴λ), Z (Ω), a = 10⁻⁴λ, segment ÷ radius (a = 10⁻³λ), and more.</p>
 
 {{#include ../generated/em-waves/mom_convergence.md}}
 

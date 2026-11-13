@@ -103,6 +103,8 @@ densities:
 
 ![Kernel density estimates](../generated/statistics/kde.svg)
 
+<p class="caption" id="fig-10-2"><strong>Figure 10.2.</strong> Kernel density estimates.</p>
+
 {{#include ../generated/statistics/kde_error.md}}
 
 For normal data Scott's rule is within 20% of the best fixed bandwidth's error at $n = 50$ and within a few per cent at larger sizes. For the bimodal mixture both rules

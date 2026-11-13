@@ -57,6 +57,8 @@ $x = a$ (where the integrand peaks), over a width of about $\sqrt a$:
 
 ![The incomplete gamma function](../generated/special_functions/incomplete_gamma.svg)
 
+<p class="caption" id="fig-6-2"><strong>Figure 6.2.</strong> The incomplete gamma function.</p>
+
 No single formula computes $P$ efficiently everywhere. Two expansions, each good on one side of
 the rise, cover the whole range.
 
@@ -143,6 +145,8 @@ accuracy down to the underflow threshold near $x = 26.5$:
 
 ![erfc and 1 − erf](../generated/special_functions/erfc.svg)
 
+<p class="caption" id="fig-6-3"><strong>Figure 6.3.</strong> erfc and 1 − erf.</p>
+
 The **inverse error function** has no convenient series. It is found by solving
 $\operatorname{erf} y = x$ for $y$ as a root-finding problem: start from Winitzki's closed-form approximation
 and refine it by Halley's method, a relative of [Newton's method](../root_finding/newton.md)
@@ -164,6 +168,8 @@ and twenty terms each side the error is about $10^{-15}$. For $|x| < 0.2$ the Ta
 $x - \tfrac23x^3 + \tfrac4{15}x^5 - \cdots$ is used.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-2"><strong>Table 6.2.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/incomplete_accuracy.md}}
 

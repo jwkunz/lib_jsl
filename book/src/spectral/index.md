@@ -20,6 +20,8 @@ the leakage that every finite record suffers. **Multirate processing** changes t
 
 Every window function, in symmetric and periodic forms, is compared with `scipy.signal.windows` in the [window entry](windows.md#testing-against-scipy). The other computations:
 
+<p class="caption" id="tab-15-1"><strong>Table 15.1.</strong> Columns: SciPy function and case, largest difference ÷ largest value.</p>
+
 {{#include ../generated/spectral/reference.md}}
 
 ## In the library

@@ -22,6 +22,8 @@ Kernels have odd dimensions and are centred on the output pixel. Outside the ima
 The test images (a noisy scene of a disc and a square, drawn lines and circles, and Gaussian spots) and the reference results come from SciPy 1.17.1 and scikit-image 0.26.0, by `book/generator/data/make_image_refs.py`. The
 filtered images were stored to 12 significant digits, which limits the differences seen:
 
+<p class="caption" id="tab-17-1"><strong>Table 17.1.</strong> Columns: SciPy or scikit-image function and case, compared, result.</p>
+
 {{#include ../generated/image/reference.md}}
 
 Everything agrees except the Gaussian blur at σ = 2.3, where the library's kernel radius ($\lceil 4\sigma\rceil = 10$) is one longer than SciPy's ($\mathrm{round}(4\sigma) = 9$), and the Hough lines' $\rho$, whose bins are placed differently. Canny's edges

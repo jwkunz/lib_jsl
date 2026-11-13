@@ -76,6 +76,8 @@ A stream cannot be transformed whole. Both sectioned methods cut it into blocks 
 Both cost two FFTs per block (the filter's transform is computed once), about $O(\log L)$ operations per sample. Their outputs are identical
 to the direct sum:
 
+<p class="caption" id="tab-14-2"><strong>Table 14.2.</strong> Columns: filter taps (20 000 samples), direct (ms), whole-signal FFT (ms), overlap-add stream (ms), and more.</p>
+
 {{#include ../generated/filters/convolution_time.md}}
 
 Direct filtering wins for short filters. The crossover lies near a hundred taps, beyond which the streaming FFT filters cost almost nothing
@@ -88,6 +90,8 @@ The cross-correlation $r_{xy}[\ell] = \sum_nx[n]\,\overline{y[n - \ell]}$ is lar
 adds a random background whose standard deviation grows only as $\sqrt N$, while the peak grows as $N$:
 
 ![Cross-correlation of a noisy delayed copy](../generated/filters/xcorr_delay.svg)
+
+<p class="caption" id="fig-14-1"><strong>Figure 14.1.</strong> Cross-correlation of a noisy delayed copy.</p>
 
 Here the copy is buried in noise with 1.5 times its amplitude, yet the peak at lag 37 stands far above the background. This is the
 principle of the **matched filter** used in radar (pulse compression) and communications (synchronisation).

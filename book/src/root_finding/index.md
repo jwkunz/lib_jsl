@@ -27,6 +27,8 @@ of digits per step; order 2 (quadratic) doubles the number of correct digits per
 
 ![Convergence of the root finders](../generated/root_finding/convergence.svg)
 
+<p class="caption" id="fig-4-1"><strong>Figure 4.1.</strong> Convergence of the root finders.</p>
+
 ## Choosing a method
 
 | Your problem | Recommended | Entry |
@@ -44,9 +46,13 @@ of digits per step; order 2 (quadratic) doubles the number of correct digits per
 
 The references come from SciPy 1.17.1 and NumPy 2.4, written by `book/generator/data/make_root_finding_refs.py`. For scalar equations the table gives each library method's relative difference from the root found by `optimize.brentq`; the last column shows how far SciPy's own six methods (`brentq`, `bisect`, `ridder`, `toms748`, and `newton` with and without a derivative) spread among themselves:
 
+<p class="caption" id="tab-4-1"><strong>Table 4.1.</strong> Columns: equation, root (`brentq`), Brent, bisection, and more.</p>
+
 {{#include ../generated/root_finding/scipy_scalar.md}}
 
 Polynomial roots are compared with `numpy.roots`, which also uses companion-matrix eigenvalues, and systems with MINPACK's hybrid method in `optimize.fsolve`:
+
+<p class="caption" id="tab-4-2"><strong>Table 4.2.</strong> Columns: problem (SciPy reference), largest difference in the roots.</p>
 
 {{#include ../generated/root_finding/scipy_polynomials_systems.md}}
 

@@ -45,6 +45,8 @@ The two words here refer to the *error estimate*, not to the model; for the mode
 For a 7-nearest-neighbour classifier on 200 independent data sets of 60 points, compared with the true error of the model fitted to
 all 60 points (measured on 5000 fresh points):
 
+<p class="caption" id="tab-13-5"><strong>Table 13.5.</strong> Columns: folds (7-NN, 60 points, 200 data sets), mean estimate, standard deviation, RMS difference from the true error.</p>
+
 {{#include ../generated/learning/cv_folds.md}}
 
 Every estimate is pessimistic, because each fold's model saw fewer points than the final one. Two folds, training on only 30
@@ -58,6 +60,8 @@ sets, cross-validation is a rough guide.
 With imbalanced classes, random folds can miss the minority class entirely, making those folds' scores meaningless. **Stratified**
 folds deal each class out in turn, so every fold has the overall class proportions:
 
+<p class="caption" id="tab-13-6"><strong>Table 13.6.</strong> Columns: 10 folds of 100 points, 10 in the minority class, minority points in each test fold, folds with none.</p>
+
 {{#include ../generated/learning/cv_stratified.md}}
 
 ### Choosing a hyperparameter
@@ -65,6 +69,8 @@ folds deal each class out in turn, so every fold has the overall class proportio
 Ridge regression of a degree-12 polynomial on 40 noisy points, with 10-fold cross-validation over 25 values of the penalty:
 
 ![Cross-validation of ridge regression](../generated/learning/cv_ridge.svg)
+
+<p class="caption" id="fig-13-6"><strong>Figure 13.6.</strong> Cross-validation of ridge regression.</p>
 
 {{#include ../generated/learning/cv_choice.md}}
 
@@ -86,6 +92,8 @@ hyperparameters matter.
 
 The best of many noisy estimates is optimistically biased: some candidate will look good by luck. On data whose labels are pure
 coin flips, so that no model can beat 50%, a search over $k = 1, \ldots, 40$ for $k$-nearest neighbours gives:
+
+<p class="caption" id="tab-13-7"><strong>Table 13.7.</strong> Columns: random labels, 60 points, 50 repetitions, mean, standard deviation.</p>
 
 {{#include ../generated/learning/cv_selection_bias.md}}
 

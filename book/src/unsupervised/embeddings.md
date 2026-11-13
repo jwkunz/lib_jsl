@@ -108,6 +108,8 @@ strips to relieve the strain rather than unrolling it. The reference UMAP implem
 which is already unrolled. The fraction of each point's 10 nearest neighbours that remain among its 10 nearest in the embedding
 measures what is kept:
 
+<p class="caption" id="tab-12-13"><strong>Table 12.13.</strong> Columns: data, PCA, t-SNE, UMAP, and more.</p>
+
 {{#include ../generated/unsupervised/embedding_table.md}}
 
 Both methods keep far more neighbourhoods than PCA on the roll. In the 20-dimensional clusters, a point's nearest neighbours within its

@@ -21,6 +21,8 @@ This chapter completes the machine-learning part of the book with four topics th
 
 Test accuracy of the tree ensembles and the neural network against a single tree and a kernel machine, with default settings:
 
+<p class="caption" id="tab-13-1"><strong>Table 13.1.</strong> Columns: classifier (test accuracy), moons, circles, three Gaussian classes (4D), and more.</p>
+
 {{#include ../generated/learning/comparison.md}}
 
 With default settings and a few hundred points, the methods are close: the RBF support vector machine is the most accurate and

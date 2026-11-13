@@ -21,6 +21,8 @@ connectivity, variance or neighbourhood, determines what it can find.
 Adjusted Rand index against the generating labels (1 is perfect agreement, 0 is chance) for each method, given the true
 number of clusters where it needs one:
 
+<p class="caption" id="tab-12-1"><strong>Table 12.1.</strong> Columns: method (adjusted Rand index), blobs, stretched, moons, and more.</p>
+
 {{#include ../generated/unsupervised/comparison.md}}
 
 No method wins everywhere. Centroid and mixture methods handle blobs, and only the mixture handles stretched ones. Single
@@ -36,6 +38,8 @@ the likelihood, the Laplacian has one zero eigenvalue per connected component, a
 discarded variance.
 
 k-means, compared with the best of twenty k-means++ starts of SciPy's `cluster.vq.kmeans2` on four separated clusters, finds the same partition:
+
+<p class="caption" id="tab-12-2"><strong>Table 12.2.</strong> Columns: clustering (SciPy reference), result.</p>
 
 {{#include ../generated/unsupervised/scipy_kmeans.md}}
 

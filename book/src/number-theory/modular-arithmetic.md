@@ -60,6 +60,8 @@ Fibonacci numbers, where every quotient is 1 and the numbers shrink as slowly as
 
 ![Euclid steps](../generated/number_theory/euclid_steps.svg)
 
+<p class="caption" id="fig-22-1"><strong>Figure 22.1.</strong> Euclid steps.</p>
+
 ### Inverses and powers
 
 **Modular arithmetic.** Two integers are **congruent** modulo $m$, written

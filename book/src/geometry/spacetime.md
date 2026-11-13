@@ -34,6 +34,8 @@ $$
 
 A particle with velocity $\boldsymbol\beta$ has **four-velocity** $u = \gamma(1, \boldsymbol\beta)$, whose interval is always $-1$. Collinear velocities add as $(u + v)/(1 + uv)$, never reaching 1.
 
+<p class="caption" id="tab-24-7"><strong>Table 24.7.</strong> Columns: check, result.</p>
+
 {{#include ../generated/geometry/relativity_checks.md}}
 
 ### Christoffel symbols and geodesics
@@ -52,6 +54,8 @@ $$
 
 the field outside a non-rotating mass $M$ (in units $G = c = 1$).
 
+<p class="caption" id="tab-24-8"><strong>Table 24.8.</strong> Columns: point, largest symbol, finite-difference error.</p>
+
 {{#include ../generated/geometry/christoffel.md}}
 
 The finite-difference error is below 4 parts in $10^{8}$ of the largest symbol, as expected for a fourth-order formula with step $10^{-3} r$.
@@ -59,6 +63,8 @@ The finite-difference error is below 4 parts in $10^{8}$ of the largest symbol, 
 A bound orbit in the Schwarzschild field does not close: each turn its perihelion advances. Integrating the geodesic equation with the library's symbols and a fourth-order Runge–Kutta step, for an orbit between $r = 20M$ and $60M$, gives the exact advance:
 
 ![Orbit](../generated/geometry/orbit.svg)
+
+<p class="caption" id="fig-24-14"><strong>Figure 24.14.</strong> Orbit.</p>
 
 {{#include ../generated/geometry/precession.md}}
 

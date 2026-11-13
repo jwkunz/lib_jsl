@@ -104,6 +104,8 @@ negative integer $a$ the series terminates and is a Laguerre polynomial.
 
 ![Kummer's function](../generated/special_functions/kummer.svg)
 
+<p class="caption" id="fig-6-10"><strong>Figure 6.10.</strong> Kummer's function.</p>
+
 ### The limit function ₀F₁
 
 ${}_0F_1(; b; x) = \sum\frac{x^n}{(b)_n\,n!}$ is a Bessel function in disguise:
@@ -116,9 +118,13 @@ Bessel relation, with the accurate $J_\nu$ of the [Bessel entry](bessel.md).
 
 Evaluating the library's hypergeometric functions against elementary and special functions:
 
+<p class="caption" id="tab-6-6"><strong>Table 6.6.</strong> Columns: identity (at $z = 0.37$), elementary side, hypergeometric side, relative difference.</p>
+
 {{#include ../generated/special_functions/hypergeometric_identities.md}}
 
 ### Accuracy
+
+<p class="caption" id="tab-6-7"><strong>Table 6.7.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/hypergeometric_accuracy.md}}
 

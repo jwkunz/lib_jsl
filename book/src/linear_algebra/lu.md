@@ -95,6 +95,8 @@ $1 - 10^{20}$ and $2 - 10^{20}$ round to $-10^{20}$: the original entries 1 and 
 equation, which distinguished it from any other, have been wiped out. Back substitution gives
 $x_2 = 1$, correctly, and then $x_1 = (1 - x_2)/\varepsilon = 0$, which is completely wrong.
 
+<p class="caption" id="tab-7-2"><strong>Table 7.2.</strong> Columns: $\varepsilon$, without pivoting: $x_1$, with partial pivoting: $x_1$, exact $x_1 = 1/(1 - \varepsilon)$.</p>
+
 {{#include ../generated/linear_algebra/small_pivot.md}}
 
 **Partial pivoting.** The damage was done by the huge multiplier. The cure is to swap rows before
@@ -120,6 +122,8 @@ during elimination than they were at the start. Pivoting keeps the multipliers s
 can still grow, because each step can at most double them. In the worst case $\rho = 2^{n-1}$.
 Wilkinson's example has 1 on the diagonal and in the last column and $-1$ below the diagonal:
 partial pivoting never swaps, and the last column doubles at every step.
+
+<p class="caption" id="tab-7-3"><strong>Table 7.3.</strong> Columns: $n$, growth factor $2^{n-1}$, relative error, partial pivoting, relative error, random matrix of the same order.</p>
 
 {{#include ../generated/linear_algebra/wilkinson_growth.md}}
 
@@ -188,6 +192,8 @@ $\kappa\varepsilon$, while the backward error stays at the level of rounding.
 
 ![Hilbert systems](../generated/linear_algebra/hilbert.svg)
 
+<p class="caption" id="fig-7-1"><strong>Figure 7.1.</strong> Hilbert systems.</p>
+
 Beyond order 13, $\kappa(H)$ exceeds $1/\varepsilon$: the computed inverse used to estimate it is itself meaningless, and
 the "solution" has no correct digits, although it still satisfies the system to rounding accuracy.
 A small residual $\mathbf b - A\hat{\mathbf x}$ is therefore not evidence of an accurate solution.
@@ -210,6 +216,8 @@ column-major order, where the pivot searches run along contiguous memory, and so
 systems in blocks the same way:
 
 ![Factorisation speed](../generated/linear_algebra/factorisation_speed.svg)
+
+<p class="caption" id="fig-7-2"><strong>Figure 7.2.</strong> Factorisation speed.</p>
 
 On this laptop the reference Doolittle LU stays near 2 GFLOP/s, limited by memory; the recursive LU
 reaches about 20 GFLOP/s at $n = 1024$, and LAPACK with OpenBLAS is 1.1 to 1.6 times faster still

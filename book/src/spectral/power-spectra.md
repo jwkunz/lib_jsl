@@ -61,6 +61,8 @@ The periodogram has two defects, bias and variance, treated in the next two sect
 
 ![Periodogram and Welch estimates](../generated/spectral/psd_estimates.svg)
 
+<p class="caption" id="fig-15-2"><strong>Figure 15.2.</strong> Periodogram and Welch estimates.</p>
+
 With no window, the strong tone's leakage, decaying only as $1/f$, buries a second tone 70 dB weaker and every bit of the noise floor. A Hann window's leakage
 falls off steeply, revealing both. The window's resolution and dynamic range carry over directly to the spectrum estimate (see [windows](windows.md)).
 
@@ -81,6 +83,8 @@ Segments may overlap. A tapered window gives little weight to the samples near t
 segment, so without overlap those samples would be largely wasted. Overlapping by half with a
 Hann window uses them, while the segments remain nearly independent:
 
+<p class="caption" id="tab-15-4"><strong>Table 15.4.</strong> Columns: segment length (Hann, 50% overlap), segments averaged, bin width (× fs), mean density (true 2.000), and more.</p>
+
 {{#include ../generated/spectral/welch_variance.md}}
 
 A single 16 384-point periodogram is as noisy as possible (ratio 0.98), with bins of width $6 \times 10^{-5} f_s$. 511 segments of 64 points have a ratio of 0.04, but bins 256 times wider. The ratio
@@ -92,6 +96,8 @@ averages from the same data. The choice of segment length is the [bias-variance 
 The **STFT** computes the spectrum of each windowed frame $x[tH + n]w[n]$, with hop $H$. Its squared magnitude, scaled like a periodogram, is the **spectrogram**:
 
 ![Spectrogram](../generated/spectral/spectrogram.svg)
+
+<p class="caption" id="fig-15-3"><strong>Figure 15.3.</strong> Spectrogram.</p>
 
 The chirp traces a straight line, and the tone appears at one second. Time and frequency resolution trade off through the frame length:
 a 256-sample frame at 8 kHz resolves 31 Hz and 32 ms. [`istft`](../../api/lib_jsl_dsp/discrete/spectral/stft/fn.istft.html) inverts the STFT by weighted overlap-add,
@@ -107,6 +113,8 @@ P(\omega) = \frac12\left[\frac{\big(\sum_jy_j\cos\omega(t_j - \tau)\big)^2}{\sum
 $$
 
 ![Lomb-Scargle periodogram](../generated/spectral/lomb_scargle.svg)
+
+<p class="caption" id="fig-15-4"><strong>Figure 15.4.</strong> Lomb-Scargle periodogram.</p>
 
 Both tones stand out of 120 random samples. Irregular sampling has a benefit: there is no single Nyquist frequency, and frequencies far
 above the average sample rate can be detected. `normalize` divides by the total variance, giving the fraction of variance explained.

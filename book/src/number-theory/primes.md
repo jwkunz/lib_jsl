@@ -45,6 +45,8 @@ the logarithmic integral $\mathrm{Li}(x)$:
 
 ![Prime counting](../generated/number_theory/prime_counting.svg)
 
+<p class="caption" id="fig-22-2"><strong>Figure 22.2.</strong> Prime counting.</p>
+
 {{#include ../generated/number_theory/sieve_table.md}}
 
 ### Miller–Rabin
@@ -73,6 +75,8 @@ $n = 561$ and $a = 2$, $n - 1 = 2^4\cdot35$ and the chain is $263, 166, 67, 1, 1
 from 67, which is not $-1$, so 561 is exposed although it passes Fermat's test.
 
 A composite $n$ that passes for base $a$ is a **strong pseudoprime** to that base. At most a quarter of the bases fool any composite, and composites that fool many small bases are very rare:
+
+<p class="caption" id="tab-22-2"><strong>Table 22.2.</strong> Columns: n, factors, bases it passes as a strong probable prime, is_prime.</p>
 
 {{#include ../generated/number_theory/pseudoprimes.md}}
 
@@ -104,6 +108,8 @@ several factors were collected in the same batch. The method then backs up and s
 time; if that fails too, it changes $c$:
 
 ![Pollard's rho](../generated/number_theory/pollard_rho.svg)
+
+<p class="caption" id="fig-22-3"><strong>Figure 22.3.</strong> Pollard's rho.</p>
 
 [`factorize`](../../api/lib_jsl_number_theory/integer_factorization/fn.factorize.html) removes the primes below 50 by trial division, then repeatedly splits composites with Pollard's rho and certifies the pieces with Miller–Rabin. The totient $\varphi(n) = n\prod_{p \mid n}(1 - 1/p)$ and the list of divisors follow from the factorisation.
 

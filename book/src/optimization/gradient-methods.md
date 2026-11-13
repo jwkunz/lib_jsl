@@ -92,6 +92,8 @@ $\tfrac12(x^2 + 10y^2)$, with $L = 10$ and $\mu = 1$, the best step is $2/11 \ap
 
 ![Gradient descent with various steps](../generated/optimization/step_sizes.svg)
 
+<p class="caption" id="fig-5-3"><strong>Figure 5.3.</strong> Gradient descent with various steps.</p>
+
 A step of 0.205 exceeds $2/L = 0.2$ and diverges; a step of 0.02 is safe but ten times slower than
 0.18.
 
@@ -113,6 +115,8 @@ ellipses, and the perpendicular to them points mostly across the valley, not alo
 minimum. The iterates bounce from side to side:
 
 ![Gradient descent and conjugate gradients](../generated/optimization/quadratic_paths.svg)
+
+<p class="caption" id="fig-5-4"><strong>Figure 5.4.</strong> Gradient descent and conjugate gradients.</p>
 
 ### Nonlinear conjugate gradients
 

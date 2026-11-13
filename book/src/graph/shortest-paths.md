@@ -85,6 +85,8 @@ explore far fewer vertices than Dijkstra; $h = 0$ is Dijkstra itself.
 
 ![Grid paths](../generated/graph/grid_paths.svg)
 
+<p class="caption" id="fig-23-1"><strong>Figure 23.1.</strong> Grid paths.</p>
+
 {{#include ../generated/graph/grid_facts.md}} In this maze the walls force a long detour, so the heuristic saves little.
 
 ### Floyd–Warshall
@@ -107,6 +109,8 @@ successor matrix records the first step of each path, from which the paths can b
 Negative weights are allowed, and a negative diagonal entry at the end reveals a negative cycle.
 
 ![Shortest path timings](../generated/graph/shortest_path_timing.svg)
+
+<p class="caption" id="fig-23-2"><strong>Figure 23.2.</strong> Shortest path timings.</p>
 
 Floyd–Warshall's cubic cost limits it to graphs of a few thousand vertices. For all pairs on sparse graphs, running Dijkstra from every source is cheaper.
 

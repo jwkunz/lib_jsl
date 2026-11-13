@@ -59,12 +59,16 @@ The DC and Nyquist bins are their own negatives and are kept once. The real part
 
 ![Envelope of an AM signal](../generated/spectral/hilbert_envelope.svg)
 
+<p class="caption" id="fig-15-6"><strong>Figure 15.6.</strong> Envelope of an AM signal.</p>
+
 The magnitude $|z|$ of the analytic signal is the **envelope** of $x$, the slowly varying
 amplitude within which it oscillates. For an amplitude-modulated carrier, $|z|$ recovers the modulation, here exactly, because the modulation (3 Hz) is far below the carrier (60 Hz) and the record holds
 whole periods of both. The angle $\arg z$ is the instantaneous phase, and its rate of change is the
 **instantaneous frequency**, $\frac1{2\pi}\frac{d}{dt}\arg z$, computed from phase differences between samples:
 
 ![Instantaneous frequency of a chirp](../generated/spectral/hilbert_frequency.svg)
+
+<p class="caption" id="fig-15-7"><strong>Figure 15.7.</strong> Instantaneous frequency of a chirp.</p>
 
 The estimate follows the chirp's linear sweep except at the ends. There the DFT's implicit periodic extension joins the high-frequency
 end to the low-frequency start, and the Gibbs ripple of that discontinuity disturbs the phase. Taper or pad the signal if the ends matter.

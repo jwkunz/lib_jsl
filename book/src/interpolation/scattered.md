@@ -127,9 +127,13 @@ kernel width $1/\varepsilon$ comparable to the typical distance between points.
 Franke's function, a standard test surface with two peaks and a dip, sampled at 100 Halton points in
 the unit square:
 
+<p class="caption" id="tab-3-8"><strong>Table 3.8.</strong> Columns: method, RMS error, maximum error.</p>
+
 {{#include ../generated/interpolation/scattered_table.md}}
 
 ![A slice through the interpolants](../generated/interpolation/scattered_slice.svg)
+
+<p class="caption" id="fig-3-10"><strong>Figure 3.10.</strong> A slice through the interpolants.</p>
 
 All the radial basis functions reach errors of a few thousandths; Shepard's method is ten times worse
 and visibly bumpy, with flat spots wherever the slice passes near a data point.

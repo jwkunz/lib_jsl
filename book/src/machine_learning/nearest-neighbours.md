@@ -70,6 +70,8 @@ lowest in between:
 
 ![Error against k](../generated/machine_learning/knn_error.svg)
 
+<p class="caption" id="fig-11-7"><strong>Figure 11.7.</strong> Error against k.</p>
+
 ### The curse of dimensionality
 
 Nearest-neighbour methods depend on neighbours being *near*. In high dimensions they are not.

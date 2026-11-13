@@ -122,7 +122,11 @@ within distance $t$ of a different codeword, and the decoder returns a wrong mes
 
 ![RS failure probability](../generated/coding/rs_failure.svg)
 
+<p class="caption" id="fig-19-3"><strong>Figure 19.3.</strong> RS failure probability.</p>
+
 The simulated failure rate follows the binomial probability of more than 16 byte errors. {{#include ../generated/coding/rs_facts.md}}
+
+<p class="caption" id="tab-19-2"><strong>Table 19.2.</strong> Columns: code (n, k), parity bytes, parity vs `reedsolo`, errors t = (n − k)/2 injected, and more.</p>
 
 {{#include ../generated/coding/rs_reference.md}}
 

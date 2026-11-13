@@ -78,6 +78,8 @@ intensity increasing downwards. The raw response is 8 times the gradient; `sobel
 
 ![Filtering the test scene](../generated/image/filtering.svg)
 
+<p class="caption" id="fig-17-1"><strong>Figure 17.1.</strong> Filtering the test scene.</p>
+
 Differentiating amplifies noise, so gradients are normally taken after a Gaussian blur, as in the figure: the magnitude then outlines the disc and the square cleanly.
 
 ### Unsharp masking
@@ -91,6 +93,8 @@ $$
 steepens edges and adds an overshoot on either side, which the eye reads as crispness. [`sharpening_with_threshold`](../../api/lib_jsl_dsp/discrete/image/filters/sharpening/fn.sharpening_with_threshold.html) applies the boost only where $|f - G_\sigma * f|$ exceeds a threshold, so flat, noisy regions are left alone:
 
 ![Unsharp masking profile](../generated/image/unsharp_profile.svg)
+
+<p class="caption" id="fig-17-2"><strong>Figure 17.2.</strong> Unsharp masking profile.</p>
 
 ## Algorithm
 

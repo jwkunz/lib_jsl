@@ -69,6 +69,8 @@ A 16-element array of half-wave dipoles at 1.5 GHz looks for a weak signal at $\
 
 ![Beam patterns](../generated/em-arrays/beam_patterns.svg)
 
+<p class="caption" id="fig-20-5"><strong>Figure 20.5.</strong> Beam patterns.</p>
+
 {{#include ../generated/em-arrays/beamformer_table.md}}
 
 The CFM beam leaves the jammers in its sidelobes. The adaptive beamformers null them by 100 dB or more and recover the full SINR, and LCMV's explicit nulls are exact to rounding.
@@ -78,6 +80,8 @@ The CFM beam leaves the jammers in its sidelobes. The adaptive beamformers null 
 In practice $\mathbf R$ is estimated from $K$ snapshots, $\hat{\mathbf R} = \frac1K\sum_k\mathbf x_k\mathbf x_k^{\mathsf H}$. With interference-plus-noise training data, Reed, Mallett and Brennan showed that the expected SINR of $\hat{\mathbf R}^{-1}\mathbf a$, relative to the optimum, is $(K + 2 - N)/(K + 1)$. So $K = 2N$ snapshots lose 3 dB:
 
 ![SMI loss](../generated/em-arrays/smi_loss.svg)
+
+<p class="caption" id="fig-20-6"><strong>Figure 20.6.</strong> SMI loss.</p>
 
 If the training data contains the desired signal, the loss is larger and the signal partly cancels itself. Diagonal loading and constraints guard against that.
 

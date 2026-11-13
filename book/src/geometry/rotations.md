@@ -72,6 +72,8 @@ Rounding accumulates when many rotations are composed. A matrix product slowly s
 
 ![Drift](../generated/geometry/drift.svg)
 
+<p class="caption" id="fig-24-1"><strong>Figure 24.1.</strong> Drift.</p>
+
 Both drift by about $10^{-11}$ after a million steps, but repairing them differs in cost. A quaternion is renormalised by dividing by its norm, which `Rotation3` does on every product. A matrix needs [`nearest_rotation_matrix`](../../api/lib_jsl_geometry/algorithms/rotations/fn.nearest_rotation_matrix.html), which computes the orthogonal polar factor by Newton's iteration $R \leftarrow \tfrac12 (R + R^{-\mathsf T})$.
 
 ### Spherical linear interpolation
@@ -85,6 +87,8 @@ $$
 which turns at a constant angular rate about a fixed axis. If $q_0 \cdot q_1 < 0$, $q_1$ is negated first so the shorter of the two arcs is taken. Normalised linear interpolation (**nlerp**) blends and renormalises. It is cheaper and follows the same path, but not at a uniform rate:
 
 ![Slerp and nlerp](../generated/geometry/slerp.svg)
+
+<p class="caption" id="fig-24-2"><strong>Figure 24.2.</strong> Slerp and nlerp.</p>
 
 ## Algorithm
 

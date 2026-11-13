@@ -109,6 +109,8 @@ small.
 
 ![Viterbi BER](../generated/coding/viterbi_ber.svg)
 
+<p class="caption" id="fig-19-4"><strong>Figure 19.4.</strong> Viterbi BER.</p>
+
 Soft decisions are worth about 2 dB over hard ones, a classic rule of thumb that the figure confirms. The larger constraint length gains almost 2 dB more, at 16 times the decoding work. {{#include ../generated/coding/viterbi_facts.md}}
 
 ## Algorithm

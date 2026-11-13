@@ -70,6 +70,8 @@ classification, **accuracy** is the fraction correct; the **confusion matrix** $
 **precision** (of the points predicted as $c$, the fraction that are $c$), **recall** (of the points in $c$, the fraction found) and their
 harmonic mean **F1**. For a random forest on the three-class problem:
 
+<p class="caption" id="tab-11-4"><strong>Table 11.4.</strong> Columns: true class, predicted 0, predicted 1, predicted 2, and more.</p>
+
 {{#include ../generated/machine_learning/confusion.md}}
 
 Class 0, in the middle, is confused with both others. For clusterings, the **silhouette** compares each point's mean

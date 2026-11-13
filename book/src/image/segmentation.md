@@ -40,7 +40,11 @@ which is equivalent to minimising the variance within the classes, since the two
 
 ![Otsu histogram](../generated/image/otsu_histogram.svg)
 
+<p class="caption" id="fig-17-7"><strong>Figure 17.7.</strong> Otsu histogram.</p>
+
 {{#include ../generated/image/otsu_facts.md}} The threshold degrades as the classes overlap, and with unequal class sizes: here the objects cover 18% of the pixels.
+
+<p class="caption" id="tab-17-2"><strong>Table 17.2.</strong> Columns: gap between the means, noise σ, threshold, separability, and more.</p>
 
 {{#include ../generated/image/otsu_table.md}}
 
@@ -62,6 +66,8 @@ and where two lakes would merge, a dam stands: the **watershed line**. Meyer's a
 water never runs downhill. Pixels at equal elevation leave the queue first in, first out, so floods spread evenly across plateaus. [`label_boundaries`](../../api/lib_jsl_dsp/discrete/image/segmentation/watershed/fn.label_boundaries.html) marks pixels whose right or lower neighbour has another label.
 
 ![Segmentation](../generated/image/segmentation.svg)
+
+<p class="caption" id="fig-17-8"><strong>Figure 17.8.</strong> Segmentation.</p>
 
 A plain threshold of the gradient (top middle) marks noise and thick edges. Canny's edges are thin and connected, and a larger $\sigma$ ignores more noise at the cost of rounding corners. The watershed, from one marker in each object and one in the background,
 divides the image along the gradient ridges.

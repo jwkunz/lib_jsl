@@ -78,6 +78,8 @@ with residue 1, and $\zeta(0) = -\tfrac12$.
 
 ![The Riemann zeta function](../generated/special_functions/zeta.svg)
 
+<p class="caption" id="fig-6-13"><strong>Figure 6.13.</strong> The Riemann zeta function.</p>
+
 The **Hurwitz zeta function** $\zeta(s, a) = \sum_{k\ge0}(k + a)^{-s}$ generalises the series by
 starting it at $a$ instead of 1. It is computed for $s > 1$ by **Euler-Maclaurin summation**: sum
 the first $N$ terms directly, and replace the slowly converging tail by the integral of the
@@ -118,11 +120,15 @@ $F_j(x) \approx x^{j+1}/\Gamma(j + 2)$, with Sommerfeld's corrections:
 
 ![Fermi-Dirac integrals](../generated/special_functions/fermi_dirac.svg)
 
+<p class="caption" id="fig-6-14"><strong>Figure 6.14.</strong> Fermi-Dirac integrals.</p>
+
 The library computes the integral by composite 20-point Gauss-Legendre quadrature, after a
 substitution that removes the singularity of $t^j$ at the origin; the accuracy is about $10^{-13}$ or better
 for integer and half-integer orders.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-9"><strong>Table 6.9.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/zeta_accuracy.md}}
 

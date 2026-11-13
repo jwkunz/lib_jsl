@@ -198,9 +198,13 @@ The cases below were computed with `scipy.stats` (version 1.17.1) by `book/gener
 with the library. The statistics agree to at least nine digits (the generator asserts it), and every p-value with an exact
 reference distribution agrees to rounding:
 
+<p class="caption" id="tab-10-3"><strong>Table 10.3.</strong> Columns: case, statistic (SciPy), p-value, SciPy p-value, and more.</p>
+
 {{#include ../generated/statistics/scipy_tests.md}}
 
 ### Size: do the tests reject a true null 5% of the time?
+
+<p class="caption" id="tab-10-4"><strong>Table 10.4.</strong> Columns: test, data (null hypothesis true), rejection rate at 5%.</p>
 
 {{#include ../generated/statistics/size.md}}
 

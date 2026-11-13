@@ -64,7 +64,11 @@ Insertion sort is fast on nearly sorted data but moves each element one place at
 
 ![Comparisons](../generated/sorting/comparisons.svg)
 
+<p class="caption" id="fig-25-1"><strong>Figure 25.1.</strong> Comparisons.</p>
+
 Median-of-three quicksort settles near $\tfrac{12}{7}\, n \ln n \approx 1.19\, n \log_2 n$ comparisons, within 20% of the lower bound. Heapsort tends to $2 n \log_2 n$. Shell's method grows faster than $n \log n$. Rust's `sort_unstable` makes fewer comparisons than all three.
+
+<p class="caption" id="tab-25-1"><strong>Table 25.1.</strong> Columns: one million 64-bit keys, random, nearly sorted, sorted, and more.</p>
 
 {{#include ../generated/sorting/timing.md}}
 

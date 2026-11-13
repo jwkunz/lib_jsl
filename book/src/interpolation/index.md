@@ -21,6 +21,8 @@ Every interpolation problem raises three questions.
 
 ![Interpolation of the Runge function at 13 points](../generated/interpolation/runge.svg)
 
+<p class="caption" id="fig-3-1"><strong>Figure 3.1.</strong> Interpolation of the Runge function at 13 points.</p>
+
 The Runge phenomenon above, the failure of polynomial interpolation at equally spaced points, is the
 single most important cautionary example in the subject.
 
@@ -43,6 +45,8 @@ single most important cautionary example in the subject.
 ## Testing against SciPy
 
 The references come from SciPy 1.17.1 and NumPy 2.4, written by `book/generator/data/make_interpolation_refs.py` on data that the generator rebuilds from the same formulas. Each row gives the largest difference between the library's interpolant and SciPy's, at 40 to 100 evaluation points:
+
+<p class="caption" id="tab-3-1"><strong>Table 3.1.</strong> Columns: interpolant (SciPy reference), largest difference.</p>
 
 {{#include ../generated/interpolation/scipy_reference.md}}
 

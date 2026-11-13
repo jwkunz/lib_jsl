@@ -110,12 +110,16 @@ estimate of the accuracy on new data, with no data held back and no extra traini
 
 ![Accuracy against the number of trees](../generated/machine_learning/forest_trees.svg)
 
+<p class="caption" id="fig-11-8"><strong>Figure 11.8.</strong> Accuracy against the number of trees.</p>
+
 The forest beats the single deep tree by eight points of accuracy with a few dozen trees, and more trees never hurt. The
 out-of-bag estimate (available once every point has been left out at least once) runs a little below the test accuracy here;
 with 300 training points its standard error is about 0.02.
 
 The library's **feature importance** is the share of all splits that use each feature. On four informative and six pure-noise
 features:
+
+<p class="caption" id="tab-11-6"><strong>Table 11.6.</strong> Columns: feature, 0, 1, 2, and more.</p>
 
 {{#include ../generated/machine_learning/forest_importances.md}}
 

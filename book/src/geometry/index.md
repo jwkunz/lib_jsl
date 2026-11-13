@@ -20,6 +20,8 @@ Computational geometry turns questions about shapes into algorithms: which point
 
 The references come from SciPy 1.17.1's `spatial` module (Qhull for triangulations, hulls and Voronoi diagrams; `cKDTree`; `Rotation` and `Slerp`) and from Shapely 2.2.0, on random inputs written out by `book/generator/data/make_geometry_refs.py` and read back by the generator:
 
+<p class="caption" id="tab-24-1"><strong>Table 24.1.</strong> Columns: computation (reference), result.</p>
+
 {{#include ../generated/geometry/reference.md}}
 
 ## In the library

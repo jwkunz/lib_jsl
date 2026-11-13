@@ -71,6 +71,8 @@ As the degrees of freedom grow, Student's $t$ approaches the normal distribution
 
 ![Student's t distribution](../generated/special_functions/student_t.svg)
 
+<p class="caption" id="fig-6-16"><strong>Figure 6.16.</strong> Student's t distribution.</p>
+
 ### Quantiles
 
 The **quantile** function is the inverse of the CDF: $x_p$ is the value below which the variable
@@ -88,9 +90,13 @@ directly.
 
 Familiar critical values, computed by the library:
 
+<p class="caption" id="tab-6-11"><strong>Table 6.11.</strong> Columns: distribution, 90%, 95%, 97.5%, and more.</p>
+
 {{#include ../generated/special_functions/quantiles.md}}
 
 ### Accuracy
+
+<p class="caption" id="tab-6-12"><strong>Table 6.12.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/statistical_accuracy.md}}
 

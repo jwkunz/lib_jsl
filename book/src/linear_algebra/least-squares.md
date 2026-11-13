@@ -117,6 +117,8 @@ grows, shows the difference:
 
 ![Normal equations against QR](../generated/linear_algebra/least_squares.svg)
 
+<p class="caption" id="fig-7-4"><strong>Figure 7.4.</strong> Normal equations against QR.</p>
+
 The normal equations follow $\kappa^2\varepsilon$ and fail outright (Cholesky finds $A^{\mathsf T}A$ indefinite) beyond degree 13; both QR
 methods follow $\kappa\varepsilon$. (Better still, fit in an orthogonal basis such as
 [Chebyshev polynomials](../interpolation/polynomial.md#chebyshev-series), whose matrix is well conditioned.)
@@ -149,6 +151,8 @@ The library's `least_squares` combines the methods. It factorises with **pivoted
 full column rank, solves by back substitution. Otherwise, or when the system is underdetermined, it uses the SVD
 and returns the minimum-norm solution. It reports the numerical rank, the singular values and the residual sum of
 squares:
+
+<p class="caption" id="tab-7-5"><strong>Table 7.5.</strong> Columns: system, rank found, solution, singular values.</p>
 
 {{#include ../generated/linear_algebra/rank_deficient.md}}
 

@@ -84,6 +84,8 @@ pole inside is $z = i$, with residue $\frac{1}{2i}$, so the closed integral is $
 for every $R > 1$. As $R$ grows the arc's contribution, bounded by $\pi R / (R^2 - 1)$, vanishes, and
 the segment tends to the real integral. The library computes each piece:
 
+<p class="caption" id="tab-2-12"><strong>Table 2.12.</strong> Columns: radius $R$, segment $[-R, R]$, arc $\lvert z \rvert = R$, closed contour, and more.</p>
+
 {{#include ../generated/integration/contour_semicircle.md}}
 
 The two parts change with $R$, but their sum is $\pi$ to every digit shown.
@@ -102,6 +104,8 @@ needs values of $f$ on a circle.
 The radius still matters, as the figure shows for $f = e^z$ at $z_0 = 0$:
 
 ![Cauchy derivative error against radius](../generated/integration/cauchy_derivative_radius.svg)
+
+<p class="caption" id="fig-2-12"><strong>Figure 2.12.</strong> Cauchy derivative error against radius.</p>
 
 On a small circle the integrand $f(z)/z^{n+1}$ is huge, about $|f|/r^{n+1}$, while the result is of
 order one: rounding errors in the integrand are amplified by roughly $n!/r^n$. On a large circle
@@ -127,6 +131,8 @@ scaling, the DFT of its values on a circle, which is why the FFT is the fast way
 Taylor coefficients at once.
 
 ![Trapezoid rule against Gauss-Kronrod on a circle](../generated/integration/contour_trapezoid_vs_gk.svg)
+
+<p class="caption" id="fig-2-13"><strong>Figure 2.13.</strong> Trapezoid rule against Gauss-Kronrod on a circle.</p>
 
 The trapezoid rule reaches machine precision with about 16 evaluations. The adaptive
 Gauss-Kronrod rule, which does not know the integrand is periodic, starts with four 15-point

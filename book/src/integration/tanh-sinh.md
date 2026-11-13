@@ -79,6 +79,8 @@ neutralised.
 
 ![The transformed integrand decays double exponentially](../generated/integration/tanh_sinh_transformed.svg)
 
+<p class="caption" id="fig-2-11"><strong>Figure 2.11.</strong> The transformed integrand decays double exponentially.</p>
+
 The figure shows the transformed integrand for $f = 1$, $\ln x$ and $1/\sqrt{x}$ on $[0, 1]$. All
 three fall below $10^{-30}$ by $|t| \approx 4$. The singular integrands decay more slowly on the
 singular side, but still double exponentially.
@@ -151,6 +153,8 @@ Numerical details that matter:
 ## In practice
 
 Tanh-sinh compared with a 100-point Gauss-Legendre rule on singular integrands over $[0, 1]$:
+
+<p class="caption" id="tab-2-11"><strong>Table 2.11.</strong> Columns: integrand on $[0,1]$, exact, tanh-sinh error, evaluations, and more.</p>
 
 {{#include ../generated/integration/tanh_sinh_table.md}}
 

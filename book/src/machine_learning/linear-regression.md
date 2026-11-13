@@ -66,6 +66,8 @@ penalised degree-15 fit (below), follows the underlying curve:
 
 ![Polynomial fits](../generated/machine_learning/polynomial_fits.svg)
 
+<p class="caption" id="fig-11-1"><strong>Figure 11.1.</strong> Polynomial fits.</p>
+
 ### Weighted and generalised least squares
 
 Ordinary least squares treats every observation alike. That is right when the errors all have
@@ -86,6 +88,8 @@ are uncorrelated with unit variance. The transformation is said to **whiten** th
 is then solved by ordinary least squares.
 
 ![Weighted least squares](../generated/machine_learning/wls.svg)
+
+<p class="caption" id="fig-11-2"><strong>Figure 11.2.</strong> Weighted least squares.</p>
 
 {{#include ../generated/machine_learning/wls.md}}
 
@@ -135,6 +139,8 @@ the predictions; too much makes them worse. The error on test data is lowest at 
 $\alpha$:
 
 ![Ridge error](../generated/machine_learning/ridge_error.svg)
+
+<p class="caption" id="fig-11-3"><strong>Figure 11.3.</strong> Ridge error.</p>
 
 ### The lasso and the elastic net
 

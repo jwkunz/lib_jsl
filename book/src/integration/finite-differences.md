@@ -82,6 +82,8 @@ $r$, and the scheme is second order in time as well as space. Each step solves a
 system, which the **Thomas algorithm** (Gaussian elimination without fill-in) does in $O(N)$
 operations. For $u(x, 0) = \sin \pi x$, the library's results at $t = 0.1$:
 
+<p class="caption" id="tab-2-17"><strong>Table 2.17.</strong> Columns: grid points, $\Delta x$, explicit steps ($r \le \tfrac12$), explicit error, and more.</p>
+
 {{#include ../generated/integration/heat_convergence.md}}
 
 Both errors fall by four when the grid is halved. The explicit scheme needs thousands of steps
@@ -107,6 +109,8 @@ wake of oscillations:
 
 ![A wave pulse with Courant numbers 1 and 0.5](../generated/integration/wave_courant.svg)
 
+<p class="caption" id="fig-2-25"><strong>Figure 2.25.</strong> A wave pulse with Courant numbers 1 and 0.5.</p>
+
 ### The Poisson equation and the five-point stencil
 
 On a grid with spacings $\Delta x$, $\Delta y$, the **five-point stencil** approximates
@@ -127,6 +131,8 @@ direction $A$-orthogonal to the previous ones so that progress is never undone. 
 finishes in at most $N$ steps; in practice its convergence depends on the condition number of $A$,
 which grows like $h^{-2}$, so finer grids need more iterations. For $-\nabla^2 u = 2\pi^2\sin\pi x\sin\pi y$ on
 the unit square:
+
+<p class="caption" id="tab-2-18"><strong>Table 2.18.</strong> Columns: grid, $h$, maximum error, ratio.</p>
 
 {{#include ../generated/integration/poisson_convergence.md}}
 

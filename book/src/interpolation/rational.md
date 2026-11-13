@@ -170,6 +170,8 @@ rational methods succeed:
 
 ![Rational interpolation of the Runge function](../generated/interpolation/rational_runge.svg)
 
+<p class="caption" id="fig-3-5"><strong>Figure 3.5.</strong> Rational interpolation of the Runge function.</p>
+
 Floater-Hormann with $d = 3$ converges algebraically, as its theory promises. Bulirsch-Stoer and AAA
 reach machine precision with about twenty points, but this is partly a special case: the Runge
 function is itself rational, of type $(0, 2)$, so any rational method of sufficient degree recovers it
@@ -219,6 +221,8 @@ singularity of $f$. A rational function can have poles of its own, and it places
 mimic the singularities of $f$; the approximant is then often accurate far outside the disc. For
 $\ln(1 + x)$, whose Taylor series converges only for $|x| < 1$, the $[10/10]$ approximant built
 from the same 21 coefficients remains accurate far beyond:
+
+<p class="caption" id="tab-3-3"><strong>Table 3.3.</strong> Columns: $x$, $\ln(1 + x)$, Taylor polynomial, degree 20: error, Padé $[10/10]$: error.</p>
 
 {{#include ../generated/interpolation/pade_log.md}}
 

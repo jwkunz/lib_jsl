@@ -32,6 +32,8 @@ Keep a **min-heap** of at most $m$ elements. Its root is the smallest of the bes
 {{#include ../../../crates/sorting/src/select_m_largest.rs:select}}
 ```
 
+<p class="caption" id="tab-25-2"><strong>Table 25.2.</strong> Columns: m largest of one million, `select_m_largest`, sorting everything.</p>
+
 {{#include ../generated/sorting/selection.md}}
 
 For small $m$ selection is an order of magnitude faster than sorting. As $m$ approaches $n$ it loses that advantage. The heap then does the work of a heapsort, and the standard library's sort is faster.
@@ -45,6 +47,8 @@ Each item starts in its own class. For every pair $(i, j)$ not yet in the same c
 ```
 
 Testing every pair costs $O(n^2)$ relation tests:
+
+<p class="caption" id="tab-25-3"><strong>Table 25.3.</strong> Columns: items, classes, time.</p>
 
 {{#include ../generated/sorting/equivalence.md}}
 

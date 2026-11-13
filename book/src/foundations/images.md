@@ -43,6 +43,8 @@ DEFLATE replaces repeated strings by (length, distance) references to earlier te
 {{#include ../../../crates/file_io/src/deflate.rs:lz77}}
 ```
 
+<p class="caption" id="tab-26-5"><strong>Table 26.5.</strong> Columns: data, bytes, library, level 6 / 9, zlib, level 6 / 9.</p>
+
 {{#include ../generated/foundations/deflate.md}}
 
 zlib does 7–13% better on compressible data because it builds a Huffman code for each block from that block's symbol frequencies, and defers a match by one byte when the next position has a longer one ("lazy matching"). The library's fixed code is simpler, and all its output is valid zlib.
@@ -63,6 +65,8 @@ The encoder writes 4:4:4 (no chroma subsampling) with the Annex K tables scaled 
 
 ![JPEG rate](../generated/foundations/jpeg_rate.svg)
 
+<p class="caption" id="fig-26-2"><strong>Figure 26.2.</strong> JPEG rate.</p>
+
 {{#include ../generated/foundations/jpeg_rate.md}}
 
 Chroma subsampling (4:2:0, Pillow's default) stores colour at half resolution. At the same quality setting it saves 13–22% of the bytes here. PSNR, which weighs colour errors like brightness errors, rates it no better at equal size; its advantage is perceptual, because the eye resolves colour less finely than brightness. The library's decoder accepts any subsampling, custom tables and restart intervals. It upsamples chroma as libjpeg does, interpolating linearly between chroma sample centres: for 2:1 factors that weights the nearer sample $\tfrac34$ and the farther $\tfrac14$ in each direction. Plain replication of the chroma samples would decode up to 82 levels away from libjpeg at colour edges and 0.6 dB worse in PSNR; with interpolation the decodes agree to within 2 levels.
@@ -81,9 +85,13 @@ A Netpbm header is a magic number (`P1` to `P6`), the width, height and (except 
 
 Files written by Python's libraries, read by this one:
 
+<p class="caption" id="tab-26-6"><strong>Table 26.6.</strong> Columns: file written by Python, bytes, read by the library.</p>
+
 {{#include ../generated/foundations/reading_images.md}}
 
 Files written by this library, read by Python's:
+
+<p class="caption" id="tab-26-7"><strong>Table 26.7.</strong> Columns: file written by the library (read by), result.</p>
 
 {{#include ../generated/foundations/interop_images.md}}
 

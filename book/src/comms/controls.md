@@ -73,12 +73,16 @@ produce a spike (**derivative kick**), and it low-pass filters the measurement f
 
 ![PID step responses](../generated/comms/pid_steps.svg)
 
+<p class="caption" id="fig-16-14"><strong>Figure 16.14.</strong> PID step responses.</p>
+
 ### Integrator windup
 
 A real actuator saturates. While it does, the error persists and the integral keeps growing, so when the output finally reaches the setpoint the integral is far too large and drives
 an overshoot. **Anti-windup** by conditional integration stops the integral while the output is saturated and the error pushes further into the limit:
 
 ![PID windup](../generated/comms/pid_windup.svg)
+
+<p class="caption" id="fig-16-15"><strong>Figure 16.15.</strong> PID windup.</p>
 
 ### The Kalman filter
 
@@ -114,12 +118,16 @@ Estimating a constant ($F = H = 1$, $Q = 0$) gives the running average, as the e
 
 ![Kalman tracking](../generated/comms/kalman_track.svg)
 
+<p class="caption" id="fig-16-16"><strong>Figure 16.16.</strong> Kalman tracking.</p>
+
 {{#include ../generated/comms/kalman_facts.md}} The **normalised estimation error squared** $e^*P^{-1}e$ checks the filter's honesty: if the model is right, it averages the state dimension. Here the
 simulation's discretised acceleration noise differs slightly from the filter's $Q$, hence the small excess.
 
 ### Checking against SciPy
 
 Because `step` reads the output after updating the state, the library's $(A, B, C, D)$ is the system that SciPy and most textbooks write as $y[k] = C'x[k] + D'u[k]$ with $C' = CA$ and $D' = CB + D$. Simulating that system with `scipy.signal.dlsim` (SciPy 1.17.1, references from `book/generator/data/make_controls_refs.py`) reproduces the library's output:
+
+<p class="caption" id="tab-16-4"><strong>Table 16.4.</strong> Columns: computation (SciPy reference), largest difference.</p>
 
 {{#include ../generated/comms/scipy_controls.md}}
 

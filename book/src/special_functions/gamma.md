@@ -78,6 +78,8 @@ $x = \tfrac12$ gives $\Gamma(\tfrac12)^2 = \pi$, so $\Gamma(\tfrac12) = \sqrt\pi
 
 ![The gamma function](../generated/special_functions/gamma.svg)
 
+<p class="caption" id="fig-6-1"><strong>Figure 6.1.</strong> The gamma function.</p>
+
 **Size.** $\Gamma$ grows faster than any exponential and overflows double precision beyond
 $x \approx 171.6$. For that reason one usually computes its logarithm, $\ln\Gamma$, and exponentiates
 only at the end if at all. The reciprocal $1/\Gamma$ is better behaved: it is an entire function
@@ -146,6 +148,8 @@ $\prod_{i=1}^{k}\frac{n - k + i}{i}$, dividing at each step so that intermediate
 `ln_binomial_coefficient` use $\ln\Gamma$.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-1"><strong>Table 6.1.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/gamma_accuracy.md}}
 

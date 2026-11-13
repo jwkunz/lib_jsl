@@ -86,6 +86,8 @@ DCT-II coefficients decay like $1/k^2$:
 
 ![Energy compaction of the DCT](../generated/fft/dct_compaction.svg)
 
+<p class="caption" id="fig-8-4"><strong>Figure 8.4.</strong> Energy compaction of the DCT.</p>
+
 Most of the signal's energy is therefore packed into the first few DCT coefficients, and
 discarding the rest changes the signal very little. This property is called **energy
 compaction**, and it is the reason the DCT is used for compression: JPEG quantises the

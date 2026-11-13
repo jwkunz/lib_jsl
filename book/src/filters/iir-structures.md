@@ -54,6 +54,8 @@ intermediate values small. `new` divides all coefficients by $a_0$, as `lfilter`
 The poles are the roots of $A(z)$, and the roots of a polynomial can be extremely sensitive to its coefficients. This is worst when poles
 cluster, as they do near $z = 1$ in a narrow low-pass filter. Rounding the denominator of Butterworth designs to single precision:
 
+<p class="caption" id="tab-14-4"><strong>Table 14.4.</strong> Columns: Butterworth order, cutoff (× Nyquist), largest pole radius, after rounding a to f32.</p>
+
 {{#include ../generated/filters/sensitivity.md}}
 
 A narrow eighth-order filter becomes unstable from rounding in the seventh significant digit. The same problem appears in double
@@ -77,12 +79,16 @@ The **peak** filter is its complement, $1 - H_{\text{notch}}$, a resonator with 
 
 ![Notch and peak filters](../generated/filters/notch_peak.svg)
 
+<p class="caption" id="fig-14-9"><strong>Figure 14.9.</strong> Notch and peak filters.</p>
+
 ### Comb filters
 
 Replacing $z^{-1}$ by $z^{-N}$ repeats a response $N$ times around the unit circle. A **comb** notch filter with $N = f_s/f_0$ removes $f_0$ and every harmonic of it, the shape
 of mains hum and of other periodic interference:
 
 ![Comb filter](../generated/filters/comb.svg)
+
+<p class="caption" id="fig-14-10"><strong>Figure 14.10.</strong> Comb filter.</p>
 
 `iircomb` requires $f_0$ to divide $f_s$ exactly, since $N$ must be an integer, and by default it also places a notch at DC (set `pass_zero` to pass DC instead).
 

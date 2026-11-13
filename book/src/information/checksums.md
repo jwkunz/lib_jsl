@@ -57,6 +57,8 @@ guarantees:
   such bursts are caught.
 - Random corruption produces a random remainder, which is zero with probability $2^{-32}$. For CRC-32, all two- and three-bit errors are caught in messages up to about 11 kB.
 
+<p class="caption" id="tab-18-7"><strong>Table 18.7.</strong> Columns: error in a 1024-byte message, trials, undetected.</p>
+
 {{#include ../generated/information/crc_detection.md}}
 
 In practice the CRC is computed a byte at a time with a 256-entry table of remainders, in **reflected** bit order (least significant bit first, matching serial transmission). The register starts at all ones, so leading zero bytes are not invisible, and the result is inverted. The table for 0xEDB88320, the bit reversal of 0x04C11DB7, gives the standard CRC-32. {{#include ../generated/information/crc32c_facts.md}}
@@ -75,6 +77,8 @@ $\mathrm{Ch}(e, f, g) = (e \wedge f) \oplus (\neg e \wedge g)$ and $\mathrm{Maj}
 A good hash shows the **avalanche** effect: changing one input bit changes each output bit with probability 1/2, independently:
 
 ![SHA-256 avalanche](../generated/information/avalanche.svg)
+
+<p class="caption" id="fig-18-5"><strong>Figure 18.5.</strong> SHA-256 avalanche.</p>
 
 {{#include ../generated/information/checksum_reference.md}}
 

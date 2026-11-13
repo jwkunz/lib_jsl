@@ -81,17 +81,23 @@ can. That is the job of [cross-validation](../learning/model-selection.md).
 Each fitted model was checked against the optimality conditions of its own objective. The gradient of least squares, ridge
 and logistic regression and the subgradient conditions of the lasso and elastic net vanish to the solver tolerance:
 
+<p class="caption" id="tab-11-1"><strong>Table 11.1.</strong> Columns: model, optimality condition, largest violation.</p>
+
 {{#include ../generated/machine_learning/optimality.md}}
 
 ### Against SciPy
 
 Each model's objective was reproduced with SciPy 1.17.1's linear algebra, optimisers and distributions (`book/generator/data/make_machine_learning_refs.py`), so the references are the same mathematical solutions computed independently:
 
+<p class="caption" id="tab-11-2"><strong>Table 11.2.</strong> Columns: model (SciPy reference), largest difference.</p>
+
 {{#include ../generated/machine_learning/scipy_reference.md}}
 
 The closed-form fits agree to rounding. The lasso, elastic net and logistic regression are solved iteratively on both sides, and agree to the stopping tolerances of the optimisers.
 
 ## Comparing classifiers
+
+<p class="caption" id="tab-11-3"><strong>Table 11.3.</strong> Columns: classifier, three Gaussian classes, 4D, moons, circles, and more.</p>
 
 {{#include ../generated/machine_learning/comparison.md}}
 

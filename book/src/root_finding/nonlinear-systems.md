@@ -179,6 +179,8 @@ the updated matrix stops giving a descent direction.
 Iterations and evaluations of $\mathbf F$ (including those for difference Jacobians and line searches) to a
 residual of $10^{-12}$:
 
+<p class="caption" id="tab-4-5"><strong>Table 4.5.</strong> Columns: system, Newton, exact Jacobian, Newton, difference Jacobian, Broyden.</p>
+
 {{#include ../generated/root_finding/systems.md}}
 
 - With an exact Jacobian, Newton's method needs the fewest evaluations.
@@ -195,6 +197,8 @@ The **Bratu problem** $u'' + e^u = 0$, $u(0) = u(1) = 0$, discretised by
 [finite differences](../integration/finite-differences.md), has two:
 
 ![The two solutions of the Bratu problem](../generated/root_finding/bratu.svg)
+
+<p class="caption" id="fig-4-5"><strong>Figure 4.5.</strong> The two solutions of the Bratu problem.</p>
 
 ## Algorithm
 

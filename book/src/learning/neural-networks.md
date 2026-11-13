@@ -154,6 +154,8 @@ still matters:
 
 ![Training loss for several learning rates](../generated/learning/mlp_learning_rate.svg)
 
+<p class="caption" id="fig-13-1"><strong>Figure 13.1.</strong> Training loss for several learning rates.</p>
+
 At $\eta = 0.0003$ training is slow; at $0.003$ and $0.03$ it converges; at $0.3$ the steps are too large and the loss bounces around a value several times higher.
 
 ### Initialisation and scaling
@@ -166,11 +168,15 @@ because gradient-based training is sensitive to scales.
 
 ![MLP regression of a sine](../generated/learning/mlp_sine.svg)
 
+<p class="caption" id="fig-13-2"><strong>Figure 13.2.</strong> MLP regression of a sine.</p>
+
 A ReLU network is piecewise linear, with kinks wherever a unit switches on. A tanh network is smooth. Both fit the sine
 where there are data. Beyond the data, on the right, both continue along straight lines, since every unit is saturated or linear there.
 What a network does outside the data is therefore decided by its activation function, not by the data: ReLU
 units continue linearly and saturating units flatten out, and neither continues the sine. On the two
 classification benchmarks:
+
+<p class="caption" id="tab-13-2"><strong>Table 13.2.</strong> Columns: activation (32 × 32, 200 epochs), moons: test accuracy, final training loss, training time, and more.</p>
 
 {{#include ../generated/learning/mlp_activations.md}}
 
@@ -181,6 +187,8 @@ most wall-clock time, because evaluating it costs more than a ReLU comparison). 
 
 A network with thousands of weights can memorise 120 points. **Weight decay** adds $\frac\lambda2\sum w^2$ to the loss, shrinking the weights towards
 zero as ridge regression does:
+
+<p class="caption" id="tab-13-3"><strong>Table 13.3.</strong> Columns: weight decay λ (64 × 64, 120 training points), training accuracy, test accuracy.</p>
 
 {{#include ../generated/learning/mlp_weight_decay.md}}
 

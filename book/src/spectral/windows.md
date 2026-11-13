@@ -76,6 +76,8 @@ the main lobe and lowers the side lobes: Hann to −31 dB, Blackman to −58 dB,
 
 ![Transforms of the parametric windows](../generated/spectral/window_spectra_param.svg)
 
+<p class="caption" id="fig-15-1"><strong>Figure 15.1.</strong> Transforms of the parametric windows.</p>
+
 ### Figures of merit
 
 Three numbers summarise how a window of length $M$ affects measurements made with it.
@@ -89,6 +91,8 @@ Three numbers summarise how a window of length $M$ affects measurements made wit
 - The **scalloping loss** is the amplitude lost by a tone that falls halfway between two bins,
   the worst case, where both neighbouring bins sample the main lobe on its slopes instead of at
   its peak.
+
+<p class="caption" id="tab-15-2"><strong>Table 15.2.</strong> Columns: window (64 samples, periodic), coherent gain, noise bandwidth (bins), 3 dB width (bins), and more.</p>
 
 {{#include ../generated/spectral/window_merits.md}}
 
@@ -109,6 +113,8 @@ window is the eigenvector, for the largest eigenvalue, of a symmetric tridiagona
 problem. The library finds that eigenvalue by bisection on Sturm sequence counts and the eigenvector by inverse iteration.
 
 ### Testing against SciPy
+
+<p class="caption" id="tab-15-3"><strong>Table 15.3.</strong> Columns: window (lengths 16 and 17, symmetric and periodic), largest difference from SciPy.</p>
 
 {{#include ../generated/spectral/window_reference.md}}
 

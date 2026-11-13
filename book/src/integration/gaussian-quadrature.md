@@ -84,6 +84,8 @@ could not vanish, contradicting orthogonality.)
 
 ![The Gauss-Legendre nodes are the zeros of P₆](../generated/integration/gauss_legendre_nodes.svg)
 
+<p class="caption" id="fig-2-7"><strong>Figure 2.7.</strong> The Gauss-Legendre nodes are the zeros of P₆.</p>
+
 ### Theorem: exactness to degree $2n - 1$
 
 > Let $x_1, \ldots, x_n$ be the zeros of $p_n$, and choose the weights so that the rule integrates
@@ -126,6 +128,8 @@ w_i = \frac{2}{(1 - x_i^2)\,[P_n'(x_i)]^2}.
 $$
 
 ![Gauss-Legendre weights](../generated/integration/gauss_legendre_weights.svg)
+
+<p class="caption" id="fig-2-8"><strong>Figure 2.8.</strong> Gauss-Legendre weights.</p>
 
 The nodes crowd towards the endpoints and the weights shrink there, approaching
 $(\pi/n)\sqrt{1 - x^2}$. This is the density of Chebyshev points, the same clustering that makes
@@ -205,9 +209,13 @@ overflow for a few hundred points.
 
 The 5-point Gauss-Legendre rule computed by the library:
 
+<p class="caption" id="tab-2-8"><strong>Table 2.8.</strong> Columns: $i$, node $x_i$, weight $w_i$.</p>
+
 {{#include ../generated/integration/gauss_legendre_table.md}}
 
 Exactness of the 3-point rule ends precisely at degree $2 \cdot 3 - 1 = 5$:
+
+<p class="caption" id="tab-2-9"><strong>Table 2.9.</strong> Columns: degree $k$, exact $\int_{-1}^1 x^k\,dx$, 3-point Gauss, error.</p>
 
 {{#include ../generated/integration/gauss_legendre_exactness.md}}
 

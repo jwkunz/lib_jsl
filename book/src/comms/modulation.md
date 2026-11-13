@@ -56,6 +56,8 @@ symbol errors cost only one bit error each:
 
 ![Constellations](../generated/comms/constellations.svg)
 
+<p class="caption" id="fig-16-2"><strong>Figure 16.2.</strong> Constellations.</p>
+
 {{#include ../generated/comms/constellation_table.md}}
 
 ### Decisions and bit error rates
@@ -75,6 +77,8 @@ bit error rate is $Q(\sqrt{2E_b/N_0})$, and for square $M$-QAM approximately
 $\frac{4}{\log_2M}(1 - \frac1{\sqrt M})\,Q\big(\sqrt{3\log_2M\,E_b/((M - 1)N_0)}\big)$:
 
 ![Bit error rates](../generated/comms/ber.svg)
+
+<p class="caption" id="fig-16-3"><strong>Figure 16.3.</strong> Bit error rates.</p>
 
 The simulations (markers) follow the theory (lines). Each doubling of the bits per symbol costs several decibels of $E_b/N_0$. QPSK matches BPSK per bit, because its two components are independent BPSK channels.
 
@@ -131,6 +135,8 @@ symbol (`estimate_channel` and `demodulate_with_channel`):
 
 ![OFDM constellation](../generated/comms/ofdm_constellation.svg)
 
+<p class="caption" id="fig-16-4"><strong>Figure 16.4.</strong> OFDM constellation.</p>
+
 {{#include ../generated/comms/ofdm_table.md}}
 
 Four pilots cannot follow a channel whose response changes several times across the band. That is why Wi-Fi uses training symbols for the channel estimate,
@@ -157,6 +163,8 @@ symbol (`estimate_channel` and `demodulate_with_channel`):
 
 ![OFDM constellation](../generated/comms/ofdm_constellation.svg)
 
+<p class="caption" id="fig-16-5"><strong>Figure 16.5.</strong> OFDM constellation.</p>
+
 {{#include ../generated/comms/ofdm_table.md}}
 
 Four pilots cannot follow a channel whose response changes several times across the band. That is why Wi-Fi uses training symbols for the channel estimate,
@@ -168,6 +176,8 @@ FM makes the instantaneous frequency $f_c + k_fm(t)$: in complex baseband, $s[n]
 $m[n] = \arg(s[n]\overline{s[n-1]})\,f_s/(2\pi k_f)$, optionally followed by de-emphasis. **Carson's rule** estimates the bandwidth as $2(\Delta f + f_m)$:
 
 ![FM spectrum](../generated/comms/fm_spectrum.svg)
+
+<p class="caption" id="fig-16-6"><strong>Figure 16.6.</strong> FM spectrum.</p>
 
 {{#include ../generated/comms/fm_facts.md}}
 

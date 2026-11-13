@@ -129,11 +129,15 @@ a relative change of $6 \times 10^{-10}$, and ten of the roots became five compl
 
 ![Wilkinson's polynomial](../generated/root_finding/wilkinson.svg)
 
+<p class="caption" id="fig-4-4"><strong>Figure 4.4.</strong> Wilkinson's polynomial.</p>
+
 **What a good algorithm can promise.** Merely storing the coefficients of $W$ in double precision
 perturbs them by more than enough to move the upper roots by $10^{-3}$. No algorithm can do
 better than the conditioning allows. The right standard is **backward stability**: the computed
 roots are the exact roots of a polynomial whose coefficients are close to the given ones. The
 companion matrix method with balancing achieves this in a norm-wise sense.
+
+<p class="caption" id="tab-4-4"><strong>Table 4.4.</strong> Columns: polynomial, real roots found, largest error.</p>
 
 {{#include ../generated/root_finding/polynomial_accuracy.md}}
 

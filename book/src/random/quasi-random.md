@@ -120,6 +120,8 @@ independent estimates, whose spread measures the error.
 
 ![QMC integration error](../generated/random/qmc_error.svg)
 
+<p class="caption" id="fig-9-2"><strong>Figure 9.2.</strong> QMC integration error.</p>
+
 For a smooth product integrand in six dimensions, pseudo-random points follow $N^{-1/2}$, while Sobol and Halton points follow
 roughly $N^{-1}$, two to four hundred times more accurate at $10^5$ points, with the irregular decrease typical of quasi-random errors (Sobol is
 best at powers of two).

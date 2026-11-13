@@ -83,6 +83,8 @@ the correlation, tilts its boundary; logistic regression, which models the bound
 
 ![Naive Bayes on correlated features](../generated/machine_learning/naive_bayes_boundary.svg)
 
+<p class="caption" id="fig-11-5"><strong>Figure 11.5.</strong> Naive Bayes on correlated features.</p>
+
 {{#include ../generated/machine_learning/naive_bayes_accuracy.md}}
 
 The cost of the wrong assumption here is 1.4 percentage points of accuracy.
@@ -126,6 +128,8 @@ regression needs more data to pin down its weights, but is not limited by a wron
 overlapping topics:
 
 ![Learning curves](../generated/machine_learning/naive_bayes_learning.svg)
+
+<p class="caption" id="fig-11-6"><strong>Figure 11.6.</strong> Learning curves.</p>
 
 Naive Bayes is ahead at every size up to a thousand documents, the regime Ng and Jordan describe; here the documents really
 are generated word by word independently, so its model is correct and its advantage persists.

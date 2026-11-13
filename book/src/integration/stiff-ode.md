@@ -64,10 +64,14 @@ solution drifts slowly, then jumps:
 
 ![Van der Pol oscillator](../generated/integration/van_der_pol.svg)
 
+<p class="caption" id="fig-2-21"><strong>Figure 2.21.</strong> Van der Pol oscillator.</p>
+
 During the slow drift a large step would be accurate, but the Jacobian has an eigenvalue of size
 $\mu(y_1^2 - 1)$, up to about $3\mu$, so an explicit method must keep $h \lesssim 3.3/(3\mu) \approx 10^{-2}$:
 
 ![Step sizes on the Van der Pol oscillator](../generated/integration/stiff_step_sizes.svg)
+
+<p class="caption" id="fig-2-22"><strong>Figure 2.22.</strong> Step sizes on the Van der Pol oscillator.</p>
 
 The Dormand-Prince step hovers around $10^{-2}$ throughout, constantly rejected and retried at its
 stability limit. The implicit methods take steps as large as the accuracy allows, and shrink them
@@ -126,6 +130,8 @@ robustness makes it a good first try on a problem whose character is unknown.
 
 The library's three solvers on three classic problems, all at relative tolerance $10^{-6}$ (Jacobians
 formed by finite differences, which costs $n$ extra evaluations each):
+
+<p class="caption" id="tab-2-15"><strong>Table 2.15.</strong> Columns: problem, solver, steps, rejected, and more.</p>
 
 {{#include ../generated/integration/stiff_table.md}}
 

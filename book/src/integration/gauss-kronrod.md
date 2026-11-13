@@ -74,6 +74,8 @@ of degree 23. The library's tests check exactly this.
 
 ![Gauss and Kronrod nodes and weights](../generated/integration/gauss_kronrod_nodes.svg)
 
+<p class="caption" id="fig-2-9"><strong>Figure 2.9.</strong> Gauss and Kronrod nodes and weights.</p>
+
 The figure shows the pair. The Kronrod rule reuses the 7 Gauss nodes and interleaves 8 new ones,
 including two beyond the outermost Gauss nodes; all weights are positive. The Gauss weights at the
 shared nodes are different, so both sums must be formed, but every function value serves both.
@@ -107,6 +109,8 @@ spends evaluations only where they reduce the total error most, never refines a 
 already good enough, and terminates naturally with a subinterval limit.
 
 ![Gauss-Kronrod samples](../generated/integration/gauss_kronrod_samples.svg)
+
+<p class="caption" id="fig-2-10"><strong>Figure 2.10.</strong> Gauss-Kronrod samples.</p>
 
 Each dot is one evaluation. Away from the peak at $x = 0.3$ and the kink at $x = 0.7$, a handful
 of wide panels suffice; near them, panels shrink geometrically. Because the nodes are interior,
@@ -164,6 +168,8 @@ The global strategy:
 
 The library's results with tolerance $10^{-10}$, compared with the
 [adaptive trapezoid rule](newton-cotes.md#the-adaptive-trapezoid-rule) at the same tolerance:
+
+<p class="caption" id="tab-2-10"><strong>Table 2.10.</strong> Columns: integrand on $[0, 1]$, evaluations, true error, estimated error, and more.</p>
 
 {{#include ../generated/integration/gauss_kronrod_table.md}}
 

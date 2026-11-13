@@ -104,6 +104,8 @@ a much better vector. For symmetric matrices the convergence is cubic, tripling 
 correct digits per step, at the cost of a new factorisation at each step because the shift
 changes.
 
+<p class="caption" id="tab-7-6"><strong>Table 7.6.</strong> Columns: spectrum of the $30 \times 30$ matrix, power iteration, inverse iteration, shift 10.2, Rayleigh quotient iteration.</p>
+
 {{#include ../generated/linear_algebra/power_iteration.md}}
 
 Power iteration slows in proportion to $1/(1 - |\lambda_2/\lambda_1|)$; inverse iteration with a shift near 10 is fast in every case.
@@ -176,6 +178,8 @@ A good shift is available from the matrix itself. **Wilkinson's shift** is the e
 trailing $2 \times 2$ block that is nearer to its bottom right entry. With it the algorithm is guaranteed (Wilkinson, 1968) to converge for every symmetric *tridiagonal* matrix. A general
 symmetric matrix is first reduced to tridiagonal form, so the result covers it as well. The convergence is
 cubic in general:
+
+<p class="caption" id="tab-7-7"><strong>Table 7.7.</strong> Columns: order $n$, Jacobi sweeps, unshifted QR steps, Wilkinson-shifted QR steps, and more.</p>
 
 {{#include ../generated/linear_algebra/jacobi_qr.md}}
 

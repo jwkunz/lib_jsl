@@ -114,6 +114,8 @@ now always applied, as in LAPACK's `geev`.
 
 Both solvers are backward stable:
 
+<p class="caption" id="tab-7-8"><strong>Table 7.8.</strong> Columns: order $n$, symmetric: $\|AV - V\Lambda\|_F / \|A\|_F$, symmetric: $\|V^{\mathsf T}V - I\|_F$, general: $\|AV - V\Lambda\|_F / \|A\|_F$.</p>
+
 {{#include ../generated/linear_algebra/eigen_accuracy.md}}
 
 For Hermitian matrices, backward stability guarantees accurate eigenvalues, because eigenvalues of Hermitian matrices
@@ -124,6 +126,8 @@ example:
 
 ![Eigenvalues of the Grcar matrix](../generated/linear_algebra/grcar.svg)
 
+<p class="caption" id="fig-7-5"><strong>Figure 7.5.</strong> Eigenvalues of the Grcar matrix.</p>
+
 Perturbations of size $10^{-10}$ move its eigenvalues by up to $0.4$, and even the computed eigenvalues of the unperturbed matrix
 are those of a matrix within rounding error of it. The eigenvalues of its symmetric part, on the other hand, do not move
 visibly. For non-normal matrices the **pseudospectra**, the sets of eigenvalues of all nearby matrices, are often more
@@ -132,6 +136,8 @@ meaningful than the eigenvalues themselves.
 ### Speed
 
 ![Eigensolver speed](../generated/linear_algebra/eigen_speed.svg)
+
+<p class="caption" id="fig-7-6"><strong>Figure 7.6.</strong> Eigensolver speed.</p>
 
 The reduction to tridiagonal form makes the production symmetric solver roughly two orders of magnitude faster than the
 reference QR algorithm on the full matrix at $n = 128$. Against OpenBLAS's LAPACK, the symmetric solver is about as fast, and the general

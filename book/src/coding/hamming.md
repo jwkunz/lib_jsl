@@ -104,11 +104,15 @@ which raises the distance to $d = 4$. The decoder can then distinguish the two c
 error makes the overall parity odd. A double error leaves the overall parity even but gives a
 nonzero syndrome, which is reported as detected but not correctable:
 
+<p class="caption" id="tab-19-1"><strong>Table 19.1.</strong> Columns: code, bit errors, decoded correctly, detected, not corrected, and more.</p>
+
 {{#include ../generated/coding/hamming_outcomes.md}}
 
 ### On a noisy channel
 
 ![Hamming BER](../generated/coding/hamming_ber.svg)
+
+<p class="caption" id="fig-19-2"><strong>Figure 19.2.</strong> Hamming BER.</p>
 
 With hard decisions on BPSK over additive white Gaussian noise, the $(7, 4)$ code gains little. Its rate of 4/7 costs 2.4 dB of energy per bit, which it barely wins back by correcting single errors: about half a decibel at $10^{-6}$. The longer $(31, 26)$ code, of higher rate, gains about 1.5 dB. Real gains need longer codes with larger distance and soft decisions, the subjects of the following entries.
 

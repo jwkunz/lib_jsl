@@ -115,6 +115,8 @@ convergence.
 
 ![Orders of convergence](../generated/root_finding/orders.svg)
 
+<p class="caption" id="fig-4-2"><strong>Figure 4.2.</strong> Orders of convergence.</p>
+
 ### When Newton's method fails
 
 The convergence analysis is *local*: it assumes we are already near the root. From a poor
@@ -130,6 +132,8 @@ value, $|x_0| = 1.3917\ldots$:
   growing amplitude and diverges.
 
 ![Newton's method on arctan](../generated/root_finding/newton_atan.svg)
+
+<p class="caption" id="fig-4-3"><strong>Figure 4.3.</strong> Newton's method on arctan.</p>
 
 The orange path ($x_0 = 1.39$) shows the knife edge: it oscillates for several steps before falling
 into the region of quadratic convergence. There are other ways to fail.

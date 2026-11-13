@@ -89,11 +89,15 @@ from the vector $(1/K, 0)$.
 The quadrant is taken from the top two bits of the phase first, so the iterations only have to
 cover $[0, \pi/2)$. Each iteration adds about one bit of accuracy:
 
+<p class="caption" id="tab-16-1"><strong>Table 16.1.</strong> Columns: CORDIC iterations (32-bit), largest error in sin and cos, equivalent bits.</p>
+
 {{#include ../generated/comms/cordic_accuracy.md}}
 
 A short CORDIC's errors are periodic in the phase, so they appear in the spectrum as **spurs**, not noise:
 
 ![NCO spurs](../generated/comms/nco_spurs.svg)
+
+<p class="caption" id="fig-16-1"><strong>Figure 16.1.</strong> NCO spurs.</p>
 
 `Cordic32` uses 32-bit integers and reaches about $10^{-8}$; `Cordic64` takes the oscillator's full 64-bit phase and reaches double precision with 52 or more iterations.
 

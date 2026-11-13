@@ -51,6 +51,8 @@ $W \approx -1 + p - p^2/3$ with $p = \sqrt{2(ez + 1)}$ (and $-p$ for the lower b
 
 ![The real branches of the Lambert W function](../generated/special_functions/lambert_w.svg)
 
+<p class="caption" id="fig-6-15"><strong>Figure 6.15.</strong> The real branches of the Lambert W function.</p>
+
 In the complex plane there are infinitely many branches $W_k$, $k \in \mathbb Z$. For large $|z|$ they behave like
 $W_k(z) \approx L - \ln L$ with $L = \ln z + 2\pi ik$.
 
@@ -75,6 +77,8 @@ $x \ge 1$; for $-1/e \le y < 0$ there are two, from the two real branches, one i
 `inverse_x_log_x` returns the one with $x \ge 1/e$, `inverse_x_log_x_lower` the other.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-10"><strong>Table 6.10.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/lambert_accuracy.md}}
 

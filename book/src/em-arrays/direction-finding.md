@@ -57,9 +57,13 @@ $\boldsymbol\Psi = (\mathbf E_1^{\mathsf H}\mathbf E_1)^{-1}\mathbf E_1^{\mathsf
 
 ![DOA spectra](../generated/em-arrays/doa_spectra.svg)
 
+<p class="caption" id="fig-20-7"><strong>Figure 20.7.</strong> DOA spectra.</p>
+
 {{#include ../generated/em-arrays/doa_facts.md}}
 
 For a single source, all three estimators are nearly unbiased, and their errors shrink with SNR:
+
+<p class="caption" id="tab-20-3"><strong>Table 20.3.</strong> Columns: SNR per element (dB), Capon RMS error (°), MUSIC RMS error (°), ESPRIT RMS error (°).</p>
 
 {{#include ../generated/em-arrays/doa_rmse.md}}
 

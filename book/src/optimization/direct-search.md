@@ -81,6 +81,8 @@ the starting point, as `fminsearch` does.
 
 ![Direct search on the Rosenbrock function](../generated/optimization/direct_search.svg)
 
+<p class="caption" id="fig-5-5"><strong>Figure 5.5.</strong> Direct search on the Rosenbrock function.</p>
+
 ### Powell's method
 
 The most obvious derivative-free strategy is to minimise along each coordinate axis in turn and
@@ -161,6 +163,8 @@ axes. One iteration:
   step now points inward in that case.
 
 On the Rosenbrock function (evaluations to convergence, and the final value):
+
+<p class="caption" id="tab-5-5"><strong>Table 5.5.</strong> Columns: problem, Nelder-Mead, Powell, BFGS (exact gradient).</p>
 
 {{#include ../generated/optimization/direct_search.md}}
 

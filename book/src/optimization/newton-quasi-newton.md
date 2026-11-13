@@ -171,6 +171,8 @@ Iterations / evaluations of $f$ to reach $f < 10^{-10}$ (each method evaluates $
 and Newton's method also evaluates the Hessian at every iteration; gradient descent is limited to
 20 000 iterations):
 
+<p class="caption" id="tab-5-4"><strong>Table 5.4.</strong> Columns: problem, gradient descent, CG (PR+), CG (FR), and more.</p>
+
 {{#include ../generated/optimization/gradient_methods.md}}
 
 - On the Rosenbrock function, Newton's method needs 7 iterations and BFGS 38. Gradient descent, with

@@ -76,10 +76,14 @@ On the orthogonality interval the polynomial of degree $n$ oscillates, with exac
 
 ![Legendre polynomials](../generated/special_functions/legendre.svg)
 
+<p class="caption" id="fig-6-11"><strong>Figure 6.11.</strong> Legendre polynomials.</p>
+
 Multiplying by the square root of the weight and normalising gives orthonormal functions. The Hermite
 functions $H_n(x)e^{-x^2/2}/\sqrt{2^nn!\sqrt\pi}$ are the energy eigenstates of the quantum harmonic oscillator:
 
 ![Hermite functions](../generated/special_functions/hermite_functions.svg)
+
+<p class="caption" id="fig-6-12"><strong>Figure 6.12.</strong> Hermite functions.</p>
 
 `legendre_with_derivative` also returns $P_n'$, from $(x^2 - 1)P_n' = n(xP_n - P_{n-1})$, as Newton's method for
 the Gauss-Legendre nodes needs.
@@ -112,6 +116,8 @@ functions, starting from $\bar P_m^m$ and recurring in $l$; it is stable and fre
 thousands, as geophysical models need.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-8"><strong>Table 6.8.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/orthogonal_accuracy.md}}
 

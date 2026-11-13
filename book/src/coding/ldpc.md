@@ -78,9 +78,13 @@ iteration takes work proportional to the number of edges.
 
 ![LDPC BER](../generated/coding/ldpc_ber.svg)
 
+<p class="caption" id="fig-19-5"><strong>Figure 19.5.</strong> LDPC BER.</p>
+
 The curve falls steeply once the noise is below the code's threshold: the **waterfall**. Near it, decoding needs many iterations; well above it, a few suffice:
 
 ![LDPC iterations](../generated/coding/ldpc_iterations.svg)
+
+<p class="caption" id="fig-19-6"><strong>Figure 19.6.</strong> LDPC iterations.</p>
 
 ## Algorithm
 

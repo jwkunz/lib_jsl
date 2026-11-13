@@ -111,10 +111,14 @@ $$
 
 ![The dishonest casino](../generated/learning/hmm_casino.svg)
 
+<p class="caption" id="fig-13-7"><strong>Figure 13.7.</strong> The dishonest casino.</p>
+
 The posterior probability of the loaded die rises during the loaded stretches. The Viterbi path finds the long ones and misses
 the short runs near the start, where a few rolls are not enough evidence against the strong prior to stay fair. The two
 decoders answer different questions. Viterbi gives the single most likely *sequence*; taking the most likely state at each time
 (**posterior decoding**) maximises the expected number of correct labels, though the resulting sequence may be impossible as a whole:
+
+<p class="caption" id="tab-13-8"><strong>Table 13.8.</strong> Columns: decoder (100 sequences of 300 rolls), fraction of rolls labelled correctly.</p>
 
 {{#include ../generated/learning/hmm_decoding.md}}
 
@@ -127,9 +131,13 @@ the method only finds a local maximum:
 
 ![Baum-Welch from random starts](../generated/learning/hmm_baum_welch.svg)
 
+<p class="caption" id="fig-13-8"><strong>Figure 13.8.</strong> Baum-Welch from random starts.</p>
+
 All five random starts move quickly to a plateau, a nearly symmetric model in which the two states are almost identical. They then stay there for
 dozens to over a thousand iterations, until the symmetry breaks and the likelihood climbs to the level of the true model. One start
 had not escaped after 2000 iterations. Several starts, and patience, are needed. The best run recovers the casino:
+
+<p class="caption" id="tab-13-9"><strong>Table 13.9.</strong> Columns: parameter, true, Baum-Welch (best of five starts).</p>
 
 {{#include ../generated/learning/hmm_parameters.md}}
 
@@ -189,6 +197,8 @@ Both cost $O(TN^2)$ operations and $O(TN)$ storage.
 ```
 
 - Each Viterbi step is a full $N \times N$ scan, so time grows as $N^2$:
+
+<p class="caption" id="tab-13-10"><strong>Table 13.10.</strong> Columns: states N (1000 steps), Viterbi time (ms), ns per step per N².</p>
 
 {{#include ../generated/learning/hmm_viterbi_time.md}}
 

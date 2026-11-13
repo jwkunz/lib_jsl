@@ -82,6 +82,8 @@ term removes the resulting error.
 
 ![Variance accuracy](../generated/statistics/variance_accuracy.svg)
 
+<p class="caption" id="fig-10-1"><strong>Figure 10.1.</strong> Variance accuracy.</p>
+
 For 1000 values $c + U$ with $U$ uniform on $[0, 1)$, the one-pass formula loses all accuracy once $c \approx 10^8$ (its errors above $10^3$ are
 clipped), Welford's one-pass update degrades more slowly, and the two-pass algorithm stays at rounding level for every offset.
 
@@ -162,6 +164,8 @@ The mean and variance cost $O(n)$; the order-based statistics cost a sort, $O(n\
 
 Against SciPy 1.17 and NumPy 2.4 on a skewed sample of 20 values (the [kernel density](kernel-density.md) estimate is included for
 completeness):
+
+<p class="caption" id="tab-10-1"><strong>Table 10.1.</strong> Columns: quantity, library, SciPy / NumPy, relative difference.</p>
 
 {{#include ../generated/statistics/scipy_descriptive.md}}
 

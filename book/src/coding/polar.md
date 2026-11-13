@@ -95,6 +95,8 @@ suits a higher signal-to-noise ratio.
 
 ![Polarization](../generated/coding/polarization.svg)
 
+<p class="caption" id="fig-19-7"><strong>Figure 19.7.</strong> Polarization.</p>
+
 {{#include ../generated/coding/polar_facts.md}} The rest of the channels are still in between at this length; polarisation is slow, which is why short polar codes need better decoders than SC.
 
 ### Successive cancellation
@@ -134,6 +136,8 @@ corrupts everything that follows. **List decoders** keep the $L$ most likely par
 instead of one, and choose among them at the end, usually with the help of a checksum.
 
 ![Polar BER](../generated/coding/polar_ber.svg)
+
+<p class="caption" id="fig-19-8"><strong>Figure 19.8.</strong> Polar BER.</p>
 
 The design matters: a code designed for a BEC(0.32), closer to the operating point, beats one designed for a BEC(0.5) at higher signal-to-noise ratios.
 

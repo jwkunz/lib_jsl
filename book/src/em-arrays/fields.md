@@ -37,6 +37,8 @@ of degree up to $2n - 1$ exactly, and uniform azimuth samples integrate trigonom
 
 ![Sphere quadrature](../generated/em-arrays/sphere_quadrature.svg)
 
+<p class="caption" id="fig-20-1"><strong>Figure 20.1.</strong> Sphere quadrature.</p>
+
 ### Bases, interpolation and rigid transforms
 
 Every polarisation basis is a position-dependent map to Cartesian components, so a change of basis goes through Cartesian at each sample's position. The **circular** basis uses the right- and left-hand components transverse to the system's reference direction (IEEE handedness). Interpolation by nearest, linear or cubic (four-point Lagrange) stencils is separable over the axes. It wraps
@@ -51,6 +53,8 @@ $$
 $$
 
 applied to the smooth Cartesian components. Gradient, divergence, curl and Laplacians follow. Samples where a scale factor vanishes (the axis of a cylinder, the centre or poles of a sphere) are returned as NaN. Checking Faraday's law $\nabla \times \mathbf E = -j\omega\mu_0\mathbf H$ for a plane wave shows the fourth order:
+
+<p class="caption" id="tab-20-1"><strong>Table 20.1.</strong> Columns: samples, samples per wavelength, max ‖∇×E + jωμ₀H‖ ÷ k‖E‖, observed order, and more.</p>
 
 {{#include ../generated/em-arrays/faraday_table.md}}
 

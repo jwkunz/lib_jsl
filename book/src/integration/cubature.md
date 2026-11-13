@@ -92,6 +92,8 @@ $2^n + 2n^2 + 2n + 1$ points in total; dropping the last generator and reweighti
 an **embedded** degree-5 rule on the same points, and the difference of the two estimates the
 error.
 
+<p class="caption" id="tab-2-13"><strong>Table 2.13.</strong> Columns: dimension $n$, monomials of degree $\le 7$, Genz-Malik, degree 7, tensor Gauss, 4 points per axis.</p>
+
 {{#include ../generated/integration/cubature_points.md}}
 
 The Genz-Malik rule needs fewer points than there are monomials to integrate, thanks to symmetry,
@@ -116,6 +118,8 @@ cancels the second-derivative term and estimates the fourth derivative along axi
 
 ![Adaptive cubature samples](../generated/integration/cubature_samples.svg)
 
+<p class="caption" id="fig-2-14"><strong>Figure 2.14.</strong> Adaptive cubature samples.</p>
+
 On a Gaussian peak the evaluation points pile up around the peak, and the narrow bands of points
 along the axes through it show the single-axis cuts.
 
@@ -125,6 +129,8 @@ The library's results on two integrands make the choice clear. On a smooth integ
 Gauss rule wins, in three dimensions and still in six:
 
 ![Smooth integrand in 3 and 6 dimensions](../generated/integration/cubature_convergence.svg)
+
+<p class="caption" id="fig-2-15"><strong>Figure 2.15.</strong> Smooth integrand in 3 and 6 dimensions.</p>
 
 Two effects work against the adaptive rule here. Its degree-7 rule converges more slowly than a
 tensor Gauss rule of growing degree, and its error estimate, the difference from the degree-5
@@ -137,6 +143,8 @@ polynomial-based rule. The tensor rule improves only algebraically, while the ad
 concentrates regions at the corner and converges rapidly:
 
 ![Corner singularity](../generated/integration/cubature_singular.svg)
+
+<p class="caption" id="fig-2-16"><strong>Figure 2.16.</strong> Corner singularity.</p>
 
 In short: for smooth integrands in up to about five dimensions, use a tensor Gauss rule (and
 increase the points until the answer stops changing); for integrands with peaks, kinks or

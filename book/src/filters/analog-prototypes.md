@@ -91,6 +91,8 @@ the left-half-plane roots, and the mirror images belong to $H(-s)$.
 
 ![Fifth-order prototypes](../generated/filters/analog_magnitude.svg)
 
+<p class="caption" id="fig-14-2"><strong>Figure 14.2.</strong> Fifth-order prototypes.</p>
+
 At fifth order, the elliptic filter reaches 40 dB of attenuation within 30% of the cutoff, while the Butterworth filter needs
 more than twice the cutoff frequency. Chebyshev II and elliptic filters have zeros on the $j\omega$ axis, the notches in the stopband,
 which is why their attenuation stops falling.
@@ -98,6 +100,8 @@ which is why their attenuation stops falling.
 ### Where the poles are
 
 ![Pole locations](../generated/filters/analog_poles.svg)
+
+<p class="caption" id="fig-14-3"><strong>Figure 14.3.</strong> Pole locations.</p>
 
 - **Butterworth** poles are equally spaced on the left half of the unit circle: $s_k = e^{j\pi(2k + n + 1)/2n}$, $k = 0, \ldots, n - 1$.
 - **Chebyshev I** poles lie on an ellipse: $s_k = -\sinh(a)\sin\theta_k + j\cosh(a)\cos\theta_k$, where $\theta_k = \pi(2k + 1)/2n$ and $a = \frac1n\operatorname{arsinh}(1/\varepsilon)$. A flatter ellipse means poles closer to the axis and higher resonance.
@@ -118,6 +122,8 @@ arrive at different times and the pulse is distorted:
 
 ![Group delay of the prototypes](../generated/filters/analog_delay.svg)
 
+<p class="caption" id="fig-14-4"><strong>Figure 14.4.</strong> Group delay of the prototypes.</p>
+
 The sharp filters have large delay peaks at the band edge, caused by their poles near the axis. The Bessel filter's delay is
 flat almost to the cutoff, at the price of the slowest magnitude roll-off. No filter is best at both.
 
@@ -137,10 +143,14 @@ polynomial coefficients, keeps the transformations accurate for high orders.
 
 ![Band transformations](../generated/filters/analog_transforms.svg)
 
+<p class="caption" id="fig-14-5"><strong>Figure 14.5.</strong> Band transformations.</p>
+
 ### How much order does a specification need?
 
 For a low-pass specification of at most 1 dB passband ripple below the edge and at least 40 dB attenuation from 1.5 times the edge
 (digital frequencies 0.2 and 0.3 of Nyquist):
+
+<p class="caption" id="tab-14-3"><strong>Table 14.3.</strong> Columns: family, order for ≤ 1 dB ripple below 0.2 and ≥ 40 dB above 0.3 (× Nyquist).</p>
 
 {{#include ../generated/filters/orders.md}}
 

@@ -72,8 +72,12 @@ The library uses fixed 16-bit codes and freezes the dictionary when full. Unix `
 
 ![Dictionary coder growth](../generated/information/dictionary_growth.svg)
 
+<p class="caption" id="fig-18-3"><strong>Figure 18.3.</strong> Dictionary coder growth.</p>
+
 The entropy coders (dashed) settle at the byte entropy within a few kilobytes. The dictionary coders keep improving as they learn longer phrases. LZ77 is best throughout, since its window holds every recent string. LZ78 and LZW improve until their dictionaries fill, after about 65 000 phrases, and then slowly
 lose ground as the text drifts away from what they learnt. The asymptotic optimality of LZ78 needs an unbounded dictionary.
+
+<p class="caption" id="tab-18-5"><strong>Table 18.5.</strong> Columns: data (100 000 bytes), bits per byte, Huffman, Shannon-Fano, arithmetic, and more.</p>
 
 {{#include ../generated/information/data_kinds_table.md}}
 

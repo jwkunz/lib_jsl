@@ -38,9 +38,13 @@ A **Laplacian** step moves every vertex by $\lambda L(v_i)$ with $0 < \lambda < 
 
 ![Smoothing](../generated/geometry/smoothing.svg)
 
+<p class="caption" id="fig-24-10"><strong>Figure 24.10.</strong> Smoothing.</p>
+
 {{#include ../generated/geometry/smoothing.md}}
 
 ![Smoothing curves](../generated/geometry/smoothing_curves.svg)
+
+<p class="caption" id="fig-24-11"><strong>Figure 24.11.</strong> Smoothing curves.</p>
 
 Laplacian smoothing removes more roughness, because it also flattens the bumps whose wavelength is several triangles, but the sphere keeps shrinking: by 3% after 20 steps and 8% after 60. Taubin's sphere keeps its radius to 0.1% and stays a little lumpy, since long-wavelength noise is in its pass band.
 
@@ -52,6 +56,8 @@ Edges wait in a priority queue ordered by error, and the cheapest is collapsed f
 
 ![Decimation](../generated/geometry/decimation.svg)
 
+<p class="caption" id="fig-24-12"><strong>Figure 24.12.</strong> Decimation.</p>
+
 {{#include ../generated/geometry/decimation.md}}
 
 The vertices of the full mesh lie exactly on the torus, but its flat triangles fall short of it by up to 0.0014 in between, which is why its volume is 0.36% low. Decimation to 2000 triangles roughly triples that error. At 150 triangles the torus is still recognisable.
@@ -62,7 +68,11 @@ A plane cuts each triangle it crosses along a segment, between the two points wh
 
 ![Slices](../generated/geometry/slices.svg)
 
+<p class="caption" id="fig-24-13"><strong>Figure 24.13.</strong> Slices.</p>
+
 Every horizontal cut of a torus with radii $R$ and $r$ is two circles of radii $R \pm \sqrt{r^2 - z^2}$, so the total length is $4\pi R$ at every height:
+
+<p class="caption" id="tab-24-6"><strong>Table 24.6.</strong> Columns: height z, contours, all closed, total length, and more.</p>
 
 {{#include ../generated/geometry/slicing.md}}
 

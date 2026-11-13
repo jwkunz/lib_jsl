@@ -98,6 +98,8 @@ $\mathcal F^{\alpha\pm1} = \mathcal F^{\pm1}\mathcal F^\alpha$, where the chirps
 
 ![Fractional Fourier transforms of a rectangular pulse](../generated/fft/fractional.svg)
 
+<p class="caption" id="fig-8-3"><strong>Figure 8.3.</strong> Fractional Fourier transforms of a rectangular pulse.</p>
+
 The rectangular pulse turns, as $\alpha$ grows from 0 to 1, through Fresnel-like diffraction patterns into its Fourier transform, a sinc.
 
 The discretisation omits the oversampling step of Ozaktas's algorithm, so it approximates the continuous transform to about

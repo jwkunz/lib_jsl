@@ -39,6 +39,8 @@ Generic numerical code is written against two traits. [`IsLinearOperatable`](../
 
 The constants are grouped by field. Physical ones follow CODATA 2022. Exact ones are written exactly, and derived ones (the reduced Planck constant, the gas constant, the Bohr radius) are computed at compile time from their definitions, so the set is self-consistent. The book's generator checks the mathematical constants against 40-digit mpmath values, and the physical and unit constants against SciPy's CODATA 2022 tables:
 
+<p class="caption" id="tab-26-1"><strong>Table 26.1.</strong> Columns: module, reference, constants checked, largest relative difference.</p>
+
 {{#include ../generated/foundations/constants.md}}
 
 The physical differences are those between constants derived from the exact definitions and CODATA's separately adjusted values, well inside CODATA's uncertainties (the Bohr radius, for example, is known to $1.6 \times 10^{-10}$).
@@ -48,6 +50,8 @@ The physical differences are those between constants derived from the exact defi
 A double-precision number has a 53-bit significand. Its neighbours are therefore $\operatorname{ulp}(x) = 2^{e - 52}$ apart, where $2^e \le |x| < 2^{e+1}$: the **unit in the last place**. The relative spacing $\operatorname{ulp}(x)/x$ lies between $2^{-53}$ and $2^{-52}$, the **machine epsilon**, whatever the magnitude:
 
 ![ULP](../generated/foundations/ulp.svg)
+
+<p class="caption" id="fig-26-1"><strong>Figure 26.1.</strong> ULP.</p>
 
 {{#include ../generated/foundations/epsilon.md}}
 
@@ -60,6 +64,8 @@ Comparing results by the number of representable numbers between them, rather th
 ### Unit conversion
 
 Each unit has a dimension, a scale to its SI base unit and, for temperatures, an offset. Converting goes through the base unit, $v_{\text{to}} = (v\, s_{\text{from}} + o_{\text{from}} - o_{\text{to}}) / s_{\text{to}}$, and units of different dimensions are refused. Symbols are matched exactly first and then, if that is unambiguous, ignoring case. Ignoring case blindly would make `mW` a megawatt and `kb` a kilobyte, so ambiguous spellings such as `mw` are refused.
+
+<p class="caption" id="tab-26-2"><strong>Table 26.2.</strong> Columns: conversion, library, exact.</p>
 
 {{#include ../generated/foundations/units.md}}
 

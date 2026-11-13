@@ -30,15 +30,21 @@ To find the $k$ nearest neighbours of $q$, descend first into the side of each s
 
 ![Spatial trees](../generated/geometry/trees.svg)
 
+<p class="caption" id="fig-24-7"><strong>Figure 24.7.</strong> Spatial trees.</p>
+
 ### Quadtrees and octrees
 
 A quadtree covers a box. Each leaf holds up to a fixed number of points (8 by default). When a leaf overflows, it splits into four equal quadrants (eight octants in 3D) and hands its points down. Dense regions therefore get small cells, as in the clustered example above, and empty regions stay as single large leaves. A depth limit stops coincident points from splitting forever. Searches visit the children of each cell nearest first and skip any cell whose box is farther from the query than the current $k$-th best.
 
 The library's [`RegionTree`](../../api/lib_jsl_geometry/algorithms/region_tree/struct.RegionTree.html) is generic over the dimension; `QuadTree` and `OctTree` are its 2D and 3D forms. Each entry carries an id chosen by the caller, so the same tree can index moving objects by removing and reinserting them.
 
+<p class="caption" id="tab-24-4"><strong>Table 24.4.</strong> Columns: points, k-d build, quadtree build, k-d query, and more.</p>
+
 {{#include ../generated/geometry/tree_timing.md}}
 
 ![Query timing](../generated/geometry/tree_timing.svg)
+
+<p class="caption" id="fig-24-8"><strong>Figure 24.8.</strong> Query timing.</p>
 
 For uniformly spread points both trees answer a nearest-neighbour query in a few microseconds even among a million points, where a scan takes milliseconds. The k-d tree is a little faster for static data. The quadtree costs about the same to build and allows updates.
 

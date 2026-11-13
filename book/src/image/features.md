@@ -46,10 +46,14 @@ For a Gaussian blob of width $s$, $L$ at its centre peaks exactly at $\sigma = s
 
 ![LoG response against scale](../generated/image/blob_scale.svg)
 
+<p class="caption" id="fig-17-11"><strong>Figure 17.11.</strong> LoG response against scale.</p>
+
 [`blob_detection`](../../api/lib_jsl_dsp/discrete/image/feature_extraction/blob_detection/fn.blob_detection.html) evaluates $L$ at geometrically spaced scales (the Laplacian by the 5-point stencil). It keeps points that are maxima of their $3 \times 3 \times 3$ neighbourhood in position and scale and exceed a
 threshold. Of two detections overlapping by more than a given fraction of the smaller one's area, it drops the weaker. Each blob's radius is about $\sigma\sqrt2$:
 
 ![Blobs](../generated/image/blobs.svg)
+
+<p class="caption" id="fig-17-12"><strong>Figure 17.12.</strong> Blobs.</p>
 
 ### SIFT
 
@@ -91,6 +95,8 @@ $6s$, summed in a sliding window of $\pi/3$. The descriptor divides a $20s$ squa
 rejects descriptors that resemble several others. With `mutual`, the match must also be nearest in the other direction.
 
 ![SIFT matches](../generated/image/sift_matches.svg)
+
+<p class="caption" id="fig-17-13"><strong>Figure 17.13.</strong> SIFT matches.</p>
 
 {{#include ../generated/image/matching_table.md}}
 

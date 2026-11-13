@@ -171,7 +171,11 @@ of derivative $m$.
 
 ![Error against step size](../generated/derivatives/step_size.svg)
 
+<p class="caption" id="fig-1-1"><strong>Figure 1.1.</strong> Error against step size.</p>
+
 The library's default steps sit at the bottom of each V:
+
+<p class="caption" id="tab-1-3"><strong>Table 1.3.</strong> Columns: formula, truncation error, rounding error, default relative step, and more.</p>
 
 {{#include ../generated/derivatives/default_steps.md}}
 

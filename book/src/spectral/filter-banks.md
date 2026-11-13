@@ -60,6 +60,8 @@ The default prototype is a Kaiser-window low-pass with cutoff at half a channel 
 
 ![Channel responses](../generated/spectral/filter_bank_channels.svg)
 
+<p class="caption" id="fig-15-14"><strong>Figure 15.14.</strong> Channel responses.</p>
+
 Each channel is a shifted copy of the prototype's response, with 60 dB of rejection outside its band.
 
 The sample $rM + j$ places back must be multiplied by the tap $h[rM + j]$. Reversing the prototype within each block of $M$
@@ -86,6 +88,8 @@ wherever an image $H(\nu - a/D)$ is not. The combined delay of $h$ and $f$ must 
 The default prototype, a low-pass whose −6 dB point is at $1/(2M)$, has shifted copies that add to one. With oversampling, $D \le M/2$, its images at multiples of $1/D$ lie beyond $1.25/M$. So a low-pass $f$ with cutoff $1/(2D)$ and the same transition width passes every channel's band unchanged and stops the images.
 That is the oversampled synthesis bank's default, scaled for unit gain ($\sum f = D/\sum h$). With **critical sampling**, $D = M$, the images begin where the channels' transition bands do, and no FIR $f$ removes them. A critically sampled DFT bank reconstructs only if each polyphase component of the prototype is a single tap,
 as for the rectangular prototype that makes the bank a block DFT. (Critically sampled perfect reconstruction with good channel selectivity needs other structures, such as cosine-modulated banks.) Measured with white noise, after the best delay and complex gain are removed:
+
+<p class="caption" id="tab-15-10"><strong>Table 15.10.</strong> Columns: bank (16 channels), prototype filter, best delay (samples), best gain, and more.</p>
 
 {{#include ../generated/spectral/filter_bank_reconstruction.md}}
 

@@ -38,6 +38,10 @@ The reader is an advanced undergraduate meeting the algorithm for the first time
 not enough: the entry must be something they can learn from. The conventions below came out of
 feedback from early readers, who found compressed derivations hard to follow.
 
+- **Figures and tables are numbered automatically.** After adding one, run `python3 book/tools/captions.py`
+  from `book/src`: figures get "Figure C.k" below them (the image's alt text is the caption, so make it a
+  descriptive phrase) and generated tables get "Table C.k" above them. Refer to them by number, and say
+  what to look for rather than only "the figure above".
 - **Keep the library's history out of the text.** Do not write "an earlier version did...", "this chapter
   fixed...". Put the record of a fixed defect in `CHANGELOG.md`. If the mistake is one that anyone coding the
   method could make, state it as a pitfall in the present tense ("a partition that sends equal keys to one

@@ -73,6 +73,8 @@ the integrand matters. And the error can be estimated from the same samples, by 
 with the sample standard deviation. The price is the rate: one more correct digit costs a hundred
 times as many samples.
 
+<p class="caption" id="tab-2-14"><strong>Table 2.14.</strong> Columns: dimension $d$, $\sigma$, Monte Carlo error ($N = 10^5$), standard error, and more.</p>
+
 {{#include ../generated/integration/monte_carlo_dimensions.md}}
 
 For an integrand with the same variance in every dimension, the Monte Carlo error with $10^5$ points
@@ -116,6 +118,8 @@ $D^*_N = O\big((\log N)^d / N\big)$.
 
 </div>
 
+<p class="caption" id="fig-2-17"><strong>Figure 2.17.</strong> Random points, Sobol points and Halton points.</p>
+
 The **Halton sequence** uses the radical inverse: write $i$ in base $b$, reflect its digits about the
 decimal point ($i = 6 = 110_2 \mapsto 0.011_2 = 0.375$), and use a different prime base for each
 coordinate. The **Sobol sequence** works in base 2 throughout, with carefully chosen "direction
@@ -143,6 +147,8 @@ unbiased, while the even spacing of the set is preserved. Repeating with $R$ ind
 $R$ independent estimates, and their spread gives a standard error, exactly as in Monte Carlo.
 
 ![Monte Carlo against randomised quasi-Monte Carlo](../generated/integration/monte_carlo_convergence.svg)
+
+<p class="caption" id="fig-2-18"><strong>Figure 2.18.</strong> Monte Carlo against randomised quasi-Monte Carlo.</p>
 
 For this smooth five-dimensional integrand, Monte Carlo follows the $N^{-1/2}$ line and the randomised
 Sobol and Halton points follow $N^{-1}$: at $N = 65\,536$ they are about fifty times more accurate.

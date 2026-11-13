@@ -90,6 +90,8 @@ ends:
 
 ![Trigonometric interpolation](../generated/interpolation/fourier_interpolation.svg)
 
+<p class="caption" id="fig-3-6"><strong>Figure 3.6.</strong> Trigonometric interpolation.</p>
+
 ### Prony's method
 
 Trigonometric interpolation fixes the frequencies in advance and finds the amplitudes. Prony's
@@ -150,9 +152,13 @@ nonsense. The remedy, analysed by Ramdas Kumaresan and Donald Tufts, is to fit *
 than expected: the extra poles absorb the noise as heavily damped components, and the true ones
 emerge accurately. On data with 2% noise:
 
+<p class="caption" id="tab-3-4"><strong>Table 3.4.</strong> Columns: model, oscillatory components found: damping, frequency (Hz).</p>
+
 {{#include ../generated/interpolation/prony_table.md}}
 
 ![Prony's method on noisy data](../generated/interpolation/prony.svg)
+
+<p class="caption" id="fig-3-7"><strong>Figure 3.7.</strong> Prony's method on noisy data.</p>
 
 With four exponentials (the true number) the fit finds a single, wrong oscillation. With eight it
 recovers both true components to within a few per cent, and its extrapolation follows the true signal

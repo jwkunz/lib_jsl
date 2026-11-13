@@ -129,6 +129,8 @@ Each design function mirrors a SciPy function. For 45 cases, covering every IIR 
 window and equiripple FIR design, notch, peak and comb filters, frequency responses, filtering and convolution, the library's
 results agree with SciPy 1.17.1:
 
+<p class="caption" id="tab-14-1"><strong>Table 14.1.</strong> Columns: SciPy function and case, largest difference ÷ largest coefficient.</p>
+
 {{#include ../generated/filters/reference.md}}
 
 The band-stop critical frequencies differ by about $10^{-7}$ because SciPy's bounded minimiser stops within $10^{-5}$ of the optimal edge, where the library's search

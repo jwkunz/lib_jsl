@@ -94,6 +94,8 @@ $\ell_2$ penalty $\frac{\lambda}{2}\lVert W\rVert^2$ on the weights (intercepts 
 loss. The penalised minimum is unique and finite, and the less extreme probabilities it produces
 are better on new data:
 
+<p class="caption" id="tab-11-5"><strong>Table 11.5.</strong> Columns: $\lambda$, L-BFGS iterations, $\lVert W\rVert$, training log-loss, and more.</p>
+
 {{#include ../generated/machine_learning/logistic_penalty.md}}
 
 Without a penalty the training loss falls to zero, the weights reach $\lVert W\rVert = 21$ (and are still growing when the solver stops,
@@ -103,6 +105,8 @@ changes the accuracy but improves the test log-loss ninefold.
 ### Probability contours
 
 ![Logistic regression contours](../generated/machine_learning/logistic_contours.svg)
+
+<p class="caption" id="fig-11-4"><strong>Figure 11.4.</strong> Logistic regression contours.</p>
 
 For two classes the probability depends on $\mathbf x$ only through the score
 $\mathbf w^{\mathsf T}\mathbf x + b$, which is constant along lines perpendicular to $\mathbf w$. The

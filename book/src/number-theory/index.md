@@ -15,6 +15,8 @@ Number theory studies the integers, and its algorithms are among the oldest and 
 
 The references come from SymPy 1.14, by `book/generator/data/make_number_theory_refs.py`. They include the classic strong pseudoprimes and Carmichael numbers, the factorisation of $2^{64} - 1$, products of two primes near $2^{32}$, and moduli up to $10^{30}$:
 
+<p class="caption" id="tab-22-1"><strong>Table 22.1.</strong> Columns: computation (SymPy function), agreement.</p>
+
 {{#include ../generated/number_theory/reference.md}}
 
 ## In the library

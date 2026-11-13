@@ -82,6 +82,8 @@ $$
 
 ![Frequency warping](../generated/filters/bilinear_warping.svg)
 
+<p class="caption" id="fig-14-6"><strong>Figure 14.6.</strong> Frequency warping.</p>
+
 The tangent is nearly linear at low frequencies but stretches without bound towards Nyquist. A prototype designed for cutoff $\Omega_c$
 would therefore land at the wrong digital frequency. **Prewarping** inverts the tangent: to put a digital cutoff at $\omega_c$, design the analogue
 prototype for $\Omega_c = 2f_s\tan(\omega_c/2)$. Only the critical frequencies land exactly where requested, but because the map is monotonic, equiripple bands stay
@@ -98,6 +100,8 @@ equiripple and the ripple levels are preserved.
 5. return either the zeros, poles and gain, or the expanded polynomials `b` and `a` with $a_0 = 1$.
 
 ![Minimum-order designs](../generated/filters/iir_designs.svg)
+
+<p class="caption" id="fig-14-7"><strong>Figure 14.7.</strong> Minimum-order designs.</p>
 
 | | |
 |:---:|:---:|
@@ -127,6 +131,8 @@ specifications come out one order higher than SciPy's.
 ### Phase
 
 ![Group delay of the designs](../generated/filters/iir_delay.svg)
+
+<p class="caption" id="fig-14-8"><strong>Figure 14.8.</strong> Group delay of the designs.</p>
 
 IIR filters have nonlinear phase. Their group delay peaks at the passband edge, highest for the sharpest filters. A Bessel design
 keeps it nearly flat, but the bilinear warping spoils the analogue Bessel filter's flatness away from DC. When linear phase matters, FIR

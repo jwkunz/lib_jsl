@@ -91,6 +91,8 @@ instead of $mn$. Smooth functions sampled on a grid give matrices of this kind:
 
 ![Low-rank approximation](../generated/linear_algebra/low_rank.svg)
 
+<p class="caption" id="fig-7-7"><strong>Figure 7.7.</strong> Low-rank approximation.</p>
+
 The error of the truncated SVD follows $\sigma_{k+1}$ exactly, down to the level of rounding.
 
 ### Golub-Kahan bidiagonalisation
@@ -132,6 +134,8 @@ column scales from 1 to $10^{-15}$ in scrambled order, compared with singular va
 
 ![Relative accuracy of the SVD methods](../generated/linear_algebra/svd_accuracy.svg)
 
+<p class="caption" id="fig-7-8"><strong>Figure 7.8.</strong> Relative accuracy of the SVD methods.</p>
+
 Jacobi is accurate to rounding for every singular value; Golub-Kahan loses up to eight digits of the small ones, within its
 absolute guarantee $\varepsilon\sigma_1/\sigma_i$. The reference route through $A^{\mathsf T}A$ does better here than the general warning suggests, because it
 diagonalises $A^{\mathsf T}A = DB^{\mathsf T}BD$ by the Jacobi eigenvalue method, which is itself relatively accurate for such graded matrices; for a
@@ -140,6 +144,8 @@ matrix whose small singular values are not produced by column scaling, it loses 
 ### Speed
 
 ![SVD speed](../generated/linear_algebra/svd_speed.svg)
+
+<p class="caption" id="fig-7-9"><strong>Figure 7.9.</strong> SVD speed.</p>
 
 Golub-Kahan is the fastest; Jacobi with vectors costs two to five times as much. Against OpenBLAS the Golub-Kahan SVD is faster
 (0.4 to 0.8 of its time in the README's benchmarks).

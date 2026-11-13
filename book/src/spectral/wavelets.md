@@ -67,6 +67,8 @@ Invertibility comes from a condition on the filters: they are orthonormal under 
 $\sum_nh_nh_{n+2s} = \delta_s$. This makes the transform an orthogonal matrix, so its inverse is
 its transpose, energy is preserved, and reconstruction is exact:
 
+<p class="caption" id="tab-15-8"><strong>Table 15.8.</strong> Columns: wavelet, filter length, largest deviation from orthonormality Σ h[n]h[n+2s] = δ_s, reconstruction error after 4 levels.</p>
+
 {{#include ../generated/spectral/wavelet_checks.md}}
 
 ### Vanishing moments
@@ -87,6 +89,8 @@ detail coefficient towards zero by a threshold $\lambda$ (**soft thresholding**,
 
 ![Wavelet denoising](../generated/spectral/wavelet_denoise.svg)
 
+<p class="caption" id="fig-15-9"><strong>Figure 15.9.</strong> Wavelet denoising.</p>
+
 {{#include ../generated/spectral/wavelet_denoise.md}}
 
 The error halves while the jumps stay sharp, which a linear low-pass filter cannot achieve: smoothing the noise would also blur the edges.
@@ -97,6 +101,8 @@ The CWT correlates the signal with scaled wavelets at every shift, $W(a, b) = \f
 **scalogram**:
 
 ![Morlet scalogram](../generated/spectral/scalogram.svg)
+
+<p class="caption" id="fig-15-10"><strong>Figure 15.10.</strong> Morlet scalogram.</p>
 
 Unlike a spectrogram, the resolution varies with frequency. The chirp's low-frequency start is well resolved in frequency and smeared in time,
 and the short high-frequency burst is sharp in time and broad in frequency. The **Ricker** ("Mexican hat") wavelet, the second derivative of a Gaussian, is real

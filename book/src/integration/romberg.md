@@ -95,6 +95,8 @@ logarithmic axes: the slopes are 2, 4, 6, 8 and 10, as the theory predicts.
 
 ![Error of the Romberg columns](../generated/integration/romberg_columns.svg)
 
+<p class="caption" id="fig-2-6"><strong>Figure 2.6.</strong> Error of the Romberg columns.</p>
+
 ### Each level costs only the new midpoints
 
 Halving $h$ keeps all the old nodes and adds the midpoints, so
@@ -148,6 +150,8 @@ keeps the previous row and builds the next one in place:
 ## In practice
 
 The tableau for $\int_0^1 e^x\,dx$, as computed by the library:
+
+<p class="caption" id="tab-2-7"><strong>Table 2.7.</strong> Columns: $k$, $h$, $R(k,0)$, $R(k,1)$, and more.</p>
 
 {{#include ../generated/integration/romberg_tableau.md}}
 

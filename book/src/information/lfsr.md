@@ -62,6 +62,8 @@ order equals $2^n - 1$ exactly when $p$ is a **primitive** polynomial.
 $p$ of degree $n$ is primitive if $x^{2^n - 1} \equiv 1 \pmod p$ and $x^{(2^n - 1)/q} \not\equiv 1$ for every prime $q$ dividing $2^n - 1$. Then the order is exactly $2^n - 1$, and $p$ is irreducible because its quotient ring has $2^n - 1$ units and so is a field. [`is_primitive_polynomial`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.is_primitive_polynomial.html) computes the powers by square-and-multiply with carry-less arithmetic. It factors $2^n - 1$ by trial division, which limits it to degree 40.
 There are $\varphi(2^n - 1)/n$ primitive polynomials of degree $n$. [`maximum_length_polynomial`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.maximum_length_polynomial.html) returns one of minimal weight (fewest taps, the cheapest hardware), the numerically smallest among them:
 
+<p class="caption" id="tab-18-6"><strong>Table 18.6.</strong> Columns: degree n, period 2ⁿ − 1, primitive polynomials found, φ(2ⁿ − 1)/n, and more.</p>
+
 {{#include ../generated/information/primitive_table.md}}
 
 The counts found by [`all_maximum_length_polynomials`](../../api/lib_jsl_information/lfsr/maximum_length_polynomials/fn.all_maximum_length_polynomials.html) agree with the formula.
@@ -80,6 +82,8 @@ $N = 2^n - 1$ has several properties expected of a random sequence.
   $-1$:
 
 ![m-sequence autocorrelation](../generated/information/msequence_autocorrelation.svg)
+
+<p class="caption" id="fig-18-4"><strong>Figure 18.4.</strong> m-sequence autocorrelation.</p>
 
 A single sharp peak with a flat floor is the ideal shape for measuring a delay. That makes
 m-sequences ideal for ranging and channel sounding: a

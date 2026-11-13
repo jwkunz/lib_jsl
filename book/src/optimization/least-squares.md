@@ -164,6 +164,8 @@ starting guess:
 
 ![Fitting a Gaussian peak](../generated/optimization/curve_fit.svg)
 
+<p class="caption" id="fig-5-6"><strong>Figure 5.6.</strong> Fitting a Gaussian peak.</p>
+
 {{#include ../generated/optimization/curve_fit.md}}
 
 Every estimate lies within one standard error of the truth, as it should about two-thirds of the

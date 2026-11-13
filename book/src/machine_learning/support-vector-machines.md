@@ -72,6 +72,8 @@ margin, so those points have no influence on the solution at all.
 
 ![Linear SVM with margins](../generated/machine_learning/svm_margin.svg)
 
+<p class="caption" id="fig-11-9"><strong>Figure 11.9.</strong> Linear SVM with margins.</p>
+
 Only the six points on or inside the margins (highlighted) determine the boundary; the others could move freely without
 changing it. These are the **support vectors**.
 
@@ -134,6 +136,8 @@ The RBF parameter $\gamma$ sets the reach of each support vector, $1/\sqrt\gamma
 A small $\gamma$ gives a smooth, nearly linear boundary; $\gamma = 3$ follows the moons; $\gamma = 100$ draws an island around nearly every point and makes
 almost all of them support vectors. $C$ and $\gamma$ interact and must be chosen together, usually by cross-validation over a grid:
 
+<p class="caption" id="tab-11-7"><strong>Table 11.7.</strong> Columns: γ = 0.1, γ = 1, γ = 10, γ = 100.</p>
+
 {{#include ../generated/machine_learning/svm_grid.md}}
 
 ### Sequential minimal optimisation
@@ -169,6 +173,8 @@ $\min\tfrac12\boldsymbol\beta^{\mathsf T}(K + 1)\boldsymbol\beta - \mathbf y^{\m
 update. Adding 1 to the kernel folds the intercept into the kernel (penalising it slightly) and removes the equality constraint.
 
 ![Support vector regression](../generated/machine_learning/svr.svg)
+
+<p class="caption" id="fig-11-10"><strong>Figure 11.10.</strong> Support vector regression.</p>
 
 ## Algorithm
 

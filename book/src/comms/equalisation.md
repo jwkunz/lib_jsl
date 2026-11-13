@@ -46,6 +46,8 @@ A channel with impulse response $h$ turns symbol $s_n$ into $r_n = \sum_kh_ks_{n
 
 ![DFE constellation](../generated/comms/dfe_constellation.svg)
 
+<p class="caption" id="fig-16-10"><strong>Figure 16.10.</strong> DFE constellation.</p>
+
 ### The decision-feedback equaliser
 
 The DFE's output is
@@ -59,6 +61,8 @@ of decided ones exactly, without the noise enhancement a linear filter would add
 by [NLMS or RLS](../filters/adaptive.md), trained on known symbols first and then **decision-directed**:
 
 ![DFE learning curves](../generated/comms/dfe_learning.svg)
+
+<p class="caption" id="fig-16-11"><strong>Figure 16.11.</strong> DFE learning curves.</p>
 
 {{#include ../generated/comms/dfe_table.md}}
 

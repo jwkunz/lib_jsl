@@ -44,6 +44,8 @@ A cluster is a connected set of core points together with their border points.
 
 ![DBSCAN on moons with noise](../generated/unsupervised/dbscan_moons.svg)
 
+<p class="caption" id="fig-12-2"><strong>Figure 12.2.</strong> DBSCAN on moons with noise.</p>
+
 The two moons are found without being told there are two, and the 20 points scattered over the box are labelled noise. Border points
 (yellow) sit at the thin ends of the moons. A border point within reach of two clusters joins whichever reaches it first, the only
 order dependence in the method.
@@ -54,6 +56,8 @@ A common heuristic sorts the distances from each point to its $k$-th nearest nei
 points in clusters have small $k$-distances, and noise points large ones.
 
 ![k-distance plot](../generated/unsupervised/dbscan_kdistance.svg)
+
+<p class="caption" id="fig-12-3"><strong>Figure 12.3.</strong> k-distance plot.</p>
 
 Here, without noise, there is no sharp knee. A value just above the bulk of the curve, such as the ε = 0.2 used above, works well.
 
@@ -67,6 +71,8 @@ Two tight clusters next to one diffuse one:
 
 With a small ε the diffuse cluster dissolves into noise, apart from a fragment. With a large ε it is found, but the two tight clusters
 merge. No single value gets all three:
+
+<p class="caption" id="tab-12-8"><strong>Table 12.8.</strong> Columns: method, clusters, noise points, ARI (noise as its own group).</p>
 
 {{#include ../generated/unsupervised/density_table.md}}
 

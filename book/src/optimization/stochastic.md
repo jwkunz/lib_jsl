@@ -123,9 +123,13 @@ On the Rastrigin function $10n + \sum(x_i^2 - 10\cos 2\pi x_i)$ (a bowl covered 
 local minima) and the Ackley function (a nearly flat plateau with a deep central hole), over 20
 runs each from random starting points:
 
+<p class="caption" id="tab-5-9"><strong>Table 5.9.</strong> Columns: function, method, runs reaching $f < 10^{-4}$, median best $f$, and more.</p>
+
 {{#include ../generated/optimization/global.md}}
 
 ![Progress on the Rastrigin function](../generated/optimization/global.svg)
+
+<p class="caption" id="fig-5-10"><strong>Figure 5.10.</strong> Progress on the Rastrigin function.</p>
 
 - Nelder-Mead, a local method, stops in the first valley it finds, cheaply but almost never at the
   global minimum.

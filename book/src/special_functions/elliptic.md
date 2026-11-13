@@ -62,6 +62,8 @@ $K \approx \ln(4/\sqrt{1 - k^2})$, while $E \to 1$.
 
 ![Complete elliptic integrals](../generated/special_functions/elliptic_ke.svg)
 
+<p class="caption" id="fig-6-8"><strong>Figure 6.8.</strong> Complete elliptic integrals.</p>
+
 **Carlson's symmetric forms.** Legendre's forms are traditional but awkward to compute: each
 needs its own method and its own special cases. Carlson proposed a different set of standard
 integrals,
@@ -119,6 +121,8 @@ $\sin(\theta/2) = k\,\operatorname{sn}(K - \omega t \mid k^2)$ with $k = \sin(\t
 
 ![Jacobian elliptic functions](../generated/special_functions/jacobi_elliptic.svg)
 
+<p class="caption" id="fig-6-9"><strong>Figure 6.9.</strong> Jacobian elliptic functions.</p>
+
 They are computed by the **descending Landen transformation**, which relates elliptic functions
 of parameter $m$ to those of a smaller parameter. Applied repeatedly, it drives the parameter
 to zero, where the functions are trigonometric. In practice the iteration is the
@@ -130,6 +134,8 @@ $\sin(2\varphi_{n-1} - \varphi_n) = (c_n/a_n)\sin\varphi_n$, where $c_n = (a_{n-
 finally $\operatorname{dn} = \sqrt{(1 - m) + m\,\operatorname{cn}^2}$.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-5"><strong>Table 6.5.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/elliptic_accuracy.md}}
 

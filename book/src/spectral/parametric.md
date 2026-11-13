@@ -91,6 +91,8 @@ then updates the errors and the predictor by Levinson's step. By the Cauchy-Schw
 coefficient of magnitude 1 would put a pole on the unit circle). For sharply resonant processes,
 Burg's estimates are far better than the autocorrelation method's:
 
+<p class="caption" id="tab-15-7"><strong>Table 15.7.</strong> Columns: samples of a sharply resonant AR(4) process, Levinson-Durbin (autocorrelation method) error, Burg error.</p>
+
 {{#include ../generated/spectral/ar_estimation.md}}
 
 The process is Marple's classic test case, $A(z) = 1 - 2.7607z^{-1} + 3.8106z^{-2} - 2.6535z^{-3} + 0.9238z^{-4}$, with poles at radius 0.98. The table shows the RMS error of the four coefficients, averaged over 50 records.
@@ -101,6 +103,8 @@ The autocorrelation method's zero-padding bias dominates even at 1024 samples.
 Two tones 0.015 cycles per sample apart, in 64 samples, are less than one bin apart ($1/64 = 0.0156$):
 
 ![Parametric resolution](../generated/spectral/parametric_resolution.svg)
+
+<p class="caption" id="fig-15-8"><strong>Figure 15.8.</strong> Parametric resolution.</p>
 
 The Hann periodogram shows a single broad hump. A Burg AR(16) model resolves two peaks, and MUSIC places sharp peaks almost exactly on the true frequencies:
 {{#include ../generated/spectral/music_peaks.md}}

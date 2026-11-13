@@ -53,6 +53,8 @@ for the empirical distribution of the bytes of a slice; [`entropy_from_probabili
 
 ![Binary entropy](../generated/information/binary_entropy.svg)
 
+<p class="caption" id="fig-18-1"><strong>Figure 18.1.</strong> Binary entropy.</p>
+
 Entropy is not just a measure of uncertainty; it is the answer to a practical question. Shannon's
 **source coding theorem** says that no lossless code can use fewer than $H$ bits per symbol on
 average, and that codes exist using fewer than $H + 1$ (coding single symbols) or $H + \epsilon$
@@ -61,6 +63,8 @@ average, and that codes exist using fewer than $H + 1$ (coding single symbols) o
 
 There is a caveat about what "the source" is.
 The byte entropy only describes symbols taken one at a time. Real data has structure between symbols, and the entropy of blocks, per symbol, falls as the blocks lengthen:
+
+<p class="caption" id="tab-18-1"><strong>Table 18.1.</strong> Columns: source, entropy (bits per byte).</p>
 
 {{#include ../generated/information/entropy_table.md}}
 
@@ -79,6 +83,8 @@ $$
 where the **Kullback-Leibler divergence** $D(p\,\Vert\,q) = \sum_x p(x)\log_2\big(p(x)/q(x)\big)$ is the extra cost. It is never negative, it is zero only when $q = p$ (Gibbs' inequality), and it is not symmetric. The cross entropy is infinite if $q$ gives zero probability to a symbol that occurs.
 In machine learning, minimising cross entropy is the same as maximising likelihood.
 
+<p class="caption" id="tab-18-2"><strong>Table 18.2.</strong> Columns: quantity (bits), library, SciPy `stats.entropy`.</p>
+
 {{#include ../generated/information/entropy_reference.md}}
 
 ### Mutual information
@@ -95,6 +101,8 @@ number of bits that one variable tells us about the other. It is symmetric in th
 row-major table. A binary symmetric channel, which flips each bit with probability $\varepsilon$, carries $1 - H(\varepsilon)$ bits per use for a uniform input. That is its capacity:
 
 ![BSC mutual information](../generated/information/bsc_information.svg)
+
+<p class="caption" id="fig-18-2"><strong>Figure 18.2.</strong> BSC mutual information.</p>
 
 ### Gray codes
 

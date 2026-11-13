@@ -46,9 +46,13 @@ The reader handles booleans, signed and unsigned integers of 1 to 8 bytes, 32- a
 
 Files written by Python's libraries, read by this one:
 
+<p class="caption" id="tab-26-8"><strong>Table 26.8.</strong> Columns: file written by Python, bytes, read by the library.</p>
+
 {{#include ../generated/foundations/reading_data.md}}
 
 Files written by this library, read by Python's:
+
+<p class="caption" id="tab-26-9"><strong>Table 26.9.</strong> Columns: file written by the library (read by), result.</p>
 
 {{#include ../generated/foundations/interop_data.md}}
 

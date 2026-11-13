@@ -72,8 +72,12 @@ compresses 200 to 1:
 
 ![Pulse compression](../generated/comms/pulse_compression.svg)
 
+<p class="caption" id="fig-16-12"><strong>Figure 16.12.</strong> Pulse compression.</p>
+
 The unweighted matched filter's first sidelobes are at −13.3 dB, the sinc's, and would hide the second target 20 dB down if it were closer. Weighting the
 filter by a window trades a little peak SNR (about 1.3 dB for Hamming) and width for much lower sidelobes:
+
+<p class="caption" id="tab-16-3"><strong>Table 16.3.</strong> Columns: waveform and weighting, peak sidelobe level (dB), −3 dB width (samples).</p>
 
 {{#include ../generated/comms/sidelobes.md}}
 
@@ -95,6 +99,8 @@ $$
 where $m_k$ is the measured delay. If the normalised correlation in the gate falls below a threshold, it coasts on the prediction, and after too many misses it drops the track:
 
 ![Pulse tracking](../generated/comms/pulse_tracking.svg)
+
+<p class="caption" id="fig-16-13"><strong>Figure 16.13.</strong> Pulse tracking.</p>
 
 ## Algorithm
 

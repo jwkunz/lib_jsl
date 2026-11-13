@@ -32,12 +32,16 @@ against the number of function evaluations.
 
 ![Convergence on a smooth integrand](../generated/integration/convergence_smooth.svg)
 
+<p class="caption" id="fig-2-1"><strong>Figure 2.1.</strong> Convergence on a smooth integrand.</p>
+
 On the smooth Runge function $1/(1 + 25x^2)$, Gaussian quadrature reaches full double precision
 with about 100 evaluations. The trapezoid rule, still at $10^{-7}$ after 1000 evaluations, would
 need tens of millions to match it.
 Romberg integration and tanh-sinh quadrature also converge faster than any power of $N$.
 
 ![Convergence on an integrand with an endpoint singularity](../generated/integration/convergence_singular.svg)
+
+<p class="caption" id="fig-2-2"><strong>Figure 2.2.</strong> Convergence on an integrand with an endpoint singularity.</p>
 
 On $\sqrt{x}$, whose derivative is infinite at $x = 0$, the picture changes completely. Every
 polynomial-based rule, Gauss included, falls back to slow algebraic convergence, and Romberg
@@ -81,15 +85,21 @@ The references come from SciPy 1.17.1, written by `book/generator/data/make_inte
 
 The Gaussian rules agree with `scipy.special`'s to rounding error. At 100 points the library's Legendre weights are in fact the more accurate: SciPy's differ from the exact weights by $2 \times 10^{-13}$.
 
+<p class="caption" id="tab-2-1"><strong>Table 2.1.</strong> Columns: rule (SciPy reference), largest difference.</p>
+
 {{#include ../generated/integration/scipy_rules.md}}
 
 For one-dimensional integrals the table gives the relative error against the exact value, for the library's adaptive Gauss-Kronrod and tanh-sinh rules and for SciPy's QUADPACK `quad` and its own `tanhsinh`:
+
+<p class="caption" id="tab-2-2"><strong>Table 2.2.</strong> Columns: integral, library Gauss-Kronrod, library tanh-sinh, SciPy `quad`, and more.</p>
 
 {{#include ../generated/integration/scipy_quadrature.md}}
 
 All four reach about double precision, except on $1/\sqrt{1 - x^2}$, where $1 - x^2$ loses its digits near the ends when $x$ is rounded. QUADPACK's algebraic-singularity extrapolation recovers most of them. Tanh-sinh recovers all of them when the integrand is given the exact offset of $x$ from the nearer endpoint, which [`integrate_with_complement`](tanh-sinh.md) provides.
 
 Cubature, initial and boundary value problems, compared with `integrate.cubature`, `solve_ivp` (DOP853 for the non-stiff problem, Radau for the stiff ones) and `solve_bvp`:
+
+<p class="caption" id="tab-2-3"><strong>Table 2.3.</strong> Columns: problem (SciPy reference), result.</p>
 
 {{#include ../generated/integration/scipy_solvers.md}}
 

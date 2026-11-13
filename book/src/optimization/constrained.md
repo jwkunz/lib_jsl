@@ -202,6 +202,8 @@ multipliers $\mu_1 = \mu_2 = 2/3$:
 
 ![A constrained problem](../generated/optimization/constrained.svg)
 
+<p class="caption" id="fig-5-7"><strong>Figure 5.7.</strong> A constrained problem.</p>
+
 The KKT conditions can be checked by hand. In the standard form the constraints are
 $g_1 = x^2 - y \le 0$ and $g_2 = x + y - 2 \le 0$. At $(1, 1)$ the gradients are
 $\nabla f = (-2, 0)$, $\nabla g_1 = (2, -1)$ and $\nabla g_2 = (1, 1)$, and indeed
@@ -209,6 +211,8 @@ $\nabla f = (-2, 0)$, $\nabla g_1 = (2, -1)$ and $\nabla g_2 = (1, 1)$, and inde
 $$
 \nabla f + \tfrac23\nabla g_1 + \tfrac23\nabla g_2 = \big(-2 + \tfrac43 + \tfrac23,\ \ 0 - \tfrac23 + \tfrac23\big) = (0, 0).
 $$
+
+<p class="caption" id="tab-5-6"><strong>Table 5.6.</strong> Columns: problem, method, iterations, evaluations of $f$, and more.</p>
 
 {{#include ../generated/optimization/constrained.md}}
 

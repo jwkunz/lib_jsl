@@ -112,6 +112,8 @@ accurate**: their coverage error is $O(n^{-1})$ instead of $O(n^{-1/2})$.
 
 ### How well do they cover?
 
+<p class="caption" id="tab-10-5"><strong>Table 10.5.</strong> Columns: statistic (true value), $n$, $t$ interval, percentile, and more.</p>
+
 {{#include ../generated/statistics/bootstrap_coverage.md}}
 
 For the mean of exponential data, all three intervals under-cover at $n = 10$ and approach 90% as $n$ grows; the bootstrap intervals are
@@ -121,6 +123,8 @@ is poor: 56–61% at $n = 10$, still 81–83% at $n = 100$, with BCa consistentl
 information about tails the sample has not seen.
 
 ![Bootstrap replicates](../generated/statistics/bootstrap_sd.svg)
+
+<p class="caption" id="fig-10-3"><strong>Figure 10.3.</strong> Bootstrap replicates.</p>
 
 The replicates of the standard deviation from one sample of 30 are lumpy, because the result depends mainly on how many copies
 of the largest observation a resample contains. The BCa interval is shifted to the right of the percentile one, correcting

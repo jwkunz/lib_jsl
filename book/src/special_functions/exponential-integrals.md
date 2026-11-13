@@ -115,6 +115,8 @@ series at a jump, the **Gibbs phenomenon**.
 
 ![Sine, cosine and exponential integrals](../generated/special_functions/sine_cosine_integrals.svg)
 
+<p class="caption" id="fig-6-4"><strong>Figure 6.4.</strong> Sine, cosine and exponential integrals.</p>
+
 ### Fresnel integrals
 
 $$
@@ -127,10 +129,14 @@ straight track to circular curves smoothly:
 
 ![The Cornu spiral](../generated/special_functions/cornu_spiral.svg)
 
+<p class="caption" id="fig-6-5"><strong>Figure 6.5.</strong> The Cornu spiral.</p>
+
 $C + iS$ is an error function of a complex argument, $\frac{1+i}2\operatorname{erf}\big(\frac{\sqrt\pi}2(1 - i)x\big)$. The library uses the power
 series for small $x$ and, for large $x$, a complex continued fraction for $\operatorname{erfc}$.
 
 ### Accuracy
+
+<p class="caption" id="tab-6-3"><strong>Table 6.3.</strong> Columns: function, test points, median relative error, largest relative error, and more.</p>
 
 {{#include ../generated/special_functions/exponential_accuracy.md}}
 

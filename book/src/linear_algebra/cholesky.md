@@ -84,6 +84,8 @@ Three properties make this factorisation special.
 For complex Hermitian matrices the same formulas hold with the conjugate transpose $L^{\mathsf H}$
 and $|\ell_{jk}|^2$.
 
+<p class="caption" id="tab-7-4"><strong>Table 7.4.</strong> Columns: matrix, Cholesky, LU.</p>
+
 {{#include ../generated/linear_algebra/cholesky_cases.md}}
 
 The Hilbert matrix of order 12, with condition number near $10^{16}$, is still factorised: positive

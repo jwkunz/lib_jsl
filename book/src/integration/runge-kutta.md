@@ -137,11 +137,15 @@ satellite moves fast and its path curves sharply, and the accepted steps crowd t
 
 ![The Arenstorf orbit](../generated/integration/arenstorf_orbit.svg)
 
+<p class="caption" id="fig-2-19"><strong>Figure 2.19.</strong> The Arenstorf orbit.</p>
+
 A fixed step small enough for the close approach is wasted on the rest of the orbit. Measured by
 the error after one period, adaptive Dormand-Prince is about a thousand times cheaper than RK4 with
 a fixed step:
 
 ![Error after one period](../generated/integration/arenstorf_convergence.svg)
+
+<p class="caption" id="fig-2-20"><strong>Figure 2.20.</strong> Error after one period.</p>
 
 ### Stability and stiffness
 

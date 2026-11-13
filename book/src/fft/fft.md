@@ -146,6 +146,8 @@ two and [Bluestein's algorithm](bluestein-fractional.md) for every other length.
 
 ![FFT speed](../generated/fft/speed.svg)
 
+<p class="caption" id="fig-8-2"><strong>Figure 8.2.</strong> FFT speed.</p>
+
 The three reference engines run at 1 to 4 GFLOP/s; `BestFft` reaches 10 to 20, falling off once the data no longer fit in cache. The
 direct DFT, at well under 0.1 GFLOP/s-equivalent, is hopeless beyond a few thousand points.
 

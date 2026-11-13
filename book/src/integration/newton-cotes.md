@@ -137,6 +137,8 @@ where $M_n = h \sum_i f\big(a + (i + \tfrac12)h\big)$ and
 $T_n = h\big[\tfrac12 f(a) + f(a + h) + \cdots + f(b - h) + \tfrac12 f(b)\big]$. Halving $h$ divides
 both errors by four. For $\int_0^1 e^x\,dx$ the library computes
 
+<p class="caption" id="tab-2-4"><strong>Table 2.4.</strong> Columns: panels $n$, midpoint $M_n - I$, trapezoid $T_n - I$, ratio, and more.</p>
+
 {{#include ../generated/integration/newton_cotes_midpoint_trapezoid.md}}
 
 The ratio of the errors tends to exactly $-\tfrac12$, and the last column anticipates the next
@@ -188,6 +190,8 @@ closed rules on $[0, 1]$, computed by the library from the conditions
 $\sum_i w_i x_i^k = 1/(k+1)$, show what goes wrong (only the first half of each symmetric list is
 shown):
 
+<p class="caption" id="tab-2-5"><strong>Table 2.5.</strong> Columns: points, weights on $[0, 1]$, degree, $\sum_i \lvert w_i \rvert$.</p>
+
 {{#include ../generated/integration/newton_cotes_weights.md}}
 
 Rules with an odd number of points gain a degree from symmetry, so the 3-point rule (Simpson) is
@@ -204,6 +208,8 @@ well as the weights, and all its weights are positive.
 
 ![Composite rules converge as h², h² and h⁴](../generated/integration/newton_cotes_convergence.svg)
 
+<p class="caption" id="fig-2-3"><strong>Figure 2.3.</strong> Composite rules converge as h², h² and h⁴.</p>
+
 ### The trapezoid rule on periodic functions
 
 The [Euler-Maclaurin formula](romberg.md#the-trapezoid-rule-and-its-error) gives the trapezoid
@@ -213,6 +219,8 @@ these differences vanishes. The error is then smaller than any power of $h$, and
 periodic $f$ it decreases exponentially in the number of points:
 
 ![The trapezoid rule on a periodic integrand](../generated/integration/trapezoid_periodic.svg)
+
+<p class="caption" id="fig-2-4"><strong>Figure 2.4.</strong> The trapezoid rule on a periodic integrand.</p>
 
 With about 14 panels the trapezoid rule reaches machine precision for $\int_0^{2\pi} e^{\cos x}\,dx$,
 while for the non-periodic $\int_0^1 e^x\,dx$ it has only about three correct digits. This is why the
@@ -241,6 +249,8 @@ trapezoid rule given the *same number of evaluations*, on three integrands over 
 smooth peak $1/\big(10^{-3} + (x - 0.3)^2\big)$, a kink $\sqrt{\lvert x - 1/\pi \rvert}$ and a jump
 from 0 to 1 at $x = 1/\pi$:
 
+<p class="caption" id="tab-2-6"><strong>Table 2.6.</strong> Columns: integrand on $[0, 1]$, tolerance, evaluations, adaptive error, and more.</p>
+
 {{#include ../generated/integration/adaptive_trapezoid_table.md}}
 
 The results are instructive. On the smooth peak the uniform rule wins by orders of magnitude,
@@ -251,6 +261,8 @@ endpoint terms, whereas the unequal panels of the adaptive rule destroy that can
 wins by putting its points where the trouble is:
 
 ![Adaptive trapezoid samples](../generated/integration/adaptive_trapezoid_samples.svg)
+
+<p class="caption" id="fig-2-5"><strong>Figure 2.5.</strong> Adaptive trapezoid samples.</p>
 
 At a **jump** the uniform rule is stuck at an $O(h)$ error, while the adaptive rule isolates the
 discontinuity in a panel of width $2^{-50}$ and is exact to rounding error with about a hundred

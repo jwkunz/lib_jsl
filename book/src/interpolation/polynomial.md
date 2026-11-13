@@ -188,6 +188,8 @@ its derivatives grow very quickly. The interpolant diverges near the ends:
 
 ![The Runge phenomenon](../generated/interpolation/runge.svg)
 
+<p class="caption" id="fig-3-2"><strong>Figure 3.2.</strong> The Runge phenomenon.</p>
+
 Adding more equally spaced points makes the oscillations worse, not better.
 
 ### Chebyshev points
@@ -215,6 +217,8 @@ convergence. For the Runge function, the largest such ellipse passes through the
 $\pm i/5$. Its semi-axes are $1/5$ and $\sqrt{1 + 1/25}$, so $\rho = 1/5 + \sqrt{1 + 1/25} \approx 1.22$:
 
 ![Convergence for the Runge function](../generated/interpolation/runge_convergence.svg)
+
+<p class="caption" id="fig-3-3"><strong>Figure 3.3.</strong> Convergence for the Runge function.</p>
 
 Equally spaced interpolation diverges, by a factor of $10^5$ at 50 points, while both Chebyshev
 methods converge at exactly the predicted rate.

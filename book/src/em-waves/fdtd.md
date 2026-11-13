@@ -71,6 +71,8 @@ all.
 back as from a mirror. An **absorbing boundary condition** sets the edge value so as to mimic a
 wave leaving the grid. First-order **Mur** boundaries, $E(0)^{n+1} = E(1)^n + \frac{S - 1}{S + 1}\big(E(1)^{n+1} - E(0)^n\big)$, absorb exactly at the magic step.
 
+<p class="caption" id="tab-21-4"><strong>Table 21.4.</strong> Columns: ε_r, Fresnel Γ = (1 − √ε_r)/(1 + √ε_r), FDTD, Courant number 1, FDTD, Courant number 0.5.</p>
+
 {{#include ../generated/em-waves/fdtd_reflection.md}}
 
 A Gaussian pulse meeting a dielectric half-space reflects with the Fresnel coefficient, to within 0.4% at $\varepsilon_r = 9$, where the medium's wavelength is shortest.
@@ -81,6 +83,8 @@ On the grid, waves of different wavelengths travel at slightly different speeds,
 vacuum they should all travel at $c$. This artefact is **numerical dispersion**, and it distorts
 pulses over long distances. For $S < 1$ the Yee scheme's dispersion relation is $\sin(\omega\Delta t/2) = S\sin(k\Delta x/2)$. Waves travel slower than $c$, by an error proportional to $(\Delta x/\lambda)^2$, so ten cells per wavelength is a common minimum and twenty is safer. Measuring the phase velocity of a sinusoid in the library's solver reproduces the formula:
 
+<p class="caption" id="tab-21-5"><strong>Table 21.5.</strong> Columns: Courant number S, cells per wavelength, phase velocity error ‖1 − v/c‖, Yee dispersion relation, measured.</p>
+
 {{#include ../generated/em-waves/fdtd_dispersion.md}}
 
 ### Two dimensions and the perfectly matched layer
@@ -89,7 +93,11 @@ The transverse-magnetic mode ($E_z$, $H_x$, $H_y$) needs $S \le 1/\sqrt2$. Aroun
 
 ![FDTD cylinder](../generated/em-waves/fdtd_cylinder.svg)
 
+<p class="caption" id="fig-21-12"><strong>Figure 21.12.</strong> FDTD cylinder.</p>
+
 ![FDTD energy](../generated/em-waves/fdtd_energy.svg)
+
+<p class="caption" id="fig-21-13"><strong>Figure 21.13.</strong> FDTD energy.</p>
 
 Once the pulse and its scattered waves have left the interior, the energy remaining there falls by six orders of magnitude.
 

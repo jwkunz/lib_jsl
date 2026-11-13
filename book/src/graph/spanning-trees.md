@@ -64,6 +64,8 @@ since Kruskal must sort every edge.
 
 ![Euclidean MST](../generated/graph/euclidean_mst.svg)
 
+<p class="caption" id="fig-23-3"><strong>Figure 23.3.</strong> Euclidean MST.</p>
+
 {{#include ../generated/graph/mst_facts.md}}
 
 ### Union-find

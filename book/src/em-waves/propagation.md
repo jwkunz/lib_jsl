@@ -40,6 +40,8 @@ Over a flat ground, the receiver sees the direct ray and one reflected with Fres
 
 ![Two-ray model](../generated/em-waves/two_ray.svg)
 
+<p class="caption" id="fig-21-4"><strong>Figure 21.4.</strong> Two-ray model.</p>
+
 {{#include ../generated/em-waves/two_ray_facts.md}} The deep nulls closer in are where the path difference is a whole number of wavelengths. Real ground, with relative permittivity 15 and conductivity 5 mS/m, reflects a little less than a perfect conductor.
 
 ### Empirical urban models
@@ -47,6 +49,8 @@ Over a flat ground, the receiver sees the direct ray and one reflected with Fres
 The **log-distance** model $L = L_0 + 10n\log_{10}(d/d_0)$ fits measurements with an exponent $n$ between 2 (free space) and about 4 (cluttered). The **Okumura-Hata** model gives the median loss for 150–1500 MHz from the frequency, the antenna heights and the distance. It includes corrections for the mobile antenna height in small and large cities, and offsets for suburban and open areas:
 
 ![Okumura-Hata](../generated/em-waves/hata.svg)
+
+<p class="caption" id="fig-21-5"><strong>Figure 21.5.</strong> Okumura-Hata.</p>
 
 {{#include ../generated/em-waves/hata_facts.md}} At a 1.5 m mobile height the two city corrections are nearly zero, so the two urban curves coincide.
 
@@ -56,6 +60,8 @@ With paths of delays $\tau_i$ and complex gains $a_i$, the channel is $h(t) = \s
 
 ![Multipath](../generated/em-waves/multipath.svg)
 
+<p class="caption" id="fig-21-6"><strong>Figure 21.6.</strong> Multipath.</p>
+
 {{#include ../generated/em-waves/multipath_facts.md}} OFDM subcarriers narrower than the coherence bandwidth each see a flat channel, which is the point of the [modulation entry](../comms/modulation.md#ofdm)'s design.
 
 ### The atmosphere
@@ -63,6 +69,8 @@ With paths of delays $\tau_i$ and complex gains $a_i$, the channel is $h(t) = \s
 Oxygen absorbs strongly around 60 GHz and water vapour at 22.2, 183.3 and 325.4 GHz. Between these lines lie the "windows" used by satellite links and radio astronomy. The library implements the simplified sea-level formulas of ITU-R P.676 for gases (oxygen below 57 GHz), the Rayleigh model of P.840 for cloud and fog liquid water, and the power law $kR^\alpha$ of P.838 for rain:
 
 ![Atmospheric attenuation](../generated/em-waves/atmosphere.svg)
+
+<p class="caption" id="fig-21-7"><strong>Figure 21.7.</strong> Atmospheric attenuation.</p>
 
 Slant paths through the atmosphere use equivalent heights of 6 km for oxygen and 2.1 km for water vapour, scaled by $1/\sin(\text{elevation})$.
 
@@ -75,6 +83,8 @@ P_r = \frac{P_tG^2\lambda^2\sigma}{(4\pi)^3R^4L}, \qquad R_{\max} = \Big(\frac{P
 $$
 
 with $g$ the gain from integrating pulses. The fourth root makes range expensive: sixteen times the power doubles it. For an S-band radar (1 MW, 35 dB antenna, 1 MHz bandwidth, 2 dB noise figure, 5 dB losses):
+
+<p class="caption" id="tab-21-2"><strong>Table 21.2.</strong> Columns: target, RCS (m²), range for 13 dB SNR, one pulse (km), with 10 pulses integrated coherently (km).</p>
 
 {{#include ../generated/em-waves/radar_table.md}}
 

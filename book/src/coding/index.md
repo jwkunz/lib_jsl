@@ -12,6 +12,8 @@ Reed-Solomon codes and the trellis-decoded convolutional codes to the two famili
 
 ![All the codes](../generated/coding/summary_ber.svg)
 
+<p class="caption" id="fig-19-1"><strong>Figure 19.1.</strong> All the codes.</p>
+
 All curves are bit error rates for BPSK over additive white Gaussian noise, against the energy per information bit. For rate 1/2 the Shannon limit is about 0.19 dB, and for any rate it is at least −1.59 dB.
 
 ## Testing

@@ -82,6 +82,8 @@ because adding a slope to the fit over a symmetric window does not change its va
 
 ![Smoothing a noisy peak](../generated/interpolation/savitzky_golay_peak.svg)
 
+<p class="caption" id="fig-3-8"><strong>Figure 3.8.</strong> Smoothing a noisy peak.</p>
+
 The moving average cuts the peak to two-thirds of its height and widens it; the order-4 Savitzky-Golay
 filter follows it.
 
@@ -92,6 +94,8 @@ the noise by the sample spacing $\Delta$ and so amplifies it. This is the roundi
 of numerical differentiation again, with the measurement noise playing the role of rounding error,
 and a far larger one. The derivative of the local fit is much better behaved, because the fit
 averages the noise over the window before differentiating. On the noisy peak above:
+
+<p class="caption" id="tab-3-5"><strong>Table 3.5.</strong> Columns: derivative estimate, RMS error.</p>
 
 {{#include ../generated/interpolation/savitzky_golay_derivative.md}}
 

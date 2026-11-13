@@ -74,6 +74,8 @@ initial slope changes $y(1)$ by about $\delta\,e^\lambda/\lambda$, so the bounda
 more sensitive than the solution itself. Once $e^\lambda$ approaches $1/\varepsilon_{\text{mach}} \approx 10^{16}$,
 no initial slope in floating point reproduces the boundary condition:
 
+<p class="caption" id="tab-2-16"><strong>Table 2.16.</strong> Columns: $\lambda$, growth $e^{\lambda}$, shooting: error at $x = \tfrac12$, collocation: error at $x = \tfrac12$, and more.</p>
+
 {{#include ../generated/integration/bvp_shooting_vs_collocation.md}}
 
 Shooting converges for small $\lambda$ but fails from $\lambda \approx 25$ on, while collocation, which
@@ -119,6 +121,8 @@ layer of width $\varepsilon = 10^{-3}$:
 
 ![Mesh points in a boundary layer](../generated/integration/bvp_boundary_layer.svg)
 
+<p class="caption" id="fig-2-23"><strong>Figure 2.23.</strong> Mesh points in a boundary layer.</p>
+
 ### Nonlinear problems and non-uniqueness
 
 A nonlinear BVP may have several solutions, or none, and the starting guess decides which one
@@ -126,6 +130,8 @@ Newton's method finds. **Bratu's problem** $u'' + e^u = 0$, $u(0) = u(1) = 0$, f
 combustion, has exactly two:
 
 ![The two solutions of Bratu's problem](../generated/integration/bratu_branches.svg)
+
+<p class="caption" id="fig-2-24"><strong>Figure 2.24.</strong> The two solutions of Bratu's problem.</p>
 
 Both agree with the closed-form solutions $u(x) = -2\ln\big(\cosh((x - \tfrac12)\theta/2)/\cosh(\theta/4)\big)$,
 where $\theta$ is either root of $\theta = \sqrt2\cosh(\theta/4)$, to every digit shown. A small guess

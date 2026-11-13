@@ -78,6 +78,8 @@ complex transform of the full length.
 **What it buys in practice.** The arithmetic is about halved, but the packing and untangling are
 extra $O(n)$ passes over memory, which the fast vectorised FFT does not hide. On this machine:
 
+<p class="caption" id="tab-8-3"><strong>Table 8.3.</strong> Columns: length $n$, complex `Fft` of real data, `RealFft`, ratio.</p>
+
 {{#include ../generated/fft/real_fft.md}}
 
 `RealFft` takes 14% to 32% less time than a complex FFT of the real data from about four thousand points up, with the saving growing

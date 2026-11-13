@@ -79,6 +79,8 @@ uncorrelated, because in the eigenvector basis the covariance matrix is diagonal
 
 ![Principal axes](../generated/unsupervised/pca_axes.svg)
 
+<p class="caption" id="fig-12-7"><strong>Figure 12.7.</strong> Principal axes.</p>
+
 ### Best low-rank reconstruction
 
 The same axes solve a second problem, which gives another reason to use them. Suppose we keep
@@ -100,6 +102,8 @@ The error is exactly the variance in the directions thrown away: the mean square
 error equals the sum of the discarded eigenvalues (times $(n - 1)/n$, and divided by $p$ for a
 per-feature mean):
 
+<p class="caption" id="tab-12-11"><strong>Table 12.11.</strong> Columns: components kept, variance explained, reconstruction mean squared error, discarded eigenvalues ÷ features.</p>
+
 {{#include ../generated/unsupervised/pca_reconstruction.md}}
 
 The last two columns agree to every printed digit.
@@ -110,6 +114,8 @@ The **explained variance ratio** $\lambda_j/\sum_k\lambda_k$ shows how much each
 dimensions plus noise:
 
 ![Scree plot](../generated/unsupervised/pca_scree.svg)
+
+<p class="caption" id="fig-12-8"><strong>Figure 12.8.</strong> Scree plot.</p>
 
 The first three components carry 98.8% of the variance, and the remaining nine share the noise equally. A **scree plot** like this,
 or a target fraction such as 95%, is the usual way to choose $q$. PCA depends on the units: a feature measured in millimetres
@@ -142,6 +148,8 @@ Linear PCA only rotates the rings. With an RBF kernel, the first two components 
 pair, like a sine and a cosine), and the third separates the inner ring from the outer one. The eigenvalues come in such pairs:
 
 ![Kernel PCA eigenvalues](../generated/unsupervised/kpca_eigenvalues.svg)
+
+<p class="caption" id="fig-12-9"><strong>Figure 12.9.</strong> Kernel PCA eigenvalues.</p>
 
 The centred Gram matrix always has the eigenvalue zero (the constant vector) and, for smooth kernels, many tiny ones.
 

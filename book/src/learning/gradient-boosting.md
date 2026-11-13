@@ -70,6 +70,8 @@ the gradient says would reduce the loss fastest.
 
 ![Boosting a sine](../generated/learning/gb_stages.svg)
 
+<p class="caption" id="fig-13-3"><strong>Figure 13.3.</strong> Boosting a sine.</p>
+
 One depth-2 tree, scaled by $\nu = 0.1$, barely moves from the mean. Ten stages capture the shape coarsely, and a hundred follow the
 sine as a fine staircase.
 
@@ -103,6 +105,8 @@ changes nothing.)
 
 ![Gradient boosting on moons](../generated/learning/gb_moons.svg)
 
+<p class="caption" id="fig-13-4"><strong>Figure 13.4.</strong> Gradient boosting on moons.</p>
+
 The boundary is built from axis-parallel pieces, like a tree's, but a hundred small trees give it far more resolution than one
 deep tree.
 
@@ -112,6 +116,8 @@ The learning rate and the number of stages trade off. A small $\nu$ needs more s
 effect Friedman found empirically, related to the lasso's path. On a nonlinear regression problem with 300 training points:
 
 ![Test error against stages](../generated/learning/gb_shrinkage.svg)
+
+<p class="caption" id="fig-13-5"><strong>Figure 13.5.</strong> Test error against stages.</p>
 
 {{#include ../generated/learning/gb_shrinkage.md}}
 
@@ -123,6 +129,8 @@ ends far lower. With $\nu = 0.03$, 1000 stages are not yet enough. In practice o
 
 Fitting each tree to a random fraction of the rows (`subsample`) both speeds training up and, by decorrelating the trees, reduces
 overfitting:
+
+<p class="caption" id="tab-13-4"><strong>Table 13.4.</strong> Columns: subsample (300 stages, ν = 0.1), test MSE (mean of 5 seeds).</p>
 
 {{#include ../generated/learning/gb_subsample.md}}
 

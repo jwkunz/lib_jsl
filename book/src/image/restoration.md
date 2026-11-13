@@ -42,7 +42,11 @@ level, so the histogram's bars are moved apart, not split.
 
 ![Histogram equalisation](../generated/image/equalisation.svg)
 
+<p class="caption" id="fig-17-3"><strong>Figure 17.3.</strong> Histogram equalisation.</p>
+
 ![Cumulative histograms](../generated/image/equalisation_cdf.svg)
+
+<p class="caption" id="fig-17-4"><strong>Figure 17.4.</strong> Cumulative histograms.</p>
 
 The equalised cumulative histogram follows the diagonal in steps. Equalisation stretches the noise as much as the signal: the dense band of background levels is spread widest.
 
@@ -58,6 +62,8 @@ $$
 the local mean; at an edge $\sigma^2 \gg \nu^2$ and it is left almost unchanged. If the noise variance is not given, it is estimated as the mean of all the local variances.
 
 ![Denoising](../generated/image/denoise.svg)
+
+<p class="caption" id="fig-17-5"><strong>Figure 17.5.</strong> Denoising.</p>
 
 {{#include ../generated/image/denoise_table.md}}
 
@@ -76,6 +82,8 @@ with $K$ the ratio of noise power to signal power, here taken as a constant. Whe
 power-of-two dimensions by repeating its edge pixels, centres the PSF at the origin, and applies the filter by FFT.
 
 ![Deconvolution](../generated/image/deconvolution.svg)
+
+<p class="caption" id="fig-17-6"><strong>Figure 17.6.</strong> Deconvolution.</p>
 
 {{#include ../generated/image/deconvolution_table.md}}
 

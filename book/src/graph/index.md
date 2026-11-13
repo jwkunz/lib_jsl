@@ -16,6 +16,8 @@ Graphs model anything made of things and the connections between them: roads, ci
 
 The references come from SciPy 1.17.1's `sparse.csgraph` and NetworkX 3.7, on random graphs written out by `book/generator/data/make_graph_refs.py` and rebuilt identically by the generator:
 
+<p class="caption" id="tab-23-1"><strong>Table 23.1.</strong> Columns: computation (reference function), result.</p>
+
 {{#include ../generated/graph/reference.md}}
 
 ## In the library

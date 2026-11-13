@@ -83,6 +83,8 @@ computed by Gauss quadrature, added into the global matrix.
 Approximation theory then gives the rates: the best piecewise-linear approximation has gradient
 error $O(h)$ and value error $O(h^2)$. For $-u'' + u = (\pi^2 + 1)\sin\pi x$:
 
+<p class="caption" id="tab-2-19"><strong>Table 2.19.</strong> Columns: elements, $h$, error at the nodes, error at element midpoints, and more.</p>
+
 {{#include ../generated/integration/fem_1d_convergence.md}}
 
 The error at the element midpoints falls by four per refinement. The nodal values converge at the
@@ -97,6 +99,8 @@ is piecewise linear in the right variable, so it lies in the finite element spac
 method ideal for layered materials:
 
 ![A layered rod](../generated/integration/fem_layered.svg)
+
+<p class="caption" id="fig-2-26"><strong>Figure 2.26.</strong> A layered rod.</p>
 
 The conductivity jumps from 1 to 10 at $x = \tfrac12$, the slope of $u$ jumps by the same factor, and
 the finite element values sit exactly on the true solution. A finite difference scheme with a
@@ -117,6 +121,8 @@ three-edge-midpoint rule, exact for quadratics. The global matrix is sparse (abo
 per row on a regular mesh) and, after the prescribed values are eliminated, symmetric positive
 definite; the library solves it by conjugate gradients with a diagonal (Jacobi) preconditioner. For
 $-\nabla^2 u = 2\pi^2 \sin\pi x \sin\pi y$ on the unit square:
+
+<p class="caption" id="tab-2-20"><strong>Table 2.20.</strong> Columns: mesh, triangles, maximum nodal error, ratio.</p>
 
 {{#include ../generated/integration/fem_2d_convergence.md}}
 

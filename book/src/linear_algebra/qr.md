@@ -134,6 +134,8 @@ orthogonal to about $\varepsilon$ regardless of the conditioning of $A$.
 
 ![Loss of orthogonality](../generated/linear_algebra/orthogonality.svg)
 
+<p class="caption" id="fig-7-3"><strong>Figure 7.3.</strong> Loss of orthogonality.</p>
+
 The figure shows the three methods on $60 \times 20$ matrices with singular values spread between 1 and $1/\kappa$. Classical
 Gram-Schmidt has lost all orthogonality by $\kappa = 10^8$, modified Gram-Schmidt follows $\kappa\varepsilon$, and Householder stays at
 the level of rounding throughout. All three reproduce $A = QR$ to rounding error: the difference is

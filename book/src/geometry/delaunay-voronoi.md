@@ -42,13 +42,19 @@ The library inserts the points in lexicographic order of $(x, y)$. Each new poin
 
 ![Delaunay triangulation and Voronoi diagram](../generated/geometry/delaunay_voronoi.svg)
 
+<p class="caption" id="fig-24-3"><strong>Figure 24.3.</strong> Delaunay triangulation and Voronoi diagram.</p>
+
 Both predicates are computed in floating point. When four points are nearly on a circle, or three nearly on a line, the sign can come out wrong, and an algorithm that trusts it can loop or produce overlapping triangles. Here each determinant is compared with the sum of the magnitudes of its terms, which bounds its rounding error. Values below $10^{-12}$ of that bound count as zero: as collinear for the hull, and as cocircular (no flip) for the empty-circle test. Exactly cocircular points, such as a square grid, have several Delaunay triangulations, and the library returns one of them.
 
 A plain Bowyer–Watson insertion with a super-triangle fails both ways: 41 points on a shallow arc gave triangles overlapping to 2.4 times the hull's area, and points close to a line lost the hull's slivers to the super-triangle.
 
+<p class="caption" id="tab-24-2"><strong>Table 24.2.</strong> Columns: 30 000 points, triangles, time.</p>
+
 {{#include ../generated/geometry/delaunay_timing.md}}
 
 ![Delaunay timing](../generated/geometry/delaunay_timing.svg)
+
+<p class="caption" id="fig-24-4"><strong>Figure 24.4.</strong> Delaunay timing.</p>
 
 The time per point grows slowly with $n$, as sorting and hash lookups do. Points on a circle are fast: each is seen from just one hull edge, and no flips are needed.
 

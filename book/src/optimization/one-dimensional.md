@@ -100,6 +100,8 @@ The minimum can be located only to about $\sqrt{\varepsilon} \approx 10^{-8}$ re
 precision, not $10^{-16}$. (A root, by contrast, can be found to full precision, because $f$
 changes sign there.)
 
+<p class="caption" id="tab-5-3"><strong>Table 5.3.</strong> Columns: function on $[0, 1]$, tolerance, evaluations, error in $x$.</p>
+
 {{#include ../generated/optimization/golden_section.md}}
 
 The first two functions have $f(x^*) = 0$, so no rounding hides the minimum and the tolerance
@@ -147,6 +149,8 @@ natural step $\alpha = 1$ is usually acceptable. Conjugate gradients need a more
 along the line and use $c_2 = 0.1$.
 
 ![A line search along steepest descent](../generated/optimization/line_search.svg)
+
+<p class="caption" id="fig-5-2"><strong>Figure 5.2.</strong> A line search along steepest descent.</p>
 
 The figure shows $\phi(\alpha)$ along the steepest descent direction from $(-1.2, 1)$ on the Rosenbrock
 function. With $c_2 = 0.9$ the first trial step, $\alpha = 0.02$, is already acceptable; with $c_2 = 0.1$

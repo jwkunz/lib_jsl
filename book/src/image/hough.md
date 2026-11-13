@@ -82,8 +82,8 @@ The cost is (number of edge pixels) × (number of angles).
 2. For each edge pixel and each offset, add 1 to the accumulator cell (for that radius) at the
    pixel displaced by the offset. A true centre collects a vote from every edge pixel on its
    circle.
-3. Keep the cells whose votes exceed a given fraction of the number of offsets, the largest
-   count possible for that radius.
+3. Keep the cells whose votes are at least `min_support` times the circumference $2\pi r$,
+   which is about the number of votes a complete circle would collect.
 4. Sort them by strength, and discard any centre closer than `min_distance` to a stronger
    one.
 

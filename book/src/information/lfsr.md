@@ -97,9 +97,36 @@ $t(n) = 1 + 2^{\lfloor (n+2)/2\rfloor}$. The family $\{u, v, u \oplus T^\tau v\}
 
 ## Algorithm
 
-1. **Step**: output bit 0; feedback = parity(state AND taps); shift right; put the feedback in bit $n - 1$.
-2. **Primitivity**: check $x^{2^n-1} = 1$ and $x^{(2^n-1)/q} \ne 1$ for each prime factor $q$.
-3. **Gold family**: generate one period of $u$ from the minimal-weight primitive polynomial; decimate it by $q$ to get $v$; XOR $u$ with every cyclic shift of $v$.
+**One step of the register**, with the state held in an integer of $n$ bits:
+
+1. the output is bit 0 of the state;
+2. the feedback bit is the parity of the state ANDed with the tap mask (the XOR of the tapped
+   bits);
+3. shift the state right by one, and place the feedback bit in bit $n - 1$.
+
+**Testing whether a polynomial of degree $n$ is primitive.**
+
+1. Factor $2^n - 1$ into primes by trial division.
+2. Compute $x^{2^n - 1} \bmod p(x)$ by
+   [square-and-multiply](../number-theory/modular-arithmetic.md#inverses-and-powers), in
+   arithmetic on polynomials with coefficients modulo 2 (shifts and XORs). If the result is
+   not 1, the polynomial is not primitive.
+3. For each prime factor $q$, compute $x^{(2^n - 1)/q} \bmod p(x)$. If any is 1, the order of
+   $x$ is a proper divisor of $2^n - 1$, and the polynomial is not primitive.
+4. Otherwise it is primitive.
+
+**Finding a maximum-length polynomial**: try the polynomials of degree $n$ in order of
+increasing number of terms, and within that in increasing numerical order, and return the
+first that is primitive.
+
+**A Gold family** for degree $n$.
+
+1. Generate one period, $N = 2^n - 1$ bits, of the m-sequence $u$ from the minimal-weight
+   primitive polynomial.
+2. Form $v$ by decimation: $v_t = u_{qt \bmod N}$, with $q = 3$ for odd $n$ and $q = 5$ for
+   $n \equiv 2 \pmod 4$.
+3. The family is $u$, $v$, and the XOR of $u$ with each of the $N$ cyclic shifts of $v$:
+   $N + 2$ sequences.
 
 ## Implementation
 

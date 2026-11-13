@@ -113,8 +113,32 @@ Soft decisions are worth about 2 dB over hard ones, a classic rule of thumb that
 
 ## Algorithm
 
-1. **Encode**: for each bit (and the tail zeros), form the register, emit the parity of each generator mask, shift.
-2. **Decode**: path metrics start at 0 for state 0 and $\infty$ elsewhere; for each step and state, add the branch costs for inputs 0 and 1 and keep the smaller metric for each next state with its predecessor; trace back from state 0; drop the tail.
+For a code of constraint length $K$ with $n$ generators.
+
+**Encoding.** The register holds the $K - 1$ previous input bits, initially zero. For each
+input bit, and then for each of the $K - 1$ tail zeros if the code is terminated:
+
+1. form the $K$-bit word consisting of the new bit followed by the register;
+2. for each generator, output the parity of that word ANDed with the generator's mask;
+3. shift the new bit into the register, discarding the oldest.
+
+**Viterbi decoding**, from the LLRs of the received bits. Each of the $2^{K-1}$ states has a
+**path metric**, the cost of the best path reaching it.
+
+1. **Initialise** the metric of state 0 to zero and all the others to infinity, since the
+   encoder starts in state 0.
+2. **For each time step**, with its $n$ received LLRs: for each state and each input bit (0
+   or 1), find the next state and the $n$ output bits of that transition; the **branch cost**
+   is the sum of the LLRs of the output bits that are 1; add it to the state's metric to get
+   a candidate. Each next state receives two candidates: keep the smaller as its new metric,
+   and record which predecessor and input bit it came from.
+3. **Trace back.** Start at state 0 if the code was terminated, otherwise at the state of
+   smallest metric. Follow the recorded predecessors back to the start, collecting the input
+   bits, and reverse them.
+4. Drop the tail bits.
+
+The work is $2^K$ additions and $2^{K-1}$ comparisons per decoded bit, and the recorded
+decisions take $2^{K-1}$ bits per step.
 
 ## Implementation
 

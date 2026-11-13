@@ -118,11 +118,54 @@ The standard compressors combine a dictionary stage with an entropy stage (zlib:
 
 ## Algorithm
 
-1. **Model**: count the byte frequencies; store them in the header (symbol and 32-bit count for each byte present).
-2. **Shannon-Fano**: sort by frequency; split recursively at the most balanced point, appending a bit at each level.
-3. **Huffman**: merge the two least frequent nodes until one remains; read the codes off the tree; pack the bits most significant first.
-4. **Arithmetic**: narrow `[low, high]` to each symbol's cumulative range; renormalise by E1, E2 and E3 steps; finish with two bits that select the final interval.
-5. **Decoding**: rebuild the same model from the header; walk the tree bit by bit (prefix codes) or find the symbol whose range contains the scaled code value (arithmetic), until the stored length is reached.
+All three coders share the same framework.
+
+**Encoding.**
+
+1. **Model.** Count how often each byte value occurs in the input.
+2. **Header.** Write the length of the input and the model: for each byte value that occurs,
+   the value and its 32-bit count. The decoder needs these to rebuild the same code.
+3. **Code** the bytes, by one of the three methods below.
+
+**Shannon-Fano codes**: sort the symbols by decreasing frequency. `split(list)`: if the list
+has one symbol, stop; otherwise find the place that divides the list into two parts whose total
+frequencies are as nearly equal as possible, append a 0 to the codes of the first part and a 1
+to those of the second, and split each part.
+
+**Huffman codes**:
+
+1. put a leaf node for each symbol into a priority queue keyed by frequency;
+2. remove the two nodes of lowest frequency, make them the children of a new node whose
+   frequency is their sum, and insert the new node;
+3. repeat until one node remains, the root;
+4. the code of each symbol is the sequence of branches, 0 or 1, on the path from the root to
+   its leaf.
+
+For both prefix codes, the output is the codewords of the input bytes written one after
+another, packed into bytes with the most significant bit first.
+
+**Arithmetic coding**: compute the cumulative frequencies, which assign each symbol a
+sub-range of $[0, \text{total})$. Start with `low = 0` and `high` at the top of the 32-bit
+range. For each input byte:
+
+1. narrow the interval to the part that corresponds to the symbol's sub-range;
+2. renormalise: while the interval lies entirely in the lower half (E1) or the upper half
+   (E2), emit the corresponding bit, followed by any pending bits with the opposite value, and
+   double the interval; while it straddles the midpoint but lies within the middle half (E3),
+   count one more pending bit and double the interval about its centre.
+
+At the end, emit two more bits, which select a value certain to lie inside the final interval.
+
+**Decoding.**
+
+1. Read the header and rebuild the model, and from it exactly the same code or cumulative
+   table.
+2. *Prefix codes*: starting at the root of the tree, follow one branch for each input bit;
+   on reaching a leaf, output its symbol and return to the root.
+   *Arithmetic*: keep a 32-bit window of the code stream; find the symbol whose sub-range
+   contains the window's value, scaled to the current interval; output it; then narrow and
+   renormalise exactly as the encoder did, shifting new bits into the window.
+3. Stop when the number of symbols given in the header has been produced.
 
 ## Implementation
 

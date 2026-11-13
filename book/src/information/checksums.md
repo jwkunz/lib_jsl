@@ -82,8 +82,35 @@ A good hash shows the **avalanche** effect: changing one input bit changes each 
 
 ## Algorithm
 
-1. **CRC**: state = 0xFFFFFFFF; for each byte, state = table[(state ⊕ byte) & 0xFF] ⊕ (state ≫ 8); output ¬state.
-2. **SHA-256**: buffer input into 64-byte blocks and compress each; to finish, append the padding and length and compress the last one or two blocks; output the state big-endian.
+**CRC-32**, a byte at a time.
+
+*Table*, built once: for each of the 256 byte values, start with the value and repeat eight
+times "shift right by one bit, and if the bit shifted out was 1, XOR with the reflected
+polynomial 0xEDB88320". The result is the remainder contributed by that byte.
+
+*Checksum*:
+
+1. set the 32-bit state to all ones (0xFFFFFFFF);
+2. for each byte of the message: XOR the byte into the low eight bits of the state; use those
+   eight bits as an index into the table; the new state is the table entry XORed with the old
+   state shifted right by eight bits;
+3. return the state with all its bits inverted.
+
+The cost is one table lookup per byte.
+
+**SHA-256.** The state is eight 32-bit words, set to fixed constants at the start.
+
+1. **Buffer** the input into blocks of 64 bytes, and compress each complete block into the
+   state.
+2. **Compress one block**: read it as sixteen 32-bit words and expand them to 64 by a
+   recurrence of rotations, shifts and XORs. Copy the state into eight working variables.
+   Perform 64 rounds, each of which combines the working variables with one expanded word and
+   one round constant through the choice and majority functions, rotations and additions
+   modulo $2^{32}$. Add the working variables into the state.
+3. **Finish**: append a single 1 bit, then zeros, then the length of the message in bits as a
+   64-bit number, so that the total is a multiple of 64 bytes. This makes one or two final
+   blocks, which are compressed.
+4. Output the eight state words, most significant byte first: the 32-byte digest.
 
 ## Implementation
 

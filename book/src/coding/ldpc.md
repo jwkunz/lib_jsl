@@ -84,9 +84,35 @@ The curve falls steeply once the noise is below the code's threshold: the **wate
 
 ## Algorithm
 
-1. **Construct**: the check lists; their dense rows reduced by Gauss-Jordan elimination; pivot columns are parity, the rest information.
-2. **Encode**: place the information bits; each parity bit is the XOR of the information bits in its reduced row.
-3. **Decode**: if the hard decisions already satisfy every check, stop; otherwise iterate check and variable updates (flooding schedule) until the checks are satisfied or the iteration limit is reached.
+**Construction** of a systematic encoder from the parity-check matrix $H$, with $m$ rows and
+$n$ columns.
+
+1. Reduce a dense copy of $H$ by Gauss-Jordan elimination over GF(2): for each row, find a
+   column with a 1 to serve as its pivot, and XOR the row into every other row that has a 1
+   in that column. Rows that become zero are redundant checks.
+2. The pivot columns are the **parity** positions, and the remaining columns the
+   **information** positions. Each reduced row now expresses one parity bit as the XOR of
+   some information bits.
+
+**Encoding**: place the information bits in the information positions, and compute each parity
+bit as the XOR of the information bits that appear in its reduced row.
+
+**Decoding**, from the channel LLRs.
+
+1. Take hard decisions from the channel values. If they satisfy every check, return them: no
+   iteration is needed.
+2. Initialise every variable-to-check message to the channel value of its variable.
+3. **Check update**: for every check and each of its variables, compute the message from the
+   others by the tanh rule.
+4. **Variable update**: for every variable, add the channel value and all the incoming check
+   messages to get its total; the message to each check is the total minus the message that
+   came from that check.
+5. **Decide**: take the sign of each total. If the decisions satisfy every check, return them.
+6. If the iteration limit has been reached, return the decisions with a failure flag;
+   otherwise go to 3.
+
+Updating all the checks and then all the variables in each iteration is the **flooding**
+schedule. An iteration costs time proportional to the number of 1s in $H$.
 
 ## Implementation
 

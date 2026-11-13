@@ -104,10 +104,29 @@ one bit between consecutive values, so a misread is off by at most one step. {{#
 
 ## Algorithm
 
-1. **Byte entropy**: count the 256 byte values; sum $p\log_2(1/p)$ over those present.
-2. **Divergence**: cross entropy minus entropy.
-3. **Mutual information**: marginals by summing rows and columns; sum $p\log_2\big(p/(p_rp_c)\big)$ over nonzero cells.
-4. **Gray**: encode $n \oplus (n \gg 1)$; decode $n \mathrel{\oplus}= n \gg 1, 2, 4, \ldots, 32$.
+**Entropy of a byte sequence.**
+
+1. Count the occurrences of each of the 256 byte values.
+2. For each value that occurs, with count $c$ out of $n$ bytes, add
+   $\tfrac cn\log_2\tfrac nc$ to the total. Values that do not occur contribute nothing.
+
+**Entropy of a distribution**: the same sum over the given probabilities, skipping zeros.
+
+**Cross entropy and divergence** of $p$ from $q$: sum $-p(x)\log_2q(x)$ over the symbols with
+$p(x) > 0$; the result is infinite if any of those has $q(x) = 0$. The divergence is the cross
+entropy minus the entropy of $p$.
+
+**Mutual information**, from a joint distribution given as a table.
+
+1. Sum each row to get the marginal distribution $p_r$ of the first variable, and each column
+   to get $p_c$ for the second.
+2. Sum $p\log_2\big(p/(p_rp_c)\big)$ over the cells with $p > 0$.
+
+**Gray code.** Encode: $g = n \oplus (n \gg 1)$. Decode: start with $n = g$ and apply
+$n \leftarrow n \oplus (n \gg 1)$, then with shifts of 2, 4, 8, 16 and 32. Each step doubles the
+number of leading bits that are correct, so six steps suffice for 64 bits.
+
+All of these cost one pass over the data or the table.
 
 ## Implementation
 

@@ -139,9 +139,41 @@ The design matters: a code designed for a BEC(0.32), closer to the operating poi
 
 ## Algorithm
 
-1. **Construct**: Bhattacharyya recursion from the design erasure probability; take the $k$ smallest as information positions.
-2. **Encode**: place the information bits; apply the $m$ butterfly stages $x_i \mathrel{\oplus}= x_{i + \ell}$.
-3. **Decode**: recursive SC with the $f$ and $g$ updates; read the decisions at the information positions.
+For a code of length $N = 2^m$ with $k$ information bits.
+
+**Construction.**
+
+1. Start with the single value $z$, the design erasure probability.
+2. Repeat $m$ times: replace every value $z$ in the list by the pair $2z - z^2$ and $z^2$, in
+   the order that matches the library's indexing of the bit channels. The list now has $N$
+   values.
+3. The $k$ positions with the smallest values are the information positions; the rest are
+   frozen.
+
+**Encoding.**
+
+1. Put the information bits in the information positions of a block of $N$ bits, and zeros in
+   the frozen positions.
+2. Apply the $m$ butterfly stages, one for each span $\ell = 1, 2, 4, \ldots, N/2$ (their order
+   does not affect the result). In the stage with span $\ell$, the
+   block is divided into groups of $2\ell$ bits, and in each group every bit of the first half
+   is replaced by its XOR with the bit $\ell$ places further on: $x_i \leftarrow x_i \oplus x_{i+\ell}$.
+
+The cost is $\tfrac N2\log_2N$ XORs.
+
+**Successive-cancellation decoding**, from $N$ channel LLRs. `decode(llrs, positions)` returns
+the re-encoded bits of the block:
+
+1. if the block has one bit: if its position is frozen, the bit is 0; otherwise it is 0 if
+   the LLR is positive and 1 if not. Record it and return it;
+2. otherwise split the LLRs into halves $a$ and $b$. Compute $f(a, b)$ and call `decode` on it
+   for the first half of the positions, obtaining the bits $\hat v$;
+3. compute $g = b + (-1)^{\hat v}a$, element by element, and call `decode` on it for the second
+   half, obtaining the bits $\hat w$;
+4. return the block $(\hat v \oplus \hat w, \hat w)$.
+
+The decoded message is the recorded decisions at the information positions. The cost is
+$O(N\log N)$.
 
 ## Implementation
 

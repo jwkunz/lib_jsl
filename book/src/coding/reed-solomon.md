@@ -128,8 +128,35 @@ The simulated failure rate follows the binomial probability of more than 16 byte
 
 ## Algorithm
 
-1. **Encode**: shift-register division of the message by $g$; append the remainder.
-2. **Decode**: syndromes; Berlekamp-Massey for $\sigma$; Chien search; solve for the values; correct; return the message part.
+**Encoding** a message of $k$ bytes into a codeword of $n$ bytes.
+
+1. Keep a register of $n - k$ bytes, initially zero.
+2. For each message byte: add (XOR) it to the top byte of the register to get a feedback
+   value; shift the register up by one byte; add the feedback value times each coefficient of
+   the generator polynomial to the corresponding byte of the register.
+3. After the last message byte, the register holds the remainder. Append it to the message.
+
+This is long division of $m(x)x^{n-k}$ by $g(x)$, one message byte at a time, and costs
+$O(k(n - k))$ field operations.
+
+**Decoding** a received word.
+
+1. **Syndromes.** Evaluate the received polynomial at $\alpha^0, \ldots, \alpha^{n-k-1}$ by
+   Horner's rule. If all are zero, return the message part unchanged.
+2. **Locator.** Run the Berlekamp-Massey algorithm on the syndromes. It processes them one at
+   a time: it computes the **discrepancy** between the next syndrome and what the current
+   recurrence predicts, and when the discrepancy is not zero it corrects the recurrence with a
+   multiple of an earlier version of itself, lengthening it when necessary. The result is
+   $\sigma(x)$ and its degree $\nu$. If $\nu > t$, report failure.
+3. **Positions.** Evaluate $\sigma(\alpha^{-i})$ for every position $i$ of the codeword; the
+   zeros are the error positions. If their number is not $\nu$, report failure.
+4. **Values.** Solve the $\nu \times \nu$ linear system given by the first $\nu$ syndrome
+   equations for the error values.
+5. **Correct.** Add each error value to the byte at its position, and return the message
+   part.
+
+Decoding costs $O((n - k)\,n)$ field operations for the syndromes and the search, plus
+$O(t^3)$ for the linear system.
 
 ## Implementation
 

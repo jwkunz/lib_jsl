@@ -114,8 +114,32 @@ With hard decisions on BPSK over additive white Gaussian noise, the $(7, 4)$ cod
 
 ## Algorithm
 
-1. **Encode**: data into the non-power-of-two positions; syndrome of the data bits; set parity bit $2^i$ to syndrome bit $i$; (extended) append the overall parity.
-2. **Decode**: syndrome $s$ = XOR of the positions of set bits; overall parity (extended). If $s = 0$ and the parity is even, no error. If the parity is odd, flip bit $s$ (or the parity bit if $s = 0$). If $s \ne 0$ and the parity is even, report a double error.
+For the code with $r$ parity bits and length $n = 2^r - 1$; positions are numbered from 1.
+
+**Encoding.**
+
+1. Place the $k$ data bits, in order, in the positions that are not powers of two. Set the
+   parity positions $1, 2, 4, \ldots$ to zero for the moment.
+2. Compute the syndrome of this word: the XOR of the positions that hold a 1.
+3. For each $i$, set the parity bit at position $2^i$ to bit $i$ of the syndrome. This makes
+   the syndrome of the complete word zero, because the bit at position $2^i$ affects only bit
+   $i$ of the syndrome.
+4. For the extended code, append one more bit equal to the XOR of all the others, so that the
+   whole word has even parity.
+
+**Decoding.**
+
+1. Compute the syndrome $s$: the XOR of the positions of the received 1 bits. For the
+   extended code, compute also the overall parity of the received word.
+2. Decide:
+   - *plain code*: if $s \ne 0$, flip the bit at position $s$;
+   - *extended code*: if $s = 0$ and the parity is even, there is no error. If the parity is
+     odd, a single error has occurred: flip the bit at position $s$, or the overall parity bit
+     itself if $s = 0$. If $s \ne 0$ and the parity is even, two errors have occurred: report
+     a failure.
+3. Read the data bits from the positions that are not powers of two.
+
+Both directions cost $O(n)$ bit operations.
 
 ## Implementation
 

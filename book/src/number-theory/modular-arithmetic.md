@@ -112,9 +112,38 @@ modulus is then $\mathrm{lcm}(m, m_i)$. So moduli that are not coprime are handl
 
 ## Algorithm
 
-1. **Extended Euclid**: $(r_0, r_1) = (a, b)$, $(s_0, s_1) = (1, 0)$, $(t_0, t_1) = (0, 1)$; while $r_1 \ne 0$: $q = \lfloor r_0/r_1\rfloor$ and $(r, s, t)_{\text{new}} = (r, s, t)_0 - q(r, s, t)_1$; make $r_0$ non-negative at the end.
-2. **Modular power**: result $= 1$; for each bit of $e$ from the lowest: if set, result $\leftarrow$ result·base; base $\leftarrow$ base².
-3. **CRT**: merge pairwise as above, returning $(x, M)$ with $0 \le x < M$.
+**Extended Euclidean algorithm**, for integers $a$ and $b$. It keeps two rows $(r, s, t)$, each
+satisfying $as + bt = r$.
+
+1. Initialise the rows to $(a, 1, 0)$ and $(b, 0, 1)$. Both satisfy the relation.
+2. While the second row's $r$ is not zero: compute the quotient $q$ of the first row's $r$ by
+   the second's; form a new row as the first minus $q$ times the second (in all three
+   entries); discard the first row, so that the second becomes the first and the new row the
+   second. A combination of two rows that satisfy the relation satisfies it too.
+3. When the second row's $r$ is zero, the first row holds $\gcd(a, b)$ and its Bézout
+   coefficients. If the gcd came out negative, change the sign of the whole row.
+
+The number of iterations is proportional to the number of digits of the smaller input.
+
+**Modular inverse** of $a$ modulo $m$: run the extended algorithm on $a$ and $m$. If the gcd is
+not 1 there is no inverse. Otherwise the coefficient $s$, reduced into $[0, |m|)$, is the
+inverse.
+
+**Modular power** $b^e \bmod m$:
+
+1. set the result to 1 and the base to $b \bmod m$;
+2. while $e > 0$: if the lowest bit of $e$ is 1, multiply the result by the base, modulo $m$;
+   square the base, modulo $m$; shift $e$ right by one bit.
+
+**Integer square root** of $n$: start with $x$ equal to a power of two above $\sqrt n$; repeat
+$y = \lfloor(x + \lfloor n/x\rfloor)/2\rfloor$; if $y \ge x$, return $x$; otherwise set $x = y$.
+
+**Chinese remainder theorem**, for a list of congruences. Start with the solution $x = 0$
+modulo $M = 1$. For each congruence $r \pmod{m_i}$:
+
+1. compute $g = \gcd(M, m_i)$; if $g$ does not divide $r - x$, the system has no solution;
+2. solve $(M/g)\,t \equiv (r - x)/g \pmod{m_i/g}$ for $t$, with a modular inverse;
+3. replace $x$ by $x + Mt$ and $M$ by $\operatorname{lcm}(M, m_i)$, and reduce $x$ into $[0, M)$.
 
 ## Implementation
 

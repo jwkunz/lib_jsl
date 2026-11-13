@@ -68,10 +68,23 @@ For the thinner wire every mesh has segments much longer than the radius, and th
 
 ## Algorithm
 
-1. Place $N$ (odd) interior nodes, so one sits at the feed.
-2. Fill the $(N + 1) \times (N + 1)$ matrix: triangle-kernel integrals (analytic $1/R$ part plus quadrature), and $-\cos kz$ for the unknown $C$; right-hand side $-(jV/2\eta)\sin k|z|$.
-3. Solve the dense complex system; the feed node's current gives $Z_{\text{in}}$.
-4. Far field: integrate the piecewise-linear current against $e^{jkz'\cos\theta}$ segment by segment.
+Input: the length $L$ and radius $a$ of the wire, the frequency and the number of nodes.
+
+1. **Mesh.** Place $N$ equally spaced interior nodes along the wire, with $N$ odd so that one
+   node falls exactly at the feed. The current is zero at the two ends, so the unknowns are
+   the $N$ node currents and the constant $C$.
+2. **Fill the matrix**, of size $(N + 1) \times (N + 1)$. Row $i$ enforces Hallén's equation at a
+   match point $z_i$ (the $N$ nodes and one end of the wire). Its entry in column $j$ is the
+   integral of the kernel against the triangle function of node $j$, computed as the sum of
+   an analytic integral of the $1/4\pi R$ part and an 8-point Gauss-Legendre quadrature of the
+   smooth remainder. Its entry in the last column is $-\cos kz_i$, the coefficient of $C$.
+   The right-hand side is $-(jV/2\eta)\sin k|z_i|$.
+3. **Solve** the dense complex linear system.
+4. **Input impedance**: $Z_{\text{in}} = V/I(0)$, with $I(0)$ the current at the feed node.
+5. **Far field**: integrate the piecewise-linear current against $e^{jkz'\cos\theta}$, segment
+   by segment, in closed form.
+
+Filling the matrix costs $O(N^2)$ kernel integrals and solving it $O(N^3)$.
 
 ## Implementation
 

@@ -87,9 +87,29 @@ bounded by the inverse Ackermann function, which is at most 4 for any conceivabl
 
 ## Algorithm
 
-1. **Kruskal**: sort edges; for each, if `union(u, v)` succeeds (different sets), keep it.
-2. **Prim**: for each vertex not yet in a tree, start a tree there; heap of leaving edges; pop, skip if stale, add and push the new vertex's edges.
-3. **Find with path halving**: while $x$ is not its own parent, set parent$(x)$ to its grandparent and move $x$ to it.
+**Kruskal.**
+
+1. Sort the edges by increasing weight.
+2. Start a union-find structure with every vertex in its own set.
+3. For each edge $(u, v)$ in order: if $u$ and $v$ are in different sets, add the edge to the
+   tree and merge the two sets.
+4. Stop when $V - 1$ edges have been added, or the edges run out. In a disconnected graph the
+   result is a spanning tree of each component, a spanning **forest**.
+
+**Prim.** For each vertex not yet in a tree, start a new tree there:
+
+1. mark the vertex as in the tree and push its edges on a min-heap ordered by weight;
+2. pop the cheapest edge. If it leads to a vertex already in the tree, it is stale: discard
+   it. Otherwise add the edge to the tree, mark the new vertex, and push its edges;
+3. repeat from step 2 until the heap is empty.
+
+**Union-find.**
+
+- `find(x)`: while $x$ is not its own parent, set the parent of $x$ to its grandparent, and
+  move to it. Return $x$, the root.
+- `union(x, y)`: find the two roots. If they are the same, return false. Otherwise make the
+  root of lower rank a child of the other; if the ranks are equal, choose either and increase
+  the rank of the new root by one. Return true.
 
 ## Implementation
 

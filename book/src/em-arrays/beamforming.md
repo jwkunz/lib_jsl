@@ -83,10 +83,31 @@ If the training data contains the desired signal, the loss is larger and the sig
 
 ## Algorithm
 
-1. **Steering**: element patterns times the geometric phase, contracted with the polarization.
-2. **Covariance**: sum of point-source terms, the quadrature of the brightness integral, and receiver noise.
-3. **MVDR and LCMV**: LU-factorise $\mathbf R$; solve for $\mathbf R^{-1}\mathbf C$; solve the small $M \times M$ system with $\mathbf C^{\mathsf H}\mathbf R^{-1}\mathbf C$.
-4. **Max-SNR**: Cholesky $\mathbf R_n = \mathbf L\mathbf L^{\mathsf H}$; dominant eigenvector $\mathbf v$ of $\mathbf L^{-1}\mathbf R_s\mathbf L^{-\mathsf H}$; $\mathbf w = \mathbf L^{-\mathsf H}\mathbf v$.
+**Steering vector** for a direction $\Omega$ and a polarization: for each element, evaluate
+its pattern in that direction, take its component along the polarization, and multiply by the
+phase factor $e^{jk\hat r\cdot\mathbf p_n}$ of the element's position.
+
+**Covariance of a scene**: start from zero and add the contribution of each part. A point
+source adds $S\,\mathbf A\mathbf C\mathbf A^{\mathsf H}$. A brightness map adds its integral over the sphere,
+computed by quadrature: the weighted sum of $T(\Omega)\,\mathbf A\mathbf A^{\mathsf H}$ over the quadrature
+directions. The receivers add a multiple of the identity.
+
+**Beamformer weights.**
+
+- *CFM*: normalise the steering vector, or take the dominant eigenvector of $\mathbf R_s$.
+- *MVDR and LCMV*: factor $\mathbf R$ by LU; solve $\mathbf R\mathbf X = \mathbf C$ for $\mathbf X = \mathbf R^{-1}\mathbf C$,
+  where the columns of $\mathbf C$ are the constraint vectors (the single steering vector, for
+  MVDR); form the small matrix $\mathbf C^{\mathsf H}\mathbf X$ and solve it against $\mathbf f^*$; multiply the
+  solution by $\mathbf X$.
+- *Max-SNR*: factor $\mathbf R_n = \mathbf L\mathbf L^{\mathsf H}$ by Cholesky; form $\mathbf L^{-1}\mathbf R_s\mathbf L^{-\mathsf H}$
+  by triangular solves; find its dominant eigenvector $\mathbf v$; return
+  $\mathbf w = \mathbf L^{-\mathsf H}\mathbf v$.
+
+**Evaluating a beamformer**: the output SINR is
+$\mathbf w^{\mathsf H}\mathbf R_s\mathbf w/\mathbf w^{\mathsf H}\mathbf R_n\mathbf w$, and the beam pattern is
+$|\mathbf w^{\mathsf H}\mathbf a(\Omega)|^2$ over a grid of directions.
+
+With $N$ elements, each set of adaptive weights costs $O(N^3)$.
 
 ## Implementation
 

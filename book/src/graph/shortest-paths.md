@@ -112,10 +112,40 @@ Floyd–Warshall's cubic cost limits it to graphs of a few thousand vertices. Fo
 
 ## Algorithm
 
-1. **Dijkstra**: heap of (distance, vertex); pop; skip if stale; relax out-edges, pushing improvements.
-2. **Bellman–Ford**: up to $V - 1$ passes over all edges (both directions if undirected), stopping when unchanged; one more pass detects negative cycles.
-3. **A***: as Dijkstra with keys $d + h$, closing vertices when popped and stopping at the target.
-4. **Floyd–Warshall**: initialise from the edges; for each $k$, $i$, $j$ relax through $k$; check the diagonal.
+**Dijkstra** from a source.
+
+1. Set every distance to infinity, except the source's, which is 0. Push (0, source) on a
+   min-heap ordered by distance.
+2. Pop the entry (d, u) of smallest distance. If $d$ is larger than the distance now recorded
+   for $u$, the entry is stale: discard it and repeat this step.
+3. For each edge from $u$ to $v$ with weight $w$: if $d + w$ is less than the recorded
+   distance of $v$, record it, set the predecessor of $v$ to $u$, and push $(d + w, v)$.
+4. Repeat from step 2 until the heap is empty.
+
+**Bellman-Ford** from a source.
+
+1. Set the distances as above.
+2. Make a pass over all the edges (in both directions, for an undirected graph), relaxing
+   each.
+3. If the pass changed nothing, stop: the distances are final.
+4. After $V - 1$ passes, make one more. If it would still improve some distance, report a
+   negative cycle.
+
+**A\*** from a source to a target, with a heuristic $h$: as Dijkstra, with these differences.
+The heap is ordered by $d + h(v)$. A vertex is **closed** when it is popped, and closed
+vertices are not reopened. The search stops as soon as the target is popped.
+
+**Floyd-Warshall** for all pairs.
+
+1. Initialise the matrix: 0 on the diagonal, the weight for each edge, infinity elsewhere.
+   Initialise the successor matrix to the edge's endpoint.
+2. For each $k$, and for each pair $(i, j)$: if $d_{ik} + d_{kj} < d_{ij}$, replace $d_{ij}$ by
+   the sum, and the successor of $(i, j)$ by the successor of $(i, k)$. The loop over $k$ must
+   be the outermost.
+3. If any diagonal entry is negative, report a negative cycle.
+
+**Recovering a path**: from the predecessors, walk back from the target to the source and
+reverse the list; from the successor matrix, walk forward from the source.
 
 ## Implementation
 

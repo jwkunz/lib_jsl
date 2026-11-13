@@ -46,10 +46,31 @@ The time grows roughly quadratically with the number of digits, as schoolbook mu
 
 ## Algorithm
 
-1. **Horner**: $s = 0$; for each coefficient $a$: $s = sx + a$.
-2. **From roots**: start from $[1]$; for each root $r$, the new coefficients are $c_i - rc_{i-1}$.
-3. **Roots**: form the companion matrix; return its eigenvalues.
-4. **Long multiplication**: for each digit pair, add the product into position $i + j$ with carries.
+**Evaluation by Horner's rule**, with coefficients from the highest power down: set $s = 0$;
+for each coefficient $a$ in turn, set $s = sx + a$. The result is $s$: $n$ multiplications and
+$n$ additions for degree $n$.
+
+**Building a polynomial from its roots**: start with the single coefficient 1, the polynomial
+$p(x) = 1$. For each root $r$, multiply the polynomial by $(x - r)$: the new coefficient $i$ is
+$c_i - r\,c_{i-1}$, where $c$ are the old coefficients (taken as zero outside their range).
+Working from the highest index down lets the update be done in place.
+
+**Roots**: form the companion matrix and compute its eigenvalues with the general
+eigensolver; see [polynomial roots](../root_finding/polynomial-roots.md#algorithm).
+
+**Arithmetic on decimal strings.**
+
+- *Addition*: add the digits from the least significant end, carrying 1 whenever a sum reaches
+  10. Numbers of opposite sign are subtracted instead, the smaller in magnitude from the
+  larger, with borrows.
+- *Multiplication*: for each pair of digits, one from each number, at positions $i$ and $j$,
+  add their product into position $i + j$ of the result; then propagate the carries.
+- *Division*: long division. Bring down one digit of the dividend at a time, and find the
+  quotient digit by subtracting the divisor from the running remainder as many times as it
+  will go.
+
+Multiplication and division of numbers with $d_1$ and $d_2$ digits cost $O(d_1d_2)$ digit
+operations.
 
 ## Implementation
 

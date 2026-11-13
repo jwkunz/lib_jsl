@@ -95,10 +95,25 @@ A rectangular patch of length $L$ on a grounded substrate of permittivity $\vare
 
 ## Algorithm
 
-1. **Pattern**: the model's closed-form $(E_\theta, E_\varphi)$ per unit excitation (current, aperture field or edge voltage).
-2. **Power**: $P = \oint |\mathbf E|^2/2\eta\,d\Omega$ by Gauss-Legendre quadrature over the sphere (more nodes for electrically large antennas).
-3. **Directivity**: $4\pi U/P$; the peak by searching the sphere (finely in $\theta$ for rotationally symmetric patterns).
-4. **Gain patterns**: scale the pattern so that $|\mathbf E|^2$ equals the directivity times the efficiency, the normalisation the array models use.
+Every antenna model supplies one thing, its far-field pattern, and the remaining quantities
+are computed from that in the same way for all of them.
+
+1. **Pattern.** Evaluate the model's closed-form $(E_\theta, E_\varphi)$ in the requested
+   direction, for a unit excitation: a unit current for the wire antennas, a unit aperture
+   field for the dish, a unit edge voltage for the patch.
+2. **Radiated power.** Integrate the power density over the sphere,
+   $P = \oint |\mathbf E|^2/2\eta\,d\Omega$, by
+   [Gauss-Legendre quadrature](fields.md#domains-and-quadrature) in $\theta$ and uniform
+   samples in $\varphi$. Electrically large antennas have many narrow lobes and are given
+   more nodes.
+3. **Directivity.** In a given direction it is $4\pi U/P$, where $U = |\mathbf E|^2/2\eta$ is the
+   radiation intensity there. The peak directivity is found by searching the sphere, finely in
+   $\theta$ alone when the pattern is symmetric about the axis.
+4. **Radiation resistance**, for the wire antennas, whose excitation is a current: from
+   $P = \tfrac12|I|^2R$ with a unit current, $R = 2P$.
+5. **Gain pattern.** Rescale the pattern so that $|\mathbf E|^2$ equals the directivity times
+   the efficiency in every direction. This is the normalisation the
+   [array models](beamforming.md) expect.
 
 ## Implementation
 

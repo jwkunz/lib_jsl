@@ -89,10 +89,37 @@ In every case the minimum cut read from the final residual network has the same 
 
 ## Algorithm
 
-1. **Residual arcs**: each `add_edge` stores a forward arc and a reverse arc of capacity zero at indices $2k$ and $2k + 1$, so `arc ^ 1` is the partner.
-2. **Edmonds–Karp**: BFS for a path with residual capacity; push the bottleneck along it; repeat until the sink is unreachable.
-3. **Dinic**: BFS levels; repeated DFS along level-increasing arcs with current-arc pointers, pushing each path's bottleneck; repeat phases until the sink is unreachable.
-4. **Minimum cut**: BFS from the source over arcs with residual capacity; the reached vertices are the source side.
+**Storing the network.** Each call to `add_edge` stores two arcs: the forward arc with the
+given capacity, and a reverse arc of capacity zero. They are placed at consecutive positions
+$2k$ and $2k + 1$ of one array, so that the partner of any arc is found by flipping the lowest
+bit of its index (`arc ^ 1`). Pushing an amount of flow along an arc subtracts it from that
+arc's residual capacity and adds it to the partner's.
+
+**Edmonds-Karp.**
+
+1. Run a breadth-first search from the source, following only arcs with positive residual
+   capacity and recording the arc by which each vertex was reached.
+2. If the sink was not reached, stop.
+3. Walk back from the sink to the source along the recorded arcs to find the smallest
+   residual capacity on the path, the bottleneck.
+4. Walk back again, pushing the bottleneck amount along every arc of the path. Add it to the
+   total flow, and go to 1.
+
+**Dinic.**
+
+1. Run a breadth-first search from the source over arcs with positive residual capacity,
+   recording each vertex's **level**, its distance from the source. If the sink was not
+   reached, stop.
+2. Reset every vertex's current-arc pointer to its first arc.
+3. Run a depth-first search from the source that follows only arcs with positive residual
+   capacity leading from one level to the next. When the search finds that an arc leads
+   nowhere, it advances the vertex's pointer past it for good. When it reaches the sink, push
+   the bottleneck of the path found.
+4. Repeat step 3 until the search finds no path, which completes one phase; then go to 1.
+
+**Minimum cut**, after either algorithm: run a breadth-first search from the source over arcs
+with positive residual capacity. The vertices reached form the source side, and the original
+arcs leading from them to the other vertices are the cut.
 
 ## Implementation
 

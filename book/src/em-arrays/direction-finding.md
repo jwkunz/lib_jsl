@@ -67,9 +67,32 @@ The errors are for 100 snapshots on 8 elements, from 40 trials each. Capon and M
 
 ## Algorithm
 
-1. **Covariance**: $\hat{\mathbf R}$ from snapshots ([`sample_covariance`](../../api/lib_jsl_electromagnetics/signal_models/covariance/fn.sample_covariance.html)).
-2. **Spectra**: evaluate each formula on a grid of directions with the array's own steering vectors (any geometry, element patterns, polarization); find peaks with [`spectrum_peaks`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.spectrum_peaks.html).
-3. **ESPRIT**: eigendecomposition; least-squares $\boldsymbol\Psi$; its eigenvalues' phases; direction cosines.
+All the estimators start from the same matrix.
+
+1. **Covariance.** Estimate $\hat{\mathbf R} = \tfrac1K\sum_k\mathbf x_k\mathbf x_k^{\mathsf H}$ from $K$
+   snapshots, with
+   [`sample_covariance`](../../api/lib_jsl_electromagnetics/signal_models/covariance/fn.sample_covariance.html).
+
+**Scanning estimators** (Bartlett, Capon, MUSIC).
+
+2. Prepare what the formula needs: nothing for Bartlett; a factorisation of $\hat{\mathbf R}$
+   for Capon; for MUSIC, the eigendecomposition and the eigenvectors of the $N - M$ smallest
+   eigenvalues.
+3. For each direction of a grid, compute the array's steering vector (for its actual
+   geometry, element patterns and polarization) and evaluate the formula.
+4. Find the $M$ highest peaks of the resulting spectrum with
+   [`spectrum_peaks`](../../api/lib_jsl_electromagnetics/algorithms/direction_of_arrival/fn.spectrum_peaks.html).
+
+The accuracy is limited by the spacing of the grid unless the peaks are refined.
+
+**ESPRIT**, for a uniform linear array.
+
+2. Compute the eigendecomposition of $\hat{\mathbf R}$ and take the eigenvectors of the $M$
+   largest eigenvalues as the columns of $\mathbf E_s$.
+3. Let $\mathbf E_1$ be $\mathbf E_s$ without its last row and $\mathbf E_2$ without its first row.
+4. Solve $\mathbf E_1\boldsymbol\Psi = \mathbf E_2$ for the $M \times M$ matrix $\boldsymbol\Psi$ by least squares.
+5. Compute the eigenvalues $\lambda_i$ of $\boldsymbol\Psi$; the direction cosines are
+   $u_i = \arg\lambda_i/(kd)$.
 
 ## Implementation
 

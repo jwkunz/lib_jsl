@@ -80,7 +80,26 @@ with $g$ the gain from integrating pulses. The fourth root makes range expensive
 
 ## Algorithm
 
-All of these are direct evaluations of the formulas above. Inputs outside the empirical models' ranges (Hata: 150–1500 MHz, 1–20 km; gases: below 57 or 350 GHz) are rejected rather than extrapolated.
+Every function in this entry evaluates one of the formulas above directly; none iterates,
+except the range solver.
+
+**Link budget.** Add the gains and subtract the losses, in decibels: transmitted power, plus
+the two antenna gains, minus the path loss and any other losses, gives the received power.
+**Maximum range**: solve the same equation for the distance at which the received power equals
+the receiver's sensitivity. For free-space loss that is a closed form.
+
+**Two-ray model**, for given antenna heights and distance: compute the lengths of the direct
+and reflected paths and the grazing angle; compute the Fresnel reflection coefficient of the
+ground for that angle and polarization; add the two rays with their phases.
+
+**Empirical and atmospheric models**: check that the inputs lie within the range for which
+the model was fitted (Hata: 150 to 1500 MHz and 1 to 20 km; gases: below 57 or 350 GHz), and
+reject them otherwise, since the fitted formulas are meaningless outside it; then evaluate the
+formula.
+
+**Multipath channel**: the frequency response is the sum of the path gains times
+$e^{-j2\pi f\tau_i}$; the RMS delay spread is the standard deviation of the delays, weighted by
+the path powers.
 
 ## Implementation
 

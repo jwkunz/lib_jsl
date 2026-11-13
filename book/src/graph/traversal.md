@@ -41,9 +41,42 @@ Tarjan's algorithm numbers vertices in depth-first order, and tracks for each th
 
 ## Algorithm
 
-1. **BFS**: queue the source; repeatedly dequeue, record, and enqueue unseen neighbours.
-2. **Kahn**: in-degrees; heap of zero in-degree vertices; pop the smallest, record, decrement successors, push those reaching zero.
-3. **Tarjan**: iterative DFS with explicit frames (vertex, next neighbour); on discovery set index and low-link and push on the stack; on a back edge to a stacked vertex lower the low-link; on finishing propagate the low-link to the parent, and pop a component if low-link equals index.
+**Breadth-first search** from a source.
+
+1. Mark the source as seen and put it in a queue.
+2. While the queue is not empty: remove the vertex at the front and record it; for each of its
+   neighbours not yet seen, mark it as seen and add it to the back of the queue.
+
+Marking a vertex when it is *added* to the queue, not when it is removed, ensures that it is
+added only once. **Depth-first search** is the same with a stack in place of the queue. Both
+cost $O(V + E)$.
+
+**Topological sort** (Kahn's algorithm) of a directed graph.
+
+1. Count the incoming edges of every vertex.
+2. Put every vertex with no incoming edges in a min-heap.
+3. While the heap is not empty: remove the smallest vertex and append it to the order; for
+   each of its successors, reduce the count by one, and if the count reaches zero, add the
+   successor to the heap.
+4. If the order contains fewer than $V$ vertices, the remaining ones lie on a cycle: report
+   an error.
+
+**Strongly connected components** (Tarjan's algorithm). A counter numbers the vertices in
+order of discovery. Each vertex has an **index** (its number) and a **low-link** (the smallest
+index it is known to reach). Discovered vertices wait on a stack until their component is
+complete. The depth-first search is run without recursion, with an explicit stack of frames,
+each holding a vertex and the position of the next neighbour to examine. Start a search from
+every vertex not yet discovered.
+
+1. **Discover** a vertex: give it the next index, set its low-link to the same number, and
+   push it on the component stack.
+2. **Examine** its next neighbour. If the neighbour is undiscovered, descend into it (step 1).
+   If it is still on the component stack, lower the vertex's low-link to the neighbour's index
+   if that is smaller. If it has already been assigned to a component, ignore it.
+3. **Finish** a vertex when its neighbours are exhausted. If its low-link equals its own
+   index, it is the root of a component: pop the component stack down to and including this
+   vertex, and those vertices form one component. Then return to the parent frame and lower
+   the parent's low-link to this vertex's low-link if that is smaller.
 
 ## Implementation
 

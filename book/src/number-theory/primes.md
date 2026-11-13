@@ -109,9 +109,32 @@ time; if that fails too, it changes $c$:
 
 ## Algorithm
 
-1. **Sieve**: for odd $p$ from 3 while $p^2 \le n$, if $p$ is unmarked, mark $p^2, p^2 + 2p, \ldots$.
-2. **Miller–Rabin**: trial division by the twelve bases; for each base, compute $a^d$ and square up to $s - 1$ times, looking for $1$ or $-1$.
-3. **Factorise**: trial division; then a stack of composites, each split by Pollard–Brent rho until every piece passes the primality test.
+**Sieve of Eratosthenes** up to $n$, storing one bit for each odd number.
+
+1. Clear all the marks.
+2. For each odd $p = 3, 5, 7, \ldots$ with $p^2 \le n$: if $p$ is unmarked, it is prime; mark
+   $p^2, p^2 + 2p, p^2 + 4p, \ldots$ up to $n$. (The step is $2p$ because the multiples in
+   between are even, and are not stored.)
+3. The primes are 2 and the unmarked odd numbers.
+
+**Miller-Rabin test** of $n$.
+
+1. Divide $n$ by each of the first twelve primes. If one divides it, $n$ is prime only if it
+   equals that prime.
+2. Write $n - 1 = 2^sd$ with $d$ odd.
+3. For each of the twelve primes as base $a$: compute $x = a^d \bmod n$. If $x$ is $1$ or
+   $n - 1$, this base passes. Otherwise square $x$ up to $s - 1$ times; if it becomes
+   $n - 1$, the base passes; if it becomes 1, or never reaches $n - 1$, then $n$ is composite.
+4. If every base passes, $n$ is prime.
+
+**Factorisation** of $n$.
+
+1. Divide out every prime below 50, recording each as often as it divides.
+2. Put what remains, if it is greater than 1, on a stack.
+3. While the stack is not empty: remove a number. If it passes the primality test, record it
+   as a prime factor. Otherwise find a nontrivial factor $f$ by Pollard's rho, and put $f$
+   and the number divided by $f$ back on the stack.
+4. Sort the prime factors.
 
 ## Implementation
 

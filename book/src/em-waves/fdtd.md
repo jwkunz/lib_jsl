@@ -95,10 +95,27 @@ Once the pulse and its scattered waves have left the interior, the energy remain
 
 ## Algorithm
 
-1. **H update**: add the Courant number times the discrete curl of $E$ (with PML magnetic loss in 2D).
-2. **E update**: the same for $E$ from $H$, with material and conductivity factors; the split parts in the PML.
-3. **Source**: add the source's value to $E$ at its cell (a soft source, transparent to passing waves).
-4. **Boundaries**: Mur updates at the ends (1D); the PML backed by zero field (2D).
+One time step of the simulation, in this order.
+
+1. **Update $H$.** At every half-cell, add to $H$ the Courant number (divided by the cell's
+   relative permeability) times the difference of the two neighbouring values of $E$. In two
+   dimensions this is the discrete curl of $E$, and inside the PML the update includes the
+   magnetic loss.
+2. **Update $E$.** At every cell, add to $E$ the Courant number (divided by the relative
+   permittivity) times the difference of the two neighbouring values of $H$, which have just
+   been updated. A lossy cell multiplies the old value by a factor below 1 that depends on its
+   conductivity. In the PML, each of the two split parts of $E_z$ is updated with its own
+   conductivity.
+3. **Add the source.** Add the source's value at this time to $E$ at the source cell. Adding,
+   and not overwriting, makes it a **soft source**: waves reflected back towards it pass
+   through instead of being reflected again.
+4. **Apply the boundary conditions.** In one dimension, set the two end values by the Mur
+   formula, from the stored previous values. In two dimensions the PML absorbs the outgoing
+   waves, and the field at its outer edge is simply held at zero.
+
+Because $E$ and $H$ are staggered in time, each update uses values of the other field that are
+half a step newer, which is what makes the scheme second-order accurate. The cost per step is
+proportional to the number of cells.
 
 ## Implementation
 

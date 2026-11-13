@@ -68,10 +68,32 @@ measures how well two fields match, as in the coupling of a beam into a mode or 
 
 ## Algorithm
 
-1. **Integrate**: $\sum_i w_i f_i$ with the domain's weights (Jacobian included).
-2. **Change basis**: to Cartesian at the sample's position, then to the target basis.
-3. **Interpolate**: separable Lagrange stencils over the axes (periodic and pole-aware), in Cartesian components.
-4. **Differentiate**: per-axis stencils, combined through the frame and scale factors.
+**Integrating a field** over its domain: multiply each sample by its weight, the product of
+the one-dimensional quadrature weights of the axes and the Jacobian at that sample
+($\sin\theta$ on a sphere, $\rho$ in a cylinder), and add them up.
+
+**Changing the polarization basis** of a vector field: at each sample, convert the components
+to Cartesian using the unit vectors of the old basis *at that sample's position*; then take
+the components of the Cartesian vector along the unit vectors of the new basis there.
+
+**Interpolating at a point.**
+
+1. Convert the field to Cartesian components, which vary smoothly even where the coordinate
+   unit vectors do not (at the poles).
+2. For each axis, find the stencil of neighbouring grid points (one, two or four) and the
+   Lagrange weights of the point within it. On a periodic axis the stencil wraps round. On a
+   sphere, a stencil that would run past a pole continues on the far side, at
+   $(\theta', \varphi + \pi)$.
+3. Sum the products of the weights with the samples over the stencil.
+4. Convert the result back to the requested basis at the point.
+
+**Differentiating.**
+
+1. For each native axis, apply the five-point Lagrange derivative stencil along that axis to
+   each Cartesian component.
+2. Combine the per-axis derivatives into Cartesian derivatives through the local frame and the
+   scale factors, by the formula above.
+3. Assemble the gradient, divergence, curl or Laplacian from the Cartesian derivatives.
 
 ## Implementation
 

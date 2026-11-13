@@ -101,10 +101,27 @@ A two-port is described by the **Z** matrix ($\mathbf V = \mathbf Z\mathbf I$), 
 
 ## Algorithm
 
-1. **Line parameters**: $Z_0$ and $\gamma$ from $R, L, G, C$ (or impedance and velocity factor); the root with $\alpha \ge 0$.
-2. **Input impedance**: the cosh/sinh form, which avoids the poles of $\tanh$ at odd quarter-wavelengths; an infinite load is an open circuit.
-3. **Stub match**: find the distances where $\Gamma e^{-j2\beta d}$ lies on the $g = 1$ circle; the stub's length cancels the remaining susceptance.
-4. **Conversions**: closed forms (Pozar, Table 4.2); cascades through ABCD.
+**Line parameters**: compute $Z_0$ and $\gamma$ from $R$, $L$, $G$, $C$ and the frequency by the
+two square-root formulas, or from a given impedance and velocity factor. Of the two square
+roots for $\gamma$, take the one with a non-negative real part, so that a forward wave decays.
+
+**Input impedance** of a length $\ell$ with load $Z_L$: evaluate the formula with $\cosh$ and
+$\sinh$. This form is preferred to the equivalent one with $\tanh\gamma\ell$, which is infinite
+for a lossless line at odd multiples of a quarter wavelength. An infinite load is treated as
+an open circuit, $Z_{\text{in}} = Z_0\coth\gamma\ell$.
+
+**Single-stub matching** of a load to the line.
+
+1. Compute the load's reflection coefficient $\Gamma_L$.
+2. Find the distances $d$ from the load at which the admittance has unit conductance, that
+   is, where $\Gamma_Le^{-j2\beta d}$ lies on the circle $g = 1$ of the Smith chart. There are
+   two in each half wavelength.
+3. At each such distance the normalised admittance is $1 + jb$. Compute the length of a
+   short-circuited (or open-circuited) stub whose susceptance is $-b$.
+
+**Two-port conversions**: apply the closed-form relations between the Z, Y, ABCD and S
+matrices (Pozar, Table 4.2). To cascade networks, convert each to its ABCD matrix, multiply the
+matrices in order, and convert the product back.
 
 ## Implementation
 

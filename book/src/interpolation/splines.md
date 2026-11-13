@@ -278,6 +278,17 @@ A temperature profile across a thermocline:
    convergence for $e^x$.
 5. Construct monotone data for which the Catmull-Rom spline is not monotone.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With second derivatives $M_i = S''(x_i)$, continuity of $S'$ at $x_i$ gives $h_{i-1}M_{i-1} + 2(h_{i-1} + h_i)M_i + h_iM_{i+1} = 6\big(\frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}\big)$; the natural condition sets $M_0 = M_n = 0$.
+2. $h_{00}(t) = 2t^3 - 3t^2 + 1$, so $h_{00}(0) = 1$, $h_{00}(1) = 0$ and $h_{00}'(t) = 6t^2 - 6t$ vanishes at $0$ and $1$. The other three are checked the same way.
+3. Write the PCHIP end formula (a one-sided three-point slope estimate) and the Akima end rule for equal spacing and compare them; where they agree, the interior treatment is what remains to separate the two methods.
+4. Replace the first and last rows of the tridiagonal system by $f'$ conditions; for $e^x$ the maximum error should now fall by about 16 each time $h$ is halved.
+5. Take a flat stretch next to a rise, such as $y = 0, 0, 1, 1$ at $x = 0, 1, 2, 3$. The Catmull-Rom tangent at $x = 1$ is $\tfrac12$, so on $[0, 1]$ the curve with $y_0 = y_1 = 0$ and a positive end slope dips below zero before returning, although the data never decrease.
+
+</details>
+
 ## Further reading
 
 - I. J. Schoenberg, "Contributions to the problem of approximation of equidistant data by analytic

@@ -168,6 +168,17 @@ multiplications per sample.
 5. Estimate the second derivative of the noisy peak with Savitzky-Golay filters of several windows
    and find the best.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. With offsets $k = -2..2$ and basis $1, k, k^2$, $A^{\mathsf T}A = \begin{pmatrix}5&0&10\\0&10&0\\10&0&34\end{pmatrix}$. The smoothed value at the centre is the first coefficient, which is the first row of $(A^{\mathsf T}A)^{-1}A^{\mathsf T}$; it equals $(-3, 12, 17, 12, -3)/35$.
+2. On a symmetric window, odd powers $k^{2s+1}$ are orthogonal to all even powers, so adding one to the fit does not change the fitted value at the centre; the weights for the centre value are therefore the same.
+3. $\sum c_k^2$ is $1/21 = 0.0476$ for order 0, $0.1076$ for order 2 and $0.1692$ for order 4: higher orders keep more detail but reduce noise less.
+4. The response is flat near $\omega = 0$ and falls off at higher $\omega$, with ripples beyond the cutoff; the order-4 filter has a wider flat region than the order-2 one.
+5. A window that is too short leaves the noise amplified by differentiation; one that is too long flattens the peak. Plot the error against window length and pick the minimum.
+
+</details>
+
 ## Further reading
 
 - A. Savitzky and M. J. E. Golay, "Smoothing and differentiation of data by simplified least squares

@@ -213,6 +213,17 @@ three.
 5. Implement linear interpolation of a 5-dimensional lookup table with `GridData` and estimate how its
    cost grows with the dimension.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Bilinear interpolation reproduces the span of $1, x, y, xy$ because it is the unique function in that span with the four corner values. For $f = x^2$ on $[0, 1]^2$ the corner values are $0$ and $1$, the interpolant along the bottom edge is $x$, and at $x = \tfrac12$ it gives $0.5$ rather than $0.25$.
+2. $K(x) = \operatorname{sinc}(x)\operatorname{sinc}(x/2)$ for $|x| < 2$. At $u = 0.5$ the four weights are $-0.0637, 0.5732, 0.5732, -0.0637$. They sum to $1.0189$, not 1, and $\sum_k K(0.5 - k)k = 0.5095$. The raw kernel does not reproduce constants exactly, but after dividing by the weight sum the second sum is exactly $0.5$ (by symmetry), so a normalised kernel reproduces linear functions at this point.
+3. The spline is $s(x) = \sum_j c_j B_3(x - j)$, so $s(k) = \tfrac16 c_{k-1} + \tfrac23 c_k + \tfrac16 c_{k+1} = f_k$: a tridiagonal system for the coefficients $c_j$.
+4. Expect linear interpolation to blur edges without overshoot and cubic or Lanczos kernels to sharpen them but ring (overshoot) on either side; compare the pixel values next to an edge.
+5. The number of cell corners is $2^d$, so a lookup in a 5-dimensional table needs 32 values and the cost doubles with each added dimension. The table itself also grows as $n^d$.
+
+</details>
+
 ## Further reading
 
 - R. G. Keys, "Cubic convolution interpolation for digital image processing", *IEEE Transactions on

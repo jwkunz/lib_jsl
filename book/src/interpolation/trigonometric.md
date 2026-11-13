@@ -228,6 +228,17 @@ computation, $O(p^3)$.
 5. Use a trigonometric interpolant of samples of $x(1 - x)$ (which is continuous but has a kink when
    extended periodically) and measure the convergence rate.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. For $n > 2m$ the frequency $m$ is within the representable band and is reproduced exactly. For $n = m$ the samples $\cos(2\pi m k/n) = 1$ are all equal, so the interpolant is the constant $1$: frequency $m$ is an alias of frequency $0$.
+2. $y_{k+2} = (z_1 + z_2)y_{k+1} - z_1z_2y_k$, because $z_1, z_2$ are the roots of $z^2 - (z_1 + z_2)z + z_1z_2$.
+3. The DFT cannot separate tones 3 Hz apart when its resolution is 10 Hz, and zero-padding only interpolates the same blurred spectrum. With noise-free data and the correct order (four complex exponentials for two real sinusoids), Prony's method recovers both frequencies.
+4. Poles that stay at nearly the same frequency and damping as the order increases are the true ones; the spurious poles move about from one order to the next.
+5. The periodic extension of $x(1 - x)$ has a jump in its derivative, so the Fourier coefficients decay only like $1/k^2$ and the maximum error decreases algebraically, roughly like $1/n$ near the kink; plot the error on a log-log scale to measure the exponent.
+
+</details>
+
 ## Further reading
 
 - G. R. de Prony, "Essai expérimental et analytique", *Journal de l'École Polytechnique* 1 (1795)

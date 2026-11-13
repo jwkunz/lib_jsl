@@ -197,6 +197,17 @@ Cost: $O(n)$ per point.
 5. Interpolate the rainfall data of the example with Shepard's method for $\mu = 1, 2, 8$ and describe how
    the surface changes.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Near a data point $\mathbf x_i$ the weights are $|\mathbf x - \mathbf x_i|^{-\mu}$, so $u(\mathbf x) = f_i + O(|\mathbf x - \mathbf x_i|^{\mu})$. For $\mu > 1$ this has zero gradient at $\mathbf x_i$, giving flat spots at every data point.
+2. For three points the TPS system is $3 + 3$ equations in $3 + 3$ unknowns; the kernel $r^2\ln r$ is only conditionally positive definite, so the polynomial part and the side conditions $\sum \lambda_i p(\mathbf x_i) = 0$ are needed to make the system nonsingular and to reproduce linear functions.
+3. Small $\varepsilon$ (flat Gaussians) gives small error but a hopelessly ill-conditioned $\Phi$; large $\varepsilon$ gives a well-conditioned but inaccurate fit. The best $\varepsilon$ lies in between, at a condition number far above 1.
+4. Halton points usually give the smaller maximum error because they have a smaller fill distance (no large gaps), which governs the interpolation error.
+5. With $\mu = 1$ the surface has cusps at the data; $\mu = 2$ is smoother with flat spots; $\mu = 8$ approaches a piecewise-constant nearest-neighbour surface.
+
+</details>
+
 ## Further reading
 
 - D. Shepard, "A two-dimensional interpolation function for irregularly-spaced data", *Proceedings of

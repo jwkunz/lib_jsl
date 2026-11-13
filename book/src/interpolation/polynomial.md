@@ -329,6 +329,17 @@ The barycentric evaluation, shared with the [Floater-Hormann](rational.md) ratio
 5. Add noise of size $10^{-6}$ to samples of $e^x$ at 30 equally spaced points and interpolate. How
    large is the error? Repeat with Chebyshev points.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Divided differences: $f[0,1] = 1$, $f[1,2] = -2$, $f[2,3] = -1$; then $f[0,1,2] = -\tfrac32$, $f[1,2,3] = \tfrac12$; then $f[0,1,2,3] = \tfrac23$. At $x = 1.5$: $1 + 1(1.5) - \tfrac32(1.5)(0.5) + \tfrac23(1.5)(0.5)(-0.5) = 1.125$.
+2. The weight is $w_j = 1/\prod_{k \ne j}(x_j - x_k) = 1/\ell'(x_j)$ with $\ell(x) = \prod_k (x - x_k)$, which for these points is a multiple of $(x^2 - 1)U_{n-1}(x)$. Evaluating the derivative at $x_j = \cos(\pi j/n)$ gives a quantity proportional to $(-1)^j$, with the end points picking up half the value.
+3. Equally spaced: about $8.5\times10^{-3}$. Chebyshev points of the first kind: $2^{-10} \approx 9.8\times10^{-4}$, the smallest possible value for monic degree 11 polynomials. Chebyshev extrema: about $1.9\times10^{-3}$. The Chebyshev choice is about nine times better here, and the gap grows exponentially with $n$.
+4. For $|x|$ the error falls only like $1/n$ (the kink limits smoothness). For $e^x$ it falls faster than any power, essentially geometrically, until rounding level.
+5. Noise is amplified by the Lebesgue constant, which for 30 equally spaced points is of the order of $10^{6}$ (it grows like $2^n/(en\ln n)$), so the error near the ends is of order one. For Chebyshev points the constant is about $(2/\pi)\ln n + 1 \approx 3$ and the error stays a few times $10^{-6}$.
+
+</details>
+
 ## Further reading
 
 - C. Runge, "Über empirische Funktionen und die Interpolation zwischen äquidistanten Ordinaten",

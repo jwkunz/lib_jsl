@@ -312,6 +312,17 @@ The core of the AAA iteration:
 5. Find data for which AAA produces a Froissart doublet, and remove it by deleting the corresponding
    support point and refitting.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. As $x \to x_j$ the $j$-th term $w_jy_j/(x - x_j)$ dominates both sums, so the ratio tends to $y_j$ whatever $w_j \ne 0$ is.
+2. For $d = 0$ the Floater-Hormann weights on equally spaced points are $w_k = (-1)^k$ up to a constant factor (Berrut's first interpolant).
+3. $[1/1]$: $e^x \approx (1 + x/2)/(1 - x/2)$. At $x = 1$ this gives $3$ against the true $2.718$, an error of $0.28$; the degree-2 Taylor polynomial gives $2.5$, an error of $0.22$. The Padé form has the same number of parameters but is not better here; its advantage is near poles and for large arguments.
+4. Expect the poles to lie close to the imaginary axis and to cluster towards $x = 0$, as in Newman's construction. Count the support points the algorithm adds before the residual falls under $10^{-6}$ and compare with the degree a polynomial would need.
+5. A Froissart doublet is a pole and zero that almost cancel. They appear when the tolerance is set below the noise level of the data, so add noise of size about $10^{-8}$ and ask for a tolerance of $10^{-13}$.
+
+</details>
+
 ## Further reading
 
 - H. Padé, *Sur la représentation approchée d'une fonction par des fractions rationnelles*, thesis,

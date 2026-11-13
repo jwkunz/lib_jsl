@@ -29,6 +29,12 @@ hand-crafted methods.
 
 ### Blobs and the normalised Laplacian
 
+The aim of this entry is to find points in an image that can be found *again* in another image
+of the same scene, taken from a different distance or angle. Such **features** are the basis of
+image stitching, object recognition and 3D reconstruction. A good feature must be distinctive,
+and its detection must not depend on its size in the image. The simplest such feature is a
+**blob**: a roughly round region that is brighter or darker than its surroundings.
+
 Blurring by a Gaussian of width $\sigma$ and taking the Laplacian $\nabla^2 = \partial_x^2 + \partial_y^2$ gives a strong negative response at the centre of a bright blob. The response is strongest when $\sigma$ matches the blob's size. Raw derivatives of blurred images shrink as $\sigma$ grows,
 so the response is **normalised** by $\sigma^2$:
 
@@ -47,6 +53,13 @@ threshold. Of two detections overlapping by more than a given fraction of the sm
 
 ### SIFT
 
+The **scale-invariant feature transform** turns blob detection into a complete pipeline. It
+finds blob-like **keypoints** together with their size and orientation, and then summarises the
+image around each one by a **descriptor**, a vector of numbers computed relative to that size
+and orientation. Because the descriptor is measured in the keypoint's own frame, it comes out
+nearly the same when the image is scaled or rotated, and keypoints in two images can be paired
+by comparing descriptors.
+
 1. **Scale space.** Blur the image by Gaussians of widths $\sigma_0k^i$, with $k = 2^{1/s}$ for $s$ scales per octave. After each octave, halve the image and continue. Adjacent differences, the **difference of Gaussians** (DoG), approximate $(k - 1)\,\sigma^2\nabla^2G$, the normalised Laplacian.
 2. **Detection.** Candidates are extrema of the DoG among their 26 neighbours in position and scale.
 3. **Localisation.** Fit a quadratic to the DoG around each candidate by Newton's method: the offset $\hat{\mathbf x} = -H^{-1}\nabla D$, moving to the neighbouring sample if an offset exceeds one half. Reject candidates of low contrast, $|D(\hat{\mathbf x})| < 0.04/s$. Reject those on edges, where the ratio of principal curvatures of the $2 \times 2$ spatial Hessian exceeds 10, tested as $\mathrm{tr}^2/\det \ge (r + 1)^2/r$.
@@ -57,7 +70,12 @@ Normalising the image to $[0, 1]$ first makes the thresholds independent of brig
 
 ### SURF and the integral image
 
-The **integral image** $I(r, c) = \sum_{r' < r,\, c' < c} f(r', c')$ gives the sum over any rectangle from four lookups. SURF approximates the Gaussian second derivatives $D_{xx}, D_{yy}, D_{xy}$ by box filters (lobes of $\pm1$ and $-2$) and detects maxima of the
+SURF ("speeded-up robust features") follows the same plan as SIFT but replaces the Gaussian
+filters by crude approximations that are extremely cheap to compute. The device behind it is the
+**integral image** $I(r, c) = \sum_{r' < r,\, c' < c} f(r', c')$, in which each entry holds the
+sum of all the pixels above and to the left. The sum over any rectangle is then obtained from
+the values at its four corners, by adding two and subtracting two, whatever the rectangle's
+size. SURF approximates the Gaussian second derivatives $D_{xx}, D_{yy}, D_{xy}$ by box filters (lobes of $\pm1$ and $-2$) and detects maxima of the
 approximate Hessian determinant
 
 $$

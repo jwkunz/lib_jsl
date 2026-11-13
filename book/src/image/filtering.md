@@ -31,7 +31,15 @@ negative was sandwiched with the original to boost edge contrast. It moved into 
 
 ### Convolution and border modes
 
-The library's [`correlate2d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.correlate2d.html) computes
+Most image filters work the same way: each output pixel is a weighted sum of the input pixels in
+a small neighbourhood around it, and the same table of weights, the **kernel**, is used at
+every position. The kernel alone decides what the filter does. A $3 \times 3$ kernel with every
+weight equal to $\tfrac19$ replaces each pixel by the average of itself and its eight
+neighbours, a simple blur. A kernel with positive weights on one side and negative on the other
+responds to changes of intensity, and so finds edges. This is the two-dimensional version of an
+[FIR filter](../filters/convolution.md).
+
+In symbols, the library's [`correlate2d`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.correlate2d.html) computes
 
 $$
 g[r, c] = \sum_{i=-h_r}^{h_r}\sum_{j=-h_c}^{h_c} k[i, j]\, f[r + i, c + j]
@@ -43,7 +51,12 @@ image about its edge (`c b a | a b c | c b a`). These are SciPy's `constant`, `n
 
 ### Separable kernels
 
-A kernel that is an outer product, $k[i, j] = u[i]\,v[j]$, can be applied as a convolution along every row with $v$ and then along every column with $u$. That costs $O(k)$ per pixel instead of $O(k^2)$. [`separable_convolve`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.separable_convolve.html) does this,
+A $k \times k$ kernel costs $k^2$ multiplications per pixel, which becomes expensive for wide
+blurs. Many useful kernels have a structure that avoids this. A kernel that is an outer product,
+$k[i, j] = u[i]\,v[j]$, is called **separable**, and it can be applied in two one-dimensional
+passes: a convolution along every row with $v$, and then along every column with $u$. The
+two-dimensional sum factorises, because the weight of each pixel is a product of a row weight
+and a column weight. That costs $2k$ multiplications per pixel instead of $k^2$. [`separable_convolve`](../../api/lib_jsl_dsp/discrete/image/convolution/fn.separable_convolve.html) does this,
 and the Gaussian and Sobel kernels are both separable. {{#include ../generated/image/gaussian_facts.md}}
 
 ### Gaussian blur

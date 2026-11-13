@@ -276,6 +276,17 @@ The shifted QR algorithm with deflation:
 5. Use inverse iteration with the eigenvalues computed by `eigvalsh` as shifts to compute the eigenvectors, and compare
    with `eigh`.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Write $\mathbf x = \mathbf v_1 + \delta\mathbf w$ with $\mathbf w \perp \mathbf v_1$. Then $\rho(\mathbf x) = (\lambda_1 + \delta^2\mathbf w^{\mathsf T}A\mathbf w)/(1 + \delta^2\mathbf w^{\mathsf T}\mathbf w) = \lambda_1 + O(\delta^2)$, because the cross terms vanish by symmetry.
+2. A rotation changes only rows and columns $p, q$ and preserves the Frobenius norm. It sets $a_{pq}$ to 0 and leaves $a_{pp}^2 + a_{qq}^2 + 2a_{pq}^2$ unchanged, so the off-diagonal sum of squares drops by exactly $2a_{pq}^2$ (counting both $a_{pq}$ and $a_{qp}$).
+3. $A_{k+1} = R_kQ_k = Q_k^{\mathsf T}(Q_kR_k)Q_k = Q_k^{\mathsf T}A_kQ_k$. For the product, induct: $Q_1\cdots Q_kR_k\cdots R_1 = Q_1\cdots Q_{k-1}A_kR_{k-1}\cdots R_1$ and $A_k = Q_{k-1}^{\mathsf T}\cdots Q_1^{\mathsf T}AQ_1\cdots Q_{k-1}$.
+4. For $A = \begin{pmatrix}0&1\\1&0\end{pmatrix}$, $Q = A$ and $R = I$, so $RQ = A$: a fixed point that is not diagonal. Convergence needs eigenvalues of different moduli; a shift $\mu$ makes $|1 - \mu| \ne |-1 - \mu|$.
+5. With the exact eigenvalue as shift, inverse iteration converges in one or two steps. For clustered eigenvalues the computed vectors are not orthogonal and need reorthogonalisation, which `eigh` does implicitly.
+
+</details>
+
 ## Further reading
 
 - B. N. Parlett, *The Symmetric Eigenvalue Problem*, Prentice-Hall, 1980 (SIAM reprint, 1998).

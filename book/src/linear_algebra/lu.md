@@ -301,6 +301,17 @@ The production recursion:
 5. Use the factorisation to compute $\det A$ for a random $200 \times 200$ matrix scaled by 10. Why can the determinant
    overflow even when the matrix is well conditioned, and how would you compute $\ln|\det A|$ instead?
 
+<details>
+<summary>Hints and answers</summary>
+
+1. Step $k$ updates an $(n - k)\times(n - k)$ block with one multiplication and one subtraction per entry: $\sum_k 2(n - k)^2 \approx \tfrac23n^3$.
+2. A unit lower triangular matrix has an inverse of the same form (back substitution on the identity gives ones on the diagonal and zeros above). Elimination subtracts $\ell_{ik} = a_{ik}/a_{kk}$ times row $k$ from row $i$, and those are the entries of $L$.
+3. With partial pivoting $|\ell_{ik}| \le 1$, so each step at most doubles the largest entry: after $n - 1$ steps at most $2^{n-1}$. Wilkinson's matrix (ones on the diagonal and in the last column, $-1$ below the diagonal) doubles the last column at every step.
+4. $\kappa(H_{10}) \approx 1.6\times10^{13}$. A perturbation of $10^{-10}$ in one entry of $\mathbf b$ can change $\mathbf x$ by a relative amount up to about $\kappa\times$ (relative perturbation), potentially of order $10^{3}$; the actual change depends on the direction of the perturbation.
+5. $\det A = \pm\prod u_{ii}$ is a product of 200 numbers each of size around 10, so it is near $10^{200}$ times a factor that can easily exceed $10^{100}$: more than $10^{308}$. Compute $\ln|\det A| = \sum_i\ln|u_{ii}|$ instead.
+
+</details>
+
 ## Further reading
 
 - G. H. Golub and C. F. Van Loan, *Matrix Computations*, 4th ed., Johns Hopkins University Press, 2013,

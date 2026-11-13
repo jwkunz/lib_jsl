@@ -231,6 +231,17 @@ The textbook route, for comparison:
 5. Construct a matrix with singular values $1$ and $10^{-12}$ without column scaling, and compare `svd`, `svd_jacobi` and the reference
    route through $A^{\mathsf T}A$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $A^{\mathsf H}A = V\Sigma^2V^{\mathsf H}$, so its eigenvalues are $\sigma_i^2$. $\|A\mathbf x\|^2 = \sum_i\sigma_i^2|\mathbf v_i^{\mathsf H}\mathbf x|^2 \le \sigma_1^2\|\mathbf x\|^2$ with equality for $\mathbf x = \mathbf v_1$.
+2. $\|A - A_k\|_2 = \sigma_{k+1}$ for the truncated SVD. For any rank-$k$ matrix $B$ its null space has dimension at least $n - k$, so it meets $\operatorname{span}(\mathbf v_1, \ldots, \mathbf v_{k+1})$ in a nonzero $\mathbf x$, giving $\|(A - B)\mathbf x\| = \|A\mathbf x\| \ge \sigma_{k+1}\|\mathbf x\|$.
+3. Reconstruction from $k$ triplets stores $k(m + n + 1)$ numbers; plot the error against $k$ and note how quickly the singular values of natural images decay.
+4. Minimising $\|A\mathbf x - \mathbf b\|$ gives $\Sigma\mathbf y = U^{\mathsf H}\mathbf b$ with $\mathbf y = V^{\mathsf H}\mathbf x$; the minimum-norm choice sets the components of $\mathbf y$ belonging to zero singular values to 0, which is $\mathbf y = \Sigma^+U^{\mathsf H}\mathbf b$.
+5. Forming $A^{\mathsf T}A$ squares the ratio, so the second eigenvalue $10^{-24}$ is below rounding relative to $1$ and is lost. Golub-Kahan (`svd`) finds the small singular value with an absolute error near $\varepsilon\sigma_1$, i.e. only a few correct digits; the one-sided Jacobi method (`svd_jacobi`) can retain high relative accuracy for well-scaled problems.
+
+</details>
+
 ## Further reading
 
 - G. H. Golub and W. Kahan, "Calculating the singular values and pseudo-inverse of a matrix", *SIAM Journal on Numerical

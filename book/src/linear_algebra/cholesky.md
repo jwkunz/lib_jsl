@@ -174,6 +174,17 @@ The production loop over blocks:
    of `det`. Which overflows?
 5. Factor the matrix $A_\delta = \begin{pmatrix}1 & 1\\ 1 & 1 + \delta\end{pmatrix}$ for $\delta = 10^{-8}, 10^{-16}, 10^{-17}$ and explain the results.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. After $j - 1$ steps the leading $j\times j$ block of $A$ has been reduced to $L_jL_j^{\mathsf T}$, and $\det A_j = \prod_{i \le j}\ell_{ii}^2$. The ratio of consecutive determinants is $\ell_{jj}^2$, the quantity under the square root, which is positive exactly when the leading minors are.
+2. Row $i$ of $A = LL^{\mathsf T}$ gives $a_{ii} = \sum_k \ell_{ik}^2 \ge \ell_{ij}^2$, so $|\ell_{ij}| \le \sqrt{a_{ii}}$. Every entry of $L$ is bounded by the square root of a diagonal entry of $A$, so there is no growth.
+3. $\operatorname{Cov}(L\mathbf z) = L\operatorname{Cov}(\mathbf z)L^{\mathsf T} = LL^{\mathsf T} = A$. The sample covariance errors shrink like $1/\sqrt{10\,000}$, about 1% of the entries' scale.
+4. $\ln\det A = 2\sum_i\ln\ell_{ii}$ is a sum of moderate numbers. The determinant itself is a product of 500 factors and overflows double precision (about $10^{308}$) as soon as the typical eigenvalue exceeds about $4$.
+5. $A_\delta$ has the factor $L = \begin{pmatrix}1&0\\1&\sqrt\delta\end{pmatrix}$ in exact arithmetic. For $\delta = 10^{-8}$ the stored $1 + \delta$ carries a relative error of $10^{-8}$ in $\delta$, so $\ell_{22}$ has about eight digits. For $\delta = 10^{-16}$ and $10^{-17}$, $1 + \delta$ rounds to exactly $1$ (the rounding unit is $1.1\times10^{-16}$), the stored matrix is singular, and the factorisation reports that it is not positive definite.
+
+</details>
+
 ## Further reading
 
 - C. Brezinski, "The life and work of André Cholesky", *Numerical Algorithms* 43 (2006) 279–288.

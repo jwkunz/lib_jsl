@@ -219,6 +219,17 @@ The production solver:
    the errors.
 5. Add Tikhonov regularisation, $\min\|A\mathbf x - \mathbf b\|^2 + \lambda^2\|\mathbf x\|^2$, by augmenting $A$ with $\lambda I$, and study the effect of $\lambda$ on an ill-conditioned fit.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $\nabla\|A\mathbf x - \mathbf b\|^2 = 2A^{\mathsf T}(A\mathbf x - \mathbf b) = 0$ gives $A^{\mathsf T}A\mathbf x = A^{\mathsf T}\mathbf b$.
+2. With $A = U\Sigma V^{\mathsf T}$, $A^{\mathsf T}A = V\Sigma^2V^{\mathsf T}$, whose singular values are $\sigma_i^2$, so $\kappa_2(A^{\mathsf T}A) = \sigma_1^2/\sigma_n^2 = \kappa_2(A)^2$.
+3. Any solution is $\mathbf x_0 + \mathbf n$ with $\mathbf n$ in the null space. The minimum-norm solution has no component in the null space, i.e. it lies in its orthogonal complement, the row space of $A$.
+4. The monomial Vandermonde matrix on $[0, 1]$ with degree 15 has a condition number far above $10^{10}$ (and many digits are lost); the Chebyshev basis on the same interval has a condition number of order 10, and the fit is accurate to nearly rounding level.
+5. The least-squares solution of $\begin{pmatrix}A\\ \lambda I\end{pmatrix}\mathbf x \approx \begin{pmatrix}\mathbf b\\ \mathbf 0\end{pmatrix}$ minimises $\|A\mathbf x - \mathbf b\|^2 + \lambda^2\|\mathbf x\|^2$. Plot the residual norm against the solution norm as $\lambda$ varies (the L-curve).
+
+</details>
+
 ## Further reading
 
 - G. H. Golub, "Numerical methods for solving linear least squares problems", *Numerische Mathematik* 7 (1965)

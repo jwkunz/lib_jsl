@@ -215,6 +215,17 @@ Balancing:
 4. Compute the condition numbers $1/|\mathbf y^{\mathsf H}\mathbf x|$ (with unit left and right eigenvectors) of the eigenvalues of the Grcar matrix.
 5. Solve the generalised problem $K\mathbf v = \omega^2M\mathbf v$ for a mass-spring system with non-uniform masses by transforming with $M^{-1/2}$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. If $A_k = QR$ is upper Hessenberg, $R$ is upper triangular and $Q$ is upper Hessenberg, so $RQ$ is upper Hessenberg. In the symmetric case the result is symmetric and Hessenberg, hence tridiagonal.
+2. Reducing a symmetric matrix to tridiagonal form with Householder reflections costs about $\tfrac43n^3$ flops (without forming $Q$); count the cost of the reflection at step $k$ (about $4(n - k)^2$) and sum.
+3. The companion matrix of $W$ has entries spanning many orders of magnitude, so its eigenvalues are very sensitive to rounding. Balancing scales rows and columns to reduce the norm and typically improves the accuracy of the eigenvalues noticeably; compare the errors with and without it.
+4. The Grcar matrix is highly non-normal and its eigenvalues are very ill-conditioned: expect condition numbers that grow rapidly with the dimension, even though the matrix is only a banded Toeplitz matrix.
+5. With $\mathbf y = M^{1/2}\mathbf v$, $K\mathbf v = \omega^2M\mathbf v$ becomes $(M^{-1/2}KM^{-1/2})\mathbf y = \omega^2\mathbf y$, a symmetric standard eigenproblem; transform the eigenvectors back by $\mathbf v = M^{-1/2}\mathbf y$.
+
+</details>
+
 ## Further reading
 
 - J. H. Wilkinson, *The Algebraic Eigenvalue Problem*, Oxford University Press, 1965.

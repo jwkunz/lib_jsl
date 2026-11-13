@@ -236,6 +236,17 @@ Pivoted Householder QR (production), for real and complex matrices:
 4. Run classical Gram-Schmidt twice ("twice is enough") and measure the loss of orthogonality as in the figure.
 5. Show that column pivoting gives $|r_{11}| \ge |r_{22}| \ge \cdots \ge |r_{nn}|$.
 
+<details>
+<summary>Hints and answers</summary>
+
+1. $H^{\mathsf T} = I - 2(\mathbf v\mathbf v^{\mathsf T})^{\mathsf T} = H$, and $H^{\mathsf T}H = I - 4\mathbf v\mathbf v^{\mathsf T} + 4\mathbf v(\mathbf v^{\mathsf T}\mathbf v)\mathbf v^{\mathsf T} = I$. Symmetry plus orthogonality gives $H^2 = H^{\mathsf T}H = I$.
+2. Both subtract from $\mathbf a_j$ the projections onto $\mathbf q_1, \ldots, \mathbf q_{j-1}$. Classical Gram-Schmidt computes all the coefficients from the original $\mathbf a_j$, modified from the partially reduced vector, but when the $\mathbf q_i$ are orthogonal, $\mathbf q_i^{\mathsf T}\mathbf a_j$ and $\mathbf q_i^{\mathsf T}$(reduced vector) are equal.
+3. Below rounding, $1 + \varepsilon^2 = 1$ and $\mathbf q_1 \approx (1, \varepsilon, 0, 0)$. Then $\mathbf a_2 - \mathbf q_1 \approx (0, -\varepsilon, \varepsilon, 0)$, so $\mathbf q_2 = (0, -1, 1, 0)/\sqrt2$, and similarly $\mathbf q_3 = (0, -1, 0, 1)/\sqrt2$. Then $\mathbf q_2^{\mathsf T}\mathbf q_3 = \tfrac12$: orthogonality is completely lost.
+4. A second pass orthogonalises the result against the $\mathbf q_i$ again; Kahan and Parlett showed that two passes give orthogonality at the level of rounding error.
+5. Pivoting chooses at step $k$ the remaining column with the largest norm after projection, and $|r_{kk}|$ is the norm of the chosen column; later columns have been reduced further and had smaller norms to begin with.
+
+</details>
+
 ## Further reading
 
 - A. S. Householder, "Unitary triangularization of a nonsymmetric matrix", *Journal of the ACM* 5 (1958)

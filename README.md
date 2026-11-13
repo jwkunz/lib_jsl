@@ -22,7 +22,7 @@ work as well as use them.
 | Algorithms | 456 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
-| Documentation | API reference for every crate; the book's integration chapter is the pilot, with the other chapters in progress |
+| Documentation | API reference for every crate; a book of 149 entries covering every subject of the catalogue, each with its idea, algorithm, measured results and exercises |
 | Publishing | Every crate packages and verifies for crates.io (`cargo package --workspace`); not yet published, so use a git dependency for now |
 
 ## Crates
@@ -157,8 +157,8 @@ Pushes to `main` publish the site to GitHub Pages through `.github/workflows/doc
 1.0.0 completes the original plan of algorithms. Planned work is tracked in
 [GitHub issues](https://github.com/jwkunz/lib_jsl/issues):
 
-- **The book**: chapters for every subject of the catalogue, following the integration pilot
-  ([#7](https://github.com/jwkunz/lib_jsl/issues/7), with one issue per part).
+- **The book**: the chapters are written; remaining work is to close the gaps found in review
+  ([#21](https://github.com/jwkunz/lib_jsl/issues/21) to [#30](https://github.com/jwkunz/lib_jsl/issues/30)).
 - **Publishing** the crates to crates.io ([#8](https://github.com/jwkunz/lib_jsl/issues/8)).
 - **Linear algebra performance**: multishift QR for large general eigenproblems
   ([#9](https://github.com/jwkunz/lib_jsl/issues/9)), LU and small Cholesky

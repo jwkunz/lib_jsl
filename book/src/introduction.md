@@ -25,7 +25,10 @@ Entries link to the exact API items they describe, and the API documentation lin
 
 ## Prerequisites
 
-Calculus, linear algebra and some familiarity with Taylor series are assumed throughout.
+Calculus, linear algebra and some familiarity with Taylor series are assumed throughout. Four further topics are used
+from the first chapters on and are summarised in [Preliminaries](preliminaries.md): floating-point arithmetic and
+error, vector and matrix norms, basic probability (expectation, variance, the law of large numbers and the central limit
+theorem) and complex numbers.
 Chapters build on one another loosely: the integration chapter, for example, uses polynomial
 interpolation and orthogonal polynomials, which are introduced where they are needed. The code
 is Rust, but the excerpts are short and annotated; readers who know C, Python or MATLAB will be

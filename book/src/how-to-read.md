@@ -51,7 +51,7 @@ frequency responses and transfer functions.
 - $\int_a^b f(x)\,dx$ is the exact integral and $Q_n[f]$ an $n$-point approximation to it.
 - $\mathbb{P}_n$ is the space of polynomials of degree at most $n$.
 - $h$ is a step or panel width, and $O(h^p)$ means "bounded by a constant times $h^p$ as $h \to 0$".
-- $\varepsilon \approx 2.2 \times 10^{-16}$ is the machine epsilon of IEEE double precision: the relative
+- $\varepsilon \approx 2.2 \times 10^{-16}$ (see [Preliminaries](preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error)) is the machine epsilon of IEEE double precision: the relative
   rounding error of a single arithmetic operation, so a double carries about 16 significant
   digits.
 - Vectors are bold lower-case ($\mathbf x$), matrices upper-case ($A$); $A^{\mathsf T}$ is the

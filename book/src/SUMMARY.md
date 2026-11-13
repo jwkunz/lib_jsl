@@ -1,6 +1,7 @@
 # Summary
 
 [Introduction](introduction.md)
+[Preliminaries](preliminaries.md)
 [How to read an entry](how-to-read.md)
 [Catalogue of algorithms](catalogue.md)
 

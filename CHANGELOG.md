@@ -6,6 +6,8 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-14
+
 ### Added
 
 - Image morphology in `lib_jsl_dsp::discrete::image::morphology`: binary erosion, dilation, opening,
@@ -165,7 +167,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.3.0
 [1.2.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.2.0
 [1.1.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.1.0
 [1.0.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.0.0

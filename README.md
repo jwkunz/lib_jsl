@@ -18,7 +18,7 @@ work as well as use them.
 
 | | |
 |---|---|
-| Version | 1.3.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
+| Version | 1.4.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
 | Algorithms | 470 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
@@ -60,9 +60,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.3.0" }
+lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.4.0" }
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.3.0" }
+lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.4.0" }
 ```
 
 ```rust

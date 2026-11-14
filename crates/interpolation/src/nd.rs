@@ -43,3 +43,4 @@ pub(crate) fn check_point(dims: usize, point: &[f64]) -> Result<(), ErrorsJSL> {
 pub mod grid_data;
 pub mod nearest;
 pub mod cubic_basis;
+pub mod rbf;

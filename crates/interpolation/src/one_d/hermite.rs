@@ -36,6 +36,12 @@ impl<'a> PiecewiseHermite<'a> {
     pub fn slopes(&self) -> &R1D {
         &self.slopes
     }
+
+    /// The same interpolant as a [`PPoly`](super::ppoly::PPoly), with derivatives, integrals and
+    /// roots (SciPy's `PchipInterpolator` and `Akima1DInterpolator` are `PPoly`s).
+    pub fn to_ppoly(&self) -> super::ppoly::PPoly {
+        super::ppoly::PPoly::cubic_hermite(&self.x_values.to_vec(), &self.y_values.to_vec(), &self.slopes.to_vec()).expect("validated on construction")
+    }
 }
 
 impl<'a> InterpolationTrait<'a> for PiecewiseHermite<'a> {

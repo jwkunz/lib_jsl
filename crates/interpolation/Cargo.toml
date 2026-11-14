@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Interpolation in one to N dimensions: splines and B-splines of any degree, smoothing splines, rational, Chebyshev, Fourier and radial basis functions."
+description = "Interpolation in one to N dimensions: splines and B-splines of any degree, smoothing splines, piecewise polynomials, rational, Chebyshev, Fourier, scattered data and radial basis functions."
 
 [lib]
 path = "src/mod.rs"
@@ -17,4 +17,5 @@ path = "src/mod.rs"
 lib_jsl_core.workspace = true
 ndarray.workspace = true
 lib_jsl_linalg.workspace = true
+lib_jsl_geometry.workspace = true
 num-complex.workspace = true

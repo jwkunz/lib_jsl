@@ -12,14 +12,14 @@ work as well as use them.
   undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
 - **Catalogue:** the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html) lists everything the library
-  implements (523 items), grouped by subject, and what it deliberately does not cover.
+  implements (532 items), grouped by subject, and what it deliberately does not cover.
 
 ## Status
 
 | | |
 |---|---|
-| Version | 1.16.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
-| Algorithms | 523 algorithms and components across 23 library crates |
+| Version | 1.17.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
+| Algorithms | 532 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; a book of 149 entries covering every subject of the catalogue, each with its idea, algorithm, measured results and exercises |
@@ -39,7 +39,7 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 | `lib_jsl_optimization` | Line searches, BFGS and L-BFGS, conjugate gradient, Levenberg-Marquardt, SQP and augmented Lagrangian, Nelder-Mead, Powell, simulated annealing, differential evolution, particle swarm, linear and dynamic programming |
 | `lib_jsl_root_finding` | Bracketing methods, Brent, Newton, polynomial roots, nonlinear systems (Newton, Broyden) |
 | `lib_jsl_special_functions` | Gamma, beta, error, Bessel, Airy, elliptic, hypergeometric and zeta functions, orthogonal polynomials, spherical harmonics, Lambert W, polylogarithm, statistical distributions, log-domain functions, polygamma, inverse incomplete gamma and beta |
-| `lib_jsl_interpolation` | 1D, 2D, 3D and N-D interpolation: splines, rational (AAA, Floater-Hormann, Bulirsch-Stoer), Chebyshev, Fourier, radial basis functions |
+| `lib_jsl_interpolation` | 1D, 2D, 3D and N-D interpolation: splines, piecewise polynomials, Hermite and Krogh, rational (AAA, Floater-Hormann, Bulirsch-Stoer), Chebyshev, Fourier, scattered data (Delaunay linear, Clough-Tocher, N-D radial basis functions) |
 | `lib_jsl_derivatives` | Numerical differentiation |
 | `lib_jsl_ffts` | FFT engines (radix, Bluestein, SIMD), real and multidimensional FFTs, DCT/DST (1-D and N-D), fractional FFT, frequency grids and fast lengths |
 | `lib_jsl_ffts_reference` | Readable reference FFTs for study |
@@ -60,9 +60,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.16.0" }
+lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.17.0" }
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.16.0" }
+lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.17.0" }
 ```
 
 ```rust

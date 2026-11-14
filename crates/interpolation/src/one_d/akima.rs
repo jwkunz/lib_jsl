@@ -5,15 +5,34 @@
 use super::hermite::{PiecewiseHermite, secants};
 use lib_jsl_core::*;
 
-/// Builds an Akima (1970) interpolant through `(x, y)`; `x` strictly increasing, at least three points.
+/// Builds an Akima (1970) interpolant through `(x, y)`; `x` strictly increasing, at least two
+/// points (two give a straight line).
 ///
 /// Slopes are weighted averages of neighbouring secants; the two secants beyond each end are
-/// extrapolated linearly in the secant sequence, as in the original paper.
+/// extrapolated linearly in the secant sequence, as in the original paper. The weights, the fill
+/// value where they vanish and the cutoff for that follow SciPy's `Akima1DInterpolator`.
 pub fn akima<'a>(x: VR1D<'a>, y: VR1D<'a>) -> Result<PiecewiseHermite<'a>, ErrorsJSL> {
+    PiecewiseHermite::from_slopes(x, y, R1D::from_vec(akima_slopes(x, y, false)?))
+}
+
+/// The modified Akima interpolant (`makima`, Cosmin Ionita 2019; SciPy's
+/// `Akima1DInterpolator(method="makima")`): the weights `|m₄ − m₃| + |m₄ + m₃|/2` and
+/// `|m₂ − m₁| + |m₂ + m₁|/2` also count the secants' size, so flat stretches and repeated
+/// secants no longer produce overshoot.
+pub fn makima<'a>(x: VR1D<'a>, y: VR1D<'a>) -> Result<PiecewiseHermite<'a>, ErrorsJSL> {
+    PiecewiseHermite::from_slopes(x, y, R1D::from_vec(akima_slopes(x, y, true)?))
+}
+
+// ANCHOR: akima_slopes
+/// The node slopes of Akima's method (`modified = false`) or of `makima` (`modified = true`).
+pub fn akima_slopes(x: VR1D, y: VR1D, modified: bool) -> Result<Vec<f64>, ErrorsJSL> {
     let d = secants(x, y)?;
     let n = x.len();
-    if n < 3 {
-        return Err(ErrorsJSL::IncompatibleArraySizes((n, 3)));
+    if n < 2 {
+        return Err(ErrorsJSL::IncompatibleArraySizes((n, 2)));
+    }
+    if n == 2 {
+        return Ok(vec![d[0]; 2]);
     }
     // Extended secants: m[k+2] = d[k], with two extrapolated values at each end.
     let mut m = vec![0.0; n + 3];
@@ -22,18 +41,16 @@ pub fn akima<'a>(x: VR1D<'a>, y: VR1D<'a>) -> Result<PiecewiseHermite<'a>, Error
     m[0] = 2.0 * m[1] - m[2];
     m[n + 1] = 2.0 * m[n] - m[n - 1];
     m[n + 2] = 2.0 * m[n + 1] - m[n];
-    let mut slopes = R1D::zeros(n);
-    for i in 0..n {
-        let w1 = (m[i + 3] - m[i + 2]).abs();
-        let w2 = (m[i + 1] - m[i]).abs();
-        slopes[i] = if w1 + w2 > 1e-14 * (m[i + 1].abs() + m[i + 2].abs()).max(f64::MIN_POSITIVE) {
-            (w1 * m[i + 1] + w2 * m[i + 2]) / (w1 + w2)
-        } else {
-            0.5 * (m[i + 1] + m[i + 2])
-        };
-    }
-    PiecewiseHermite::from_slopes(x, y, slopes)
+    let weight = |a: f64, b: f64| (a - b).abs() + if modified { 0.5 * (a + b).abs() } else { 0.0 };
+    let f1: Vec<f64> = (0..n).map(|i| weight(m[i + 3], m[i + 2])).collect();
+    let f2: Vec<f64> = (0..n).map(|i| weight(m[i + 1], m[i])).collect();
+    let f12: Vec<f64> = f1.iter().zip(&f2).map(|(a, b)| a + b).collect();
+    let cutoff = 1e-9 * f12.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    Ok((0..n)
+        .map(|i| if f12[i] > cutoff { m[i + 1] + f2[i] / f12[i] * (m[i + 2] - m[i + 1]) } else { 0.5 * (m[i + 3] + m[i]) })
+        .collect())
 }
+// ANCHOR_END: akima_slopes
 
 #[cfg(test)]
 mod tests {

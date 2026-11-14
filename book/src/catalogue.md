@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **523 algorithms and components in 23 crates**:
+The library implements **532 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 123 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 132 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 45 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 197 |
@@ -77,7 +77,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions.
 
-Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 37 items
+Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 46 items
 
 - [Interpolation trait](interpolation/index.md#in-the-library)
 
@@ -102,6 +102,10 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [Interpolating splines with not-a-knot, natural, clamped, periodic or given-derivative ends](interpolation/b-splines.md#interpolation-and-end-conditions)
 - [Least-squares splines on given knots; parametric spline curves](interpolation/b-splines.md#least-squares-splines)
 - [Cubic smoothing spline with generalised cross-validation](interpolation/b-splines.md#smoothing-splines)
+- [Piecewise polynomials (`PPoly`): derivatives, antiderivatives, integrals and roots](interpolation/piecewise-scattered.md#piecewise-polynomials)
+- [Cubic Hermite spline from values and slopes](interpolation/piecewise-scattered.md#hermite-data)
+- [Krogh interpolation through values and derivatives](interpolation/piecewise-scattered.md#hermite-data)
+- [Modified Akima (makima)](interpolation/piecewise-scattered.md#akima-and-makima)
 
 #### 2D
 
@@ -113,6 +117,10 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [All-phase](interpolation/grids.md#interpolation-as-convolution)
 - [Radial basis functions](interpolation/scattered.md#radial-basis-functions)
 - [Fourier 2D](interpolation/grids.md#accuracy)
+- [Tensor-product interpolating splines (`RectBivariateSpline`)](interpolation/piecewise-scattered.md#tensor-product-splines)
+- [Piecewise linear on a Delaunay triangulation](interpolation/piecewise-scattered.md#scattered-data-on-a-triangulation)
+- [Clough-Tocher C¹ interpolation with global gradient estimation](interpolation/piecewise-scattered.md#scattered-data-on-a-triangulation)
+- [Nearest neighbour for scattered points; `griddata`](interpolation/piecewise-scattered.md#scattered-data-on-a-triangulation)
 
 #### 3D
 
@@ -128,6 +136,7 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [Grid data](interpolation/grids.md#tensor-products)
 - [Nearest](interpolation/grids.md#tensor-products)
 - [Cubic basis](interpolation/grids.md#cubic-methods)
+- [Radial basis functions in any dimension, with polynomial tails and smoothing](interpolation/piecewise-scattered.md#radial-basis-functions-in-any-dimension)
 
 ### Root finding
 

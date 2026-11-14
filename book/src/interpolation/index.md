@@ -43,6 +43,9 @@ single most important cautionary example in the subject.
 | Noisy samples, a smooth curve with automatic smoothing | Smoothing spline with GCV, or least-squares spline | [B-splines](b-splines.md#smoothing-splines) |
 | Values on a 2D, 3D or N-D grid | Bicubic, tricubic, B-spline or multilinear | [Interpolation on grids](grids.md) |
 | Scattered points in the plane or in space | Radial basis functions | [Scattered data](scattered.md) |
+| Scattered points in the plane, piecewise linear or C¹; RBFs in any dimension | `LinearNDInterpolator`, `CloughTocher2DInterpolator`, `griddata`, `RbfInterpolator` | [Piecewise polynomials and scattered interpolation](piecewise-scattered.md#scattered-data-on-a-triangulation) |
+| Values with derivatives; derivatives, integrals or roots of a piecewise interpolant | `PPoly`, `KroghInterpolator`, `PPoly::cubic_hermite` | [Piecewise polynomials and scattered interpolation](piecewise-scattered.md#piecewise-polynomials) |
+| A smooth surface on a rectangular grid, with derivatives and integrals | `RectBivariateSpline` | [Piecewise polynomials and scattered interpolation](piecewise-scattered.md#tensor-product-splines) |
 
 ## Testing against SciPy
 

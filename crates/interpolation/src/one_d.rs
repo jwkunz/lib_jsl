@@ -18,3 +18,5 @@ pub mod lagrange_interpolant;
 pub mod savitzky_golay;
 pub mod b_spline;
 pub mod smoothing_spline;
+pub mod ppoly;
+pub mod krogh;

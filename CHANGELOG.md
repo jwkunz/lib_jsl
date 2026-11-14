@@ -6,6 +6,25 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-11-14
+
+### Added
+
+- Probability distributions as objects in `lib_jsl_statistics::distributions`, following
+  `scipy.stats`: the traits `ContinuousDistribution` (pdf, logpdf, cdf, sf, ppf, isf, moments,
+  median, interval, log-likelihood, sampling by inversion), `DiscreteDistribution` and `Fit`, with
+  20 continuous distributions (normal, uniform, exponential, gamma, beta, chi-squared, Student's
+  t, F, log-normal, Weibull, Cauchy, Laplace, logistic, Pareto, Rayleigh, Gumbel, generalised
+  extreme value, truncated normal, von Mises, skew-normal) and 5 discrete ones (binomial, Poisson,
+  geometric, negative binomial, hypergeometric).
+- Maximum-likelihood fitting: closed forms and score equations (gamma, beta, Weibull, Gumbel,
+  von Mises, negative binomial…) where they exist, Nelder-Mead otherwise; `owens_t` and `trigamma`.
+- Book entry "Probability distributions", compared against SciPy, with model choice by AIC.
+
+### Fixed
+
+- A clippy warning in `minimize_lbfgsb`.
+
 ## [1.9.0] - 2026-11-14
 
 ### Added
@@ -250,7 +269,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.9.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.10.0
 [1.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.9.0
 [1.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.8.0
 [1.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.7.0

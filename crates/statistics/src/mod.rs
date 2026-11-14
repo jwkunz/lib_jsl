@@ -7,6 +7,7 @@
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
 
 pub mod descriptive;
+pub mod distributions;
 pub mod correlation;
 pub mod hypothesis_tests;
 pub mod kernel_density;

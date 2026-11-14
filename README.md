@@ -12,14 +12,14 @@ work as well as use them.
   undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
 - **Catalogue:** the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html) lists everything the library
-  implements (487 items), grouped by subject, and what it deliberately does not cover.
+  implements (490 items), grouped by subject, and what it deliberately does not cover.
 
 ## Status
 
 | | |
 |---|---|
-| Version | 1.9.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
-| Algorithms | 487 algorithms and components across 23 library crates |
+| Version | 1.10.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
+| Algorithms | 490 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; a book of 149 entries covering every subject of the catalogue, each with its idea, algorithm, measured results and exercises |
@@ -60,9 +60,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.9.0" }
+lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.10.0" }
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.9.0" }
+lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.10.0" }
 ```
 
 ```rust

@@ -35,6 +35,7 @@ The crate is `lib_jsl_statistics` ([API reference](../../api/lib_jsl_statistics/
 | You need | Use | Entry |
 |---|---|---|
 | Mean, variance, quantiles, robust and shape measures | `descriptive::*`, `summary` | [Descriptive statistics](descriptive.md) |
+| Probabilities, quantiles and moments of a named distribution; fitting one to data | `Normal`, `Gamma`, `Weibull`, … with `ContinuousDistribution`, `Fit` | [Probability distributions](distributions.md) |
 | Association between two variables | `pearson`, `spearman`, `kendall`, `correlation_matrix` | [Correlation and covariance](correlation.md) |
 | Compare means or distributions, test counts | `t_test_*`, `anova_one_way`, `mann_whitney_u`, `ks_test_*`, `chi_square_*` | [Hypothesis tests](hypothesis-tests.md) |
 | A smooth density from a sample | `GaussianKde` | [Kernel density estimation](kernel-density.md) |

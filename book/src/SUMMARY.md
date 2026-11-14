@@ -88,6 +88,7 @@
 - [Markov chain Monte Carlo](random/mcmc.md)
 - [Statistics](statistics/index.md)
     - [Descriptive statistics](statistics/descriptive.md)
+    - [Probability distributions](statistics/distributions.md)
     - [Correlation and covariance](statistics/correlation.md)
     - [Hypothesis tests](statistics/hypothesis-tests.md)
     - [Kernel density estimation](statistics/kernel-density.md)

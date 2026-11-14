@@ -104,7 +104,7 @@ densities:
 
 ![Kernel density estimates](../generated/statistics/kde.svg)
 
-<p class="caption" id="fig-10-2"><strong>Figure 10.2.</strong> Kernel density estimates.</p>
+<p class="caption" id="fig-10-3"><strong>Figure 10.3.</strong> Kernel density estimates.</p>
 
 {{#include ../generated/statistics/kde_error.md}}
 

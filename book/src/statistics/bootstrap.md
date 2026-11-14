@@ -113,7 +113,7 @@ accurate**: their coverage error is $O(n^{-1})$ instead of $O(n^{-1/2})$.
 
 ### How well do they cover?
 
-<p class="caption" id="tab-10-5"><strong>Table 10.5.</strong> Coverage of bootstrap confidence intervals.</p>
+<p class="caption" id="tab-10-7"><strong>Table 10.7.</strong> Coverage of bootstrap confidence intervals.</p>
 
 {{#include ../generated/statistics/bootstrap_coverage.md}}
 
@@ -125,7 +125,7 @@ information about tails the sample has not seen.
 
 ![Bootstrap replicates](../generated/statistics/bootstrap_sd.svg)
 
-<p class="caption" id="fig-10-3"><strong>Figure 10.3.</strong> Bootstrap replicates.</p>
+<p class="caption" id="fig-10-4"><strong>Figure 10.4.</strong> Bootstrap replicates.</p>
 
 The replicates of the standard deviation from one sample of 30 are lumpy, because the result depends mainly on how many copies
 of the largest observation a resample contains. The BCa interval is shifted to the right of the percentile one, correcting

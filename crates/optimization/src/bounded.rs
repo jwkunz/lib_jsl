@@ -258,8 +258,10 @@ fn subspace_min(x: &[f64], g: &[f64], lb: &[f64], ub: &[f64], xcp: &[f64], c: &[
 /// with the step limited to `max_step` so that the iterate stays feasible.
 /// An accepted line-search point: step, x, f(x), ∇f(x).
 type LinePoint = (f64, Vec<f64>, f64, Vec<f64>);
+/// A function returning a value and its gradient.
+type ValueAndGradient<'a> = dyn FnMut(&[f64]) -> (f64, Vec<f64>) + 'a;
 
-fn line_search(fg: &mut dyn FnMut(&[f64]) -> (f64, Vec<f64>), x: &[f64], f0: f64, g0: &[f64], d: &[f64], first: f64, max_step: f64) -> Option<LinePoint> {
+fn line_search(fg: &mut ValueAndGradient, x: &[f64], f0: f64, g0: &[f64], d: &[f64], first: f64, max_step: f64) -> Option<LinePoint> {
     let (c1, c2) = (1e-3, 0.9);
     let slope0 = dot(g0, d);
     if !(slope0 < 0.0) {
@@ -323,7 +325,8 @@ pub fn minimize_lbfgsb(mut fg: impl FnMut(&[f64]) -> (f64, Vec<f64>), x0: &[f64]
     let mut x = x0.to_vec();
     project(&mut x, lb, ub);
     let (mut f, mut g) = eval(&x);
-    let (mut s_hist, mut y_hist): (Vec<Vec<f64>>, Vec<Vec<f64>>) = (Vec::new(), Vec::new());
+    let mut s_hist: Vec<Vec<f64>> = Vec::new();
+    let mut y_hist: Vec<Vec<f64>> = Vec::new();
     let mut theta = 1.0;
     let mut iterations = 0;
     let mut converged = projected_gradient_norm(&x, &g, lb, ub) <= options.gtol;

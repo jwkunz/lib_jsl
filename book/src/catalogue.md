@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **484 algorithms and components in 23 crates**:
+The library implements **487 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 114 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 117 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 34 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 192 |
@@ -147,7 +147,7 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 
 Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 15 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 18 items
 
 - [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
@@ -162,6 +162,9 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [Quasi-Newton methods (BFGS, L-BFGS)](optimization/newton-quasi-newton.md#bfgs)
 - [Nonlinear conjugate gradient](optimization/gradient-methods.md#nonlinear-conjugate-gradients)
 - [Constrained optimisation (SQP, augmented Lagrangian)](optimization/constrained.md)
+- [L-BFGS-B](optimization/bounded.md#l-bfgs-b)
+- [Bounded nonlinear least squares (trust-region reflective) with robust losses](optimization/bounded.md#trust-region-reflective-least-squares)
+- [Bounded linear least squares (BVLS) and non-negative least squares (NNLS)](optimization/bounded.md#linear-least-squares-with-bounds)
 - [Differential evolution](optimization/stochastic.md#differential-evolution)
 - [Particle swarm optimisation](optimization/stochastic.md#particle-swarm-optimisation)
 

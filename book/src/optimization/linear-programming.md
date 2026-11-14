@@ -59,7 +59,7 @@ edge to a neighbouring vertex with a better objective, until no neighbour is bet
 
 ![A linear program in two variables](../generated/optimization/linear_program.svg)
 
-<p class="caption" id="fig-5-8"><strong>Figure 5.8.</strong> A linear program in two variables.</p>
+<p class="caption" id="fig-5-9"><strong>Figure 5.9.</strong> A linear program in two variables.</p>
 
 In the figure (the "Wyndor Glass" problem of Hillier and Lieberman's textbook), the feasible region
 is the polygon, the dashed lines are contours of the objective, and the optimum is the vertex
@@ -157,7 +157,7 @@ uses it.
 
 The library's results on a few programs:
 
-<p class="caption" id="tab-5-7"><strong>Table 5.7.</strong> Linear programs solved by the simplex method.</p>
+<p class="caption" id="tab-5-8"><strong>Table 5.8.</strong> Linear programs solved by the simplex method.</p>
 
 {{#include ../generated/optimization/linear_programs.md}}
 

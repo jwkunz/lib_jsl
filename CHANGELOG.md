@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-11-14
+
+### Added
+
+- Bound-constrained optimisation in `lib_jsl_optimization::bounded`, following `scipy.optimize`:
+  `minimize_lbfgsb` (L-BFGS-B: generalised Cauchy point, subspace minimisation and a line search
+  capped at the bounds); `least_squares_bounded` (a port of the trust-region reflective
+  `least_squares` with the exact solver) with the linear, soft-ℓ1, Huber, Cauchy and arctan losses;
+  `lsq_linear` (BVLS); and `nnls` (Lawson-Hanson).
+- Book entry "Bound-constrained optimisation", compared against SciPy, with robust fits to data
+  with outliers.
+
 ## [1.8.0] - 2026-11-14
 
 ### Added
@@ -238,7 +250,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.9.0
 [1.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.8.0
 [1.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.7.0
 [1.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.6.0

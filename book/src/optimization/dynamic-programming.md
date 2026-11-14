@@ -114,7 +114,7 @@ $$
   subproblems are the contiguous subchains; the cost of a chain is the minimum over the place of
   the last multiplication. There are $O(n^2)$ subchains and $O(n)$ split points each: $O(n^3)$.
 
-<p class="caption" id="tab-5-8"><strong>Table 5.8.</strong> Dynamic programming examples.</p>
+<p class="caption" id="tab-5-9"><strong>Table 5.9.</strong> Dynamic programming examples.</p>
 
 {{#include ../generated/optimization/dynamic_programming.md}}
 
@@ -155,7 +155,7 @@ error falls like $\gamma^k$:
 
 ![Value iteration](../generated/optimization/value_iteration.svg)
 
-<p class="caption" id="fig-5-9"><strong>Figure 5.9.</strong> Value iteration.</p>
+<p class="caption" id="fig-5-10"><strong>Figure 5.10.</strong> Value iteration.</p>
 
 With $\gamma = 0.99$ (rewards a hundred steps ahead still matter), thousands of iterations are
 needed. **Policy iteration** alternates two steps: compute the value of the current policy

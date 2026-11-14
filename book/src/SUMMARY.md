@@ -45,6 +45,7 @@
     - [Newton and quasi-Newton methods: Newton, BFGS and L-BFGS](optimization/newton-quasi-newton.md)
     - [Direct search: the Nelder-Mead and Powell methods](optimization/direct-search.md)
     - [Nonlinear least squares and curve fitting](optimization/least-squares.md)
+    - [Bound-constrained optimisation](optimization/bounded.md)
     - [Constrained optimisation: SQP and the augmented Lagrangian method](optimization/constrained.md)
     - [Linear programming: the simplex method](optimization/linear-programming.md)
     - [Dynamic programming](optimization/dynamic-programming.md)

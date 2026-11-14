@@ -4,6 +4,7 @@
 //! See the book chapter [Optimisation](https://jwkunz.github.io/lib_jsl/book/optimization/index.html).
 
 pub mod conjugate_gradient;
+pub mod bounded;
 pub mod constrained;
 pub mod differential_evolution;
 pub mod dynamic_programming;

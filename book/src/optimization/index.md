@@ -96,6 +96,7 @@ minimum at $(1, 1)$, is the standard test of a local method; it appears througho
 | Smooth, Hessian available, good starting point | Newton's method | [Newton's method](newton-quasi-newton.md#newtons-method) |
 | No derivatives, few variables | Nelder-Mead or Powell | [Direct search](direct-search.md) |
 | A sum of squares (fitting a model to data) | Levenberg-Marquardt | [Nonlinear least squares](least-squares.md) |
+| Simple bounds on the variables; outliers in the data; linear least squares with bounds or $\mathbf x \ge 0$ | L-BFGS-B, trust-region reflective with a robust loss, BVLS, NNLS | [Bound-constrained optimisation](bounded.md) |
 | Nonlinear constraints | SQP, or the augmented Lagrangian method | [Constrained optimisation](constrained.md) |
 | Linear objective and constraints | The simplex method | [Linear programming](linear-programming.md) |
 | Discrete stages or a Markov decision process | Dynamic programming | [Dynamic programming](dynamic-programming.md) |

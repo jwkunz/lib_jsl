@@ -9,6 +9,10 @@
 //! | General eigenproblem | [`Eig`], [`EigVals`] | Hessenberg reduction and shifted QR (complex Schur form) |
 //! | Singular value decomposition | [`SVD`], [`SvdJacobi`] | Golub-Kahan bidiagonalisation; one-sided Jacobi for high relative accuracy |
 //! | Least squares, minimum-norm for rank-deficient systems | [`LeastSquaresSvd`] | Householder QR with column pivoting; SVD when rank-deficient |
+//! | Complex Schur form | [`schur_complex`] | Hessenberg reduction and shifted QR |
+//! | Matrix exponential | [`expm`] | Scaling and squaring with Padé approximants |
+//! | Sylvester and Lyapunov equations | [`solve_sylvester`], [`solve_continuous_lyapunov`], [`solve_discrete_lyapunov`] | Bartels-Stewart on the complex Schur form |
+//! | Algebraic Riccati equations | [`solve_continuous_are`], [`solve_discrete_are`] | Matrix sign function; structure-preserving doubling; Newton refinement |
 //!
 //! The traits follow the names and signatures of the `ndarray-linalg` crate, so code written
 //! against it ports by changing the import. They are implemented for every ndarray
@@ -25,20 +29,31 @@ mod cholesky;
 mod dense;
 mod eig;
 mod eigh;
+mod equations;
 mod error;
 mod lu;
+mod matfun;
 mod qr;
 mod reflectors;
 mod scalar;
 mod svd;
 
 pub use error::{Diag, LinalgError, Result, UPLO};
+pub use equations::{solve_continuous_are, solve_continuous_lyapunov, solve_discrete_are, solve_discrete_lyapunov, solve_sylvester};
 pub use lu::LuFactorization;
+pub use matfun::expm;
 pub use scalar::Scalar;
 
 use dense::{Mat, require_square, to_array1, vector};
 use ndarray::{Array1, Array2, ArrayBase, Data, Ix1, Ix2};
 use num_complex::Complex;
+
+/// The complex Schur form `A = Z T Zᴴ`: `T` upper triangular with the eigenvalues of `A` on its
+/// diagonal, `Z` unitary (SciPy's `linalg.schur(a, output='complex')`). Returns `(T, Z)`.
+pub fn schur_complex<T: Scalar, S: Data<Elem = T>>(a: &ArrayBase<S, Ix2>) -> Result<ComplexSchur> {
+    let (t, z) = eig::schur_unbalanced(&Mat::from_array(a)?)?;
+    Ok((t.into_array(), z.into_array()))
+}
 
 /// Solves `A x = b` for square `A` by LU with partial pivoting.
 pub trait Solve<T> {
@@ -99,6 +114,9 @@ pub trait Eigh<T> {
 pub trait EigValsh {
     fn eigvalsh(&self, uplo: UPLO) -> Result<Array1<f64>>;
 }
+
+/// A complex Schur form `(T, Z)` with `A = Z T Zᴴ`.
+pub type ComplexSchur = (Array2<Complex<f64>>, Array2<Complex<f64>>);
 
 /// Complex eigenvalues and eigenvectors (as columns).
 pub type ComplexEigen = (Array1<Complex<f64>>, Array2<Complex<f64>>);

@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Dense linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices."
+description = "Dense linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD, least squares, the matrix exponential and Sylvester, Lyapunov and Riccati equations for real and complex matrices."
 
 [lib]
 path = "src/mod.rs"

@@ -46,7 +46,8 @@ them to show the difference.
 `lib_jsl_linalg` ([API reference](../../api/lib_jsl_linalg/index.html)) is a pure-Rust replacement
 for LAPACK, for real (`f64`) and complex (`Complex<f64>`) matrices. Its traits follow the names of the
 `ndarray-linalg` crate (`solve`, `inv`, `det`, `factorize`, `cholesky`, `solve_triangular`, `eigh`,
-`eig`, `svd`, `least_squares`), and are implemented for every ndarray two-dimensional array. The
+`eig`, `svd`, `least_squares`), and are implemented for every ndarray two-dimensional array. The matrix exponential and the solvers for Sylvester, Lyapunov and Riccati equations are free functions
+with SciPy's names (`expm`, `solve_sylvester`, `solve_discrete_are`, ...). The
 factorisations are organised, as in LAPACK, so that most of their arithmetic is done by a fast
 matrix-multiply kernel (from the `matrixmultiply` crate). Against OpenBLAS on one core, most
 operations take between 0.4 and 1.6 times as long (the README's benchmark table); the open issues
@@ -86,3 +87,6 @@ Both crates agree with LAPACK to a few units of rounding error on these well-con
 | All eigenvalues (and vectors) of a general matrix | `eig`, `eigvals` | [Symmetric and general eigensolvers](eigensolvers.md#general-matrices-hessenberg-reduction-and-franciss-algorithm) |
 | One eigenpair, near a known value | inverse or Rayleigh quotient iteration | [Eigenvalue algorithms](eigen-iterations.md) |
 | Singular values, rank, condition number, low-rank approximation | `svd` (`svd_jacobi` for graded matrices) | [The singular value decomposition](svd.md) |
+| $e^A$; discretising $\dot{\mathbf x} = A\mathbf x + B\mathbf u$ | `expm` | [Matrix functions and matrix equations](matrix-equations.md#the-matrix-exponential) |
+| $AX + XB = Q$; Lyapunov equations, Gramians | `solve_sylvester`, `solve_continuous_lyapunov`, `solve_discrete_lyapunov` | [Matrix functions and matrix equations](matrix-equations.md#the-bartels-stewart-method) |
+| Optimal (LQR) gains, steady-state Kalman gains | `solve_continuous_are`, `solve_discrete_are` | [Matrix functions and matrix equations](matrix-equations.md#riccati-equations) |

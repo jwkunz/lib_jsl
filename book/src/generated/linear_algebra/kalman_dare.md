@@ -1,0 +1,1 @@
+For the constant-velocity tracker ($T = 0.1$, $R = 0.25$), the steady-state gain from `solve_discrete_are` is $K = (0.2993, 0.5294)$, and the covariance of the running `KalmanFilter`, started from $P_0 = 100I$, agrees with it to $10^{-12}$ after 82 measurements.

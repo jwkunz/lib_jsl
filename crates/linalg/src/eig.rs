@@ -488,6 +488,22 @@ fn schur_balanced<T: Scalar>(a: &Mat<T>, want_z: bool) -> Result<(Mat<C>, Option
     }
 }
 
+/// The complex Schur form `A = Z T Zᴴ` of the matrix itself (no balancing, so that `Z` is
+/// unitary): `T` upper triangular with the eigenvalues on its diagonal.
+pub(crate) fn schur_unbalanced<T: Scalar>(a: &Mat<T>) -> Result<(Mat<C>, Mat<C>)> {
+    require_square(a.rows, a.cols)?;
+    let (t, zt) = schur_balanced(a, true)?;
+    let zt = zt.expect("Z requested");
+    let n = t.rows;
+    let mut z = Mat::<C>::zeros(n, n);
+    for i in 0..n {
+        for j in 0..n {
+            *z.at_mut(i, j) = zt.at(j, i);
+        }
+    }
+    Ok((t, z))
+}
+
 /// The eigenvalues, in Schur order.
 pub(crate) fn eigvals<T: Scalar>(a: &Mat<T>) -> Result<Vec<C>> {
     let (t, _, _) = schur(a, false)?;

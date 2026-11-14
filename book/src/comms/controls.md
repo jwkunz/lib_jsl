@@ -229,7 +229,7 @@ With a broad prior ($P_0 = 100$), the Kalman estimate of a constant is nearly th
 2. By Cayley-Hamilton, $A^k$ for $k \ge n$ is a combination of $I, \ldots, A^{n-1}$, so states reachable in any number of steps are reachable in $n$ steps, and the reachable set is the range of $[B\ A B\ \cdots\ A^{n-1}B]$.
 3. With $C = K_p$ and plant $1/(\tau s + 1)$ the closed loop is $K_p/(\tau s + 1 + K_p)$: a time constant $\tau/(1 + K_p)$ and a steady-state error of $1/(1 + K_p)$ for a unit step, never zero for finite $K_p$.
 4. For $x_{k+1} = x_k$ observed as $z_k = x_k + v_k$, the Kalman gain is $K_n = P_{n-1}/(P_{n-1} + R)$ and $1/P_n = 1/P_{n-1} + 1/R$. With $1/P_0 \to 0$, $1/P_n = n/R$, so $P_n = R/n$ and $\hat x_n$ is the running mean.
-5. Solve the discrete algebraic Riccati equation for the constant-velocity model; the resulting position and velocity gains $(K_1, K_2)$ play the roles of $\alpha$ and $\beta/T$ in the α-β filter, and the relation depends on the ratio of process to measurement noise.
+5. Solve the discrete algebraic Riccati equation for the constant-velocity model (with [`solve_discrete_are`](../linear_algebra/matrix-equations.md#riccati-equations)); the resulting position and velocity gains $(K_1, K_2)$ play the roles of $\alpha$ and $\beta/T$ in the α-β filter, and the relation depends on the ratio of process to measurement noise.
 
 </details>
 

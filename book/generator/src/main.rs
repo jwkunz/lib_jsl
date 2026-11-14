@@ -22,6 +22,7 @@ mod integration;
 mod interpolation;
 mod learning;
 mod linear_algebra;
+mod matrix_equations;
 mod machine_learning;
 mod number_theory;
 mod optimization;
@@ -61,7 +62,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 28] = [
+    let chapters: [(&str, fn()); 29] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -70,6 +71,7 @@ fn main() {
         ("optimization_more", optimization_more::generate),
         ("special_functions", special_functions::generate),
         ("linear_algebra", linear_algebra::generate),
+        ("matrix_equations", matrix_equations::generate),
         ("fft", fft::generate),
         ("random", random::generate),
         ("statistics", statistics::generate),

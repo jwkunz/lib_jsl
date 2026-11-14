@@ -15,6 +15,13 @@ All crates in the workspace share one version. The format follows
   entered unchanged ([#19](https://github.com/jwkunz/lib_jsl/issues/19)).
 - `OutputConvention`, `StateSpace::with_convention`, `StateSpace::convention`, and
   `StateSpace::to_standard`, which converts a model built with `new` to `(A, B, C A, C B + D)`.
+- Matrix functions and equations in `lib_jsl_linalg`, following `scipy.linalg`: `expm` (scaling
+  and squaring with Padé approximants), `schur_complex`, `solve_sylvester`,
+  `solve_continuous_lyapunov` and `solve_discrete_lyapunov` (Bartels-Stewart), and
+  `solve_continuous_are` (matrix sign function) and `solve_discrete_are` (structure-preserving
+  doubling), both polished by Newton steps.
+- Book entry "Matrix functions and matrix equations", compared against SciPy, with an LQR design
+  and the steady state of a Kalman filter.
 
 ### Changed
 

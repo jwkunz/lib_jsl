@@ -125,3 +125,26 @@ pub(crate) fn vector<T: Scalar, S: Data<Elem = T>>(b: &ArrayBase<S, Ix1>) -> Res
 pub(crate) fn to_array1<T: Scalar>(v: Vec<T>) -> Array1<T> {
     Array1::from_vec(v)
 }
+
+/// `A B` for row-major matrices.
+pub(crate) fn matmul<T: Scalar>(a: &Mat<T>, b: &Mat<T>) -> Mat<T> {
+    debug_assert_eq!(a.cols, b.rows);
+    let mut c = Mat::zeros(a.rows, b.cols);
+    if a.rows > 0 && b.cols > 0 && a.cols > 0 {
+        // SAFETY: three distinct buffers of the stated shapes; C ← 0 − A B, negated below.
+        unsafe { sub_matmul(a.rows, a.cols, b.cols, a.data.as_ptr(), a.cols, b.data.as_ptr(), b.cols, c.data.as_mut_ptr(), b.cols) };
+        c.data.iter_mut().for_each(|v| *v = -*v);
+    }
+    c
+}
+
+/// `α A + β B` for matrices of the same shape.
+pub(crate) fn lincomb<T: Scalar>(alpha: T, a: &Mat<T>, beta: T, b: &Mat<T>) -> Mat<T> {
+    debug_assert_eq!((a.rows, a.cols), (b.rows, b.cols));
+    Mat { rows: a.rows, cols: a.cols, data: a.data.iter().zip(&b.data).map(|(&x, &y)| alpha * x + beta * y).collect() }
+}
+
+/// The 1-norm: the largest column sum of absolute values.
+pub(crate) fn norm1<T: Scalar>(a: &Mat<T>) -> f64 {
+    (0..a.cols).map(|j| (0..a.rows).map(|i| a.at(i, j).abs()).sum::<f64>()).fold(0.0, f64::max)
+}

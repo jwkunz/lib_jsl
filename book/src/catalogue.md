@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **470 algorithms and components in 23 crates**:
+The library implements **473 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 107 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 31 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 34 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 188 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
@@ -200,13 +200,16 @@ Dense matrix factorisations and eigenproblems, Fourier transforms, and readable 
 
 Dense linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 7 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 10 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
 - [Hermitian eigenproblem (Householder tridiagonalisation, implicit QL)](linear_algebra/eigensolvers.md#hermitian-matrices-tridiagonalisation-and-ql)
 - [General eigenproblem (Hessenberg reduction, shifted QR, complex Schur form)](linear_algebra/eigensolvers.md#general-matrices-hessenberg-reduction-and-franciss-algorithm)
 - [Singular value decomposition (Golub-Kahan; one-sided Jacobi)](linear_algebra/svd.md)
+- [Matrix exponential (scaling and squaring with Padé approximants)](linear_algebra/matrix-equations.md#the-matrix-exponential)
+- [Sylvester and Lyapunov equations (Bartels-Stewart)](linear_algebra/matrix-equations.md#the-bartels-stewart-method)
+- [Continuous and discrete algebraic Riccati equations (matrix sign function, doubling, Newton)](linear_algebra/matrix-equations.md#riccati-equations)
 - [Least squares (pivoted QR, SVD for rank-deficient systems)](linear_algebra/least-squares.md)
 - [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 

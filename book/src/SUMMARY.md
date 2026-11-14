@@ -69,6 +69,7 @@
     - [Eigenvalue algorithms: power iteration, Jacobi and the QR algorithm](linear_algebra/eigen-iterations.md)
     - [Symmetric and general eigensolvers](linear_algebra/eigensolvers.md)
     - [The singular value decomposition](linear_algebra/svd.md)
+    - [Matrix functions and matrix equations](linear_algebra/matrix-equations.md)
 - [Fast Fourier transforms](fft/index.md)
     - [The fast Fourier transform](fft/fft.md)
     - [Bluestein's algorithm and the fractional Fourier transform](fft/bluestein-fractional.md)

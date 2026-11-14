@@ -274,7 +274,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_derivatives",
@@ -301,7 +301,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_book_generator"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_derivatives",
@@ -332,7 +332,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_core"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "ndarray",
  "num-complex",
@@ -341,14 +341,14 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_derivatives"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
 ]
 
 [[package]]
 name = "lib_jsl_dsp"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_ffts",
@@ -362,7 +362,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_electromagnetics"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_geometry",
@@ -377,7 +377,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_ffts"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "criterion",
  "lib_jsl_core",
@@ -388,7 +388,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_ffts_reference"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "criterion",
  "lib_jsl_core",
@@ -399,7 +399,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_file_io"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_information",
@@ -409,7 +409,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_geometry"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -417,21 +417,21 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_graph"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
 ]
 
 [[package]]
 name = "lib_jsl_information"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
 ]
 
 [[package]]
 name = "lib_jsl_integration"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_ffts",
@@ -442,7 +442,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_interpolation"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_linalg",
@@ -452,7 +452,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_linalg"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "matrixmultiply",
  "ndarray",
@@ -462,7 +462,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_linalg_reference"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "criterion",
  "lib_jsl_linalg",
@@ -472,7 +472,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_machine_learning"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_linalg",
@@ -483,7 +483,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_number_theory"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_linalg",
@@ -494,7 +494,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_optimization"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_linalg",
@@ -504,14 +504,14 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_random"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
 ]
 
 [[package]]
 name = "lib_jsl_root_finding"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_linalg",
@@ -521,14 +521,14 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_sorting"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
 ]
 
 [[package]]
 name = "lib_jsl_special_functions"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_root_finding",
@@ -537,7 +537,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_statistics"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
  "lib_jsl_random",
@@ -546,7 +546,7 @@ dependencies = [
 
 [[package]]
 name = "lib_jsl_utils"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "lib_jsl_core",
 ]

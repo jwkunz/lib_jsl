@@ -17,7 +17,7 @@ fn main() {
     let b = c(arr2(&[[0.0], [0.1]]));
     let cm = c(arr2(&[[1.0, 0.0]]));
     let d = c(arr2(&[[0.0]]));
-    let sys = StateSpace::new(a, b, cm, d, Array1::from(vec![Complex::new(0.0, 0.0); 2])).unwrap();
+    let sys = StateSpace::new_standard(a, b, cm, d, Array1::from(vec![Complex::new(0.0, 0.0); 2])).unwrap();
     println!("poles {:.4}, stable {}, controllable {}, observable {}", sys.get_poles().unwrap(), sys.is_stable().unwrap(), sys.is_controllable().unwrap(), sys.is_observable().unwrap());
     // PI control of a first-order plant y' = −y + u.
     let mut pid = PidController::new_with_dt(Some(1.0), Some(2.0), Some(1.0), None, None, None, 0.05).unwrap();

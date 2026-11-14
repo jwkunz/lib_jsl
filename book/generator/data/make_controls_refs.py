@@ -2,9 +2,10 @@
 
     python book/generator/data/make_controls_refs.py > book/generator/data/controls_reference.txt
 
-The library's `StateSpace::step` updates the state before reading the output,
-y[k] = C x[k+1] + D u[k], which is SciPy's convention y[k] = C' x[k] + D' u[k] with C' = C A and
-D' = C B + D. Each output line is `case|values`.
+`StateSpace::new` updates the state before reading the output, y[k] = C x[k+1] + D u[k], which is
+SciPy's convention y[k] = C' x[k] + D' u[k] with C' = C A and D' = C B + D (case `dlsim`).
+`StateSpace::new_standard` uses SciPy's convention directly (case `dlsim_standard`). Each output
+line is `case|values`.
 """
 
 import numpy as np
@@ -24,6 +25,8 @@ k = np.arange(60)
 u = np.column_stack([np.sin(0.2 * k), np.where(k % 20 < 10, 1.0, -1.0)])
 _, y, _ = signal.dlsim((A, B, C @ A, C @ B + D, 1.0), u, x0=x0)
 out("dlsim", y)
+_, y, _ = signal.dlsim((A, B, C, D, 1.0), u, x0=x0)
+out("dlsim_standard", y)
 e = linalg.eigvals(A)
 e = e[np.lexsort((e.imag, e.real))]
 out("poles", e.real, e.imag)

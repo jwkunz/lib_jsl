@@ -509,17 +509,21 @@ fn controls_scipy_reference() {
     let cm: C2D = c(&[&[1.0, 0.0, -1.0], &[0.3, 1.0, 0.0]]);
     let d: C2D = c(&[&[0.0, 0.1], &[0.2, 0.0]]);
     let x0: C1D = Array1::from(vec![Complex::new(0.5, 0.0), Complex::new(-0.2, 0.0), Complex::new(0.1, 0.0)]);
-    let mut sys = StateSpace::new(a, b, cm, d, x0).unwrap();
+    let mut sys = StateSpace::new(a.clone(), b.clone(), cm.clone(), d.clone(), x0.clone()).unwrap();
+    let mut standard = StateSpace::new_standard(a, b, cm, d, x0).unwrap();
     let mut y = Vec::new();
+    let mut y_standard = Vec::new();
     for k in 0..60 {
         let u: C1D = Array1::from(vec![Complex::new((0.2 * k as f64).sin(), 0.0), Complex::new(if k % 20 < 10 { 1.0 } else { -1.0 }, 0.0)]);
+        y_standard.extend(standard.step(u.clone()).unwrap().iter().map(|v| v.re));
         y.extend(sys.step(u).unwrap().iter().map(|v| v.re));
     }
     let poles: Vec<Complex<f64>> = sys.get_poles().unwrap().to_vec();
     let want = refs.get("poles");
     let pole_diff = crate::refs::max_matched_distance(&poles, &want[0], &want[1]);
     let rows = vec![
-        vec!["response of a 3-state, 2-input, 2-output system to 60 input samples (`signal.dlsim`)".to_string(), fmt_diff(max_abs_diff(&y, refs.values("dlsim")))],
+        vec!["`new_standard`: response of a 3-state, 2-input, 2-output system to 60 input samples (`signal.dlsim` with the same (A, B, C, D))".to_string(), fmt_diff(max_abs_diff(&y_standard, refs.values("dlsim_standard")))],
+        vec!["`new`: the same matrices, output read after the update (`signal.dlsim` with (A, B, CA, CB + D))".to_string(), fmt_diff(max_abs_diff(&y, refs.values("dlsim")))],
         vec!["its poles, the eigenvalues of A (`linalg.eigvals`)".to_string(), fmt_diff(pole_diff)],
     ];
     write(CHAPTER, "scipy_controls.md", &md_table(&["computation (SciPy reference)", "largest difference"], &rows));

@@ -6,6 +6,22 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-14
+
+### Added
+
+- `StateSpace::new_standard`, the textbook and SciPy convention `y[k] = C x[k] + D u[k]` (the output
+  read before the state is updated), so a model given to `scipy.signal.dlsim` as `(A, B, C, D)` is
+  entered unchanged ([#19](https://github.com/jwkunz/lib_jsl/issues/19)).
+- `OutputConvention`, `StateSpace::with_convention`, `StateSpace::convention`, and
+  `StateSpace::to_standard`, which converts a model built with `new` to `(A, B, C A, C B + D)`.
+
+### Changed
+
+- `StateSpace::new` keeps its behaviour (the state updated before the output is read); its
+  documentation now names the convention and points to `new_standard`. The controls entry in the
+  book uses the standard convention and compares both constructors with SciPy.
+
 ## [1.4.0] - 2026-11-14
 
 ### Added
@@ -177,7 +193,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.5.0
 [1.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.4.0
 [1.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.3.0
 [1.2.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.2.0

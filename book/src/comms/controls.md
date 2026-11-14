@@ -9,7 +9,7 @@
 | **Accuracy** | The Kalman filter is the minimum-variance linear estimator when its model is right; on a tracking test it halves the measurement error (below) |
 | **Cost** | $O(n^2)$ per step for a state-space model with $n$ states; $O(1)$ for PID; $O(n^3 + m^3)$ per step for a Kalman filter with $m$ measurements |
 | **Read first** | [Background: frequency responses](../filters/index.md#background-frequency-responses-and-transfer-functions), [Preliminaries: probability](../preliminaries.md#probability-in-brief) |
-| **API** | [`StateSpace`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html) (`step`, `get_poles`, `is_stable`, `is_controllable`, `is_observable`), [`PidController`](../../api/lib_jsl_dsp/discrete/controls/pid/struct.PidController.html), [`KalmanFilter`](../../api/lib_jsl_dsp/discrete/controls/kalman/struct.KalmanFilter.html) |
+| **API** | [`StateSpace`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html) (`new_standard`, `new`, `step`, `to_standard`, `get_poles`, `is_stable`, `is_controllable`, `is_observable`), [`PidController`](../../api/lib_jsl_dsp/discrete/controls/pid/struct.PidController.html), [`KalmanFilter`](../../api/lib_jsl_dsp/discrete/controls/kalman/struct.KalmanFilter.html) |
 
 </div>
 
@@ -35,14 +35,22 @@ radar trackers.
 A dynamic system has memory: its output depends on past inputs as well as the present one. The
 **state** $x$ is a vector that summarises everything about the past that matters for the future
 (for a moving object, its position and velocity, say). A linear **state-space model** says how
-the state evolves under an input $u$ and what output $y$ is observed. The library's model is
+the state evolves under an input $u$ and what output $y$ is observed. The standard model is
 
 $$
-x[k+1] = Ax[k] + Bu[k], \qquad y[k] = Cx[k+1] + Du[k],
+x[k+1] = Ax[k] + Bu[k], \qquad y[k] = Cx[k] + Du[k],
 $$
 
 where $A$ describes how the state evolves by itself, $B$ how the input acts on it, and $C$ and $D$
-how the state and the input appear in the output. Each [`step`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html#method.step) updates the state first, then reads the output from the new state. Three questions are asked of such a model.
+how the state and the input appear in the output. [`StateSpace::new_standard`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html#method.new_standard)
+builds exactly this model: each [`step`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html#method.step) reads the output from the current state, then updates it.
+
+The older constructor [`StateSpace::new`](../../api/lib_jsl_dsp/discrete/controls/state_space/struct.StateSpace.html#method.new) keeps the ordering of the C++ code the library grew from: it
+updates the state first and reads the output from the new one, $y[k] = Cx[k+1] + Du[k]$. Substituting
+$x[k+1]$ shows that this is the standard model with $C' = CA$ and $D' = CB + D$, and `to_standard`
+performs that conversion. The reverse is not always possible: recovering $C$ from $C' = CA$ needs
+$A$ to be invertible, which is why a model from a textbook or from SciPy should be entered with
+`new_standard`. Three questions are asked of such a model.
 
 - **Is it stable?** Without input, $x[k] = A^kx[0]$. Along an eigenvector of $A$ the state is
   multiplied by the eigenvalue at each step, so it decays to zero for every $x[0]$ exactly when
@@ -126,18 +134,17 @@ simulation's discretised acceleration noise differs slightly from the filter's $
 
 ### Checking against SciPy
 
-Because `step` reads the output after updating the state, the library's $(A, B, C, D)$ is the system that SciPy and most textbooks write as $y[k] = C'x[k] + D'u[k]$ with $C' = CA$ and $D' = CB + D$. Simulating that system with `scipy.signal.dlsim` (SciPy 1.17.1, references from `book/generator/data/make_controls_refs.py`) reproduces the library's output:
+A model built with `new_standard` is SciPy's model with the same matrices; one built with `new` is SciPy's model $(A, B, CA, CB + D)$. Simulating both with `scipy.signal.dlsim` (SciPy 1.17.1, references from `book/generator/data/make_controls_refs.py`) reproduces the library's outputs:
 
 <p class="caption" id="tab-16-4"><strong>Table 16.4.</strong> Control and estimation routines against SciPy.</p>
 
 {{#include ../generated/comms/scipy_controls.md}}
 
-A model written in the usual convention therefore cannot always be entered directly: recovering $C$ from $C' = CA$ needs $A$ to be invertible. This is a limitation of the current interface.
-
 ## Algorithm
 
-**State-space model.** `step(u)`: compute the new state $x \leftarrow Ax + Bu$, then return
-the output $y = Cx + Du$ from the *new* state. Stability: compute the eigenvalues of $A$ and
+**State-space model.** `step(u)` in the standard convention: compute the output $y = Cx + Du$
+from the current state, then update the state $x \leftarrow Ax + Bu$ (with `new`, the two are
+done in the other order). Stability: compute the eigenvalues of $A$ and
 check that all have magnitude below 1. Controllability and observability: build the matrix
 $[B\ AB\ \cdots\ A^{n-1}B]$ (or its counterpart from $C$) column block by column block, and
 count its singular values above a tolerance.
@@ -164,6 +171,10 @@ $\Delta t$:
 With $n$ states and $m$ measurements, a step costs $O(n^3 + m^3)$.
 
 ## Implementation
+
+```rust,ignore
+{{#include ../../../crates/dsp/src/discrete/controls/state_space.rs:step}}
+```
 
 ```rust,ignore
 {{#include ../../../crates/dsp/src/discrete/controls/pid.rs:pid}}

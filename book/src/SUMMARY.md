@@ -91,6 +91,7 @@
     - [Probability distributions](statistics/distributions.md)
     - [Correlation and covariance](statistics/correlation.md)
     - [Hypothesis tests](statistics/hypothesis-tests.md)
+    - [More hypothesis tests](statistics/more-tests.md)
     - [Kernel density estimation](statistics/kernel-density.md)
     - [The bootstrap](statistics/bootstrap.md)
 - [Machine learning: regression and classification](machine_learning/index.md)

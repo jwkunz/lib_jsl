@@ -13,13 +13,13 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **490 algorithms and components in 23 crates**:
+The library implements **496 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 117 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 34 |
-| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 67 |
+| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 73 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 192 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
@@ -308,7 +308,7 @@ Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [bo
 
 Descriptive statistics, correlation, hypothesis tests, density estimation and resampling.
 
-Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 8 items
+Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 14 items
 
 - [Descriptive statistics](statistics/descriptive.md)
 - [Distribution objects: pdf, cdf, sf, quantiles and moments for 20 continuous and 5 discrete distributions](statistics/distributions.md#four-views-of-one-distribution)
@@ -317,6 +317,12 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 - Correlation and covariance ([Pearson](statistics/correlation.md#pearsons-correlation), [Spearman](statistics/correlation.md#spearmans-rank-correlation), [Kendall](statistics/correlation.md#kendalls-tau))
 - Hypothesis tests ([t tests](statistics/hypothesis-tests.md#students-and-welchs-t-tests), [chi-square](statistics/hypothesis-tests.md#chi-square-tests-for-counts), [ANOVA](statistics/hypothesis-tests.md#one-way-analysis-of-variance), [Kolmogorov-Smirnov](statistics/hypothesis-tests.md#kolmogorov-smirnov-tests), [Mann-Whitney](statistics/hypothesis-tests.md#the-mann-whitney-u-test))
 - [Kernel density estimation](statistics/kernel-density.md)
+- Normality tests ([Shapiro-Wilk, Anderson-Darling, D'Agostino-Pearson, Jarque-Bera](statistics/more-tests.md#tests-of-normality))
+- Equal variances ([Levene, Bartlett, Fligner-Killeen](statistics/more-tests.md#equal-variances))
+- Rank tests ([Kruskal-Wallis, Friedman, Wilcoxon signed-rank](statistics/more-tests.md#rank-tests))
+- Exact tests ([Fisher's exact test, binomial test](statistics/more-tests.md#exact-tests))
+- [Permutation tests](statistics/more-tests.md#permutation-tests)
+- Multiple comparisons ([Bonferroni, Holm, Benjamini-Hochberg, Benjamini-Yekutieli](statistics/more-tests.md#many-tests-at-once))
 - Bootstrap ([percentile](statistics/bootstrap.md#percentile-intervals), [BCa](statistics/bootstrap.md#the-bca-interval))
 
 ### Machine learning

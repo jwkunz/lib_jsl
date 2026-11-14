@@ -38,5 +38,6 @@ The crate is `lib_jsl_statistics` ([API reference](../../api/lib_jsl_statistics/
 | Probabilities, quantiles and moments of a named distribution; fitting one to data | `Normal`, `Gamma`, `Weibull`, … with `ContinuousDistribution`, `Fit` | [Probability distributions](distributions.md) |
 | Association between two variables | `pearson`, `spearman`, `kendall`, `correlation_matrix` | [Correlation and covariance](correlation.md) |
 | Compare means or distributions, test counts | `t_test_*`, `anova_one_way`, `mann_whitney_u`, `ks_test_*`, `chi_square_*` | [Hypothesis tests](hypothesis-tests.md) |
+| Test normality or equal variances; rank, exact and permutation tests; many tests at once | `shapiro`, `levene`, `kruskal`, `wilcoxon`, `fisher_exact`, `permutation_test`, `adjust_p_values` | [More hypothesis tests](more-tests.md) |
 | A smooth density from a sample | `GaussianKde` | [Kernel density estimation](kernel-density.md) |
 | Standard errors and confidence intervals for any statistic | `bootstrap`, `bca_interval` | [The bootstrap](bootstrap.md) |

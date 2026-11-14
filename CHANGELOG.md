@@ -6,6 +6,20 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-11-14
+
+### Added
+
+- Normality tests in `lib_jsl_statistics::normality`, following `scipy.stats`: `shapiro`
+  (Royston's AS R94), `anderson_normal`, `jarque_bera`, `normaltest`, `skewtest` and
+  `kurtosistest`.
+- More tests in `lib_jsl_statistics::comparisons`: `levene`, `bartlett`, `fligner`, `kruskal`,
+  `friedman`, `wilcoxon` (exact, sign enumeration or normal approximation, as SciPy chooses),
+  `fisher_exact`, `binomtest`, `permutation_test` (exact or randomised), and `adjust_p_values`
+  (Bonferroni, Holm, Benjamini-Hochberg, Benjamini-Yekutieli).
+- Book entry "More hypothesis tests", compared against SciPy, with the power of the normality tests
+  and false discoveries under each adjustment.
+
 ## [1.10.0] - 2026-11-14
 
 ### Added
@@ -269,7 +283,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.10.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.11.0...HEAD
+[1.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.11.0
 [1.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.10.0
 [1.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.9.0
 [1.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.8.0

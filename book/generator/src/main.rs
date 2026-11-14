@@ -29,6 +29,7 @@ mod bounded;
 mod linear_algebra;
 mod matrix_equations;
 mod machine_learning;
+mod more_tests;
 mod number_theory;
 mod optimization;
 mod optimization_more;
@@ -67,7 +68,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 34] = [
+    let chapters: [(&str, fn()); 35] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -84,6 +85,7 @@ fn main() {
         ("random", random::generate),
         ("statistics", statistics::generate),
         ("distributions", distributions::generate),
+        ("more_tests", more_tests::generate),
         ("machine_learning", machine_learning::generate),
         ("unsupervised", unsupervised::generate),
         ("learning", learning::generate),

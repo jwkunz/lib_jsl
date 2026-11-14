@@ -8,6 +8,8 @@
 
 pub mod descriptive;
 pub mod distributions;
+pub mod normality;
+pub mod comparisons;
 pub mod correlation;
 pub mod hypothesis_tests;
 pub mod kernel_density;

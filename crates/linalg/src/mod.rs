@@ -11,6 +11,8 @@
 //! | Least squares, minimum-norm for rank-deficient systems | [`LeastSquaresSvd`] | Householder QR with column pivoting; SVD when rank-deficient |
 //! | Complex Schur form | [`schur_complex`] | Hessenberg reduction and shifted QR |
 //! | Matrix exponential | [`expm`] | Scaling and squaring with Padé approximants |
+//! | Square root, logarithm, fractional powers | [`sqrtm`], [`logm`], [`fractional_matrix_power`] | Schur method; inverse scaling and squaring |
+//! | Pseudoinverse, rank, null space, range, norms, condition | [`pinv`], [`matrix_rank`], [`null_space`], [`orth`], [`norm`], [`cond`] | From the SVD |
 //! | Sylvester and Lyapunov equations | [`solve_sylvester`], [`solve_continuous_lyapunov`], [`solve_discrete_lyapunov`] | Bartels-Stewart on the complex Schur form |
 //! | Algebraic Riccati equations | [`solve_continuous_are`], [`solve_discrete_are`] | Matrix sign function; structure-preserving doubling; Newton refinement |
 //!
@@ -31,17 +33,21 @@ mod eig;
 mod eigh;
 mod equations;
 mod error;
+mod logsqrt;
 mod lu;
 mod matfun;
 mod qr;
 mod reflectors;
 mod scalar;
+mod subspaces;
 mod svd;
 
 pub use error::{Diag, LinalgError, Result, UPLO};
 pub use equations::{solve_continuous_are, solve_continuous_lyapunov, solve_discrete_are, solve_discrete_lyapunov, solve_sylvester};
 pub use lu::LuFactorization;
+pub use logsqrt::{fractional_matrix_power, logm, sqrtm};
 pub use matfun::expm;
+pub use subspaces::{Norm, cond, matrix_rank, norm, null_space, orth, pinv};
 pub use scalar::Scalar;
 
 use dense::{Mat, require_square, to_array1, vector};

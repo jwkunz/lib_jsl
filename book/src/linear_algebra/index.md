@@ -90,3 +90,5 @@ Both crates agree with LAPACK to a few units of rounding error on these well-con
 | $e^A$; discretising $\dot{\mathbf x} = A\mathbf x + B\mathbf u$ | `expm` | [Matrix functions and matrix equations](matrix-equations.md#the-matrix-exponential) |
 | $AX + XB = Q$; Lyapunov equations, Gramians | `solve_sylvester`, `solve_continuous_lyapunov`, `solve_discrete_lyapunov` | [Matrix functions and matrix equations](matrix-equations.md#the-bartels-stewart-method) |
 | Optimal (LQR) gains, steady-state Kalman gains | `solve_continuous_are`, `solve_discrete_are` | [Matrix functions and matrix equations](matrix-equations.md#riccati-equations) |
+| $A^{1/2}$, $\log A$, $A^p$ | `sqrtm`, `logm`, `fractional_matrix_power` | [Matrix functions, subspaces and norms](subspaces-norms.md) |
+| Pseudoinverse, rank, null space, range, norms, condition numbers | `pinv`, `matrix_rank`, `null_space`, `orth`, `norm`, `cond` | [Matrix functions, subspaces and norms](subspaces-norms.md#the-pseudoinverse-and-the-fundamental-subspaces) |

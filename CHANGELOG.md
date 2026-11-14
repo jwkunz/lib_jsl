@@ -6,6 +6,16 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-11-14
+
+### Added
+
+- `lib_jsl_linalg`: `sqrtm` (Schur method), `logm` (inverse scaling and squaring with an [8/8]
+  Padé approximant) and `fractional_matrix_power`; `pinv`, `matrix_rank`, `null_space`, `orth`,
+  `norm` (Frobenius, nuclear, 1, 2, ∞ and their minima) and `cond`, following SciPy and NumPy.
+- Book entry "Matrix functions, subspaces and norms", compared against SciPy and NumPy, with the
+  effect of the truncation tolerance on a pseudoinverse.
+
 ## [1.12.0] - 2026-11-14
 
 ### Added
@@ -293,7 +303,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.13.0
 [1.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.12.0
 [1.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.11.0
 [1.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.10.0

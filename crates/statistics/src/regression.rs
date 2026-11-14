@@ -9,6 +9,7 @@ use lib_jsl_special_functions::{normal_quantile, student_t_cdf};
 
 /// The result of [`linregress`].
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct LinregressResult {
     pub slope: f64,
     pub intercept: f64,

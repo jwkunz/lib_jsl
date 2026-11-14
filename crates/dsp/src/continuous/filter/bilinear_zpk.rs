@@ -16,6 +16,7 @@ use num_complex::Complex;
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};
 
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct BilinearZpkResult {
     /// Zeros of the transformed digital filter.
     pub z: C1D,

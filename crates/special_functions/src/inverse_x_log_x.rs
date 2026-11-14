@@ -53,7 +53,7 @@ pub fn lambert_w0(y: f64) -> f64 {
 
 /// The lower branch W₋₁(y) of the Lambert W function, for `-1/e <= y < 0`.
 pub fn lambert_w_m1(y: f64) -> f64 {
-    if y.is_nan() || y < -INV_E || y >= 0.0 {
+    if !(-INV_E..0.0).contains(&y) {
         return if y == 0.0 { f64::NEG_INFINITY } else { f64::NAN };
     }
     let guess = if y < -0.25 {
@@ -87,7 +87,7 @@ pub fn inverse_x_log_x(y: f64) -> f64 {
 /// Solves `x ln x = y` for the solution `0 < x <= 1/e`, which exists for `-1/e <= y < 0`
 /// (tends to 0 as `y → 0⁻`). Returns `NaN` outside that range.
 pub fn inverse_x_log_x_lower(y: f64) -> f64 {
-    if y.is_nan() || y < -INV_E || y >= 0.0 {
+    if !(-INV_E..0.0).contains(&y) {
         return f64::NAN;
     }
     if y == -INV_E {

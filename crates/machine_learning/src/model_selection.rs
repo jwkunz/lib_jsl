@@ -111,6 +111,7 @@ pub fn parameter_grid(axes: &[Vec<f64>]) -> Vec<Vec<f64>> {
 
 /// The outcome of a grid search.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct GridSearchResult<P> {
     pub best: P,
     pub best_score: f64,

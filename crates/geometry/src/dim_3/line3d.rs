@@ -3,6 +3,7 @@
 //! [`Line3D`] stores stable point identifiers plus a shared point table handle, allowing it to
 //! resolve endpoints lazily from the shared geometry graph instead of embedding point values.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasVertices, PointId,
 };
@@ -86,7 +87,7 @@ impl<'a> IsLine<'a, CoordinateVector3D> for Line3D {
         self.head_id
     }
 
-    fn set_head_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_head_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.head_id = point_id;
         Ok(())
     }
@@ -95,7 +96,7 @@ impl<'a> IsLine<'a, CoordinateVector3D> for Line3D {
         self.tail_id
     }
 
-    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.tail_id = point_id;
         Ok(())
     }

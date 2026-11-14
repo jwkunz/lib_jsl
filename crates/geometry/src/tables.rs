@@ -5,6 +5,7 @@
 //! along with a shared-handle wrapper for cases where multiple primitives need to borrow the same
 //! table.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{GeometricPrimitive, IsGeometryKey, IsGeometryTable};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -52,7 +53,7 @@ where
         self.entries.get(key).cloned()
     }
 
-    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), String> {
+    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), ErrorsJSL> {
         self.entries.insert(key, value);
         Ok(())
     }
@@ -90,25 +91,22 @@ where
     }
 
     #[cfg(feature = "serde")]
-    fn to_file(&self, path: &str) -> Result<(), String> {
+    fn to_file(&self, path: &str) -> Result<(), ErrorsJSL> {
         let serialized = serde_json::to_string_pretty(self).map_err(|err| err.to_string())?;
         std::fs::write(std::path::Path::new(path), serialized).map_err(|err| err.to_string())
     }
 
     #[cfg(not(feature = "serde"))]
-    fn to_file(&self, _path: &str) -> Result<(), String> {
-        Err("writing geometry tables requires the `serde` feature".to_string())
+    fn to_file(&self, _path: &str) -> Result<(), ErrorsJSL> {
+        Err(ErrorsJSL::Message("writing geometry tables requires the `serde` feature".to_string()))
     }
 
-    fn from_file(path: &str) -> Result<Self, String>
+    fn from_file(path: &str) -> Result<Self, ErrorsJSL>
     where
         Self: Sized,
     {
         let _ = path;
-        Err(
-            "from_file is not implemented for generic HashGeometryTable without a concrete deserializer"
-                .to_string(),
-        )
+        Err(ErrorsJSL::NotImplementedYet)
     }
 }
 
@@ -124,7 +122,7 @@ where
         self.borrow().get(key)
     }
 
-    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), String> {
+    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), ErrorsJSL> {
         self.borrow_mut().insert(key, value)
     }
 
@@ -153,11 +151,11 @@ where
         Box::new(items.into_iter())
     }
 
-    fn to_file(&self, path: &str) -> Result<(), String> {
+    fn to_file(&self, path: &str) -> Result<(), ErrorsJSL> {
         self.borrow().to_file(path)
     }
 
-    fn from_file(path: &str) -> Result<Self, String>
+    fn from_file(path: &str) -> Result<Self, ErrorsJSL>
     where
         Self: Sized,
     {

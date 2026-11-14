@@ -88,6 +88,7 @@ pub fn shapiro(x: &[f64]) -> Result<TestResult, ErrorsJSL> {
 
 /// The result of [`anderson_normal`].
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct AndersonResult {
     pub statistic: f64,
     /// The critical values at the significance levels.

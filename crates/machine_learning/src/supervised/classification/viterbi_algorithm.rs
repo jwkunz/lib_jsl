@@ -146,6 +146,7 @@ impl HiddenMarkovModel {
 
 /// The outcome of Baum-Welch training.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct BaumWelchResult {
     pub model: HiddenMarkovModel,
     /// Total log-likelihood of the training sequences at the start of each iteration, before its

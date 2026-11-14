@@ -62,12 +62,13 @@ impl Default for LbfgsbOptions {
 
 /// The result of a bound-constrained minimisation.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BoundedResult {
     pub x: Vec<f64>,
     pub fun: f64,
     pub gradient: Vec<f64>,
     pub iterations: usize,
-    pub function_evaluations: usize,
+    pub nfev: usize,
     /// `true` when a convergence test was met.
     pub converged: bool,
     /// −1, 0, +1 per variable: at its lower bound, free, at its upper bound.
@@ -379,7 +380,7 @@ pub fn minimize_lbfgsb(mut fg: impl FnMut(&[f64]) -> (f64, Vec<f64>), x0: &[f64]
         }
     }
     let active = (0..n).map(|i| if x[i] <= lb[i] { -1 } else if x[i] >= ub[i] { 1 } else { 0 }).collect();
-    Ok(BoundedResult { x, fun: f, gradient: g, iterations, function_evaluations: nfev, converged, active })
+    Ok(BoundedResult { x, fun: f, gradient: g, iterations, nfev, converged, active })
 }
 // ANCHOR_END: lbfgsb
 
@@ -449,6 +450,7 @@ impl Default for LeastSquaresOptions {
 
 /// The result of [`least_squares_bounded`].
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct BoundedLeastSquaresResult {
     pub x: Vec<f64>,
     /// `½ Σ ρ(fᵢ²)` (with the loss and scale applied).
@@ -844,6 +846,7 @@ fn columns(a: &Array2<f64>, idx: &[usize]) -> Array2<f64> {
 
 /// The result of [`lsq_linear`] and [`nnls`].
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct LinearLsqResult {
     pub x: Vec<f64>,
     /// `½ ‖A x − b‖²`.

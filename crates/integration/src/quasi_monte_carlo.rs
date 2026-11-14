@@ -17,13 +17,14 @@ pub enum QuasiRandomSequence {
 
 /// The outcome of [`quasi_monte_carlo_integration`].
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct QuasiMonteCarloResult {
     /// The mean of the replicate estimates.
     pub value: f64,
     /// Standard error from the spread of the replicates (NaN with a single replicate).
     pub standard_error: f64,
     /// The number of integrand evaluations (`points × replicates`).
-    pub evaluations: usize,
+    pub nfev: usize,
 }
 
 /// Integrates `f` over the box `bounds` (one `(lower, upper)` pair per dimension) by randomized
@@ -82,7 +83,7 @@ pub fn quasi_monte_carlo_integration<F: Fn(&[f64]) -> f64>(
     } else {
         f64::NAN
     };
-    Ok(QuasiMonteCarloResult { value, standard_error, evaluations: points * replicates })
+    Ok(QuasiMonteCarloResult { value, standard_error, nfev: points * replicates })
 }
 
 #[cfg(test)]
@@ -106,7 +107,7 @@ mod tests {
             // Plain Monte Carlo with the same 65536 evaluations has a standard error near
             // σ/√N ≈ 0.0045 for this integrand.
             let mut rng = UniformRNG::from_seed(3);
-            let samples: Vec<f64> = (0..r.evaluations).map(|_| product(&(0..5).map(|_| rng.next_f64()).collect::<Vec<_>>())).collect();
+            let samples: Vec<f64> = (0..r.nfev).map(|_| product(&(0..5).map(|_| rng.next_f64()).collect::<Vec<_>>())).collect();
             let mean = samples.iter().sum::<f64>() / samples.len() as f64;
             let sd = (samples.iter().map(|s| (s - mean).powi(2)).sum::<f64>() / samples.len() as f64).sqrt();
             let mc_error = sd / (samples.len() as f64).sqrt();

@@ -39,6 +39,7 @@ impl Default for TrustRegionOptions {
 
 /// The result of [`minimize_trust_region`].
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct TrustRegionResult {
     pub x: Vec<f64>,
     pub fun: f64,

@@ -19,6 +19,7 @@ use lib_jsl_core::ErrorsJSL;
 
 /// The result of an LPC analysis.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct LpcResult {
     /// `A(z)` coefficients `[1, a1, …, ap]` (length `order + 1`).
     pub coefficients: Vec<f64>,

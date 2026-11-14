@@ -164,7 +164,7 @@ pub struct PathIntegral {
     /// An estimate of the absolute error (sum of the Gauss/Kronrod differences).
     pub error: f64,
     /// Number of integrand evaluations.
-    pub evaluations: usize,
+    pub nfev: usize,
 }
 
 /// The 7-point Gauss and 15-point Kronrod estimates of `∫ₐᵇ f`, and the Kronrod estimate of
@@ -259,7 +259,7 @@ pub fn contour_integral(f: impl Fn(C64) -> C64, contour: &Contour, tol: f64) -> 
     if tol.is_nan() || tol <= 0.0 {
         return Err(ErrorsJSL::InvalidInputRange("The tolerance must be positive."));
     }
-    let mut total = PathIntegral { value: C64::new(0.0, 0.0), error: 0.0, evaluations: 0 };
+    let mut total = PathIntegral { value: C64::new(0.0, 0.0), error: 0.0, nfev: 0 };
     for seg in &contour.segments {
         let (v, e, n, converged) = integrate_segment(&|z, dz| f(z) * dz, seg, tol, false);
         if !converged {
@@ -267,7 +267,7 @@ pub fn contour_integral(f: impl Fn(C64) -> C64, contour: &Contour, tol: f64) -> 
         }
         total.value += v;
         total.error += e;
-        total.evaluations += n;
+        total.nfev += n;
     }
     if !total.value.re.is_finite() || !total.value.im.is_finite() {
         return Err(ErrorsJSL::RuntimeError("The integral is not finite (the path may pass through a singularity)."));

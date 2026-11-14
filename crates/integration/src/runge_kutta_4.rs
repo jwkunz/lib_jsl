@@ -21,7 +21,7 @@ where
     }
     let n = y0.len();
     let h = (t1 - t0) / n_steps as f64;
-    let mut solution = OdeSolution { t: vec![t0], y: vec![y0.to_vec()], rejected_steps: 0, function_evaluations: 0, jacobian_evaluations: 0 };
+    let mut solution = OdeSolution { t: vec![t0], y: vec![y0.to_vec()], rejected_steps: 0, nfev: 0, jacobian_evaluations: 0 };
     let mut y = y0.to_vec();
     let eval = |t: f64, y: &[f64]| -> Result<Vec<f64>, ErrorsJSL> {
         let v = f(t, y);
@@ -42,32 +42,13 @@ where
             y[i] += h / 6.0 * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]);
         }
         // ANCHOR_END: rk4_step
-        solution.function_evaluations += 4;
+        solution.nfev += 4;
         solution.t.push(if step + 1 == n_steps { t1 } else { t + h });
         solution.y.push(y.clone());
     }
     Ok(solution)
 }
 
-/// Integrates `y' = f(t)`, a derivative that does not depend on `y`, with RK4 steps.
-///
-/// Despite its name this is quadrature, not an ODE solver: when `f` ignores `y` the two middle
-/// stages coincide and each step is exactly Simpson's rule. Returns `y` after every step.
-#[deprecated(note = "this solves only y' = f(t); use `rk4_solve` for y' = f(t, y)")]
-pub fn runge_kutta_4<F>(f: F, t0: f64, y0: f64, t1: f64, n_steps: usize) -> Vec<f64>
-where
-    F: Fn(f64) -> f64,
-{
-    let dt = (t1 - t0) / n_steps as f64;
-    let mut y = y0;
-    let mut result = vec![y0];
-    for step in 0..n_steps {
-        let t = t0 + step as f64 * dt;
-        y += dt * (f(t) + 4.0 * f(t + 0.5 * dt) + f(t + dt)) / 6.0;
-        result.push(y);
-    }
-    result
-}
 
 #[cfg(test)]
 mod test {
@@ -90,7 +71,7 @@ mod test {
         assert!((ratio - 16.0).abs() < 0.5, "{ratio}");
         assert!(error(200) < 1e-7);
         let s = rk4_solve(oscillator, 0.0, &[1.0, 0.0], 1.0, 10).unwrap();
-        assert_eq!((s.t.len(), s.function_evaluations, *s.t.last().unwrap()), (11, 40, 1.0));
+        assert_eq!((s.t.len(), s.nfev, *s.t.last().unwrap()), (11, 40, 1.0));
     }
 
     #[test]
@@ -100,10 +81,4 @@ mod test {
         assert!(rk4_solve(|_, _| vec![1.0], 0.0, &[1.0, 0.0], 1.0, 4).is_err());
     }
 
-    #[test]
-    #[allow(deprecated)]
-    fn the_legacy_function_is_simpsons_rule() {
-        let result = runge_kutta_4(|x| x.sin(), 0.0, 0.0, PI / 2.0, 100);
-        assert!((1.0 - result.last().unwrap()).abs() < 1e-9);
-    }
 }

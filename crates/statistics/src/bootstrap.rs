@@ -8,6 +8,7 @@ use lib_jsl_special_functions::{normal_cdf, normal_quantile};
 
 /// Bootstrap replicates of a statistic.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct BootstrapResult {
     /// The statistic on the original sample.
     pub estimate: f64,

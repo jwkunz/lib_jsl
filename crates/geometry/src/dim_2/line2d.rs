@@ -1,5 +1,6 @@
 //! Concrete two-dimensional line type.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasVertices, PointId,
 };
@@ -80,7 +81,7 @@ impl<'a> IsLine<'a, CoordinateVector2D> for Line2D {
         self.head_id
     }
 
-    fn set_head_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_head_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.head_id = point_id;
         Ok(())
     }
@@ -89,7 +90,7 @@ impl<'a> IsLine<'a, CoordinateVector2D> for Line2D {
         self.tail_id
     }
 
-    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.tail_id = point_id;
         Ok(())
     }

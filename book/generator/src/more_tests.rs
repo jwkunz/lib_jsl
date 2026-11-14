@@ -64,7 +64,7 @@ fn scipy_reference() {
     let diff = |a: &[f64], b: &[f64]| a.iter().sum::<f64>() / a.len() as f64 - b.iter().sum::<f64>() / b.len() as f64;
     for (alt, key) in [(Alternative::TwoSided, "two-sided"), (Alternative::Less, "less"), (Alternative::Greater, "greater")] {
         let r = permutation_test(&x, &y, diff, alt, 10_000, 1).unwrap();
-        row(format!("`permutation_test`, difference of means, 6435 splits, {key}"), TestResult { statistic: r.statistic, p_value: r.p_value, degrees_of_freedom: f64::NAN }, &format!("permutation {key}"));
+        row(format!("`permutation_test`, difference of means, 6435 splits, {key}"), TestResult::new(r.statistic, r.p_value, f64::NAN), &format!("permutation {key}"));
     }
     // Anderson-Darling and the FDR adjustments have no single p-value.
     let mut extra = Vec::new();

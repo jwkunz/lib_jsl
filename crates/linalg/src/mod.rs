@@ -157,6 +157,7 @@ pub trait SvdJacobi<T> {
 
 /// The result of [`LeastSquaresSvd::least_squares`].
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct LeastSquaresResult<T> {
     /// The minimum-norm minimiser of `‖A x − b‖₂`.
     pub solution: Array1<T>,

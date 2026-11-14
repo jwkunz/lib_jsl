@@ -1,5 +1,6 @@
 //! Concrete one-dimensional line type.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{GeometricPrimitive, GeometryMeasure, HasVertices, PointId};
 use crate::one_d::{IsLine, CoordinateVector1D, UnitVector1D};
 use crate::tables::SharedGeometryTable;
@@ -76,7 +77,7 @@ impl<'a> IsLine<'a, CoordinateVector1D> for Line1D {
         self.head_id
     }
 
-    fn set_head_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_head_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.head_id = point_id;
         Ok(())
     }
@@ -85,7 +86,7 @@ impl<'a> IsLine<'a, CoordinateVector1D> for Line1D {
         self.tail_id
     }
 
-    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.tail_id = point_id;
         Ok(())
     }

@@ -47,7 +47,7 @@ fn scipy_reference() {
         fmt_diff(max_diff(&r.x, &want[0])),
         fmt_diff((r.fun - want[1][0]).abs()),
         format!("{} / {}", r.iterations, want[1][1]),
-        format!("{} / {}", r.function_evaluations, want[1][2]),
+        format!("{} / {}", r.nfev, want[1][2]),
     ]);
     let h = mat("H");
     let c = refs.get("data c")[2].clone();
@@ -63,7 +63,7 @@ fn scipy_reference() {
         fmt_diff(max_diff(&r.x, &want[0])),
         fmt_diff((r.fun - want[1][0]).abs()),
         format!("{} / {}", r.iterations, want[1][1]),
-        format!("{} / {}", r.function_evaluations, want[1][2]),
+        format!("{} / {}", r.nfev, want[1][2]),
     ]);
 
     // Nonlinear least squares with each loss.

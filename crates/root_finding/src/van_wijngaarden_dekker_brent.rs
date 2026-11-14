@@ -2,6 +2,7 @@
 //!
 //! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#brents-method).
 
+use lib_jsl_core::ErrorsJSL;
 use crate::same_sign;
 
 /// Finds a root of `f` in `[a, b]` using Brent's method (inverse quadratic interpolation,
@@ -13,7 +14,7 @@ use crate::same_sign;
 /// bisection only every few steps, so it can need several times the evaluations of bisection
 /// (131 against 46 for `(x − 1/3)³` on `[0, 1]`); its guaranteed worst case is about the square
 /// of bisection's count.
-pub fn brent_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
+pub fn brent_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
@@ -26,7 +27,7 @@ where
         return Ok(b);
     }
     if !(fa < 0.0 && fb > 0.0 || fa > 0.0 && fb < 0.0) {
-        return Err("brent_method: f(a) and f(b) must have opposite signs".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("brent_method: f(a) and f(b) must have opposite signs"));
     }
     let (mut c, mut fc) = (a, fa);
     let mut d = b - a;
@@ -91,7 +92,7 @@ where
         }
         fb = f(b);
     }
-    Err("brent_method: failed to converge".to_string())
+    Err(ErrorsJSL::RuntimeError("brent_method: failed to converge"))
 }
 
 #[cfg(test)]

@@ -109,7 +109,8 @@ way, because the sign is a separate bit.
 ## Implementation
 
 - Constants are `f64` throughout, with SI units unless the name says otherwise (`_DB`, `_HZ`, …); the constants module uses only `core`, so it also suits `no_std` code.
-- `ErrorsJSL` carries `&'static str` messages, so errors are cheap and allocation-free.
+- Most `ErrorsJSL` variants carry `&'static str` messages, so errors are cheap and allocation-free; `Message` and `LinearAlgebra` carry a `String` for messages built at run time.
+- `ErrorsJSL` implements `Display` and `std::error::Error`, converts from `String` and from the linear-algebra crate's `LinalgError`, and is `#[non_exhaustive]`: a `match` on it needs a wildcard arm.
 
 ## In practice
 

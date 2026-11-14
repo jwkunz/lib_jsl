@@ -11,7 +11,7 @@ fn main() {
     // Cauchy's theorem: an analytic function integrates to zero around a closed path.
     let square = Contour::rectangle(C64::new(-1.0, -1.0), C64::new(1.0, 1.0));
     let r = contour_integral(|z| z.exp() * z.sin(), &square, 1e-12).unwrap();
-    println!("∮ eᶻ sin z dz around a square = {:.1e} ({} evaluations)", r.value.norm(), r.evaluations);
+    println!("∮ eᶻ sin z dz around a square = {:.1e} ({} evaluations)", r.value.norm(), r.nfev);
 
     // A pole inside: ∮ dz/z = 2πi.
     let r = contour_integral(|z| z.inv(), &Contour::circle(C64::new(0.2, 0.1), 1.0), 1e-12).unwrap();

@@ -19,6 +19,7 @@ use num_complex::Complex;
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic};
 
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct BilinearResult {
     /// Numerator coefficients of the digital transfer function in powers of `z^-1`.
     pub beta: C1D,

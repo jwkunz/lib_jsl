@@ -14,6 +14,7 @@ description = "Dense linear algebra in pure Rust: LU, Cholesky, eigensolvers, th
 path = "src/mod.rs"
 
 [dependencies]
+lib_jsl_core.workspace = true
 matrixmultiply.workspace = true
 ndarray.workspace = true
 num-complex.workspace = true

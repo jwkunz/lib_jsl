@@ -2,13 +2,14 @@
 //!
 //! See the book entry [Newton's method and the secant method](https://jwkunz.github.io/lib_jsl/book/root_finding/newton.html#the-secant-method).
 
+use lib_jsl_core::ErrorsJSL;
 /// Finds a root of `f` with the secant method starting from `x0` and `x1`.
 ///
 /// Stops when `f` is exactly zero, or successive iterates differ by less than `tol` and either `f`
 /// changes sign between them or their own secant slope places the root within `tol`. Errors on a
 /// zero secant slope, divergence, or 100 iterations without convergence. The order of convergence
 /// near a simple root is the golden ratio, 1.618.
-pub fn secant_method<F>(f: F, x0: f64, x1: f64, tol: f64) -> Result<f64, String>
+pub fn secant_method<F>(f: F, x0: f64, x1: f64, tol: f64) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
@@ -19,12 +20,12 @@ where
             return Ok(x1);
         }
         if f1 == f0 {
-            return Err("secant_method: zero slope between iterates".to_string());
+            return Err(ErrorsJSL::RuntimeError("secant_method: zero slope between iterates"));
         }
         // ANCHOR: secant
         let mut x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
         if !x2.is_finite() {
-            return Err("secant_method: iterate diverged".to_string());
+            return Err(ErrorsJSL::RuntimeError("secant_method: iterate diverged"));
         }
         let small = (x2 - x1).abs() < tol;
         if x2 == x1 {
@@ -42,7 +43,7 @@ where
         // ANCHOR_END: secant
         (x0, f0, x1, f1) = (x1, f1, x2, f2);
     }
-    Err("secant_method: failed to converge".to_string())
+    Err(ErrorsJSL::RuntimeError("secant_method: failed to converge"))
 }
 
 #[cfg(test)]

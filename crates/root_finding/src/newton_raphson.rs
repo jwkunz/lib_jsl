@@ -2,12 +2,13 @@
 //!
 //! See the book entry [Newton's method and the secant method](https://jwkunz.github.io/lib_jsl/book/root_finding/newton.html).
 
+use lib_jsl_core::ErrorsJSL;
 /// Finds a root of `f` using Newton-Raphson iteration with derivative `df`, starting at `x0`.
 ///
 /// Stops when a step `|f(x)/f'(x)|` is below `tol` (returning the updated iterate) or `f(x)` is
 /// exactly zero. Errors on a zero or non-finite derivative, divergence, or 100 iterations without
 /// convergence. Converges quadratically near a simple root, linearly near a repeated one.
-pub fn newton_raphson<F, D>(f: F, df: D, x0: f64, tol: f64) -> Result<f64, String>
+pub fn newton_raphson<F, D>(f: F, df: D, x0: f64, tol: f64) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
     D: Fn(f64) -> f64,
@@ -21,19 +22,19 @@ where
         }
         let d = df(x);
         if d == 0.0 || !d.is_finite() {
-            return Err("newton_raphson: derivative is zero or non-finite".to_string());
+            return Err(ErrorsJSL::RuntimeError("newton_raphson: derivative is zero or non-finite"));
         }
         let step = fx / d;
         x -= step;
         if !x.is_finite() {
-            return Err("newton_raphson: iterate diverged".to_string());
+            return Err(ErrorsJSL::RuntimeError("newton_raphson: iterate diverged"));
         }
         if step.abs() < tol {
             return Ok(x);
         }
     }
     // ANCHOR_END: newton
-    Err("newton_raphson: failed to converge".to_string())
+    Err(ErrorsJSL::RuntimeError("newton_raphson: failed to converge"))
 }
 
 #[cfg(test)]

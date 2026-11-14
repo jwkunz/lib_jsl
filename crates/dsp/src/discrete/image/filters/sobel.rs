@@ -22,6 +22,7 @@ use ndarray::{array, Array2};
 
 /// The gradient field of an image.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct SobelResult {
     /// Gradient along the columns (x).
     pub gx: Array2<f64>,

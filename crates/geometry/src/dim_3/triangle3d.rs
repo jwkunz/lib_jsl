@@ -4,6 +4,7 @@
 //! three point ids into a shared point table and derives polygonal behavior from that backing
 //! graph.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid, HasEdges, HasMeasure,
     HasVertices, IsPlane, PointId,
@@ -198,12 +199,12 @@ impl<'a> IsPolygon<'a, CoordinateVector3D, UnitVector3D> for Triangle3D {
         Box::new([self.a_id, self.b_id, self.c_id].into_iter())
     }
 
-    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), String> {
+    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), ErrorsJSL> {
         match index {
             0 => self.a_id = point_id,
             1 => self.b_id = point_id,
             2 => self.c_id = point_id,
-            _ => return Err(format!("vertex index {} is out of bounds", index)),
+            _ => return Err(ErrorsJSL::Message(format!("vertex index {} is out of bounds", index))),
         }
         Ok(())
     }
@@ -230,7 +231,7 @@ impl<'a> IsTriangle<'a, CoordinateVector3D, UnitVector3D> for Triangle3D {
         self.a_id
     }
 
-    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.a_id = point_id;
         Ok(())
     }
@@ -239,7 +240,7 @@ impl<'a> IsTriangle<'a, CoordinateVector3D, UnitVector3D> for Triangle3D {
         self.b_id
     }
 
-    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.b_id = point_id;
         Ok(())
     }
@@ -248,7 +249,7 @@ impl<'a> IsTriangle<'a, CoordinateVector3D, UnitVector3D> for Triangle3D {
         self.c_id
     }
 
-    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.c_id = point_id;
         Ok(())
     }

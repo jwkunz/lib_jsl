@@ -2,13 +2,14 @@
 //!
 //! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#ridders-method).
 
+use lib_jsl_core::ErrorsJSL;
 /// Finds a root of `f` in `[a, b]` using Ridders' method (C. Ridders, 1979). Requires a sign
 /// change over the interval.
 ///
 /// Each iteration evaluates `f` at the midpoint and at an exponentially-corrected false-position
 /// point, keeping a bracket; it stops when successive estimates or the bracket width fall below
 /// `tol`, and errors after 100 iterations.
-pub fn ridders_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
+pub fn ridders_method<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
@@ -21,7 +22,7 @@ where
         return Ok(x2);
     }
     if !(f1 < 0.0 && f2 > 0.0 || f1 > 0.0 && f2 < 0.0) {
-        return Err("ridders_method: f(a) and f(b) must have opposite signs".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("ridders_method: f(a) and f(b) must have opposite signs"));
     }
     let mut ans = f64::NAN;
     for _ in 0..100 {
@@ -59,7 +60,7 @@ where
             return Ok(ans);
         }
     }
-    Err("ridders_method: failed to converge".to_string())
+    Err(ErrorsJSL::RuntimeError("ridders_method: failed to converge"))
 }
 
 #[cfg(test)]

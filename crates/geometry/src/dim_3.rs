@@ -1,5 +1,6 @@
 //! Three-dimensional geometry traits.
 
+use lib_jsl_core::ErrorsJSL;
 /// Concrete three-dimensional line implementation.
 pub mod line3d;
 /// Concrete three-dimensional free-vector implementation.
@@ -65,19 +66,19 @@ where
     /// Returns the point-table id of the first vertex.
     fn a_id(&self) -> PointId;
     /// Sets the point-table id of the first vertex.
-    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
     /// Returns the point-table id of the second vertex.
     fn b_id(&self) -> PointId;
     /// Sets the point-table id of the second vertex.
-    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
     /// Returns the point-table id of the third vertex.
     fn c_id(&self) -> PointId;
     /// Sets the point-table id of the third vertex.
-    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
     /// Returns the point-table id of the fourth vertex.
     fn d_id(&self) -> PointId;
     /// Sets the point-table id of the fourth vertex.
-    fn set_d_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_d_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
 
     /// Resolves and returns the first vertex from the point table.
     fn a(&self) -> Option<T> {
@@ -128,7 +129,7 @@ where
     /// Returns the ordered face-table ids that participate in this mesh.
     fn face_ids(&self) -> Box<dyn Iterator<Item = FaceId> + '_>;
     /// Replaces the face-table id at the given mesh face position.
-    fn set_face_id(&mut self, index: usize, face_id: FaceId) -> Result<(), String>;
+    fn set_face_id(&mut self, index: usize, face_id: FaceId) -> Result<(), ErrorsJSL>;
     /// Returns the number of faces in the mesh.
     fn face_count(&self) -> usize {
         self.face_ids().count()
@@ -176,7 +177,7 @@ where
     /// Returns the ordered tetrahedron-table ids that participate in this mesh.
     fn tetrahedron_ids(&self) -> Box<dyn Iterator<Item = TetrahedronId> + '_>;
     /// Replaces the tetrahedron-table id at the given mesh cell position.
-    fn set_tetrahedron_id(&mut self, index: usize, tetrahedron_id: TetrahedronId) -> Result<(), String>;
+    fn set_tetrahedron_id(&mut self, index: usize, tetrahedron_id: TetrahedronId) -> Result<(), ErrorsJSL>;
     /// Returns the number of tetrahedra in the mesh.
     fn tetrahedron_count(&self) -> usize {
         self.tetrahedron_ids().count()

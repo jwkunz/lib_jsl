@@ -7,13 +7,14 @@ use lib_jsl_random::uniform_generator::{UniformGenerator, UniformRNG};
 
 /// The outcome of [`monte_carlo`].
 #[derive(Debug, Clone, Copy)]
+#[non_exhaustive]
 pub struct MonteCarloResult {
     /// The estimated integral.
     pub value: f64,
     /// The estimated standard deviation of `value`, `V σ̂ / √N` (`V` the volume of the box).
     pub standard_error: f64,
     /// The number of integrand evaluations.
-    pub evaluations: usize,
+    pub nfev: usize,
 }
 
 fn check_bounds(bounds: &[(f64, f64)]) -> Result<f64, ErrorsJSL> {
@@ -67,7 +68,7 @@ pub fn monte_carlo<F: Fn(&[f64]) -> f64>(f: F, bounds: &[(f64, f64)], samples: u
         }
         stats.push(f(&x));
     }
-    Ok(MonteCarloResult { value: volume * stats.mean, standard_error: volume * stats.standard_error(), evaluations: samples })
+    Ok(MonteCarloResult { value: volume * stats.mean, standard_error: volume * stats.standard_error(), nfev: samples })
 }
 
 /// Monte Carlo integration until a target accuracy: samples are drawn in batches of

@@ -22,6 +22,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct EllipordResult {
     /// Minimum order predicted to satisfy the supplied passband and stopband
     /// constraints.

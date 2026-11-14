@@ -16,6 +16,7 @@ use lib_jsl_linalg::{Inverse, Solve};
 
 /// The outcome of a least-squares solve.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct LeastSquaresResult {
     pub parameters: Vec<f64>,
     /// The residuals at the solution.
@@ -210,6 +211,7 @@ impl LevenbergMarquardt {
 
 /// The outcome of [`curve_fit`].
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct CurveFitResult {
     pub parameters: Vec<f64>,
     /// Parameter covariance (n × n).

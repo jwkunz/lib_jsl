@@ -14,11 +14,6 @@ pub fn panel_midpoints(a: f64, b: f64, n: usize) -> (Vec<f64>, f64) {
     ((0..n).map(|i| a + (i as f64 + 0.5) * h).collect(), h)
 }
 
-/// The grid points of [`grid_points`]. Despite its name this never returned midpoints.
-#[deprecated(note = "use `grid_points` (or `panel_midpoints` for the midpoints of panels)")]
-pub fn calculate_midpoints(a: f64, b: f64, n: usize) -> (Vec<f64>, f64) {
-    grid_points(a, b, n)
-}
 
 #[cfg(test)]
 mod tests {

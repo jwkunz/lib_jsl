@@ -305,6 +305,7 @@ pub fn binomtest(k: u64, n: u64, p: f64, alternative: Alternative) -> Result<Tes
 
 /// The result of [`permutation_test`].
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct PermutationResult {
     pub statistic: f64,
     pub p_value: f64,

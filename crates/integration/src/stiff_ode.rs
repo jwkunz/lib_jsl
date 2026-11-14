@@ -51,7 +51,7 @@ pub struct OdeSolution {
     /// Steps whose error estimate exceeded the tolerance and were retried with a smaller step.
     pub rejected_steps: usize,
     /// Evaluations of `f`.
-    pub function_evaluations: usize,
+    pub nfev: usize,
     /// Evaluations of the Jacobian (zero for explicit methods).
     pub jacobian_evaluations: usize,
 }
@@ -203,7 +203,7 @@ where
     let (mut t, mut y) = (t0, y0.to_vec());
     let mut f0 = sys.eval(t, &y)?;
     let mut h = starting_step(&y, &f0, t1 - t0, &options);
-    let mut solution = OdeSolution { t: vec![t], y: vec![y.clone()], rejected_steps: 0, function_evaluations: 0, jacobian_evaluations: 0 };
+    let mut solution = OdeSolution { t: vec![t], y: vec![y.clone()], rejected_steps: 0, nfev: 0, jacobian_evaluations: 0 };
     let mut steps = 0;
     while (t1 - t) * direction > 0.0 {
         steps += 1;
@@ -247,7 +247,7 @@ where
             return Err(ErrorsJSL::RuntimeError("The step size underflowed."));
         }
     }
-    solution.function_evaluations = sys.evaluations;
+    solution.nfev = sys.evaluations;
     solution.jacobian_evaluations = sys.jacobians;
     Ok(solution)
 }
@@ -296,7 +296,7 @@ where
     let mut h = starting_step(y0, &f0, t1 - t0, &options);
     let mut history: VecDeque<(f64, Vec<f64>)> = VecDeque::from([(t0, y0.to_vec())]);
     let mut f_last = f0;
-    let mut solution = OdeSolution { t: vec![t0], y: vec![y0.to_vec()], rejected_steps: 0, function_evaluations: 0, jacobian_evaluations: 0 };
+    let mut solution = OdeSolution { t: vec![t0], y: vec![y0.to_vec()], rejected_steps: 0, nfev: 0, jacobian_evaluations: 0 };
     let mut steps = 0;
     loop {
         let (t, y) = history.back().cloned().expect("history is never empty");
@@ -374,7 +374,7 @@ where
             return Err(ErrorsJSL::RuntimeError("The step size underflowed."));
         }
     }
-    solution.function_evaluations = sys.evaluations;
+    solution.nfev = sys.evaluations;
     solution.jacobian_evaluations = sys.jacobians;
     Ok(solution)
 }

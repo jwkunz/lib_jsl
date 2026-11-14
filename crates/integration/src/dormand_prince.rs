@@ -57,7 +57,7 @@ where
     let span = t1 - t0;
     let direction = span.signum();
     let (mut t, mut y) = (t0, y0.to_vec());
-    let mut solution = OdeSolution { t: vec![t], y: vec![y.clone()], rejected_steps: 0, function_evaluations: 1, jacobian_evaluations: 0 };
+    let mut solution = OdeSolution { t: vec![t], y: vec![y.clone()], rejected_steps: 0, nfev: 1, jacobian_evaluations: 0 };
     let mut k = vec![eval(t, &y)?];
     let mut h = starting_step(&y, &k[0], span, &options);
     for _ in 0..options.max_steps {
@@ -73,7 +73,7 @@ where
             let t_stage = t + C[s] * hs;
             k.push(eval(t_stage, &stage)?);
         }
-        solution.function_evaluations += 6;
+        solution.nfev += 6;
         // Stage 7 was evaluated at the fifth-order solution itself.
         let y_new: Vec<f64> = (0..n).map(|i| y[i] + hs * (0..6).map(|j| A[6][j] * k[j][i]).sum::<f64>()).collect();
         let local: Vec<f64> = (0..n).map(|i| hs * (0..7).map(|j| E[j] * k[j][i]).sum::<f64>()).collect();
@@ -98,129 +98,11 @@ where
     Err(ErrorsJSL::RuntimeError("Dormand-Prince: too many steps (the problem may be stiff)."))
 }
 
-#[deprecated(note = "this solves only y' = f(t); use `dormand_prince_solve` for y' = f(t, y)")]
-#[allow(deprecated)]
-pub fn dormand_prince<F>(f: &F, t0: f64, y0: f64, t1: f64, tolerance : f64) -> Vec<(f64,f64,f64)>
-where
-    F: Fn(f64) -> f64,
-{
-    let mut t = t0;
-    let mut y = y0;
-    let mut h = tolerance;
-    let mut result = Vec::<(f64,f64,f64)>::new();
-    result.push((t,y0,h));
-    while t <  t1{
-        let step = dormand_prince_adaptive_step(f, t, y, h, tolerance);
-        result.push(step);
-        t = step.0;
-        y = step.1;
-        h = step.2.min(t1-t);
-    }
-    result
-}
-
-/// One Dormand-Prince step for `y' = f(t)` (a derivative independent of `y`): the fifth-order
-/// value and the difference from the embedded fourth-order value.
-#[deprecated(note = "this solves only y' = f(t); use `dormand_prince_solve` for y' = f(t, y)")]
-pub fn dormand_prince_step<F>(
-    f: &F,
-    t: f64,
-    y: f64,
-    h: f64,
-) -> (f64, f64)
-where
-    F: Fn(f64) -> f64,
-{
-    let k1 = h * f(t);
-    //let k2 = h * f(t + h * 1.0 / 5.0);
-    let k3 = h * f(t + h * 3.0 / 10.0);
-    let k4 = h * f(t + h * 4.0 / 5.0);
-    let k5 = h * f(t + h * 8.0 / 9.0);
-    let k6 = h * f(t + h);
-    let k7 = h * f(t + h);
-
-    // 5th order
-    let y5 = y
-        + (35.0 / 384.0) * k1
-        + (500.0 / 1113.0) * k3
-        + (125.0 / 192.0) * k4
-        - (2187.0 / 6784.0) * k5
-        + (11.0 / 84.0) * k6;
-
-    // 4th order (embedded)
-    let y4 = y
-        + (5179.0 / 57600.0) * k1
-        + (7571.0 / 16695.0) * k3
-        + (393.0 / 640.0) * k4
-        - (92097.0 / 339200.0) * k5
-        + (187.0 / 2100.0) * k6
-        + (1.0 / 40.0) * k7;
-
-    let err = (y5 - y4).abs();
-    (y5, err)
-}
-
-
-/// One adaptive Dormand-Prince step for `y' = f(t)` (a derivative independent of `y`).
-///
-/// Attempts to advance from (t, y) using initial step h.
-/// On success, returns (t_next, y_next, h_next).
-#[deprecated(note = "this solves only y' = f(t); use `dormand_prince_solve` for y' = f(t, y)")]
-#[allow(deprecated)]
-pub fn dormand_prince_adaptive_step<F>(
-    f: &F,
-    t: f64,
-    y: f64,
-    h: f64,
-    tol: f64,
-) -> (f64, f64, f64)
-where
-    F: Fn(f64) -> f64,
-{
-    // Controller parameters
-    const SAFETY: f64 = 0.9;
-    const MIN_SCALE: f64 = 0.2;
-    const MAX_SCALE: f64 = 5.0;
-    const ORDER: f64 = 4.0; // lower order of the embedded pair
-
-    let mut h_try = h;
-
-    loop {
-        let (y_next, err) = dormand_prince_step(f, t, y, h_try);
-
-        // Scale error relative to tolerance
-        let err_norm = err.max(1e-14); // prevent division by zero
-
-        if err_norm <= tol {
-            // Accept step
-            let scale = (tol / err_norm).powf(1.0 / (ORDER + 1.0));
-            let scale = scale.clamp(MIN_SCALE, MAX_SCALE);
-
-            let h_next = SAFETY * h_try * scale;
-            return (t + h_try, y_next, h_next);
-        } else {
-            // Reject step, reduce h
-            let scale = (tol / err_norm).powf(1.0 / (ORDER + 1.0));
-            let scale = scale.clamp(MIN_SCALE, 1.0);
-
-            h_try *= SAFETY * scale;
-        }
-    }
-}
-
-
-
 #[cfg(test)]
 mod test {
     use super::*;
     use std::f64::consts::PI;
 
-    #[test]
-    #[allow(deprecated)]
-    fn the_legacy_function_integrates_a_derivative_of_t() {
-        let result = dormand_prince(&f64::sin, 0.0, 0.0, PI / 2.0, 1e-6);
-        assert!((1.0 - result.last().unwrap().1).abs() < 1e-6);
-    }
 
     #[test]
     fn solves_systems_to_the_requested_accuracy() {
@@ -238,7 +120,7 @@ mod test {
         let s = dormand_prince_solve(|_, y| vec![y[0]], 0.0, &[1.0], -1.0, OdeOptions { relative_tolerance: 1e-10, absolute_tolerance: 1e-12, ..Default::default() }).unwrap();
         assert!((s.y.last().unwrap()[0] - (-1f64).exp()).abs() < 1e-9);
         // First same as last: six evaluations per attempted step, plus the first.
-        assert_eq!(s.function_evaluations, 1 + 6 * (s.t.len() - 1 + s.rejected_steps));
+        assert_eq!(s.nfev, 1 + 6 * (s.t.len() - 1 + s.rejected_steps));
     }
 
     #[test]

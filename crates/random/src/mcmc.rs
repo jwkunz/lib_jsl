@@ -9,7 +9,8 @@ use lib_jsl_core::ErrorsJSL;
 /// Settings for [`metropolis_hastings`].
 #[derive(Debug, Clone)]
 pub struct MetropolisOptions {
-    /// Standard deviation of the Gaussian proposal per coordinate.
+    /// Standard deviation of the Gaussian proposal per coordinate; empty means 1 for every
+    /// coordinate (the default, which adaptive burn-in then tunes).
     pub proposal_scale: Vec<f64>,
     /// Retained samples.
     pub samples: usize,
@@ -20,6 +21,13 @@ pub struct MetropolisOptions {
     /// During burn-in, rescale the proposal every 100 steps towards an acceptance rate near the
     /// optimal 0.234 for random-walk proposals in many dimensions (0.44 in one).
     pub adapt_during_burn_in: bool,
+}
+
+impl Default for MetropolisOptions {
+    /// 10 000 retained samples after 1 000 adaptive burn-in steps, no thinning, unit proposals.
+    fn default() -> Self {
+        MetropolisOptions { proposal_scale: Vec::new(), samples: 10_000, burn_in: 1_000, thin: 1, adapt_during_burn_in: true }
+    }
 }
 
 /// A Markov chain.
@@ -64,10 +72,12 @@ where
     U: UniformGenerator,
 {
     let d = initial.len();
-    if d == 0 || options.proposal_scale.len() != d || options.samples == 0 || options.thin == 0 {
+    let unit_scale = vec![1.0; d];
+    let proposal_scale = if options.proposal_scale.is_empty() { &unit_scale } else { &options.proposal_scale };
+    if d == 0 || proposal_scale.len() != d || options.samples == 0 || options.thin == 0 {
         return Err(ErrorsJSL::InvalidInputRange("Need a non-empty start, a matching proposal scale, samples and thin >= 1."));
     }
-    if options.proposal_scale.iter().any(|s| s.is_nan() || *s <= 0.0) {
+    if proposal_scale.iter().any(|s| s.is_nan() || *s <= 0.0) {
         return Err(ErrorsJSL::InvalidInputRange("Proposal scales must be positive."));
     }
     let mut x = initial;
@@ -75,7 +85,7 @@ where
     if log_p.is_nan() || log_p == f64::NEG_INFINITY {
         return Err(ErrorsJSL::InvalidInputRange("The initial point must have positive density."));
     }
-    let mut scale = options.proposal_scale.clone();
+    let mut scale = proposal_scale.clone();
     let target = if d == 1 { 0.44 } else { 0.234 };
     let total = options.burn_in + options.samples * options.thin;
     let mut samples = Vec::with_capacity(options.samples);

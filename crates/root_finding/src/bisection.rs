@@ -2,11 +2,12 @@
 //!
 //! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#bisection).
 
+use lib_jsl_core::ErrorsJSL;
 use crate::same_sign;
 
 /// Finds a root of `f` in `[a, b]` by bisection. Requires `f(a)` and `f(b)` to have opposite signs
 /// (a NaN at either end is an error); stops when the bracket is narrower than `2 tol`.
-pub fn bisection<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
+pub fn bisection<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
@@ -19,7 +20,7 @@ where
         return Ok(b);
     }
     if !(fa < 0.0 && fb > 0.0 || fa > 0.0 && fb < 0.0) {
-        return Err("bisection: f(a) and f(b) must have opposite signs".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("bisection: f(a) and f(b) must have opposite signs"));
     }
     // ANCHOR: bisection
     for _ in 0..200 {

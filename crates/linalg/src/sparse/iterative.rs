@@ -121,6 +121,7 @@ impl Default for IterativeOptions {
 
 /// The result of an iterative solve.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct IterativeResult {
     pub x: Vec<f64>,
     /// Matrix-vector products with `A`.

@@ -13,7 +13,7 @@ const CHAPTER: &str = "root_finding";
 type NoJacobian = fn(&[f64]) -> Vec<Vec<f64>>;
 
 /// Runs a solver on a recording copy of `f`; returns the result and every point evaluated.
-fn recorded<F: Fn(f64) -> f64>(f: F, solve: impl FnOnce(&dyn Fn(f64) -> f64) -> Result<f64, String>) -> (Result<f64, String>, Vec<f64>) {
+fn recorded<F: Fn(f64) -> f64>(f: F, solve: impl FnOnce(&dyn Fn(f64) -> f64) -> Result<f64, lib_jsl_core::ErrorsJSL>) -> (Result<f64, lib_jsl_core::ErrorsJSL>, Vec<f64>) {
     let log = RefCell::new(Vec::new());
     let g = |x: f64| {
         log.borrow_mut().push(x);
@@ -23,7 +23,7 @@ fn recorded<F: Fn(f64) -> f64>(f: F, solve: impl FnOnce(&dyn Fn(f64) -> f64) -> 
     (r, log.into_inner())
 }
 
-type Solver = fn(&dyn Fn(f64) -> f64, &dyn Fn(f64) -> f64, f64, f64) -> Result<f64, String>;
+type Solver = fn(&dyn Fn(f64) -> f64, &dyn Fn(f64) -> f64, f64, f64) -> Result<f64, lib_jsl_core::ErrorsJSL>;
 
 /// The methods compared, each given `f`, `f'` and a bracket `[a, b]`; the open methods start
 /// from the bracket's ends (secant) or its midpoint (Newton).
@@ -204,7 +204,7 @@ fn systems_figures() {
     let o = SystemOptions::default();
     let mut table = String::from("| system | Newton, exact Jacobian | Newton, difference Jacobian | Broyden |\n|---|---:|---:|---:|\n");
     let cell = |r: lib_jsl_root_finding::SystemRootResult| {
-        if r.converged { format!("{} it., {} ev.", r.iterations, r.function_evaluations) } else { "fails".to_string() }
+        if r.converged { format!("{} it., {} ev.", r.iterations, r.nfev) } else { "fails".to_string() }
     };
     let jac_r = |x: &[f64]| vec![vec![-20.0 * x[0], 10.0], vec![-1.0, 0.0]];
     table.push_str(&format!(

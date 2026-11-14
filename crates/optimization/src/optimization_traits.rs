@@ -28,6 +28,7 @@ pub trait ObjectiveFunctionWithGradient: ObjectiveFunction + GradientFunction {}
 /// and whether the method's convergence test was met. What counts as an iteration, and what the
 /// test is, differ between methods; see each method's documentation.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct OptimizationResult {
     pub parameters: Vec<f64>,
     pub objective_value: f64,

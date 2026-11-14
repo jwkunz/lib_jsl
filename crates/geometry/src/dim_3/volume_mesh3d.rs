@@ -6,6 +6,7 @@
 //! surfaces are materialized into caller-provided face tables so the resulting surface meshes stay
 //! connected to the broader geometry graph.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     Canonicalize, FaceId, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid,
     HasEdges, HasTetrahedra, HasVertices, IsGeometryTable, IsPlane, IsValid, PointId, Repair,
@@ -69,7 +70,7 @@ impl VolumeMesh3D {
 
     /// Creates a volume mesh from tetrahedra, inferring the shared point table and building a
     /// dedicated tetrahedron table with sequential ids.
-    pub fn from_tetrahedra(tetrahedra: Vec<Tetrahedron3D>) -> Result<Self, String> {
+    pub fn from_tetrahedra(tetrahedra: Vec<Tetrahedron3D>) -> Result<Self, ErrorsJSL> {
         let vertex_table = tetrahedra
             .first()
             .map(|tetrahedron| tetrahedron.vertex_table().clone())
@@ -77,7 +78,7 @@ impl VolumeMesh3D {
 
         for tetrahedron in &tetrahedra {
             if !Rc::ptr_eq(&vertex_table, tetrahedron.vertex_table()) {
-                return Err("all tetrahedra must share the same vertex table".to_string());
+                return Err(ErrorsJSL::Message("all tetrahedra must share the same vertex table".to_string()));
             }
         }
 
@@ -167,7 +168,7 @@ impl VolumeMesh3D {
     pub fn surface_mesh(
         &self,
         face_table: SharedGeometryTable<FaceId, PolygonFace3D>,
-    ) -> Result<SurfaceMesh3D, String> {
+    ) -> Result<SurfaceMesh3D, ErrorsJSL> {
         let mut face_ids = Vec::new();
         let next_face_id = face_table
             .borrow()
@@ -319,13 +320,13 @@ impl IsValid for VolumeMesh3D {
 }
 
 impl Repair for VolumeMesh3D {
-    fn repair(&mut self) -> Result<(), String> {
+    fn repair(&mut self) -> Result<(), ErrorsJSL> {
         for tetrahedron_id in self.tetrahedron_ids.clone() {
             let Some(mut tetrahedron) = self.get_tetrahedron(&tetrahedron_id) else {
-                return Err(format!(
+                return Err(ErrorsJSL::Message(format!(
                     "tetrahedron id {:?} is missing from the tetrahedron table",
                     tetrahedron_id
-                ));
+                )));
             };
             tetrahedron.repair()?;
             self.insert_tetrahedron(tetrahedron_id, tetrahedron)?;
@@ -462,12 +463,12 @@ impl<'a> IsVolumeMesh<'a, CoordinateVector3D, UnitVector3D> for VolumeMesh3D {
         Box::new(self.tetrahedron_ids.iter().copied())
     }
 
-    fn set_tetrahedron_id(&mut self, index: usize, tetrahedron_id: TetrahedronId) -> Result<(), String> {
+    fn set_tetrahedron_id(&mut self, index: usize, tetrahedron_id: TetrahedronId) -> Result<(), ErrorsJSL> {
         if let Some(slot) = self.tetrahedron_ids.get_mut(index) {
             *slot = tetrahedron_id;
             Ok(())
         } else {
-            Err(format!("tetrahedron index {} is out of bounds", index))
+            Err(ErrorsJSL::Message(format!("tetrahedron index {} is out of bounds", index)))
         }
     }
 

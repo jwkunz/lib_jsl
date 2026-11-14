@@ -1,5 +1,6 @@
 //! Shared foundational traits used by all geometry primitives.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::one_d::IsLine;
 use crate::two_d::{IsPolygon, IsTriangle};
 use crate::three_d::IsTetrahedron;
@@ -152,7 +153,7 @@ pub trait IsGeometryTable {
     /// Returns the item stored at `key`, if present.
     fn get(&self, key: &Self::Key) -> Option<Self::Item>;
     /// Inserts or replaces the item stored at `key`.
-    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), String>;
+    fn insert(&mut self, key: Self::Key, value: Self::Item) -> Result<(), ErrorsJSL>;
     /// Removes and returns the item stored at `key`, if present.
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Item>;
     /// Returns `true` if `key` exists in the table.
@@ -171,9 +172,9 @@ pub trait IsGeometryTable {
     fn iter(&self) -> Box<dyn Iterator<Item = (Self::Key, Self::Item)> + '_>;
     /// Serializes the table to a file (as JSON for the library's tables; requires the `serde`
     /// feature, and returns an error without it).
-    fn to_file(&self, path: &str) -> Result<(), String>;
+    fn to_file(&self, path: &str) -> Result<(), ErrorsJSL>;
     /// Loads a table instance from a file.
-    fn from_file(path: &str) -> Result<Self, String>
+    fn from_file(path: &str) -> Result<Self, ErrorsJSL>
     where
         Self: Sized;
 }
@@ -259,7 +260,7 @@ pub trait HasVertices<'a>: Sized {
     }
 
     /// Inserts or replaces the vertex stored at `id`.
-    fn insert_vertex(&mut self, id: PointId, value: Self::Vertex) -> Result<(), String> {
+    fn insert_vertex(&mut self, id: PointId, value: Self::Vertex) -> Result<(), ErrorsJSL> {
         self.vertex_table_mut().insert(id, value)
     }
 
@@ -301,7 +302,7 @@ pub trait HasLines<'a>: Sized {
     }
 
     /// Inserts or replaces the line stored at `id`.
-    fn insert_line(&mut self, id: LineId, value: Self::Line) -> Result<(), String> {
+    fn insert_line(&mut self, id: LineId, value: Self::Line) -> Result<(), ErrorsJSL> {
         self.line_table_mut().insert(id, value)
     }
 
@@ -345,7 +346,7 @@ pub trait HasTriangles<'a>: Sized {
     }
 
     /// Inserts or replaces the triangle stored at `id`.
-    fn insert_triangle(&mut self, id: TriangleId, value: Self::Triangle) -> Result<(), String> {
+    fn insert_triangle(&mut self, id: TriangleId, value: Self::Triangle) -> Result<(), ErrorsJSL> {
         self.triangle_table_mut().insert(id, value)
     }
 
@@ -369,15 +370,15 @@ pub trait HasTriangles<'a>: Sized {
 ///     type Item = CoordinateVector2D;
 ///
 ///     fn get(&self, _: &Self::Key) -> Option<Self::Item> { None }
-///     fn insert(&mut self, _: Self::Key, _: Self::Item) -> Result<(), String> { Ok(()) }
+///     fn insert(&mut self, _: Self::Key, _: Self::Item) -> Result<(), ErrorsJSL> { Ok(()) }
 ///     fn remove(&mut self, _: &Self::Key) -> Option<Self::Item> { None }
 ///     fn contains_key(&self, _: &Self::Key) -> bool { false }
 ///     fn size(&self) -> usize { 0 }
 ///     fn union(&self, _: &Self) -> Self where Self: Sized { FakeTable }
 ///     fn intersection(&self, _: &Self) -> Self where Self: Sized { FakeTable }
 ///     fn iter(&self) -> Box<dyn Iterator<Item = (Self::Key, Self::Item)> + '_> { Box::new(std::iter::empty()) }
-///     fn to_file(&self, _: &str) -> Result<(), String> { Ok(()) }
-///     fn from_file(_: &str) -> Result<Self, String> where Self: Sized { Ok(FakeTable) }
+///     fn to_file(&self, _: &str) -> Result<(), ErrorsJSL> { Ok(()) }
+///     fn from_file(_: &str) -> Result<Self, ErrorsJSL> where Self: Sized { Ok(FakeTable) }
 /// }
 ///
 /// struct BadCells<'a> {
@@ -435,7 +436,7 @@ where
         &mut self,
         id: TetrahedronId,
         value: Self::Tetrahedron,
-    ) -> Result<(), String> {
+    ) -> Result<(), ErrorsJSL> {
         self.tetrahedron_table_mut().insert(id, value)
     }
 
@@ -479,7 +480,7 @@ pub trait HasFaces<'a>: Sized {
     }
 
     /// Inserts or replaces the face stored at `id`.
-    fn insert_face(&mut self, id: FaceId, value: Self::Face) -> Result<(), String> {
+    fn insert_face(&mut self, id: FaceId, value: Self::Face) -> Result<(), ErrorsJSL> {
         self.face_table_mut().insert(id, value)
     }
 
@@ -575,7 +576,7 @@ pub trait IsValid {
 /// Attempts to repair an invalid or non-canonical primitive in place.
 pub trait Repair {
     /// Repairs the primitive or returns an error.
-    fn repair(&mut self) -> Result<(), String>;
+    fn repair(&mut self) -> Result<(), ErrorsJSL>;
 }
 
 /// Reorders or normalizes an in-memory representation in place.

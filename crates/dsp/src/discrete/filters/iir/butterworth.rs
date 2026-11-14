@@ -41,6 +41,7 @@ pub enum ButterOutputType {
 /// and stopband constraints, and `wn` is the Butterworth critical frequency (or
 /// pair of frequencies) that should be passed into `butter`.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct ButtordResult {
     pub order: usize,
     pub wn: Vec<f64>,

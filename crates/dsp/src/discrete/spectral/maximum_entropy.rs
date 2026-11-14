@@ -14,6 +14,7 @@ use std::f64::consts::TAU;
 
 /// The result of Burg's AR estimation.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct BurgResult {
     /// `A(z)` coefficients `[1, a1, …, ap]`.
     pub coefficients: Vec<f64>,

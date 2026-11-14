@@ -10,13 +10,14 @@ use std::collections::BinaryHeap;
 
 /// The outcome of a cubature.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct CubatureResult {
     /// The estimated integral.
     pub value: f64,
     /// Estimated absolute error.
     pub error: f64,
     /// The number of integrand evaluations.
-    pub evaluations: usize,
+    pub nfev: usize,
     /// Whether the requested tolerance was met within the evaluation budget.
     pub converged: bool,
 }
@@ -217,7 +218,7 @@ pub fn adaptive_cubature<F: Fn(&[f64]) -> f64>(f: F, lower: &[f64], upper: &[f64
     // Re-sum to shed the rounding accumulated by the running updates.
     let value: f64 = heap.iter().map(|r| r.value).sum();
     let error: f64 = heap.iter().map(|r| r.error).sum();
-    Ok(CubatureResult { value, error, evaluations, converged: error <= tolerance(value) })
+    Ok(CubatureResult { value, error, nfev: evaluations, converged: error <= tolerance(value) })
 }
 
 #[cfg(test)]

@@ -29,6 +29,7 @@ use num_complex::Complex;
 use lib_jsl_core::{C1D, ErrorsJSL, IsAnalytic, R1D};
 
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct FreqzResult {
     /// Frequency axis in the same units as `fs`.
     pub w: R1D,

@@ -11,6 +11,7 @@
 //!
 //! See the book entry [Nonlinear systems](https://jwkunz.github.io/lib_jsl/book/root_finding/nonlinear-systems.html).
 
+use lib_jsl_core::ErrorsJSL;
 /// Settings for the system solvers.
 #[derive(Debug, Clone, Copy)]
 pub struct SystemOptions {
@@ -33,6 +34,7 @@ impl Default for SystemOptions {
 
 /// The outcome of a system solve.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct SystemRootResult {
     /// The final iterate.
     pub x: Vec<f64>,
@@ -41,7 +43,7 @@ pub struct SystemRootResult {
     /// Newton or Broyden iterations taken.
     pub iterations: usize,
     /// Evaluations of `F`, including those for finite-difference Jacobians and line searches.
-    pub function_evaluations: usize,
+    pub nfev: usize,
     /// Whether the convergence test of [`SystemOptions`] was met.
     pub converged: bool,
 }
@@ -151,13 +153,13 @@ fn line_search<F: Fn(&[f64]) -> Vec<f64>>(sys: &mut Counted<F>, x: &[f64], f0: f
 }
 
 fn finish(x: Vec<f64>, fx: &[f64], iterations: usize, evaluations: usize, converged: bool) -> SystemRootResult {
-    SystemRootResult { residual: inf_norm(fx), x, iterations, function_evaluations: evaluations, converged }
+    SystemRootResult { residual: inf_norm(fx), x, iterations, nfev: evaluations, converged }
 }
 
 /// Globally convergent Newton's method for `F(x) = 0` from `x0`. `jacobian(x)` returns the rows
 /// `∂Fᵢ/∂xⱼ`; with `jacobian = None` the Jacobian is formed by forward differences. Errors for an
 /// empty `x0` or mismatched dimensions; a singular Jacobian ends the iteration unconverged.
-pub fn newton_system<F, J>(f: F, jacobian: Option<J>, x0: Vec<f64>, options: SystemOptions) -> Result<SystemRootResult, String>
+pub fn newton_system<F, J>(f: F, jacobian: Option<J>, x0: Vec<f64>, options: SystemOptions) -> Result<SystemRootResult, ErrorsJSL>
 where
     F: Fn(&[f64]) -> Vec<f64>,
     J: Fn(&[f64]) -> Vec<Vec<f64>>,
@@ -165,12 +167,12 @@ where
     let n = x0.len();
     let mut sys = Counted { f: &f, evaluations: 0 };
     if n == 0 {
-        return Err("newton_system: the starting point must not be empty".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("newton_system: the starting point must not be empty"));
     }
     let mut x = x0;
     let mut fx = sys.eval(&x);
     if fx.len() != n {
-        return Err("newton_system: F must map ℝⁿ to ℝⁿ".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("newton_system: F must map ℝⁿ to ℝⁿ"));
     }
     for iteration in 0..options.max_iterations {
         if inf_norm(&fx) <= options.function_tolerance {
@@ -181,7 +183,7 @@ where
             None => sys.jacobian(&x, &fx),
         };
         if jac.len() != n || jac.iter().any(|row| row.len() != n) {
-            return Err("newton_system: the Jacobian must be n × n".to_string());
+            return Err(ErrorsJSL::InvalidInputRange("newton_system: the Jacobian must be n × n"));
         }
         // ANCHOR: newton_step
         let Some(step) = solve_dense(jac, fx.iter().map(|v| -v).collect()) else {
@@ -204,19 +206,19 @@ where
 
 /// Broyden's method for `F(x) = 0` from `x0`: the Jacobian estimate `B` (initially by finite
 /// differences) is corrected after each step by `B ← B + ((Δf − B s) sᵀ) / (sᵀ s)`.
-pub fn broyden_system<F>(f: F, x0: Vec<f64>, options: SystemOptions) -> Result<SystemRootResult, String>
+pub fn broyden_system<F>(f: F, x0: Vec<f64>, options: SystemOptions) -> Result<SystemRootResult, ErrorsJSL>
 where
     F: Fn(&[f64]) -> Vec<f64>,
 {
     let n = x0.len();
     let mut sys = Counted { f: &f, evaluations: 0 };
     if n == 0 {
-        return Err("broyden_system: the starting point must not be empty".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("broyden_system: the starting point must not be empty"));
     }
     let mut x = x0;
     let mut fx = sys.eval(&x);
     if fx.len() != n {
-        return Err("broyden_system: F must map ℝⁿ to ℝⁿ".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("broyden_system: F must map ℝⁿ to ℝⁿ"));
     }
     let mut b = sys.jacobian(&x, &fx);
     let mut fresh = true;
@@ -313,7 +315,7 @@ mod tests {
         let broyden = broyden_system(bratu, vec![0.0; n], SystemOptions::default()).unwrap();
         assert!(broyden.converged && broyden.residual < 1e-12, "{broyden:?}");
         assert!(newton.x.iter().zip(&broyden.x).all(|(a, b)| (a - b).abs() < 1e-9));
-        assert!(broyden.function_evaluations < newton.function_evaluations, "{} vs {}", broyden.function_evaluations, newton.function_evaluations);
+        assert!(broyden.nfev < newton.nfev, "{} vs {}", broyden.nfev, newton.nfev);
         let r = broyden_system(rosenbrock, vec![-1.2, 1.0], SystemOptions::default()).unwrap();
         assert!(r.converged && (r.x[0] - 1.0).abs() < 1e-10, "{r:?}");
     }

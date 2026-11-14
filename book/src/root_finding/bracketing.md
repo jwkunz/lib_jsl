@@ -233,8 +233,8 @@ The heart of Brent's method is the choice between interpolation and bisection:
   more digits than floating point can give.
 - Every method also stops when $f$ is exactly zero; bisection never errs once it has a bracket, while
   the others give up after a fixed number of iterations (200 for Brent).
-- The functions return `Result<f64, String>`; the error explains the failure (no sign change, no
-  convergence).
+- The functions return `Result<f64, ErrorsJSL>`: `InvalidInputRange` when there is no sign change,
+  `RuntimeError` when the iteration does not converge.
 
 ## In practice
 

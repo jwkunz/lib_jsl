@@ -361,7 +361,7 @@ fn contour_figures() {
     let circle = Contour::circle(C64::new(0.0, 0.0), 1.0);
     let gk: Vec<(f64, f64)> = [1e-2, 1e-4, 1e-6, 1e-8, 1e-10, 1e-12, 1e-14].iter().map(|&tol| {
         let r = contour_integral(f, &circle, tol).unwrap();
-        (r.evaluations as f64, (r.value - exact).norm().max(1e-17))
+        (r.nfev as f64, (r.value - exact).norm().max(1e-17))
     }).collect();
     let mut plot = Plot::new("∮ eᶻ/z³ dz around the unit circle: the periodic trapezoid rule wins", "function evaluations", "absolute error");
     plot.log_x = true;
@@ -415,7 +415,7 @@ fn cubature_figures() {
     let peak = |x: &[f64]| (-((x[0] - 0.3).powi(2) + (x[1] + 0.2).powi(2)) / (2.0 * s * s)).exp();
     let r = adaptive_cubature(|x: &[f64]| { samples.borrow_mut().push((x[0], x[1])); peak(x) }, &[-1.0, -1.0], &[1.0, 1.0], CubatureOptions { absolute_tolerance: 1e-8, relative_tolerance: 1e-8, ..Default::default() }).unwrap();
     let pts = samples.into_inner();
-    let mut plot = Plot::new(&format!("Adaptive Genz-Malik samples for a Gaussian peak at (0.3, −0.2): {} evaluations", r.evaluations), "x", "y");
+    let mut plot = Plot::new(&format!("Adaptive Genz-Malik samples for a Gaussian peak at (0.3, −0.2): {} evaluations", r.nfev), "x", "y");
     plot.series.push(Series::new("", pts, Style::Markers, 0));
     plot.x_range = Some((-1.0, 1.0));
     plot.y_range = Some((-1.0, 1.0));
@@ -437,7 +437,7 @@ fn cubature_figures() {
         }).collect();
         let adaptive: Vec<(f64, f64)> = [1e-2, 1e-4, 1e-6, 1e-8, 1e-10, 1e-12].iter().map(|&tol| {
             let r = adaptive_cubature(f, &vec![0.0; *n], &vec![1.0; *n], CubatureOptions { absolute_tolerance: 0.0, relative_tolerance: tol, max_evaluations: 3_000_000 }).unwrap();
-            (r.evaluations as f64, ((r.value - exact) / exact).abs().max(1e-17))
+            (r.nfev as f64, ((r.value - exact) / exact).abs().max(1e-17))
         }).collect();
         plot.series.push(Series::new(&format!("tensor Gauss, n = {n}"), tensor, Style::LineMarkers, 2 * k));
         plot.series.push(Series::new(&format!("adaptive Genz-Malik, n = {n}"), adaptive, Style::LineMarkers, 2 * k + 1));
@@ -458,7 +458,7 @@ fn cubature_figures() {
     }).collect();
     let adaptive: Vec<(f64, f64)> = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10].iter().map(|&tol| {
         let r = adaptive_cubature(singular, &[0.0, 0.0], &[1.0, 1.0], CubatureOptions { absolute_tolerance: 0.0, relative_tolerance: tol, max_evaluations: 3_000_000 }).unwrap();
-        (r.evaluations as f64, ((r.value - exact) / exact).abs().max(1e-17))
+        (r.nfev as f64, ((r.value - exact) / exact).abs().max(1e-17))
     }).collect();
     plot.series.push(Series::new("tensor Gauss", tensor, Style::LineMarkers, 0));
     plot.series.push(Series::new("adaptive Genz-Malik", adaptive, Style::LineMarkers, 1));
@@ -559,11 +559,11 @@ fn runge_kutta_figures() {
     let error = |y: &[f64]| ((y[0] - ARENSTORF_Y0[0]).powi(2) + (y[1] - ARENSTORF_Y0[1]).powi(2)).sqrt();
     let rk4: Vec<(f64, f64)> = [2000usize, 4000, 8000, 16000, 32000, 64000, 128000].iter().map(|&n| {
         let s = rk4_solve(arenstorf, 0.0, &ARENSTORF_Y0, ARENSTORF_PERIOD, n).unwrap();
-        (s.function_evaluations as f64, error(s.y.last().unwrap()).max(1e-16))
+        (s.nfev as f64, error(s.y.last().unwrap()).max(1e-16))
     }).collect();
     let dopri: Vec<(f64, f64)> = [1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12].iter().map(|&tol| {
         let s = dormand_prince_solve(arenstorf, 0.0, &ARENSTORF_Y0, ARENSTORF_PERIOD, opts(tol)).unwrap();
-        (s.function_evaluations as f64, error(s.y.last().unwrap()).max(1e-16))
+        (s.nfev as f64, error(s.y.last().unwrap()).max(1e-16))
     }).collect();
     let mut plot = Plot::new("Arenstorf orbit: error after one period", "function evaluations", "distance from the starting point");
     plot.log_x = true;
@@ -599,7 +599,7 @@ fn stiff_figures() {
         ("Robertson kinetics on $[0, 40]$", &robertson, vec![1.0, 0.0, 0.0], 40.0, robertson_ref, 1e-6, 1e-10),
     ];
     let mut table = String::from("| problem | solver | steps | rejected | evaluations of $f$ | Jacobians | error in $y_1$ |\n|---|---|---:|---:|---:|---:|---:|\n");
-    let row = |name: &str, label: &str, s: &OdeSolution, exact: f64| format!("| {name} | {label} | {} | {} | {} | {} | {:.1e} |\n", s.t.len() - 1, s.rejected_steps, s.function_evaluations, s.jacobian_evaluations, (s.last()[0] - exact).abs());
+    let row = |name: &str, label: &str, s: &OdeSolution, exact: f64| format!("| {name} | {label} | {} | {} | {} | {} | {:.1e} |\n", s.t.len() - 1, s.rejected_steps, s.nfev, s.jacobian_evaluations, (s.last()[0] - exact).abs());
     for (name, f, y0, t1, exact, rtol, atol) in problems {
         let o = opts(rtol, atol);
         table.push_str(&row(name, "Dormand-Prince", &dormand_prince_solve(f, 0.0, &y0, t1, o).unwrap(), exact));

@@ -19,6 +19,7 @@ use ndarray::Array2;
 
 /// The result of Otsu thresholding.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct OtsuResult {
     /// The threshold: pixels `<= threshold` are background.
     pub threshold: u8,

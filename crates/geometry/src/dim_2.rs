@@ -1,5 +1,6 @@
 //! Two-dimensional shape traits and orientation helpers.
 
+use lib_jsl_core::ErrorsJSL;
 /// Concrete two-dimensional line implementation.
 pub mod line2d;
 /// Concrete two-dimensional free-vector implementation.
@@ -60,15 +61,15 @@ pub trait IsTriangle<'a, T: IsPoint, N: IsUnitVector>: IsPolygon<'a, T, N> {
     /// Returns the point-table id of the first vertex.
     fn a_id(&self) -> PointId;
     /// Sets the point-table id of the first vertex.
-    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
     /// Returns the point-table id of the second vertex.
     fn b_id(&self) -> PointId;
     /// Sets the point-table id of the second vertex.
-    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
     /// Returns the point-table id of the third vertex.
     fn c_id(&self) -> PointId;
     /// Sets the point-table id of the third vertex.
-    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
 
     /// Resolves and returns the first vertex from the point table.
     fn a(&self) -> Option<T> {
@@ -115,7 +116,7 @@ pub trait IsPolygon<'a, T: IsPoint, N: IsUnitVector>:
     /// Returns the ordered point-table ids that define this polygon.
     fn vertex_ids(&self) -> Box<dyn Iterator<Item = PointId> + '_>;
     /// Replaces the point-table id at the given polygon vertex position.
-    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), String>;
+    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), ErrorsJSL>;
 
     /// Returns the polygon normal.
     fn normal(&self) -> N;

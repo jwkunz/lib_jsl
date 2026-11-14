@@ -2,20 +2,21 @@
 //!
 //! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html).
 
+use lib_jsl_core::ErrorsJSL;
 use crate::same_sign;
 
 /// Searches outward from the interval `[a, b]` for a sign change of `f`.
 ///
 /// The interval is expanded geometrically (by a factor of 1.6 per step, on the side with the
 /// smaller `|f|`) for up to 50 iterations. Returns `(lo, hi)` with `f(lo) * f(hi) <= 0`.
-pub fn bracket_root<F>(f: F, a: f64, b: f64) -> Result<(f64, f64), String>
+pub fn bracket_root<F>(f: F, a: f64, b: f64) -> Result<(f64, f64), ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
     const FACTOR: f64 = 1.6;
     const MAX_ITER: usize = 50;
     if a == b || !a.is_finite() || !b.is_finite() {
-        return Err("bracket_root requires two distinct finite points".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("bracket_root requires two distinct finite points"));
     }
     let (mut a, mut b) = if a < b { (a, b) } else { (b, a) };
     let (mut fa, mut fb) = (f(a), f(b));
@@ -31,7 +32,7 @@ where
             fb = f(b);
         }
     }
-    Err("bracket_root failed to find a sign change".to_string())
+    Err(ErrorsJSL::RuntimeError("bracket_root failed to find a sign change"))
 }
 
 /// Divides `[a, b]` into `n` subintervals and returns every one containing a sign change (or a

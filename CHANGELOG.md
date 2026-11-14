@@ -6,6 +6,38 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-14
+
+A stabilisation release with no new algorithms. See the book's
+[API conventions and migration guide](https://jwkunz.github.io/lib_jsl/book/foundations/api-conventions.html).
+
+### Changed (breaking)
+
+- One error type: every fallible public function returns `Result<_, ErrorsJSL>`. The scalar and
+  system root finders and the geometry constructors and editors, which returned
+  `Result<_, String>`, now return `ErrorsJSL`.
+- `ErrorsJSL` and `LinalgError` are `#[non_exhaustive]`; `ErrorsJSL` gains the variants
+  `LinearAlgebra(String)` and `Message(String)`.
+- Result structs named `…Result` (35 of them) are `#[non_exhaustive]`: fields can be read but the
+  structs cannot be built with literals outside their crate (`TestResult::new` is provided).
+- Uniform result field names: `function_evaluations` and `evaluations` become `nfev`
+  (`BoundedResult`, `OdeSolution`, `SystemRootResult`, `MonteCarloResult`,
+  `QuasiMonteCarloResult`, `CubatureResult`, `PathIntegral`); `DerivativeResult::success` becomes
+  `converged`.
+
+### Removed
+
+- The 1.x deprecated functions `calculate_midpoints`, `runge_kutta_4`, `dormand_prince`,
+  `dormand_prince_step` and `dormand_prince_adaptive_step`.
+
+### Added
+
+- `ErrorsJSL` implements `Display`, `std::error::Error`, `Clone`, `PartialEq` and `Eq`, and converts
+  from `String` and from `LinalgError` (so `?` works across crates and into `Box<dyn Error>`).
+- `Default` for `MetropolisOptions` (an empty `proposal_scale` means 1 per coordinate).
+- `TestResult::new`.
+- Book page "API conventions and the 2.0 migration guide".
+
 ## [1.20.0] - 2026-11-14
 
 ### Added
@@ -409,7 +441,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.20.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.0.0
 [1.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.20.0
 [1.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.19.0
 [1.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.18.0

@@ -20,6 +20,7 @@ The references come from `book/generator/data/make_foundations_refs.py`. It writ
 | You need | Use | Entry |
 |---|---|---|
 | The workspace's error type, numeric traits and constants; ULPs, unit conversion, terminal plots | `ErrorsJSL`, `constants`, `ulp`, `unit_conversion`, `render_terminal_plot` | [Shared types, constants and utilities](core-utils.md) |
+| How the API is organised (errors, options, results, stability), and moving code from 1.x to 2.0 | `…Options`, `…Result`, `nfev`, `converged` | [API conventions and the 2.0 migration guide](api-conventions.md) |
 | WAV files | `read_wav_file`, `write_wav_file`, `parse_wav`, `encode_wav` | [Audio files](audio.md) |
 | PNG, JPEG or Netpbm images; zlib streams | `read_png_file`, `jpeg_encode`, `ppm_decode`, `zlib_compress` | [Image files](images.md) |
 | Tables and arrays to share with spreadsheets and Python | `read_csv_file`, `read_npy_file`, `write_npy_file` | [Data files](data-files.md) |

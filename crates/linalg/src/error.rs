@@ -2,8 +2,10 @@
 
 use std::fmt;
 
-/// Why a decomposition or solve failed.
+/// Why a decomposition or solve failed. Converts into the library-wide
+/// [`ErrorsJSL`](lib_jsl_core::ErrorsJSL) with `?`.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum LinalgError {
     /// The operation needs a square matrix but got `rows × cols`.
     NotSquare { rows: usize, cols: usize },
@@ -33,6 +35,12 @@ impl fmt::Display for LinalgError {
 }
 
 impl std::error::Error for LinalgError {}
+
+impl From<LinalgError> for lib_jsl_core::ErrorsJSL {
+    fn from(e: LinalgError) -> Self {
+        lib_jsl_core::ErrorsJSL::LinearAlgebra(e.to_string())
+    }
+}
 
 /// Which triangle of a matrix to use (or produce).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

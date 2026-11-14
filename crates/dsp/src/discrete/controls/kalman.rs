@@ -13,6 +13,7 @@ use crate::{
 
 /// The output of one predict-update cycle of a [`KalmanFilter`].
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct KalmanResult {
     /// The updated a-posteriori state estimate after incorporating the current
     /// measurement.

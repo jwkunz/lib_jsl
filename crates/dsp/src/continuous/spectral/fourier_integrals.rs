@@ -28,6 +28,7 @@ pub enum FourierDirection {
 
 /// Samples of a Fourier integral on an angular-frequency grid.
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct FourierIntegralResult {
     /// Angular-frequency samples in rad per unit of `x`.
     pub omega: R1D,

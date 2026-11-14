@@ -95,6 +95,7 @@ impl Default for ConstrainedOptions {
 
 /// The outcome of a constrained solve.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct ConstrainedResult {
     pub parameters: Vec<f64>,
     pub objective_value: f64,

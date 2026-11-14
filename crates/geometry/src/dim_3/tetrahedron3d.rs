@@ -3,6 +3,7 @@
 //! [`Tetrahedron3D`] represents a simple volumetric primitive defined by four point ids into a
 //! shared point table. Faces and edges are derived on demand from those vertices.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     Canonicalize, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasCentroid,
     HasEdges, HasMeasure, HasVertices, IsPlane, IsValid, PointId, Repair,
@@ -237,7 +238,7 @@ impl<'a> IsTetrahedron<'a, CoordinateVector3D, UnitVector3D> for Tetrahedron3D {
         self.a_id
     }
 
-    fn set_a_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_a_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.a_id = point_id;
         Ok(())
     }
@@ -246,7 +247,7 @@ impl<'a> IsTetrahedron<'a, CoordinateVector3D, UnitVector3D> for Tetrahedron3D {
         self.b_id
     }
 
-    fn set_b_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_b_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.b_id = point_id;
         Ok(())
     }
@@ -255,7 +256,7 @@ impl<'a> IsTetrahedron<'a, CoordinateVector3D, UnitVector3D> for Tetrahedron3D {
         self.c_id
     }
 
-    fn set_c_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_c_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.c_id = point_id;
         Ok(())
     }
@@ -264,7 +265,7 @@ impl<'a> IsTetrahedron<'a, CoordinateVector3D, UnitVector3D> for Tetrahedron3D {
         self.d_id
     }
 
-    fn set_d_id(&mut self, point_id: PointId) -> Result<(), String> {
+    fn set_d_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL> {
         self.d_id = point_id;
         Ok(())
     }
@@ -297,12 +298,12 @@ impl IsValid for Tetrahedron3D {
 }
 
 impl Repair for Tetrahedron3D {
-    fn repair(&mut self) -> Result<(), String> {
+    fn repair(&mut self) -> Result<(), ErrorsJSL> {
         if self.unique_vertex_ids().len() != 4 {
-            return Err("tetrahedron vertices must be distinct".to_string());
+            return Err(ErrorsJSL::Message("tetrahedron vertices must be distinct".to_string()));
         }
         if self.volume() <= 1e-6 {
-            return Err("degenerate tetrahedron volume cannot be repaired automatically".to_string());
+            return Err(ErrorsJSL::Message("degenerate tetrahedron volume cannot be repaired automatically".to_string()));
         }
         Ok(())
     }

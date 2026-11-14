@@ -1,5 +1,6 @@
 //! One-dimensional line- and path-oriented geometry traits.
 
+use lib_jsl_core::ErrorsJSL;
 /// Concrete one-dimensional line implementation.
 pub mod line1d;
 /// Concrete one-dimensional mirror plane implementation.
@@ -25,11 +26,11 @@ pub trait IsLine<'a, T: IsPoint>:
     /// Returns the point-table id of the first endpoint.
     fn head_id(&self) -> PointId;
     /// Sets the point-table id of the first endpoint.
-    fn set_head_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_head_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
     /// Returns the point-table id of the second endpoint.
     fn tail_id(&self) -> PointId;
     /// Sets the point-table id of the second endpoint.
-    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), String>;
+    fn set_tail_id(&mut self, point_id: PointId) -> Result<(), ErrorsJSL>;
 
     /// Resolves and returns the first endpoint from the point table.
     fn head(&self) -> Option<T> {

@@ -194,8 +194,8 @@ The adaptive Dormand-Prince step:
 - A non-finite trial solution is treated as a failed step, which shrinks $h$; if the step
   underflows, the solver reports an error (often a sign of stiffness or of a solution that blows up
   in finite time).
-- The deprecated functions `runge_kutta_4` and `dormand_prince` accept $f(t)$ only, and so solve
-  $y' = f(t)$, which is quadrature rather than an ODE solver. They remain for compatibility.
+- Version 2.0 removed the 1.x functions `runge_kutta_4` and `dormand_prince`, which accepted $f(t)$ only and so solved
+  $y' = f(t)$, which is quadrature rather than an ODE solver. Use `rk4_solve` and `dormand_prince_solve`.
 
 ## In practice
 

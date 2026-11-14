@@ -18,6 +18,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, PartialEq)]
+#[non_exhaustive]
 pub struct FreqsResult {
     /// Angular frequency axis in rad/s.
     pub w: R1D,

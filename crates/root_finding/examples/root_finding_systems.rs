@@ -19,8 +19,8 @@ fn main() {
     // Broyden's method forms one only at the start and then updates it.
     let fd = newton_system(f, None::<NoJacobian>, vec![1.0, 1.0], options).unwrap();
     let broyden = broyden_system(f, vec![1.0, 1.0], options).unwrap();
-    println!("Newton (differences): {} evaluations of F", fd.function_evaluations);
-    println!("Broyden:              {} evaluations of F", broyden.function_evaluations);
+    println!("Newton (differences): {} evaluations of F", fd.nfev);
+    println!("Broyden:              {} evaluations of F", broyden.nfev);
 
     // Always check `converged`: from a poor start the solvers may stop at a minimum of ‖F‖.
     let none = newton_system(|v: &[f64]| vec![v[0] * v[0] + 1.0, v[1]], None::<NoJacobian>, vec![0.3, 0.0], options).unwrap();

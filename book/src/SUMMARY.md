@@ -210,6 +210,7 @@
     - [Selection and equivalence classes](sorting/selection.md)
 - [Foundations: shared types, utilities and file formats](foundations/index.md)
     - [Shared types, constants and utilities](foundations/core-utils.md)
+    - [API conventions and the 2.0 migration guide](foundations/api-conventions.md)
     - [Audio files: WAV](foundations/audio.md)
     - [Image files: PNG, JPEG and Netpbm](foundations/images.md)
     - [Data files: CSV and NumPy .npy](foundations/data-files.md)

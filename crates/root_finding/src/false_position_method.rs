@@ -2,6 +2,7 @@
 //!
 //! See the book entry [Bracketing methods](https://jwkunz.github.io/lib_jsl/book/root_finding/bracketing.html#false-position-and-the-illinois-modification).
 
+use lib_jsl_core::ErrorsJSL;
 use crate::same_sign;
 
 /// Finds a root of `f` in `[a, b]` by false position, using the Illinois modification to
@@ -9,7 +10,7 @@ use crate::same_sign;
 ///
 /// Stops when the bracket is narrower than `tol` or `f` is exactly zero at the estimate; errors
 /// after 500 iterations.
-pub fn false_position<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, String>
+pub fn false_position<F>(f: F, a: f64, b: f64, tol: f64) -> Result<f64, ErrorsJSL>
 where
     F: Fn(f64) -> f64,
 {
@@ -22,7 +23,7 @@ where
         return Ok(b);
     }
     if !(fa < 0.0 && fb > 0.0 || fa > 0.0 && fb < 0.0) {
-        return Err("false_position: f(a) and f(b) must have opposite signs".to_string());
+        return Err(ErrorsJSL::InvalidInputRange("false_position: f(a) and f(b) must have opposite signs"));
     }
     let mut side = 0i8;
     for _ in 0..500 {
@@ -50,7 +51,7 @@ where
             return Ok(c);
         }
     }
-    Err("false_position: failed to converge".to_string())
+    Err(ErrorsJSL::RuntimeError("false_position: failed to converge"))
 }
 
 #[cfg(test)]

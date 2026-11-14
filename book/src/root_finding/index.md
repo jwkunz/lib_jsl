@@ -63,7 +63,7 @@ Roots of polynomials like Wilkinson's are ill-conditioned. Here the coefficients
 The root finding crate is `lib_jsl_root_finding`
 ([API reference](../../api/lib_jsl_root_finding/index.html)). The scalar methods are plain functions
 taking a closure `f: Fn(f64) -> f64`, the interval or starting points, and a tolerance, and return
-`Result<f64, String>`: an error when the inputs are invalid (no sign change) or the iteration fails.
+`Result<f64, ErrorsJSL>`: an error when the inputs are invalid (no sign change) or the iteration fails.
 The system solvers take `F: Fn(&[f64]) -> Vec<f64>` and return a
 [`SystemRootResult`](../../api/lib_jsl_root_finding/nonlinear_systems/struct.SystemRootResult.html)
 recording the solution, the residual, the work done and whether it converged.

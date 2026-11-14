@@ -1,5 +1,6 @@
 //! Concrete mesh type built from two-dimensional polygon faces.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     FaceId, GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasEdges, HasFaces,
     HasVertices, PointId,
@@ -133,12 +134,12 @@ impl<'a> IsMesh<'a, CoordinateVector2D, UnitVector2D> for Mesh2D {
         Box::new(self.face_ids.iter().copied())
     }
 
-    fn set_face_id(&mut self, index: usize, face_id: FaceId) -> Result<(), String> {
+    fn set_face_id(&mut self, index: usize, face_id: FaceId) -> Result<(), ErrorsJSL> {
         if let Some(slot) = self.face_ids.get_mut(index) {
             *slot = face_id;
             Ok(())
         } else {
-            Err(format!("face index {} is out of bounds", index))
+            Err(ErrorsJSL::Message(format!("face index {} is out of bounds", index)))
         }
     }
 

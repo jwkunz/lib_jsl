@@ -18,11 +18,20 @@ pub enum Alternative {
 
 /// A test statistic with its p-value.
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
 pub struct TestResult {
     pub statistic: f64,
     pub p_value: f64,
     /// Degrees of freedom of the reference distribution (NaN where not applicable).
     pub degrees_of_freedom: f64,
+}
+
+impl TestResult {
+    /// A result built outside the library, for example for a custom test (the struct is
+    /// `#[non_exhaustive]`, so it cannot be written as a literal in other crates).
+    pub fn new(statistic: f64, p_value: f64, degrees_of_freedom: f64) -> TestResult {
+        TestResult { statistic, p_value, degrees_of_freedom }
+    }
 }
 
 fn tail(cdf: impl Fn(f64) -> f64, statistic: f64, alternative: Alternative) -> f64 {

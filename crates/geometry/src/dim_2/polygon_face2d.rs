@@ -1,5 +1,6 @@
 //! Concrete polygon face type built from two-dimensional points.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     GeometricPrimitive, GeometricPrimitive2D, GeometryMeasure, HasCentroid, HasEdges,
     HasMeasure, HasVertices, IsPlane, PointId,
@@ -67,9 +68,9 @@ impl PolygonFace2D {
     }
 
     /// Composes a polygon from a set of triangles that share a common boundary.
-    pub fn from_triangles(triangles: &[Triangle2D]) -> Result<Self, String> {
+    pub fn from_triangles(triangles: &[Triangle2D]) -> Result<Self, ErrorsJSL> {
         if triangles.is_empty() {
-            return Err("cannot compose polygon from an empty triangle set".to_string());
+            return Err(ErrorsJSL::Message("cannot compose polygon from an empty triangle set".to_string()));
         }
 
         let vertex_table = triangles[0].vertex_table().clone();
@@ -79,7 +80,7 @@ impl PolygonFace2D {
         for triangle in triangles {
             let triangle_table = triangle.vertex_table().clone();
             if !std::rc::Rc::ptr_eq(&vertex_table, &triangle_table) {
-                return Err("all triangles must share the same vertex table".to_string());
+                return Err(ErrorsJSL::Message("all triangles must share the same vertex table".to_string()));
             }
 
             let ids: Vec<_> = triangle.vertex_ids().collect();
@@ -97,7 +98,7 @@ impl PolygonFace2D {
             .collect();
 
         if boundary_edges.len() < 3 {
-            return Err("triangle set does not expose a valid polygon boundary".to_string());
+            return Err(ErrorsJSL::Message("triangle set does not expose a valid polygon boundary".to_string()));
         }
 
         let mut adjacency: HashMap<PointId, Vec<PointId>> = HashMap::new();
@@ -107,7 +108,7 @@ impl PolygonFace2D {
         }
 
         if adjacency.values().any(|neighbors| neighbors.len() != 2) {
-            return Err("triangle set does not form a single closed polygon boundary".to_string());
+            return Err(ErrorsJSL::Message("triangle set does not form a single closed polygon boundary".to_string()));
         }
 
         let start = adjacency
@@ -134,7 +135,7 @@ impl PolygonFace2D {
                 break;
             }
             if ordered.contains(&next) {
-                return Err("triangle set boundary is self-intersecting or duplicated".to_string());
+                return Err(ErrorsJSL::Message("triangle set boundary is self-intersecting or duplicated".to_string()));
             }
 
             ordered.push(next);
@@ -345,12 +346,12 @@ impl<'a> IsPolygon<'a, CoordinateVector2D, UnitVector2D> for PolygonFace2D {
         Box::new(self.vertex_ids.iter().copied())
     }
 
-    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), String> {
+    fn set_vertex_id(&mut self, index: usize, point_id: PointId) -> Result<(), ErrorsJSL> {
         if let Some(slot) = self.vertex_ids.get_mut(index) {
             *slot = point_id;
             Ok(())
         } else {
-            Err(format!("vertex index {} is out of bounds", index))
+            Err(ErrorsJSL::Message(format!("vertex index {} is out of bounds", index)))
         }
     }
 

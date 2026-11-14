@@ -12,6 +12,7 @@ use std::f64::consts::PI;
 
 /// The result of a global optimisation.
 #[derive(Clone, Debug)]
+#[non_exhaustive]
 pub struct GlobalResult {
     pub x: Vec<f64>,
     pub fun: f64,

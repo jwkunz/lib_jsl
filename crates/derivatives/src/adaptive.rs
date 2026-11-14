@@ -37,6 +37,7 @@ impl Default for DerivativeOptions {
 
 /// The result of [`derivative`].
 #[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
 pub struct DerivativeResult {
     pub df: f64,
     /// The estimated absolute error.
@@ -44,7 +45,7 @@ pub struct DerivativeResult {
     /// Evaluations of the function.
     pub nfev: usize,
     /// `true` when the tolerance was met.
-    pub success: bool,
+    pub converged: bool,
 }
 
 // ANCHOR: ridders
@@ -92,7 +93,7 @@ pub fn derivative(f: impl Fn(f64) -> f64, x: f64, options: DerivativeOptions) ->
             break;
         }
     }
-    Ok(DerivativeResult { df: best, error: err, nfev, success: err <= options.atol + options.rtol * best.abs() || err.is_finite() && err <= 1e-8 * best.abs().max(1.0) })
+    Ok(DerivativeResult { df: best, error: err, nfev, converged: err <= options.atol + options.rtol * best.abs() || err.is_finite() && err <= 1e-8 * best.abs().max(1.0) })
 }
 // ANCHOR_END: ridders
 

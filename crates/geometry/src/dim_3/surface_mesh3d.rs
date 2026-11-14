@@ -5,6 +5,7 @@
 //! ids into a shared face table and resolves those faces against the same point table used by the
 //! rest of the geometry graph.
 
+use lib_jsl_core::ErrorsJSL;
 use crate::common::{
     FaceId, GeometricPrimitive, GeometricPrimitive3D, GeometryMeasure, HasEdges, HasFaces,
     HasVertices, PointId,
@@ -141,12 +142,12 @@ impl<'a> IsMesh<'a, CoordinateVector3D, UnitVector3D> for SurfaceMesh3D {
         Box::new(self.face_ids.iter().copied())
     }
 
-    fn set_face_id(&mut self, index: usize, face_id: FaceId) -> Result<(), String> {
+    fn set_face_id(&mut self, index: usize, face_id: FaceId) -> Result<(), ErrorsJSL> {
         if let Some(slot) = self.face_ids.get_mut(index) {
             *slot = face_id;
             Ok(())
         } else {
-            Err(format!("face index {} is out of bounds", index))
+            Err(ErrorsJSL::Message(format!("face index {} is out of bounds", index)))
         }
     }
 

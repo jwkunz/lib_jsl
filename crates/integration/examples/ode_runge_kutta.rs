@@ -16,7 +16,7 @@ fn main() {
     for steps in [100, 200, 400] {
         let s = rk4_solve(predator_prey, 0.0, &start, 20.0, steps).unwrap();
         let drift = (invariant(s.y.last().unwrap()) - invariant(&start)).abs();
-        println!("RK4, {steps:3} steps: invariant drift {drift:.1e} ({} evaluations)", s.function_evaluations);
+        println!("RK4, {steps:3} steps: invariant drift {drift:.1e} ({} evaluations)", s.nfev);
     }
     for tol in [1e-6, 1e-9, 1e-12] {
         let options = OdeOptions { relative_tolerance: tol, absolute_tolerance: tol, ..Default::default() };
@@ -26,7 +26,7 @@ fn main() {
             "Dormand-Prince, tolerance {tol:.0e}: drift {drift:.1e} ({} steps, {} rejected, {} evaluations)",
             s.t.len() - 1,
             s.rejected_steps,
-            s.function_evaluations
+            s.nfev
         );
     }
 }

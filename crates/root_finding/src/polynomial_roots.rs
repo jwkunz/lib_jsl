@@ -3,6 +3,7 @@
 //!
 //! See the book entry [Polynomial roots](https://jwkunz.github.io/lib_jsl/book/root_finding/polynomial-roots.html).
 
+use lib_jsl_core::ErrorsJSL;
 use lib_jsl_linalg::EigVals;
 use ndarray::Array2;
 use num_complex::Complex;
@@ -57,7 +58,7 @@ pub fn polynomial_roots(coeffs: &[f64]) -> Vec<f64> {
 }
 
 // ANCHOR: real_roots
-fn real_roots(coeffs: &[f64]) -> Result<Vec<f64>, String> {
+fn real_roots(coeffs: &[f64]) -> Result<Vec<f64>, ErrorsJSL> {
     let deg = coeffs.len() - 1;
     match deg {
         0 => return Ok(Vec::new()),

@@ -499,8 +499,76 @@ pub fn place_poles(a: &Array2<f64>, b: &Array2<f64>, poles: &[C]) -> Result<Plac
 }
 // ANCHOR_END: place_poles
 
+// ANCHOR: zpk_systems
+/// Zeros, poles and gain from each output of a state-space model for one input (SciPy's
+/// `ss2zpk`), through the transfer function.
+#[allow(clippy::type_complexity)]
+pub fn ss2zpk(sys: &ContinuousStateSpace, input: usize) -> Result<Vec<(Vec<C>, Vec<C>, f64)>, ErrorsJSL> {
+    let (num, den) = ss2tf(sys, input)?;
+    num.rows().into_iter().map(|row| crate::discrete::partial_fractions::tf2zpk(&row.to_vec(), &den)).collect()
+}
+
+/// A state-space model (controllable canonical form) from zeros, poles and gain (SciPy's
+/// `zpk2ss`), through the transfer function.
+pub fn zpk2ss(z: &[C], p: &[C], k: f64) -> Result<ContinuousStateSpace, ErrorsJSL> {
+    let (b, a) = crate::discrete::partial_fractions::zpk2tf(z, p, k);
+    tf2ss(&b, &a)
+}
+// ANCHOR_END: zpk_systems
+
+impl ContinuousStateSpace {
+    /// The time grid SciPy's `step` and `impulse` use when none is given: `n` points from 0 to
+    /// `7/r`, where `r` is the smallest `|Re λ|` over the eigenvalues of `A` (7 time constants of
+    /// the slowest mode; `r = 1` if some mode is undamped).
+    pub fn default_response_times(&self, n: usize) -> Result<Vec<f64>, ErrorsJSL> {
+        let r = if self.a.nrows() == 0 {
+            1.0
+        } else {
+            let ev = self.a.eigvals().map_err(linalg_error)?;
+            let r = ev.iter().map(|z| z.re.abs()).fold(f64::INFINITY, f64::min);
+            if r == 0.0 { 1.0 } else { r }
+        };
+        let tc = 1.0 / r;
+        Ok((0..n).map(|i| if n == 1 { 0.0 } else { 7.0 * tc * i as f64 / (n - 1) as f64 }).collect())
+    }
+}
+
+/// The `[n/n]` Padé approximant of a time delay `e^{−sT}` as a transfer function `(num, den)`,
+/// highest power first: `Σ (−1)^j c_j (sT)^j / Σ c_j (sT)^j` with
+/// `c_j = (2n − j)! n! / ((2n)! j! (n − j)!)`. It is all-pass, `|H(iω)| = 1`, and its phase
+/// matches `−ωT` to order `(ωT)^{2n+1}`; append it to a model with [`tf2ss`] to include a delay.
+pub fn pade_delay(t: f64, n: usize) -> (Vec<f64>, Vec<f64>) {
+    let fact = |k: usize| (1..=k).map(|i| i as f64).product::<f64>();
+    let c: Vec<f64> = (0..=n).map(|j| fact(2 * n - j) * fact(n) / (fact(2 * n) * fact(j) * fact(n - j)) * t.powi(j as i32)).collect();
+    let den: Vec<f64> = c.iter().rev().copied().collect();
+    let num: Vec<f64> = c.iter().enumerate().rev().map(|(j, &v)| if j % 2 == 1 { -v } else { v }).collect();
+    (num, den)
+}
+
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn pade_delay_is_all_pass_and_matches_the_phase() {
+        let (num, den) = pade_delay(0.5, 1);
+        assert_eq!((num, den), (vec![-0.25, 1.0], vec![0.25, 1.0]));
+        let (num, den) = pade_delay(0.2, 4);
+        let eval = |p: &[f64], s: C| p.iter().fold(C::new(0.0, 0.0), |acc, &c| acc * s + c);
+        for w in [0.1, 1.0, 5.0] {
+            let h = eval(&num, C::new(0.0, w)) / eval(&den, C::new(0.0, w));
+            assert!((h.norm() - 1.0).abs() < 1e-12);
+            // Phase error about 2 (n!)² / ((2n)! (2n + 1)!) (ωT)^{2n+1}, 7.9e-8 (ωT)⁹ for n = 4.
+            assert!((h.arg() + w * 0.2).abs() < 1e-7 * (w * 0.2f64).powi(9) + 1e-15, "{w}");
+        }
+    }
+
+    #[test]
+    fn default_times_cover_seven_time_constants() {
+        let sys = tf2ss(&[1.0], &[1.0, 3.0, 2.0]).unwrap();
+        let t = sys.default_response_times(100).unwrap();
+        assert!((t[99] - 7.0).abs() < 1e-12, "{}", t[99]);
+    }
+
     use super::*;
     use ndarray::array;
 

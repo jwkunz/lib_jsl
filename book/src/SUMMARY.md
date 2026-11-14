@@ -143,6 +143,7 @@
     - [Parametric spectra: linear prediction, Burg and MUSIC](spectral/parametric.md)
     - [Peak finding](spectral/peaks.md)
     - [Signal-processing utilities](spectral/signal-tools.md)
+    - [Partial fractions, zoom FFT and waveforms](spectral/partial-fractions-waveforms.md)
     - [Wavelet transforms](spectral/wavelets.md)
     - [Resampling: polyphase, half-band and CIC filters](spectral/resampling.md)
     - [Polyphase filter banks](spectral/filter-banks.md)

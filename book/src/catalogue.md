@@ -13,14 +13,14 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **543 algorithms and components in 23 crates**:
+The library implements **549 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 139 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 49 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
-| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 197 |
+| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
 
@@ -449,7 +449,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 139 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 145 items
 
 #### Continuous
 
@@ -630,6 +630,12 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 - [Least-squares FIR design (firls)](spectral/signal-tools.md#least-squares-fir-design)
 - [Decimation and FFT resampling](spectral/signal-tools.md#rate-changes)
 - [Median filter and amplitude envelope](spectral/signal-tools.md#robust-smoothing-and-envelopes)
+- [Partial fractions (residue, residuez) and their inverses](spectral/partial-fractions-waveforms.md#partial-fractions)
+- [Deconvolution by polynomial division](spectral/partial-fractions-waveforms.md#deconvolution)
+- [Zero-pole-gain conversions (tf2zpk, zpk2tf, ss2zpk, zpk2ss)](spectral/partial-fractions-waveforms.md#overview)
+- [Zoom FFT](spectral/partial-fractions-waveforms.md#zoom-fft)
+- [Test waveforms: chirps, polynomial sweeps, Gaussian pulses, sawtooth and square waves](spectral/partial-fractions-waveforms.md#waveforms-and-delays)
+- [Padé approximation of time delays; default step-response time grids](spectral/partial-fractions-waveforms.md#waveforms-and-delays)
 - [Cross spectral density and coherence](spectral/signal-tools.md#cross-spectra-and-coherence)
 
 ##### Transformations

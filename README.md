@@ -12,14 +12,14 @@ work as well as use them.
   undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
 - **Catalogue:** the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html) lists everything the library
-  implements (543 items), grouped by subject, and what it deliberately does not cover.
+  implements (549 items), grouped by subject, and what it deliberately does not cover.
 
 ## Status
 
 | | |
 |---|---|
-| Version | 1.19.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
-| Algorithms | 543 algorithms and components across 23 library crates |
+| Version | 1.20.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
+| Algorithms | 549 algorithms and components across 23 library crates |
 | Tests | 1,257 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; a book of 149 entries covering every subject of the catalogue, each with its idea, algorithm, measured results and exercises |
@@ -43,7 +43,7 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 | `lib_jsl_derivatives` | Numerical differentiation |
 | `lib_jsl_ffts` | FFT engines (radix, Bluestein, SIMD), real and multidimensional FFTs, DCT/DST (1-D and N-D), fractional FFT, frequency grids and fast lengths |
 | `lib_jsl_ffts_reference` | Readable reference FFTs for study |
-| `lib_jsl_dsp` | Filters (FIR, IIR, adaptive), spectral estimation (Welch, STFT, MUSIC), resampling (polyphase, CIC, half-band), synchronisation (PLL, Costas), communications, radar pulse compression, controls |
+| `lib_jsl_dsp` | Filters (FIR, IIR, adaptive), spectral estimation (Welch, STFT, MUSIC), resampling (polyphase, CIC, half-band), synchronisation (PLL, Costas), communications, radar pulse compression, controls, partial fractions, zoom FFT, test waveforms |
 | `lib_jsl_electromagnetics` | Field containers on structured domains, vector calculus, antenna models, sensor arrays, beamformers, direction finding, transmission lines and networks, propagation, spherical waves, near-to-far-field transformation, method of moments, FDTD |
 | `lib_jsl_statistics` | Descriptive and circular statistics, correlation, robust regression, distances, distributions, hypothesis tests, kernel density estimation, bootstrap |
 | `lib_jsl_random` | Generators, quasi-random sequences (Sobol, Halton), distributions, MCMC |
@@ -60,9 +60,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.19.0" }
+lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.20.0" }
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.19.0" }
+lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v1.20.0" }
 ```
 
 ```rust

@@ -6,6 +6,19 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.20.0] - 2026-11-14
+
+### Added
+
+- `lib_jsl_dsp::discrete::partial_fractions`: `residue`, `residuez`, `invres`, `invresz`,
+  `unique_roots`, `roots`, `deconvolve`, `tf2zpk` and `zpk2tf`, ported from SciPy.
+- `lib_jsl_dsp::continuous::lti`: `ss2zpk`, `zpk2ss`, `pade_delay` and
+  `ContinuousStateSpace::default_response_times` (SciPy's automatic step and impulse grid).
+- `lib_jsl_dsp::discrete::signal_tools::zoom_fft`.
+- `lib_jsl_dsp::discrete::waveforms`: `chirp` (linear, quadratic, logarithmic, hyperbolic),
+  `sweep_poly`, `gausspulse`, `sawtooth`, `square_wave` and `unit_impulse`.
+- Book entry "Partial fractions, zoom FFT and waveforms", compared against SciPy.
+
 ## [1.19.0] - 2026-11-14
 
 ### Added
@@ -396,7 +409,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.19.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.20.0
 [1.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.19.0
 [1.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.18.0
 [1.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.17.0

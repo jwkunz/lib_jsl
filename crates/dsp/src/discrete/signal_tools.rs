@@ -301,6 +301,22 @@ pub fn coherence(x: &[f64], y: &[f64], fs: f64, window: &[f64], overlap: usize, 
 }
 // ANCHOR_END: csd
 
+// ANCHOR: zoom_fft
+/// The DFT of `x` at `m` equally spaced frequencies from `f1` towards `f2` (SciPy's `zoom_fft`,
+/// with the sample rate `fs`): the chirp z-transform on an arc of the unit circle starting at
+/// `a = e^{2πi f1/fs}` with ratio `w = e^{−2πi (f2 − f1)/(fs m)}` (`(m − 1)` in place of `m` with
+/// `endpoint`), computed by Bluestein's algorithm in `O((n + m) log(n + m))`.
+pub fn zoom_fft(x: &[f64], f1: f64, f2: f64, m: usize, fs: f64, endpoint: bool) -> Result<Vec<Complex<f64>>, ErrorsJSL> {
+    if m == 0 || x.is_empty() {
+        return Err(ErrorsJSL::InvalidInputRange("need a non-empty signal and m ≥ 1"));
+    }
+    let scale = if endpoint && m > 1 { (f2 - f1) * m as f64 / (fs * (m - 1) as f64) } else { (f2 - f1) / fs };
+    let a = Complex::from_polar(1.0, 2.0 * PI * f1 / fs);
+    let w = Complex::from_polar(1.0, -2.0 * PI * scale / m as f64);
+    Ok(crate::discrete::spectral::chirpz::chirpz(x, Some(m), Some(w), Some(a))?.to_vec())
+}
+// ANCHOR_END: zoom_fft
+
 #[cfg(test)]
 mod tests {
     use super::*;

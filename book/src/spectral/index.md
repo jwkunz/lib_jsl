@@ -38,6 +38,9 @@ resamplers in `discrete::resampling`, and Fourier integrals in `continuous::spec
 | Resolution beyond the DFT; a linear-prediction model | `levinson_durbin`, `linear_predictive_coding`, `burg`, `music` | [Parametric spectra](parametric.md) |
 | The peaks of a signal or spectrum, with their prominences and widths | `find_peaks`, `peak_prominences`, `peak_widths` | [Peak finding](peaks.md) |
 | Group delay, minimum phase, least-squares FIR design, decimation, FFT resampling, median filtering, cross spectra and coherence | `group_delay`, `minimum_phase`, `firls`, `decimate`, `resample`, `medfilt`, `csd`, `coherence` | [Signal-processing utilities](signal-tools.md) |
+| Partial fractions of a transfer function; deconvolution; zero-pole-gain conversions | `residue`, `residuez`, `deconvolve`, `tf2zpk`, `ss2zpk` | [Partial fractions, zoom FFT and waveforms](partial-fractions-waveforms.md) |
+| A finely spaced spectrum on a narrow band | `zoom_fft` | [Partial fractions, zoom FFT and waveforms](partial-fractions-waveforms.md#zoom-fft) |
+| Chirps, Gaussian pulses, sawtooth and square test signals | `chirp`, `sweep_poly`, `gausspulse`, `sawtooth`, `square_wave` | [Partial fractions, zoom FFT and waveforms](partial-fractions-waveforms.md#waveforms-and-delays) |
 | Multiscale analysis, compression or denoising | `dwt`, `wavedec`, `waverec`, `continuous_wavelet_transform` | [Wavelet transforms](wavelets.md) |
 | A different sampling rate | `PolyphaseIntegerResampler`, `PolyphaseArbitraryResampler`, `HalfBandDecimator`, `CicDecimator` | [Resampling](resampling.md) |
 | Many frequency channels, and recombining them | `*PolyphaseAnalysisFilterBank`, `*PolyphaseSynthesisFilterBank` | [Polyphase filter banks](filter-banks.md) |

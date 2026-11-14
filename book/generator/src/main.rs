@@ -48,6 +48,7 @@ mod utilities;
 mod piecewise;
 mod sparse2;
 mod optim2;
+mod signal2;
 mod subspaces;
 mod svg;
 mod unsupervised;
@@ -76,7 +77,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 43] = [
+    let chapters: [(&str, fn()); 44] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -96,6 +97,7 @@ fn main() {
         ("piecewise", piecewise::generate),
         ("sparse2", sparse2::generate),
         ("optim2", optim2::generate),
+        ("signal2", signal2::generate),
         ("fft", fft::generate),
         ("random", random::generate),
         ("statistics", statistics::generate),

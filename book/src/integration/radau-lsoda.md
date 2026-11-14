@@ -5,11 +5,11 @@
 | | |
 |---|---|
 | **Problem** | Solve $\mathbf y' = \mathbf f(t, \mathbf y)$ accurately whether or not the problem is stiff, evaluate the solution anywhere (dense output), and find the times at which a function $g(t, \mathbf y)$ crosses zero (events) |
-| **Devised by** | Radau quadrature: Rodolphe Radau (1880); Radau IIA methods: Owe Axelsson (1969), John Butcher (1964); the implementation: Ernst Hairer and Gerhard Wanner (1991); Nordsieck form: Arnold Nordsieck (1962); ODEPACK: Alan Hindmarsh (1980–83); automatic stiffness switching: Linda Petzold (1983) |
+| **Devised by** | Radau quadrature: Rodolphe Radau (1880); Radau IIA methods: Owe Axelsson (1969), John Butcher (1964); the implementation: Ernst Hairer and Gerhard Wanner (1991); Nordsieck form: Arnold Nordsieck (1962); ODEPACK: Alan Hindmarsh (1980–83); automatic stiffness switching: Linda Petzold (1983); RK45: John Dormand and Peter Prince (1980); DOP853: Ernst Hairer (1993) |
 | **Accuracy** | Radau IIA: order 5, L-stable, dense output of order 3. LSODA: Adams orders 1–12, BDF orders 1–5. Radau matches SciPy step for step; events to machine precision on the interpolant |
 | **Cost** | Radau: per step, 1–7 Newton iterations of 3 function evaluations, with one real and one complex $n \times n$ LU when the step changes. LSODA: 1–3 evaluations per step, plus an LU in BDF mode |
 | **Read first** | [Runge-Kutta methods](runge-kutta.md), [Stiff ODE solvers](stiff-ode.md) |
-| **API** | [`solve_ivp`](../../api/lib_jsl_integration/ivp/fn.solve_ivp.html), [`IvpMethod`](../../api/lib_jsl_integration/ivp/enum.IvpMethod.html), [`IvpOptions`](../../api/lib_jsl_integration/ivp/struct.IvpOptions.html), [`Event`](../../api/lib_jsl_integration/ivp/struct.Event.html), [`IvpSolution`](../../api/lib_jsl_integration/ivp/struct.IvpSolution.html), [`DenseOutput`](../../api/lib_jsl_integration/ivp/struct.DenseOutput.html) |
+| **API** | [`solve_ivp`](../../api/lib_jsl_integration/ivp/fn.solve_ivp.html), [`IvpMethod`](../../api/lib_jsl_integration/ivp/enum.IvpMethod.html), [`IvpOptions`](../../api/lib_jsl_integration/ivp/struct.IvpOptions.html), [`Event`](../../api/lib_jsl_integration/ivp/struct.Event.html), [`IvpSolution`](../../api/lib_jsl_integration/ivp/struct.IvpSolution.html), [`DenseOutput`](../../api/lib_jsl_integration/ivp/struct.DenseOutput.html), [`solve_ivp_explicit`](../../api/lib_jsl_integration/ivp/fn.solve_ivp_explicit.html), [`ExplicitMethod`](../../api/lib_jsl_integration/ivp/enum.ExplicitMethod.html), [`ExplicitOptions`](../../api/lib_jsl_integration/ivp/struct.ExplicitOptions.html) |
 
 </div>
 
@@ -112,6 +112,25 @@ An **event** is a function $g(t, \mathbf y)$. After each step it is evaluated at
 of $g(t, \mathbf y(t))$ on the step's polynomial is found by Brent's method to machine precision. Events cost no extra steps and never
 force the step to land on them. A **terminal** event ends the integration at its root after a given number of occurrences.
 
+### Explicit methods: RK45 and DOP853
+
+For problems that are not stiff, an explicit Runge-Kutta method is cheaper per step than either: no Jacobian and no linear algebra.
+`solve_ivp_explicit` provides SciPy's two explicit methods, with the same dense output and events.
+
+- **RK45** (Dormand and Prince, 1980) is SciPy's default. It takes six stages per step, and the seventh, $\mathbf f(t + h, \mathbf y_{n+1})$,
+  is reused as the next step's first ("first same as last"). The step is of order 5, with an embedded order-4 solution for the error estimate, and a quartic interpolant.
+- **DOP853** (Hairer, 1993) has order 8, with twelve stages. Its error estimate blends an order-5 and an order-3 embedded solution,
+  $|h|\,\|\mathbf e_5\|^2/\sqrt{(\|\mathbf e_5\|^2 + 0.01\|\mathbf e_3\|^2)\,n}$, which stays reliable when one of them is accidentally small. Three
+  extra stages per step give an order-7 interpolant.
+
+Both control the step as SciPy does. A step is accepted when the scaled error norm $E$ is below 1, and the step then grows by
+$\min(10, 0.9E^{-1/(q+1)})$, but not at all after a rejection. Otherwise it shrinks by $\max(0.2, 0.9E^{-1/(q+1)})$. The order is $q = 4$ or 7 for the error
+estimators. A higher order pays off at tight tolerances. On an eccentric orbit, DOP853 needs about two-thirds of RK45's evaluations for
+an error of $10^{-6}$, just over half for $10^{-8}$, and 40 % for $2.5 \times 10^{-10}$ (Figure 2.25).
+
+The explicit solver also integrates **backward** ($t_1 < t_0$), and takes **per-component absolute tolerances** for states whose components
+have different scales. The tolerance vector is part of the new `ExplicitOptions`, so `IvpOptions` keeps its 2.0 form.
+
 ## Algorithm
 
 **Radau step** (from $t$, $\mathbf y$, with step $h$):
@@ -142,11 +161,19 @@ force the step to land on them. A **terminal** event ends the integration at its
 {{#include ../../../crates/integration/src/ivp.rs:solve_ivp}}
 ```
 
+```rust,ignore
+{{#include ../../../crates/integration/src/ivp/explicit.rs:explicit_step}}
+```
+
 - Radau is a direct port of SciPy's `Radau`. Without an analytic Jacobian it uses forward differences instead of SciPy's
   adaptive `num_jac`, so the step sequences then differ slightly.
 - LSODA here is the library's own implementation of Petzold's scheme, with ODEPACK's coefficients and step and order rules. It is
   not a port of the Fortran code, whose many heuristics SciPy calls directly, so its steps differ from SciPy's.
-- Integration runs forward in time only ($t_1 > t_0$), and tolerances are scalars.
+- `solve_ivp` (Radau, LSODA) integrates forward in time only, with scalar tolerances. `solve_ivp_explicit` (RK45, DOP853)
+  integrates in either direction, with per-component absolute tolerances.
+- RK45 and DOP853 are step-for-step ports of SciPy's classes, with coefficient tables generated from SciPy's own. DOP853 always computes
+  its three interpolation stages. SciPy computes them only when dense output is requested or an event changes sign in the step, so its
+  evaluation counts are lower without dense output.
 
 ## In practice
 
@@ -154,7 +181,7 @@ Both methods are compared with `scipy.integrate.solve_ivp` (SciPy 1.17.1; refere
 `book/generator/data/make_ivp_refs.py`) on two stiff problems and a non-stiff one. The errors are relative to a reference solution at
 $\mathrm{rtol} = 10^{-12}$, and $\mathrm{atol} = 10^{-3}\,\mathrm{rtol}$:
 
-<p class="caption" id="tab-2-18"><strong>Table 2.18.</strong> Radau and LSODA against SciPy.</p>
+<p class="caption" id="tab-2-20"><strong>Table 2.20.</strong> Radau and LSODA against SciPy.</p>
 
 {{#include ../generated/integration/ivp_scipy.md}}
 
@@ -163,12 +190,32 @@ ODEPACK's, sometimes lower. Its errors are similar on Van der Pol, but several t
 hundred times larger on the Arenstorf orbit at $10^{-7}$. That orbit amplifies any local error by orders of magnitude along the trajectory. Neither LSODA handles Arenstorf at $10^{-4}$. The orbit needs a
 tight tolerance or a high-order explicit method.
 
-<p class="caption" id="tab-2-19"><strong>Table 2.19.</strong> Event location against reference event times.</p>
+<p class="caption" id="tab-2-21"><strong>Table 2.21.</strong> Event location against reference event times.</p>
 
 {{#include ../generated/integration/ivp_events.md}}
 
 Events are located on the interpolant to machine precision, so their errors are the solution's errors. Radau's and SciPy's
 Radau agree to all digits. The LSODA runs both find a spurious seventh crossing, because the orbit has drifted by the end.
+
+The explicit methods were run on Van der Pol with μ = 2, the Lorenz system, a Kepler orbit and Van der Pol integrated backwards, at
+three tolerances, against SciPy with dense output:
+
+<p class="caption" id="tab-2-22"><strong>Table 2.22.</strong> RK45 and DOP853 against SciPy.</p>
+
+{{#include ../generated/integration/explicit_scipy.md}}
+
+In 23 of the 24 runs the step sequences are identical to SciPy's. In the 24th, DOP853 at $10^{-10}$, rounding differences tip one step
+decision the other way, after which the runs drift apart by the tolerance. Events and per-component tolerances:
+
+<p class="caption" id="tab-2-23"><strong>Table 2.23.</strong> Events and per-component tolerances with the explicit methods.</p>
+
+{{#include ../generated/integration/explicit_events.md}}
+
+The landing time agrees to $10^{-13}$. The library's count is higher because it builds DOP853's interpolant on every step (see Implementation).
+
+![Error after one period against function evaluations for RK45 and DOP853, library lines through SciPy's markers](../generated/integration/explicit_work.svg)
+
+<p class="caption" id="fig-2-25"><strong>Figure 2.25.</strong> Work and precision on a Kepler orbit with eccentricity 0.6, over one period, for tolerances from 10⁻³ to 10⁻¹². SciPy's results (markers) fall on the library's (lines). For more than about 300 evaluations, DOP853 is 20 to 200 times more accurate than RK45 at the same cost.</p>
 
 **Strengths**
 
@@ -181,7 +228,7 @@ Radau agree to all digits. The LSODA runs both find a spurious seventh crossing,
 - Radau's step costs grow quickly with $n$ (two LUs per step change, one of them complex). For large sparse systems, BDF with a sparse
   solver is better.
 - The library's LSODA is not ODEPACK. On some problems its step and order heuristics are less economical or less accurate.
-- No backward integration, vector tolerances, mass matrices or sparse Jacobians.
+- Backward integration and vector tolerances only with the explicit methods; no mass matrices or sparse Jacobians.
 
 ## Exercises
 

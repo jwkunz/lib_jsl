@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs."
+description = "Numerical integration: quadrature (including vector-valued and weighted), cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs."
 
 [lib]
 path = "src/mod.rs"

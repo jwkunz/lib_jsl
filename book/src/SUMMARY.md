@@ -17,6 +17,7 @@
     - [Gaussian quadrature](integration/gaussian-quadrature.md)
     - [Adaptive Gauss-Kronrod quadrature](integration/gauss-kronrod.md)
     - [Tanh-sinh quadrature](integration/tanh-sinh.md)
+    - [Vector integrands and weighted quadrature](integration/vector-weighted.md)
     - [Complex contour integration](integration/contour-integration.md)
     - [Multidimensional cubature](integration/cubature.md)
     - [Monte Carlo and quasi-Monte Carlo integration](integration/monte-carlo.md)

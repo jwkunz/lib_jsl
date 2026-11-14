@@ -57,6 +57,7 @@ singularities, keeps its exponential rate.
 | Weight $e^{-x^2}$ on $\mathbb{R}$, or $x^\alpha e^{-x}$ on $[0, \infty)$ | Gauss-Hermite, Gauss-Laguerre | [Gaussian quadrature](gaussian-quadrature.md) |
 | Singular or infinitely steep at an endpoint | Tanh-sinh quadrature | [Tanh-sinh quadrature](tanh-sinh.md) |
 | Localised peaks, kinks or discontinuities inside the interval, or unknown behaviour | Adaptive Gauss-Kronrod | [Adaptive Gauss-Kronrod quadrature](gauss-kronrod.md) |
+| Many related integrands; oscillating, algebraic-logarithmic or Cauchy weights | `quad_vec`, `quad_weighted` | [Vector integrands and weighted quadrature](vector-weighted.md) |
 | Periodic over its interval | Trapezoid rule | [Newton-Cotes rules](newton-cotes.md#the-trapezoid-rule-on-periodic-functions) |
 | Several dimensions | Cubature, then quasi-Monte Carlo above about ten | [Multidimensional cubature](cubature.md), [Monte Carlo](monte-carlo.md) |
 
@@ -72,7 +73,7 @@ exponentially.
 
 | Your differential equation | Recommended | Entry |
 |---|---|---|
-| Initial value problem, non-stiff | Adaptive Dormand-Prince | [Runge-Kutta methods](runge-kutta.md) |
+| Initial value problem, non-stiff | Adaptive Dormand-Prince; DOP853 at tight tolerances | [Runge-Kutta methods](runge-kutta.md), [explicit methods in `solve_ivp`](radau-lsoda.md#explicit-methods-rk45-and-dop853) |
 | Samples of a function (measured data), possibly unequally spaced; running integrals | `trapezoid`, `simpson`, `romb`, `cumulative_simpson` | [Integrating sampled data](sampled-data.md) |
 | Initial value problem with fast and slow time scales (stiff) | BDF, or Rosenbrock at loose tolerances | [Stiff ODE solvers](stiff-ode.md) |
 | Stiff at tight tolerances, stiffness unknown or changing; dense output; events | Radau, LSODA | [Radau, LSODA and event location](radau-lsoda.md) |

@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **549 algorithms and components in 23 crates**:
+The library implements **552 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 139 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 142 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 49 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
@@ -42,7 +42,7 @@ Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.ht
 
 Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs.
 
-Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 25 items
+Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 28 items
 
 - [Integrator trait (1D)](integration/index.md#in-the-library)
 - [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
@@ -57,6 +57,8 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Complex path integrals](integration/contour-integration.md)
 - [Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature](integration/gaussian-quadrature.md)
 - [Tanh-sinh quadrature](integration/tanh-sinh.md)
+- [Vector-valued adaptive quadrature (quad_vec)](integration/vector-weighted.md)
+- [Weighted quadrature: oscillatory, Fourier, algebraic-logarithmic, Cauchy principal value](integration/vector-weighted.md#weighted-integrals)
 - [Romberg integration](integration/romberg.md)
 - [Sampled-data rules: trapezoid, Simpson, Romberg, cumulative integrals](integration/sampled-data.md)
 - [Multidimensional cubature](integration/cubature.md)
@@ -65,6 +67,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Radau IIA (order 5)](integration/radau-lsoda.md#radau-iia)
 - [LSODA: Adams/BDF with automatic stiffness switching](integration/radau-lsoda.md#switching-on-stiffness)
 - [Dense output and event location](integration/radau-lsoda.md#dense-output-and-events)
+- [Explicit RK45 and DOP853 with backward integration and per-component tolerances](integration/radau-lsoda.md#explicit-methods-rk45-and-dop853)
 - [Boundary value problems (shooting, collocation)](integration/boundary-value-problems.md)
 
 #### Partial differential equations

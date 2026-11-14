@@ -6,6 +6,22 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-14
+
+### Added
+
+- `solve_ivp_explicit` with `ExplicitMethod::{Rk45, Dop853}` and `ExplicitOptions`: SciPy's explicit
+  Runge-Kutta methods, step for step, including DOP853's order-7 dense output, backward
+  integration (`t1 < t0`) with events, and per-component absolute tolerances.
+- `quad_vec`: adaptive quadrature of vector-valued integrands on finite and infinite intervals
+  with a shared mesh, the 2-norm or max norm, break points and the Gauss-Kronrod or trapezoid
+  rule, reproducing SciPy's evaluations and subdivisions.
+- `quad_weighted` with `Weight::{Cos, Sin, Algebraic, Cauchy}`: the weighted integrals of SciPy's
+  `quad(weight=…)`, including Fourier integrals on `[a, ∞)` by Wynn's ε algorithm,
+  algebraic-logarithmic endpoint singularities and Cauchy principal values.
+- Book: a new entry, "Vector integrands and weighted quadrature", and a section on RK45 and
+  DOP853 in "Radau, LSODA and event location", with work-precision comparisons against SciPy.
+
 ## [2.0.0] - 2026-11-14
 
 A stabilisation release with no new algorithms. See the book's
@@ -441,7 +457,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.1.0
 [2.0.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.0.0
 [1.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.20.0
 [1.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.19.0

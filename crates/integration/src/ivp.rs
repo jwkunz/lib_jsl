@@ -1052,7 +1052,78 @@ where
     // ANCHOR_END: lsoda_step
 }
 
+mod explicit;
+pub use explicit::{ExplicitMethod, ExplicitOptions, solve_ivp_explicit};
+
 // ------------------------------------------------------------------------------------- driver
+
+/// The parts of an [`IvpSolution`] that the driver produces.
+type Driven = (Vec<f64>, Vec<Vec<f64>>, IvpStatus, Vec<Vec<f64>>, Vec<Vec<Vec<f64>>>, DenseOutput);
+
+/// Advances `stepper` from `t0` to `t1` (in either direction), locating events on each step's
+/// interpolant and collecting the dense output (in increasing time).
+fn drive(stepper: &mut dyn Stepper, t0: f64, t1: f64, y0: &[f64], events: &[Event], max_steps: usize) -> Result<Driven, ErrorsJSL> {
+    let mut ts = vec![t0];
+    let mut ys = vec![y0.to_vec()];
+    let mut t_events = vec![Vec::new(); events.len()];
+    let mut y_events = vec![Vec::new(); events.len()];
+    let mut counts = vec![0usize; events.len()];
+    let mut g: Vec<f64> = events.iter().map(|e| (e.function)(t0, y0)).collect();
+    let mut dense = DenseOutput::default();
+    let mut status = IvpStatus::Finished;
+    let mut attempts = 0;
+    let direction = if t1 >= t0 { 1.0 } else { -1.0 };
+    while direction * (t1 - stepper.t()) > 0.0 {
+        attempts += 1;
+        if attempts > max_steps {
+            return Err(ErrorsJSL::RuntimeError("solve_ivp: too many steps"));
+        }
+        let t_old = stepper.t();
+        let seg = stepper.step()?;
+        let (t_new, y_new) = (stepper.t(), stepper.y().to_vec());
+        let g_new: Vec<f64> = events.iter().map(|e| (e.function)(t_new, &y_new)).collect();
+        // Events active in this step, with their roots, in time order.
+        let mut active: Vec<(f64, usize)> = Vec::new();
+        for (i, e) in events.iter().enumerate() {
+            // Crossing directions refer to increasing time, as in SciPy.
+            let (before, after) = if direction > 0.0 { (g[i], g_new[i]) } else { (g_new[i], g[i]) };
+            let up = before <= 0.0 && after >= 0.0;
+            let down = before >= 0.0 && after <= 0.0;
+            if (up && e.direction > 0.0) || (down && e.direction < 0.0) || ((up || down) && e.direction == 0.0) {
+                let root = brentq(|t| (e.function)(t, &seg.evaluate(t)), t_old, t_new);
+                active.push((root, i));
+            }
+        }
+        active.sort_by(|a, b| (direction * a.0).total_cmp(&(direction * b.0)));
+        let mut stop_at = None;
+        for &(root, i) in &active {
+            t_events[i].push(root);
+            y_events[i].push(seg.evaluate(root));
+            counts[i] += 1;
+            if events[i].terminal.is_some_and(|k| counts[i] >= k) {
+                stop_at = Some(root);
+                break;
+            }
+        }
+        g = g_new;
+        dense.segments.push(seg.clone());
+        if let Some(root) = stop_at {
+            ts.push(root);
+            ys.push(seg.evaluate(root));
+            if let Some(last) = dense.segments.last_mut() {
+                if direction > 0.0 { last.t_end = root } else { last.t_start = root }
+            }
+            status = IvpStatus::TerminatedByEvent;
+            break;
+        }
+        ts.push(t_new);
+        ys.push(y_new);
+    }
+    if direction < 0.0 {
+        dense.segments.reverse();
+    }
+    Ok((ts, ys, status, t_events, y_events, dense))
+}
 
 // ANCHOR: solve_ivp
 /// Solves `y' = f(t, y)`, `y(t0) = y0` on `[t0, t1]` (`t1 > t0`) with the given method (SciPy's
@@ -1079,59 +1150,7 @@ where
         IvpMethod::Radau => Box::new(Radau::new(sys, t0, y0, t1, options)),
         IvpMethod::Lsoda => Box::new(Lsoda::new(sys, t0, y0, t1, options)),
     };
-    let mut ts = vec![t0];
-    let mut ys = vec![y0.to_vec()];
-    let mut t_events = vec![Vec::new(); events.len()];
-    let mut y_events = vec![Vec::new(); events.len()];
-    let mut counts = vec![0usize; events.len()];
-    let mut g: Vec<f64> = events.iter().map(|e| (e.function)(t0, y0)).collect();
-    let mut dense = DenseOutput::default();
-    let mut status = IvpStatus::Finished;
-    let mut attempts = 0;
-    while stepper.t() < t1 {
-        attempts += 1;
-        if attempts > options.max_steps {
-            return Err(ErrorsJSL::RuntimeError("solve_ivp: too many steps"));
-        }
-        let t_old = stepper.t();
-        let seg = stepper.step()?;
-        let (t_new, y_new) = (stepper.t(), stepper.y().to_vec());
-        let g_new: Vec<f64> = events.iter().map(|e| (e.function)(t_new, &y_new)).collect();
-        // Events active in this step, with their roots, in time order.
-        let mut active: Vec<(f64, usize)> = Vec::new();
-        for (i, e) in events.iter().enumerate() {
-            let up = g[i] <= 0.0 && g_new[i] >= 0.0;
-            let down = g[i] >= 0.0 && g_new[i] <= 0.0;
-            if (up && e.direction > 0.0) || (down && e.direction < 0.0) || ((up || down) && e.direction == 0.0) {
-                let root = brentq(|t| (e.function)(t, &seg.evaluate(t)), t_old, t_new);
-                active.push((root, i));
-            }
-        }
-        active.sort_by(|a, b| a.0.total_cmp(&b.0));
-        let mut stop_at = None;
-        for &(root, i) in &active {
-            t_events[i].push(root);
-            y_events[i].push(seg.evaluate(root));
-            counts[i] += 1;
-            if events[i].terminal.is_some_and(|k| counts[i] >= k) {
-                stop_at = Some(root);
-                break;
-            }
-        }
-        g = g_new;
-        dense.segments.push(seg.clone());
-        if let Some(root) = stop_at {
-            ts.push(root);
-            ys.push(seg.evaluate(root));
-            if let Some(last) = dense.segments.last_mut() {
-                last.t_end = root;
-            }
-            status = IvpStatus::TerminatedByEvent;
-            break;
-        }
-        ts.push(t_new);
-        ys.push(y_new);
-    }
+    let (ts, ys, status, t_events, y_events, dense) = drive(stepper.as_mut(), t0, t1, y0, events, options.max_steps)?;
     let (nfev, njev, nlu, rejected_steps) = stepper.counts();
     let switches = stepper.switches();
     Ok(IvpSolution { t: ts, y: ys, status, t_events, y_events, dense, nfev, njev, nlu, rejected_steps, switches })

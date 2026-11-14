@@ -6,6 +6,19 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-14
+
+### Added
+
+- Continuous-time systems in `lib_jsl_dsp::continuous::lti`, following `scipy.signal`:
+  `ContinuousStateSpace` with `lsim` (zero-order hold or linear interpolation, exact through the
+  matrix exponential), `step`, `impulse`, `freqresp`, `bode` and `discretize` (zero- and
+  first-order hold, impulse invariance, the generalised bilinear transform, Tustin and Euler);
+  `tf2ss`, `ss2tf`, `poly_from_roots` and `unwrap`; and `place_poles` (Kautsky-Nichols-Van Dooren)
+  for any number of inputs.
+- Book entry "Continuous-time systems", compared against SciPy, with step and Bode responses, the
+  accuracy of each discretisation and an inverted pendulum balanced by pole placement.
+
 ## [1.6.0] - 2026-11-14
 
 ### Added
@@ -213,7 +226,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.7.0
 [1.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.6.0
 [1.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.5.0
 [1.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.4.0

@@ -211,7 +211,8 @@ With a broad prior ($P_0 = 100$), the Kalman estimate of a constant is nearly th
 
 **Weaknesses**
 
-- Linear models only: no extended or unscented Kalman filter, no continuous-time models or discretisation.
+- Linear models only: no extended or unscented Kalman filter. Continuous-time models, their discretisation and pole placement are in
+  [Continuous-time systems](continuous-time.md).
 - No automatic PID tuning; the derivative filter's cutoff is fixed relative to the sample rate.
 
 ## Exercises

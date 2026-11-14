@@ -1,0 +1,1 @@
+With two inputs the gain is not unique. After 2 sweeps the library's eigenvector matrix has condition number 26.04, against 10.50 for SciPy's (whose default method, by Tits and Yang, maximises a different measure); the gains differ, but both place the poles to $10^{-14}$. With one input, the eigenvector matrix is fixed, with condition number 347.

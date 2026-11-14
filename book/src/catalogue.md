@@ -13,14 +13,14 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **477 algorithms and components in 23 crates**:
+The library implements **481 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 111 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 34 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
-| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 188 |
+| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 192 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
 
@@ -392,7 +392,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 130 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 134 items
 
 #### Continuous
 
@@ -453,6 +453,10 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 - [Kalman filter](comms/controls.md#the-kalman-filter)
 - [PID loop](comms/controls.md#pid-control)
 - [State-space model](comms/controls.md#state-space-models)
+- [Continuous-time state space: transfer-function conversions, exact simulation (lsim, step, impulse)](comms/continuous-time.md#exact-simulation)
+- [Frequency response and Bode diagrams](comms/continuous-time.md#frequency-response)
+- [Discretisation: zero- and first-order hold, impulse invariance, bilinear and Euler](comms/continuous-time.md#discretisation)
+- [Pole placement by state feedback (Kautsky-Nichols-Van Dooren)](comms/continuous-time.md#pole-placement)
 
 ##### Sources
 

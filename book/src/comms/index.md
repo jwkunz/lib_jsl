@@ -45,4 +45,5 @@ loops in `discrete::synchronization`, channel models in `discrete::transformatio
 | A simulated channel; equalisation | `ChannelImpairment`, `ChannelTransmitter`, `ChannelReceiver`, `NonLinearityTransformer`, `DecisionFeedbackEqualizer` | [Channels and equalisation](equalisation.md) |
 | Range resolution from a long pulse; a pulse found and tracked in noise | `linear_chirp`, `pulse_compress`, `barker_code`, `locate_pulse`, `PulseCorrelationTracker` | [Pulse compression and tracking](radar.md) |
 | Stability and structure of a linear system; feedback control; state estimation | `StateSpace`, `PidController`, `KalmanFilter` | [Control](controls.md) |
+| A continuous-time model: simulation, Bode diagrams, discretisation, pole placement | `ContinuousStateSpace`, `tf2ss`, `place_poles` | [Continuous-time systems](continuous-time.md) |
 | A delay line with random access; double buffering | `AddressableShiftRegister`, `PingPongBuffer` | [Streaming buffers](#streaming-buffers) |

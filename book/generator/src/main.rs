@@ -36,6 +36,7 @@ mod optimization_more;
 mod random;
 mod raster;
 mod refs;
+mod signal_tools;
 mod sorting;
 mod root_finding;
 mod spectral;
@@ -68,7 +69,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 35] = [
+    let chapters: [(&str, fn()); 36] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -91,6 +92,7 @@ fn main() {
         ("learning", learning::generate),
         ("filters", filters::generate),
         ("spectral", spectral::generate),
+        ("signal_tools", signal_tools::generate),
         ("comms", comms::generate),
         ("continuous_time", continuous_time::generate),
         ("image", image::generate),

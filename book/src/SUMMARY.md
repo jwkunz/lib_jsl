@@ -134,6 +134,7 @@
     - [The Hilbert transform and the analytic signal](spectral/hilbert.md)
     - [Parametric spectra: linear prediction, Burg and MUSIC](spectral/parametric.md)
     - [Peak finding](spectral/peaks.md)
+    - [Signal-processing utilities](spectral/signal-tools.md)
     - [Wavelet transforms](spectral/wavelets.md)
     - [Resampling: polyphase, half-band and CIC filters](spectral/resampling.md)
     - [Polyphase filter banks](spectral/filter-banks.md)

@@ -17,6 +17,7 @@ pub mod discrete {
     pub mod fft_cross_correlation;
     pub mod image;
     pub mod peaks;
+    pub mod signal_tools;
     pub mod sinc;
     pub mod sources;
     pub mod stream_operator;

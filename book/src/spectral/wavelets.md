@@ -68,7 +68,7 @@ Invertibility comes from a condition on the filters: they are orthonormal under 
 $\sum_nh_nh_{n+2s} = \delta_s$. This makes the transform an orthogonal matrix, so its inverse is
 its transpose, energy is preserved, and reconstruction is exact:
 
-<p class="caption" id="tab-15-10"><strong>Table 15.10.</strong> Orthonormality and perfect reconstruction of the wavelet filters.</p>
+<p class="caption" id="tab-15-11"><strong>Table 15.11.</strong> Orthonormality and perfect reconstruction of the wavelet filters.</p>
 
 {{#include ../generated/spectral/wavelet_checks.md}}
 
@@ -90,7 +90,7 @@ detail coefficient towards zero by a threshold $\lambda$ (**soft thresholding**,
 
 ![Wavelet denoising](../generated/spectral/wavelet_denoise.svg)
 
-<p class="caption" id="fig-15-10"><strong>Figure 15.10.</strong> Wavelet denoising.</p>
+<p class="caption" id="fig-15-12"><strong>Figure 15.12.</strong> Wavelet denoising.</p>
 
 {{#include ../generated/spectral/wavelet_denoise.md}}
 
@@ -103,7 +103,7 @@ The CWT correlates the signal with scaled wavelets at every shift, $W(a, b) = \f
 
 ![Morlet scalogram](../generated/spectral/scalogram.svg)
 
-<p class="caption" id="fig-15-11"><strong>Figure 15.11.</strong> Morlet scalogram.</p>
+<p class="caption" id="fig-15-13"><strong>Figure 15.13.</strong> Morlet scalogram.</p>
 
 Unlike a spectrogram, the resolution varies with frequency. The chirp's low-frequency start is well resolved in frequency and smeared in time,
 and the short high-frequency burst is sharp in time and broad in frequency. The **Ricker** ("Mexican hat") wavelet, the second derivative of a Gaussian, is real

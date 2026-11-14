@@ -6,6 +6,16 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-11-14
+
+### Added
+
+- Signal-processing utilities in `lib_jsl_dsp::discrete::signal_tools`, following `scipy.signal`:
+  `group_delay`, `minimum_phase` (homomorphic), `firls`, `decimate` (Chebyshev I, zero-phase or
+  causal), `resample` (FFT), `medfilt`, `envelope`, `csd` and `coherence`.
+- Book entry "Signal-processing utilities", compared against SciPy, with a minimum-phase
+  conversion.
+
 ## [1.11.0] - 2026-11-14
 
 ### Added
@@ -283,7 +293,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.12.0
 [1.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.11.0
 [1.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.10.0
 [1.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.9.0

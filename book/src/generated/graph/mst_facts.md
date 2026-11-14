@@ -1,1 +1,1 @@
-On this complete graph of 31125 edges, Kruskal took 1.5 ms and Prim 2.9 ms; both found total length 7.846966 and 7.846966.
+On this complete graph of 31125 edges, Kruskal took 1.3 ms and Prim 2.6 ms; both found total length 7.846966 and 7.846966.

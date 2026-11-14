@@ -1,7 +1,7 @@
 | one million 64-bit keys | random | nearly sorted | sorted | reversed | three distinct keys |
 |---|---:|---:|---:|---:|---:|
-| quicksort | 72.1 ms | 9.8 ms | 7.4 ms | 7.3 ms | 17.8 ms |
-| heapsort | 150.9 ms | 67.5 ms | 55.1 ms | 61.7 ms | 42.2 ms |
-| Shell's method | 139.9 ms | 95.9 ms | 12.7 ms | 17.6 ms | 22.1 ms |
-| std `sort_unstable` | 16.9 ms | 17.5 ms | 0.4 ms | 0.7 ms | 2.2 ms |
-| std `sort` (stable) | 23.1 ms | 17.6 ms | 0.6 ms | 0.9 ms | 4.4 ms |
+| quicksort | 63.2 ms | 8.2 ms | 6.5 ms | 6.7 ms | 15.4 ms |
+| heapsort | 154.5 ms | 60.4 ms | 56.0 ms | 60.9 ms | 38.7 ms |
+| Shell's method | 144.4 ms | 101.9 ms | 15.9 ms | 20.2 ms | 25.4 ms |
+| std `sort_unstable` | 15.6 ms | 16.1 ms | 0.5 ms | 0.9 ms | 2.5 ms |
+| std `sort` (stable) | 21.1 ms | 16.1 ms | 0.5 ms | 0.8 ms | 4.7 ms |

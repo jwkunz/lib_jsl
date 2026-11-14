@@ -16,6 +16,7 @@ mod draw;
 mod geometry;
 mod graph;
 mod image;
+mod image_ndimage;
 mod information;
 mod integration;
 mod interpolation;
@@ -60,7 +61,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 27] = [
+    let chapters: [(&str, fn()); 28] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("integration", integration::generate),
@@ -79,6 +80,7 @@ fn main() {
         ("spectral", spectral::generate),
         ("comms", comms::generate),
         ("image", image::generate),
+        ("image_ndimage", image_ndimage::generate),
         ("information", information::generate),
         ("coding", coding::generate),
         ("em-arrays", em_arrays::generate),

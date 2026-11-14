@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **532 algorithms and components in 23 crates**:
+The library implements **536 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 132 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 45 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 49 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 197 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
@@ -225,7 +225,7 @@ Dense and sparse matrix factorisations, solvers and eigenproblems, Fourier trans
 
 Linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices, and sparse matrices with direct and Krylov solvers.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 18 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 22 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
@@ -243,6 +243,10 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [Reverse Cuthill-McKee bandwidth-reducing ordering](linear_algebra/sparse.md#ordering-and-fill-in)
 - [Sparse LU with partial pivoting (Gilbert-Peierls) and `spsolve`](linear_algebra/sparse.md#algorithm)
 - [Krylov solvers: CG, MINRES, GMRES, BiCGSTAB and LSQR with preconditioning](linear_algebra/sparse.md#krylov-subspaces-and-conjugate-gradients)
+- [Minimum-degree fill-reducing ordering](linear_algebra/sparse.md#ordering-and-fill-in)
+- [Incomplete LU preconditioners: ILU(0) and ILUT](linear_algebra/sparse.md#incomplete-lu-preconditioning)
+- [The action of the matrix exponential (`expm_multiply`)](linear_algebra/sparse.md#the-action-of-the-matrix-exponential)
+- [Interior eigenvalues by shift-invert Lanczos](linear_algebra/sparse.md#the-lanczos-process-for-eigenvalues)
 - [A few eigenvalues and singular values of large matrices (Lanczos with deflation: `eigsh`, `svds`)](linear_algebra/sparse.md#the-lanczos-process-for-eigenvalues)
 - [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 
@@ -923,7 +927,7 @@ Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · b
 
 ## What the library does not cover
 
-- Fill-reducing minimum-degree and nested-dissection orderings, incomplete factorisations and multigrid preconditioners, shift-invert eigensolvers, and complex sparse matrices
+- Nested-dissection orderings, incomplete Cholesky and multigrid preconditioners, and complex sparse matrices
 - Calling external BLAS or LAPACK, and distributed computing; parallelism is limited to the optional multithreaded matrix multiply (the `threading` feature)
 - Hand-written SIMD intrinsics, except in the FFT engines
 - Single precision and generic floating-point types: numerical routines compute in `f64` and `Complex<f64>` (`f32` appears only in data containers and file formats)

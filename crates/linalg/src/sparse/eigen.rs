@@ -2,6 +2,8 @@
 //! few singular values by Golub-Kahan bidiagonalisation (SciPy's `svds`), both with full
 //! reorthogonalisation and restarts that enlarge the subspace until the wanted values converge.
 
+use super::direct::{Ordering, SparseLu};
+use super::formats::CsrMatrix;
 use super::iterative::LinearOperator;
 use crate::error::{LinalgError, Result};
 use crate::{Eigh, SVD, UPLO};
@@ -155,6 +157,45 @@ fn lanczos(a: &dyn LinearOperator, k: usize, which: Which, tol: f64, locked: &[V
     }
 }
 // ANCHOR_END: eigsh
+
+/// `(A − σI)⁻¹` through a sparse LU factorisation, for shift-invert Lanczos.
+struct ShiftInvert {
+    lu: SparseLu,
+    n: usize,
+}
+
+impl LinearOperator for ShiftInvert {
+    fn shape(&self) -> (usize, usize) {
+        (self.n, self.n)
+    }
+    fn matvec(&self, x: &[f64]) -> Vec<f64> {
+        self.lu.solve(x).expect("length checked")
+    }
+    fn rmatvec(&self, x: &[f64]) -> Vec<f64> {
+        self.matvec(x)
+    }
+}
+
+// ANCHOR: shift_invert
+/// The `k` eigenvalues of a symmetric sparse matrix nearest `σ`, with eigenvectors (SciPy's
+/// `eigsh(A, k, sigma=σ)`, shift-invert mode). The eigenvalues `λ` of `A` near `σ` are the
+/// largest in magnitude of `(A − σI)⁻¹`, `θ = 1/(λ − σ)`, which Lanczos finds quickly; each
+/// product with the inverse is one solve with a sparse LU factorisation of `A − σI`.
+pub fn eigsh_shift_invert(a: &CsrMatrix, k: usize, sigma: f64, tol: f64) -> Result<EigenPairs> {
+    let n = a.nrows;
+    if a.ncols != n {
+        return Err(LinalgError::NotSquare { rows: a.nrows, cols: a.ncols });
+    }
+    let shifted = a.add(1.0, &CsrMatrix::identity(n), -sigma)?;
+    let op = ShiftInvert { lu: SparseLu::factor(&shifted, Ordering::MinimumDegree)?, n };
+    let (theta, vectors) = eigsh(&op, k, Which::LargestMagnitude, tol)?;
+    let mut pairs: Vec<(f64, usize)> = theta.iter().enumerate().map(|(i, &t)| (sigma + 1.0 / t, i)).collect();
+    pairs.sort_by(|x, y| x.0.total_cmp(&y.0));
+    let values = pairs.iter().map(|p| p.0).collect();
+    let vecs = Array2::from_shape_fn((n, pairs.len()), |(r, c)| vectors[(r, pairs[c].1)]);
+    Ok((values, vecs))
+}
+// ANCHOR_END: shift_invert
 
 /// A singular triplet: value, left vector, right vector.
 type Triplet = (f64, Vec<f64>, Vec<f64>);

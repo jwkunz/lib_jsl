@@ -6,6 +6,21 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-11-14
+
+### Added
+
+- `lib_jsl_linalg::sparse`: a `minimum_degree` fill-reducing ordering (now the default of
+  `spsolve`, within 3–11 % of SuperLU's MMD fill), incomplete LU preconditioners `Ilu::ilu0` and
+  `Ilu::ilut`, `expm_multiply` (Al-Mohy and Higham, as SciPy) and `eigsh_shift_invert` for
+  eigenvalues near a shift.
+- The sparse book entry gains sections on minimum degree, incomplete LU, the action of the matrix
+  exponential and shift-invert, each compared with SciPy.
+
+### Changed
+
+- `spsolve` orders by minimum degree instead of reverse Cuthill-McKee.
+
 ## [1.17.0] - 2026-11-14
 
 ### Added
@@ -370,7 +385,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.17.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.18.0...HEAD
+[1.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.18.0
 [1.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.17.0
 [1.16.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.16.0
 [1.15.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.15.0

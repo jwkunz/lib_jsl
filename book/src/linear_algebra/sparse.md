@@ -5,11 +5,11 @@
 | | |
 |---|---|
 | **Problem** | Store, multiply and solve with large matrices that are mostly zeros, and find a few of their eigenvalues or singular values |
-| **Devised by** | Magnus Hestenes and Eduard Stiefel (1952), conjugate gradients; Cornelius Lanczos (1950), the Lanczos process; Elizabeth Cuthill and James McKee (1969), bandwidth reduction; Christopher Paige and Michael Saunders (1975, 1982), MINRES and LSQR; Youcef Saad and Martin Schultz (1986), GMRES; Henk van der Vorst (1992), BiCGSTAB; John Gilbert and Tim Peierls (1988), sparse LU in time proportional to the arithmetic |
+| **Devised by** | Magnus Hestenes and Eduard Stiefel (1952), conjugate gradients; Cornelius Lanczos (1950), the Lanczos process; Elizabeth Cuthill and James McKee (1969), bandwidth reduction; Christopher Paige and Michael Saunders (1975, 1982), MINRES and LSQR; Youcef Saad and Martin Schultz (1986), GMRES; Henk van der Vorst (1992), BiCGSTAB; John Gilbert and Tim Peierls (1988), sparse LU in time proportional to the arithmetic; William Tinney and John Walker (1967), minimum degree; Koos Meijerink and Henk van der Vorst (1977) and Yousef Saad (1994), incomplete LU; Awad Al-Mohy and Nicholas Higham (2011), the action of the matrix exponential |
 | **Accuracy** | Direct solves agree with SciPy to $10^{-14}$; iterative solves reach the requested residual and take the same number of iterations as SciPy within a few; eigenvalues and singular values agree to $10^{-13}$ |
 | **Cost** | Storage and a product with $A$: $O(\text{nnz})$. Iterative solvers: one or two products per iteration, plus $O(n)$ (CG, MINRES, BiCGSTAB) or $O(jn)$ at inner step $j$ (GMRES). Sparse LU: proportional to the arithmetic on the fill |
 | **Read first** | [Gaussian elimination and LU factorisation](lu.md), [Eigenvalue algorithms](eigen-iterations.md), [The singular value decomposition](svd.md) |
-| **API** | [`sparse`](../../api/lib_jsl_linalg/sparse/index.html): [`CsrMatrix`](../../api/lib_jsl_linalg/sparse/struct.CsrMatrix.html), [`spsolve`](../../api/lib_jsl_linalg/sparse/fn.spsolve.html), [`SparseLu`](../../api/lib_jsl_linalg/sparse/struct.SparseLu.html), [`cg`](../../api/lib_jsl_linalg/sparse/fn.cg.html), [`minres`](../../api/lib_jsl_linalg/sparse/fn.minres.html), [`gmres`](../../api/lib_jsl_linalg/sparse/fn.gmres.html), [`bicgstab`](../../api/lib_jsl_linalg/sparse/fn.bicgstab.html), [`lsqr`](../../api/lib_jsl_linalg/sparse/fn.lsqr.html), [`eigsh`](../../api/lib_jsl_linalg/sparse/fn.eigsh.html), [`svds`](../../api/lib_jsl_linalg/sparse/fn.svds.html), [`reverse_cuthill_mckee`](../../api/lib_jsl_linalg/sparse/fn.reverse_cuthill_mckee.html) |
+| **API** | [`sparse`](../../api/lib_jsl_linalg/sparse/index.html): [`CsrMatrix`](../../api/lib_jsl_linalg/sparse/struct.CsrMatrix.html), [`spsolve`](../../api/lib_jsl_linalg/sparse/fn.spsolve.html), [`SparseLu`](../../api/lib_jsl_linalg/sparse/struct.SparseLu.html), [`cg`](../../api/lib_jsl_linalg/sparse/fn.cg.html), [`minres`](../../api/lib_jsl_linalg/sparse/fn.minres.html), [`gmres`](../../api/lib_jsl_linalg/sparse/fn.gmres.html), [`bicgstab`](../../api/lib_jsl_linalg/sparse/fn.bicgstab.html), [`lsqr`](../../api/lib_jsl_linalg/sparse/fn.lsqr.html), [`eigsh`](../../api/lib_jsl_linalg/sparse/fn.eigsh.html), [`svds`](../../api/lib_jsl_linalg/sparse/fn.svds.html), [`eigsh_shift_invert`](../../api/lib_jsl_linalg/sparse/fn.eigsh_shift_invert.html), [`reverse_cuthill_mckee`](../../api/lib_jsl_linalg/sparse/fn.reverse_cuthill_mckee.html), [`minimum_degree`](../../api/lib_jsl_linalg/sparse/fn.minimum_degree.html), [`Ilu`](../../api/lib_jsl_linalg/sparse/struct.Ilu.html), [`expm_multiply`](../../api/lib_jsl_linalg/sparse/fn.expm_multiply.html) |
 
 </div>
 
@@ -25,8 +25,14 @@ factorisations are then impossible: the $n^3/3$ operations take hours and the fa
   $\mathcal K_m = \operatorname{span}\{\mathbf r_0, A\mathbf r_0, \ldots, A^{m-1}\mathbf r_0\}$ and need only a few vectors of memory. The same
   subspaces give the extreme eigenvalues by the Lanczos process.
 
-The module follows `scipy.sparse` and `scipy.sparse.linalg`: COO, CSR and CSC storage; `spsolve` and a sparse LU; `cg`, `minres`, `gmres`,
-`bicgstab` and `lsqr`; `eigsh` and `svds`; and `reverse_cuthill_mckee` from `scipy.sparse.csgraph`. Every solver takes a
+The module follows `scipy.sparse` and `scipy.sparse.linalg`:
+
+- COO, CSR and CSC storage;
+- `spsolve` and a sparse LU with minimum-degree or reverse Cuthill-McKee ordering;
+- `cg`, `minres`, `gmres`, `bicgstab` and `lsqr`, with Jacobi and incomplete-LU preconditioners;
+- `eigsh` (with a shift-invert mode) and `svds`;
+- `expm_multiply`;
+- `reverse_cuthill_mckee` from `scipy.sparse.csgraph`. Every solver takes a
 [`LinearOperator`](../../api/lib_jsl_linalg/sparse/trait.LinearOperator.html), so a matrix that is never stored, only applied, works as well.
 
 ## History
@@ -88,8 +94,20 @@ The number of iterations grows like $\sqrt\kappa$. For the 2-D Laplacian on an $
 each factor of $e^2$ in accuracy.
 
 **Preconditioning** solves $M A\mathbf x = M\mathbf b$ with $M \approx A^{-1}$ cheap to apply, which lowers the effective condition number. The simplest choice is
-**Jacobi**, $M = \operatorname{diag}(A)^{-1}$. It helps when the diagonal varies widely (Figure 7.14). Incomplete factorisations and multigrid go much further, but are not
-in the library.
+**Jacobi**, $M = \operatorname{diag}(A)^{-1}$. It helps when the diagonal varies widely (Figure 7.14). Incomplete factorisations, below, go much further.
+
+### Incomplete LU preconditioning
+
+An exact LU factorisation is the perfect preconditioner, with $M = (LU)^{-1} = A^{-1}$, but its fill makes it expensive. An **incomplete** factorisation
+$A \approx LU$ keeps the factors sparse by discarding fill, and is applied by two sparse triangular solves:
+
+- **ILU(0)** (Meijerink and van der Vorst, 1977) performs Gaussian elimination row by row but discards every update outside the sparsity pattern of $A$,
+  so $L + U$ has exactly the pattern of $A$.
+- **ILUT(τ, p)** (Saad, 1994) allows fill but drops each multiplier and each entry of the new row below $\tau\|\mathbf a_i\|_2$. It then keeps only the
+  $p$ largest entries in each of the $L$ and $U$ parts of the row. Smaller $\tau$ and larger $p$ give a more accurate and more expensive factorisation; with
+  $\tau = 0$ and $p = n$ it is the exact LU without pivoting.
+
+SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.18) rather than entry by entry.
 
 ### Other Krylov methods
 
@@ -119,6 +137,24 @@ $\lambda_{ij} = \lambda_{ji}$, so most eigenvalues of the Laplacian are double. 
 complement, and keep the best $k$ of the union, until a run finds nothing better. Two details matter. The locked vectors and the Lanczos basis must be projected out together
 in each Gram-Schmidt pass: projecting against one set after the other reintroduces the first, amplified by the Lanczos coefficients at every step. And the start vector of each run must be orthogonal to the locked vectors.
 
+**Shift-invert.** Lanczos finds the extreme eigenvalues quickly and interior ones slowly. The eigenvalues of $A$ nearest a shift $\sigma$ are the largest
+in magnitude of $(A - \sigma I)^{-1}$, $\theta = 1/(\lambda - \sigma)$. So `eigsh_shift_invert` factorises $A - \sigma I$ once by sparse LU, and runs Lanczos on the
+operator that solves with it. Each product costs a pair of sparse triangular solves, and convergence takes a few dozen steps.
+
+### The action of the matrix exponential
+
+The solution of $\mathbf u' = A\mathbf u$ is $e^{tA}\mathbf u_0$. For a large sparse $A$, the matrix $e^{tA}$ is dense, but its action on one vector can be computed
+from products with $A$ alone (Al-Mohy and Higham, 2011). Shift $A$ by the mean of its eigenvalues, $\mu = \operatorname{trace}(A)/n$, to reduce its norm. Then
+
+$$
+e^{tA}\mathbf b = e^{t\mu}\big(e^{tB/s}\big)^s\mathbf b,\qquad B = A - \mu I,
+$$
+
+and each factor is applied as the truncated Taylor series $\sum_{j\le m}(tB/s)^j\mathbf b/j!$. The degree $m$ and the number of steps $s$ minimise
+the work $ms$ subject to a backward-error bound. The bound says that $m$ terms suffice when $\|tB/s\|_1 \le \theta_m$, for tabulated
+$\theta_m$ ($\theta_{55} = 9.9$). For large norms, the bound uses
+$\alpha_p = \max(\|(tB)^p\|^{1/p}, \|(tB)^{p+1}\|^{1/(p+1)})$ instead. For non-normal matrices this can be much smaller than $\|tB\|_1$. SciPy estimates
+these norms; the library computes them exactly from sparse matrix powers. Each Taylor sum stops early once two consecutive terms are negligible.
 ### Ordering and fill-in
 
 Eliminating a variable couples all its neighbours, which creates fill. For a banded matrix of half-bandwidth $w$, LU without pivoting stays inside the band, at a cost of $O(nw^2)$ operations.
@@ -135,8 +171,11 @@ Each breadth-first level becomes a block of consecutive indices. The 2-D Laplaci
 
 <p class="caption" id="fig-7-11"><strong>Figure 7.11.</strong> The non-zeros of the 5-point Laplacian on a 12 × 12 grid, with its unknowns in random order (left) and after reverse Cuthill-McKee (right).</p>
 
-Bandwidth is a crude measure. **Minimum degree** orderings, which eliminate the vertex with the fewest neighbours first, and **nested dissection** reduce fill further. For a 2-D grid,
-nested dissection gives $O(n\log n)$ fill against $O(n^{3/2})$ for any banded order.
+Bandwidth is a crude measure. The **minimum-degree** heuristic (Tinney and Walker, 1967) reduces fill more directly. Eliminating a vertex
+of the elimination graph joins all its neighbours into a clique, so it chooses at every step a vertex of least degree, the one that creates the
+least fill locally. `minimum_degree` does this on an explicit elimination graph with a priority queue of degrees. AMD and SuperLU's MMD reach
+similar orderings faster, with quotient graphs, supervariables and approximate degrees. On a 2-D grid, the fill grows like $n^{3/2}$ for any banded
+order but close to $n\log n$ for minimum degree (Figure 7.15). **Nested dissection** achieves $O(n\log n)$ provably.
 
 ## Algorithm
 
@@ -179,11 +218,25 @@ $\text{tol}\cdot\max|\theta|$, double $m$ and repeat; then deflate as above.
 {{#include ../../../crates/linalg/src/sparse/eigen.rs:eigsh}}
 ```
 
+```rust,ignore
+{{#include ../../../crates/linalg/src/sparse/direct.rs:minimum_degree}}
+```
+
+```rust,ignore
+{{#include ../../../crates/linalg/src/sparse/ilu.rs:ilut}}
+```
+
+```rust,ignore
+{{#include ../../../crates/linalg/src/sparse/expm.rs:expm_multiply}}
+```
+
 - Only real (`f64`) matrices are supported.
 - Every solver counts iterations as SciPy's callbacks do, and returns the residual history. GMRES records one entry per inner iteration.
 - The stopping rule of `cg`, `minres`, `gmres` and `bicgstab` is $\|\mathbf b - A\mathbf x\| \le \max(\text{rtol}\,\|\mathbf b\|, \text{atol})$. SciPy's `minres` uses a looser
   test relative to $\|A\|\|\mathbf x\| + \|\mathbf b\|$, so it stops earlier (Table 7.15).
-- `spsolve` uses reverse Cuthill-McKee as its column ordering. SciPy's default, COLAMD, produces less fill.
+- `spsolve` orders the columns by minimum degree. `SparseLu::factor` also accepts the natural order or reverse Cuthill-McKee.
+- `Ilu` implements `LinearOperator` as $M = (LU)^{-1}$, so it is passed to any solver as the preconditioner. A zero pivot is replaced by $10^{-8}$ times the row norm.
+- `expm_multiply` takes one time point and one vector; SciPy's version also accepts several columns and a grid of times.
 - `eigsh` and `svds` use a deterministic start vector, so results are reproducible.
 
 ## In practice
@@ -223,7 +276,32 @@ Ordering decides the cost of a direct solve. The table repeats the experiment of
 
 {{#include ../generated/linear_algebra/sparse_fill.md}}
 
-The library's sparse LU produces exactly SuperLU's fill for the same ordering. Reverse Cuthill-McKee cuts the fill by a factor of 3, and the minimum-degree orderings that the library lacks save another 25–45 %.
+The library's sparse LU produces exactly SuperLU's fill for the same ordering. Reverse Cuthill-McKee cuts the fill by a factor of 3, and minimum
+degree saves another 40–60 %. On larger and nonsymmetric matrices the library's minimum degree comes within 3–11 % of SuperLU's MMD and does better than
+SuperLU's default, COLAMD, which orders for unsymmetric pivoting:
+
+<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
+
+{{#include ../generated/linear_algebra/sparse_md_fill.md}}
+
+![Fill against the number of unknowns for the natural, RCM and minimum-degree orderings of the 2-D Laplacian](../generated/linear_algebra/sparse_fill_growth.svg)
+
+<p class="caption" id="fig-7-15"><strong>Figure 7.15.</strong> Fill of the LU factors of the Laplacian on grids from 10 × 10 to 80 × 80. The banded orders grow like $n^{3/2}$ (the natural order exactly as $2n^{3/2}$); minimum degree grows roughly like $n\log n$.</p>
+
+Incomplete LU preconditioning on two nonsymmetric problems with 1600 unknowns, against SciPy's `spilu`. Jacobi does nothing here, because the diagonal is constant:
+
+<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
+
+{{#include ../generated/linear_algebra/sparse_ilu.md}}
+
+ILU(0), with no more storage than $A$, cuts the iterations by a factor of 8 to 16. ILUT with $\tau = 10^{-4}$ needs 4–5 iterations. SuperLU's
+threshold ILU, which also pivots and reorders, reaches 3–9 iterations with a similar amount of fill. Finally, `expm_multiply` and shift-invert `eigsh`:
+
+<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
+
+{{#include ../generated/linear_algebra/sparse_expm_eigsh.md}}
+
+At $t = 40$ the norm $\|tB\|_1 = 160$ is beyond the simple bound, so the parameters come from the norms of powers. These are estimated in SciPy and exact here, and both reach the same result.
 
 **Strengths**
 
@@ -234,9 +312,9 @@ The library's sparse LU produces exactly SuperLU's fill for the same ordering. R
 
 **Weaknesses**
 
-- No minimum-degree or nested-dissection ordering, so `spsolve` creates more fill than SciPy's default on large problems. No supernodes or BLAS-3 kernels either.
-- Only the Jacobi preconditioner. Incomplete LU and Cholesky (SciPy's `spilu`) and multigrid are missing.
-- `eigsh` has no shift-invert mode, so interior eigenvalues are out of reach, and its full reorthogonalisation costs $O(nk^2)$ where ARPACK's implicit restarts keep the subspace small.
+- The minimum-degree ordering works on an explicit elimination graph, which is slower than AMD's quotient graph for large problems. There is no nested dissection, and no supernodes or BLAS-3 kernels.
+- No incomplete Cholesky, algebraic multigrid or other advanced preconditioners.
+- `eigsh`'s full reorthogonalisation costs $O(nk^2)$, where ARPACK's implicit restarts keep the subspace small.
 - No complex sparse matrices.
 
 ## Exercises
@@ -272,3 +350,6 @@ The library's sparse LU produces exactly SuperLU's fill for the same ordering. R
 - J. R. Gilbert and T. Peierls, "Sparse partial pivoting in time proportional to arithmetic operations", *SIAM Journal on Scientific and Statistical Computing* 9 (1988) 862–874.
 - M. Embree, "The tortoise and the hare restart GMRES", *SIAM Review* 45 (2003) 259–266.
 - B. N. Parlett, *The Symmetric Eigenvalue Problem*, SIAM, 1998, chapter 13 (Lanczos in practice).
+- W. F. Tinney and J. W. Walker, "Direct solutions of sparse network equations by optimally ordered triangular factorization", *Proceedings of the IEEE* 55 (1967) 1801–1809.
+- Y. Saad, "ILUT: a dual threshold incomplete LU factorization", *Numerical Linear Algebra with Applications* 1 (1994) 387–402.
+- A. H. Al-Mohy and N. J. Higham, "Computing the action of the matrix exponential, with an application to exponential integrators", *SIAM Journal on Scientific Computing* 33 (2011) 488–511.

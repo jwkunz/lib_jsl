@@ -1,18 +1,23 @@
 //! Sparse matrices and solvers for large systems, following `scipy.sparse` and
 //! `scipy.sparse.linalg`: COO, CSR and CSC storage; a sparse LU factorisation with a
-//! fill-reducing ordering (`spsolve`, `SparseLu`); Krylov solvers (CG, MINRES, GMRES, BiCGSTAB,
-//! LSQR) for any [`LinearOperator`]; and a few eigenvalues or singular values by Lanczos methods
-//! (`eigsh`, `svds`). Real (`f64`) matrices only.
+//! fill-reducing ordering (minimum degree or reverse Cuthill-McKee; `spsolve`, `SparseLu`); Krylov
+//! solvers (CG, MINRES, GMRES, BiCGSTAB, LSQR) for any [`LinearOperator`], with Jacobi and
+//! incomplete-LU preconditioners; a few eigenvalues or singular values by Lanczos methods
+//! (`eigsh`, its shift-invert mode, `svds`); and `expm_multiply`. Real (`f64`) matrices only.
 //!
 //! See the book entry [Sparse matrices and iterative solvers](https://jwkunz.github.io/lib_jsl/book/linear_algebra/sparse.html).
 
 mod direct;
 mod eigen;
+mod expm;
 mod formats;
+mod ilu;
 mod iterative;
 
-pub use direct::{Ordering, SparseLu, bandwidth, reverse_cuthill_mckee, spsolve};
-pub use eigen::{EigenPairs, Which, eigsh, svds};
+pub use direct::{Ordering, SparseLu, bandwidth, minimum_degree, reverse_cuthill_mckee, spsolve};
+pub use eigen::{EigenPairs, Which, eigsh, eigsh_shift_invert, svds};
+pub use expm::expm_multiply;
+pub use ilu::Ilu;
 pub use formats::{CooMatrix, CscMatrix, CsrMatrix};
 pub use iterative::{FnOperator, IterativeOptions, IterativeResult, Jacobi, LinearOperator, bicgstab, cg, gmres, lsqr, minres};
 
@@ -130,6 +135,46 @@ mod tests {
         for c in 0..3 {
             let av = dense.dot(&v.column(c));
             assert!(av.iter().zip(u.column(c)).all(|(p, q)| (p - s[c] * q).abs() < 1e-9));
+        }
+    }
+
+    #[test]
+    fn minimum_degree_reduces_fill_and_ilu_preconditions() {
+        let a = poisson(20);
+        let natural = SparseLu::factor(&a, Ordering::Natural).unwrap().nnz();
+        let md = SparseLu::factor(&a, Ordering::MinimumDegree).unwrap().nnz();
+        let rcm = SparseLu::factor(&a, Ordering::ReverseCuthillMcKee).unwrap().nnz();
+        assert!(md < rcm && rcm <= natural, "md {md} rcm {rcm} natural {natural}");
+        let mut perm = minimum_degree(&a);
+        perm.sort_unstable();
+        assert_eq!(perm, (0..a.nrows).collect::<Vec<_>>());
+        let b: Vec<f64> = (0..a.nrows).map(|i| (i as f64).cos()).collect();
+        let o = IterativeOptions { rtol: 1e-10, ..Default::default() };
+        let plain = cg(&a, &b, None, None, o).unwrap().iterations;
+        let ilu0 = Ilu::ilu0(&a).unwrap();
+        assert_eq!(ilu0.nnz(), a.nnz());
+        let with = gmres(&a, &b, None, Some(&ilu0), 50, o).unwrap();
+        assert!(with.converged && with.iterations < plain / 2, "{} vs {plain}", with.iterations);
+        let ilut = Ilu::ilut(&a, 1e-12, 1000).unwrap();
+        // With no dropping ILUT is the exact LU, so one iteration suffices.
+        assert!(gmres(&a, &b, None, Some(&ilut), 50, o).unwrap().iterations <= 2);
+    }
+
+    #[test]
+    fn shift_invert_finds_interior_eigenvalues() {
+        let m = 12;
+        let a = poisson(m);
+        let h = std::f64::consts::PI / (m + 1) as f64;
+        let mut exact: Vec<f64> = (1..=m).flat_map(|i| (1..=m).map(move |j| 4.0 - 2.0 * (i as f64 * h).cos() - 2.0 * (j as f64 * h).cos())).collect();
+        exact.sort_by(f64::total_cmp);
+        let sigma = 3.3;
+        let mut near: Vec<f64> = exact.clone();
+        near.sort_by(|x, y| (x - sigma).abs().total_cmp(&(y - sigma).abs()));
+        let mut want: Vec<f64> = near[..5].to_vec();
+        want.sort_by(f64::total_cmp);
+        let (vals, _) = eigsh_shift_invert(&a, 5, sigma, 0.0).unwrap();
+        for (v, w) in vals.iter().zip(&want) {
+            assert!((v - w).abs() < 1e-10, "{vals:?} vs {want:?}");
         }
     }
 }

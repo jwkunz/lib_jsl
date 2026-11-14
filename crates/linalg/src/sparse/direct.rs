@@ -3,7 +3,8 @@
 
 use super::formats::{CscMatrix, CsrMatrix};
 use crate::error::{LinalgError, Result};
-use std::collections::VecDeque;
+use std::cmp::Reverse;
+use std::collections::{BinaryHeap, HashSet, VecDeque};
 
 // ANCHOR: rcm
 /// The reverse Cuthill-McKee ordering of the symmetric pattern of `A + Aᵀ` (SciPy's
@@ -52,6 +53,53 @@ pub fn reverse_cuthill_mckee(a: &CsrMatrix) -> Vec<usize> {
 }
 // ANCHOR_END: rcm
 
+// ANCHOR: minimum_degree
+/// A minimum-degree ordering of the symmetric pattern of `A + Aᵀ` (in the spirit of SciPy's
+/// `MMD_AT_PLUS_A`): repeatedly eliminate a vertex of least degree in the elimination graph, where
+/// eliminating a vertex joins all its neighbours into a clique (the fill it would create). Ties go
+/// to the lowest index. This is the textbook algorithm on an explicit graph with a lazily updated
+/// priority queue; AMD and MMD reach similar orderings faster with quotient graphs,
+/// supervariables and approximate degrees.
+pub fn minimum_degree(a: &CsrMatrix) -> Vec<usize> {
+    let n = a.nrows.max(a.ncols);
+    let mut adj: Vec<HashSet<usize>> = vec![HashSet::new(); n];
+    for i in 0..a.nrows {
+        for p in a.indptr[i]..a.indptr[i + 1] {
+            let j = a.indices[p];
+            if i != j {
+                adj[i].insert(j);
+                adj[j].insert(i);
+            }
+        }
+    }
+    let mut heap: BinaryHeap<Reverse<(usize, usize)>> = (0..n).map(|v| Reverse((adj[v].len(), v))).collect();
+    let mut eliminated = vec![false; n];
+    let mut order = Vec::with_capacity(n);
+    while let Some(Reverse((d, v))) = heap.pop() {
+        if eliminated[v] || adj[v].len() != d {
+            continue; // a stale entry
+        }
+        eliminated[v] = true;
+        order.push(v);
+        let mut nbrs: Vec<usize> = adj[v].drain().collect();
+        nbrs.sort_unstable();
+        for &u in &nbrs {
+            adj[u].remove(&v);
+        }
+        for (x, &u) in nbrs.iter().enumerate() {
+            for &w in &nbrs[x + 1..] {
+                adj[u].insert(w);
+                adj[w].insert(u);
+            }
+        }
+        for &u in &nbrs {
+            heap.push(Reverse((adj[u].len(), u)));
+        }
+    }
+    order
+}
+// ANCHOR_END: minimum_degree
+
 /// The bandwidth `max |i − j|` over the stored entries of `A` with rows and columns permuted by
 /// `perm` (`perm[k]` is the original index placed at position `k`).
 pub fn bandwidth(a: &CsrMatrix, perm: Option<&[usize]>) -> usize {
@@ -78,6 +126,8 @@ pub enum Ordering {
     Natural,
     /// Reverse Cuthill-McKee on the pattern of `A + Aᵀ`.
     ReverseCuthillMcKee,
+    /// Minimum degree on the pattern of `A + Aᵀ` (the default of [`spsolve`]).
+    MinimumDegree,
 }
 
 /// A sparse LU factorisation `P A Q = L U` (SciPy's `splu`, with its own algorithm).
@@ -109,6 +159,7 @@ impl SparseLu {
         let q = match ordering {
             Ordering::Natural => (0..n).collect(),
             Ordering::ReverseCuthillMcKee => reverse_cuthill_mckee(a),
+            Ordering::MinimumDegree => minimum_degree(a),
         };
         let scale = a.data.iter().fold(0.0f64, |m, v| m.max(v.abs())).max(f64::MIN_POSITIVE);
         let mut l: Vec<Vec<(usize, f64)>> = Vec::with_capacity(n);
@@ -235,7 +286,7 @@ impl SparseLu {
 // ANCHOR_END: splu
 
 /// Solves the sparse system `A x = b` (SciPy's `spsolve`) by a sparse LU factorisation with the
-/// reverse Cuthill-McKee column ordering.
+/// minimum-degree column ordering.
 pub fn spsolve(a: &CsrMatrix, b: &[f64]) -> Result<Vec<f64>> {
-    SparseLu::factor(a, Ordering::ReverseCuthillMcKee)?.solve(b)
+    SparseLu::factor(a, Ordering::MinimumDegree)?.solve(b)
 }

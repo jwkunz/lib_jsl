@@ -74,7 +74,7 @@ the integrand matters. And the error can be estimated from the same samples, by 
 with the sample standard deviation. The price is the rate: one more correct digit costs a hundred
 times as many samples.
 
-<p class="caption" id="tab-2-14"><strong>Table 2.14.</strong> Monte Carlo error and its estimate against dimension.</p>
+<p class="caption" id="tab-2-16"><strong>Table 2.16.</strong> Monte Carlo error and its estimate against dimension.</p>
 
 {{#include ../generated/integration/monte_carlo_dimensions.md}}
 

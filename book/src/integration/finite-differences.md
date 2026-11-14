@@ -83,7 +83,7 @@ $r$, and the scheme is second order in time as well as space. Each step solves a
 system, which the **Thomas algorithm** (Gaussian elimination without fill-in) does in $O(N)$
 operations. For $u(x, 0) = \sin \pi x$, the library's results at $t = 0.1$:
 
-<p class="caption" id="tab-2-19"><strong>Table 2.19.</strong> Convergence of explicit and implicit schemes for the heat equation.</p>
+<p class="caption" id="tab-2-21"><strong>Table 2.21.</strong> Convergence of explicit and implicit schemes for the heat equation.</p>
 
 {{#include ../generated/integration/heat_convergence.md}}
 
@@ -133,7 +133,7 @@ finishes in at most $N$ steps; in practice its convergence depends on the condit
 which grows like $h^{-2}$, so finer grids need more iterations. For $-\nabla^2 u = 2\pi^2\sin\pi x\sin\pi y$ on
 the unit square:
 
-<p class="caption" id="tab-2-20"><strong>Table 2.20.</strong> Convergence of the five-point scheme for Poisson's equation.</p>
+<p class="caption" id="tab-2-22"><strong>Table 2.22.</strong> Convergence of the five-point scheme for Poisson's equation.</p>
 
 {{#include ../generated/integration/poisson_convergence.md}}
 

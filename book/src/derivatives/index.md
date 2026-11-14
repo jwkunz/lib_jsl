@@ -19,6 +19,7 @@ of rounding errors (which wants large ones).
 | A function you can only evaluate, moderate accuracy | Central differences with a balanced step | [Finite difference derivatives](finite-differences.md) |
 | Higher accuracy from function values alone | Five-point stencils, or Richardson extrapolation | [Finite difference derivatives](finite-differences.md#higher-order-stencils) |
 | Gradients, Hessians and Jacobians | Coordinate-wise central differences | [Finite difference derivatives](finite-differences.md#gradients-hessians-and-jacobians) |
+| Near machine precision with an error estimate, no step to choose | Ridders' extrapolation: `adaptive::derivative`, `jacobian`, `hessian` | [Adaptive derivatives](adaptive.md) |
 | An analytic function you can evaluate at complex points | Cauchy integral formula | [Complex contour integration](../integration/contour-integration.md#cauchys-integral-formula-and-derivatives) |
 | A smooth periodic function or one on an interval, sampled on a grid | Spectral differentiation | [Spectral methods](../integration/spectral-methods.md) |
 

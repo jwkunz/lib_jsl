@@ -9,9 +9,11 @@
 
 - [Numerical differentiation](derivatives/index.md)
     - [Finite difference derivatives](derivatives/finite-differences.md)
+    - [Adaptive derivatives](derivatives/adaptive.md)
 - [Numerical integration](integration/index.md)
     - [Newton-Cotes rules: midpoint, trapezoid and Simpson](integration/newton-cotes.md)
     - [Romberg integration](integration/romberg.md)
+    - [Integrating sampled data](integration/sampled-data.md)
     - [Gaussian quadrature](integration/gaussian-quadrature.md)
     - [Adaptive Gauss-Kronrod quadrature](integration/gauss-kronrod.md)
     - [Tanh-sinh quadrature](integration/tanh-sinh.md)

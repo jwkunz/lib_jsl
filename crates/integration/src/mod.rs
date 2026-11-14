@@ -44,6 +44,7 @@ pub mod monte_carlo_integration;
 pub mod pde;
 pub mod quasi_monte_carlo;
 pub mod romberg;
+pub mod sampled;
 pub mod runge_kutta_4;
 pub mod simpsons_1_3_integration_engine;
 pub mod stiff_ode;

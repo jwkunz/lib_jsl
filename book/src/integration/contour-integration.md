@@ -85,7 +85,7 @@ pole inside is $z = i$, with residue $\frac{1}{2i}$, so the closed integral is $
 for every $R > 1$. As $R$ grows the arc's contribution, bounded by $\pi R / (R^2 - 1)$, vanishes, and
 the segment tends to the real integral. The library computes each piece:
 
-<p class="caption" id="tab-2-12"><strong>Table 2.12.</strong> Contributions of the segment and the arc to a closed contour integral.</p>
+<p class="caption" id="tab-2-14"><strong>Table 2.14.</strong> Contributions of the segment and the arc to a closed contour integral.</p>
 
 {{#include ../generated/integration/contour_semicircle.md}}
 

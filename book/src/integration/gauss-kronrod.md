@@ -170,7 +170,7 @@ The global strategy:
 The library's results with tolerance $10^{-10}$, compared with the
 [adaptive trapezoid rule](newton-cotes.md#the-adaptive-trapezoid-rule) at the same tolerance:
 
-<p class="caption" id="tab-2-10"><strong>Table 2.10.</strong> Adaptive Gauss-Kronrod: evaluations, true errors and error estimates.</p>
+<p class="caption" id="tab-2-12"><strong>Table 2.12.</strong> Adaptive Gauss-Kronrod: evaluations, true errors and error estimates.</p>
 
 {{#include ../generated/integration/gauss_kronrod_table.md}}
 

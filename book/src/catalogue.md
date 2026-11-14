@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **504 algorithms and components in 23 crates**:
+The library implements **506 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 117 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 119 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 37 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 73 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 197 |
@@ -32,16 +32,17 @@ Derivatives, integrals, interpolation, equations and optimisation of functions, 
 
 Numerical differentiation routines for scalar and vector-valued functions.
 
-Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.html) · [book chapter](derivatives/index.md) · 2 items
+Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.html) · [book chapter](derivatives/index.md) · 3 items
 
 - [Scalar derivatives (1D)](derivatives/finite-differences.md)
 - [Vector derivatives](derivatives/finite-differences.md#gradients-hessians-and-jacobians)
+- [Adaptive derivatives with error estimates (Ridders), Jacobians and Hessians](derivatives/adaptive.md)
 
 ### Integration
 
 Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs.
 
-Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 24 items
+Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 25 items
 
 - [Integrator trait (1D)](integration/index.md#in-the-library)
 - [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
@@ -57,6 +58,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Gauss-Legendre, Gauss-Hermite and Gauss-Laguerre quadrature](integration/gaussian-quadrature.md)
 - [Tanh-sinh quadrature](integration/tanh-sinh.md)
 - [Romberg integration](integration/romberg.md)
+- [Sampled-data rules: trapezoid, Simpson, Romberg, cumulative integrals](integration/sampled-data.md)
 - [Multidimensional cubature](integration/cubature.md)
 - [Quasi-Monte Carlo integration](integration/monte-carlo.md#randomised-quasi-monte-carlo)
 - [Stiff ODE solvers (BDF, Rosenbrock)](integration/stiff-ode.md)

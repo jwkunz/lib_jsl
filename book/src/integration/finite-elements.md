@@ -84,7 +84,7 @@ computed by Gauss quadrature, added into the global matrix.
 Approximation theory then gives the rates: the best piecewise-linear approximation has gradient
 error $O(h)$ and value error $O(h^2)$. For $-u'' + u = (\pi^2 + 1)\sin\pi x$:
 
-<p class="caption" id="tab-2-21"><strong>Table 2.21.</strong> Convergence of linear finite elements in one dimension, at nodes and midpoints.</p>
+<p class="caption" id="tab-2-23"><strong>Table 2.23.</strong> Convergence of linear finite elements in one dimension, at nodes and midpoints.</p>
 
 {{#include ../generated/integration/fem_1d_convergence.md}}
 
@@ -123,7 +123,7 @@ per row on a regular mesh) and, after the prescribed values are eliminated, symm
 definite; the library solves it by conjugate gradients with a diagonal (Jacobi) preconditioner. For
 $-\nabla^2 u = 2\pi^2 \sin\pi x \sin\pi y$ on the unit square:
 
-<p class="caption" id="tab-2-22"><strong>Table 2.22.</strong> Convergence of linear finite elements on a square.</p>
+<p class="caption" id="tab-2-24"><strong>Table 2.24.</strong> Convergence of linear finite elements on a square.</p>
 
 {{#include ../generated/integration/fem_2d_convergence.md}}
 

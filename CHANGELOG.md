@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-11-14
+
+### Added
+
+- Sampled-data integration in `lib_jsl_integration::sampled`, following `scipy.integrate`:
+  `trapezoid`, `simpson` (unequal spacing, Cartwright's even-length correction), `romb`,
+  `cumulative_trapezoid` and `cumulative_simpson`.
+- Adaptive derivatives with error estimates in `lib_jsl_derivatives::adaptive` (Ridders'
+  extrapolation): `derivative`, `jacobian` and `hessian`, the counterparts of
+  `scipy.differentiate`.
+- Book entries "Integrating sampled data" and "Adaptive derivatives", compared against SciPy.
+
 ## [1.13.0] - 2026-11-14
 
 ### Added
@@ -303,7 +315,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.14.0...HEAD
+[1.14.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.14.0
 [1.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.13.0
 [1.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.12.0
 [1.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.11.0

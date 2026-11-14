@@ -39,6 +39,7 @@ mod refs;
 mod signal_tools;
 mod sorting;
 mod root_finding;
+mod sampled;
 mod spectral;
 mod special_functions;
 mod statistics;
@@ -70,12 +71,13 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 37] = [
+    let chapters: [(&str, fn()); 38] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
         ("integration", integration::generate),
         ("ivp", ivp::generate),
+        ("sampled", sampled::generate),
         ("root_finding", root_finding::generate),
         ("optimization", optimization::generate),
         ("bounded", bounded::generate),

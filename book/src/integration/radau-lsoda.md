@@ -154,7 +154,7 @@ Both methods are compared with `scipy.integrate.solve_ivp` (SciPy 1.17.1; refere
 `book/generator/data/make_ivp_refs.py`) on two stiff problems and a non-stiff one. The errors are relative to a reference solution at
 $\mathrm{rtol} = 10^{-12}$, and $\mathrm{atol} = 10^{-3}\,\mathrm{rtol}$:
 
-<p class="caption" id="tab-2-16"><strong>Table 2.16.</strong> Radau and LSODA against SciPy.</p>
+<p class="caption" id="tab-2-18"><strong>Table 2.18.</strong> Radau and LSODA against SciPy.</p>
 
 {{#include ../generated/integration/ivp_scipy.md}}
 
@@ -163,7 +163,7 @@ ODEPACK's, sometimes lower. Its errors are similar on Van der Pol, but several t
 hundred times larger on the Arenstorf orbit at $10^{-7}$. That orbit amplifies any local error by orders of magnitude along the trajectory. Neither LSODA handles Arenstorf at $10^{-4}$. The orbit needs a
 tight tolerance or a high-order explicit method.
 
-<p class="caption" id="tab-2-17"><strong>Table 2.17.</strong> Event location against reference event times.</p>
+<p class="caption" id="tab-2-19"><strong>Table 2.19.</strong> Event location against reference event times.</p>
 
 {{#include ../generated/integration/ivp_events.md}}
 

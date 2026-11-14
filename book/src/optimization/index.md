@@ -101,6 +101,9 @@ minimum at $(1, 1)$, is the standard test of a local method; it appears througho
 | Linear objective and constraints | The simplex method | [Linear programming](linear-programming.md) |
 | Discrete stages or a Markov decision process | Dynamic programming | [Dynamic programming](dynamic-programming.md) |
 | Many local minima, a bounded box | Differential evolution or particle swarm | [Stochastic global optimisation](stochastic.md) |
+| Many local minima: deterministic, or annealing with local search, or hopping between minima | `direct`, `dual_annealing`, `basinhopping` | [Assignment, trust regions and global optimisation](assignment-trust-global.md#basin-hopping) |
+| A smooth function with a Hessian (possibly indefinite) | `minimize_trust_region` (trust-ncg, dogleg, trust-exact) | [Assignment, trust regions and global optimisation](assignment-trust-global.md#trust-region-methods) |
+| Match rows to columns at least total cost | `linear_sum_assignment` | [Assignment, trust regions and global optimisation](assignment-trust-global.md#the-assignment-problem) |
 
 ## Testing against SciPy
 

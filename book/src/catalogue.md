@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **536 algorithms and components in 23 crates**:
+The library implements **543 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 132 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 139 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 49 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 197 |
@@ -158,7 +158,7 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 
 Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 18 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 25 items
 
 - [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
@@ -178,6 +178,13 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [Bounded linear least squares (BVLS) and non-negative least squares (NNLS)](optimization/bounded.md#linear-least-squares-with-bounds)
 - [Differential evolution](optimization/stochastic.md#differential-evolution)
 - [Particle swarm optimisation](optimization/stochastic.md#particle-swarm-optimisation)
+- [Linear sum assignment (shortest augmenting paths)](optimization/assignment-trust-global.md#the-assignment-problem)
+- [Trust-region Newton-CG (Steihaug)](optimization/assignment-trust-global.md#trust-region-methods)
+- [Dogleg trust-region method](optimization/assignment-trust-global.md#trust-region-methods)
+- [Nearly exact trust-region method (Moré-Sorensen)](optimization/assignment-trust-global.md#trust-region-methods)
+- [Basin hopping](optimization/assignment-trust-global.md#basin-hopping)
+- [Dual annealing (generalised simulated annealing with local search)](optimization/assignment-trust-global.md#dual-annealing)
+- [DIRECT-L global optimisation](optimization/assignment-trust-global.md#direct)
 
 ### Special functions
 

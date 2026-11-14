@@ -6,6 +6,17 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.19.0] - 2026-11-14
+
+### Added
+
+- `lib_jsl_optimization::assignment::linear_sum_assignment`, a port of SciPy's shortest
+  augmenting path solver (identical assignments, ties included).
+- `lib_jsl_optimization::trust_region::minimize_trust_region` with Steihaug CG (`trust-ncg`),
+  dogleg and Moré-Sorensen (`trust-exact`) subproblems, ported from SciPy (identical iterates).
+- `lib_jsl_optimization::global`: `basinhopping`, `dual_annealing` and `direct` (DIRECT-L).
+- Book entry "Assignment, trust regions and global optimisation", compared against SciPy.
+
 ## [1.18.0] - 2026-11-14
 
 ### Added
@@ -385,7 +396,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.18.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.19.0...HEAD
+[1.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.19.0
 [1.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.18.0
 [1.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.17.0
 [1.16.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.16.0

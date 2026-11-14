@@ -53,6 +53,7 @@
     - [Linear programming: the simplex method](optimization/linear-programming.md)
     - [Dynamic programming](optimization/dynamic-programming.md)
     - [Stochastic global optimisation](optimization/stochastic.md)
+    - [Assignment, trust regions and global optimisation](optimization/assignment-trust-global.md)
 - [Special functions](special_functions/index.md)
     - [The gamma function and related functions](special_functions/gamma.md)
     - [Incomplete gamma and beta functions and the error function](special_functions/incomplete.md)

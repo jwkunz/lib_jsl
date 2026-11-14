@@ -20,3 +20,6 @@ pub mod simulated_annealing;
 pub mod linear_programming;
 pub mod powells_method;
 pub mod quasi_newton;
+pub mod assignment;
+pub mod trust_region;
+pub mod global;

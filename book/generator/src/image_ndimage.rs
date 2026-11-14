@@ -7,11 +7,16 @@ use std::collections::HashMap;
 use lib_jsl_dsp::discrete::image::boundary::Mode;
 use lib_jsl_dsp::discrete::image::derivative_filters::{gaussian_filter, gaussian_gradient_magnitude, gaussian_laplace, laplace};
 use lib_jsl_dsp::discrete::image::distance::{ChamferMetric, distance_transform_cdt, distance_transform_edt};
+use lib_jsl_dsp::discrete::image::fourier::{Spectrum, fourier_ellipsoid, fourier_filter, fourier_gaussian, fourier_shift, fourier_uniform};
 use lib_jsl_dsp::discrete::image::geometric::{affine_transform, map_coordinates, rotate, shift, zoom};
 use lib_jsl_dsp::discrete::image::labelling::{label, regions};
 use lib_jsl_dsp::discrete::image::morphology::*;
 use lib_jsl_dsp::discrete::image::rank_filters::{maximum_filter, median_filter, minimum_filter, percentile_filter, rank_filter};
+use lib_jsl_ffts::real_fft::rfft;
 use ndarray::Array2;
+use num_complex::Complex;
+
+type C64 = Complex<f64>;
 
 use crate::raster::{Colours, Mark, Panel, panels};
 use crate::spectral::md_table;
@@ -24,6 +29,7 @@ pub fn generate() {
     reference_table();
     morphology_figures();
     rank_geometric_figures();
+    fourier_figures();
 }
 
 fn parse() -> HashMap<String, Vec<f64>> {
@@ -147,6 +153,27 @@ fn library_case(name: &str, grey: &Array2<f64>, binary: &Array2<bool>) -> Option
         }
         "rotate" if words[1] == "30" => flat(rotate(grey, 30.0, true, 3, Mode::Constant(0.0)).ok()?),
         "rotate" => flat(rotate(grey, -20.0, false, 1, Mode::Nearest).ok()?),
+        w0 if w0.starts_with("fourier_") => {
+            let kind = &words[0]["fourier_".len()..];
+            let params = match kind { "gaussian" => (1.5, 0.7), "uniform" => (3.0, 4.0), "ellipsoid" => (5.0, 3.0), _ => (2.5, -1.25) };
+            let filter = |s: &Array2<C64>, spectrum: Spectrum| match kind {
+                "gaussian" => fourier_gaussian(s, params, spectrum),
+                "uniform" => fourier_uniform(s, params, spectrum),
+                "ellipsoid" => fourier_ellipsoid(s, params, spectrum),
+                _ => fourier_shift(s, params, spectrum),
+            };
+            if name.ends_with("real rows") {
+                let rows: Vec<Vec<C64>> = grey.rows().into_iter().map(|r| rfft(&r.to_vec()).unwrap()).collect();
+                let w = rows[0].len();
+                // A real FFT along each row, as numpy.fft.rfft(axis=-1) gives; the untransformed
+                // columns are treated as a full spectrum, as SciPy does.
+                let spec = Array2::from_shape_fn((grey.nrows(), w), |(i, j)| rows[i][j]);
+                let out = filter(&spec, Spectrum::RealRows { columns: grey.ncols() }).ok()?;
+                out.iter().map(|z| z.re).chain(out.iter().map(|z| z.im)).collect()
+            } else {
+                flat(fourier_filter(grey, |s| filter(s, Spectrum::Full)).ok()?)
+            }
+        }
         _ => return None,
     })
 }
@@ -424,4 +451,90 @@ fn rank_geometric_figures() {
             200.0,
         ),
     );
+}
+
+// ------------------------------------------------------------------ Fourier-domain filters
+
+fn fourier_figures() {
+    let scene = grey_scene();
+    let g = Colours::Gray(0.0, 1.0);
+    let gauss = fourier_filter(&scene, |s| fourier_gaussian(s, (3.0, 3.0), Spectrum::Full)).unwrap();
+    let boxed = fourier_filter(&scene, |s| fourier_uniform(s, (7.0, 7.0), Spectrum::Full)).unwrap();
+    let disc = fourier_filter(&scene, |s| fourier_ellipsoid(s, (9.0, 9.0), Spectrum::Full)).unwrap();
+    write(
+        CHAPTER,
+        "fourier_filters.svg",
+        &panels(
+            "Smoothing in the Fourier domain (the image wraps around at its edges)",
+            &[
+                Panel::new("test image", scene.clone(), g),
+                Panel::new("Gaussian, σ = 3", gauss, g),
+                Panel::new("box, 7 × 7", boxed, g),
+                Panel::new("disc, diameter 9", disc, g),
+            ],
+            4,
+            170.0,
+        ),
+    );
+
+    // Fourier against spatial Gaussian smoothing: agreement and cost.
+    let n = 256;
+    let mut u = uniform(21);
+    let big = Array2::from_shape_fn((n, n), |_| u());
+    let time_ms = |f: &dyn Fn()| {
+        f();
+        (0..5)
+            .map(|_| {
+                let t = std::time::Instant::now();
+                f();
+                t.elapsed().as_secs_f64() * 1e3
+            })
+            .fold(f64::INFINITY, f64::min)
+    };
+    let mut rows = Vec::new();
+    for sigma in [0.5, 1.0, 2.0, 4.0, 8.0, 16.0] {
+        let spatial = gaussian_filter(&big, (sigma, sigma), (0, 0), Mode::Wrap, 4.0).unwrap();
+        let fourier = fourier_filter(&big, |s| fourier_gaussian(s, (sigma, sigma), Spectrum::Full)).unwrap();
+        let diff = spatial.iter().zip(&fourier).map(|(a, b)| (a - b).abs()).fold(0.0, f64::max);
+        let ts = time_ms(&|| {
+            std::hint::black_box(gaussian_filter(&big, (sigma, sigma), (0, 0), Mode::Wrap, 4.0).unwrap());
+        });
+        let tf = time_ms(&|| {
+            std::hint::black_box(fourier_filter(&big, |s| fourier_gaussian(s, (sigma, sigma), Spectrum::Full)).unwrap());
+        });
+        rows.push(vec![format!("{sigma}"), format!("{:.1e}", diff), format!("{ts:.1} ms"), format!("{tf:.1} ms")]);
+    }
+    write(CHAPTER, "fourier_vs_spatial.md", &md_table(&["σ (256 × 256 image)", "largest difference, spatial against Fourier", "spatial (separable, wrap)", "Fourier (FFT, filter, inverse FFT)"], &rows));
+
+    // Sub-pixel shifts of a smooth bump and a step.
+    let m = 64;
+    let bump = |x: f64| (-0.5 * ((x - 20.0) / 3.0).powi(2)).exp();
+    let step = |x: f64| if (36.0..52.0).contains(&x) { 1.0 } else { 0.0 };
+    let row = Array2::from_shape_fn((1, m), |(_, j)| bump(j as f64) + step(j as f64));
+    let shifted_f = fourier_filter(&row, |s| fourier_shift(s, (0.0, 0.5), Spectrum::Full)).unwrap();
+    let shifted_s = shift(&row, (0.0, 0.5), 3, Mode::Wrap).unwrap();
+    let mut plot = Plot::new("Shifting by half a pixel: a smooth bump and a step", "position (pixels)", "value");
+    let fine: Vec<f64> = (0..=640).map(|k| k as f64 / 10.0).collect();
+    plot.series.push(Series::new("signal moved exactly", fine.iter().map(|&x| (x, bump(x - 0.5) + step(x - 0.5))).collect(), Style::Line, 7));
+    plot.series.push(Series::new("phase ramp (fourier_shift)", shifted_f.iter().enumerate().map(|(j, &v)| (j as f64, v)).collect(), Style::LineMarkers, 0));
+    plot.series.push(Series::new("cubic spline (shift, order 3)", shifted_s.iter().enumerate().map(|(j, &v)| (j as f64, v)).collect(), Style::LineMarkers, 1));
+    plot.legend = Legend::TopLeft;
+    plot.y_range = Some((-0.3, 1.4));
+    plot.x_range = Some((8.0, 60.0));
+    write(CHAPTER, "fourier_shift.svg", &plot.render());
+    // Errors with each signal shifted on its own (in one row the step's ringing reaches the bump).
+    let alone = |f: &dyn Fn(f64) -> f64| -> (f64, f64) {
+        let r = Array2::from_shape_fn((1, m), |(_, j)| f(j as f64));
+        let a = fourier_filter(&r, |s| fourier_shift(s, (0.0, 0.5), Spectrum::Full)).unwrap();
+        let b = shift(&r, (0.0, 0.5), 3, Mode::Wrap).unwrap();
+        let e = |y: &Array2<f64>| (0..m).map(|j| (y[(0, j)] - f(j as f64 - 0.5)).abs()).fold(0.0, f64::max);
+        (e(&a), e(&b))
+    };
+    let (bf, bs) = alone(&bump);
+    let (sf, ss) = alone(&step);
+    let rows = vec![
+        vec!["smooth bump (σ = 3 pixels)".to_string(), format!("{bf:.1e}"), format!("{bs:.1e}")],
+        vec!["step".to_string(), format!("{sf:.1e}"), format!("{ss:.1e}")],
+    ];
+    write(CHAPTER, "fourier_shift_errors.md", &md_table(&["signal (shift by 0.5 pixel)", "phase ramp: largest error", "cubic spline: largest error"], &rows));
 }

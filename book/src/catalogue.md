@@ -13,14 +13,14 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **468 algorithms and components in 23 crates**:
+The library implements **470 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 107 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 31 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
-| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 186 |
+| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 188 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
 
@@ -385,7 +385,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 128 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 130 items
 
 #### Continuous
 
@@ -481,6 +481,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 - [Wiener filtering](image/restoration.md#the-adaptive-wiener-filter)
 - [Rank filters: median, percentile, minimum, maximum](image/rank-geometric.md#rank-filters)
 - [Gaussian derivative filters, Laplacian of Gaussian, laplace](image/rank-geometric.md#gaussian-derivatives)
+- [Fourier-domain Gaussian, box and ellipse filters](image/fourier.md#the-transfer-functions)
 
 ###### Morphology
 
@@ -493,6 +494,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 
 - [B-spline interpolation (orders 0–5) and map_coordinates](image/rank-geometric.md#interpolation-by-b-splines)
 - [Affine transform, shift, zoom and rotate](image/rank-geometric.md#geometric-transforms)
+- [Sub-pixel shift by a Fourier phase ramp](image/fourier.md#shifting-by-a-fraction-of-a-pixel)
 
 ###### Segmentation
 

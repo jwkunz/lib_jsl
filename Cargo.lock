@@ -355,6 +355,7 @@ dependencies = [
  "lib_jsl_linalg",
  "lib_jsl_number_theory",
  "lib_jsl_random",
+ "lib_jsl_special_functions",
  "ndarray",
  "num-complex",
 ]

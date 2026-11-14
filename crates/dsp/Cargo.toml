@@ -18,6 +18,7 @@ lib_jsl_core.workspace = true
 lib_jsl_ffts.workspace = true
 lib_jsl_number_theory.workspace = true
 lib_jsl_random.workspace = true
+lib_jsl_special_functions.workspace = true
 num-complex.workspace = true
 ndarray.workspace = true
 lib_jsl_linalg.workspace = true

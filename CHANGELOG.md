@@ -6,6 +6,14 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Fourier-domain filters in `lib_jsl_dsp::discrete::image::fourier`: `fourier_gaussian`,
+  `fourier_uniform`, `fourier_ellipsoid` and `fourier_shift` on full or real-FFT spectra (SciPy's
+  `n`), with `frequencies` and the convenience `fourier_filter` for real images.
+- Book entry "Fourier-domain filters", compared against `scipy.ndimage`, with the cost and accuracy
+  of Fourier against spatial Gaussian smoothing and of phase-ramp against spline shifts.
+
 ## [1.3.0] - 2026-11-14
 
 ### Added

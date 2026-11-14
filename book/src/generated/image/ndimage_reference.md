@@ -108,3 +108,11 @@
 | rotate 30 reshape order 3 | 1.4e-15 |
 | rotate -20 order 1 nearest | 1.9e-15 |
 | rotate 30 reshape order 3 shape | identical |
+| fourier_gaussian (1.5, 0.7) | 1.8e-15 |
+| fourier_uniform (3, 4) | 1.6e-15 |
+| fourier_ellipsoid (5, 3) | 1.7e-15 |
+| fourier_shift (2.5, -1.25) | 1.2e-15 |
+| fourier_gaussian real rows | 1.0e-15 |
+| fourier_uniform real rows | 1.1e-15 |
+| fourier_ellipsoid real rows | 1.1e-15 |
+| fourier_shift real rows | 1.3e-15 |

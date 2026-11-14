@@ -109,3 +109,15 @@ out("zoom (0.5, 2) order 1", ndi.zoom(grey, (0.5, 2.0), order=1))
 out("rotate 30 reshape order 3", ndi.rotate(grey, 30, reshape=True, order=3))
 out("rotate -20 order 1 nearest", ndi.rotate(grey, -20, reshape=False, order=1, mode="nearest"))
 out("rotate 30 reshape order 3 shape", np.array(ndi.rotate(grey, 30, reshape=True, order=3).shape))
+
+# Fourier-domain filters (1.4.0): full spectra (filtered image after the inverse FFT) and a real
+# FFT along the rows (the filtered spectrum, real parts then imaginary parts).
+F = np.fft.fft2(grey)
+out("fourier_gaussian (1.5, 0.7)", np.fft.ifft2(ndi.fourier_gaussian(F, (1.5, 0.7))).real)
+out("fourier_uniform (3, 4)", np.fft.ifft2(ndi.fourier_uniform(F, (3, 4))).real)
+out("fourier_ellipsoid (5, 3)", np.fft.ifft2(ndi.fourier_ellipsoid(F, (5, 3))).real)
+out("fourier_shift (2.5, -1.25)", np.fft.ifft2(ndi.fourier_shift(F, (2.5, -1.25))).real)
+R = np.fft.rfft(grey, axis=-1)
+for name, f, p in [("gaussian", ndi.fourier_gaussian, (1.5, 0.7)), ("uniform", ndi.fourier_uniform, (3, 4)), ("ellipsoid", ndi.fourier_ellipsoid, (5, 3)), ("shift", ndi.fourier_shift, (2.5, -1.25))]:
+    s = f(R, p, n=24)
+    out(f"fourier_{name} real rows", np.concatenate([s.real.ravel(), s.imag.ravel()]))

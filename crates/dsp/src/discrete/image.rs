@@ -6,6 +6,7 @@ pub mod boundary;
 pub mod convolution;
 pub mod derivative_filters;
 pub mod distance;
+pub mod fourier;
 pub mod geometric;
 pub mod labelling;
 pub mod morphology;

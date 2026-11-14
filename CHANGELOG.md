@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-11-14
+
+### Added
+
+- `lib_jsl_integration::ivp::solve_ivp`, following `scipy.integrate.solve_ivp`, with two methods:
+  Radau IIA of order 5 (a step-for-step port of SciPy's `Radau`) and LSODA-style Adams/BDF
+  multistep methods in Nordsieck form with automatic stiffness switching. Every solve returns a
+  `DenseOutput`, and `Event` functions are located by Brent's method on it, with direction
+  filters and terminal events.
+- Book entry "Radau, LSODA and event location", compared against SciPy on stiff and non-stiff
+  problems.
+
 ## [1.7.0] - 2026-11-14
 
 ### Added
@@ -226,7 +238,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.8.0
 [1.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.7.0
 [1.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.6.0
 [1.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.5.0

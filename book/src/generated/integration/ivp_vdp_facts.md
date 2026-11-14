@@ -1,0 +1,1 @@
+Over $0 \le t \le 200$ at $\mathrm{rtol} = 10^{-6}$, Radau takes 688 steps with 5664 function evaluations and 474 LU factorisations; LSODA takes 910 steps with 1952 evaluations, switching method 5 times.

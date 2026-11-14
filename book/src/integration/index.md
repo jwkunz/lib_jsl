@@ -74,6 +74,7 @@ exponentially.
 |---|---|---|
 | Initial value problem, non-stiff | Adaptive Dormand-Prince | [Runge-Kutta methods](runge-kutta.md) |
 | Initial value problem with fast and slow time scales (stiff) | BDF, or Rosenbrock at loose tolerances | [Stiff ODE solvers](stiff-ode.md) |
+| Stiff at tight tolerances, stiffness unknown or changing; dense output; events | Radau, LSODA | [Radau, LSODA and event location](radau-lsoda.md) |
 | Conditions at both ends of an interval | Collocation (shooting if well conditioned) | [Boundary value problems](boundary-value-problems.md) |
 | Heat, wave or Poisson equation on a rectangle | Finite differences | [Finite difference methods](finite-differences.md) |
 | Irregular domains, variable or discontinuous coefficients | Finite elements | [Finite element methods](finite-elements.md) |

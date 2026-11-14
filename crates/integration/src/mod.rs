@@ -38,6 +38,7 @@ pub mod complex_path_integrals;
 pub mod cubature;
 pub mod dormand_prince;
 pub mod gaussian_quadrature;
+pub mod ivp;
 pub mod midpoint_integration_engine;
 pub mod monte_carlo_integration;
 pub mod pde;

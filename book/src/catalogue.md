@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **481 algorithms and components in 23 crates**:
+The library implements **484 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 111 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 114 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 34 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 192 |
@@ -41,7 +41,7 @@ Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.ht
 
 Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs.
 
-Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 21 items
+Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 24 items
 
 - [Integrator trait (1D)](integration/index.md#in-the-library)
 - [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
@@ -60,6 +60,9 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Multidimensional cubature](integration/cubature.md)
 - [Quasi-Monte Carlo integration](integration/monte-carlo.md#randomised-quasi-monte-carlo)
 - [Stiff ODE solvers (BDF, Rosenbrock)](integration/stiff-ode.md)
+- [Radau IIA (order 5)](integration/radau-lsoda.md#radau-iia)
+- [LSODA: Adams/BDF with automatic stiffness switching](integration/radau-lsoda.md#switching-on-stiffness)
+- [Dense output and event location](integration/radau-lsoda.md#dense-output-and-events)
 - [Boundary value problems (shooting, collocation)](integration/boundary-value-problems.md)
 
 #### Partial differential equations

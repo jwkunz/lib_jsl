@@ -20,6 +20,7 @@
     - [Monte Carlo and quasi-Monte Carlo integration](integration/monte-carlo.md)
     - [Runge-Kutta methods](integration/runge-kutta.md)
     - [Stiff ODE solvers: Rosenbrock and BDF](integration/stiff-ode.md)
+    - [Radau, LSODA and event location](integration/radau-lsoda.md)
     - [Boundary value problems](integration/boundary-value-problems.md)
     - [Finite difference methods](integration/finite-differences.md)
     - [Finite element methods](integration/finite-elements.md)

@@ -21,6 +21,7 @@ mod image_ndimage;
 mod information;
 mod integration;
 mod interpolation;
+mod ivp;
 mod learning;
 mod b_splines;
 mod linear_algebra;
@@ -64,11 +65,12 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 31] = [
+    let chapters: [(&str, fn()); 32] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
         ("integration", integration::generate),
+        ("ivp", ivp::generate),
         ("root_finding", root_finding::generate),
         ("optimization", optimization::generate),
         ("optimization_more", optimization_more::generate),

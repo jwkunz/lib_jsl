@@ -69,7 +69,7 @@ coefficients decay, which is governed by smoothness:
 
 ![Fourier differentiation](../generated/integration/fourier_derivative.svg)
 
-<p class="caption" id="fig-2-27"><strong>Figure 2.27.</strong> Fourier differentiation.</p>
+<p class="caption" id="fig-2-29"><strong>Figure 2.29.</strong> Fourier differentiation.</p>
 
 For the analytic $e^{\sin x}$ the error reaches machine precision with 32 points. For $|\sin x|^3$, whose
 third derivative jumps, the coefficients decay only like $k^{-4}$ and the derivative error like
@@ -119,7 +119,7 @@ of size $n + 1$, solved by LU factorisation. For $u = e^x\cos 4x$:
 
 ![Chebyshev collocation against finite elements](../generated/integration/spectral_convergence.svg)
 
-<p class="caption" id="fig-2-28"><strong>Figure 2.28.</strong> Chebyshev collocation against finite elements.</p>
+<p class="caption" id="fig-2-30"><strong>Figure 2.30.</strong> Chebyshev collocation against finite elements.</p>
 
 Chebyshev collocation reaches $10^{-13}$ with about 25 points, where linear finite elements need a
 thousand points for $10^{-11}$. The plateau beyond is rounding error, amplified by the

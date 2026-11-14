@@ -1,1 +1,1 @@
-Dijkstra's distance to the target is 156, A*'s path costs 156 over 156 steps. Dijkstra settled the whole grid in 0.34 ms; A* with the Manhattan heuristic stopped at the target after 0.36 ms.
+Dijkstra's distance to the target is 156, A*'s path costs 156 over 156 steps. Dijkstra settled the whole grid in 0.16 ms; A* with the Manhattan heuristic stopped at the target after 0.16 ms.

@@ -107,8 +107,8 @@ nearly the same thing:
 
 For $\sigma \ge 2$ they agree to $10^{-5}$, the size of the truncated Gaussian tail. For small $\sigma$ they differ a lot, because the continuous
 Gaussian is not band-limited: its transform does not vanish at the Nyquist frequency, so sampling it in space and evaluating it in
-frequency are different discretisations. The spatial cost grows with $\sigma$; the Fourier cost does not, and wins from $\sigma \approx 2$ on
-this image.
+frequency are different discretisations. The spatial cost grows with $\sigma$; the Fourier cost does not. Where the two cross depends on the machine and
+the image size, but beyond a few pixels the Fourier filter is always the cheaper.
 
 ### Shifting by a fraction of a pixel
 

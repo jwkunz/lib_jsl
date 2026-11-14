@@ -1,1 +1,1 @@
-Blurring by σ = 1.2 and then 1.6 differs from one blur of σ = 2 by at most 1.0e-5 away from the borders. On a 256 × 256 image with σ = 3 (a 25-tap kernel), the separable blur took 16.7 ms and the full 25 × 25 kernel 357.4 ms, a factor of 21, with results equal to 2e-14.
+Blurring by σ = 1.2 and then 1.6 differs from one blur of σ = 2 by at most 1.0e-5 away from the borders. On a 256 × 256 image with σ = 3 (a 25-tap kernel), the separable blur took 5.3 ms and the full 25 × 25 kernel 94.7 ms, a factor of 18, with results equal to 2e-14.

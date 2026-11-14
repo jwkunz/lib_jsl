@@ -55,6 +55,7 @@ the rounding error in the argument.
 | $\zeta(s)$, $\zeta(s, a)$, $\operatorname{Li}_s(z)$, Fermi-Dirac $F_j(x)$ | [Zeta functions, polylogarithms and Fermi-Dirac integrals](zeta.md) |
 | Lambert $W$, solutions of $x\ln x = y$ | [The Lambert W function](lambert-w.md) |
 | Normal, Student's $t$, $\chi^2$, $F$, Poisson and binomial distribution functions and quantiles | [Statistical distribution functions](statistical.md) |
+| $\ln\sum e^{a_i}$, softmax, logit and sigmoid, $\ln\Phi(x)$, Box-Cox; $\psi^{(n)}$, $\ln\Gamma_d$, Bernoulli and Euler numbers; inverses of $P(a, x)$ and $I_x(a, b)$ | [Log-domain functions and inverse incomplete integrals](log-domain.md) |
 
 ## In the library
 

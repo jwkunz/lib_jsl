@@ -32,6 +32,9 @@ pub mod hypergeometric_functions;
 pub mod statistical_functions;
 pub mod orthogonal_polynomials;
 pub mod spherical_harmonics;
+pub mod log_functions;
+pub mod polygamma;
+pub mod inverse_incomplete;
 
 pub use gamma::{
     gamma,
@@ -163,3 +166,6 @@ pub use zeta::{
     hurwitz_zeta,
 };
 pub use polylogarithm::polylog;
+pub use log_functions::{boxcox, boxcox1p, expit, inv_boxcox, log_expit, log_ndtr, log_softmax, logit, logsumexp, logsumexp_weighted, softmax};
+pub use polygamma::{bernoulli, euler, multigammaln, polygamma};
+pub use inverse_incomplete::{betaincinv, gammainccinv, gammaincinv};

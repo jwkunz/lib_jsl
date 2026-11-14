@@ -6,6 +6,25 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-11-14
+
+### Added
+
+- `lib_jsl_ffts::helpers`: `fftfreq`, `rfftfreq`, `next_fast_len`, `ifftshift` (and 1-D
+  `fftshift_1d`/`ifftshift_1d`), N-dimensional real FFTs `rfftn`/`irfftn`, and N-dimensional
+  `dctn`/`idctn`/`dstn`/`idstn`, following `scipy.fft`.
+- `lib_jsl_special_functions`: `logsumexp` (also signed), `softmax`, `log_softmax`, `logit`,
+  `expit`, `log_expit`, `log_ndtr`, `boxcox`, `boxcox1p`, `inv_boxcox`; `polygamma`,
+  `multigammaln`, `bernoulli`, `euler`; and `gammaincinv`, `gammainccinv`, `betaincinv` by
+  Halley's method.
+- `lib_jsl_statistics`: `linregress`, `theilslopes` (with Sen's interval), `siegelslopes`;
+  `trim_mean`, `zscore`, `mode`; `circmean`, `circvar`, `circstd`; the maximum-likelihood
+  `boxcox` with `boxcox_llf` and `boxcox_normmax`; and `pdist`, `cdist` and `squareform` with 13
+  metrics.
+- Book entries "Log-domain functions and inverse incomplete integrals" and "More descriptive
+  statistics and robust regression", and a section on the FFT helpers, all compared against
+  SciPy.
+
 ## [1.15.0] - 2026-11-14
 
 ### Added
@@ -329,7 +348,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.16.0
 [1.15.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.15.0
 [1.14.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.14.0
 [1.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.13.0

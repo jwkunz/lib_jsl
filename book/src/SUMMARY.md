@@ -63,6 +63,7 @@
     - [Zeta functions, polylogarithms and Fermi-Dirac integrals](special_functions/zeta.md)
     - [The Lambert W function](special_functions/lambert-w.md)
     - [Statistical distribution functions](special_functions/statistical.md)
+    - [Log-domain functions and inverse incomplete integrals](special_functions/log-domain.md)
 
 # Linear algebra and transforms
 
@@ -98,6 +99,7 @@
     - [More hypothesis tests](statistics/more-tests.md)
     - [Kernel density estimation](statistics/kernel-density.md)
     - [The bootstrap](statistics/bootstrap.md)
+    - [More descriptive statistics and robust regression](statistics/robust-regression.md)
 - [Machine learning: regression and classification](machine_learning/index.md)
     - [Foundations: models, data, preprocessing and metrics](machine_learning/foundations.md)
     - [Linear regression: least squares, ridge, lasso and elastic net](machine_learning/linear-regression.md)

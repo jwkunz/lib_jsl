@@ -13,13 +13,13 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **511 algorithms and components in 23 crates**:
+The library implements **523 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 119 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 42 |
-| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 73 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 123 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 45 |
+| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 197 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
@@ -174,7 +174,7 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 
 Special functions: gamma, beta, error, Bessel, Airy, elliptic, hypergeometric and zeta functions, orthogonal polynomials.
 
-Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 27 items
+Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 31 items
 
 - [Gamma](special_functions/gamma.md#the-gamma-function)
 - [Beta](special_functions/gamma.md#the-beta-function)
@@ -203,6 +203,10 @@ Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functi
 - [Riemann zeta](special_functions/zeta.md#the-riemann-zeta-function)
 - [Lambert W](special_functions/lambert-w.md#the-lambert-w-function)
 - [Polylogarithm](special_functions/zeta.md#the-polylogarithm)
+- [Log-domain functions: logsumexp, softmax, logit and expit, log of the normal CDF, Box-Cox](special_functions/log-domain.md#factoring-out-the-largest-term)
+- [Polygamma functions and the multivariate log-gamma function](special_functions/log-domain.md#polygamma-functions-and-friends)
+- [Bernoulli and Euler numbers](special_functions/log-domain.md#polygamma-functions-and-friends)
+- [Inverse incomplete gamma and beta functions (Halley's method)](special_functions/log-domain.md#inverting-the-incomplete-gamma-and-beta-functions)
 
 ## Linear algebra and transforms
 
@@ -254,7 +258,7 @@ Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_referenc
 
 Fast Fourier transform engines and related spectral transforms.
 
-Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book chapter](fft/index.md) · 10 items
+Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book chapter](fft/index.md) · 13 items
 
 - [FFT (default engine: picks the algorithm by size)](fft/fft.md#the-production-engines)
 - [Best FFT](fft/fft.md#the-production-engines)
@@ -265,6 +269,9 @@ Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book c
 - [Real-input FFT](fft/real-multidimensional.md#the-real-fft-by-half-length-packing)
 - [Multidimensional FFT (2D, 3D)](fft/real-multidimensional.md#multidimensional-transforms)
 - [Discrete cosine and sine transforms](fft/dct.md)
+- [Frequency grids and shifts (`fftfreq`, `rfftfreq`, `ifftshift`)](fft/real-multidimensional.md#helpers-frequencies-fast-lengths-and-n-d-transforms)
+- [Fast transform lengths (`next_fast_len`)](fft/real-multidimensional.md#helpers-frequencies-fast-lengths-and-n-d-transforms)
+- [N-dimensional real FFTs and DCTs/DSTs (`rfftn`, `dctn`, `dstn`)](fft/real-multidimensional.md#helpers-frequencies-fast-lengths-and-n-d-transforms)
 - [Size-sweep benchmark](fft/index.md#two-crates)
 
 ### FFT reference
@@ -316,9 +323,9 @@ Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [bo
 
 ### Statistics
 
-Descriptive statistics, correlation, hypothesis tests, density estimation and resampling.
+Descriptive and circular statistics, correlation, robust regression, distances, hypothesis tests, density estimation and resampling.
 
-Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 14 items
+Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 19 items
 
 - [Descriptive statistics](statistics/descriptive.md)
 - [Distribution objects: pdf, cdf, sf, quantiles and moments for 20 continuous and 5 discrete distributions](statistics/distributions.md#four-views-of-one-distribution)
@@ -334,6 +341,11 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 - [Permutation tests](statistics/more-tests.md#permutation-tests)
 - Multiple comparisons ([Bonferroni, Holm, Benjamini-Hochberg, Benjamini-Yekutieli](statistics/more-tests.md#many-tests-at-once))
 - Bootstrap ([percentile](statistics/bootstrap.md#percentile-intervals), [BCa](statistics/bootstrap.md#the-bca-interval))
+- Straight-line fits ([least squares with standard errors](statistics/robust-regression.md#least-squares-and-its-standard-errors), [Theil-Sen and Siegel](statistics/robust-regression.md#robust-lines))
+- [Trimmed means, z-scores and the mode](statistics/robust-regression.md#trimmed-means-z-scores-and-the-mode)
+- [Circular statistics](statistics/robust-regression.md#circular-statistics)
+- [Maximum-likelihood Box-Cox transform](statistics/robust-regression.md#the-box-cox-transform)
+- [Distances between observations (13 metrics; `pdist`, `cdist`, `squareform`)](statistics/robust-regression.md#distances)
 
 ### Machine learning
 

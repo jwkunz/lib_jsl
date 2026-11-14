@@ -25,6 +25,7 @@
 //! | [`bluestein_fft::BluesteinFft`] | You want the arbitrary-length algorithm directly |
 //! | [`simd_fft::SimdFft`] | You need vectorised kernels on ARM or RISC-V as well as x86 |
 //! | [`fractional_fft::FractionalFft`] | You need the fractional Fourier transform |
+//! | [`helpers`] | Frequency grids (`fftfreq`), fast lengths (`next_fast_len`), N-D real FFTs and N-D DCTs |
 //! | [`fft_engine_trait::FftEngine1D`] | You want to write code generic over FFT engines |
 //!
 //! Readable textbook implementations (recursive radix-2, iterative radix-2, split radix) live in
@@ -39,6 +40,7 @@ pub mod best_fft;
 pub mod bluestein_fft;
 pub mod dct;
 pub mod fractional_fft;
+pub mod helpers;
 pub mod multidimensional_fft;
 pub mod real_fft;
 pub mod simd_fft;
@@ -49,6 +51,7 @@ pub use dct::{TrigNormalization, TrigTransformType, dct, dst, idct, idst};
 pub use fft::Fft;
 pub use fft_engine_trait::{FftDirection, FftEngine1D, FftOrdering, FftScaleFactor};
 pub use fractional_fft::{FractionalFft, frft};
+pub use helpers::{dctn, dstn, fftfreq, fftshift_1d, idctn, idstn, ifftshift, ifftshift_1d, irfftn, next_fast_len, rfftfreq, rfftn};
 pub use multidimensional_fft::{fft2, fft3, fft_axis, fftn, fftshift, ifft2, ifft3};
 pub use real_fft::{RealFft, irfft, rfft};
 pub use simd_fft::SimdFft;

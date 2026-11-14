@@ -41,3 +41,6 @@ The crate is `lib_jsl_statistics` ([API reference](../../api/lib_jsl_statistics/
 | Test normality or equal variances; rank, exact and permutation tests; many tests at once | `shapiro`, `levene`, `kruskal`, `wilcoxon`, `fisher_exact`, `permutation_test`, `adjust_p_values` | [More hypothesis tests](more-tests.md) |
 | A smooth density from a sample | `GaussianKde` | [Kernel density estimation](kernel-density.md) |
 | Standard errors and confidence intervals for any statistic | `bootstrap`, `bca_interval` | [The bootstrap](bootstrap.md) |
+| A straight-line fit, robust to outliers or with standard errors | `linregress`, `theilslopes`, `siegelslopes` | [More descriptive statistics and robust regression](robust-regression.md#robust-lines) |
+| Trimmed means, z-scores, the mode; averages of angles; the Box-Cox transform | `trim_mean`, `zscore`, `mode`, `circmean`, `boxcox` | [More descriptive statistics and robust regression](robust-regression.md#circular-statistics) |
+| Distances between observations | `pdist`, `cdist`, `squareform` | [More descriptive statistics and robust regression](robust-regression.md#distances) |

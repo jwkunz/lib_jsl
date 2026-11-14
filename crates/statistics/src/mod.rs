@@ -14,3 +14,6 @@ pub mod correlation;
 pub mod hypothesis_tests;
 pub mod kernel_density;
 pub mod bootstrap;
+pub mod location_scale;
+pub mod regression;
+pub mod distance;

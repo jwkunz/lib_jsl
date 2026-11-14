@@ -9,7 +9,7 @@
 | **Accuracy** | $O(\varepsilon\log n)$, as the underlying complex FFT |
 | **Cost** | Real FFT: one complex FFT of length $n/2$ plus $O(n)$ work. $d$-dimensional: $O(N\log N)$ for $N$ points in all |
 | **Read first** | [The fast Fourier transform](fft.md) |
-| **API** | [`RealFft`](../../api/lib_jsl_ffts/real_fft/struct.RealFft.html), [`rfft`](../../api/lib_jsl_ffts/real_fft/fn.rfft.html), [`irfft`](../../api/lib_jsl_ffts/real_fft/fn.irfft.html), [`fft2`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft2.html), [`ifft2`](../../api/lib_jsl_ffts/multidimensional_fft/fn.ifft2.html), [`fft3`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft3.html), [`fftn`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fftn.html), [`fft_axis`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft_axis.html), [`fftshift`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fftshift.html) |
+| **API** | [`RealFft`](../../api/lib_jsl_ffts/real_fft/struct.RealFft.html), [`rfft`](../../api/lib_jsl_ffts/real_fft/fn.rfft.html), [`irfft`](../../api/lib_jsl_ffts/real_fft/fn.irfft.html), [`fft2`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft2.html), [`ifft2`](../../api/lib_jsl_ffts/multidimensional_fft/fn.ifft2.html), [`fft3`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft3.html), [`fftn`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fftn.html), [`fft_axis`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fft_axis.html), [`fftshift`](../../api/lib_jsl_ffts/multidimensional_fft/fn.fftshift.html), [`fftfreq`](../../api/lib_jsl_ffts/helpers/fn.fftfreq.html), [`rfftfreq`](../../api/lib_jsl_ffts/helpers/fn.rfftfreq.html), [`next_fast_len`](../../api/lib_jsl_ffts/helpers/fn.next_fast_len.html), [`rfftn`](../../api/lib_jsl_ffts/helpers/fn.rfftn.html), [`irfftn`](../../api/lib_jsl_ffts/helpers/fn.irfftn.html), [`dctn`](../../api/lib_jsl_ffts/helpers/fn.dctn.html), [`dstn`](../../api/lib_jsl_ffts/helpers/fn.dstn.html) |
 
 </div>
 
@@ -115,6 +115,24 @@ and $k_2$ along the second. A real plane wave in the data transforms to a pair o
 $(k_1, k_2)$ and its mirror image. `fftshift` moves the zero frequency from the corner of the
 array to its centre for display, as is conventional for images.
 
+### Helpers: frequencies, fast lengths and N-D transforms
+
+A few small functions, following `scipy.fft`, make spectra easier to use.
+
+- **Frequencies of the bins.** Bin $k$ of an $n$-point DFT of samples spaced $d$ apart is the frequency $k/(nd)$. Bins above $n/2$ are
+  the negative frequencies $(k - n)/(nd)$. `fftfreq(n, d)` lists them in the order the FFT returns them,
+  $[0, 1, \ldots, \lceil n/2\rceil - 1, -\lfloor n/2\rfloor, \ldots, -1]/(nd)$, and `rfftfreq` lists the $\lfloor n/2\rfloor + 1$
+  non-negative ones of a real FFT. `ifftshift` undoes `fftshift`; the two differ for odd lengths.
+- **Fast lengths.** The FFT is fastest when $n$ has only small prime factors. Bluestein's algorithm handles any length, at about three
+  times the cost. Padding a signal to `next_fast_len(n)` is usually much cheaper: the next length whose factors are 2, 3 and 5 (for real
+  data, matching SciPy) or also 7 and 11 (for complex data). It is found by a depth-first search over the products of prime powers. For example,
+  1021 is prime, and `next_fast_len(1021)` is $1024 = 2^{10}$.
+- **N-dimensional real transforms.** `rfftn` applies a real FFT along the last axis, keeping $\lfloor n/2\rfloor + 1$ bins, and complex
+  FFTs along the others. It returns the non-redundant half of `fftn`. `irfftn` inverts it, given the output shape, since a last axis of
+  length $n$ or $n + 1$ gives the same number of bins when $n$ is even.
+- **N-dimensional DCTs and DSTs.** The cosine and sine transforms are separable too, so `dctn` and `dstn` apply the one-dimensional
+  transforms of the [DCT entry](dct.md) along every axis in turn. The 2-D DCT-II is the transform of JPEG blocks.
+
 ## Algorithm
 
 **`RealFft::forward`**, for a real input of even length $n = 2m$.
@@ -150,6 +168,14 @@ stride, which is why it is copied to a buffer first.
 {{#include ../../../crates/ffts/src/multidimensional_fft.rs:fft_axis}}
 ```
 
+```rust,ignore
+{{#include ../../../crates/ffts/src/helpers.rs:next_fast_len}}
+```
+
+```rust,ignore
+{{#include ../../../crates/ffts/src/helpers.rs:rfftn}}
+```
+
 - `RealFft::forward` is unscaled; `RealFft::inverse` divides by $n$, so the pair round-trips exactly.
 - The multidimensional transforms work on `ndarray` arrays of complex numbers and accept any lengths along each axis.
 
@@ -158,6 +184,12 @@ stride, which is why it is copied to a buffer first.
 ```rust,ignore
 {{#include ../../../crates/ffts/examples/fft_real_and_2d.rs}}
 ```
+
+The helpers are compared with SciPy 1.17.1 (references from `book/generator/data/make_utilities_refs.py`):
+
+<p class="caption" id="tab-8-4"><strong>Table 8.4.</strong> The FFT helpers against SciPy.</p>
+
+{{#include ../generated/fft/helpers_scipy.md}}
 
 **Strengths**
 
@@ -176,6 +208,7 @@ stride, which is why it is copied to a buffer first.
 3. Use one complex FFT to transform two real signals at once, and separate the results.
 4. Show that the two-dimensional DFT of a separable array $x_{ij} = a_ib_j$ is the outer product of the one-dimensional DFTs.
 5. Compute the 2D power spectrum of an image with a periodic stripe pattern and locate the stripe frequency.
+6. Why is `next_fast_len(97, real = false)` equal to 98 but `next_fast_len(97, real = true)` equal to 100?
 
 <details>
 <summary>Hints and answers</summary>
@@ -185,6 +218,7 @@ stride, which is why it is copied to a buffer first.
 3. Form $z = x + iy$ and transform; then $X_k = (Z_k + \overline{Z_{n-k}})/2$ and $Y_k = (Z_k - \overline{Z_{n-k}})/(2i)$.
 4. $X_{kl} = \sum_i\sum_ja_ib_je^{-2\pi i(ik/m + jl/n)} = \big(\sum_ia_ie^{-2\pi iik/m}\big)\big(\sum_jb_je^{-2\pi ijl/n}\big)$.
 5. A stripe pattern is a sinusoid along one direction, so its power spectrum has two symmetric peaks at $\pm$ the stripe frequency; read the position of the peak off the bin indices and convert with the image size.
+6. $98 = 2 \cdot 7^2$ is allowed when 7 is a permitted factor (complex transforms); with factors 2, 3 and 5 only, the next candidates are $98$ (no), $99 = 3^2 \cdot 11$ (no) and $100 = 2^2 5^2$.
 
 </details>
 

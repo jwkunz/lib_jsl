@@ -6,6 +6,20 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-11-14
+
+### Added
+
+- Sparse linear algebra in `lib_jsl_linalg::sparse`, following `scipy.sparse` and
+  `scipy.sparse.linalg`: COO, CSR and CSC matrices (assembly with summed duplicates, products,
+  transposes, sums, `diags`); a sparse LU with partial pivoting (Gilbert-Peierls) and `spsolve`;
+  `reverse_cuthill_mckee` and `bandwidth`; the Krylov solvers `cg`, `minres`, `gmres`, `bicgstab`
+  and `lsqr` on any `LinearOperator`, with a Jacobi preconditioner; and `eigsh` and `svds` by
+  Lanczos and Golub-Kahan bidiagonalisation with full reorthogonalisation and deflation, which
+  finds repeated eigenvalues.
+- Book entry "Sparse matrices and iterative solvers", compared against SciPy, with convergence
+  curves, the effect of preconditioning and restarts, and fill-in under several orderings.
+
 ## [1.14.0] - 2026-11-14
 
 ### Added
@@ -315,7 +329,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.15.0...HEAD
+[1.15.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.15.0
 [1.14.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.14.0
 [1.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.13.0
 [1.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.12.0

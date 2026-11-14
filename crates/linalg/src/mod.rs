@@ -13,6 +13,7 @@
 //! | Matrix exponential | [`expm`] | Scaling and squaring with Padé approximants |
 //! | Square root, logarithm, fractional powers | [`sqrtm`], [`logm`], [`fractional_matrix_power`] | Schur method; inverse scaling and squaring |
 //! | Pseudoinverse, rank, null space, range, norms, condition | [`pinv`], [`matrix_rank`], [`null_space`], [`orth`], [`norm`], [`cond`] | From the SVD |
+//! | Sparse matrices: storage, sparse LU, Krylov solvers, Lanczos eigenvalues and singular values | [`sparse`] | CSR/CSC; Gilbert-Peierls LU with reverse Cuthill-McKee; CG, MINRES, GMRES, BiCGSTAB, LSQR; `eigsh`, `svds` |
 //! | Sylvester and Lyapunov equations | [`solve_sylvester`], [`solve_continuous_lyapunov`], [`solve_discrete_lyapunov`] | Bartels-Stewart on the complex Schur form |
 //! | Algebraic Riccati equations | [`solve_continuous_are`], [`solve_discrete_are`] | Matrix sign function; structure-preserving doubling; Newton refinement |
 //!
@@ -39,6 +40,7 @@ mod matfun;
 mod qr;
 mod reflectors;
 mod scalar;
+pub mod sparse;
 mod subspaces;
 mod svd;
 

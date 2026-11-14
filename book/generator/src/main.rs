@@ -43,6 +43,7 @@ mod sampled;
 mod spectral;
 mod special_functions;
 mod statistics;
+mod sparse;
 mod subspaces;
 mod svg;
 mod unsupervised;
@@ -71,7 +72,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 38] = [
+    let chapters: [(&str, fn()); 39] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -86,6 +87,7 @@ fn main() {
         ("linear_algebra", linear_algebra::generate),
         ("matrix_equations", matrix_equations::generate),
         ("subspaces", subspaces::generate),
+        ("sparse", sparse::generate),
         ("fft", fft::generate),
         ("random", random::generate),
         ("statistics", statistics::generate),

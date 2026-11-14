@@ -92,3 +92,6 @@ Both crates agree with LAPACK to a few units of rounding error on these well-con
 | Optimal (LQR) gains, steady-state Kalman gains | `solve_continuous_are`, `solve_discrete_are` | [Matrix functions and matrix equations](matrix-equations.md#riccati-equations) |
 | $A^{1/2}$, $\log A$, $A^p$ | `sqrtm`, `logm`, `fractional_matrix_power` | [Matrix functions, subspaces and norms](subspaces-norms.md) |
 | Pseudoinverse, rank, null space, range, norms, condition numbers | `pinv`, `matrix_rank`, `null_space`, `orth`, `norm`, `cond` | [Matrix functions, subspaces and norms](subspaces-norms.md#the-pseudoinverse-and-the-fundamental-subspaces) |
+| Large sparse $A\mathbf x = \mathbf b$: direct | `sparse::spsolve`, `sparse::SparseLu` | [Sparse matrices and iterative solvers](sparse.md#ordering-and-fill-in) |
+| Large sparse $A\mathbf x = \mathbf b$ or least squares: iterative | `sparse::cg`, `minres`, `gmres`, `bicgstab`, `lsqr` | [Sparse matrices and iterative solvers](sparse.md#krylov-subspaces-and-conjugate-gradients) |
+| A few eigenvalues or singular values of a large matrix | `sparse::eigsh`, `sparse::svds` | [Sparse matrices and iterative solvers](sparse.md#the-lanczos-process-for-eigenvalues) |

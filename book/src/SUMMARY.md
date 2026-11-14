@@ -76,6 +76,7 @@
     - [The singular value decomposition](linear_algebra/svd.md)
     - [Matrix functions and matrix equations](linear_algebra/matrix-equations.md)
     - [Matrix functions, subspaces and norms](linear_algebra/subspaces-norms.md)
+    - [Sparse matrices and iterative solvers](linear_algebra/sparse.md)
 - [Fast Fourier transforms](fft/index.md)
     - [The fast Fourier transform](fft/fft.md)
     - [Bluestein's algorithm and the fractional Fourier transform](fft/bluestein-fractional.md)

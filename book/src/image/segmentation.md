@@ -45,7 +45,7 @@ which is equivalent to minimising the variance within the classes, since the two
 
 {{#include ../generated/image/otsu_facts.md}} The threshold degrades as the classes overlap, and with unequal class sizes: here the objects cover 18% of the pixels.
 
-<p class="caption" id="tab-17-2"><strong>Table 17.2.</strong> Otsu thresholds for two Gaussian classes at several separations and noise levels.</p>
+<p class="caption" id="tab-17-3"><strong>Table 17.3.</strong> Otsu thresholds for two Gaussian classes at several separations and noise levels.</p>
 
 {{#include ../generated/image/otsu_table.md}}
 

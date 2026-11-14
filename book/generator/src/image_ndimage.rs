@@ -13,13 +13,17 @@ use lib_jsl_dsp::discrete::image::morphology::*;
 use lib_jsl_dsp::discrete::image::rank_filters::{maximum_filter, median_filter, minimum_filter, percentile_filter, rank_filter};
 use ndarray::Array2;
 
+use crate::raster::{Colours, Mark, Panel, panels};
 use crate::spectral::md_table;
+use crate::svg::{Legend, Plot, Series, Style};
 use crate::write;
 
 const CHAPTER: &str = "image";
 
 pub fn generate() {
     reference_table();
+    morphology_figures();
+    rank_geometric_figures();
 }
 
 fn parse() -> HashMap<String, Vec<f64>> {
@@ -168,4 +172,256 @@ fn reference_table() {
         rows.push(vec![name.clone(), cell]);
     }
     write(CHAPTER, "ndimage_reference.md", &md_table(&["scipy.ndimage function and case", "largest difference ÷ largest value"], &rows));
+}
+
+// ------------------------------------------------------------------ test scenes
+
+/// A reproducible uniform generator in [0, 1).
+fn uniform(seed: u64) -> impl FnMut() -> f64 {
+    let mut s = seed;
+    move || {
+        s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        (s >> 11) as f64 / (1u64 << 53) as f64
+    }
+}
+
+/// A binary scene of six objects: two discs (one with a hole), a ring, a rectangle with a small
+/// hole, a bar, and two touching discs; plus scattered specks of noise and pinholes.
+fn binary_scene() -> (Array2<bool>, Array2<bool>) {
+    let n = 120;
+    let disc = |r: f64, c: f64, cr: f64, cc: f64, rad: f64| (r - cr).powi(2) + (c - cc).powi(2) <= rad * rad;
+    let clean = Array2::from_shape_fn((n, n), |(r, c)| {
+        let (r, c) = (r as f64, c as f64);
+        (disc(r, c, 25.0, 25.0, 14.0) && !disc(r, c, 25.0, 25.0, 4.0))
+            || (disc(r, c, 28.0, 80.0, 16.0) && !disc(r, c, 28.0, 80.0, 10.0))
+            || ((60.0..=95.0).contains(&r) && (12.0..=45.0).contains(&c) && !((75.0..=78.0).contains(&r) && (27.0..=30.0).contains(&c)))
+            || ((65.0..=70.0).contains(&r) && (60.0..=110.0).contains(&c))
+            || disc(r, c, 95.0, 75.0, 10.0)
+            || disc(r, c, 95.0, 94.0, 10.0)
+    });
+    let mut u = uniform(5);
+    let noisy = clean.mapv(|b| {
+        let x = u();
+        if x < 0.012 { !b } else { b }
+    });
+    (clean, noisy)
+}
+
+fn as_f(b: &Array2<bool>) -> Array2<f64> {
+    b.mapv(|v| if v { 1.0 } else { 0.0 })
+}
+
+fn morphology_figures() {
+    let (clean, noisy) = binary_scene();
+    let d = disk(1);
+    let opened = binary_opening(&noisy, &d, 1).unwrap();
+    let cleaned = binary_closing(&opened, &d, 1).unwrap();
+    let filled = binary_fill_holes(&cleaned, &cross()).unwrap();
+    let g = Colours::Gray(0.0, 1.0);
+    write(
+        CHAPTER,
+        "morphology.svg",
+        &panels(
+            "Cleaning a noisy binary image",
+            &[
+                Panel::new("noisy: 1.2% of pixels flipped", as_f(&noisy), g),
+                Panel::new("opening (removes specks)", as_f(&opened), g),
+                Panel::new("then closing (fills pinholes)", as_f(&cleaned), g),
+                Panel::new("then hole filling", as_f(&filled), g),
+            ],
+            4,
+            170.0,
+        ),
+    );
+
+    let dt = distance_transform_edt(&cleaned, None).unwrap().distances;
+    let (labels, n) = label(&cleaned, &cross()).unwrap();
+    let peak = dt.iter().cloned().fold(0.0, f64::max);
+    let mut lab = Panel::new(&format!("labels: {n} components"), labels.mapv(|v| v as f64), Colours::Labels);
+    let regs = regions(&labels, n, None).unwrap();
+    for r in &regs {
+        lab.marks.push(Mark::Dot { x: r.centroid.1, y: r.centroid.0, colour: "#ffffff" });
+    }
+    let mut dist = Panel::new("Euclidean distance to the background", dt.clone(), Colours::Ramp(0.0, peak));
+    dist.marks.push(Mark::Mask(cleaned.mapv(|b| !b), "#000000"));
+    write(CHAPTER, "distance_labels.svg", &panels("Distance transform and connected components of the cleaned image", &[dist, lab], 2, 260.0));
+
+    // Counting objects: six true objects (the two touching discs count as one connected object).
+    let count = |b: &Array2<bool>, s: &Array2<bool>| label(b, s).unwrap().1;
+    let truth_4 = count(&clean, &cross());
+    let mut rows = vec![
+        vec!["clean image".to_string(), truth_4.to_string(), count(&clean, &square(3)).to_string()],
+        vec!["noisy image".to_string(), count(&noisy, &cross()).to_string(), count(&noisy, &square(3)).to_string()],
+        vec!["after opening".to_string(), count(&opened, &cross()).to_string(), count(&opened, &square(3)).to_string()],
+        vec!["after opening and closing".to_string(), count(&cleaned, &cross()).to_string(), count(&cleaned, &square(3)).to_string()],
+    ];
+    // Splitting the touching discs: threshold the distance transform.
+    let cores = dt.mapv(|v| v > 6.0);
+    rows.push(vec!["cores: distance > 6".to_string(), count(&cores, &cross()).to_string(), count(&cores, &square(3)).to_string()]);
+    write(CHAPTER, "object_counts.md", &md_table(&["image", "components (4-connected)", "components (8-connected)"], &rows));
+
+    let mut rows = Vec::new();
+    for r in &regs {
+        rows.push(vec![
+            r.label.to_string(),
+            r.area.to_string(),
+            format!("({:.1}, {:.1})", r.centroid.0, r.centroid.1),
+            format!("rows {}–{}, columns {}–{}", r.bbox.0, r.bbox.1 - 1, r.bbox.2, r.bbox.3 - 1),
+            format!("{:.1}", (0..r.bbox.1 - r.bbox.0).flat_map(|i| (0..r.bbox.3 - r.bbox.2).map(move |j| (i, j))).filter(|&(i, j)| labels[(r.bbox.0 + i, r.bbox.2 + j)] == r.label).map(|(i, j)| dt[(r.bbox.0 + i, r.bbox.2 + j)]).fold(0.0, f64::max)),
+        ]);
+    }
+    write(CHAPTER, "region_table.md", &md_table(&["label", "area (pixels)", "centroid (row, column)", "bounding box", "largest inscribed radius"], &rows));
+}
+
+// ------------------------------------------------------------------ rank, derivative and geometric
+
+/// A smooth greyscale scene: a gradient, a bright disc, a dark square and fine stripes.
+fn grey_scene() -> Array2<f64> {
+    let n = 96;
+    Array2::from_shape_fn((n, n), |(r, c)| {
+        let (y, x) = (r as f64, c as f64);
+        let mut v = 0.25 + 0.003 * x;
+        if (y - 30.0).powi(2) + (x - 30.0).powi(2) < 15.0f64.powi(2) {
+            v = 0.85;
+        }
+        if (55.0..80.0).contains(&y) && (50.0..80.0).contains(&x) {
+            v = 0.1;
+        }
+        if (15.0..40.0).contains(&y) && (60.0..88.0).contains(&x) {
+            v = 0.5 + 0.25 * (x * 0.9).sin();
+        }
+        v
+    })
+}
+
+fn psnr(a: &Array2<f64>, b: &Array2<f64>) -> f64 {
+    let mse = a.iter().zip(b).map(|(x, y)| (x - y).powi(2)).sum::<f64>() / a.len() as f64;
+    10.0 * (1.0 / mse).log10()
+}
+
+fn rank_geometric_figures() {
+    let clean = grey_scene();
+    let mut u = uniform(9);
+    let impulsive = clean.mapv(|v| {
+        let x = u();
+        if x < 0.05 { 0.0 } else if x < 0.10 { 1.0 } else { v }
+    });
+    let mut u = uniform(13);
+    let gaussian = clean.mapv(|v| {
+        let s: f64 = (0..4).map(|_| u() - 0.5).sum::<f64>() * 3f64.sqrt();
+        v + 0.08 * s
+    });
+    let m = Mode::Reflect;
+    let g = Colours::Gray(0.0, 1.0);
+    let med = median_filter(&impulsive, (3, 3), m).unwrap();
+    let gau = gaussian_filter(&impulsive, (1.0, 1.0), (0, 0), m, 4.0).unwrap();
+    write(
+        CHAPTER,
+        "median.svg",
+        &panels(
+            "Salt-and-pepper noise: Gaussian smoothing against the median",
+            &[Panel::new("10% impulse noise", impulsive.clone(), g), Panel::new("Gaussian, σ = 1", gau, g), Panel::new("median, 3 × 3", med, g)],
+            3,
+            200.0,
+        ),
+    );
+    let mut rows = Vec::new();
+    for (name, noisy) in [("impulse noise (10%)", &impulsive), ("Gaussian noise (σ = 0.08)", &gaussian)] {
+        let mut row = vec![name.to_string(), format!("{:.1}", psnr(noisy, &clean))];
+        for s in [0.8, 1.5] {
+            row.push(format!("{:.1}", psnr(&gaussian_filter(noisy, (s, s), (0, 0), m, 4.0).unwrap(), &clean)));
+        }
+        for k in [3, 5] {
+            row.push(format!("{:.1}", psnr(&median_filter(noisy, (k, k), m).unwrap(), &clean)));
+        }
+        rows.push(row);
+    }
+    write(CHAPTER, "median_psnr.md", &md_table(&["noise", "noisy", "Gaussian σ = 0.8", "Gaussian σ = 1.5", "median 3 × 3", "median 5 × 5"], &rows));
+
+    let gm1 = gaussian_gradient_magnitude(&gaussian, 1.0, m).unwrap();
+    let gm3 = gaussian_gradient_magnitude(&gaussian, 3.0, m).unwrap();
+    let log3 = gaussian_laplace(&gaussian, 3.0, m).unwrap();
+    let top = |a: &Array2<f64>| a.iter().cloned().fold(0.0, f64::max);
+    let lmax = log3.iter().map(|v| v.abs()).fold(0.0, f64::max);
+    write(
+        CHAPTER,
+        "derivatives.svg",
+        &panels(
+            "Gaussian derivatives of a noisy image",
+            &[
+                Panel::new("noisy image (σ = 0.08)", gaussian.clone(), g),
+                Panel::new("gradient magnitude, σ = 1", gm1.clone(), Colours::Gray(0.0, top(&gm1))),
+                Panel::new("gradient magnitude, σ = 3", gm3.clone(), Colours::Gray(0.0, top(&gm3))),
+                Panel::new("Laplacian of Gaussian, σ = 3", log3, Colours::Gray(-lmax, lmax)),
+            ],
+            4,
+            170.0,
+        ),
+    );
+
+    // Interpolation orders on a step and a slope.
+    let samples: Vec<f64> = (0..16).map(|i| if i < 6 { 0.0 } else if i < 10 { 1.0 } else { 1.0 - 0.15 * (i - 9) as f64 }).collect();
+    let row = Array2::from_shape_vec((1, 16), samples.clone()).unwrap();
+    let xs: Vec<f64> = (0..=600).map(|k| k as f64 * 15.0 / 600.0).collect();
+    let pts: Vec<(f64, f64)> = xs.iter().map(|&x| (0.0, x)).collect();
+    let mut plot = Plot::new("Interpolating samples of a step and a slope", "position (pixels)", "value");
+    plot.series.push(Series::new("samples", samples.iter().enumerate().map(|(i, &v)| (i as f64, v)).collect(), Style::Markers, 6));
+    for (k, order) in [0usize, 1, 3, 5].into_iter().enumerate() {
+        let v = map_coordinates(&row, &pts, order, Mode::Nearest).unwrap();
+        plot.series.push(Series::new(&format!("order {order}"), xs.iter().zip(v).map(|(&x, y)| (x, y)).collect(), Style::Line, k));
+    }
+    plot.legend = Legend::TopRight;
+    plot.y_range = Some((-0.3, 1.4));
+    write(CHAPTER, "interpolation_orders.svg", &plot.render());
+
+    // Rotating forth and back: what each order loses.
+    let sharp = clean.clone();
+    let smooth = gaussian_filter(&clean, (2.0, 2.0), (0, 0), m, 4.0).unwrap();
+    let mut rows = Vec::new();
+    for order in [0usize, 1, 2, 3, 5] {
+        let mut row = vec![order.to_string()];
+        for img in [&smooth, &sharp] {
+            let mut x = img.clone();
+            for _ in 0..6 {
+                x = rotate(&x, 15.0, false, order, Mode::Nearest).unwrap();
+            }
+            for _ in 0..6 {
+                x = rotate(&x, -15.0, false, order, Mode::Nearest).unwrap();
+            }
+            // Compare away from the corners, which rotation moves outside the frame.
+            let (n, c) = (img.dim().0, img.dim().0 as f64 / 2.0);
+            let mut se = 0.0;
+            let mut count = 0.0;
+            for i in 0..n {
+                for j in 0..n {
+                    if (i as f64 - c).powi(2) + (j as f64 - c).powi(2) < (0.35 * n as f64).powi(2) {
+                        se += (x[(i, j)] - img[(i, j)]).powi(2);
+                        count += 1.0;
+                    }
+                }
+            }
+            row.push(format!("{:.4}", (se / count).sqrt()));
+        }
+        rows.push(row);
+    }
+    write(CHAPTER, "rotation_roundtrip.md", &md_table(&["spline order", "smooth image: RMS error", "sharp-edged image: RMS error"], &rows));
+
+    let rot = rotate(&clean, 30.0, true, 3, Mode::Constant(0.0)).unwrap();
+    let crop = clean.slice(ndarray::s![18..42, 18..42]).to_owned();
+    let z0 = zoom(&crop, (4.0, 4.0), 0, Mode::Nearest).unwrap();
+    let z3 = zoom(&crop, (4.0, 4.0), 3, Mode::Nearest).unwrap();
+    write(
+        CHAPTER,
+        "geometric.svg",
+        &panels(
+            "Rotation and magnification",
+            &[
+                Panel::new("rotated 30°, enlarged frame, cubic", rot, g),
+                Panel::new("detail ×4, order 0 (nearest)", z0, g),
+                Panel::new("detail ×4, order 3 (cubic)", z3, g),
+            ],
+            3,
+            200.0,
+        ),
+    );
 }

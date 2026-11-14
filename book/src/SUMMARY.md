@@ -144,6 +144,8 @@
     - [Segmentation: Otsu's threshold, Canny edges and the watershed](image/segmentation.md)
     - [The Hough transform: lines and circles](image/hough.md)
     - [Local features: blobs, SIFT and SURF](image/features.md)
+    - [Morphology, distance transforms and labelling](image/morphology.md)
+    - [Rank filters, derivative filters and geometric transforms](image/rank-geometric.md)
 - [Information theory: source coding, LFSRs, checksums and hashes](information/index.md)
     - [Entropy, divergence and mutual information](information/entropy.md)
     - [Entropy coding: Huffman, Shannon-Fano and arithmetic coding](information/entropy-coding.md)

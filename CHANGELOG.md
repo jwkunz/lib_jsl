@@ -6,6 +6,25 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Image morphology in `lib_jsl_dsp::discrete::image::morphology`: binary erosion, dilation, opening,
+  closing and hole filling; greyscale erosion, dilation, opening, closing, top-hats and the
+  morphological gradient; structuring elements `cross`, `square` and `disk`.
+- Distance transforms in `image::distance`: the exact Euclidean transform (Felzenszwalb and
+  Huttenlocher) with its feature transform and anisotropic sampling, and the chamfer transforms.
+- Connected-component labelling and region measurements in `image::labelling`: `label` and `regions`
+  (area, bounding box, centroid, intensity sum, mean, extremes and centre of mass).
+- Rank filters in `image::rank_filters`: `rank_filter`, `median_filter`, `percentile_filter`,
+  `minimum_filter` and `maximum_filter`.
+- Derivative filters in `image::derivative_filters`: `gaussian_filter` with derivative orders,
+  `gaussian_laplace`, `gaussian_gradient_magnitude`, `laplace` and `correlate1d`.
+- Geometric transforms in `image::geometric`: B-spline prefiltering and interpolation of orders 0–5,
+  `map_coordinates`, `affine_transform`, `shift`, `zoom` and `rotate`.
+- `image::boundary::Mode`, SciPy's boundary modes (reflect, mirror, nearest, constant, wrap).
+- Book entries "Morphology, distance transforms and labelling" and "Rank filters, derivative filters
+  and geometric transforms", with every function compared against `scipy.ndimage`.
+
 ## [1.2.0] - 2026-11-13
 
 ### Added

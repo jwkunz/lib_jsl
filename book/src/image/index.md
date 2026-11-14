@@ -29,6 +29,18 @@ filtered images were stored to 12 significant digits, which limits the differenc
 Everything agrees except the Gaussian blur at σ = 2.3, where the library's kernel radius ($\lceil 4\sigma\rceil = 10$) is one longer than SciPy's ($\mathrm{round}(4\sigma) = 9$), and the Hough lines' $\rho$, whose bins are placed differently. Canny's edges
 match to within a pixel; scikit-image interpolates the gradient in non-maximum suppression, where the library compares with the nearest neighbours.
 
+The morphology, distance-transform, labelling, rank-filter, derivative-filter and geometric-transform routines are compared with
+`scipy.ndimage` on a separate $20 \times 24$ test image, for every structuring element, boundary mode and spline order, by
+`book/generator/data/make_ndimage_refs.py`:
+
+<p class="caption" id="tab-17-2"><strong>Table 17.2.</strong> Morphology, distance transforms, labelling, rank and derivative filters and geometric transforms against scipy.ndimage.</p>
+
+{{#include ../generated/image/ndimage_reference.md}}
+
+Binary results, labels, chamfer distances and rank filters are identical. Everything else agrees to rounding error, except quintic
+splines in `Nearest` mode, which agree to $2\times10^{-10}$ (both libraries pad the image by 12 pixels before prefiltering, which the
+slowly decaying poles of order 5 do not quite forget).
+
 ## In the library
 
 All of these are in `lib_jsl_dsp` ([API reference](../../api/lib_jsl_dsp/index.html)), under `discrete::image`.
@@ -40,3 +52,5 @@ All of these are in `lib_jsl_dsp` ([API reference](../../api/lib_jsl_dsp/index.h
 | A foreground mask, an edge map or a set of regions | `otsu`, `canny_edge_detection`, `watershed`, `label_boundaries` | [Segmentation](segmentation.md) |
 | Straight lines or circles | `hough_lines`, `hough_transform`, `hough_line_peaks`, `hough_circles` | [The Hough transform](hough.md) |
 | Blobs, keypoints and descriptors; matches between images | `blob_detection`, `sift`, `surf`, `match_descriptors` | [Local features](features.md) |
+| To clean a binary mask; to measure depth inside objects; to count and measure objects | `binary_opening`, `binary_closing`, `binary_fill_holes`, `grey_erosion`, `white_tophat`, `distance_transform_edt`, `label`, `regions` | [Morphology, distance transforms and labelling](morphology.md) |
+| To remove impulse noise; derivatives at a scale; to shift, rotate, zoom or warp an image | `median_filter`, `rank_filter`, `gaussian_filter`, `gaussian_laplace`, `map_coordinates`, `affine_transform`, `rotate`, `zoom` | [Rank filters, derivative filters and geometric transforms](rank-geometric.md) |

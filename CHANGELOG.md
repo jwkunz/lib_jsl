@@ -6,6 +6,19 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-14
+
+### Added
+
+- B-splines in `lib_jsl_interpolation::one_d::b_spline`, following `scipy.interpolate`: `BSpline`
+  (evaluation, derivatives, antiderivatives, integrals, extrapolation modes and the design matrix),
+  `make_interp_spline` of any degree with not-a-knot, natural, clamped, periodic or given-derivative
+  end conditions, `make_lsq_spline`, and `make_interp_curve` for parametric curves.
+- `make_smoothing_spline` in `one_d::smoothing_spline`: the cubic smoothing spline with an optional
+  smoothing parameter chosen by generalised cross-validation, in `O(n)` per evaluation.
+- Book entry "B-splines and smoothing splines", compared against SciPy, with the convergence of
+  each end condition and smoothing by GCV.
+
 ## [1.5.0] - 2026-11-14
 
 ### Added
@@ -200,7 +213,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.6.0
 [1.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.5.0
 [1.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.4.0
 [1.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.3.0

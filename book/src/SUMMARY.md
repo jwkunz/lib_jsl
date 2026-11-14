@@ -27,6 +27,7 @@
 - [Interpolation](interpolation/index.md)
     - [Polynomial interpolation](interpolation/polynomial.md)
     - [Piecewise and spline interpolation](interpolation/splines.md)
+    - [B-splines and smoothing splines](interpolation/b-splines.md)
     - [Rational interpolation and approximation](interpolation/rational.md)
     - [Trigonometric interpolation and Prony's method](interpolation/trigonometric.md)
     - [Savitzky-Golay smoothing](interpolation/savitzky-golay.md)

@@ -115,7 +115,7 @@ library's kernels, computed exactly that way:
 
 ![Interpolation kernels](../generated/interpolation/grid_kernels.svg)
 
-<p class="caption" id="fig-3-9"><strong>Figure 3.9.</strong> Interpolation kernels.</p>
+<p class="caption" id="fig-3-11"><strong>Figure 3.11.</strong> Interpolation kernels.</p>
 
 Every kernel equals 1 at $u = 0$ and 0 at the other integers, which is what makes the method
 interpolate. Linear interpolation has a triangular kernel; the cubic kernels are smoother and
@@ -139,7 +139,7 @@ Both kernels have negative lobes that sharpen edges in images, at the price of s
 
 The library's errors for interpolation from a $16 \times 16$ grid over $[0, 1)^2$:
 
-<p class="caption" id="tab-3-6"><strong>Table 3.6.</strong> Accuracy of two-dimensional grid interpolation methods.</p>
+<p class="caption" id="tab-3-9"><strong>Table 3.9.</strong> Accuracy of two-dimensional grid interpolation methods.</p>
 
 {{#include ../generated/interpolation/grid_accuracy.md}}
 
@@ -153,7 +153,7 @@ values beyond the grid (here they are replicated from the edge) loses accuracy.
 In three dimensions the same pattern holds; the B-spline overtakes the Lagrange interpolant as the
 grid is refined, thanks to its global smoothness:
 
-<p class="caption" id="tab-3-7"><strong>Table 3.7.</strong> Accuracy of three-dimensional grid interpolation methods.</p>
+<p class="caption" id="tab-3-10"><strong>Table 3.10.</strong> Accuracy of three-dimensional grid interpolation methods.</p>
 
 {{#include ../generated/interpolation/grid_3d.md}}
 

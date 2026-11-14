@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions."
+description = "Interpolation in one to N dimensions: splines and B-splines of any degree, smoothing splines, rational, Chebyshev, Fourier and radial basis functions."
 
 [lib]
 path = "src/mod.rs"

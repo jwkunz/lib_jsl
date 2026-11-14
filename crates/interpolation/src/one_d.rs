@@ -16,3 +16,5 @@ pub mod fourier_1d;
 pub mod chebyshev_approximations;
 pub mod lagrange_interpolant;
 pub mod savitzky_golay;
+pub mod b_spline;
+pub mod smoothing_spline;

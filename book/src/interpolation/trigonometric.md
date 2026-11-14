@@ -91,7 +91,7 @@ ends:
 
 ![Trigonometric interpolation](../generated/interpolation/fourier_interpolation.svg)
 
-<p class="caption" id="fig-3-6"><strong>Figure 3.6.</strong> Trigonometric interpolation.</p>
+<p class="caption" id="fig-3-8"><strong>Figure 3.8.</strong> Trigonometric interpolation.</p>
 
 ### Prony's method
 
@@ -153,13 +153,13 @@ nonsense. The remedy, analysed by Ramdas Kumaresan and Donald Tufts, is to fit *
 than expected: the extra poles absorb the noise as heavily damped components, and the true ones
 emerge accurately. On data with 2% noise:
 
-<p class="caption" id="tab-3-4"><strong>Table 3.4.</strong> Damped sinusoids recovered by Prony's method.</p>
+<p class="caption" id="tab-3-7"><strong>Table 3.7.</strong> Damped sinusoids recovered by Prony's method.</p>
 
 {{#include ../generated/interpolation/prony_table.md}}
 
 ![Prony's method on noisy data](../generated/interpolation/prony.svg)
 
-<p class="caption" id="fig-3-7"><strong>Figure 3.7.</strong> Prony's method on noisy data.</p>
+<p class="caption" id="fig-3-9"><strong>Figure 3.9.</strong> Prony's method on noisy data.</p>
 
 With four exponentials (the true number) the fit finds a single, wrong oscillation. With eight it
 recovers both true components to within a few per cent, and its extrapolation follows the true signal

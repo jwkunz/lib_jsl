@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **473 algorithms and components in 23 crates**:
+The library implements **477 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 107 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 111 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 34 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 64 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 188 |
@@ -72,7 +72,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions.
 
-Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 33 items
+Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 37 items
 
 - [Interpolation trait](interpolation/index.md#in-the-library)
 
@@ -93,6 +93,10 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [Chebyshev approximations](interpolation/polynomial.md#chebyshev-series)
 - [Lagrange interpolant](interpolation/polynomial.md#the-barycentric-formula)
 - [Savitzky-Golay](interpolation/savitzky-golay.md)
+- [B-splines of any degree: evaluation, derivatives, antiderivatives, integrals](interpolation/b-splines.md#the-b-spline-basis)
+- [Interpolating splines with not-a-knot, natural, clamped, periodic or given-derivative ends](interpolation/b-splines.md#interpolation-and-end-conditions)
+- [Least-squares splines on given knots; parametric spline curves](interpolation/b-splines.md#least-squares-splines)
+- [Cubic smoothing spline with generalised cross-validation](interpolation/b-splines.md#smoothing-splines)
 
 #### 2D
 

@@ -33,12 +33,14 @@ single most important cautionary example in the subject.
 | A function you can evaluate anywhere | Chebyshev series | [Polynomial interpolation](polynomial.md#chebyshev-series) |
 | Samples at Chebyshev or well-spread points | Barycentric polynomial interpolation | [Polynomial interpolation](polynomial.md) |
 | Samples at equally spaced or irregular points, smooth function | Cubic spline, or Floater-Hormann | [Splines](splines.md), [Rational](rational.md#floater-hormann-interpolation) |
+| A spline of another degree, or with not-a-knot, clamped, periodic or given-derivative ends | `make_interp_spline` | [B-splines](b-splines.md#interpolation-and-end-conditions) |
 | Monotone data, or data with sudden changes | PCHIP or Akima | [Splines](splines.md#cubic-hermite-interpolation) |
 | A function with poles or steep gradients nearby | AAA or Bulirsch-Stoer | [Rational interpolation](rational.md) |
 | A Taylor series to extend beyond its radius | Padé approximants | [Rational interpolation](rational.md#padé-approximants) |
 | Periodic samples | Trigonometric interpolation | [Trigonometric](trigonometric.md) |
 | Damped oscillations, to analyse or extrapolate | Prony's method | [Trigonometric](trigonometric.md#pronys-method) |
 | Noisy samples, to smooth or differentiate | Savitzky-Golay | [Savitzky-Golay smoothing](savitzky-golay.md) |
+| Noisy samples, a smooth curve with automatic smoothing | Smoothing spline with GCV, or least-squares spline | [B-splines](b-splines.md#smoothing-splines) |
 | Values on a 2D, 3D or N-D grid | Bicubic, tricubic, B-spline or multilinear | [Interpolation on grids](grids.md) |
 | Scattered points in the plane or in space | Radial basis functions | [Scattered data](scattered.md) |
 

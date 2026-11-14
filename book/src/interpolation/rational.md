@@ -171,7 +171,7 @@ rational methods succeed:
 
 ![Rational interpolation of the Runge function](../generated/interpolation/rational_runge.svg)
 
-<p class="caption" id="fig-3-5"><strong>Figure 3.5.</strong> Rational interpolation of the Runge function.</p>
+<p class="caption" id="fig-3-7"><strong>Figure 3.7.</strong> Rational interpolation of the Runge function.</p>
 
 Floater-Hormann with $d = 3$ converges algebraically, as its theory promises. Bulirsch-Stoer and AAA
 reach machine precision with about twenty points, but this is partly a special case: the Runge
@@ -223,7 +223,7 @@ mimic the singularities of $f$; the approximant is then often accurate far outsi
 $\ln(1 + x)$, whose Taylor series converges only for $|x| < 1$, the $[10/10]$ approximant built
 from the same 21 coefficients remains accurate far beyond:
 
-<p class="caption" id="tab-3-3"><strong>Table 3.3.</strong> Taylor polynomial against Padé approximant for $\ln(1 + x)$.</p>
+<p class="caption" id="tab-3-6"><strong>Table 3.6.</strong> Taylor polynomial against Padé approximant for $\ln(1 + x)$.</p>
 
 {{#include ../generated/interpolation/pade_log.md}}
 

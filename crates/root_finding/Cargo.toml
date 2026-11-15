@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Root finding: bracketing methods, Brent, Newton, polynomial roots and nonlinear systems."
+description = "Root finding: bracketing methods, Brent, Newton, polynomial roots, nonlinear systems and Jacobian-free Newton-Krylov."
 
 [lib]
 path = "src/mod.rs"

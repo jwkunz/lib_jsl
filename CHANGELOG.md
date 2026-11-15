@@ -6,6 +6,25 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-11-15
+
+### Added
+
+- `root_finding::newton_krylov` with `NewtonKrylovOptions`, `NewtonKrylovResult` and
+  `InnerSolver::{Gmres, Bicgstab}`: SciPy's Jacobian-free Newton-Krylov solver for large nonlinear
+  systems, with finite-difference Jacobian-vector products, Eisenstat-Walker forcing terms, an
+  Armijo line search and an optional preconditioner. With GMRES it reproduces SciPy's iterations
+  and function evaluations.
+- `SobolSequence::scrambled` (linear matrix scrambling and a digital shift) and
+  `HaltonSequence::scrambled` (random digit permutations), as SciPy's `qmc.Sobol` and
+  `qmc.Halton` with `scramble=True`.
+- `random::qmc`: `latin_hypercube`, `discrepancy` (centered, wrap-around, mixture and L²-star,
+  as `qmc.discrepancy`) and `scale`.
+
+### Changed
+
+- `SobolSequence` supports 1111 dimensions (Joe-Kuo direction numbers), up from 21.
+
 ## [2.2.0] - 2026-11-15
 
 ### Added
@@ -469,7 +488,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.3.0
 [2.2.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.2.0
 [2.1.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.1.0
 [2.0.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.0.0

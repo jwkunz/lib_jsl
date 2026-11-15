@@ -41,6 +41,7 @@ of digits per step; order 2 (quadratic) doubles the number of correct digits per
 | All roots of a polynomial | Companion matrix eigenvalues | [Polynomial roots](polynomial-roots.md) |
 | A system of equations with a Jacobian | Newton's method with line search | [Nonlinear systems](nonlinear-systems.md#newtons-method) |
 | A system, expensive to evaluate, no Jacobian | Broyden's method | [Nonlinear systems](nonlinear-systems.md#broydens-method) |
+| A large system from a discretised PDE (thousands of unknowns or more) | Jacobian-free Newton-Krylov, with a preconditioner | [Nonlinear systems](nonlinear-systems.md#jacobian-free-newton-krylov) |
 
 ## Testing against SciPy
 

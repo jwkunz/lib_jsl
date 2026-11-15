@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Random number generators, quasi-random sequences, distributions and MCMC."
+description = "Random number generators, quasi-random sequences and QMC sampling, distributions and MCMC."
 
 [lib]
 path = "src/mod.rs"

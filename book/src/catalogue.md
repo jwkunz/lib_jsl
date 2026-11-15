@@ -13,13 +13,13 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **553 algorithms and components in 23 crates**:
+The library implements **557 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 142 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 143 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 50 |
-| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
+| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 81 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
@@ -145,7 +145,7 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 Root finding: bracketing methods, Brent, Newton, polynomial roots and nonlinear systems.
 
-Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 9 items
+Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 10 items
 
 - [Bracketing](root_finding/bracketing.md#finding-a-bracket)
 - [Bisection](root_finding/bracketing.md#bisection)
@@ -156,6 +156,7 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 - [Newton-Raphson](root_finding/newton.md#newtons-method)
 - [Polynomial roots](root_finding/polynomial-roots.md)
 - [Nonlinear systems (Newton, Broyden)](root_finding/nonlinear-systems.md)
+- [Jacobian-free Newton-Krylov (`newton_krylov`)](root_finding/nonlinear-systems.md#jacobian-free-newton-krylov)
 
 ### Optimisation
 
@@ -317,13 +318,16 @@ Random numbers, statistical inference and machine learning.
 
 Random number generators, quasi-random sequences, distributions and MCMC.
 
-Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [book chapter](random/index.md) · 22 items
+Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [book chapter](random/index.md) · 25 items
 
 - [Histogram](random/generators.md#histograms)
 - [Uniform RNG](random/generators.md#xoshiro256)
 - [xoshiro256++](random/generators.md#xoshiro256)
 - [SplitMix64](random/generators.md#seeding-with-splitmix64)
 - Quasi-random sequences ([Sobol](random/quasi-random.md#the-sobol-sequence), [Halton](random/quasi-random.md#the-radical-inverse-and-the-halton-sequence))
+- [Scrambled Sobol and Halton sequences (linear matrix scrambling, digit permutations)](random/quasi-random.md#scrambling)
+- [Latin hypercube sampling](random/quasi-random.md#latin-hypercube-sampling)
+- [Discrepancy (centered, wrap-around, mixture, L²-star) and scaling to a box](random/quasi-random.md#discrepancy)
 - Markov chain Monte Carlo ([Metropolis-Hastings](random/mcmc.md#the-metropolis-hastings-algorithm))
 
 #### Distributions

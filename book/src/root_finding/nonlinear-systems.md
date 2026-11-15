@@ -5,11 +5,11 @@
 | | |
 |---|---|
 | **Problem** | Solve $n$ nonlinear equations in $n$ unknowns, $\mathbf F(\mathbf x) = \mathbf 0$ with $\mathbf F: \mathbb R^n \to \mathbb R^n$ |
-| **Devised by** | Newton's method for systems: Thomas Simpson (1740), Leonid Kantorovich (1948, convergence theory); line searches: Larry Armijo (1966), John Dennis and Robert Schnabel (1983); quasi-Newton updates: Charles Broyden (1965) |
+| **Devised by** | Newton's method for systems: Thomas Simpson (1740), Leonid Kantorovich (1948, convergence theory); line searches: Larry Armijo (1966), John Dennis and Robert Schnabel (1983); quasi-Newton updates: Charles Broyden (1965); inexact and Jacobian-free Newton-Krylov: Ron Dembo, Stanley Eisenstat and Trond Steihaug (1982), Peter Brown and Youcef Saad (1990), Stanley Eisenstat and Homer Walker (1996) |
 | **Accuracy** | To the requested residual, near a root with a non-singular Jacobian; convergence from a distant start is not guaranteed |
 | **Cost** | Newton: a Jacobian ($n$ extra evaluations if by differences) and an $O(n^3)$ solve per iteration, quadratic convergence. Broyden: one evaluation and an $O(n^3)$ solve per iteration, superlinear convergence |
 | **Read first** | [Newton's method and the secant method](newton.md), [Preliminaries: norms](../preliminaries.md#norms-measuring-the-size-of-vectors-and-matrices) |
-| **API** | [`newton_system`](../../api/lib_jsl_root_finding/nonlinear_systems/fn.newton_system.html), [`broyden_system`](../../api/lib_jsl_root_finding/nonlinear_systems/fn.broyden_system.html), [`SystemOptions`](../../api/lib_jsl_root_finding/nonlinear_systems/struct.SystemOptions.html), [`SystemRootResult`](../../api/lib_jsl_root_finding/nonlinear_systems/struct.SystemRootResult.html) |
+| **API** | [`newton_system`](../../api/lib_jsl_root_finding/nonlinear_systems/fn.newton_system.html), [`broyden_system`](../../api/lib_jsl_root_finding/nonlinear_systems/fn.broyden_system.html), [`SystemOptions`](../../api/lib_jsl_root_finding/nonlinear_systems/struct.SystemOptions.html), [`SystemRootResult`](../../api/lib_jsl_root_finding/nonlinear_systems/struct.SystemRootResult.html), [`newton_krylov`](../../api/lib_jsl_root_finding/newton_krylov/fn.newton_krylov.html), [`NewtonKrylovOptions`](../../api/lib_jsl_root_finding/newton_krylov/struct.NewtonKrylovOptions.html) |
 
 </div>
 
@@ -42,6 +42,12 @@ equations of nuclear reactors and aircraft design, proposed updating an approxim
 smallest change consistent with the latest step. His idea started the family of quasi-Newton
 methods, which in optimisation became BFGS. John Dennis and Jorge Moré (1974) characterised exactly
 when such methods converge superlinearly.
+
+For the very large systems that come from discretised partial differential equations, even storing the Jacobian can be too much. Ron Dembo, Stanley Eisenstat and Trond
+Steihaug (1982) showed that Newton's method keeps its fast local convergence when each linear system is solved only approximately, to a relative accuracy $\eta_k$ that shrinks
+as the iteration converges: **inexact Newton** methods. Peter Brown and Youcef Saad (1990) solved those systems with Krylov methods that need only products $J\mathbf v$, approximated by a
+difference of two values of $\mathbf F$, so that the Jacobian is never formed. Stanley Eisenstat and Homer Walker (1996) gave the adaptive **forcing terms** $\eta_k$ in common use,
+and Dana Knoll and David Keyes (2004) surveyed what had become the standard **Jacobian-free Newton-Krylov** method in computational physics.
 
 ## The idea
 
@@ -175,6 +181,34 @@ quadratically. It needs one evaluation of $\mathbf F$ per iteration (plus any us
 search), instead of $n + 1$. The library forms $B_0$ by differences, and forms it afresh whenever
 the updated matrix stops giving a descent direction.
 
+### Jacobian-free Newton-Krylov
+
+For a system of $n = 10^5$ unknowns from a discretised PDE, a dense Jacobian has $10^{10}$ entries, and Gaussian elimination on it costs $10^{15}$ operations. Two observations make
+Newton's method practical anyway.
+
+**Inexact Newton steps.** Far from the root, a precise Newton step is wasted effort, because the linear model is only a rough guide. It is enough to solve $J\mathbf p = -\mathbf F$ until
+the linear residual is a fraction $\eta_k$ of $\|\mathbf F\|$:
+
+$$
+\|J(\mathbf x_k)\,\mathbf p + \mathbf F(\mathbf x_k)\| \le \eta_k\,\|\mathbf F(\mathbf x_k)\| .
+$$
+
+With $\eta_k \to 0$ the iteration converges superlinearly, and with $\eta_k = O(\|\mathbf F(\mathbf x_k)\|)$ quadratically. The library uses SciPy's forcing terms, Eisenstat and Walker's
+choice 2: $\eta_k = 0.9\,\|\mathbf F_k\|^2/\|\mathbf F_{k-1}\|^2$, kept from falling faster than $0.9\,\eta_{k-1}^2$ while that is above 0.1, capped at 0.9999, and
+applied as the relative tolerance $\min(\eta_k, \eta_k\|\mathbf F_k\|)$.
+
+**Jacobian-vector products by differences.** A Krylov method such as GMRES needs $J$ only through products $J\mathbf v$, and one directional difference gives such a product:
+
+$$
+J(\mathbf x)\,\mathbf v \approx \frac{\mathbf F(\mathbf x + h\,\mathbf v/\|\mathbf v\|) - \mathbf F(\mathbf x)}{h}\,\|\mathbf v\|, \qquad h = \sqrt{\varepsilon}\,\frac{\max(1, \|\mathbf x\|_\infty)}{\max(1, \|\mathbf F(\mathbf x)\|_\infty)} .
+$$
+
+Each inner iteration therefore costs one evaluation of $\mathbf F$, and the memory is that of the Krylov basis: no matrix at all.
+
+**Preconditioning.** The Krylov solver converges slowly when $J$ is badly conditioned, as it is for elliptic PDEs. Its condition number grows like $h^{-2}$ with the grid spacing $h$.
+A **preconditioner** $M \approx J^{-1}$, which need not be exact, groups the eigenvalues of $JM$ together. For a nonlinear PDE, the inverse of its linear part is often good
+enough, and it is usually the key to making Newton-Krylov fast.
+
 ### Comparison
 
 Iterations and evaluations of $\mathbf F$ (including those for difference Jacobians and line searches) to a
@@ -223,6 +257,13 @@ $\mathbf x$, and tolerances on the residual and on the step. Repeat:
 
 Each iteration costs one linear solve, $O(n^3)$, plus the evaluations of $\mathbf F$.
 
+**Jacobian-free Newton-Krylov** (`newton_krylov`), following SciPy step by step. Start from $\eta = 10^{-3}$. Repeat:
+
+1. Stop if $\|\mathbf F\|_\infty \le$ `f_tol` (default $\varepsilon^{1/3}$) and the other tolerances hold for the last correction.
+2. Solve $J\mathbf p = -\mathbf F$ by GMRES($m$), one cycle of $m = 20$ steps, or by BiCGSTAB with at most $m$ steps, to relative residual $\min(\eta, \eta\|\mathbf F\|)$. The products $J\mathbf v$ come from differences, as above.
+3. Line search: SciPy's Armijo search on $\phi(s) = \|\mathbf F(\mathbf x + s\mathbf p)\|^2$, with $\phi'(0)$ taken as $-\phi(0)$. It tries $s = 1$, then the minimiser of a quadratic, then of cubics, down to $s = 0.01$, and takes the full step if none is acceptable.
+4. Update $\eta$ by the Eisenstat-Walker rule.
+
 **Broyden's method** (`broyden_system`). The same loop, with these changes:
 
 - before the first iteration, form $B$ by forward differences;
@@ -246,11 +287,25 @@ Broyden's update:
 {{#include ../../../crates/root_finding/src/nonlinear_systems.rs:broyden_update}}
 ```
 
-- The Jacobian is stored densely and solved by Gaussian elimination: fine for hundreds of unknowns.
-  Large sparse systems from PDEs need sparse or iterative linear solvers (Newton-Krylov methods),
-  which this crate does not provide.
+- In `newton_system` and `broyden_system` the Jacobian is stored densely and solved by Gaussian elimination, which is fine for hundreds of unknowns.
+  Large systems from PDEs need `newton_krylov`.
 - Always check `converged` in the result: the solvers return the best point found even when they fail.
 - The design follows `newt` and `broydn` of *Numerical Recipes*.
+
+The Jacobian-free operator and the Newton-Krylov loop:
+
+```rust,ignore
+{{#include ../../../crates/root_finding/src/newton_krylov.rs:jacobian}}
+```
+
+```rust,ignore
+{{#include ../../../crates/root_finding/src/newton_krylov.rs:newton_krylov}}
+```
+
+- The inner solvers are the sparse module's `gmres` and `bicgstab`, through its `LinearOperator` trait, so any preconditioner implementing it can be passed.
+- SciPy's default inner solver is LGMRES, which the library does not have. Its GMRES and BiCGSTAB options are reproduced.
+- The library's GMRES applies the preconditioner on the right and stops on the true residual. SciPy's applies it on the left and stops on the preconditioned residual.
+- `iterations` counts the convergence tests made, as SciPy's `nit` does: one more than the Newton steps taken.
 
 ## In practice
 
@@ -258,16 +313,35 @@ Broyden's update:
 {{#include ../../../crates/root_finding/examples/root_finding_systems.rs}}
 ```
 
+`newton_krylov` on the two-dimensional Bratu problem $\Delta u + 6e^u = 0$ on the unit square, with $u = 0$ on the boundary, discretised by 5-point differences on grids of $16^2$, $32^2$ and $64^2$
+unknowns and started from $u = 0$. The references are from SciPy 1.17.1, written by `book/generator/data/make_qmcnk_refs.py`:
+
+<p class="caption" id="tab-4-6"><strong>Table 4.6.</strong> Newton-Krylov on the Bratu problem against SciPy's `newton_krylov`.</p>
+
+{{#include ../generated/root_finding/newton_krylov_scipy.md}}
+
+With unpreconditioned GMRES(20), the library takes exactly SciPy's path: the same Newton iterations and the same number of evaluations of $\mathbf F$ on every grid. As the grid is refined, the
+Jacobian's condition number grows, 20 GMRES steps no longer reach the forcing tolerance, and the Newton iteration slows from 4 steps to 69. BiCGSTAB copes better, and differs from
+SciPy in a few iterations because its residual is not monotone. Preconditioning with the LU factors of the discrete Laplacian, the linear part of the problem, makes the work
+independent of the grid: four Newton steps on every grid. The library's preconditioned solves use about twice SciPy's evaluations, because they stop on the true residual rather than the
+preconditioned one. They reach the same final residual.
+
+![Residual against Newton iteration for three inner solvers on the 64 × 64 Bratu problem](../generated/root_finding/newton_krylov_history.svg)
+
+<p class="caption" id="fig-4-6"><strong>Figure 4.6.</strong> Convergence of Newton-Krylov on the 64 × 64 Bratu problem, library (lines) and SciPy (markers). Without a preconditioner the inexact Newton steps make only linear progress; with one, the convergence is quadratic.</p>
+
 **Strengths**
 
 - Quadratic (Newton) or superlinear (Broyden) convergence near a root.
 - The line search gives convergence from much farther away than plain iteration.
 - Broyden's method needs few function evaluations when no Jacobian is available.
+- `newton_krylov` needs neither the Jacobian nor its storage, and reproduces SciPy's iterations.
 
 **Weaknesses**
 
 - Convergence to a root is still not guaranteed: the iteration can stop at a local minimum of $\|\mathbf F\|$.
-- Dense $O(n^3)$ linear algebra per iteration, and $O(n^2)$ memory.
+- `newton_system` and `broyden_system` use dense $O(n^3)$ linear algebra per iteration and $O(n^2)$ memory.
+- Without a good preconditioner, `newton_krylov` degrades on fine grids, as the inner solves stop reaching their tolerance.
 - Which of several roots is found depends on the starting point.
 
 ## Exercises
@@ -282,6 +356,8 @@ Broyden's update:
    four solutions by choosing starting points.
 5. Compare the evaluations used by Newton with difference Jacobians and by Broyden for the Bratu
    problem with $n = 10, 20, 40, 80$. How does the ratio grow with $n$?
+6. Show that the error of the difference product $J\mathbf v$ is $O(h)$ from truncation and $O(\varepsilon/h)$ from rounding, relative to $\|\mathbf v\|$, and that $h \approx \sqrt\varepsilon$ balances them.
+7. Show that the Newton step is a descent direction for $\|\mathbf F\|^2$ even when it is computed inexactly, provided $\eta_k < 1$.
 
 <details>
 <summary>Hints and answers</summary>
@@ -291,6 +367,8 @@ Broyden's update:
 3. At the fold the Jacobian becomes singular (its smallest singular value tends to zero), so the Newton step is undefined or huge. Following the solution past a turning point needs continuation in an arclength parameter rather than in $\lambda$.
 4. Adding and subtracting: $(x + y)^2 = 6$ and $(x - y)^2 = 2$, so the solutions are $\pm(1.932, 0.518)$ and $\pm(0.518, 1.932)$. Start from points in each quadrant, and from both sides of the line $y = x$.
 5. A finite-difference Jacobian costs $n + 1$ evaluations of $\mathbf F$ per iteration, Broyden's method one. With similar iteration counts, the ratio should grow roughly in proportion to $n$.
+6. Taylor's theorem gives $\mathbf F(\mathbf x + h\mathbf u) - \mathbf F(\mathbf x) = hJ\mathbf u + O(h^2)$ for a unit vector $\mathbf u$. Dividing by $h$ leaves an $O(h)$ error, while the rounding error of each value of $\mathbf F$, about $\varepsilon\|\mathbf F\|$, becomes $O(\varepsilon/h)$ after the division. The sum $h + \varepsilon/h$ is smallest at $h = \sqrt\varepsilon$.
+7. Write $J\mathbf p = -\mathbf F + \mathbf r$ with $\|\mathbf r\| \le \eta\|\mathbf F\|$. The directional derivative of $\|\mathbf F\|^2$ along $\mathbf p$ is $2\mathbf F^{\mathsf T}J\mathbf p = -2\|\mathbf F\|^2 + 2\mathbf F^{\mathsf T}\mathbf r \le -2(1 - \eta)\|\mathbf F\|^2 < 0$.
 
 </details>
 
@@ -304,3 +382,7 @@ Broyden's update:
   Equations*, Prentice-Hall, 1983 (SIAM reprint, 1996).
 - J. Nocedal and S. J. Wright, *Numerical Optimization*, 2nd ed., Springer, 2006, chapter 11.
 - C. T. Kelley, *Iterative Methods for Linear and Nonlinear Equations*, SIAM, 1995.
+- R. S. Dembo, S. C. Eisenstat and T. Steihaug, "Inexact Newton methods", *SIAM Journal on Numerical Analysis* 19 (1982) 400–408.
+- P. N. Brown and Y. Saad, "Hybrid Krylov methods for nonlinear systems of equations", *SIAM Journal on Scientific and Statistical Computing* 11 (1990) 450–481.
+- S. C. Eisenstat and H. F. Walker, "Choosing the forcing terms in an inexact Newton method", *SIAM Journal on Scientific Computing* 17 (1996) 16–32.
+- D. A. Knoll and D. E. Keyes, "Jacobian-free Newton-Krylov methods: a survey of approaches and applications", *Journal of Computational Physics* 193 (2004) 357–397.

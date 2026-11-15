@@ -9,34 +9,11 @@
 use crate::uniform_generator::UniformGenerator;
 use lib_jsl_core::ErrorsJSL;
 
-/// Primitive polynomials and initial direction numbers `(degree s, coefficients a, m_1..m_s)`
-/// for Sobol dimensions 2 onwards, from Joe and Kuo's `new-joe-kuo-6.21201` table.
-const JOE_KUO: [(u32, u32, &[u64]); 20] = [
-    (1, 0, &[1]),
-    (2, 1, &[1, 3]),
-    (3, 1, &[1, 3, 1]),
-    (3, 2, &[1, 1, 1]),
-    (4, 1, &[1, 1, 3, 3]),
-    (4, 4, &[1, 3, 5, 13]),
-    (5, 2, &[1, 1, 5, 5, 17]),
-    (5, 4, &[1, 1, 5, 5, 5]),
-    (5, 7, &[1, 1, 7, 11, 19]),
-    (5, 11, &[1, 1, 5, 1, 1]),
-    (5, 13, &[1, 1, 1, 3, 11]),
-    (5, 14, &[1, 3, 5, 5, 31]),
-    (6, 1, &[1, 3, 3, 9, 7, 49]),
-    (6, 13, &[1, 1, 1, 15, 21, 21]),
-    (6, 16, &[1, 3, 1, 13, 27, 49]),
-    (6, 19, &[1, 1, 1, 15, 7, 5]),
-    (6, 22, &[1, 3, 1, 15, 13, 25]),
-    (6, 25, &[1, 1, 5, 5, 19, 61]),
-    (7, 1, &[1, 3, 7, 11, 23, 15, 103]),
-    (7, 4, &[1, 3, 7, 13, 13, 15, 69]),
-];
+use crate::sobol_directions::JOE_KUO;
 
 const BITS: usize = 64;
 
-/// The Sobol sequence in up to 21 dimensions (Joe-Kuo direction numbers), generated in Gray-code
+/// The Sobol sequence in up to 1111 dimensions (Joe-Kuo direction numbers), generated in Gray-code
 /// order (Antonov and Saleev), one XOR per coordinate per point. The first point is the origin;
 /// every block of `2^k` consecutive points starting at a multiple of `2^k` is a `(t, k, d)`-net.
 #[derive(Debug, Clone)]
@@ -52,7 +29,7 @@ impl SobolSequence {
 
     pub fn new(dimension: usize) -> Result<Self, ErrorsJSL> {
         if dimension == 0 || dimension > Self::MAX_DIMENSION {
-            return Err(ErrorsJSL::InvalidInputRange("The Sobol dimension must be between 1 and 21."));
+            return Err(ErrorsJSL::InvalidInputRange("The Sobol dimension must be between 1 and 1111."));
         }
         let mut directions = Vec::with_capacity(dimension);
         let mut first = [0u64; BITS];
@@ -79,6 +56,29 @@ impl SobolSequence {
         }
         Ok(SobolSequence { directions, state: vec![0; dimension], index: 0 })
     }
+
+    // ANCHOR: sobol_scramble
+    /// A scrambled Sobol sequence (SciPy's default, `Sobol(d, scramble=True)`): Matoušek's linear
+    /// matrix scrambling of each coordinate's direction numbers by a random lower triangular
+    /// binary matrix with unit diagonal, then a random digital shift (XOR). The points remain a
+    /// `(t, m, d)`-net in every block of `2^m`, but are no longer biased towards the origin, and
+    /// independent scramblings give independent, unbiased estimates.
+    pub fn scrambled<G: UniformGenerator>(dimension: usize, rng: &mut G) -> Result<Self, ErrorsJSL> {
+        let mut seq = Self::new(dimension)?;
+        for (v, x) in seq.directions.iter_mut().zip(seq.state.iter_mut()) {
+            // Row i of L acts on digit i (bit 63 − i); entries below the diagonal are random.
+            let rows: Vec<u64> = (0..BITS).map(|i| {
+                let below = if i == 0 { 0 } else { rng.next_u64() & !((1u64 << (BITS - i)) - 1) };
+                below | (1u64 << (BITS - 1 - i))
+            }).collect();
+            for d in v.iter_mut() {
+                *d = rows.iter().enumerate().fold(0u64, |acc, (i, r)| acc | (((r & *d).count_ones() as u64 & 1) << (BITS - 1 - i)));
+            }
+            *x = rng.next_u64();
+        }
+        Ok(seq)
+    }
+    // ANCHOR_END: sobol_scramble
 
     pub fn dimension(&self) -> usize {
         self.directions.len()
@@ -135,6 +135,9 @@ pub fn radical_inverse(mut n: u64, base: u64) -> f64 {
 pub struct HaltonSequence {
     dimension: usize,
     index: u64,
+    /// For a scrambled sequence, one random permutation of the digits per coordinate and digit
+    /// position.
+    permutations: Option<Vec<Vec<Vec<u64>>>>,
 }
 
 impl HaltonSequence {
@@ -142,15 +145,59 @@ impl HaltonSequence {
         if dimension == 0 || dimension > PRIMES.len() {
             return Err(ErrorsJSL::InvalidInputRange("The Halton dimension must be between 1 and 100."));
         }
-        Ok(HaltonSequence { dimension, index: 1 })
+        Ok(HaltonSequence { dimension, index: 1, permutations: None })
     }
+
+    // ANCHOR: halton_scramble
+    /// A scrambled Halton sequence (SciPy's `Halton(d, scramble=True)`): in coordinate `k`, digit
+    /// position `j` of every index is mapped through one random permutation `π_{k,j}` of the
+    /// digits `0..b`, over as many positions as a double resolves. Unlike the plain sequence it
+    /// starts at index 0, and the permutations break up the correlations between large bases.
+    pub fn scrambled<G: UniformGenerator>(dimension: usize, rng: &mut G) -> Result<Self, ErrorsJSL> {
+        let mut seq = Self::new(dimension)?;
+        seq.index = 0;
+        let perms = PRIMES[..dimension]
+            .iter()
+            .map(|&b| {
+                let digits = (54.0 / (b as f64).log2()).ceil() as usize;
+                (0..digits)
+                    .map(|_| {
+                        let mut p: Vec<u64> = (0..b).collect();
+                        for i in (1..b as usize).rev() {
+                            let j = (rng.next_u64() % (i as u64 + 1)) as usize;
+                            p.swap(i, j);
+                        }
+                        p
+                    })
+                    .collect()
+            })
+            .collect();
+        seq.permutations = Some(perms);
+        Ok(seq)
+    }
+    // ANCHOR_END: halton_scramble
 
     pub fn dimension(&self) -> usize {
         self.dimension
     }
 
     pub fn next_point(&mut self) -> Vec<f64> {
-        let point = PRIMES[..self.dimension].iter().map(|&p| radical_inverse(self.index, p)).collect();
+        let point = match &self.permutations {
+            None => PRIMES[..self.dimension].iter().map(|&p| radical_inverse(self.index, p)).collect(),
+            Some(perms) => PRIMES[..self.dimension]
+                .iter()
+                .zip(perms)
+                .map(|(&b, pk)| {
+                    let (mut n, mut scale, mut x) = (self.index, 1.0 / b as f64, 0.0);
+                    for pj in pk {
+                        x += pj[(n % b) as usize] as f64 * scale;
+                        n /= b;
+                        scale /= b as f64;
+                    }
+                    x.min(1.0 - f64::EPSILON / 2.0)
+                })
+                .collect(),
+        };
         self.index += 1;
         point
     }
@@ -230,7 +277,7 @@ mod tests {
             }
             assert!(count.iter().all(|&c| c == 1), "shape {i}");
         }
-        assert!(SobolSequence::new(0).is_err() && SobolSequence::new(22).is_err());
+        assert!(SobolSequence::new(0).is_err() && SobolSequence::new(1112).is_err());
     }
 
     #[test]

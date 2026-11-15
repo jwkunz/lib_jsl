@@ -55,5 +55,6 @@ functions taking `&mut impl UniformGenerator`, so any generator can drive them.
 | Uniform random numbers, reproducible streams | `UniformRNG` (xoshiro256++), `jump` | [Pseudo-random generators](generators.md) |
 | Samples from a named distribution | `distributions::*`, `MultivariateNormal` | [Sampling distributions](distributions.md) |
 | A histogram of samples | `Histogram` | [Pseudo-random generators](generators.md#histograms) |
-| Even points for integration | `SobolSequence`, `HaltonSequence`, `random_shift` | [Quasi-random sequences](quasi-random.md) |
+| Even points for integration | `SobolSequence`, `HaltonSequence` (plain or scrambled), `random_shift` | [Quasi-random sequences](quasi-random.md) |
+| Designs for computer experiments; measuring uniformity | `latin_hypercube`, `discrepancy`, `scale` | [Quasi-random sequences](quasi-random.md#latin-hypercube-sampling) |
 | Samples from an unnormalised density | `metropolis_hastings` | [Markov chain Monte Carlo](mcmc.md) |

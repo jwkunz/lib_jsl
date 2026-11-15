@@ -121,7 +121,7 @@ normal target, started from $x = 4$:
 
 ![Traces of three chains](../generated/random/mcmc_trace.svg)
 
-<p class="caption" id="fig-9-3"><strong>Figure 9.3.</strong> Traces of three chains.</p>
+<p class="caption" id="fig-9-4"><strong>Figure 9.4.</strong> Traces of three chains.</p>
 
 The **autocorrelation** $\rho(k)$ of a chain is the correlation between states $k$ steps apart.
 For an efficient chain it falls quickly to zero as $k$ grows; for a crawling or a sticking chain
@@ -129,7 +129,7 @@ it stays high for hundreds of steps:
 
 ![Autocorrelation](../generated/random/mcmc_acf.svg)
 
-<p class="caption" id="fig-9-4"><strong>Figure 9.4.</strong> Autocorrelation.</p>
+<p class="caption" id="fig-9-5"><strong>Figure 9.5.</strong> Autocorrelation.</p>
 
 ### Effective sample size
 
@@ -144,7 +144,7 @@ where $\tau$ is the **integrated autocorrelation time**, the sum of the autocorr
 lags. Comparing the two formulas, $N$ correlated samples are worth as much as $N/\tau$
 independent ones. That number is the **effective sample size**:
 
-<p class="caption" id="tab-9-5"><strong>Table 9.5.</strong> Random-walk Metropolis: acceptance and autocorrelation against step size.</p>
+<p class="caption" id="tab-9-7"><strong>Table 9.7.</strong> Random-walk Metropolis: acceptance and autocorrelation against step size.</p>
 
 {{#include ../generated/random/mcmc_table.md}}
 
@@ -165,7 +165,7 @@ narrowest direction. A banana-shaped density, $x \sim N(0, 4)$ and $y \mid x \si
 
 ![Banana-shaped density](../generated/random/mcmc_banana.svg)
 
-<p class="caption" id="fig-9-5"><strong>Figure 9.5.</strong> Banana-shaped density.</p>
+<p class="caption" id="fig-9-6"><strong>Figure 9.6.</strong> Banana-shaped density.</p>
 
 Multimodal densities are harder still: a random walk may never cross between modes. Gradient-based methods (Hamiltonian
 Monte Carlo), tempering and problem-specific proposals address these cases.

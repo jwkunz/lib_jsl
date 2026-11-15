@@ -11,6 +11,7 @@ pub mod van_wijngaarden_dekker_brent;
 pub mod newton_raphson;
 pub mod polynomial_roots;
 pub mod nonlinear_systems;
+pub mod newton_krylov;
 
 /// `x * y > 0` without the product, which underflows to zero (or overflows) for extreme values.
 pub(crate) fn same_sign(x: f64, y: f64) -> bool {
@@ -26,6 +27,7 @@ pub use van_wijngaarden_dekker_brent::brent_method;
 pub use newton_raphson::newton_raphson;
 pub use polynomial_roots::{polynomial_roots, polynomial_roots_complex};
 pub use nonlinear_systems::{SystemOptions, SystemRootResult, broyden_system, newton_system};
+pub use newton_krylov::{InnerSolver, NewtonKrylovOptions, NewtonKrylovResult, newton_krylov};
 
 #[cfg(test)]
 mod tests {

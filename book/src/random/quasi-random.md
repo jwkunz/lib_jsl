@@ -5,11 +5,11 @@
 | | |
 |---|---|
 | **Problem** | Generate points in the unit cube $[0, 1)^d$ that fill it as evenly as possible, for numerical integration and sampling |
-| **Devised by** | Johannes van der Corput (1935), the radical inverse; John Halton (1960); Ilya Sobol (1967); Ivan Antonov and Vladimir Saleev (1979), Gray-code generation; Roy Cranley and Thomas Patterson (1976), random shifts; Stephen Joe and Frances Kuo (2008), direction numbers |
+| **Devised by** | Johannes van der Corput (1935), the radical inverse; John Halton (1960); Ilya Sobol (1967); Ivan Antonov and Vladimir Saleev (1979), Gray-code generation; Roy Cranley and Thomas Patterson (1976), random shifts; Stephen Joe and Frances Kuo (2008), direction numbers; Art Owen (1995) and Jiří Matoušek (1998), scrambling; Michael McKay, Richard Beckman and William Conover (1979), Latin hypercubes; Tony Warnock (1972) and Fred Hickernell (1998), computable discrepancies |
 | **Accuracy** | Star discrepancy $O((\log N)^d/N)$, so quasi-Monte Carlo errors approach $O(N^{-1})$ for smooth integrands, against $O(N^{-1/2})$ for Monte Carlo |
 | **Cost** | Sobol: one exclusive-or per coordinate per point. Halton: $O(\log N)$ digit operations per coordinate |
 | **Read first** | [Monte Carlo and quasi-Monte Carlo integration](../integration/monte-carlo.md) |
-| **API** | [`SobolSequence`](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html) (up to 21 dimensions), [`HaltonSequence`](../../api/lib_jsl_random/quasi_random/struct.HaltonSequence.html) (up to 100), [`radical_inverse`](../../api/lib_jsl_random/quasi_random/fn.radical_inverse.html), [`random_shift`](../../api/lib_jsl_random/quasi_random/fn.random_shift.html) |
+| **API** | [`SobolSequence`](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html) (up to 1111 dimensions, plain or [scrambled](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html#method.scrambled)), [`HaltonSequence`](../../api/lib_jsl_random/quasi_random/struct.HaltonSequence.html) (up to 100, plain or scrambled), [`latin_hypercube`](../../api/lib_jsl_random/qmc/fn.latin_hypercube.html), [`discrepancy`](../../api/lib_jsl_random/qmc/fn.discrepancy.html), [`scale`](../../api/lib_jsl_random/qmc/fn.scale.html), [`radical_inverse`](../../api/lib_jsl_random/quasi_random/fn.radical_inverse.html), [`random_shift`](../../api/lib_jsl_random/quasi_random/fn.random_shift.html) |
 
 </div>
 
@@ -40,6 +40,12 @@ per coordinate. Roy Cranley and Thomas Patterson (1976) proposed random shifts t
 randomised quasi-Monte Carlo. Stephen Joe and Frances Kuo (2008) computed direction numbers that give good
 two-dimensional projections in thousands of dimensions; quasi-Monte Carlo is now standard in financial mathematics,
 where integrals over hundreds of dimensions price derivatives.
+
+Michael McKay, Richard Beckman and William Conover (1979) introduced **Latin hypercube sampling** for computer experiments at Los Alamos: stratify every coordinate, at the
+price of only one random permutation per axis. Art Owen (1995) showed that randomly **scrambling** the digits of a net keeps its structure and makes every point uniformly
+distributed, and later (1997) that for smooth integrands the scrambled error falls faster than the unscrambled one. Jiří Matoušek (1998) gave the cheaper linear scrambling that SciPy
+and this library use. **Discrepancy** measures how far a point set is from uniform. The classical star discrepancy is expensive to compute, but Tony Warnock (1972) found a closed form
+for its $L^2$ version, and Fred Hickernell (1998) derived centered and wrap-around variants with better invariance properties.
 
 ## The idea
 
@@ -117,6 +123,38 @@ as evenly spread as the original, and because $\mathbf u$ is uniform, the averag
 unbiased random estimate of the integral. Repeating with several independent shifts gives
 independent estimates, whose spread measures the error.
 
+### Scrambling
+
+A Cranley-Patterson shift keeps the points' spacing but not their net structure: after the shift, the elementary boxes no longer contain exactly $2^t$ points each. **Scrambling**
+randomises the points while keeping that structure.
+
+**Sobol: linear matrix scrambling and a digital shift.** Write each direction number as a column of binary digits. Multiplying it, modulo 2, by a random lower triangular
+binary matrix $L$ with ones on the diagonal mixes each digit with the digits before it. Digit $i$ of every point becomes a random combination of digits $1, \ldots, i$, so
+the points of each elementary box are mapped to a single box again. Finally, a random digital shift is XORed into the starting state. Each scrambled point is uniformly
+distributed in the cube, the scrambled set is still a $(t, m, d)$-net, and independent scramblings give independent, unbiased estimates.
+
+**Halton: random digit permutations.** In coordinate $k$, digit $j$ of every index passes through one random permutation $\pi_{k,j}$ of $\{0, \ldots, b - 1\}$. This breaks
+the strong correlations between coordinates with nearby large bases. Since $\pi_{k,j}(0)$ is usually not zero, the permutations must also be applied to the leading zero
+digits of small indices, up to as many digits as a double resolves.
+
+### Latin hypercube sampling
+
+A **Latin hypercube** of $n$ points divides each axis into $n$ equal intervals and puts exactly one point in each interval of each axis. Each coordinate takes an independent random
+permutation of the intervals, and each point is placed uniformly at random in its cell. One-dimensional projections are then perfectly stratified, which removes the error of the additive
+part of the integrand, $\sum_k f_k(x_k)$. The interactions between coordinates are integrated no better than by Monte Carlo, so the convergence rate stays at $N^{-1/2}$, with a smaller constant.
+
+### Discrepancy
+
+The **discrepancy** of $n$ points measures how far their empirical distribution is from the uniform one. The $L^2$ discrepancies have closed forms. For the centered discrepancy (Hickernell),
+
+$$
+\mathrm{CD}^2 = \left(\tfrac{13}{12}\right)^d - \frac2n\sum_{i}\prod_k\Bigl(1 + \tfrac12|x_{ik} - \tfrac12| - \tfrac12|x_{ik} - \tfrac12|^2\Bigr)
++ \frac1{n^2}\sum_{i,j}\prod_k\Bigl(1 + \tfrac12|x_{ik} - \tfrac12| + \tfrac12|x_{jk} - \tfrac12| - \tfrac12|x_{ik} - x_{jk}|\Bigr),
+$$
+
+and the wrap-around, mixture and $L^2$-star discrepancies have similar double sums, costing $O(n^2d)$. Each is the worst-case error of the equal-weight integration rule over the unit ball of a
+reproducing-kernel Hilbert space of functions: a **Koksma-Hlawka** bound, $|\text{error}| \le D(\mathbf x_1, \ldots, \mathbf x_n)\,\|f\|$, with a computable $D$.
+
 ### Integration error
 
 ![QMC integration error](../generated/random/qmc_error.svg)
@@ -154,6 +192,15 @@ The cost is one exclusive-or per coordinate per point.
 **A randomly shifted point set**: draw one uniform vector $\mathbf u$; replace every point
 $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 
+**A scrambled Sobol sequence**: for each coordinate, draw a random lower triangular $64 \times 64$ binary matrix $L$ with unit diagonal, replace each direction number $\mathbf v$
+by $L\mathbf v$ over GF(2), and start the Gray-code recurrence from a random 64-bit state instead of zero.
+
+**A scrambled Halton sequence**: for each coordinate with base $b$ and each of the $\lceil 54/\log_2 b\rceil$ digit positions, draw a random permutation of $\{0, \ldots, b - 1\}$.
+Point $n$ in that coordinate is $\sum_j \pi_j(d_j)\,b^{-j-1}$, over all positions, where $d_j$ are the base-$b$ digits of $n$ (zero beyond its length). The sequence starts at $n = 0$.
+
+**A Latin hypercube of $n$ points in $d$ dimensions**: for each coordinate, shuffle $0, \ldots, n - 1$ (Fisher-Yates) into $\sigma$, and set $x_{ik} = (\sigma_i + u_{ik})/n$ with $u_{ik}$ uniform,
+or $u_{ik} = \tfrac12$ for a centred design.
+
 ## Implementation
 
 ```rust,ignore
@@ -164,7 +211,33 @@ $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 {{#include ../../../crates/random/src/quasi_random.rs:sobol_next}}
 ```
 
-- The Sobol sequence starts at the origin; the Halton sequence starts at index 1, skipping it.
+Scrambling the direction numbers:
+
+```rust,ignore
+{{#include ../../../crates/random/src/quasi_random.rs:sobol_scramble}}
+```
+
+Halton's digit permutations:
+
+```rust,ignore
+{{#include ../../../crates/random/src/quasi_random.rs:halton_scramble}}
+```
+
+Latin hypercubes and discrepancies:
+
+```rust,ignore
+{{#include ../../../crates/random/src/qmc.rs:latin_hypercube}}
+```
+
+```rust,ignore
+{{#include ../../../crates/random/src/qmc.rs:discrepancy}}
+```
+
+- The Sobol sequence starts at the origin. The plain Halton sequence starts at index 1, skipping it, and the scrambled one at index 0, as SciPy's does.
+- The direction numbers for dimensions 2 to 1111 are Joe and Kuo's, generated from the copy shipped with SciPy by `crates/random/data/make_sobol_directions.py`. SciPy has 21201.
+- The library scrambles all 64 bits of the Sobol state, and SciPy 30 by default. The scrambled points are therefore not the same as SciPy's for the same seed, and nor are those of the other randomised
+  samplers, since the generators differ. The comparisons below are statistical.
+- `discrepancy` returns the squared centered, wrap-around and mixture discrepancies and the $L^2$-star discrepancy itself, as SciPy does.
 - `skip(count)` jumps ahead, for distributing a sequence across workers.
 
 ## In practice
@@ -173,15 +246,36 @@ $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 {{#include ../../../crates/random/examples/random_quasi.rs}}
 ```
 
+The references are from SciPy 1.17.1, written by `book/generator/data/make_qmcnk_refs.py`. The deterministic parts agree exactly, or to rounding:
+
+<p class="caption" id="tab-9-5"><strong>Table 9.5.</strong> Unscrambled sequences and discrepancies against `scipy.stats.qmc`.</p>
+
+{{#include ../generated/random/qmc_scipy.md}}
+
+The randomised samplers are compared by their statistics. The figure shows the root-mean-square error of 50 independent estimates of the integral of Sobol's $g$-function,
+$\prod_{k=1}^5 (|4x_k - 2| + k)/(1 + k)$, whose exact value is 1. The library's results are the lines and SciPy's the markers.
+
+![RMS error against the number of points for Monte Carlo, Latin hypercube, scrambled Halton and scrambled Sobol](../generated/random/qmc_rmse.svg)
+
+<p class="caption" id="fig-9-3"><strong>Figure 9.3.</strong> Randomised quasi-Monte Carlo on a 5-dimensional integrand with kinks, library (lines) and SciPy (markers). Monte Carlo and Latin hypercube errors fall like $N^{-1/2}$, the hypercube's about four times lower. Scrambled Halton falls like $N^{-1}$, and scrambled Sobol at powers of two faster still, about 300 times more accurate than Monte Carlo at 4096 points.</p>
+
+The mean centered discrepancy of 256 points over 50 randomisations agrees with SciPy's for every sampler, to within the scatter:
+
+<p class="caption" id="tab-9-6"><strong>Table 9.6.</strong> Centered discrepancy of randomised samplers, library and SciPy.</p>
+
+{{#include ../generated/random/qmc_discrepancy.md}}
+
 **Strengths**
 
 - Errors close to $N^{-1}$ for smooth integrands, against $N^{-1/2}$ for Monte Carlo.
-- Deterministic and reproducible, with random shifts available for error estimates.
+- Deterministic and reproducible, with random shifts and scrambling available for error estimates.
+- Scrambled Sobol keeps the net structure and converges faster than plain or shifted Sobol on smooth integrands.
 
 **Weaknesses**
 
 - The advantage fades for non-smooth integrands and very high effective dimension.
-- Halton degrades in high dimensions; this Sobol implementation has 21 dimensions.
+- Halton degrades in high dimensions, scrambled or not. This Sobol implementation has 1111 dimensions; SciPy's has 21201.
+- The discrepancies cost $O(n^2d)$, so they are practical up to some thousands of points.
 - Not random: never use quasi-random points where independence matters (simulation of random processes, statistical tests).
 
 ## Exercises
@@ -192,6 +286,8 @@ $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 3. Integrate $\prod_i(1 + (x_i - \tfrac12)/i)$ over $[0, 1]^{20}$ with Sobol points and with pseudo-random points, and compare the errors.
 4. Estimate the error of a Sobol integration with 10 random shifts, and compare with the true error.
 5. Plot the first 1000 Halton points in dimensions 1 and 2 and in dimensions 40 and 41, and explain the difference.
+6. Show that a linear matrix scrambling with a lower triangular $L$ (unit diagonal) maps every elementary interval $[a2^{-m}, (a + 1)2^{-m})$ of one coordinate onto another such interval.
+7. Show that a Latin hypercube estimate integrates an additive function $f(\mathbf x) = \sum_k f_k(x_k)$ with variance $O(N^{-3})$ when each $f_k$ is smooth, against $O(N^{-1})$ for Monte Carlo.
 
 <details>
 <summary>Hints and answers</summary>
@@ -201,6 +297,8 @@ $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 3. Each factor is nearly constant with decreasing variation, so the effective dimension is low: Sobol points should give an error orders of magnitude smaller than pseudo-random points for the same $N$.
 4. Use 10 independently shifted copies, take the standard deviation of the 10 estimates divided by $\sqrt{10}$ as the error estimate, and compare it with the actual error over repeated experiments; the two agree on average.
 5. In dimensions 40 and 41 the Halton bases are 173 and 179, close to each other and large compared with the number of points. With only 1000 points the pairs lie on a small number of lines, strongly correlated, and fill the square evenly only after many more points; low dimensions (bases 2 and 3) fill it at once.
+6. The first $m$ digits of $L\mathbf x$ depend only on the first $m$ digits of $\mathbf x$, since $L$ is lower triangular, and the map on those $m$ digits is invertible, since $L$ has a unit diagonal. So the $2^m$ intervals are permuted among themselves.
+7. Each $f_k$ is integrated by stratified sampling with one point per interval of width $1/N$. The variance contributed by each interval is $O(N^{-2})$ for smooth $f_k$, the $N$ intervals contribute independently, and the mean carries the factor $1/N^2$: in total $N \cdot N^{-2} \cdot N^{-2} = N^{-3}$.
 
 </details>
 
@@ -209,5 +307,10 @@ $\mathbf x$ by the fractional part of $\mathbf x + \mathbf u$.
 - J. Dick and F. Pillichshammer, *Digital Nets and Sequences*, Cambridge University Press, 2010.
 - S. Joe and F. Y. Kuo, "Constructing Sobol sequences with better two-dimensional projections", *SIAM Journal on Scientific Computing*
   30 (2008) 2635–2654.
+- M. D. McKay, R. J. Beckman and W. J. Conover, "A comparison of three methods for selecting values of input variables in the analysis of output from a computer code", *Technometrics* 21 (1979) 239–245.
+- A. B. Owen, "Randomly permuted $(t, m, s)$-nets and $(t, s)$-sequences", in *Monte Carlo and Quasi-Monte Carlo Methods in Scientific Computing*, Lecture Notes in Statistics 106, Springer, 1995, 299–317.
+- J. Matoušek, "On the $L_2$-discrepancy for anchored boxes", *Journal of Complexity* 14 (1998) 527–556. Linear matrix scrambling.
+- F. J. Hickernell, "A generalized discrepancy and quadrature error bound", *Mathematics of Computation* 67 (1998) 299–322.
+- Y.-D. Zhou, K.-T. Fang and J.-H. Ning, "Mixture discrepancy for quasi-random point sets", *Journal of Complexity* 29 (2013) 283–301.
 - H. Niederreiter, *Random Number Generation and Quasi-Monte Carlo Methods*, SIAM, 1992.
 - A. B. Owen, *Practical Quasi-Monte Carlo Integration*, 2023, <https://artowen.su.domains/mc/practicalqmc.pdf>.

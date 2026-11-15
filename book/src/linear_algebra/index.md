@@ -95,5 +95,6 @@ Both crates agree with LAPACK to a few units of rounding error on these well-con
 | Large sparse $A\mathbf x = \mathbf b$: direct | `sparse::spsolve`, `sparse::SparseLu` | [Sparse matrices and iterative solvers](sparse.md#ordering-and-fill-in) |
 | Large sparse $A\mathbf x = \mathbf b$ or least squares: iterative | `sparse::cg`, `minres`, `gmres`, `bicgstab`, `lsqr` | [Sparse matrices and iterative solvers](sparse.md#krylov-subspaces-and-conjugate-gradients) |
 | A few eigenvalues or singular values of a large matrix | `sparse::eigsh`, `sparse::svds`, `sparse::eigsh_shift_invert` (near a shift) | [Sparse matrices and iterative solvers](sparse.md#the-lanczos-process-for-eigenvalues) |
+| A few eigenvalues of a large nonsymmetric matrix | `sparse::eigs`, `sparse::eigs_shift_invert` (near a shift) | [Sparse matrices and iterative solvers](sparse.md#the-arnoldi-process-and-krylov-schur-restarts) |
 | Precondition a large nonsymmetric system | `sparse::Ilu::ilu0`, `sparse::Ilu::ilut` | [Sparse matrices and iterative solvers](sparse.md#incomplete-lu-preconditioning) |
 | $e^{tA}\mathbf b$ for a large sparse $A$ | `sparse::expm_multiply` | [Sparse matrices and iterative solvers](sparse.md#the-action-of-the-matrix-exponential) |

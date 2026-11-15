@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **552 algorithms and components in 23 crates**:
+The library implements **553 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 142 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 49 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 50 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 78 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
@@ -235,7 +235,7 @@ Dense and sparse matrix factorisations, solvers and eigenproblems, Fourier trans
 
 Linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices, and sparse matrices with direct and Krylov solvers.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 22 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 23 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
@@ -258,6 +258,7 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [The action of the matrix exponential (`expm_multiply`)](linear_algebra/sparse.md#the-action-of-the-matrix-exponential)
 - [Interior eigenvalues by shift-invert Lanczos](linear_algebra/sparse.md#the-lanczos-process-for-eigenvalues)
 - [A few eigenvalues and singular values of large matrices (Lanczos with deflation: `eigsh`, `svds`)](linear_algebra/sparse.md#the-lanczos-process-for-eigenvalues)
+- [A few eigenvalues of large nonsymmetric matrices (Krylov-Schur Arnoldi: `eigs`, with shift-invert)](linear_algebra/sparse.md#the-arnoldi-process-and-krylov-schur-restarts)
 - [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 
 ### Linear algebra reference

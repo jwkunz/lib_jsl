@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-15
+
+### Added
+
+- `sparse::eigs` with `EigsWhich` (largest or smallest magnitude, real part or imaginary part),
+  `EigsOptions` and `EigsResult`: a few eigenvalues and eigenvectors of a large nonsymmetric
+  operator, SciPy's `eigs`, by the Krylov-Schur method (restarted Arnoldi) in real arithmetic.
+- `sparse::eigs_shift_invert`: the eigenvalues nearest a real shift, through a sparse LU
+  factorisation of `A − σI`.
+- Book: a section on the Arnoldi process and Krylov-Schur restarts in "Sparse matrices and
+  iterative solvers", with comparisons against ARPACK and the exact spectra.
+
 ## [2.1.0] - 2026-11-14
 
 ### Added
@@ -457,7 +469,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.2.0
 [2.1.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.1.0
 [2.0.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.0.0
 [1.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v1.20.0

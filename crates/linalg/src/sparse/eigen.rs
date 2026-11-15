@@ -32,7 +32,7 @@ fn norm(a: &[f64]) -> f64 {
 }
 
 /// A deterministic start vector with all components non-zero, orthogonal to `locked`.
-fn start_vector(n: usize, locked: &[Vec<f64>]) -> Vec<f64> {
+pub(super) fn start_vector(n: usize, locked: &[Vec<f64>]) -> Vec<f64> {
     let mut v: Vec<f64> = (0..n).map(|i| 1.0 + 0.5 * ((i as f64 * 1.618_033_988_75).fract() - 0.5)).collect();
     reorthogonalise(&mut v, locked, &[]);
     let s = norm(&v);
@@ -159,9 +159,9 @@ fn lanczos(a: &dyn LinearOperator, k: usize, which: Which, tol: f64, locked: &[V
 // ANCHOR_END: eigsh
 
 /// `(A − σI)⁻¹` through a sparse LU factorisation, for shift-invert Lanczos.
-struct ShiftInvert {
-    lu: SparseLu,
-    n: usize,
+pub(super) struct ShiftInvert {
+    pub(super) lu: SparseLu,
+    pub(super) n: usize,
 }
 
 impl LinearOperator for ShiftInvert {

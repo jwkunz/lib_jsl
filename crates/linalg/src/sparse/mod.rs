@@ -3,10 +3,12 @@
 //! fill-reducing ordering (minimum degree or reverse Cuthill-McKee; `spsolve`, `SparseLu`); Krylov
 //! solvers (CG, MINRES, GMRES, BiCGSTAB, LSQR) for any [`LinearOperator`], with Jacobi and
 //! incomplete-LU preconditioners; a few eigenvalues or singular values by Lanczos methods
-//! (`eigsh`, its shift-invert mode, `svds`); and `expm_multiply`. Real (`f64`) matrices only.
+//! (`eigsh`, its shift-invert mode, `svds`) and of nonsymmetric matrices by Arnoldi's (`eigs`,
+//! `eigs_shift_invert`); and `expm_multiply`. Real (`f64`) matrices only.
 //!
 //! See the book entry [Sparse matrices and iterative solvers](https://jwkunz.github.io/lib_jsl/book/linear_algebra/sparse.html).
 
+mod arnoldi;
 mod direct;
 mod eigen;
 mod expm;
@@ -14,6 +16,7 @@ mod formats;
 mod ilu;
 mod iterative;
 
+pub use arnoldi::{EigsOptions, EigsResult, EigsWhich, eigs, eigs_shift_invert};
 pub use direct::{Ordering, SparseLu, bandwidth, minimum_degree, reverse_cuthill_mckee, spsolve};
 pub use eigen::{EigenPairs, Which, eigsh, eigsh_shift_invert, svds};
 pub use expm::expm_multiply;

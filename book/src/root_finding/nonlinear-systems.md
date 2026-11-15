@@ -302,8 +302,8 @@ The Jacobian-free operator and the Newton-Krylov loop:
 {{#include ../../../crates/root_finding/src/newton_krylov.rs:newton_krylov}}
 ```
 
-- The inner solvers are the sparse module's `gmres` and `bicgstab`, through its `LinearOperator` trait, so any preconditioner implementing it can be passed.
-- SciPy's default inner solver is LGMRES, which the library does not have. Its GMRES and BiCGSTAB options are reproduced.
+- The inner solvers are the sparse module's `gmres`, `bicgstab` and `LgmresSolver`, through its `LinearOperator` trait, so any preconditioner implementing it can be passed.
+- `InnerSolver::Lgmres` reproduces SciPy's default inner solver. It keeps up to 10 earlier Newton corrections as augmentation vectors, from one Newton step to the next. The library's default remains GMRES(20).
 - The library's GMRES applies the preconditioner on the right and stops on the true residual. SciPy's applies it on the left and stops on the preconditioned residual.
 - `iterations` counts the convergence tests made, as SciPy's `nit` does: one more than the Newton steps taken.
 
@@ -322,13 +322,14 @@ unknowns and started from $u = 0$. The references are from SciPy 1.17.1, written
 
 With unpreconditioned GMRES(20), the library takes exactly SciPy's path: the same Newton iterations and the same number of evaluations of $\mathbf F$ on every grid. As the grid is refined, the
 Jacobian's condition number grows, 20 GMRES steps no longer reach the forcing tolerance, and the Newton iteration slows from 4 steps to 69. BiCGSTAB copes better, and differs from
-SciPy in a few iterations because its residual is not monotone. Preconditioning with the LU factors of the discrete Laplacian, the linear part of the problem, makes the work
+SciPy in a few iterations because its residual is not monotone. LGMRES, SciPy's default, again takes SciPy's path exactly. It needs far fewer evaluations than GMRES(20) on the fine grid,
+because the corrections it carries from one Newton step to the next span the slowly converging directions. Preconditioning with the LU factors of the discrete Laplacian, the linear part of the problem, makes the work
 independent of the grid: four Newton steps on every grid. The library's preconditioned solves use about twice SciPy's evaluations, because they stop on the true residual rather than the
 preconditioned one. They reach the same final residual.
 
-![Residual against Newton iteration for three inner solvers on the 64 × 64 Bratu problem](../generated/root_finding/newton_krylov_history.svg)
+![Residual against Newton iteration for four inner solvers on the 64 × 64 Bratu problem](../generated/root_finding/newton_krylov_history.svg)
 
-<p class="caption" id="fig-4-6"><strong>Figure 4.6.</strong> Convergence of Newton-Krylov on the 64 × 64 Bratu problem, library (lines) and SciPy (markers). Without a preconditioner the inexact Newton steps make only linear progress; with one, the convergence is quadratic.</p>
+<p class="caption" id="fig-4-6"><strong>Figure 4.6.</strong> Convergence of Newton-Krylov on the 64 × 64 Bratu problem, library (lines) and SciPy (markers). With GMRES(20) and no preconditioner, the inexact Newton steps make only linear progress. BiCGSTAB and LGMRES do better, and with the Laplacian preconditioner the convergence is quadratic.</p>
 
 **Strengths**
 

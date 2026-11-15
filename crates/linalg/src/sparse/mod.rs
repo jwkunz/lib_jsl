@@ -1,7 +1,7 @@
 //! Sparse matrices and solvers for large systems, following `scipy.sparse` and
 //! `scipy.sparse.linalg`: COO, CSR and CSC storage; a sparse LU factorisation with a
 //! fill-reducing ordering (minimum degree or reverse Cuthill-McKee; `spsolve`, `SparseLu`); Krylov
-//! solvers (CG, MINRES, GMRES, BiCGSTAB, LSQR) for any [`LinearOperator`], with Jacobi and
+//! solvers (CG, MINRES, GMRES, LGMRES, BiCGSTAB, LSQR) for any [`LinearOperator`], with Jacobi and
 //! incomplete-LU preconditioners; a few eigenvalues or singular values by Lanczos methods
 //! (`eigsh`, its shift-invert mode, `svds`) and of nonsymmetric matrices by Arnoldi's (`eigs`,
 //! `eigs_shift_invert`); and `expm_multiply`. Real (`f64`) matrices only.
@@ -15,6 +15,7 @@ mod expm;
 mod formats;
 mod ilu;
 mod iterative;
+mod lgmres;
 
 pub use arnoldi::{EigsOptions, EigsResult, EigsWhich, eigs, eigs_shift_invert};
 pub use direct::{Ordering, SparseLu, bandwidth, minimum_degree, reverse_cuthill_mckee, spsolve};
@@ -22,6 +23,7 @@ pub use eigen::{EigenPairs, Which, eigsh, eigsh_shift_invert, svds};
 pub use expm::expm_multiply;
 pub use ilu::Ilu;
 pub use formats::{CooMatrix, CscMatrix, CsrMatrix};
+pub use lgmres::{LgmresSolver, lgmres};
 pub use iterative::{FnOperator, IterativeOptions, IterativeResult, Jacobi, LinearOperator, bicgstab, cg, gmres, lsqr, minres};
 
 #[cfg(test)]

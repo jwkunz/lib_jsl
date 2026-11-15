@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **557 algorithms and components in 23 crates**:
+The library implements **559 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 143 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 50 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 144 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 51 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 81 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
@@ -42,7 +42,7 @@ Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.ht
 
 Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs.
 
-Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 28 items
+Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 29 items
 
 - [Integrator trait (1D)](integration/index.md#in-the-library)
 - [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
@@ -59,6 +59,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [Tanh-sinh quadrature](integration/tanh-sinh.md)
 - [Vector-valued adaptive quadrature (quad_vec)](integration/vector-weighted.md)
 - [Weighted quadrature: oscillatory, Fourier, algebraic-logarithmic, Cauchy principal value](integration/vector-weighted.md#weighted-integrals)
+- [Filon-Clenshaw-Curtis quadrature for oscillatory integrals](integration/vector-weighted.md#weighted-integrals)
 - [Romberg integration](integration/romberg.md)
 - [Sampled-data rules: trapezoid, Simpson, Romberg, cumulative integrals](integration/sampled-data.md)
 - [Multidimensional cubature](integration/cubature.md)
@@ -236,7 +237,7 @@ Dense and sparse matrix factorisations, solvers and eigenproblems, Fourier trans
 
 Linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices, and sparse matrices with direct and Krylov solvers.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 23 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 24 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
@@ -260,6 +261,7 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [Interior eigenvalues by shift-invert Lanczos](linear_algebra/sparse.md#the-lanczos-process-for-eigenvalues)
 - [A few eigenvalues and singular values of large matrices (Lanczos with deflation: `eigsh`, `svds`)](linear_algebra/sparse.md#the-lanczos-process-for-eigenvalues)
 - [A few eigenvalues of large nonsymmetric matrices (Krylov-Schur Arnoldi: `eigs`, with shift-invert)](linear_algebra/sparse.md#the-arnoldi-process-and-krylov-schur-restarts)
+- [LGMRES: restarted GMRES augmented with earlier error approximations](linear_algebra/sparse.md#other-krylov-methods)
 - [Benchmarks against LAPACK (`ndarray-linalg`)](linear_algebra/index.md#the-production-crate)
 
 ### Linear algebra reference

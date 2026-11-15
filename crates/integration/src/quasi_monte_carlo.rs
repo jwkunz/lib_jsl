@@ -9,7 +9,7 @@ use lib_jsl_random::uniform_generator::UniformRNG;
 /// The low-discrepancy sequence to sample with.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum QuasiRandomSequence {
-    /// Sobol (up to 1111 dimensions); use a power of two for the number of points.
+    /// Sobol (up to 21201 dimensions); use a power of two for the number of points.
     Sobol,
     /// Halton (up to 100 dimensions).
     Halton,
@@ -121,7 +121,7 @@ mod tests {
         assert!((r.value - 8.0).abs() < (4.0 * r.standard_error).min(0.05), "{r:?}");
         let single = quasi_monte_carlo_integration(|x| x[0], &[(0.0, 1.0)], 256, 1, QuasiRandomSequence::Halton, 1).unwrap();
         assert!(single.standard_error.is_nan() && (single.value - 0.5).abs() < 1e-2);
-        assert!(quasi_monte_carlo_integration(|x| x[0], &[(0.0, 1.0); 1112], 16, 2, QuasiRandomSequence::Sobol, 1).is_err());
+        assert!(quasi_monte_carlo_integration(|x| x[0], &[(0.0, 1.0); 21202], 16, 2, QuasiRandomSequence::Sobol, 1).is_err());
         assert!(quasi_monte_carlo_integration(|x| x[0], &[], 16, 2, QuasiRandomSequence::Sobol, 1).is_err());
     }
 }

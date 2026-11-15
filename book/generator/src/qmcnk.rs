@@ -5,7 +5,7 @@ use crate::refs::{Refs, fmt_diff};
 use crate::spectral::md_table;
 use crate::svg::{Legend, Plot, Series, Style};
 use crate::write;
-use lib_jsl_linalg::sparse::{CooMatrix, LinearOperator, Ordering, SparseLu};
+use lib_jsl_linalg::sparse::{CooMatrix, CsrMatrix, IterativeOptions, LgmresSolver, LinearOperator, Ordering, SparseLu};
 use lib_jsl_random::qmc::{Discrepancy, discrepancy, latin_hypercube};
 use lib_jsl_random::quasi_random::{HaltonSequence, SobolSequence};
 use lib_jsl_random::uniform_generator::{UniformGenerator, UniformRNG};
@@ -16,6 +16,7 @@ pub fn generate() {
     sequences_table(&refs);
     randomised(&refs);
     newton_krylov_results(&refs);
+    lgmres_table(&refs);
 }
 
 fn sobol_plain(d: usize, n: usize) -> Vec<Vec<f64>> {
@@ -36,7 +37,12 @@ fn max_diff(got: &[Vec<f64>], want: &[f64]) -> f64 {
 
 fn sequences_table(refs: &Refs) {
     let mut rows = vec![
-        vec!["Sobol, 1111 dimensions, unscrambled".into(), "first 64 points".into(), fmt_diff(max_diff(&sobol_plain(1111, 64), refs.values("sobol plain")))],
+        {
+            let full = sobol_plain(21201, 64);
+            let cols: Vec<usize> = (0..21201).step_by(211).chain([21200]).collect();
+            let picked: Vec<Vec<f64>> = full.iter().map(|p| cols.iter().map(|&c| p[c]).collect()).collect();
+            vec!["Sobol, 21201 dimensions, unscrambled".into(), format!("first 64 points, {} coordinates from 1 to 21201", cols.len()), fmt_diff(max_diff(&picked, refs.values("sobol full")))]
+        },
         vec!["Halton, 20 dimensions, unscrambled".into(), "points 1 to 64".into(), fmt_diff(max_diff(&halton_plain(20, 64), refs.values("halton plain")))],
     ];
     let formula: Vec<Vec<f64>> = (0..50).map(|i| (0..6).map(|k| ((i as f64 * 1.7 + k as f64 * 0.3).sin() + 1.0) / 2.0).collect()).collect();
@@ -171,7 +177,7 @@ fn newton_krylov_results(refs: &Refs) {
     for m in [16, 32, 64] {
         let reference = refs.get(&format!("nk {m} lgmres"));
         let peak_ref = reference[0][4];
-        for (k, (key, label, inner, precond)) in [("gmres", "GMRES(20)", InnerSolver::Gmres, false), ("bicgstab", "BiCGSTAB", InnerSolver::Bicgstab, false), ("gmres lu", "GMRES(20), Laplacian LU preconditioner", InnerSolver::Gmres, true)].into_iter().enumerate() {
+        for (k, (key, label, inner, precond)) in [("gmres", "GMRES(20)", InnerSolver::Gmres, false), ("bicgstab", "BiCGSTAB", InnerSolver::Bicgstab, false), ("gmres lu", "GMRES(20), Laplacian LU preconditioner", InnerSolver::Gmres, true), ("lgmres", "LGMRES (SciPy's default)", InnerSolver::Lgmres, false)].into_iter().enumerate() {
             let o = NewtonKrylovOptions { inner, ..Default::default() };
             let pre = precond.then(|| laplacian_lu(m));
             let r = newton_krylov(bratu(m, 6.0), &vec![0.0; m * m], pre.as_ref().map(|p| p as &dyn LinearOperator), &o).unwrap();
@@ -185,10 +191,10 @@ fn newton_krylov_results(refs: &Refs) {
                     let ri = newton_krylov(bratu(m, 6.0), &vec![0.0; m * m], pre.as_ref().map(|p| p as &dyn LinearOperator), &oi).unwrap();
                     history.push((it as f64, ri.fun.iter().fold(0.0f64, |a, v| a.max(v.abs()))));
                 }
-                plot.series.push(Series::new(&format!("{label} (library)"), history, Style::LineMarkers, k));
+                plot.series.push(Series::new(label, history, Style::LineMarkers, k));
                 let w = refs.get(&format!("nk {m} {key}"));
                 let spts: Vec<(f64, f64)> = w[1].iter().enumerate().map(|(i, &v)| (i as f64, v)).collect();
-                plot.series.push(Series::new(&format!("{label} (SciPy)"), spts, Style::Markers, k));
+                plot.series.push(Series::new("", spts, Style::Markers, k));
             }
             let w = refs.get(&format!("nk {m} {key}"));
             let peak = r.x.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
@@ -205,4 +211,46 @@ fn newton_krylov_results(refs: &Refs) {
     }
     write("root_finding", "newton_krylov_scipy.md", &md_table(&["grid", "inner solver", "Newton iterations (library / SciPy)", "evaluations of F (library / SciPy)", "final max \\|F\\| (library / SciPy)", "peak of u, relative difference from SciPy's LGMRES solution"], &rows));
     write("root_finding", "newton_krylov_history.svg", &plot.render());
+}
+
+/// The convection-diffusion operator `T ⊗ I + I ⊗ T`, `T = tridiag(−1 − γ, 2, −1 + γ)`.
+fn convection(m: usize, gamma: f64) -> CsrMatrix {
+    let mut coo = CooMatrix::new(m * m, m * m);
+    for i in 0..m {
+        for j in 0..m {
+            let r = i * m + j;
+            coo.push(r, r, 4.0);
+            if i > 0 {
+                coo.push(r, r - m, -1.0 - gamma);
+            }
+            if i + 1 < m {
+                coo.push(r, r + m, -1.0 + gamma);
+            }
+            if j > 0 {
+                coo.push(r, r - 1, -1.0 - gamma);
+            }
+            if j + 1 < m {
+                coo.push(r, r + 1, -1.0 + gamma);
+            }
+        }
+    }
+    coo.to_csr().unwrap()
+}
+
+fn lgmres_table(refs: &Refs) {
+    let mut rows = Vec::new();
+    for (gamma, outer_k) in [(0.5, 3), (0.9, 3), (0.5, 0), (0.9, 0)] {
+        let a = convection(30, gamma);
+        let b: Vec<f64> = (0..900).map(|k| 1.0 + 0.5 * (0.37 * k as f64).sin()).collect();
+        let r = LgmresSolver::new(30, outer_k).solve(&a, &b, None, None, IterativeOptions { rtol: 1e-8, atol: 0.0, max_iterations: None }).unwrap();
+        assert!(r.converged);
+        let ax = a.matvec(&r.x);
+        let bn = b.iter().map(|v| v * v).sum::<f64>().sqrt();
+        let res = ax.iter().zip(&b).map(|(p, q)| (p - q).powi(2)).sum::<f64>().sqrt() / bn;
+        let w = refs.get(&format!("lgmres {gamma} {outer_k}"));
+        let xmax = w[1].iter().fold(0.0f64, |m, v| m.max(v.abs()));
+        let dx = r.x.iter().zip(&w[1]).fold(0.0f64, |m, (p, q)| m.max((p - q).abs())) / xmax;
+        rows.push(vec![format!("γ = {gamma}"), if outer_k == 0 { "0 (restarted GMRES(30))".into() } else { outer_k.to_string() }, format!("{} / {}", r.iterations, w[0][0]), format!("{res:.1e} / {:.1e}", w[0][2]), fmt_diff(dx)]);
+    }
+    write("linear_algebra", "lgmres_scipy.md", &md_table(&["convection-diffusion, n = 900", "augmentation vectors", "products with A (library / SciPy)", "final relative residual (library / SciPy)", "solution, relative difference from SciPy"], &rows));
 }

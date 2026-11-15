@@ -1,5 +1,6 @@
-"""Reference results for release 2.3.0: scipy.stats.qmc (Sobol, Halton, Latin hypercube,
-discrepancy) and scipy.optimize.newton_krylov, from SciPy 1.17.1.
+"""Reference results for releases 2.3.0 and 2.4.0: scipy.stats.qmc (Sobol, Halton, Latin
+hypercube, discrepancy), scipy.optimize.newton_krylov and scipy.sparse.linalg.lgmres, from
+SciPy 1.17.1.
 
     python book/generator/data/make_qmcnk_refs.py > book/generator/data/qmcnk_reference.txt
 """
@@ -16,7 +17,9 @@ def out(name, *lists):
 
 
 # --- Unscrambled sequences (deterministic; compared point by point) ---
-out("sobol plain", qmc.Sobol(1111, scramble=False).random(64))
+full = qmc.Sobol(21201, scramble=False).random(64)
+cols = list(range(0, 21201, 211)) + [21200]
+out("sobol full", full[:, cols])
 out("halton plain", qmc.Halton(20, scramble=False).random(65)[1:])
 
 # --- Discrepancies of deterministic sets ---
@@ -93,3 +96,27 @@ for m in (16, 32, 64):
             x, ok = np.full(m * m, np.nan), 0
         name = f"nk {m} {method}{' lu' if precond else ''}"
         out(name, [len(hist), count[0], ok, np.abs(F(x)).max(), x.max()], [np.abs(F(np.zeros(m * m))).max()] + hist)
+
+
+# --- LGMRES on nonsymmetric systems ---
+from scipy.sparse.linalg import lgmres
+
+
+def convection(m, g):
+    t = sp.diags([-1 - g, 2.0, -1 + g], [-1, 0, 1], shape=(m, m))
+    i = sp.identity(m)
+    return (sp.kron(t, i) + sp.kron(i, t)).tocsr()
+
+
+for g, outer_k in ((0.5, 3), (0.9, 3), (0.5, 0), (0.9, 0)):
+    a = convection(30, g)
+    b = 1 + 0.5 * np.sin(0.37 * np.arange(900))
+    count = [0]
+
+    def mv(x, a=a):
+        count[0] += 1
+        return a @ x
+
+    op = LinearOperator(a.shape, matvec=mv, dtype=float)
+    x, info = lgmres(op, b, rtol=1e-8, atol=0, outer_k=outer_k)
+    out(f"lgmres {g:g} {outer_k}", [count[0], info, np.linalg.norm(a @ x - b) / np.linalg.norm(b)], x)

@@ -5,11 +5,11 @@
 | | |
 |---|---|
 | **Problem** | Store, multiply and solve with large matrices that are mostly zeros, and find a few of their eigenvalues or singular values |
-| **Devised by** | Magnus Hestenes and Eduard Stiefel (1952), conjugate gradients; Cornelius Lanczos (1950), the Lanczos process; Walter Arnoldi (1951), the Arnoldi process; Danny Sorensen (1992) and G. W. Stewart (2001), restarted Arnoldi; Elizabeth Cuthill and James McKee (1969), bandwidth reduction; Christopher Paige and Michael Saunders (1975, 1982), MINRES and LSQR; Youcef Saad and Martin Schultz (1986), GMRES; Henk van der Vorst (1992), BiCGSTAB; John Gilbert and Tim Peierls (1988), sparse LU in time proportional to the arithmetic; William Tinney and John Walker (1967), minimum degree; Koos Meijerink and Henk van der Vorst (1977) and Yousef Saad (1994), incomplete LU; Awad Al-Mohy and Nicholas Higham (2011), the action of the matrix exponential |
+| **Devised by** | Magnus Hestenes and Eduard Stiefel (1952), conjugate gradients; Cornelius Lanczos (1950), the Lanczos process; Walter Arnoldi (1951), the Arnoldi process; Danny Sorensen (1992) and G. W. Stewart (2001), restarted Arnoldi; Elizabeth Cuthill and James McKee (1969), bandwidth reduction; Christopher Paige and Michael Saunders (1975, 1982), MINRES and LSQR; Youcef Saad and Martin Schultz (1986), GMRES; Allison Baker, Elizabeth Jessup and Thomas Manteuffel (2005), LGMRES; Henk van der Vorst (1992), BiCGSTAB; John Gilbert and Tim Peierls (1988), sparse LU in time proportional to the arithmetic; William Tinney and John Walker (1967), minimum degree; Koos Meijerink and Henk van der Vorst (1977) and Yousef Saad (1994), incomplete LU; Awad Al-Mohy and Nicholas Higham (2011), the action of the matrix exponential |
 | **Accuracy** | Direct solves agree with SciPy to $10^{-14}$; iterative solves reach the requested residual and take the same number of iterations as SciPy within a few; eigenvalues and singular values agree to $10^{-13}$ |
 | **Cost** | Storage and a product with $A$: $O(\text{nnz})$. Iterative solvers: one or two products per iteration, plus $O(n)$ (CG, MINRES, BiCGSTAB) or $O(jn)$ at inner step $j$ (GMRES). Sparse LU: proportional to the arithmetic on the fill |
 | **Read first** | [Gaussian elimination and LU factorisation](lu.md), [Eigenvalue algorithms](eigen-iterations.md), [The singular value decomposition](svd.md) |
-| **API** | [`sparse`](../../api/lib_jsl_linalg/sparse/index.html): [`CsrMatrix`](../../api/lib_jsl_linalg/sparse/struct.CsrMatrix.html), [`spsolve`](../../api/lib_jsl_linalg/sparse/fn.spsolve.html), [`SparseLu`](../../api/lib_jsl_linalg/sparse/struct.SparseLu.html), [`cg`](../../api/lib_jsl_linalg/sparse/fn.cg.html), [`minres`](../../api/lib_jsl_linalg/sparse/fn.minres.html), [`gmres`](../../api/lib_jsl_linalg/sparse/fn.gmres.html), [`bicgstab`](../../api/lib_jsl_linalg/sparse/fn.bicgstab.html), [`lsqr`](../../api/lib_jsl_linalg/sparse/fn.lsqr.html), [`eigsh`](../../api/lib_jsl_linalg/sparse/fn.eigsh.html), [`svds`](../../api/lib_jsl_linalg/sparse/fn.svds.html), [`eigsh_shift_invert`](../../api/lib_jsl_linalg/sparse/fn.eigsh_shift_invert.html), [`eigs`](../../api/lib_jsl_linalg/sparse/fn.eigs.html), [`eigs_shift_invert`](../../api/lib_jsl_linalg/sparse/fn.eigs_shift_invert.html), [`reverse_cuthill_mckee`](../../api/lib_jsl_linalg/sparse/fn.reverse_cuthill_mckee.html), [`minimum_degree`](../../api/lib_jsl_linalg/sparse/fn.minimum_degree.html), [`Ilu`](../../api/lib_jsl_linalg/sparse/struct.Ilu.html), [`expm_multiply`](../../api/lib_jsl_linalg/sparse/fn.expm_multiply.html) |
+| **API** | [`sparse`](../../api/lib_jsl_linalg/sparse/index.html): [`CsrMatrix`](../../api/lib_jsl_linalg/sparse/struct.CsrMatrix.html), [`spsolve`](../../api/lib_jsl_linalg/sparse/fn.spsolve.html), [`SparseLu`](../../api/lib_jsl_linalg/sparse/struct.SparseLu.html), [`cg`](../../api/lib_jsl_linalg/sparse/fn.cg.html), [`minres`](../../api/lib_jsl_linalg/sparse/fn.minres.html), [`gmres`](../../api/lib_jsl_linalg/sparse/fn.gmres.html), [`lgmres`](../../api/lib_jsl_linalg/sparse/fn.lgmres.html), [`LgmresSolver`](../../api/lib_jsl_linalg/sparse/struct.LgmresSolver.html), [`bicgstab`](../../api/lib_jsl_linalg/sparse/fn.bicgstab.html), [`lsqr`](../../api/lib_jsl_linalg/sparse/fn.lsqr.html), [`eigsh`](../../api/lib_jsl_linalg/sparse/fn.eigsh.html), [`svds`](../../api/lib_jsl_linalg/sparse/fn.svds.html), [`eigsh_shift_invert`](../../api/lib_jsl_linalg/sparse/fn.eigsh_shift_invert.html), [`eigs`](../../api/lib_jsl_linalg/sparse/fn.eigs.html), [`eigs_shift_invert`](../../api/lib_jsl_linalg/sparse/fn.eigs_shift_invert.html), [`reverse_cuthill_mckee`](../../api/lib_jsl_linalg/sparse/fn.reverse_cuthill_mckee.html), [`minimum_degree`](../../api/lib_jsl_linalg/sparse/fn.minimum_degree.html), [`Ilu`](../../api/lib_jsl_linalg/sparse/struct.Ilu.html), [`expm_multiply`](../../api/lib_jsl_linalg/sparse/fn.expm_multiply.html) |
 
 </div>
 
@@ -29,7 +29,7 @@ The module follows `scipy.sparse` and `scipy.sparse.linalg`:
 
 - COO, CSR and CSC storage;
 - `spsolve` and a sparse LU with minimum-degree or reverse Cuthill-McKee ordering;
-- `cg`, `minres`, `gmres`, `bicgstab` and `lsqr`, with Jacobi and incomplete-LU preconditioners;
+- `cg`, `minres`, `gmres`, `lgmres`, `bicgstab` and `lsqr`, with Jacobi and incomplete-LU preconditioners;
 - `eigsh` (with a shift-invert mode) and `svds`;
 - `expm_multiply`;
 - `reverse_cuthill_mckee` from `scipy.sparse.csgraph`. Every solver takes a
@@ -112,7 +112,7 @@ $A \approx LU$ keeps the factors sparse by discarding fill, and is applied by tw
   $p$ largest entries in each of the $L$ and $U$ parts of the row. Smaller $\tau$ and larger $p$ give a more accurate and more expensive factorisation; with
   $\tau = 0$ and $p = n$ it is the exact LU without pivoting.
 
-SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.18) rather than entry by entry.
+SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.19) rather than entry by entry.
 
 ### Other Krylov methods
 
@@ -121,6 +121,10 @@ SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the c
 - **GMRES** does the same for nonsymmetric $A$, with Arnoldi's process: $AQ_k = Q_{k+1}H_{k+1,k}$ with $H_{k+1,k}$ upper Hessenberg. Each step orthogonalises
   against every previous basis vector, so the work and storage grow with $k$. **Restarting** after $m$ steps, written GMRES($m$), bounds them, but it can slow
   convergence or stall it.
+- **LGMRES** (Baker, Jessup and Manteuffel, 2005) recovers some of what a restart discards. Each correction $\Delta\mathbf x$ found by a cycle approximates the error, and
+  the last few of them (`outer_k`, default 3) are appended to the next cycle's Krylov basis. The cycle then minimises the residual over both. Restarted GMRES tends to
+  alternate between similar search spaces from one cycle to the next, and the augmentation vectors damp this. SciPy's `newton_krylov` uses LGMRES by default, and keeps the augmentation
+  vectors from one Newton step to the next.
 - **BiCGSTAB** uses short recurrences for nonsymmetric $A$, with two products per step and constant storage. It has no minimisation property, and its residual can jump, as in Figure 7.13.
 - **LSQR** solves $\min\|A\mathbf x - \mathbf b\|_2$ for rectangular $A$. It is mathematically CG on the normal equations $A^{\mathsf T}A\mathbf x = A^{\mathsf T}\mathbf b$, but it is built from the
   Golub-Kahan bidiagonalisation and never squares the condition number.
@@ -249,6 +253,10 @@ $\text{tol}\cdot\max|\theta|$, double $m$ and repeat; then deflate as above.
 ```
 
 ```rust,ignore
+{{#include ../../../crates/linalg/src/sparse/lgmres.rs:lgmres}}
+```
+
+```rust,ignore
 {{#include ../../../crates/linalg/src/sparse/direct.rs:rcm}}
 ```
 
@@ -289,7 +297,7 @@ The reordering swaps two adjacent eigenvalues of the triangular factor with one 
 - `eigs` returns the eigenvalues in order of preference, a real eigenvalue with an exactly zero imaginary part. Each eigenvector is scaled so that its largest component is real and
   positive, which makes the vectors of a conjugate pair exact conjugates.
 - A residual estimate of a converged pair settles at a few times $\varepsilon|\theta|$, and can stay just above $\varepsilon|\theta|$. So the default tolerance is $8\varepsilon$ rather than ARPACK's $\varepsilon$.
-- `eigs`'s default subspace is $\max(2k + 1, 30)$ vectors, against SciPy's $\max(2k + 1, 20)$. Keeping half of a 20-vector subspace, the library needed 17,654 products on one case of Table 7.20, where SciPy needs 3,449.
+- `eigs`'s default subspace is $\max(2k + 1, 30)$ vectors, against SciPy's $\max(2k + 1, 20)$. Keeping half of a 20-vector subspace, the library needed 17,654 products on one case of Table 7.21, where SciPy needs 3,449.
   With 30 vectors it needs 750. Keeping fewer vectors at each restart, as ARPACK does, made that case faster but missed one of the six wanted values.
 
 ## In practice
@@ -319,13 +327,23 @@ differs and its residual is not monotone. MINRES takes as many iterations as CG 
 
 <p class="caption" id="fig-7-13"><strong>Figure 7.13.</strong> A nonsymmetric system. Full GMRES converges in the fewest iterations (86) but stores every basis vector. Restarting costs iterations, and not monotonically: GMRES(10) needs 114 and GMRES(30) needs 210, as in SciPy. Short and long restarts discard different parts of the subspace, and which is better depends on the problem (Embree, 2003). BiCGSTAB's residual is erratic, but it converges in 57 iterations of two products each.</p>
 
+LGMRES, compared with SciPy's `lgmres` on two convection-diffusion systems with rtol $= 10^{-8}$. Like SciPy's, the library's LGMRES preconditions on the left, adapts the tolerance of each cycle, and counts the residual
+computed at the start of each cycle among the products:
+
+<p class="caption" id="tab-7-16"><strong>Table 7.16.</strong> LGMRES against SciPy.</p>
+
+{{#include ../generated/linear_algebra/lgmres_scipy.md}}
+
+The two take the same steps, product for product. On these systems the augmentation does not pay: restarted GMRES(30) needs 24–31 % fewer products. LGMRES helps most when restarts
+stagnate. Its larger gains come inside Newton iterations, where the augmentation vectors carry information from one linear system to the next.
+
 ![CG with and without Jacobi preconditioning on a Laplacian with a varying diagonal](../generated/linear_algebra/sparse_preconditioning.svg)
 
 <p class="caption" id="fig-7-14"><strong>Figure 7.14.</strong> Jacobi preconditioning on a matrix whose diagonal varies from 4 to 51 cuts CG from 31 iterations to 10. The large diagonal already makes this matrix better conditioned than the plain Laplacian (grey).</p>
 
 Ordering decides the cost of a direct solve. The table repeats the experiment of Figure 7.11 on the $30 \times 30$ grid, with SciPy's SuperLU for comparison:
 
-<p class="caption" id="tab-7-16"><strong>Table 7.16.</strong> Bandwidth and fill of the LU factors of a shuffled 900 × 900 Laplacian under several orderings.</p>
+<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> Bandwidth and fill of the LU factors of a shuffled 900 × 900 Laplacian under several orderings.</p>
 
 {{#include ../generated/linear_algebra/sparse_fill.md}}
 
@@ -333,7 +351,7 @@ The library's sparse LU produces exactly SuperLU's fill for the same ordering. R
 degree saves another 40–60 %. On larger and nonsymmetric matrices the library's minimum degree comes within 3–11 % of SuperLU's MMD and does better than
 SuperLU's default, COLAMD, which orders for unsymmetric pivoting:
 
-<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
+<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
 
 {{#include ../generated/linear_algebra/sparse_md_fill.md}}
 
@@ -343,14 +361,14 @@ SuperLU's default, COLAMD, which orders for unsymmetric pivoting:
 
 Incomplete LU preconditioning on two nonsymmetric problems with 1600 unknowns, against SciPy's `spilu`. Jacobi does nothing here, because the diagonal is constant:
 
-<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
+<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
 
 {{#include ../generated/linear_algebra/sparse_ilu.md}}
 
 ILU(0), with no more storage than $A$, cuts the iterations by a factor of 8 to 16. ILUT with $\tau = 10^{-4}$ needs 4–5 iterations. SuperLU's
 threshold ILU, which also pivots and reorders, reaches 3–9 iterations with a similar amount of fill. Finally, `expm_multiply` and shift-invert `eigsh`:
 
-<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
+<p class="caption" id="tab-7-20"><strong>Table 7.20.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_expm_eigsh.md}}
 
@@ -359,7 +377,7 @@ At $t = 40$ the norm $\|tB\|_1 = 160$ is beyond the simple bound, so the paramet
 `eigs` on three nonsymmetric matrices, with the error measured against the exact spectrum. That spectrum comes from dense `numpy.linalg.eigvals` for the first two matrices, and in closed form,
 $\lambda = 4 - 2\sqrt{1 - \gamma^2}\,(\cos\tfrac{i\pi}{31} + \cos\tfrac{j\pi}{31})$, for the convection-diffusion operator. Both programs start from the vector of ones, with $k = 6$ and each program's default tolerance:
 
-<p class="caption" id="tab-7-20"><strong>Table 7.20.</strong> `eigs` against SciPy's ARPACK.</p>
+<p class="caption" id="tab-7-21"><strong>Table 7.21.</strong> `eigs` against SciPy's ARPACK.</p>
 
 {{#include ../generated/linear_algebra/sparse_eigs.md}}
 
@@ -370,7 +388,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 
 ![The spectrum of a pseudo-random sparse matrix in the complex plane, with the eigenvalues found by eigs for several choices of which](../generated/linear_algebra/sparse_eigs_spectrum.svg)
 
-<p class="caption" id="fig-7-16"><strong>Figure 7.16.</strong> The eigenvalues `eigs` returns for each choice of `which`, on the pseudo-random matrix of Table 7.20. Extreme eigenvalues (largest or smallest real part, largest imaginary part) converge in a few hundred products. The six nearest $\sigma = 0.3$, in the interior of the spectrum, need shift-invert: 52 solves with the LU factors of $A - 0.3I$.</p>
+<p class="caption" id="fig-7-16"><strong>Figure 7.16.</strong> The eigenvalues `eigs` returns for each choice of `which`, on the pseudo-random matrix of Table 7.21. Extreme eigenvalues (largest or smallest real part, largest imaginary part) converge in a few hundred products. The six nearest $\sigma = 0.3$, in the interior of the spectrum, need shift-invert: 52 solves with the LU factors of $A - 0.3I$.</p>
 
 **Strengths**
 
@@ -378,7 +396,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 - Iteration counts and solutions that match SciPy, and a strict, documented stopping rule.
 - A sparse LU with partial pivoting whose fill equals SuperLU's under the same ordering.
 - `eigsh` and `svds` that find repeated eigenvalues and singular values, by deflation.
-- `eigs` for nonsymmetric matrices, with real arithmetic throughout and fewer products than ARPACK on every test of Table 7.20.
+- `eigs` for nonsymmetric matrices, with real arithmetic throughout and fewer products than ARPACK on every test of Table 7.21.
 
 **Weaknesses**
 
@@ -420,6 +438,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 - T. A. Davis, *Direct Methods for Sparse Linear Systems*, SIAM, 2006 (the Gilbert-Peierls algorithm, orderings and CSparse).
 - J. R. Shewchuk, "An introduction to the conjugate gradient method without the agonizing pain", 1994.
 - C. C. Paige and M. A. Saunders, "Solution of sparse indefinite systems of linear equations", *SIAM Journal on Numerical Analysis* 12 (1975) 617–629; "LSQR: an algorithm for sparse linear equations and sparse least squares", *ACM Transactions on Mathematical Software* 8 (1982) 43–71.
+- A. H. Baker, E. R. Jessup and T. Manteuffel, "A technique for accelerating the convergence of restarted GMRES", *SIAM Journal on Matrix Analysis and Applications* 26 (2005) 962–984.
 - Y. Saad and M. H. Schultz, "GMRES: a generalized minimal residual algorithm for solving nonsymmetric linear systems", *SIAM Journal on Scientific and Statistical Computing* 7 (1986) 856–869.
 - H. A. van der Vorst, "Bi-CGSTAB: a fast and smoothly converging variant of Bi-CG for the solution of nonsymmetric linear systems", *SIAM Journal on Scientific and Statistical Computing* 13 (1992) 631–644.
 - E. Cuthill and J. McKee, "Reducing the bandwidth of sparse symmetric matrices", *Proceedings of the 24th ACM National Conference* (1969) 157–172.

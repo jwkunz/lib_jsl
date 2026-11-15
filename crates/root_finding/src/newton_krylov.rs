@@ -5,7 +5,7 @@
 //! See the book entry [Nonlinear systems](https://jwkunz.github.io/lib_jsl/book/root_finding/nonlinear-systems.html#jacobian-free-newton-krylov).
 
 use lib_jsl_core::ErrorsJSL;
-use lib_jsl_linalg::sparse::{IterativeOptions, LinearOperator, bicgstab, gmres};
+use lib_jsl_linalg::sparse::{IterativeOptions, LgmresSolver, LinearOperator, bicgstab, gmres};
 use std::cell::{Cell, RefCell};
 
 /// The Krylov solver for the Newton corrections.
@@ -16,6 +16,11 @@ pub enum InnerSolver {
     Gmres,
     /// BiCGSTAB, at most `inner_maxiter` steps of two products each (`method='bicgstab'`).
     Bicgstab,
+    /// LGMRES (SciPy's default inner solver): one cycle of 30 Krylov steps, augmented by up to 10
+    /// earlier Newton corrections, which are kept from one Newton iteration to the next and put
+    /// first in the subspace (SciPy's `outer_k=10`, `prepend_outer_v=True`,
+    /// `store_outer_Av=False`). `inner_maxiter` does not apply.
+    Lgmres,
 }
 
 /// Options for [`newton_krylov`] (SciPy's defaults). The iteration stops when
@@ -188,6 +193,9 @@ where
     let mut dx = vec![f64::INFINITY; n];
     let (gamma, eta_max, eta_threshold): (f64, f64, f64) = (0.9, 0.9999, 0.1);
     let mut eta: f64 = 1e-3;
+    let mut augmented = LgmresSolver::new(30, 10);
+    augmented.store_outer_av = false;
+    augmented.prepend_outer_v = true;
     let (mut checks, mut products, mut converged) = (0, 0, false);
     for _ in 0..max_iter {
         checks += 1;
@@ -204,6 +212,7 @@ where
         let sol = match options.inner {
             InnerSolver::Gmres => gmres(&jac, &fx, None, preconditioner, options.inner_maxiter, inner)?,
             InnerSolver::Bicgstab => bicgstab(&jac, &fx, None, preconditioner, inner)?,
+            InnerSolver::Lgmres => augmented.solve(&jac, &fx, None, preconditioner, IterativeOptions { max_iterations: Some(1), ..inner })?,
         };
         products += jac.products.get();
         dx = sol.x.iter().map(|v| -v).collect();
@@ -273,7 +282,7 @@ mod tests {
     #[test]
     fn solves_the_bratu_problem() {
         let m = 20;
-        for inner in [InnerSolver::Gmres, InnerSolver::Bicgstab] {
+        for inner in [InnerSolver::Gmres, InnerSolver::Bicgstab, InnerSolver::Lgmres] {
             let o = NewtonKrylovOptions { inner, inner_maxiter: 60, ..Default::default() };
             let r = newton_krylov(bratu(m, 6.0), &vec![0.0; m * m], None, &o).unwrap();
             assert!(r.converged, "{inner:?}: {} iterations", r.iterations);

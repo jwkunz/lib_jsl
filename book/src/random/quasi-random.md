@@ -9,7 +9,7 @@
 | **Accuracy** | Star discrepancy $O((\log N)^d/N)$, so quasi-Monte Carlo errors approach $O(N^{-1})$ for smooth integrands, against $O(N^{-1/2})$ for Monte Carlo |
 | **Cost** | Sobol: one exclusive-or per coordinate per point. Halton: $O(\log N)$ digit operations per coordinate |
 | **Read first** | [Monte Carlo and quasi-Monte Carlo integration](../integration/monte-carlo.md) |
-| **API** | [`SobolSequence`](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html) (up to 1111 dimensions, plain or [scrambled](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html#method.scrambled)), [`HaltonSequence`](../../api/lib_jsl_random/quasi_random/struct.HaltonSequence.html) (up to 100, plain or scrambled), [`latin_hypercube`](../../api/lib_jsl_random/qmc/fn.latin_hypercube.html), [`discrepancy`](../../api/lib_jsl_random/qmc/fn.discrepancy.html), [`scale`](../../api/lib_jsl_random/qmc/fn.scale.html), [`radical_inverse`](../../api/lib_jsl_random/quasi_random/fn.radical_inverse.html), [`random_shift`](../../api/lib_jsl_random/quasi_random/fn.random_shift.html) |
+| **API** | [`SobolSequence`](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html) (up to 21201 dimensions, plain or [scrambled](../../api/lib_jsl_random/quasi_random/struct.SobolSequence.html#method.scrambled)), [`HaltonSequence`](../../api/lib_jsl_random/quasi_random/struct.HaltonSequence.html) (up to 100, plain or scrambled), [`latin_hypercube`](../../api/lib_jsl_random/qmc/fn.latin_hypercube.html), [`discrepancy`](../../api/lib_jsl_random/qmc/fn.discrepancy.html), [`scale`](../../api/lib_jsl_random/qmc/fn.scale.html), [`radical_inverse`](../../api/lib_jsl_random/quasi_random/fn.radical_inverse.html), [`random_shift`](../../api/lib_jsl_random/quasi_random/fn.random_shift.html) |
 
 </div>
 
@@ -234,7 +234,7 @@ Latin hypercubes and discrepancies:
 ```
 
 - The Sobol sequence starts at the origin. The plain Halton sequence starts at index 1, skipping it, and the scrambled one at index 0, as SciPy's does.
-- The direction numbers for dimensions 2 to 1111 are Joe and Kuo's, generated from the copy shipped with SciPy by `crates/random/data/make_sobol_directions.py`. SciPy has 21201.
+- The direction numbers for dimensions 2 to 21201 are Joe and Kuo's, the same table as SciPy's. `crates/random/data/make_sobol_directions.py` stores them as 660 kB of variable-length integers, decoded on first use.
 - The library scrambles all 64 bits of the Sobol state, and SciPy 30 by default. The scrambled points are therefore not the same as SciPy's for the same seed, and nor are those of the other randomised
   samplers, since the generators differ. The comparisons below are statistical.
 - `discrepancy` returns the squared centered, wrap-around and mixture discrepancies and the $L^2$-star discrepancy itself, as SciPy does.
@@ -274,7 +274,7 @@ The mean centered discrepancy of 256 points over 50 randomisations agrees with S
 **Weaknesses**
 
 - The advantage fades for non-smooth integrands and very high effective dimension.
-- Halton degrades in high dimensions, scrambled or not. This Sobol implementation has 1111 dimensions; SciPy's has 21201.
+- Halton degrades in high dimensions, scrambled or not. Sobol supports 21201 dimensions, as SciPy does.
 - The discrepancies cost $O(n^2d)$, so they are practical up to some thousands of points.
 - Not random: never use quasi-random points where independence matters (simulation of random processes, statistical tests).
 

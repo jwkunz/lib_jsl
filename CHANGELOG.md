@@ -6,6 +6,26 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-11-15
+
+### Added
+
+- `sparse::lgmres` and `sparse::LgmresSolver`: LGMRES (Baker, Jessup and Manteuffel), restarted
+  GMRES augmented with error approximations from earlier cycles, reproducing SciPy's `lgmres`
+  product for product. The stateful solver keeps its augmentation vectors between solves.
+- `InnerSolver::Lgmres` for `newton_krylov`: SciPy's default inner solver, with the augmentation
+  vectors carried across Newton iterations; it reproduces SciPy's iterations and evaluations.
+
+### Changed
+
+- `quad_weighted` with `Weight::Cos` or `Weight::Sin` on a finite interval uses adaptive
+  Filon-Clenshaw-Curtis quadrature: `f` alone is interpolated at Chebyshev points and the
+  oscillation is integrated exactly through modified moments. The cost no longer grows with the
+  frequency, and is below QUADPACK's on the book's tests (33 and 147 evaluations against 75 and
+  225; previously 1722 and 2457).
+- `SobolSequence` supports all 21201 dimensions of Joe and Kuo's table, as SciPy does (up from
+  1111), stored as a compact binary file decoded on first use.
+
 ## [2.3.0] - 2026-11-15
 
 ### Added
@@ -488,7 +508,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.4.0
 [2.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.3.0
 [2.2.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.2.0
 [2.1.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.1.0

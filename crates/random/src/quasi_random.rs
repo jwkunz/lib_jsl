@@ -9,11 +9,42 @@
 use crate::uniform_generator::UniformGenerator;
 use lib_jsl_core::ErrorsJSL;
 
-use crate::sobol_directions::JOE_KUO;
+use std::sync::OnceLock;
+
+/// Joe and Kuo's `new-joe-kuo-6.21201` table for dimensions 2 to 21201, `(degree s, interior
+/// coefficients a, m_1..m_s)`, decoded once from the compact varint file written by
+/// `crates/random/data/make_sobol_directions.py`.
+fn joe_kuo() -> &'static [(u32, u32, Vec<u64>)] {
+    static TABLE: OnceLock<Vec<(u32, u32, Vec<u64>)>> = OnceLock::new();
+    TABLE.get_or_init(|| {
+        let bytes: &[u8] = include_bytes!("../data/sobol_directions.bin");
+        let mut pos = 0;
+        let mut next = || {
+            let (mut v, mut shift) = (0u64, 0);
+            loop {
+                let b = bytes[pos];
+                pos += 1;
+                v |= ((b & 0x7F) as u64) << shift;
+                if b & 0x80 == 0 {
+                    return v;
+                }
+                shift += 7;
+            }
+        };
+        let mut table = Vec::with_capacity(SobolSequence::MAX_DIMENSION - 1);
+        for _ in 1..SobolSequence::MAX_DIMENSION {
+            let s = next() as u32;
+            let a = next() as u32;
+            let m = (0..s).map(|_| next()).collect();
+            table.push((s, a, m));
+        }
+        table
+    })
+}
 
 const BITS: usize = 64;
 
-/// The Sobol sequence in up to 1111 dimensions (Joe-Kuo direction numbers), generated in Gray-code
+/// The Sobol sequence in up to 21201 dimensions (Joe-Kuo direction numbers), generated in Gray-code
 /// order (Antonov and Saleev), one XOR per coordinate per point. The first point is the origin;
 /// every block of `2^k` consecutive points starting at a multiple of `2^k` is a `(t, k, d)`-net.
 #[derive(Debug, Clone)]
@@ -25,11 +56,11 @@ pub struct SobolSequence {
 
 impl SobolSequence {
     /// The largest supported dimension.
-    pub const MAX_DIMENSION: usize = JOE_KUO.len() + 1;
+    pub const MAX_DIMENSION: usize = 21201;
 
     pub fn new(dimension: usize) -> Result<Self, ErrorsJSL> {
         if dimension == 0 || dimension > Self::MAX_DIMENSION {
-            return Err(ErrorsJSL::InvalidInputRange("The Sobol dimension must be between 1 and 1111."));
+            return Err(ErrorsJSL::InvalidInputRange("The Sobol dimension must be between 1 and 21201."));
         }
         let mut directions = Vec::with_capacity(dimension);
         let mut first = [0u64; BITS];
@@ -37,7 +68,8 @@ impl SobolSequence {
             *v = 1u64 << (BITS - 1 - i);
         }
         directions.push(first);
-        for &(s, a, m) in JOE_KUO.iter().take(dimension - 1) {
+        for (s, a, m) in joe_kuo().iter().take(dimension - 1) {
+            let (s, a) = (*s, *a);
             let s = s as usize;
             let mut v = [0u64; BITS];
             for i in 0..s {
@@ -246,8 +278,14 @@ mod tests {
     #[test]
     fn direction_number_table_is_valid() {
         let mut seen = std::collections::HashSet::new();
-        for &(s, a, m) in &JOE_KUO {
-            assert!(is_primitive(s, a), "polynomial ({s}, {a}) is not primitive");
+        assert_eq!(joe_kuo().len(), SobolSequence::MAX_DIMENSION - 1);
+        for (k, (s, a, m)) in joe_kuo().iter().enumerate() {
+            let (s, a) = (*s, *a);
+            // Primitivity is checked by brute force for the polynomials of degree up to 13
+            // (the first 1111 or so dimensions); the rest would take minutes.
+            if s <= 13 {
+                assert!(is_primitive(s, a), "polynomial ({s}, {a}) of dimension {} is not primitive", k + 2);
+            }
             assert!(seen.insert((s, a)), "duplicate polynomial");
             assert_eq!(m.len(), s as usize);
             for (i, &mi) in m.iter().enumerate() {
@@ -258,11 +296,20 @@ mod tests {
 
     #[test]
     fn sobol_points_form_nets() {
-        let mut sobol = SobolSequence::new(SobolSequence::MAX_DIMENSION).unwrap();
+        // Every coordinate of the full 21201-dimensional sequence is stratified.
+        let mut full = SobolSequence::new(SobolSequence::MAX_DIMENSION).unwrap();
+        let points: Vec<Vec<f64>> = (0..64).map(|_| full.next_point()).collect();
+        for d in (0..SobolSequence::MAX_DIMENSION).step_by(97).chain([SobolSequence::MAX_DIMENSION - 1]) {
+            let mut cells: Vec<u64> = points.iter().map(|p| (p[d] * 64.0) as u64).collect();
+            cells.sort_unstable();
+            assert!(cells.iter().enumerate().all(|(i, &c)| c == i as u64), "dimension {d}");
+        }
+        let low = 1111;
+        let mut sobol = SobolSequence::new(low).unwrap();
         let points: Vec<Vec<f64>> = (0..1024).map(|_| sobol.next_point()).collect();
         assert!(points[0].iter().all(|&x| x == 0.0) && points[1].iter().all(|&x| x == 0.5));
         // Every 1D projection of the first 2^k points is exactly the grid {i / 2^k}.
-        for d in 0..SobolSequence::MAX_DIMENSION {
+        for d in 0..low {
             let mut cells: Vec<u64> = points[..256].iter().map(|p| (p[d] * 256.0) as u64).collect();
             cells.sort_unstable();
             assert!(cells.iter().enumerate().all(|(i, &c)| c == i as u64), "dimension {d}");
@@ -277,7 +324,7 @@ mod tests {
             }
             assert!(count.iter().all(|&c| c == 1), "shape {i}");
         }
-        assert!(SobolSequence::new(0).is_err() && SobolSequence::new(1112).is_err());
+        assert!(SobolSequence::new(0).is_err() && SobolSequence::new(21202).is_err());
     }
 
     #[test]

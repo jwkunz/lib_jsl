@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **559 algorithms and components in 23 crates**:
+The library implements **565 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 144 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 51 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 57 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 81 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
@@ -237,7 +237,7 @@ Dense and sparse matrix factorisations, solvers and eigenproblems, Fourier trans
 
 Linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices, and sparse matrices with direct and Krylov solvers.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 24 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 30 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
@@ -250,6 +250,12 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [Matrix square root, logarithm and fractional powers (Schur method, inverse scaling and squaring)](linear_algebra/subspaces-norms.md#square-roots-and-logarithms-through-the-schur-form)
 - [Pseudoinverse, numerical rank, null space and range bases](linear_algebra/subspaces-norms.md#the-pseudoinverse-and-the-fundamental-subspaces)
 - [Matrix norms and condition numbers](linear_algebra/subspaces-norms.md#norms-and-condition-numbers)
+- [QR with column pivoting and RQ (LAPACK conventions)](linear_algebra/factorizations.md#qr-with-column-pivoting)
+- [Hessenberg and real Schur forms with standardised 2 × 2 blocks](linear_algebra/factorizations.md#the-real-schur-form-and-its-standard-2--2-blocks)
+- [Bunch-Kaufman LDLᵀ factorisation](linear_algebra/factorizations.md#bunch-kaufman-pivoting)
+- [Polar decomposition](linear_algebra/factorizations.md#polar-decomposition-and-principal-angles)
+- [Principal angles between subspaces](linear_algebra/factorizations.md#polar-decomposition-and-principal-angles)
+- [General matrix functions (Schur-Parlett)](linear_algebra/factorizations.md#matrix-functions-by-schur-parlett)
 - [Least squares (pivoted QR, SVD for rank-deficient systems)](linear_algebra/least-squares.md)
 - [Sparse storage: COO, CSR and CSC matrices, products and conversions](linear_algebra/sparse.md#storage)
 - [Reverse Cuthill-McKee bandwidth-reducing ordering](linear_algebra/sparse.md#ordering-and-fill-in)

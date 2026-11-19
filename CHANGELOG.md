@@ -6,6 +6,20 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-11-19
+
+### Added
+
+- `qr` (full or economic, optionally with column pivoting) and `rq`, with LAPACK's Householder
+  conventions, so `Q`, `R` and the pivots agree with SciPy's entry by entry.
+- `hessenberg` (`H` and `Q`), and `schur_real`, the real Schur form with its 2 × 2 blocks in
+  LAPACK's standard form.
+- `ldl`: the Bunch-Kaufman `LDLᵀ`/`LDLᴴ` factorisation of symmetric, Hermitian or complex
+  symmetric matrices, lower or upper, returned as SciPy's `ldl` returns it.
+- `polar` (right and left), `subspace_angles` (small angles accurate from their sines) and `funm`
+  (general matrix functions by the Schur-Parlett recurrence, with SciPy's error estimate).
+- Book: a new entry, "Further factorisations", with comparisons against SciPy.
+
 ## [2.4.0] - 2026-11-15
 
 ### Added
@@ -508,7 +522,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.5.0
 [2.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.4.0
 [2.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.3.0
 [2.2.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.2.0

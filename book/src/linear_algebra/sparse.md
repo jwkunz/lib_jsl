@@ -112,7 +112,7 @@ $A \approx LU$ keeps the factors sparse by discarding fill, and is applied by tw
   $p$ largest entries in each of the $L$ and $U$ parts of the row. Smaller $\tau$ and larger $p$ give a more accurate and more expensive factorisation; with
   $\tau = 0$ and $p = n$ it is the exact LU without pivoting.
 
-SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.19) rather than entry by entry.
+SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.20) rather than entry by entry.
 
 ### Other Krylov methods
 
@@ -289,7 +289,7 @@ The reordering swaps two adjacent eigenvalues of the triangular factor with one 
 - Only real (`f64`) matrices are supported.
 - Every solver counts iterations as SciPy's callbacks do, and returns the residual history. GMRES records one entry per inner iteration.
 - The stopping rule of `cg`, `minres`, `gmres` and `bicgstab` is $\|\mathbf b - A\mathbf x\| \le \max(\text{rtol}\,\|\mathbf b\|, \text{atol})$. SciPy's `minres` uses a looser
-  test relative to $\|A\|\|\mathbf x\| + \|\mathbf b\|$, so it stops earlier (Table 7.15).
+  test relative to $\|A\|\|\mathbf x\| + \|\mathbf b\|$, so it stops earlier (Table 7.16).
 - `spsolve` orders the columns by minimum degree. `SparseLu::factor` also accepts the natural order or reverse Cuthill-McKee.
 - `Ilu` implements `LinearOperator` as $M = (LU)^{-1}$, so it is passed to any solver as the preconditioner. A zero pivot is replaced by $10^{-8}$ times the row norm.
 - `expm_multiply` takes one time point and one vector; SciPy's version also accepts several columns and a grid of times.
@@ -297,7 +297,7 @@ The reordering swaps two adjacent eigenvalues of the triangular factor with one 
 - `eigs` returns the eigenvalues in order of preference, a real eigenvalue with an exactly zero imaginary part. Each eigenvector is scaled so that its largest component is real and
   positive, which makes the vectors of a conjugate pair exact conjugates.
 - A residual estimate of a converged pair settles at a few times $\varepsilon|\theta|$, and can stay just above $\varepsilon|\theta|$. So the default tolerance is $8\varepsilon$ rather than ARPACK's $\varepsilon$.
-- `eigs`'s default subspace is $\max(2k + 1, 30)$ vectors, against SciPy's $\max(2k + 1, 20)$. Keeping half of a 20-vector subspace, the library needed 17,654 products on one case of Table 7.21, where SciPy needs 3,449.
+- `eigs`'s default subspace is $\max(2k + 1, 30)$ vectors, against SciPy's $\max(2k + 1, 20)$. Keeping half of a 20-vector subspace, the library needed 17,654 products on one case of Table 7.22, where SciPy needs 3,449.
   With 30 vectors it needs 750. Keeping fewer vectors at each restart, as ARPACK does, made that case faster but missed one of the six wanted values.
 
 ## In practice
@@ -306,13 +306,13 @@ The references come from SciPy 1.17.1 (`book/generator/data/make_sparse_refs.py`
 $30 \times 30$ grid, a convection-diffusion operator from central differences with cell Péclet numbers 0.3 and 0.1 (nonsymmetric), and a
 Laplacian plus a diagonal varying from 0 to 47. The right-hand side is $b_k = 1 + \tfrac12\sin(0.37k)$.
 
-<p class="caption" id="tab-7-14"><strong>Table 7.14.</strong> Direct solves, least squares, eigenvalues and singular values against SciPy.</p>
+<p class="caption" id="tab-7-15"><strong>Table 7.15.</strong> Direct solves, least squares, eigenvalues and singular values against SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_scipy.md}}
 
 The iterative solvers stop at slightly different points. Instead of comparing the two iterates, both are compared with the direct solution:
 
-<p class="caption" id="tab-7-15"><strong>Table 7.15.</strong> Iterative solvers with rtol = 10⁻⁸: iterations and error, library and SciPy.</p>
+<p class="caption" id="tab-7-16"><strong>Table 7.16.</strong> Iterative solvers with rtol = 10⁻⁸: iterations and error, library and SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_solvers.md}}
 
@@ -330,7 +330,7 @@ differs and its residual is not monotone. MINRES takes as many iterations as CG 
 LGMRES, compared with SciPy's `lgmres` on two convection-diffusion systems with rtol $= 10^{-8}$. Like SciPy's, the library's LGMRES preconditions on the left, adapts the tolerance of each cycle, and counts the residual
 computed at the start of each cycle among the products:
 
-<p class="caption" id="tab-7-16"><strong>Table 7.16.</strong> LGMRES against SciPy.</p>
+<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> LGMRES against SciPy.</p>
 
 {{#include ../generated/linear_algebra/lgmres_scipy.md}}
 
@@ -343,7 +343,7 @@ stagnate. Its larger gains come inside Newton iterations, where the augmentation
 
 Ordering decides the cost of a direct solve. The table repeats the experiment of Figure 7.11 on the $30 \times 30$ grid, with SciPy's SuperLU for comparison:
 
-<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> Bandwidth and fill of the LU factors of a shuffled 900 × 900 Laplacian under several orderings.</p>
+<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> Bandwidth and fill of the LU factors of a shuffled 900 × 900 Laplacian under several orderings.</p>
 
 {{#include ../generated/linear_algebra/sparse_fill.md}}
 
@@ -351,7 +351,7 @@ The library's sparse LU produces exactly SuperLU's fill for the same ordering. R
 degree saves another 40–60 %. On larger and nonsymmetric matrices the library's minimum degree comes within 3–11 % of SuperLU's MMD and does better than
 SuperLU's default, COLAMD, which orders for unsymmetric pivoting:
 
-<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
+<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
 
 {{#include ../generated/linear_algebra/sparse_md_fill.md}}
 
@@ -361,14 +361,14 @@ SuperLU's default, COLAMD, which orders for unsymmetric pivoting:
 
 Incomplete LU preconditioning on two nonsymmetric problems with 1600 unknowns, against SciPy's `spilu`. Jacobi does nothing here, because the diagonal is constant:
 
-<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
+<p class="caption" id="tab-7-20"><strong>Table 7.20.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
 
 {{#include ../generated/linear_algebra/sparse_ilu.md}}
 
 ILU(0), with no more storage than $A$, cuts the iterations by a factor of 8 to 16. ILUT with $\tau = 10^{-4}$ needs 4–5 iterations. SuperLU's
 threshold ILU, which also pivots and reorders, reaches 3–9 iterations with a similar amount of fill. Finally, `expm_multiply` and shift-invert `eigsh`:
 
-<p class="caption" id="tab-7-20"><strong>Table 7.20.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
+<p class="caption" id="tab-7-21"><strong>Table 7.21.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_expm_eigsh.md}}
 
@@ -377,7 +377,7 @@ At $t = 40$ the norm $\|tB\|_1 = 160$ is beyond the simple bound, so the paramet
 `eigs` on three nonsymmetric matrices, with the error measured against the exact spectrum. That spectrum comes from dense `numpy.linalg.eigvals` for the first two matrices, and in closed form,
 $\lambda = 4 - 2\sqrt{1 - \gamma^2}\,(\cos\tfrac{i\pi}{31} + \cos\tfrac{j\pi}{31})$, for the convection-diffusion operator. Both programs start from the vector of ones, with $k = 6$ and each program's default tolerance:
 
-<p class="caption" id="tab-7-21"><strong>Table 7.21.</strong> `eigs` against SciPy's ARPACK.</p>
+<p class="caption" id="tab-7-22"><strong>Table 7.22.</strong> `eigs` against SciPy's ARPACK.</p>
 
 {{#include ../generated/linear_algebra/sparse_eigs.md}}
 
@@ -388,7 +388,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 
 ![The spectrum of a pseudo-random sparse matrix in the complex plane, with the eigenvalues found by eigs for several choices of which](../generated/linear_algebra/sparse_eigs_spectrum.svg)
 
-<p class="caption" id="fig-7-16"><strong>Figure 7.16.</strong> The eigenvalues `eigs` returns for each choice of `which`, on the pseudo-random matrix of Table 7.21. Extreme eigenvalues (largest or smallest real part, largest imaginary part) converge in a few hundred products. The six nearest $\sigma = 0.3$, in the interior of the spectrum, need shift-invert: 52 solves with the LU factors of $A - 0.3I$.</p>
+<p class="caption" id="fig-7-16"><strong>Figure 7.16.</strong> The eigenvalues `eigs` returns for each choice of `which`, on the pseudo-random matrix of Table 7.22. Extreme eigenvalues (largest or smallest real part, largest imaginary part) converge in a few hundred products. The six nearest $\sigma = 0.3$, in the interior of the spectrum, need shift-invert: 52 solves with the LU factors of $A - 0.3I$.</p>
 
 **Strengths**
 
@@ -396,7 +396,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 - Iteration counts and solutions that match SciPy, and a strict, documented stopping rule.
 - A sparse LU with partial pivoting whose fill equals SuperLU's under the same ordering.
 - `eigsh` and `svds` that find repeated eigenvalues and singular values, by deflation.
-- `eigs` for nonsymmetric matrices, with real arithmetic throughout and fewer products than ARPACK on every test of Table 7.21.
+- `eigs` for nonsymmetric matrices, with real arithmetic throughout and fewer products than ARPACK on every test of Table 7.22.
 
 **Weaknesses**
 
@@ -412,7 +412,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 1. Write the CSR arrays of the $4 \times 4$ tridiagonal matrix with 2 on the diagonal and −1 beside it, and count the operations of a product.
 2. Show that the CG residuals are mutually orthogonal and that the directions are $A$-conjugate.
 3. Explain why CG terminates in at most $d$ steps in exact arithmetic when $A$ has $d$ distinct eigenvalues.
-4. For the Laplacian on an $m \times m$ grid, estimate the CG iterations needed to reduce the error by $10^8$, and compare with Table 7.15 for $m = 30$.
+4. For the Laplacian on an $m \times m$ grid, estimate the CG iterations needed to reduce the error by $10^8$, and compare with Table 7.16 for $m = 30$.
 5. Show that MINRES and full GMRES produce the same iterates for symmetric $A$.
 6. Why can a Krylov subspace of a symmetric matrix contain only one vector from each eigenspace?
 7. Show that if $AV_m = V_mH_m + \mathbf f\mathbf e_m^{\mathsf T}$ and $H_m\mathbf y = \theta\mathbf y$, then $\|A V_m\mathbf y - \theta V_m\mathbf y\| = \|\mathbf f\|\,|y_m|$.

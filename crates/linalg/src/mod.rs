@@ -10,6 +10,8 @@
 //! | Singular value decomposition | [`SVD`], [`SvdJacobi`] | Golub-Kahan bidiagonalisation; one-sided Jacobi for high relative accuracy |
 //! | Least squares, minimum-norm for rank-deficient systems | [`LeastSquaresSvd`] | Householder QR with column pivoting; SVD when rank-deficient |
 //! | Complex Schur form | [`schur_complex`] | Hessenberg reduction and shifted QR |
+//! | QR (optionally pivoted), RQ, Hessenberg, real Schur, `LDLᵀ`, polar | [`qr`], [`rq`], [`hessenberg`], [`schur_real`], [`ldl`], [`polar`] | Householder reflectors as LAPACK's; Bunch-Kaufman pivoting |
+//! | General matrix functions, principal angles | [`funm`], [`subspace_angles`] | Schur-Parlett; SVDs of orthonormal bases |
 //! | Matrix exponential | [`expm`] | Scaling and squaring with Padé approximants |
 //! | Square root, logarithm, fractional powers | [`sqrtm`], [`logm`], [`fractional_matrix_power`] | Schur method; inverse scaling and squaring |
 //! | Pseudoinverse, rank, null space, range, norms, condition | [`pinv`], [`matrix_rank`], [`null_space`], [`orth`], [`norm`], [`cond`] | From the SVD |
@@ -34,6 +36,7 @@ mod eig;
 mod eigh;
 mod equations;
 mod error;
+mod factorizations;
 mod logsqrt;
 mod lu;
 mod matfun;
@@ -44,6 +47,7 @@ pub mod sparse;
 mod subspaces;
 mod svd;
 
+pub use factorizations::{LdlFactors, QrFactors, QrMode, funm, hessenberg, ldl, polar, qr, rq, schur_real, subspace_angles};
 pub use error::{Diag, LinalgError, Result, UPLO};
 pub use equations::{solve_continuous_are, solve_continuous_lyapunov, solve_discrete_are, solve_discrete_lyapunov, solve_sylvester};
 pub use lu::LuFactorization;

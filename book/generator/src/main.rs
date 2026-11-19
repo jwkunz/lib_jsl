@@ -49,6 +49,7 @@ mod piecewise;
 mod sparse2;
 mod eigs;
 mod qmcnk;
+mod decomp;
 mod optim2;
 mod signal2;
 mod quadode;
@@ -80,7 +81,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 47] = [
+    let chapters: [(&str, fn()); 48] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -104,6 +105,7 @@ fn main() {
         ("quadode", quadode::generate),
         ("eigs", eigs::generate),
         ("qmcnk", qmcnk::generate),
+        ("decomp", decomp::generate),
         ("fft", fft::generate),
         ("random", random::generate),
         ("statistics", statistics::generate),

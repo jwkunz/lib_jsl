@@ -91,6 +91,8 @@ Both crates agree with LAPACK to a few units of rounding error on these well-con
 | $AX + XB = Q$; Lyapunov equations, Gramians | `solve_sylvester`, `solve_continuous_lyapunov`, `solve_discrete_lyapunov` | [Matrix functions and matrix equations](matrix-equations.md#the-bartels-stewart-method) |
 | Optimal (LQR) gains, steady-state Kalman gains | `solve_continuous_are`, `solve_discrete_are` | [Matrix functions and matrix equations](matrix-equations.md#riccati-equations) |
 | $A^{1/2}$, $\log A$, $A^p$ | `sqrtm`, `logm`, `fractional_matrix_power` | [Matrix functions, subspaces and norms](subspaces-norms.md) |
+| QR with column pivoting, RQ, Hessenberg or real Schur form; symmetric indefinite $A\mathbf x = \mathbf b$; nearest orthogonal matrix | `qr`, `rq`, `hessenberg`, `schur_real`, `ldl`, `polar` | [Further factorisations](factorizations.md) |
+| Angles between subspaces; $f(A)$ for a general function | `subspace_angles`, `funm` | [Further factorisations](factorizations.md#polar-decomposition-and-principal-angles) |
 | Pseudoinverse, rank, null space, range, norms, condition numbers | `pinv`, `matrix_rank`, `null_space`, `orth`, `norm`, `cond` | [Matrix functions, subspaces and norms](subspaces-norms.md#the-pseudoinverse-and-the-fundamental-subspaces) |
 | Large sparse $A\mathbf x = \mathbf b$: direct | `sparse::spsolve`, `sparse::SparseLu` | [Sparse matrices and iterative solvers](sparse.md#ordering-and-fill-in) |
 | Large sparse $A\mathbf x = \mathbf b$ or least squares: iterative | `sparse::cg`, `minres`, `gmres`, `bicgstab`, `lsqr` | [Sparse matrices and iterative solvers](sparse.md#krylov-subspaces-and-conjugate-gradients) |

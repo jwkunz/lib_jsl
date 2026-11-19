@@ -504,6 +504,24 @@ pub(crate) fn schur_unbalanced<T: Scalar>(a: &Mat<T>) -> Result<(Mat<C>, Mat<C>)
     Ok((t, z))
 }
 
+/// The real Schur form `A = Z T Zᵀ` of a real matrix without balancing: `T` quasi upper
+/// triangular, with `pair[k]` marking the first row of each 2 × 2 block of complex conjugate
+/// eigenvalues, and `Z` orthogonal.
+pub(crate) fn real_schur_unbalanced(a: &Mat<f64>) -> Result<(Mat<f64>, Mat<f64>, Vec<bool>)> {
+    require_square(a.rows, a.cols)?;
+    let mut h = a.clone();
+    let mut zt = hessenberg(&mut h, true).expect("Z requested");
+    let pair = real_schur(&mut h, Some(&mut zt))?;
+    let n = h.rows;
+    let mut z = Mat::<f64>::zeros(n, n);
+    for i in 0..n {
+        for j in 0..n {
+            *z.at_mut(i, j) = zt.at(j, i);
+        }
+    }
+    Ok((h, z, pair))
+}
+
 /// The eigenvalues, in Schur order.
 pub(crate) fn eigvals<T: Scalar>(a: &Mat<T>) -> Result<Vec<C>> {
     let (t, _, _) = schur(a, false)?;

@@ -13,7 +13,7 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **614 algorithms and components in 23 crates**:
+The library implements **620 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
@@ -22,7 +22,7 @@ The library implements **614 algorithms and components in 23 crates**:
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
-| [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
+| [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 22 |
 
 ## Calculus and analysis
 
@@ -984,9 +984,9 @@ Crate `lib_jsl_sorting`: [API reference](../api/lib_jsl_sorting/index.html) · b
 
 ### File IO
 
-Readers and writers for WAV, JPEG, PNG, Netpbm, CSV and NumPy .npy files.
+Readers and writers for WAV, JPEG, PNG, Netpbm, CSV, NumPy .npy, Matrix Market, MATLAB, Harwell-Boeing, NetCDF-3, Fortran unformatted and ARFF files.
 
-Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · book chapter: [foundations](foundations/index.md) · 6 items
+Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · book chapter: [foundations](foundations/index.md) · 12 items
 
 #### Audio
 
@@ -1002,6 +1002,12 @@ Crate `lib_jsl_file_io`: [API reference](../api/lib_jsl_file_io/index.html) · b
 
 - [CSV files](foundations/data-files.md#csv)
 - [NumPy .npy files](foundations/data-files.md#numpy-npy)
+- [Matrix Market files](foundations/scientific-files.md#matrix-market)
+- [MATLAB level-5 MAT-files](foundations/scientific-files.md#matlab-level-5-files)
+- [Harwell-Boeing files](foundations/scientific-files.md#harwell-boeing)
+- [NetCDF-3 files](foundations/scientific-files.md#netcdf-3)
+- [Fortran unformatted sequential files](foundations/scientific-files.md#fortran-records-and-arff)
+- [ARFF files](foundations/scientific-files.md#fortran-records-and-arff)
 
 ## What the library does not cover
 

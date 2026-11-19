@@ -225,6 +225,7 @@
     - [Audio files: WAV](foundations/audio.md)
     - [Image files: PNG, JPEG and Netpbm](foundations/images.md)
     - [Data files: CSV and NumPy .npy](foundations/data-files.md)
+    - [Scientific data files: Matrix Market, MATLAB, Harwell-Boeing, NetCDF, Fortran and ARFF](foundations/scientific-files.md)
 
 ---
 

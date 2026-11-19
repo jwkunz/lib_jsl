@@ -6,6 +6,23 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.12.0] - 2026-11-19
+
+### Added
+
+- `file_io::matrix_market`: Matrix Market files (`mm_decode`, `mm_encode`, `mm_info`), coordinate
+  and array formats, every field and symmetry.
+- `file_io::matlab`: MATLAB level-5 MAT-files (`mat_decode`, `mat_encode`, `mat_whos`), either
+  byte order, compressed or not, with numeric, logical, character, sparse, cell and structure
+  variables.
+- `file_io::harwell_boeing`: Harwell-Boeing sparse matrix files (`hb_decode`, `hb_encode`).
+- `file_io::netcdf`: NetCDF-3 classic and 64-bit-offset files with record variables
+  (`netcdf_decode`, `netcdf_encode`).
+- `file_io::fortran`: Fortran unformatted sequential records with 4- or 8-byte markers.
+- `file_io::arff`: ARFF files (`arff_decode`, `arff_encode`).
+- Book: a new entry, "Scientific data files", with exchange tests against `scipy.io` in both
+  directions.
+
 ## [2.11.0] - 2026-11-19
 
 ### Added
@@ -621,7 +638,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.11.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.12.0...HEAD
+[2.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.12.0
 [2.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.11.0
 [2.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.10.0
 [2.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.9.0

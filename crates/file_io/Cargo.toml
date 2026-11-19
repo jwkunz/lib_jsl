@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Readers and writers for WAV, JPEG, PNG, Netpbm, CSV and NumPy .npy files."
+description = "Readers and writers for WAV, JPEG, PNG, Netpbm, CSV, NumPy .npy, Matrix Market, MATLAB, Harwell-Boeing, NetCDF-3, Fortran unformatted and ARFF files."
 
 [lib]
 path = "src/mod.rs"

@@ -1,0 +1,13 @@
+% A small ARFF file
+@relation weather
+@attribute outlook {sunny, overcast, rainy}
+@attribute temperature numeric
+@attribute humidity real
+@attribute windy {TRUE, FALSE}
+@attribute play {yes, no}
+@data
+sunny,85,85,FALSE,no
+sunny,80,90,TRUE,no
+overcast,83,?,FALSE,yes
+rainy,70,96,FALSE,yes
+rainy,?,80,TRUE,?

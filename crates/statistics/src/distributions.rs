@@ -1301,6 +1301,162 @@ impl Fit for Rayleigh {
     }
 }
 
+/// `I_ν(z) e^{−z}` for `z ≥ 0` without overflow: the plain value for moderate `z`, Hankel's
+/// asymptotic expansion beyond.
+pub(crate) fn bessel_i_scaled(nu: f64, z: f64) -> f64 {
+    if z == 0.0 {
+        return if nu == 0.0 { 1.0 } else { 0.0 };
+    }
+    if z < 600.0 {
+        return bessel_i_fractional(nu, z) * (-z).exp();
+    }
+    let mu = 4.0 * nu * nu;
+    let (mut term, mut sum) = (1.0, 1.0);
+    for k in 1..30 {
+        let kk = (2 * k - 1) as f64;
+        term *= -(mu - kk * kk) / (k as f64 * 8.0 * z);
+        sum += term;
+        if term.abs() < 1e-17 * sum.abs() {
+            break;
+        }
+    }
+    sum / (2.0 * PI * z).sqrt()
+}
+
+// ANCHOR: rice
+/// The Rice distribution of the length of a two-dimensional normal vector with mean length `ν`
+/// and standard deviation `σ` per component (SciPy's `rice(b = ν/σ, scale = σ)`):
+/// `f(x) = x/σ² exp(−(x² + ν²)/(2σ²)) I₀(xν/σ²)`. With `ν = 0` it is the Rayleigh distribution;
+/// for `ν ≫ σ` it approaches `N(ν, σ²)`. `X²/σ²` is non-central χ² with 2 degrees of freedom and
+/// non-centrality `(ν/σ)²`, which gives the distribution function as a Poisson mixture of
+/// regularised incomplete gamma functions.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Rice {
+    pub nu: f64,
+    pub sigma: f64,
+}
+
+impl Rice {
+    pub fn new(nu: f64, sigma: f64) -> Result<Self, ErrorsJSL> {
+        if !(nu >= 0.0) || !nu.is_finite() {
+            return Err(ErrorsJSL::InvalidInputRange("ν must be non-negative"));
+        }
+        Ok(Rice { nu, sigma: positive(sigma, "σ must be positive")? })
+    }
+
+    /// `Σ_j Pois(j; λ/2) G(1 + j, y/2)` for `G` the lower (`upper = false`) or upper regularised
+    /// incomplete gamma function, `λ = (ν/σ)²`, `y = (x/σ)²`, summed outwards from the Poisson
+    /// mode until the terms no longer matter. Both tails are sums of positive terms, so both
+    /// are accurate to rounding.
+    fn mixture(&self, x: f64, upper: bool) -> f64 {
+        let half_lambda = 0.5 * (self.nu / self.sigma).powi(2);
+        let half_y = 0.5 * (x / self.sigma).powi(2);
+        let weight = |j: f64| (-half_lambda + j * half_lambda.ln() - ln_gamma(j + 1.0)).exp();
+        let term = |j: f64| {
+            let w = if half_lambda == 0.0 { if j == 0.0 { 1.0 } else { 0.0 } } else { weight(j) };
+            if w == 0.0 { 0.0 } else { w * if upper { incomplete_gamma_upper(1.0 + j, half_y) } else { incomplete_gamma(1.0 + j, half_y) } }
+        };
+        let mode = half_lambda.floor();
+        let mut sum = term(mode);
+        let mut j = mode + 1.0;
+        loop {
+            let t = term(j);
+            sum += t;
+            if (t <= 1e-17 * sum && j > half_lambda + 1.0) || j > mode + 10_000.0 {
+                break;
+            }
+            j += 1.0;
+        }
+        let mut j = mode - 1.0;
+        while j >= 0.0 {
+            let t = term(j);
+            sum += t;
+            if t <= 1e-17 * sum && j < half_lambda - 1.0 {
+                break;
+            }
+            j -= 1.0;
+        }
+        sum
+    }
+
+    /// The raw moments `E[X], E[X²], E[X³], E[X⁴]`, from the Laguerre functions
+    /// `L_{1/2}(−t)` and `L_{3/2}(−t)`, `t = ν²/(2σ²)`, written with scaled Bessel functions.
+    fn raw_moments(&self) -> [f64; 4] {
+        let (nu, s) = (self.nu, self.sigma);
+        let t = nu * nu / (2.0 * s * s);
+        let (i0, i1) = (bessel_i_scaled(0.0, t / 2.0), bessel_i_scaled(1.0, t / 2.0));
+        let l_half = (1.0 + t) * i0 + t * i1; // M(−1/2; 1; −t)
+        let l_three_halves = ((2.0 + t) * l_half - 0.5 * i0) / 1.5; // M(−3/2; 1; −t)
+        let c = (PI / 2.0).sqrt();
+        [c * s * l_half, 2.0 * s * s + nu * nu, 3.0 * c * s.powi(3) * l_three_halves, 8.0 * s.powi(4) + 8.0 * s * s * nu * nu + nu.powi(4)]
+    }
+}
+
+impl ContinuousDistribution for Rice {
+    fn pdf(&self, x: f64) -> f64 {
+        if x <= 0.0 { 0.0 } else { self.logpdf(x).exp() }
+    }
+    fn logpdf(&self, x: f64) -> f64 {
+        if x <= 0.0 {
+            return f64::NEG_INFINITY;
+        }
+        let s2 = self.sigma * self.sigma;
+        let z = x * self.nu / s2;
+        // exp(−(x² + ν²)/2σ²) I₀(z) = exp(−(x − ν)²/2σ²) I₀(z) e^{−z}.
+        (x / s2).ln() - (x - self.nu).powi(2) / (2.0 * s2) + bessel_i_scaled(0.0, z).ln()
+    }
+    fn cdf(&self, x: f64) -> f64 {
+        if x <= 0.0 { 0.0 } else { self.mixture(x, false).min(1.0) }
+    }
+    fn sf(&self, x: f64) -> f64 {
+        if x <= 0.0 { 1.0 } else { self.mixture(x, true).min(1.0) }
+    }
+    fn support(&self) -> (f64, f64) {
+        (0.0, f64::INFINITY)
+    }
+    fn mean(&self) -> f64 {
+        self.raw_moments()[0]
+    }
+    fn variance(&self) -> f64 {
+        let m = self.raw_moments();
+        m[1] - m[0] * m[0]
+    }
+    fn skewness(&self) -> f64 {
+        let m = self.raw_moments();
+        let v = m[1] - m[0] * m[0];
+        (m[2] - 3.0 * m[0] * m[1] + 2.0 * m[0].powi(3)) / v.powf(1.5)
+    }
+    fn excess_kurtosis(&self) -> f64 {
+        let m = self.raw_moments();
+        let v = m[1] - m[0] * m[0];
+        (m[3] - 4.0 * m[0] * m[2] + 6.0 * m[0] * m[0] * m[1] - 3.0 * m[0].powi(4)) / (v * v) - 3.0
+    }
+}
+
+impl Fit for Rice {
+    /// Maximum likelihood over `(ν, σ)` by Nelder-Mead, from the moment estimates
+    /// `ν² ≈ √(2 m₂² − m₄)`, `σ² ≈ (m₂ − ν²)/2` (the location is fixed at 0).
+    fn fit(data: &[f64]) -> Result<Self, ErrorsJSL> {
+        check_data(data, 2)?;
+        if data.iter().any(|&x| x <= 0.0) {
+            return Err(ErrorsJSL::InvalidInputRange("Rice data must be positive"));
+        }
+        let n = data.len() as f64;
+        let m2 = data.iter().map(|x| x * x).sum::<f64>() / n;
+        let m4 = data.iter().map(|x| x.powi(4)).sum::<f64>() / n;
+        let nu2 = (2.0 * m2 * m2 - m4).max(0.0).sqrt();
+        let s2 = ((m2 - nu2) / 2.0).max(1e-3 * m2);
+        let nll = |p: &[f64]| -> f64 {
+            let r = Rice { nu: p[0].abs(), sigma: p[1].exp() };
+            let ll = r.log_likelihood(data);
+            if ll.is_finite() { -ll } else { f64::INFINITY }
+        };
+        let p = nelder_mead(nll, &[nu2.sqrt().max(1e-3), 0.5 * s2.ln()]);
+        Rice::new(p[0].abs(), p[1].exp())
+    }
+}
+// ANCHOR_END: rice
+
 /// The Gumbel distribution of maxima (SciPy's `gumbel_r(loc=μ, scale=β)`).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Gumbel {

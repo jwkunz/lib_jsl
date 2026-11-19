@@ -8,7 +8,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Descriptive statistics, correlation, hypothesis tests, density estimation and resampling."
+description = "Descriptive statistics, univariate and multivariate distributions, correlation, hypothesis tests, effect sizes, density estimation and resampling."
 
 [lib]
 path = "src/mod.rs"

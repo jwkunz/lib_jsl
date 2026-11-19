@@ -13,13 +13,13 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **571 algorithms and components in 23 crates**:
+The library implements **585 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 144 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 63 |
-| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 81 |
+| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
@@ -367,7 +367,7 @@ Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [bo
 
 Descriptive and circular statistics, correlation, robust regression, distances, hypothesis tests, density estimation and resampling.
 
-Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 19 items
+Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 33 items
 
 - [Descriptive statistics](statistics/descriptive.md)
 - [Distribution objects: pdf, cdf, sf, quantiles and moments for 20 continuous and 5 discrete distributions](statistics/distributions.md#four-views-of-one-distribution)
@@ -388,6 +388,20 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 - [Circular statistics](statistics/robust-regression.md#circular-statistics)
 - [Maximum-likelihood Box-Cox transform](statistics/robust-regression.md#the-box-cox-transform)
 - [Distances between observations (13 metrics; `pdist`, `cdist`, `squareform`)](statistics/robust-regression.md#distances)
+- [Rice distribution](statistics/multivariate-tests.md#the-rice-distribution)
+- [Multivariate normal distribution](statistics/multivariate-tests.md#multivariate-distributions)
+- [Multivariate Student t distribution](statistics/multivariate-tests.md#multivariate-distributions)
+- [Dirichlet distribution](statistics/multivariate-tests.md#multivariate-distributions)
+- [Wishart and inverse Wishart distributions](statistics/multivariate-tests.md#multivariate-distributions)
+- [Multinomial distribution](statistics/multivariate-tests.md#multivariate-distributions)
+- [Cramér-von Mises tests (one and two samples)](statistics/multivariate-tests.md#the-cramér-von-mises-tests)
+- [Brunner-Munzel test](statistics/multivariate-tests.md#the-brunner-munzel-test)
+- [Studentized range distribution](statistics/multivariate-tests.md#tukeys-honestly-significant-difference)
+- [Tukey's HSD with simultaneous intervals (Tukey-Kramer, Games-Howell)](statistics/multivariate-tests.md#tukeys-honestly-significant-difference)
+- [Odds ratio, conditional and sample, with exact and Woolf intervals](statistics/multivariate-tests.md#effect-sizes-for-contingency-tables)
+- [Relative risk with Katz's interval](statistics/multivariate-tests.md#effect-sizes-for-contingency-tables)
+- [Cramér's V, Tschuprow's T, Pearson's contingency coefficient](statistics/multivariate-tests.md#effect-sizes-for-contingency-tables)
+- [Monte Carlo hypothesis tests](statistics/multivariate-tests.md#multivariate-distributions-and-further-tests)
 
 ### Machine learning
 

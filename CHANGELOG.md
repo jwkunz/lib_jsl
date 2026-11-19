@@ -6,6 +6,24 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-11-19
+
+### Added
+
+- `distributions::Rice`, accurate in both tails and for strong signals (where SciPy's moments are
+  NaN), with maximum-likelihood fitting.
+- `multivariate`: `MultivariateNormal`, `MultivariateT`, `Dirichlet`, `Wishart`, `InvWishart`
+  and `Multinomial`, with densities, moments, entropies and sampling.
+- `goodness_of_fit`: the Cramér-von Mises tests, `cramervonmises` and `cramervonmises_2samp`
+  (exact p-values by lattice-path counting for small samples).
+- `comparisons::brunnermunzel` and `comparisons::monte_carlo_test`.
+- `posthoc`: the `StudentizedRange` distribution and `tukey_hsd` (Tukey-Kramer and Games-Howell),
+  with simultaneous confidence intervals.
+- `contingency`: `odds_ratio` (conditional and sample, with exact and Woolf intervals),
+  `relative_risk` (Katz's interval) and `association` (Cramér's V, Tschuprow's T, Pearson's C).
+- Book: a new entry, "Multivariate distributions and further tests", with comparisons against
+  SciPy.
+
 ## [2.6.0] - 2026-11-19
 
 ### Added
@@ -543,7 +561,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.6.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.7.0
 [2.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.6.0
 [2.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.5.0
 [2.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.4.0

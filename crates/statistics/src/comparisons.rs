@@ -379,6 +379,100 @@ pub fn permutation_test(x: &[f64], y: &[f64], statistic: impl Fn(&[f64], &[f64])
 }
 // ANCHOR_END: permutation
 
+/// The reference distribution of the Brunner-Munzel statistic.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum BrunnerMunzelDistribution {
+    /// Student's t with Satterthwaite's degrees of freedom (SciPy's default).
+    T,
+    /// The standard normal, for large samples.
+    Normal,
+}
+
+// ANCHOR: brunnermunzel
+/// The Brunner-Munzel test of `P(X < Y) + ½ P(X = Y) = ½` (SciPy's `brunnermunzel`): unlike the
+/// Mann-Whitney test it does not assume equal variances or shapes. With ranks `R` in the pooled
+/// sample and `R⁽ˣ⁾` within each sample, the placement variances are
+/// `S_x² = Σ (R_i − R_i⁽ˣ⁾ − R̄ + R̄⁽ˣ⁾)² / (n_x − 1)` (likewise for `y`), and
+/// `W = n_x n_y (R̄_y − R̄_x) / ((n_x + n_y) √(n_x S_x² + n_y S_y²))`.
+pub fn brunnermunzel(x: &[f64], y: &[f64], alternative: Alternative, distribution: BrunnerMunzelDistribution) -> Result<TestResult, ErrorsJSL> {
+    let (nx, ny) = (x.len(), y.len());
+    if nx < 2 || ny < 2 || x.iter().chain(y).any(|v| !v.is_finite()) {
+        return Err(ErrorsJSL::InvalidInputRange("brunnermunzel: need at least two finite observations per sample"));
+    }
+    let pooled: Vec<f64> = x.iter().chain(y).copied().collect();
+    let rc = rank(&pooled);
+    let (rcx, rcy) = rc.split_at(nx);
+    let (rx, ry) = (rank(x), rank(y));
+    let mean = |v: &[f64]| v.iter().sum::<f64>() / v.len() as f64;
+    let (mcx, mcy, mx, my) = (mean(rcx), mean(rcy), mean(&rx), mean(&ry));
+    let sx = rcx.iter().zip(&rx).map(|(a, b)| (a - b - mcx + mx).powi(2)).sum::<f64>() / (nx - 1) as f64;
+    let sy = rcy.iter().zip(&ry).map(|(a, b)| (a - b - mcy + my).powi(2)).sum::<f64>() / (ny - 1) as f64;
+    let (nxf, nyf) = (nx as f64, ny as f64);
+    let w = nxf * nyf * (mcy - mcx) / ((nxf + nyf) * (nxf * sx + nyf * sy).sqrt());
+    let (cdf, df): (Box<dyn Fn(f64) -> f64>, f64) = match distribution {
+        BrunnerMunzelDistribution::T => {
+            let df = (nxf * sx + nyf * sy).powi(2) / ((nxf * sx).powi(2) / (nxf - 1.0) + (nyf * sy).powi(2) / (nyf - 1.0));
+            (Box::new(move |t| lib_jsl_special_functions::student_t_cdf(t, df)), df)
+        }
+        BrunnerMunzelDistribution::Normal => (Box::new(|t| normal_cdf(t, 0.0, 1.0)), f64::INFINITY),
+    };
+    // SciPy evaluates the tails at −W.
+    let p = match alternative {
+        Alternative::Less => cdf(-w),
+        Alternative::Greater => cdf(w),
+        Alternative::TwoSided => (2.0 * cdf(-w.abs())).min(1.0),
+    };
+    Ok(TestResult { statistic: w, p_value: p, degrees_of_freedom: df })
+}
+// ANCHOR_END: brunnermunzel
+
+/// The result of [`monte_carlo_test`].
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub struct MonteCarloResult {
+    pub statistic: f64,
+    pub p_value: f64,
+    pub null_distribution: Vec<f64>,
+}
+
+// ANCHOR: monte_carlo_test
+/// A Monte Carlo hypothesis test (SciPy's `monte_carlo_test`): the statistic of the observed
+/// samples is compared with its values on `n_resamples` sets of samples of the same sizes drawn
+/// from the null distribution by `rvs(sample index, size, rng)`. The p-value counts the observed
+/// value among the resamples, `(#{T* ≥ T} + 1)/(n + 1)`, so it is never zero, and two-sided
+/// p-values double the smaller tail.
+pub fn monte_carlo_test<U: UniformGenerator>(
+    data: &[Vec<f64>],
+    mut rvs: impl FnMut(usize, usize, &mut U) -> Vec<f64>,
+    statistic: impl Fn(&[Vec<f64>]) -> f64,
+    alternative: Alternative,
+    n_resamples: usize,
+    rng: &mut U,
+) -> Result<MonteCarloResult, ErrorsJSL> {
+    if data.is_empty() || n_resamples == 0 {
+        return Err(ErrorsJSL::InvalidInputRange("monte_carlo_test: need data and at least one resample"));
+    }
+    let observed = statistic(data);
+    let null: Vec<f64> = (0..n_resamples)
+        .map(|_| {
+            let samples: Vec<Vec<f64>> = data.iter().enumerate().map(|(i, d)| rvs(i, d.len(), rng)).collect();
+            statistic(&samples)
+        })
+        .collect();
+    let gamma = (100.0 * f64::EPSILON * observed).abs();
+    let n = n_resamples as f64;
+    let pl = (null.iter().filter(|&&v| v <= observed + gamma).count() as f64 + 1.0) / (n + 1.0);
+    let pg = (null.iter().filter(|&&v| v >= observed - gamma).count() as f64 + 1.0) / (n + 1.0);
+    let p = match alternative {
+        Alternative::Less => pl,
+        Alternative::Greater => pg,
+        Alternative::TwoSided => (2.0 * pl.min(pg)).min(1.0),
+    };
+    Ok(MonteCarloResult { statistic: observed, p_value: p, null_distribution: null })
+}
+// ANCHOR_END: monte_carlo_test
+
 // ------------------------------------------------------------------------ multiple comparisons
 
 /// How [`adjust_p_values`] controls the error rate across many tests.
@@ -464,5 +558,24 @@ mod tests {
         for (g, w) in a.iter().zip(want) {
             assert!((g - w).abs() < 1e-15, "{a:?}");
         }
+    }
+
+    #[test]
+    fn brunner_munzel_and_monte_carlo() {
+        // Swapping the samples changes the sign of the statistic and keeps the two-sided p-value.
+        let x = [1.0, 2.0, 1.0, 3.0, 2.0, 5.0];
+        let y = [3.0, 4.0, 2.0, 6.0, 5.0, 7.0, 4.0];
+        let a = brunnermunzel(&x, &y, Alternative::TwoSided, BrunnerMunzelDistribution::T).unwrap();
+        let b = brunnermunzel(&y, &x, Alternative::TwoSided, BrunnerMunzelDistribution::T).unwrap();
+        assert!((a.statistic + b.statistic).abs() < 1e-14 && (a.p_value - b.p_value).abs() < 1e-14);
+        assert!(a.statistic > 0.0 && a.p_value < 0.05);
+        // A Monte Carlo test of the mean of normal data: an extreme mean gets the smallest p.
+        let mut rng = Xoshiro256PlusPlus::from_seed(9);
+        let normal = |_: usize, n: usize, r: &mut Xoshiro256PlusPlus| (0..n).map(|_| crate::multivariate::standard_normal(r)).collect::<Vec<f64>>();
+        let mean = |d: &[Vec<f64>]| d[0].iter().sum::<f64>() / d[0].len() as f64;
+        let far = monte_carlo_test(&[vec![3.0; 10]], normal, mean, Alternative::Greater, 499, &mut rng).unwrap();
+        assert!((far.p_value - 1.0 / 500.0).abs() < 1e-15);
+        let near = monte_carlo_test(&[vec![0.0; 10]], normal, mean, Alternative::TwoSided, 999, &mut rng).unwrap();
+        assert!(near.p_value > 0.5 && near.null_distribution.len() == 999);
     }
 }

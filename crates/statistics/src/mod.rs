@@ -1,5 +1,6 @@
-//! Statistics: descriptive statistics, correlation, hypothesis tests, kernel density estimation
-//! and the bootstrap.
+//! Statistics: descriptive statistics, correlation, distributions (univariate and multivariate),
+//! hypothesis tests (including Cramér-von Mises, Brunner-Munzel and Tukey's HSD), effect sizes for
+//! contingency tables, kernel density estimation and the bootstrap.
 //!
 //! See the book chapter [Statistics](https://jwkunz.github.io/lib_jsl/book/statistics/index.html).
 
@@ -17,3 +18,7 @@ pub mod bootstrap;
 pub mod location_scale;
 pub mod regression;
 pub mod distance;
+pub mod multivariate;
+pub mod goodness_of_fit;
+pub mod posthoc;
+pub mod contingency;

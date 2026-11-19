@@ -105,6 +105,7 @@
     - [Kernel density estimation](statistics/kernel-density.md)
     - [The bootstrap](statistics/bootstrap.md)
     - [More descriptive statistics and robust regression](statistics/robust-regression.md)
+    - [Multivariate distributions and further tests](statistics/multivariate-tests.md)
 - [Machine learning: regression and classification](machine_learning/index.md)
     - [Foundations: models, data, preprocessing and metrics](machine_learning/foundations.md)
     - [Linear regression: least squares, ridge, lasso and elastic net](machine_learning/linear-regression.md)

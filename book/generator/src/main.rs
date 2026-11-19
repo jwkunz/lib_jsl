@@ -54,6 +54,7 @@ mod genstruct;
 mod stats27;
 mod calc28;
 mod fitpack29;
+mod geograph210;
 mod optim2;
 mod signal2;
 mod quadode;
@@ -85,7 +86,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 52] = [
+    let chapters: [(&str, fn()); 53] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -114,6 +115,7 @@ fn main() {
         ("stats27", stats27::generate),
         ("calc28", calc28::generate),
         ("fitpack29", fitpack29::generate),
+        ("geograph210", geograph210::generate),
         ("fft", fft::generate),
         ("random", random::generate),
         ("statistics", statistics::generate),

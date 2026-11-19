@@ -139,6 +139,29 @@ impl<const D: usize> KdTree<D> {
         }
     }
 
+    // ANCHOR: query_pairs
+    /// All pairs `(i, j)`, `i < j`, of indexed points at distance at most `r` (SciPy's
+    /// `query_pairs`), sorted.
+    pub fn query_pairs(&self, r: f64) -> Vec<(usize, usize)> {
+        let mut out = Vec::new();
+        for &i in &self.order {
+            for j in self.within_radius(self.points[i], r) {
+                if j > i {
+                    out.push((i, j));
+                }
+            }
+        }
+        out.sort_unstable();
+        out
+    }
+
+    /// The number of pairs `(i, j)` with `i` from this tree and `j` from `other` at distance at
+    /// most `r` (SciPy's `count_neighbors` with a scalar radius).
+    pub fn count_neighbors(&self, other: &KdTree<D>, r: f64) -> usize {
+        other.order.iter().map(|&j| self.within_radius(other.points[j], r).len()).sum()
+    }
+    // ANCHOR_END: query_pairs
+
     /// Indices of all points inside the axis-aligned box `[min, max]` (inclusive).
     pub fn range_query(&self, min: [f64; D], max: [f64; D]) -> Vec<usize> {
         let mut out = Vec::new();
@@ -163,6 +186,82 @@ impl<const D: usize> KdTree<D> {
         if max[axis] >= p[axis] {
             self.search_box(&slice[mid + 1..], depth + 1, min, max, out);
         }
+    }
+}
+
+/// A k-d tree on a periodic box `[0, L₁) × … × [0, L_D)` (SciPy's `cKDTree(..., boxsize=L)`):
+/// distances are measured to the nearest periodic image, as in simulations with periodic
+/// boundary conditions. Queries search the `3^D` images of the query point.
+#[derive(Debug, Clone)]
+pub struct PeriodicKdTree<const D: usize> {
+    tree: KdTree<D>,
+    boxsize: [f64; D],
+}
+
+impl<const D: usize> PeriodicKdTree<D> {
+    /// A tree on points inside the box (each coordinate in `[0, Lₖ)`; others are wrapped in).
+    pub fn new(points: &[[f64; D]], boxsize: [f64; D]) -> Result<Self, lib_jsl_core::ErrorsJSL> {
+        if boxsize.iter().any(|l| !(l.is_finite() && *l > 0.0)) {
+            return Err(lib_jsl_core::ErrorsJSL::InvalidInputRange("PeriodicKdTree: the box sizes must be positive"));
+        }
+        let wrapped: Vec<[f64; D]> = points.iter().map(|p| std::array::from_fn(|k| p[k].rem_euclid(boxsize[k]))).collect();
+        Ok(PeriodicKdTree { tree: KdTree::new(&wrapped), boxsize })
+    }
+
+    fn images(&self, q: [f64; D]) -> Vec<[f64; D]> {
+        let q: [f64; D] = std::array::from_fn(|k| q[k].rem_euclid(self.boxsize[k]));
+        let total = 3usize.pow(D as u32);
+        (0..total)
+            .map(|mut c| {
+                std::array::from_fn(|k| {
+                    let shift = (c % 3) as f64 - 1.0;
+                    c /= 3;
+                    q[k] + shift * self.boxsize[k]
+                })
+            })
+            .collect()
+    }
+
+    /// The `k` nearest points under the periodic distance, nearest first.
+    pub fn k_nearest(&self, query: [f64; D], k: usize) -> Vec<(usize, f64)> {
+        let mut best: std::collections::HashMap<usize, f64> = std::collections::HashMap::new();
+        for img in self.images(query) {
+            for (i, d) in self.tree.k_nearest(img, k) {
+                let e = best.entry(i).or_insert(f64::INFINITY);
+                *e = e.min(d);
+            }
+        }
+        let mut out: Vec<(usize, f64)> = best.into_iter().collect();
+        out.sort_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)));
+        out.truncate(k);
+        out
+    }
+
+    /// The nearest point under the periodic distance.
+    pub fn nearest(&self, query: [f64; D]) -> Option<(usize, f64)> {
+        self.k_nearest(query, 1).into_iter().next()
+    }
+
+    /// All points within `radius` under the periodic distance, sorted by index.
+    pub fn within_radius(&self, query: [f64; D], radius: f64) -> Vec<usize> {
+        let mut out: Vec<usize> = self.images(query).into_iter().flat_map(|img| self.tree.within_radius(img, radius)).collect();
+        out.sort_unstable();
+        out.dedup();
+        out
+    }
+
+    /// All pairs `(i, j)`, `i < j`, within distance `r` under the periodic distance, sorted.
+    pub fn query_pairs(&self, r: f64) -> Vec<(usize, usize)> {
+        let mut out = Vec::new();
+        for &i in &self.tree.order {
+            for j in self.within_radius(self.tree.points[i], r) {
+                if j > i {
+                    out.push((i, j));
+                }
+            }
+        }
+        out.sort_unstable();
+        out
     }
 }
 
@@ -230,5 +329,37 @@ mod tests {
         assert_eq!(t.nearest([1.1, 1.0]).unwrap().0, 0); // duplicate: lower index wins
         assert_eq!(t.k_nearest([0.0, 0.0], 10).len(), 3);
         assert!(t.k_nearest([0.0, 0.0], 0).is_empty() && t.k_nearest([f64::NAN, 0.0], 1).is_empty());
+    }
+
+    #[test]
+    fn pairs_and_periodic_distances_match_brute_force() {
+        let mut rnd = lcg(11);
+        let p: Vec<[f64; 2]> = (0..300).map(|_| [rnd(), rnd()]).collect();
+        let t = KdTree::new(&p);
+        let r = 0.06;
+        let mut brute = Vec::new();
+        for i in 0..p.len() {
+            for j in i + 1..p.len() {
+                if dist2(&p[i], &p[j]) <= r * r {
+                    brute.push((i, j));
+                }
+            }
+        }
+        assert_eq!(t.query_pairs(r), brute);
+        assert_eq!(t.count_neighbors(&t, r), 2 * brute.len() + p.len());
+        let pt = PeriodicKdTree::new(&p, [1.0, 1.0]).unwrap();
+        let pd = |a: &[f64; 2], b: &[f64; 2]| (0..2).map(|k| { let d = (a[k] - b[k]).abs(); d.min(1.0 - d).powi(2) }).sum::<f64>().sqrt();
+        for _ in 0..20 {
+            let q = [rnd(), rnd()];
+            let mut all: Vec<(usize, f64)> = p.iter().enumerate().map(|(i, x)| (i, pd(x, &q))).collect();
+            all.sort_by(|a, b| a.1.total_cmp(&b.1).then(a.0.cmp(&b.0)));
+            let got = pt.k_nearest(q, 5);
+            for (g, w) in got.iter().zip(&all) {
+                assert_eq!(g.0, w.0);
+                assert!((g.1 - w.1).abs() < 1e-14);
+            }
+        }
+        let wrap_pairs = pt.query_pairs(r).len();
+        assert!(wrap_pairs >= brute.len());
     }
 }

@@ -13,7 +13,7 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **598 algorithms and components in 23 crates**:
+The library implements **610 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
@@ -21,7 +21,7 @@ The library implements **598 algorithms and components in 23 crates**:
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 63 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
-| [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 64 |
+| [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 16 |
 
 ## Calculus and analysis
@@ -849,7 +849,7 @@ Crate `lib_jsl_number_theory`: [API reference](../api/lib_jsl_number_theory/inde
 
 Graph representations and algorithms: shortest paths, spanning trees, flows and orderings.
 
-Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · book chapter: [graph algorithms](graph/index.md) · 6 items
+Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · book chapter: [graph algorithms](graph/index.md) · 11 items
 
 - [Graph representation helpers (edge lists, adjacency)](graph/traversal.md#representation)
 - [Shortest paths (Dijkstra, Bellman-Ford, A*)](graph/shortest-paths.md#dijkstra)
@@ -857,12 +857,17 @@ Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · book 
 - [Minimum spanning trees (Kruskal, Prim)](graph/spanning-trees.md#kruskal)
 - [Maximum flow (Edmonds-Karp, Dinic)](graph/max-flow.md#residual-networks-and-augmenting-paths)
 - [Topological sort and strongly connected components](graph/traversal.md#topological-sorting)
+- [All-pairs shortest paths (Johnson)](graph/matching-laplacian.md#johnsons-algorithm)
+- [k shortest loopless paths (Yen)](graph/matching-laplacian.md#yens-k-shortest-paths)
+- [Maximum bipartite matching (Hopcroft-Karp) and structural rank](graph/matching-laplacian.md#hopcroft-karp)
+- [Minimum-weight full bipartite matching](graph/matching-laplacian.md#minimum-weight-matching-by-shortest-augmenting-paths)
+- [Graph Laplacians](graph/matching-laplacian.md#the-laplacian)
 
 ### Geometry
 
 Geometry: 1D to 4D types, Delaunay and Voronoi, convex hulls, spatial trees, intersections and mesh processing.
 
-Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) · book chapter: [computational geometry](geometry/index.md) · 48 items
+Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) · book chapter: [computational geometry](geometry/index.md) · 55 items
 
 - [Common](geometry/types.md#keyed-tables-and-the-registry)
 - [Concrete types](geometry/types.md#points-and-vectors)
@@ -930,6 +935,13 @@ Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) ·
 - [Voronoi diagrams](geometry/delaunay-voronoi.md#voronoi-diagrams)
 - [Mesh smoothing and decimation](geometry/meshes.md#laplacian-and-taubin-smoothing)
 - [Polygon boolean operations](geometry/hulls-booleans.md#the-greinerhormann-algorithm)
+- [Rotation fitting (`align_vectors`, Kabsch/Wahba)](geometry/alignment.md#wahbas-problem-and-kabschs-algorithm)
+- [Mean of rotations](geometry/alignment.md#the-mean-rotation)
+- [Rotation vectors, modified Rodrigues parameters and uniform random rotations](geometry/alignment.md#representations-and-random-rotations)
+- [Procrustes analysis](geometry/alignment.md#procrustes-analysis)
+- [Geometric slerp on the n-sphere](geometry/alignment.md)
+- [Hausdorff distance](geometry/alignment.md#the-hausdorff-distance)
+- [k-d tree pair search, pair counts and periodic boxes](geometry/alignment.md#periodic-boxes)
 
 ## Foundations and input/output
 

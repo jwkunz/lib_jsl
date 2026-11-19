@@ -350,6 +350,65 @@ impl Rotation3 {
     pub fn slerp(&self, other: &Rotation3, t: f64) -> Self {
         Rotation3 { q: self.q.slerp(&other.q, t) }
     }
+
+    // ANCHOR: rotvec
+    /// From a rotation vector (SciPy's `from_rotvec`): the axis scaled by the angle in radians.
+    pub fn from_rotvec(v: [f64; 3]) -> Self {
+        let angle = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+        // q = (cos(θ/2), sin(θ/2)/θ · v), with the series for sin(θ/2)/θ near zero.
+        let scale = if angle < 1e-3 {
+            let a2 = angle * angle;
+            0.5 - a2 / 48.0 + a2 * a2 / 3840.0
+        } else {
+            (angle / 2.0).sin() / angle
+        };
+        Rotation3 { q: Quaternion::new((angle / 2.0).cos(), scale * v[0], scale * v[1], scale * v[2]).normalized() }
+    }
+
+    /// The rotation vector (SciPy's `as_rotvec`): axis times angle, the angle in `[0, π]`.
+    pub fn as_rotvec(&self) -> [f64; 3] {
+        let q = if self.q.w < 0.0 { -self.q } else { self.q };
+        let s = (q.x * q.x + q.y * q.y + q.z * q.z).sqrt();
+        let angle = 2.0 * s.atan2(q.w);
+        // θ / sin(θ/2), with its series near zero.
+        let scale = if angle < 1e-3 {
+            let a2 = angle * angle;
+            2.0 + a2 / 12.0 + 7.0 * a2 * a2 / 2880.0
+        } else {
+            angle / (angle / 2.0).sin()
+        };
+        [scale * q.x, scale * q.y, scale * q.z]
+    }
+
+    /// From modified Rodrigues parameters `p = n tan(θ/4)` (SciPy's `from_mrp`).
+    pub fn from_mrp(p: [f64; 3]) -> Self {
+        let p2 = p[0] * p[0] + p[1] * p[1] + p[2] * p[2];
+        let d = 1.0 + p2;
+        Rotation3 { q: Quaternion::new((1.0 - p2) / d, 2.0 * p[0] / d, 2.0 * p[1] / d, 2.0 * p[2] / d).normalized() }
+    }
+
+    /// The modified Rodrigues parameters `n tan(θ/4)`, `θ ∈ [0, π]` (SciPy's `as_mrp`).
+    pub fn as_mrp(&self) -> [f64; 3] {
+        let q = if self.q.w < 0.0 { -self.q } else { self.q };
+        let d = 1.0 + q.w;
+        [q.x / d, q.y / d, q.z / d]
+    }
+    // ANCHOR_END: rotvec
+
+    /// A rotation from three numbers uniform on `[0, 1)` (Shoemake's method): with uniform inputs
+    /// the rotations are uniformly distributed (Haar measure), as SciPy's `Rotation.random`.
+    pub fn from_uniform(u1: f64, u2: f64, u3: f64) -> Self {
+        let (a, b) = ((1.0 - u1).sqrt(), u1.sqrt());
+        let tau = std::f64::consts::TAU;
+        let (s2, c2) = (tau * u2).sin_cos();
+        let (s3, c3) = (tau * u3).sin_cos();
+        Rotation3 { q: Quaternion::new(b * c3, a * s2, a * c2, b * s3).normalized() }
+    }
+
+    /// `n` uniformly distributed random rotations, drawing uniforms on `[0, 1)` from `next`.
+    pub fn random(n: usize, mut next: impl FnMut() -> f64) -> Vec<Rotation3> {
+        (0..n).map(|_| Rotation3::from_uniform(next(), next(), next())).collect()
+    }
 }
 
 impl Mul for Rotation3 {

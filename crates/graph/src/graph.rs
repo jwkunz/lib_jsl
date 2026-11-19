@@ -244,6 +244,22 @@ impl UnionFind {
     }
 }
 
+
+/// `f64` ordered by `total_cmp`, for priority queues.
+#[derive(PartialEq, Clone, Copy)]
+pub(crate) struct OrdF64(pub(crate) f64);
+impl Eq for OrdF64 {}
+impl PartialOrd for OrdF64 {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for OrdF64 {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.0.total_cmp(&other.0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -38,6 +38,7 @@
     - [Interpolation on grids](interpolation/grids.md)
     - [Scattered data interpolation](interpolation/scattered.md)
     - [Piecewise polynomials, Hermite data and scattered interpolation](interpolation/piecewise-scattered.md)
+    - [Smoothing splines with automatic knots](interpolation/fitpack.md)
 - [Root finding](root_finding/index.md)
     - [Bracketing methods: bisection, false position, Ridders and Brent](root_finding/bracketing.md)
     - [Newton's method and the secant method](root_finding/newton.md)

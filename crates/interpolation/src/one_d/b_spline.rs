@@ -270,7 +270,7 @@ pub enum BoundaryCondition {
 /// Knots for not-a-knot interpolation (SciPy's `_not_a_knot`): for odd `k` the data points
 /// without the first and last `(k − 1)/2` interior ones; for even `k` the midpoints between data
 /// points, likewise thinned; and `k + 1` copies of each end point.
-fn not_a_knot_knots(x: &[f64], k: usize) -> Vec<f64> {
+pub(crate) fn not_a_knot_knots(x: &[f64], k: usize) -> Vec<f64> {
     let interior: Vec<f64> = if !k.is_multiple_of(2) { x.to_vec() } else { x.windows(2).map(|w| (w[0] + w[1]) / 2.0).collect() };
     let k2 = if !k.is_multiple_of(2) { k.div_ceil(2) } else { k / 2 };
     let mut t = vec![x[0]; k + 1];

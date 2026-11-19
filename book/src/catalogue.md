@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **595 algorithms and components in 23 crates**:
+The library implements **598 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 154 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 157 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 63 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
@@ -81,7 +81,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions.
 
-Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 46 items
+Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 49 items
 
 - [Interpolation trait](interpolation/index.md#in-the-library)
 
@@ -141,6 +141,9 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [Nearest](interpolation/grids.md#tensor-products)
 - [Cubic basis](interpolation/grids.md#cubic-methods)
 - [Radial basis functions in any dimension, with polynomial tails and smoothing](interpolation/piecewise-scattered.md#radial-basis-functions-in-any-dimension)
+- [Smoothing splines with automatic knots (FITPACK's `curfit`: `make_splrep`, `generate_knots`)](interpolation/fitpack.md#placing-the-knots)
+- [Smoothing parametric spline curves (FITPACK's `parcur`: `make_splprep`)](interpolation/fitpack.md)
+- [Bernstein-basis piecewise polynomials (`BPoly`, `from_derivatives`)](interpolation/fitpack.md#the-bernstein-basis)
 
 ### Root finding
 

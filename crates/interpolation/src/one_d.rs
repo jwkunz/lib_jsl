@@ -20,3 +20,5 @@ pub mod b_spline;
 pub mod smoothing_spline;
 pub mod ppoly;
 pub mod krogh;
+pub mod fitpack;
+pub mod bpoly;

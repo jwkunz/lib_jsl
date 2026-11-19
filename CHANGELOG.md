@@ -6,6 +6,19 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-11-19
+
+### Added
+
+- `interpolation::one_d::fitpack`: smoothing splines with automatically placed knots,
+  `make_splrep` (FITPACK's `curfit`), `make_splprep` for parametric curves (`parcur`) and
+  `generate_knots`, with the same knots as SciPy's `make_splrep` and coefficients agreeing to
+  rounding.
+- `interpolation::one_d::bpoly::BPoly`: piecewise polynomials in the Bernstein basis, with
+  `from_derivatives`, derivatives, antiderivatives, integrals, degree elevation and conversion to
+  and from the power basis.
+- Book: a new entry, "Smoothing splines with automatic knots", with comparisons against SciPy.
+
 ## [2.8.0] - 2026-11-19
 
 ### Added
@@ -578,7 +591,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.8.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.9.0...HEAD
+[2.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.9.0
 [2.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.8.0
 [2.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.7.0
 [2.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.6.0

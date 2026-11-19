@@ -14,6 +14,7 @@ pub mod nonlinear_systems;
 pub mod newton_krylov;
 pub mod halley;
 pub mod fixed_point;
+pub mod minpack;
 
 /// `x * y > 0` without the product, which underflows to zero (or overflows) for extreme values.
 pub(crate) fn same_sign(x: f64, y: f64) -> bool {
@@ -31,6 +32,7 @@ pub use polynomial_roots::{polynomial_roots, polynomial_roots_complex};
 pub use nonlinear_systems::{SystemOptions, SystemRootResult, broyden_system, newton_system};
 pub use halley::halley;
 pub use fixed_point::{FixedPointMethod, fixed_point};
+pub use minpack::{JacobianFn, LmOptions, LmResult, leastsq, root_lm};
 pub use newton_krylov::{InnerSolver, NewtonKrylovOptions, NewtonKrylovResult, newton_krylov};
 
 #[cfg(test)]

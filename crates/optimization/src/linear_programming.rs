@@ -85,6 +85,21 @@ impl LinearProgram {
         self.with_bounds(index, f64::NEG_INFINITY, f64::INFINITY)
     }
 
+    /// The number of variables.
+    pub(crate) fn n_vars(&self) -> usize {
+        self.objective.len()
+    }
+
+    /// The objective coefficients.
+    pub(crate) fn objective(&self) -> &[f64] {
+        &self.objective
+    }
+
+    /// The bounds of each variable.
+    pub(crate) fn bounds(&self) -> &[(f64, f64)] {
+        &self.bounds
+    }
+
     fn validate(&self) -> Result<(), ErrorsJSL> {
         let n = self.objective.len();
         if n == 0 {

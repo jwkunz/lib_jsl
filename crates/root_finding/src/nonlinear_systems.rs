@@ -48,6 +48,12 @@ pub struct SystemRootResult {
     pub converged: bool,
 }
 
+impl SystemRootResult {
+    pub(crate) fn new(x: Vec<f64>, residual: f64, iterations: usize, nfev: usize, converged: bool) -> Self {
+        SystemRootResult { x, residual, iterations, nfev, converged }
+    }
+}
+
 fn inf_norm(v: &[f64]) -> f64 {
     v.iter().fold(0.0, |m, a| m.max(a.abs()))
 }

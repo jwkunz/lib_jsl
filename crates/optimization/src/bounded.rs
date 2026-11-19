@@ -831,6 +831,196 @@ pub fn least_squares_bounded(
 }
 // ANCHOR_END: trf
 
+// ANCHOR: dogbox
+/// Bounded nonlinear least squares by the dogbox method (SciPy's `least_squares(method="dogbox")`),
+/// Voglis and Lagaris's rectangular trust region. Variables on a bound whose gradient pushes
+/// further out are fixed; for the others the Gauss-Newton step and the Cauchy point define a
+/// dogleg, followed inside the intersection of the box-shaped trust region with the bounds.
+/// It suits small problems with bounds, and is SciPy's port step for step; same options and
+/// result as [`least_squares_bounded`].
+pub fn least_squares_dogbox(
+    fun: impl Fn(&[f64]) -> Vec<f64>,
+    jac: impl Fn(&[f64]) -> Array2<f64>,
+    x0: &[f64],
+    lb: &[f64],
+    ub: &[f64],
+    options: LeastSquaresOptions,
+) -> Result<BoundedLeastSquaresResult, ErrorsJSL> {
+    check_bounds(x0, lb, ub)?;
+    if !in_bounds(x0, lb, ub) {
+        return Err(ErrorsJSL::InvalidInputRange("the initial guess is outside the bounds"));
+    }
+    let n = x0.len();
+    let mut x = x0.to_vec();
+    let mut f = fun(&x);
+    let m = f.len();
+    let mut j = jac(&x);
+    if j.dim() != (m, n) {
+        return Err(ErrorsJSL::IncompatibleArraySizes((j.nrows(), m)));
+    }
+    let (mut nfev, mut njev) = (1, 1);
+    let max_nfev = options.max_nfev.unwrap_or(100 * n);
+    let fs = options.f_scale;
+    let loss_cost = |f: &[f64]| 0.5 * fs * fs * f.iter().map(|v| options.loss.rho((v / fs).powi(2))[0]).sum::<f64>();
+    let scale_for_loss = |j: &mut Array2<f64>, f: &mut Vec<f64>| {
+        if options.loss == Loss::Linear {
+            return;
+        }
+        for i in 0..f.len() {
+            let r = options.loss.rho((f[i] / fs).powi(2));
+            let (r1, r2) = (r[1], r[2] / (fs * fs));
+            let js = (r1 + 2.0 * r2 * f[i] * f[i]).max(f64::EPSILON).sqrt();
+            f[i] *= r1 / js;
+            j.row_mut(i).mapv_inplace(|v| v * js);
+        }
+    };
+    let mut f_true = f.clone();
+    let mut cost = loss_cost(&f);
+    scale_for_loss(&mut j, &mut f);
+    let grad = |j: &Array2<f64>, f: &[f64]| -> Vec<f64> { j.t().dot(&Array1::from(f.to_vec())).to_vec() };
+    let mut g = grad(&j, &f);
+    let mut delta = x.iter().fold(0.0f64, |a, v| a.max(v.abs()));
+    if delta == 0.0 {
+        delta = 1.0;
+    }
+    let mut on_bound: Vec<i8> = (0..n).map(|i| if x[i] == lb[i] { -1 } else if x[i] == ub[i] { 1 } else { 0 }).collect();
+    let mut status = None;
+    let mut g_full;
+    let mut g_norm;
+    loop {
+        let active: Vec<bool> = (0..n).map(|i| (on_bound[i] as f64) * g[i] < 0.0).collect();
+        let free: Vec<usize> = (0..n).filter(|&i| !active[i]).collect();
+        let g_free: Vec<f64> = free.iter().map(|&i| g[i]).collect();
+        g_full = g.clone();
+        for i in 0..n {
+            if active[i] {
+                g[i] = 0.0;
+            }
+        }
+        g_norm = g.iter().fold(0.0f64, |a, v| a.max(v.abs()));
+        if g_norm < options.gtol {
+            status = Some(1);
+        }
+        if status.is_some() || nfev == max_nfev {
+            break;
+        }
+        let x_free: Vec<f64> = free.iter().map(|&i| x[i]).collect();
+        let lb_free: Vec<f64> = free.iter().map(|&i| lb[i]).collect();
+        let ub_free: Vec<f64> = free.iter().map(|&i| ub[i]).collect();
+        let j_free = columns(&j, &free);
+        let neg_f = Array1::from(f.iter().map(|v| -v).collect::<Vec<_>>());
+        let newton = lstsq(&j_free, &neg_f)?.to_vec();
+        let zeros = vec![0.0; free.len()];
+        let neg_g: Vec<f64> = g_free.iter().map(|v| -v).collect();
+        let (qa, qb, _) = build_quadratic_1d(&j_free, &g_free, &neg_g, &zeros, None);
+        let mut actual_reduction = -1.0;
+        let (mut x_new, mut f_new, mut cost_new) = (x.clone(), f.clone(), cost);
+        let mut on_bound_free = vec![0i8; free.len()];
+        while actual_reduction <= 0.0 && nfev < max_nfev {
+            let tr = vec![delta; free.len()];
+            let (step_free, hits, tr_hit) = dogleg_step(&x_free, &newton, &g_free, qa, qb, &tr, &lb_free, &ub_free);
+            on_bound_free = hits;
+            let mut step = vec![0.0; n];
+            for (k, &i) in free.iter().enumerate() {
+                step[i] = step_free[k];
+            }
+            let predicted = -evaluate_quadratic(&j_free, &g_free, &step_free, &zeros);
+            x_new = (0..n).map(|i| (x[i] + step[i]).clamp(lb[i], ub[i])).collect();
+            f_new = fun(&x_new);
+            nfev += 1;
+            let step_h_norm = step.iter().fold(0.0f64, |a, v| a.max(v.abs()));
+            if f_new.iter().any(|v| !v.is_finite()) {
+                delta = 0.25 * step_h_norm;
+                continue;
+            }
+            cost_new = loss_cost(&f_new);
+            actual_reduction = cost - cost_new;
+            let ratio = if predicted > 0.0 {
+                actual_reduction / predicted
+            } else if predicted == 0.0 && actual_reduction == 0.0 {
+                1.0
+            } else {
+                0.0
+            };
+            if ratio < 0.25 {
+                delta = 0.25 * step_h_norm;
+            } else if ratio > 0.75 && tr_hit {
+                delta *= 2.0;
+            }
+            let step_norm = norm(&step);
+            let ftol_ok = actual_reduction < options.ftol * cost && ratio > 0.25;
+            let xtol_ok = step_norm < options.xtol * (options.xtol + norm(&x));
+            status = match (ftol_ok, xtol_ok) {
+                (true, true) => Some(4),
+                (true, false) => Some(2),
+                (false, true) => Some(3),
+                _ => None,
+            };
+            if status.is_some() {
+                break;
+            }
+        }
+        if actual_reduction > 0.0 {
+            for (k, &i) in free.iter().enumerate() {
+                on_bound[i] = on_bound_free[k];
+            }
+            x = x_new;
+            for i in 0..n {
+                if on_bound[i] == -1 {
+                    x[i] = lb[i];
+                } else if on_bound[i] == 1 {
+                    x[i] = ub[i];
+                }
+            }
+            f = f_new;
+            f_true = f.clone();
+            cost = cost_new;
+            j = jac(&x);
+            njev += 1;
+            scale_for_loss(&mut j, &mut f);
+            g = grad(&j, &f);
+        }
+    }
+    Ok(BoundedLeastSquaresResult { x, cost, fun: f_true, grad: g_full, optimality: g_norm, active: on_bound, nfev, njev, status: status.unwrap_or(0) })
+}
+
+/// The dogleg step in the intersection of the box trust region `|sᵢ| ≤ Δ` with the bounds
+/// (SciPy's `dogleg_step`): the Newton step if it fits, otherwise the Cauchy point along `−g`
+/// followed by the segment towards the Newton step, cut at the box. Returns the step, which
+/// original bounds it hits, and whether it hit the trust region.
+#[allow(clippy::too_many_arguments)]
+fn dogleg_step(x: &[f64], newton: &[f64], g: &[f64], a: f64, b: f64, tr: &[f64], lb: &[f64], ub: &[f64]) -> (Vec<f64>, Vec<i8>, bool) {
+    let n = x.len();
+    let lbc: Vec<f64> = (0..n).map(|i| lb[i] - x[i]).collect();
+    let ubc: Vec<f64> = (0..n).map(|i| ub[i] - x[i]).collect();
+    let lt: Vec<f64> = (0..n).map(|i| lbc[i].max(-tr[i])).collect();
+    let ut: Vec<f64> = (0..n).map(|i| ubc[i].min(tr[i])).collect();
+    let mut hits_out = vec![0i8; n];
+    if in_bounds(newton, &lt, &ut) {
+        return (newton.to_vec(), hits_out, false);
+    }
+    let neg_g: Vec<f64> = g.iter().map(|v| -v).collect();
+    let (to_bounds, _) = step_size_to_bound(&vec![0.0; n], &neg_g, &lt, &ut);
+    let t = minimize_quadratic_1d(a, b, 0.0, to_bounds, 0.0).0;
+    let cauchy: Vec<f64> = g.iter().map(|v| -t * v).collect();
+    let diff: Vec<f64> = (0..n).map(|i| newton[i] - cauchy[i]).collect();
+    let (size, hits) = step_size_to_bound(&cauchy, &diff, &lt, &ut);
+    let mut tr_hit = false;
+    for i in 0..n {
+        if hits[i] < 0 && lt[i] == lbc[i] {
+            hits_out[i] = -1;
+        }
+        if hits[i] > 0 && ut[i] == ubc[i] {
+            hits_out[i] = 1;
+        }
+        if (hits[i] < 0 && lt[i] == -tr[i]) || (hits[i] > 0 && ut[i] == tr[i]) {
+            tr_hit = true;
+        }
+    }
+    ((0..n).map(|i| cauchy[i] + size * diff[i]).collect(), hits_out, tr_hit)
+}
+// ANCHOR_END: dogbox
+
 // ------------------------------------------------------------------------------ linear problems
 
 fn lstsq(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, ErrorsJSL> {

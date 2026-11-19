@@ -6,6 +6,22 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.11.0] - 2026-11-19
+
+### Added
+
+- `root_finding::minpack`: a port of MINPACK's Levenberg-Marquardt (`lmder`, `lmdif`) as
+  `leastsq` and `root_lm` (SciPy's `leastsq` and `root(method="lm")`), with SciPy's iterations
+  and evaluation counts.
+- `optimization::bounded::least_squares_dogbox`: SciPy's dogbox method for bounded least
+  squares, step for step.
+- `optimization::milp`: mixed-integer linear programming by best-bound branch and bound on
+  `LinearProgram`.
+- `optimization::tnc::minimize_tnc`: bound-constrained truncated Newton with finite-difference
+  Hessian-vector products.
+- Book: a new entry, "Levenberg-Marquardt for systems, mixed-integer programming and truncated
+  Newton", with comparisons against SciPy.
+
 ## [2.10.0] - 2026-11-19
 
 ### Added
@@ -605,7 +621,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.10.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.11.0...HEAD
+[2.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.11.0
 [2.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.10.0
 [2.9.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.9.0
 [2.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.8.0

@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **610 algorithms and components in 23 crates**:
+The library implements **614 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 157 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 161 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 63 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
@@ -149,7 +149,7 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 Root finding: bracketing methods, Brent, Newton, polynomial roots and nonlinear systems.
 
-Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 12 items
+Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 13 items
 
 - [Bracketing](root_finding/bracketing.md#finding-a-bracket)
 - [Bisection](root_finding/bracketing.md#bisection)
@@ -163,12 +163,13 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 - [Jacobian-free Newton-Krylov (`newton_krylov`)](root_finding/nonlinear-systems.md#jacobian-free-newton-krylov)
 - [Halley's method](root_finding/halley-fixed-point.md)
 - [Fixed points by Steffensen's method (`fixed_point`)](root_finding/halley-fixed-point.md)
+- [MINPACK's Levenberg-Marquardt (`leastsq`, `root_lm`)](optimization/milp-tnc.md#minpacks-levenberg-marquardt)
 
 ### Optimisation
 
 Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 28 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 31 items
 
 - [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
@@ -198,6 +199,9 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [Brute-force grid search (`brute`)](optimization/brute-isotonic.md)
 - [Isotonic regression (pool adjacent violators)](optimization/brute-isotonic.md)
 - [Finite-difference gradients and gradient checks (`approx_fprime`, `check_grad`)](optimization/brute-isotonic.md)
+- [Bounded least squares by the dogbox method](optimization/milp-tnc.md#dogbox)
+- [Mixed-integer linear programming by branch and bound (`milp`)](optimization/milp-tnc.md#branch-and-bound)
+- [Truncated Newton with bounds (TNC)](optimization/milp-tnc.md#truncated-newton-with-bounds)
 
 ### Special functions
 

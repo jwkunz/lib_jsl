@@ -43,6 +43,7 @@
     - [Newton's method and the secant method](root_finding/newton.md)
     - [Polynomial roots](root_finding/polynomial-roots.md)
     - [Nonlinear systems: Newton's and Broyden's methods](root_finding/nonlinear-systems.md)
+    - [Halley's method and fixed points](root_finding/halley-fixed-point.md)
 - [Optimisation](optimization/index.md)
     - [One-dimensional minimisation and line searches](optimization/one-dimensional.md)
     - [Gradient descent and nonlinear conjugate gradients](optimization/gradient-methods.md)
@@ -55,6 +56,7 @@
     - [Dynamic programming](optimization/dynamic-programming.md)
     - [Stochastic global optimisation](optimization/stochastic.md)
     - [Assignment, trust regions and global optimisation](optimization/assignment-trust-global.md)
+    - [Brute force, isotonic regression and gradient checks](optimization/brute-isotonic.md)
 - [Special functions](special_functions/index.md)
     - [The gamma function and related functions](special_functions/gamma.md)
     - [Incomplete gamma and beta functions and the error function](special_functions/incomplete.md)
@@ -67,6 +69,7 @@
     - [The Lambert W function](special_functions/lambert-w.md)
     - [Statistical distribution functions](special_functions/statistical.md)
     - [Log-domain functions and inverse incomplete integrals](special_functions/log-domain.md)
+    - [Faddeeva, Struve, Kelvin and Hankel functions](special_functions/faddeeva-struve-kelvin.md)
 
 # Linear algebra and transforms
 

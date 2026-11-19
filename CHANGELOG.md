@@ -6,6 +6,23 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-11-19
+
+### Added
+
+- Special functions: the Faddeeva function `wofz` (accurate in both parts near the real axis)
+  and `voigt_profile`; the Struve functions `struve_h` and `struve_l`; the Kelvin functions
+  `kelvin`, `ber`, `bei`, `ker`, `kei` and their derivatives; the Hankel functions `hankel1`,
+  `hankel2`, `hankel1e` and `hankel2e`; and the Bessel zeros `jn_zeros`, `jnp_zeros`,
+  `yn_zeros` and `ynp_zeros`.
+- Root finding: `halley` (SciPy's `newton` with `fprime2`) and `fixed_point` with
+  Steffensen's Δ² acceleration (`FixedPointMethod`).
+- Optimisation: `brute` grid search with an optional Nelder-Mead finish,
+  `isotonic_regression` (pool adjacent violators), `approx_fprime` and `check_grad`.
+- Book: three new entries, "Faddeeva, Struve, Kelvin and Hankel functions", "Halley's method
+  and fixed points" and "Brute force, isotonic regression and gradient checks", with
+  comparisons against SciPy.
+
 ## [2.7.0] - 2026-11-19
 
 ### Added
@@ -561,7 +578,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.8.0...HEAD
+[2.8.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.8.0
 [2.7.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.7.0
 [2.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.6.0
 [2.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.5.0

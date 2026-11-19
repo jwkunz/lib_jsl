@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **585 algorithms and components in 23 crates**:
+The library implements **595 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 144 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 154 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 63 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
@@ -146,7 +146,7 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 
 Root finding: bracketing methods, Brent, Newton, polynomial roots and nonlinear systems.
 
-Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 10 items
+Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.html) · [book chapter](root_finding/index.md) · 12 items
 
 - [Bracketing](root_finding/bracketing.md#finding-a-bracket)
 - [Bisection](root_finding/bracketing.md#bisection)
@@ -158,12 +158,14 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 - [Polynomial roots](root_finding/polynomial-roots.md)
 - [Nonlinear systems (Newton, Broyden)](root_finding/nonlinear-systems.md)
 - [Jacobian-free Newton-Krylov (`newton_krylov`)](root_finding/nonlinear-systems.md#jacobian-free-newton-krylov)
+- [Halley's method](root_finding/halley-fixed-point.md)
+- [Fixed points by Steffensen's method (`fixed_point`)](root_finding/halley-fixed-point.md)
 
 ### Optimisation
 
 Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 25 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 28 items
 
 - [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
@@ -190,12 +192,15 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [Basin hopping](optimization/assignment-trust-global.md#basin-hopping)
 - [Dual annealing (generalised simulated annealing with local search)](optimization/assignment-trust-global.md#dual-annealing)
 - [DIRECT-L global optimisation](optimization/assignment-trust-global.md#direct)
+- [Brute-force grid search (`brute`)](optimization/brute-isotonic.md)
+- [Isotonic regression (pool adjacent violators)](optimization/brute-isotonic.md)
+- [Finite-difference gradients and gradient checks (`approx_fprime`, `check_grad`)](optimization/brute-isotonic.md)
 
 ### Special functions
 
 Special functions: gamma, beta, error, Bessel, Airy, elliptic, hypergeometric and zeta functions, orthogonal polynomials.
 
-Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 31 items
+Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 36 items
 
 - [Gamma](special_functions/gamma.md#the-gamma-function)
 - [Beta](special_functions/gamma.md#the-beta-function)
@@ -228,6 +233,11 @@ Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functi
 - [Polygamma functions and the multivariate log-gamma function](special_functions/log-domain.md#polygamma-functions-and-friends)
 - [Bernoulli and Euler numbers](special_functions/log-domain.md#polygamma-functions-and-friends)
 - [Inverse incomplete gamma and beta functions (Halley's method)](special_functions/log-domain.md#inverting-the-incomplete-gamma-and-beta-functions)
+- [Faddeeva function and Voigt profile](special_functions/faddeeva-struve-kelvin.md#the-faddeeva-function)
+- [Struve functions](special_functions/faddeeva-struve-kelvin.md#struve-functions)
+- [Kelvin functions](special_functions/faddeeva-struve-kelvin.md#kelvin-functions)
+- [Hankel functions](special_functions/faddeeva-struve-kelvin.md#hankel-functions-and-bessel-zeros)
+- [Zeros of Bessel functions](special_functions/faddeeva-struve-kelvin.md#hankel-functions-and-bessel-zeros)
 
 ## Linear algebra and transforms
 

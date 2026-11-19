@@ -23,3 +23,6 @@ pub mod quasi_newton;
 pub mod assignment;
 pub mod trust_region;
 pub mod global;
+pub mod isotonic;
+pub mod finite_differences;
+pub mod brute;

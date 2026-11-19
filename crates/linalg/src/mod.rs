@@ -11,6 +11,8 @@
 //! | Least squares, minimum-norm for rank-deficient systems | [`LeastSquaresSvd`] | Householder QR with column pivoting; SVD when rank-deficient |
 //! | Complex Schur form | [`schur_complex`] | Hessenberg reduction and shifted QR |
 //! | QR (optionally pivoted), RQ, Hessenberg, real Schur, `LDLᵀ`, polar | [`qr`], [`rq`], [`hessenberg`], [`schur_real`], [`ldl`], [`polar`] | Householder reflectors as LAPACK's; Bunch-Kaufman pivoting |
+//! | Generalised eigenproblems `A x = λ B x` | [`eigh_generalized`], [`eig_generalized`], [`qz`] | Cholesky reduction; the QZ algorithm |
+//! | Structured matrices and their solvers | [`toeplitz`], [`circulant`], [`solve_toeplitz`], [`solve_circulant`], [`solve_banded`], [`solveh_banded`], … | Levinson recursion; FFT; band LU and Cholesky |
 //! | General matrix functions, principal angles | [`funm`], [`subspace_angles`] | Schur-Parlett; SVDs of orthonormal bases |
 //! | Matrix exponential | [`expm`] | Scaling and squaring with Padé approximants |
 //! | Square root, logarithm, fractional powers | [`sqrtm`], [`logm`], [`fractional_matrix_power`] | Schur method; inverse scaling and squaring |
@@ -37,6 +39,8 @@ mod eigh;
 mod equations;
 mod error;
 mod factorizations;
+mod generalized;
+mod structured;
 mod logsqrt;
 mod lu;
 mod matfun;
@@ -47,6 +51,8 @@ pub mod sparse;
 mod subspaces;
 mod svd;
 
+pub use structured::{ConvolutionMode, DftScale, PascalKind, block_diag, circulant, companion, convolution_matrix, dft, fiedler, hadamard, hankel, hilbert, invhilbert, invpascal, leslie, pascal, solve_banded, solve_circulant, solve_toeplitz, solveh_banded, toeplitz};
+pub use generalized::{GeneralizedEigen, QzFactors, eig_generalized, eigh_generalized, qz};
 pub use factorizations::{LdlFactors, QrFactors, QrMode, funm, hessenberg, ldl, polar, qr, rq, schur_real, subspace_angles};
 pub use error::{Diag, LinalgError, Result, UPLO};
 pub use equations::{solve_continuous_are, solve_continuous_lyapunov, solve_discrete_are, solve_discrete_lyapunov, solve_sylvester};

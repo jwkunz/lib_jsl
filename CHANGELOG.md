@@ -6,6 +6,27 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-11-19
+
+### Added
+
+- `eigh_generalized`: symmetric- (Hermitian-) definite eigenproblems `A x = λ B x` by Cholesky
+  reduction, with `B`-orthonormal eigenvectors (SciPy's `eigh(a, b)`).
+- `qz` and `eig_generalized`: the generalised complex Schur form by the QZ algorithm, and
+  generalised eigenvalues (`α`, `β`, `α/β`, infinite where `β = 0`) and unit eigenvectors
+  (SciPy's `qz(output='complex')` and `eig(a, b)`).
+- Structured matrices, as in `scipy.linalg`: `toeplitz`, `hankel`, `circulant`, `hadamard`,
+  `block_diag`, `companion`, `pascal`, `invpascal`, `hilbert`, `invhilbert`, `leslie`, `dft`,
+  `convolution_matrix`, `fiedler`.
+- Fast solvers: `solve_toeplitz` (Levinson recursion), `solve_circulant` (FFT), `solve_banded`
+  (band LU with partial pivoting) and `solveh_banded` (band Cholesky), with SciPy's band storage.
+- Book: a new entry, "Generalised eigenproblems and structured matrices", with comparisons
+  against SciPy and a timing figure.
+
+### Changed
+
+- `lib_jsl_linalg` depends on `lib_jsl_ffts` (for `solve_circulant`).
+
 ## [2.5.0] - 2026-11-19
 
 ### Added
@@ -522,7 +543,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.6.0
 [2.5.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.5.0
 [2.4.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.4.0
 [2.3.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.3.0

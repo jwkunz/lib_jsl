@@ -99,7 +99,7 @@ The number of iterations grows like $\sqrt\kappa$. For the 2-D Laplacian on an $
 each factor of $e^2$ in accuracy.
 
 **Preconditioning** solves $M A\mathbf x = M\mathbf b$ with $M \approx A^{-1}$ cheap to apply, which lowers the effective condition number. The simplest choice is
-**Jacobi**, $M = \operatorname{diag}(A)^{-1}$. It helps when the diagonal varies widely (Figure 7.14). Incomplete factorisations, below, go much further.
+**Jacobi**, $M = \operatorname{diag}(A)^{-1}$. It helps when the diagonal varies widely (Figure 7.15). Incomplete factorisations, below, go much further.
 
 ### Incomplete LU preconditioning
 
@@ -112,7 +112,7 @@ $A \approx LU$ keeps the factors sparse by discarding fill, and is applied by tw
   $p$ largest entries in each of the $L$ and $U$ parts of the row. Smaller $\tau$ and larger $p$ give a more accurate and more expensive factorisation; with
   $\tau = 0$ and $p = n$ it is the exact LU without pivoting.
 
-SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.20) rather than entry by entry.
+SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the columns, so the two are compared by their effect (Table 7.22) rather than entry by entry.
 
 ### Other Krylov methods
 
@@ -125,7 +125,7 @@ SciPy's `spilu` uses SuperLU's threshold ILU, which also pivots and orders the c
   the last few of them (`outer_k`, default 3) are appended to the next cycle's Krylov basis. The cycle then minimises the residual over both. Restarted GMRES tends to
   alternate between similar search spaces from one cycle to the next, and the augmentation vectors damp this. SciPy's `newton_krylov` uses LGMRES by default, and keeps the augmentation
   vectors from one Newton step to the next.
-- **BiCGSTAB** uses short recurrences for nonsymmetric $A$, with two products per step and constant storage. It has no minimisation property, and its residual can jump, as in Figure 7.13.
+- **BiCGSTAB** uses short recurrences for nonsymmetric $A$, with two products per step and constant storage. It has no minimisation property, and its residual can jump, as in Figure 7.14.
 - **LSQR** solves $\min\|A\mathbf x - \mathbf b\|_2$ for rectangular $A$. It is mathematically CG on the normal equations $A^{\mathsf T}A\mathbf x = A^{\mathsf T}\mathbf b$, but it is built from the
   Golub-Kahan bidiagonalisation and never squares the condition number.
 
@@ -203,13 +203,13 @@ Each breadth-first level becomes a block of consecutive indices. The 2-D Laplaci
 
 </div>
 
-<p class="caption" id="fig-7-11"><strong>Figure 7.11.</strong> The non-zeros of the 5-point Laplacian on a 12 × 12 grid, with its unknowns in random order (left) and after reverse Cuthill-McKee (right).</p>
+<p class="caption" id="fig-7-12"><strong>Figure 7.12.</strong> The non-zeros of the 5-point Laplacian on a 12 × 12 grid, with its unknowns in random order (left) and after reverse Cuthill-McKee (right).</p>
 
 Bandwidth is a crude measure. The **minimum-degree** heuristic (Tinney and Walker, 1967) reduces fill more directly. Eliminating a vertex
 of the elimination graph joins all its neighbours into a clique, so it chooses at every step a vertex of least degree, the one that creates the
 least fill locally. `minimum_degree` does this on an explicit elimination graph with a priority queue of degrees. AMD and SuperLU's MMD reach
 similar orderings faster, with quotient graphs, supervariables and approximate degrees. On a 2-D grid, the fill grows like $n^{3/2}$ for any banded
-order but close to $n\log n$ for minimum degree (Figure 7.15). **Nested dissection** achieves $O(n\log n)$ provably.
+order but close to $n\log n$ for minimum degree (Figure 7.16). **Nested dissection** achieves $O(n\log n)$ provably.
 
 ## Algorithm
 
@@ -289,7 +289,7 @@ The reordering swaps two adjacent eigenvalues of the triangular factor with one 
 - Only real (`f64`) matrices are supported.
 - Every solver counts iterations as SciPy's callbacks do, and returns the residual history. GMRES records one entry per inner iteration.
 - The stopping rule of `cg`, `minres`, `gmres` and `bicgstab` is $\|\mathbf b - A\mathbf x\| \le \max(\text{rtol}\,\|\mathbf b\|, \text{atol})$. SciPy's `minres` uses a looser
-  test relative to $\|A\|\|\mathbf x\| + \|\mathbf b\|$, so it stops earlier (Table 7.16).
+  test relative to $\|A\|\|\mathbf x\| + \|\mathbf b\|$, so it stops earlier (Table 7.18).
 - `spsolve` orders the columns by minimum degree. `SparseLu::factor` also accepts the natural order or reverse Cuthill-McKee.
 - `Ilu` implements `LinearOperator` as $M = (LU)^{-1}$, so it is passed to any solver as the preconditioner. A zero pivot is replaced by $10^{-8}$ times the row norm.
 - `expm_multiply` takes one time point and one vector; SciPy's version also accepts several columns and a grid of times.
@@ -297,7 +297,7 @@ The reordering swaps two adjacent eigenvalues of the triangular factor with one 
 - `eigs` returns the eigenvalues in order of preference, a real eigenvalue with an exactly zero imaginary part. Each eigenvector is scaled so that its largest component is real and
   positive, which makes the vectors of a conjugate pair exact conjugates.
 - A residual estimate of a converged pair settles at a few times $\varepsilon|\theta|$, and can stay just above $\varepsilon|\theta|$. So the default tolerance is $8\varepsilon$ rather than ARPACK's $\varepsilon$.
-- `eigs`'s default subspace is $\max(2k + 1, 30)$ vectors, against SciPy's $\max(2k + 1, 20)$. Keeping half of a 20-vector subspace, the library needed 17,654 products on one case of Table 7.22, where SciPy needs 3,449.
+- `eigs`'s default subspace is $\max(2k + 1, 30)$ vectors, against SciPy's $\max(2k + 1, 20)$. Keeping half of a 20-vector subspace, the library needed 17,654 products on one case of Table 7.24, where SciPy needs 3,449.
   With 30 vectors it needs 750. Keeping fewer vectors at each restart, as ARPACK does, made that case faster but missed one of the six wanted values.
 
 ## In practice
@@ -306,13 +306,13 @@ The references come from SciPy 1.17.1 (`book/generator/data/make_sparse_refs.py`
 $30 \times 30$ grid, a convection-diffusion operator from central differences with cell Péclet numbers 0.3 and 0.1 (nonsymmetric), and a
 Laplacian plus a diagonal varying from 0 to 47. The right-hand side is $b_k = 1 + \tfrac12\sin(0.37k)$.
 
-<p class="caption" id="tab-7-15"><strong>Table 7.15.</strong> Direct solves, least squares, eigenvalues and singular values against SciPy.</p>
+<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> Direct solves, least squares, eigenvalues and singular values against SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_scipy.md}}
 
 The iterative solvers stop at slightly different points. Instead of comparing the two iterates, both are compared with the direct solution:
 
-<p class="caption" id="tab-7-16"><strong>Table 7.16.</strong> Iterative solvers with rtol = 10⁻⁸: iterations and error, library and SciPy.</p>
+<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> Iterative solvers with rtol = 10⁻⁸: iterations and error, library and SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_solvers.md}}
 
@@ -321,16 +321,16 @@ differs and its residual is not monotone. MINRES takes as many iterations as CG 
 
 ![Residual histories of CG, MINRES, BiCGSTAB and GMRES on the 2-D Laplacian](../generated/linear_algebra/sparse_krylov.svg)
 
-<p class="caption" id="fig-7-12"><strong>Figure 7.12.</strong> Convergence on the 2-D Laplacian. MINRES and full GMRES lie on top of each other: for symmetric $A$, both minimise the residual over the same subspace. CG minimises the $A$-norm of the error instead, so its residual is not monotone. Restarting GMRES every 30 steps discards the subspace, and convergence slows.</p>
+<p class="caption" id="fig-7-13"><strong>Figure 7.13.</strong> Convergence on the 2-D Laplacian. MINRES and full GMRES lie on top of each other: for symmetric $A$, both minimise the residual over the same subspace. CG minimises the $A$-norm of the error instead, so its residual is not monotone. Restarting GMRES every 30 steps discards the subspace, and convergence slows.</p>
 
 ![Residual histories of BiCGSTAB and GMRES with several restart lengths on a convection-diffusion problem](../generated/linear_algebra/sparse_nonsymmetric.svg)
 
-<p class="caption" id="fig-7-13"><strong>Figure 7.13.</strong> A nonsymmetric system. Full GMRES converges in the fewest iterations (86) but stores every basis vector. Restarting costs iterations, and not monotonically: GMRES(10) needs 114 and GMRES(30) needs 210, as in SciPy. Short and long restarts discard different parts of the subspace, and which is better depends on the problem (Embree, 2003). BiCGSTAB's residual is erratic, but it converges in 57 iterations of two products each.</p>
+<p class="caption" id="fig-7-14"><strong>Figure 7.14.</strong> A nonsymmetric system. Full GMRES converges in the fewest iterations (86) but stores every basis vector. Restarting costs iterations, and not monotonically: GMRES(10) needs 114 and GMRES(30) needs 210, as in SciPy. Short and long restarts discard different parts of the subspace, and which is better depends on the problem (Embree, 2003). BiCGSTAB's residual is erratic, but it converges in 57 iterations of two products each.</p>
 
 LGMRES, compared with SciPy's `lgmres` on two convection-diffusion systems with rtol $= 10^{-8}$. Like SciPy's, the library's LGMRES preconditions on the left, adapts the tolerance of each cycle, and counts the residual
 computed at the start of each cycle among the products:
 
-<p class="caption" id="tab-7-17"><strong>Table 7.17.</strong> LGMRES against SciPy.</p>
+<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> LGMRES against SciPy.</p>
 
 {{#include ../generated/linear_algebra/lgmres_scipy.md}}
 
@@ -339,11 +339,11 @@ stagnate. Its larger gains come inside Newton iterations, where the augmentation
 
 ![CG with and without Jacobi preconditioning on a Laplacian with a varying diagonal](../generated/linear_algebra/sparse_preconditioning.svg)
 
-<p class="caption" id="fig-7-14"><strong>Figure 7.14.</strong> Jacobi preconditioning on a matrix whose diagonal varies from 4 to 51 cuts CG from 31 iterations to 10. The large diagonal already makes this matrix better conditioned than the plain Laplacian (grey).</p>
+<p class="caption" id="fig-7-15"><strong>Figure 7.15.</strong> Jacobi preconditioning on a matrix whose diagonal varies from 4 to 51 cuts CG from 31 iterations to 10. The large diagonal already makes this matrix better conditioned than the plain Laplacian (grey).</p>
 
-Ordering decides the cost of a direct solve. The table repeats the experiment of Figure 7.11 on the $30 \times 30$ grid, with SciPy's SuperLU for comparison:
+Ordering decides the cost of a direct solve. The table repeats the experiment of Figure 7.12 on the $30 \times 30$ grid, with SciPy's SuperLU for comparison:
 
-<p class="caption" id="tab-7-18"><strong>Table 7.18.</strong> Bandwidth and fill of the LU factors of a shuffled 900 × 900 Laplacian under several orderings.</p>
+<p class="caption" id="tab-7-20"><strong>Table 7.20.</strong> Bandwidth and fill of the LU factors of a shuffled 900 × 900 Laplacian under several orderings.</p>
 
 {{#include ../generated/linear_algebra/sparse_fill.md}}
 
@@ -351,24 +351,24 @@ The library's sparse LU produces exactly SuperLU's fill for the same ordering. R
 degree saves another 40–60 %. On larger and nonsymmetric matrices the library's minimum degree comes within 3–11 % of SuperLU's MMD and does better than
 SuperLU's default, COLAMD, which orders for unsymmetric pivoting:
 
-<p class="caption" id="tab-7-19"><strong>Table 7.19.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
+<p class="caption" id="tab-7-21"><strong>Table 7.21.</strong> Fill (nnz(L) + nnz(U)) under the library's orderings and SuperLU's.</p>
 
 {{#include ../generated/linear_algebra/sparse_md_fill.md}}
 
 ![Fill against the number of unknowns for the natural, RCM and minimum-degree orderings of the 2-D Laplacian](../generated/linear_algebra/sparse_fill_growth.svg)
 
-<p class="caption" id="fig-7-15"><strong>Figure 7.15.</strong> Fill of the LU factors of the Laplacian on grids from 10 × 10 to 80 × 80. The banded orders grow like $n^{3/2}$ (the natural order exactly as $2n^{3/2}$); minimum degree grows roughly like $n\log n$.</p>
+<p class="caption" id="fig-7-16"><strong>Figure 7.16.</strong> Fill of the LU factors of the Laplacian on grids from 10 × 10 to 80 × 80. The banded orders grow like $n^{3/2}$ (the natural order exactly as $2n^{3/2}$); minimum degree grows roughly like $n\log n$.</p>
 
 Incomplete LU preconditioning on two nonsymmetric problems with 1600 unknowns, against SciPy's `spilu`. Jacobi does nothing here, because the diagonal is constant:
 
-<p class="caption" id="tab-7-20"><strong>Table 7.20.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
+<p class="caption" id="tab-7-22"><strong>Table 7.22.</strong> GMRES(30) with incomplete-LU preconditioners, rtol = 10⁻⁸.</p>
 
 {{#include ../generated/linear_algebra/sparse_ilu.md}}
 
 ILU(0), with no more storage than $A$, cuts the iterations by a factor of 8 to 16. ILUT with $\tau = 10^{-4}$ needs 4–5 iterations. SuperLU's
 threshold ILU, which also pivots and reorders, reaches 3–9 iterations with a similar amount of fill. Finally, `expm_multiply` and shift-invert `eigsh`:
 
-<p class="caption" id="tab-7-21"><strong>Table 7.21.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
+<p class="caption" id="tab-7-23"><strong>Table 7.23.</strong> The action of the matrix exponential and interior eigenvalues against SciPy.</p>
 
 {{#include ../generated/linear_algebra/sparse_expm_eigsh.md}}
 
@@ -377,7 +377,7 @@ At $t = 40$ the norm $\|tB\|_1 = 160$ is beyond the simple bound, so the paramet
 `eigs` on three nonsymmetric matrices, with the error measured against the exact spectrum. That spectrum comes from dense `numpy.linalg.eigvals` for the first two matrices, and in closed form,
 $\lambda = 4 - 2\sqrt{1 - \gamma^2}\,(\cos\tfrac{i\pi}{31} + \cos\tfrac{j\pi}{31})$, for the convection-diffusion operator. Both programs start from the vector of ones, with $k = 6$ and each program's default tolerance:
 
-<p class="caption" id="tab-7-22"><strong>Table 7.22.</strong> `eigs` against SciPy's ARPACK.</p>
+<p class="caption" id="tab-7-24"><strong>Table 7.24.</strong> `eigs` against SciPy's ARPACK.</p>
 
 {{#include ../generated/linear_algebra/sparse_eigs.md}}
 
@@ -388,7 +388,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 
 ![The spectrum of a pseudo-random sparse matrix in the complex plane, with the eigenvalues found by eigs for several choices of which](../generated/linear_algebra/sparse_eigs_spectrum.svg)
 
-<p class="caption" id="fig-7-16"><strong>Figure 7.16.</strong> The eigenvalues `eigs` returns for each choice of `which`, on the pseudo-random matrix of Table 7.22. Extreme eigenvalues (largest or smallest real part, largest imaginary part) converge in a few hundred products. The six nearest $\sigma = 0.3$, in the interior of the spectrum, need shift-invert: 52 solves with the LU factors of $A - 0.3I$.</p>
+<p class="caption" id="fig-7-17"><strong>Figure 7.17.</strong> The eigenvalues `eigs` returns for each choice of `which`, on the pseudo-random matrix of Table 7.24. Extreme eigenvalues (largest or smallest real part, largest imaginary part) converge in a few hundred products. The six nearest $\sigma = 0.3$, in the interior of the spectrum, need shift-invert: 52 solves with the LU factors of $A - 0.3I$.</p>
 
 **Strengths**
 
@@ -396,7 +396,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 - Iteration counts and solutions that match SciPy, and a strict, documented stopping rule.
 - A sparse LU with partial pivoting whose fill equals SuperLU's under the same ordering.
 - `eigsh` and `svds` that find repeated eigenvalues and singular values, by deflation.
-- `eigs` for nonsymmetric matrices, with real arithmetic throughout and fewer products than ARPACK on every test of Table 7.22.
+- `eigs` for nonsymmetric matrices, with real arithmetic throughout and fewer products than ARPACK on every test of Table 7.24.
 
 **Weaknesses**
 
@@ -412,7 +412,7 @@ ARPACK's results are more accurate on this operator, and we have not established
 1. Write the CSR arrays of the $4 \times 4$ tridiagonal matrix with 2 on the diagonal and −1 beside it, and count the operations of a product.
 2. Show that the CG residuals are mutually orthogonal and that the directions are $A$-conjugate.
 3. Explain why CG terminates in at most $d$ steps in exact arithmetic when $A$ has $d$ distinct eigenvalues.
-4. For the Laplacian on an $m \times m$ grid, estimate the CG iterations needed to reduce the error by $10^8$, and compare with Table 7.16 for $m = 30$.
+4. For the Laplacian on an $m \times m$ grid, estimate the CG iterations needed to reduce the error by $10^8$, and compare with Table 7.18 for $m = 30$.
 5. Show that MINRES and full GMRES produce the same iterates for symmetric $A$.
 6. Why can a Krylov subspace of a symmetric matrix contain only one vector from each eigenspace?
 7. Show that if $AV_m = V_mH_m + \mathbf f\mathbf e_m^{\mathsf T}$ and $H_m\mathbf y = \theta\mathbf y$, then $\|A V_m\mathbf y - \theta V_m\mathbf y\| = \|\mathbf f\|\,|y_m|$.

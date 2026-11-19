@@ -8,13 +8,14 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 readme = "../../README.md"
-description = "Dense linear algebra in pure Rust: LU, Cholesky, QR, LDLᵀ, Hessenberg and Schur forms, eigensolvers, the SVD, least squares, the matrix exponential and Sylvester, Lyapunov and Riccati equations for real and complex matrices."
+description = "Dense linear algebra in pure Rust: LU, Cholesky, QR, LDLᵀ, Hessenberg and Schur forms, eigensolvers (also generalised, by QZ), structured and banded solvers, the SVD, least squares, the matrix exponential and Sylvester, Lyapunov and Riccati equations for real and complex matrices."
 
 [lib]
 path = "src/mod.rs"
 
 [dependencies]
 lib_jsl_core.workspace = true
+lib_jsl_ffts.workspace = true
 matrixmultiply.workspace = true
 ndarray.workspace = true
 num-complex.workspace = true

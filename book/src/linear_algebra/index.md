@@ -92,6 +92,8 @@ Both crates agree with LAPACK to a few units of rounding error on these well-con
 | Optimal (LQR) gains, steady-state Kalman gains | `solve_continuous_are`, `solve_discrete_are` | [Matrix functions and matrix equations](matrix-equations.md#riccati-equations) |
 | $A^{1/2}$, $\log A$, $A^p$ | `sqrtm`, `logm`, `fractional_matrix_power` | [Matrix functions, subspaces and norms](subspaces-norms.md) |
 | QR with column pivoting, RQ, Hessenberg or real Schur form; symmetric indefinite $A\mathbf x = \mathbf b$; nearest orthogonal matrix | `qr`, `rq`, `hessenberg`, `schur_real`, `ldl`, `polar` | [Further factorisations](factorizations.md) |
+| $A\mathbf x = \lambda B\mathbf x$: symmetric-definite, or general (also with singular $B$) | `eigh_generalized`; `eig_generalized`, `qz` | [Generalised eigenproblems and structured matrices](generalized-structured.md) |
+| Toeplitz, circulant or banded $A\mathbf x = \mathbf b$; structured test matrices | `solve_toeplitz`, `solve_circulant`, `solve_banded`, `solveh_banded`; `toeplitz`, `hankel`, `circulant`, `hadamard`, … | [Generalised eigenproblems and structured matrices](generalized-structured.md#toeplitz-systems-levinson-recursion) |
 | Angles between subspaces; $f(A)$ for a general function | `subspace_angles`, `funm` | [Further factorisations](factorizations.md#polar-decomposition-and-principal-angles) |
 | Pseudoinverse, rank, null space, range, norms, condition numbers | `pinv`, `matrix_rank`, `null_space`, `orth`, `norm`, `cond` | [Matrix functions, subspaces and norms](subspaces-norms.md#the-pseudoinverse-and-the-fundamental-subspaces) |
 | Large sparse $A\mathbf x = \mathbf b$: direct | `sparse::spsolve`, `sparse::SparseLu` | [Sparse matrices and iterative solvers](sparse.md#ordering-and-fill-in) |

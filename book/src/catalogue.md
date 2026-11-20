@@ -13,13 +13,13 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **625 algorithms and components in 23 crates**:
+The library implements **630 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 161 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 68 |
-| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
+| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 100 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 22 |
@@ -354,7 +354,7 @@ Random numbers, statistical inference and machine learning.
 
 Random number generators, quasi-random sequences, distributions and MCMC.
 
-Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [book chapter](random/index.md) · 25 items
+Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [book chapter](random/index.md) · 26 items
 
 - [Histogram](random/generators.md#histograms)
 - [Uniform RNG](random/generators.md#xoshiro256)
@@ -363,6 +363,7 @@ Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [bo
 - Quasi-random sequences ([Sobol](random/quasi-random.md#the-sobol-sequence), [Halton](random/quasi-random.md#the-radical-inverse-and-the-halton-sequence))
 - [Scrambled Sobol and Halton sequences (linear matrix scrambling, digit permutations)](random/quasi-random.md#scrambling)
 - [Latin hypercube sampling](random/quasi-random.md#latin-hypercube-sampling)
+- [Poisson-disk sampling (Bridson's algorithm)](statistics/mvn-cdf.md#poisson-disk-sampling)
 - [Discrepancy (centered, wrap-around, mixture, L²-star) and scaling to a box](random/quasi-random.md#discrepancy)
 - Markov chain Monte Carlo ([Metropolis-Hastings](random/mcmc.md#the-metropolis-hastings-algorithm))
 
@@ -389,7 +390,7 @@ Crate `lib_jsl_random`: [API reference](../api/lib_jsl_random/index.html) · [bo
 
 Descriptive and circular statistics, correlation, robust regression, distances, hypothesis tests, density estimation and resampling.
 
-Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 33 items
+Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html) · [book chapter](statistics/index.md) · 37 items
 
 - [Descriptive statistics](statistics/descriptive.md)
 - [Distribution objects: pdf, cdf, sf, quantiles and moments for 20 continuous and 5 discrete distributions](statistics/distributions.md#four-views-of-one-distribution)
@@ -424,6 +425,10 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 - [Relative risk with Katz's interval](statistics/multivariate-tests.md#effect-sizes-for-contingency-tables)
 - [Cramér's V, Tschuprow's T, Pearson's contingency coefficient](statistics/multivariate-tests.md#effect-sizes-for-contingency-tables)
 - [Monte Carlo hypothesis tests](statistics/multivariate-tests.md#multivariate-distributions-and-further-tests)
+- [Multivariate normal and t distribution functions (Genz's lattice method; exact bivariate normal)](statistics/mvn-cdf.md#genzs-transformation)
+- [Multivariate normal with singular covariance](statistics/mvn-cdf.md#singular-covariances)
+- [Dunnett's many-to-one comparisons](statistics/mvn-cdf.md#dunnetts-test)
+- [Quasi-Monte Carlo normal samples (`MultivariateNormalQMC`)](statistics/mvn-cdf.md#quasi-monte-carlo-normal-samples)
 
 ### Machine learning
 

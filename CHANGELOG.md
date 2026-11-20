@@ -6,6 +6,22 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.14.0] - 2026-11-20
+
+### Added
+
+- `statistics::mvn_cdf`: multivariate normal and t distribution functions
+  (`MultivariateNormal::cdf`, `cdf_between`, `MultivariateT::cdf`, `cdf_between`, with
+  `MvCdfOptions`) by Genz's randomised lattice rules, with the exact bivariate normal
+  `bivariate_normal_upper`; Dunnett's many-to-one test (`dunnett`).
+- `statistics::multivariate`: `MultivariateNormal::new_allow_singular` and `rank` for singular
+  covariances (SciPy's `allow_singular=True`).
+- `statistics::qmc_normal`: `MultivariateNormalQmc`, normal samples from a Sobol sequence by
+  the inverse or Box-Muller transform.
+- `random::qmc`: `PoissonDisk` (Bridson's algorithm), with `Hypersphere`.
+- Book: a new entry, "Multivariate distribution functions and quasi-Monte Carlo sampling", with
+  comparisons against SciPy.
+
 ## [2.13.0] - 2026-11-20
 
 ### Added
@@ -650,7 +666,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.13.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.14.0...HEAD
+[2.14.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.14.0
 [2.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.13.0
 [2.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.12.0
 [2.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.11.0

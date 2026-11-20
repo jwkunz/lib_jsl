@@ -112,6 +112,7 @@
     - [The bootstrap](statistics/bootstrap.md)
     - [More descriptive statistics and robust regression](statistics/robust-regression.md)
     - [Multivariate distributions and further tests](statistics/multivariate-tests.md)
+    - [Multivariate distribution functions and quasi-Monte Carlo sampling](statistics/mvn-cdf.md)
 - [Machine learning: regression and classification](machine_learning/index.md)
     - [Foundations: models, data, preprocessing and metrics](machine_learning/foundations.md)
     - [Linear regression: least squares, ridge, lasso and elastic net](machine_learning/linear-regression.md)

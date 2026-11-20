@@ -117,6 +117,152 @@ pub fn scale(points: &[Vec<f64>], lower: &[f64], upper: &[f64], reverse: bool) -
         .collect())
 }
 
+
+/// How [`PoissonDisk`] draws candidates around a centre (SciPy's `hypersphere`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum Hypersphere {
+    /// Uniformly in the ball of radius `2r` (the default).
+    Volume,
+    /// On the sphere of radius `1.001 r`, which packs more densely.
+    Surface,
+}
+
+/// Poisson-disk sampling in a box (SciPy's `qmc.PoissonDisk`): random points no two of which are
+/// closer than `radius`, by Bridson's algorithm. A background grid with cells of side `r/√d`
+/// holds at most one point each, so the test for nearby points looks only at the surrounding
+/// cells; new points are drawn as candidates around a random active point and kept if no
+/// existing point is within `r`.
+#[derive(Clone, Debug)]
+pub struct PoissonDisk {
+    d: usize,
+    radius: f64,
+    hypersphere: Hypersphere,
+    ncandidates: usize,
+    lower: Vec<f64>,
+    upper: Vec<f64>,
+    cell: f64,
+    grid_size: Vec<usize>,
+    grid: Vec<Option<usize>>,
+    points: Vec<Vec<f64>>,
+    pool: Vec<usize>,
+}
+
+impl PoissonDisk {
+    /// A sampler in `[lower, upper]` (the unit cube by default, `None`), with SciPy's defaults
+    /// `ncandidates = 30` and [`Hypersphere::Volume`].
+    pub fn new(d: usize, radius: f64, hypersphere: Hypersphere, ncandidates: usize, bounds: Option<(&[f64], &[f64])>) -> Result<Self, ErrorsJSL> {
+        if d == 0 || radius.is_nan() || radius <= 0.0 || ncandidates == 0 {
+            return Err(ErrorsJSL::InvalidInputRange("PoissonDisk: need d ≥ 1, radius > 0 and at least one candidate"));
+        }
+        let (lower, upper) = match bounds {
+            Some((l, u)) if l.len() == d && u.len() == d && l.iter().zip(u).all(|(a, b)| a < b) => (l.to_vec(), u.to_vec()),
+            Some(_) => return Err(ErrorsJSL::InvalidInputRange("PoissonDisk: bounds must have d entries with lower < upper")),
+            None => (vec![0.0; d], vec![1.0; d]),
+        };
+        let cell = radius / (d as f64).sqrt();
+        let grid_size: Vec<usize> = (0..d).map(|k| ((upper[k] - lower[k]) / cell).ceil().max(1.0) as usize).collect();
+        let cells = grid_size.iter().try_fold(1usize, |acc, &g| acc.checked_mul(g)).filter(|&c| c <= 50_000_000).ok_or(ErrorsJSL::InvalidInputRange("PoissonDisk: the radius is too small for the grid"))?;
+        Ok(PoissonDisk { d, radius, hypersphere, ncandidates, lower, upper, cell, grid_size, grid: vec![None; cells], points: Vec::new(), pool: Vec::new() })
+    }
+
+    fn cell_of(&self, p: &[f64]) -> Vec<usize> {
+        (0..self.d).map(|k| (((p[k] - self.lower[k]) / self.cell) as usize).min(self.grid_size[k] - 1)).collect()
+    }
+
+    fn flat(&self, idx: &[usize]) -> usize {
+        idx.iter().zip(&self.grid_size).fold(0, |acc, (&i, &g)| acc * g + i)
+    }
+
+    fn too_close(&self, p: &[f64]) -> bool {
+        let idx = self.cell_of(p);
+        let lo: Vec<usize> = idx.iter().map(|&i| i.saturating_sub(2)).collect();
+        let hi: Vec<usize> = idx.iter().zip(&self.grid_size).map(|(&i, &g)| (i + 3).min(g)).collect();
+        let mut cur = lo.clone();
+        loop {
+            if let Some(j) = self.grid[self.flat(&cur)] {
+                let d2: f64 = self.points[j].iter().zip(p).map(|(a, b)| (a - b) * (a - b)).sum();
+                if d2 < self.radius * self.radius {
+                    return true;
+                }
+            }
+            let mut k = self.d;
+            loop {
+                if k == 0 {
+                    return false;
+                }
+                k -= 1;
+                cur[k] += 1;
+                if cur[k] < hi[k] {
+                    break;
+                }
+                cur[k] = lo[k];
+            }
+        }
+    }
+
+    fn add(&mut self, p: Vec<f64>, out: &mut Vec<Vec<f64>>) {
+        let f = self.flat(&self.cell_of(&p));
+        self.grid[f] = Some(self.points.len());
+        self.pool.push(self.points.len());
+        self.points.push(p.clone());
+        out.push(p);
+    }
+
+    fn normal<G: UniformGenerator>(rng: &mut G) -> f64 {
+        let u = rng.next_f64().max(f64::MIN_POSITIVE);
+        let v = rng.next_f64();
+        (-2.0 * u.ln()).sqrt() * (2.0 * std::f64::consts::PI * v).cos()
+    }
+
+    // ANCHOR: poisson_disk
+    /// Up to `n` new points (fewer when the box is full).
+    pub fn random<G: UniformGenerator>(&mut self, n: usize, rng: &mut G) -> Vec<Vec<f64>> {
+        let mut out = Vec::new();
+        if n == 0 {
+            return out;
+        }
+        if self.points.is_empty() {
+            let p: Vec<f64> = (0..self.d).map(|k| self.lower[k] + rng.next_f64() * (self.upper[k] - self.lower[k])).collect();
+            self.add(p, &mut out);
+        }
+        while !self.pool.is_empty() && out.len() < n {
+            let at = (rng.next_u64() % self.pool.len() as u64) as usize;
+            let centre = self.points[self.pool.swap_remove(at)].clone();
+            for _ in 0..self.ncandidates {
+                let dir: Vec<f64> = (0..self.d).map(|_| Self::normal(rng)).collect();
+                let norm = dir.iter().map(|v| v * v).sum::<f64>().sqrt().max(f64::MIN_POSITIVE);
+                let r = match self.hypersphere {
+                    Hypersphere::Volume => 2.0 * self.radius * rng.next_f64().powf(1.0 / self.d as f64),
+                    Hypersphere::Surface => 1.001 * self.radius,
+                };
+                let cand: Vec<f64> = centre.iter().zip(&dir).map(|(c, v)| c + r * v / norm).collect();
+                if cand.iter().enumerate().any(|(k, &v)| v < self.lower[k] || v > self.upper[k]) || self.too_close(&cand) {
+                    continue;
+                }
+                self.add(cand, &mut out);
+                if out.len() >= n {
+                    break;
+                }
+            }
+        }
+        out
+    }
+    // ANCHOR_END: poisson_disk
+
+    /// Points until no more fit (SciPy's `fill_space`).
+    pub fn fill_space<G: UniformGenerator>(&mut self, rng: &mut G) -> Vec<Vec<f64>> {
+        self.random(usize::MAX, rng)
+    }
+
+    /// Forget all points (SciPy's `reset`).
+    pub fn reset(&mut self) {
+        self.grid.iter_mut().for_each(|c| *c = None);
+        self.points.clear();
+        self.pool.clear();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -161,5 +307,28 @@ mod tests {
         let boxed = scale(&lhs, &[-1.0; 4], &[3.0; 4], false).unwrap();
         let back = scale(&boxed, &[-1.0; 4], &[3.0; 4], true).unwrap();
         assert!(back.iter().flatten().zip(lhs.iter().flatten()).all(|(a, b)| (a - b).abs() < 1e-15));
+    }
+
+    #[test]
+    fn poisson_disk_spacing_and_coverage() {
+        let mut rng = crate::uniform_generator::UniformRNG::from_seed(5);
+        for hs in [Hypersphere::Volume, Hypersphere::Surface] {
+            let mut pd = PoissonDisk::new(2, 0.05, hs, 30, None).unwrap();
+            let pts = pd.fill_space(&mut rng);
+            for i in 0..pts.len() {
+                for j in 0..i {
+                    let d = ((pts[i][0] - pts[j][0]).powi(2) + (pts[i][1] - pts[j][1]).powi(2)).sqrt();
+                    assert!(d >= 0.05, "{d}");
+                }
+            }
+            // A maximal packing: every point of a fine grid is within 2r of some sample.
+            for a in 0..20 {
+                for b in 0..20 {
+                    let q = [(a as f64 + 0.5) / 20.0, (b as f64 + 0.5) / 20.0];
+                    assert!(pts.iter().any(|p| ((p[0] - q[0]).powi(2) + (p[1] - q[1]).powi(2)).sqrt() < 0.1));
+                }
+            }
+            assert!(pts.len() > 150, "{}", pts.len());
+        }
     }
 }

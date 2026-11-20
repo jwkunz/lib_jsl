@@ -109,6 +109,71 @@ pub struct MultivariateNormal {
     pub cov: Matrix,
     chol: Matrix,
     log_det: f64,
+    /// For a singular covariance: the eigen-structure on its range.
+    psd: Option<Psd>,
+}
+
+/// A positive semidefinite covariance through its eigendecomposition (SciPy's `_PSD`): the
+/// `r` eigenvectors with eigenvalues above `eps` span the support.
+#[derive(Clone, Debug)]
+struct Psd {
+    /// `d × r`: the eigenvectors scaled by `√λ` (for sampling).
+    root: Matrix,
+    /// `d × r`: the eigenvectors scaled by `1/√λ` (for the Mahalanobis distance).
+    pinv_root: Matrix,
+    /// `d × (d − r)`: a basis of the null space.
+    null: Matrix,
+    rank: usize,
+    eps: f64,
+}
+
+/// The eigenvalues and eigenvectors (as columns) of a symmetric matrix by cyclic Jacobi
+/// rotations.
+fn symmetric_eigen(a: &Matrix) -> (Vec<f64>, Matrix) {
+    let n = a.len();
+    let mut m = a.clone();
+    let mut v: Matrix = (0..n).map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect()).collect();
+    for _ in 0..100 {
+        let off: f64 = (0..n).flat_map(|i| (0..n).filter(move |&j| j != i).map(move |j| (i, j))).map(|(i, j)| m[i][j] * m[i][j]).sum();
+        let scale: f64 = (0..n).map(|i| m[i][i] * m[i][i]).sum::<f64>().max(f64::MIN_POSITIVE);
+        if off <= 1e-30 * scale {
+            break;
+        }
+        for p in 0..n {
+            for q in p + 1..n {
+                if m[p][q] == 0.0 {
+                    continue;
+                }
+                let theta = (m[q][q] - m[p][p]) / (2.0 * m[p][q]);
+                let t = theta.signum() / (theta.abs() + (theta * theta + 1.0).sqrt());
+                let t = if theta == 0.0 { 1.0 } else { t };
+                let c = 1.0 / (t * t + 1.0).sqrt();
+                let s = t * c;
+                for row in m.iter_mut() {
+                    let (x, y) = (row[p], row[q]);
+                    row[p] = c * x - s * y;
+                    row[q] = s * x + c * y;
+                }
+                let (lo, hi) = m.split_at_mut(q);
+                for (x, y) in lo[p].iter_mut().zip(hi[0].iter_mut()) {
+                    let (a, b) = (*x, *y);
+                    *x = c * a - s * b;
+                    *y = s * a + c * b;
+                }
+                for row in v.iter_mut() {
+                    let (x, y) = (row[p], row[q]);
+                    row[p] = c * x - s * y;
+                    row[q] = s * x + c * y;
+                }
+            }
+        }
+    }
+    ((0..n).map(|i| m[i][i]).collect(), v)
+}
+
+/// [`symmetric_eigen`] for the QMC sampler.
+pub(crate) fn symmetric_eigen_pub(a: &[Vec<f64>]) -> (Vec<f64>, Matrix) {
+    symmetric_eigen(&a.to_vec())
 }
 
 impl MultivariateNormal {
@@ -118,31 +183,90 @@ impl MultivariateNormal {
         }
         let chol = cholesky(&cov)?;
         let log_det = log_det_from_cholesky(&chol);
-        Ok(MultivariateNormal { mean, cov, chol, log_det })
+        Ok(MultivariateNormal { mean, cov, chol, log_det, psd: None })
     }
+
+    // ANCHOR: allow_singular
+    /// A normal distribution whose covariance may be singular (SciPy's
+    /// `multivariate_normal(mean, cov, allow_singular=True)`). The covariance's eigenvalues
+    /// above `ε = 10⁶ ε_mach max|λ|` define its rank `r` and range; the density is the `r`-
+    /// dimensional one on the affine support `μ + range(Σ)`, with the pseudo-determinant and
+    /// pseudo-inverse, and zero off it.
+    pub fn new_allow_singular(mean: Vec<f64>, cov: Matrix) -> Result<Self, ErrorsJSL> {
+        let d = mean.len();
+        if cov.len() != d || d == 0 || cov.iter().any(|r| r.len() != d) {
+            return Err(ErrorsJSL::InvalidInputRange("the mean and covariance must have one dimension"));
+        }
+        if let Ok(chol) = cholesky(&cov) {
+            let log_det = log_det_from_cholesky(&chol);
+            return Ok(MultivariateNormal { mean, cov, chol, log_det, psd: None });
+        }
+        let (lam, v) = symmetric_eigen(&cov);
+        let eps = 1e6 * f64::EPSILON * lam.iter().fold(0.0f64, |m, x| m.max(x.abs()));
+        if lam.iter().any(|&l| l < -eps) {
+            return Err(ErrorsJSL::InvalidInputRange("the covariance must be positive semidefinite"));
+        }
+        let keep: Vec<usize> = (0..d).filter(|&i| lam[i] > eps).collect();
+        let drop: Vec<usize> = (0..d).filter(|&i| lam[i] <= eps).collect();
+        let col = |cols: &[usize], f: &dyn Fn(f64) -> f64| -> Matrix { (0..d).map(|i| cols.iter().map(|&j| v[i][j] * f(lam[j])).collect()).collect() };
+        let psd = Psd {
+            root: col(&keep, &|l| l.sqrt()),
+            pinv_root: col(&keep, &|l| 1.0 / l.sqrt()),
+            null: col(&drop, &|_| 1.0),
+            rank: keep.len(),
+            eps,
+        };
+        let log_det = keep.iter().map(|&j| lam[j].ln()).sum();
+        Ok(MultivariateNormal { mean, cov, chol: Vec::new(), log_det, psd: Some(psd) })
+    }
+    // ANCHOR_END: allow_singular
+
     pub fn dim(&self) -> usize {
         self.mean.len()
     }
-    /// The squared Mahalanobis distance `(x − μ)ᵀ Σ⁻¹ (x − μ)`.
+    /// The rank of the covariance (`d` unless singular).
+    pub fn rank(&self) -> usize {
+        self.psd.as_ref().map_or(self.dim(), |p| p.rank)
+    }
+    /// The squared Mahalanobis distance `(x − μ)ᵀ Σ⁺ (x − μ)` (with the pseudo-inverse when the
+    /// covariance is singular).
     pub fn mahalanobis_sq(&self, x: &[f64]) -> f64 {
         let d: Vec<f64> = x.iter().zip(&self.mean).map(|(a, b)| a - b).collect();
-        forward(&self.chol, &d).iter().map(|v| v * v).sum()
+        match &self.psd {
+            None => forward(&self.chol, &d).iter().map(|v| v * v).sum(),
+            Some(p) => (0..p.rank).map(|j| (0..d.len()).map(|i| d[i] * p.pinv_root[i][j]).sum::<f64>().powi(2)).sum(),
+        }
     }
     pub fn logpdf(&self, x: &[f64]) -> f64 {
-        let d = self.dim() as f64;
-        -0.5 * (d * (2.0 * PI).ln() + self.log_det + self.mahalanobis_sq(x))
+        if let Some(p) = &self.psd {
+            let d: Vec<f64> = x.iter().zip(&self.mean).map(|(a, b)| a - b).collect();
+            let residual: f64 = (0..self.dim() - p.rank).map(|j| (0..d.len()).map(|i| d[i] * p.null[i][j]).sum::<f64>().powi(2)).sum::<f64>().sqrt();
+            if residual >= p.eps {
+                return f64::NEG_INFINITY;
+            }
+        }
+        let r = self.rank() as f64;
+        -0.5 * (r * (2.0 * PI).ln() + self.log_det + self.mahalanobis_sq(x))
     }
     pub fn pdf(&self, x: &[f64]) -> f64 {
         self.logpdf(x).exp()
     }
-    /// `½ log((2πe)^d |Σ|)`.
+    /// `½ log((2πe)^r |Σ|₊)` (the pseudo-determinant when singular).
     pub fn entropy(&self) -> f64 {
-        0.5 * (self.dim() as f64 * (2.0 * PI * std::f64::consts::E).ln() + self.log_det)
+        0.5 * (self.rank() as f64 * (2.0 * PI * std::f64::consts::E).ln() + self.log_det)
     }
-    /// `μ + L z` for standard normal `z`.
+    /// `μ + L z` for standard normal `z` (`L` a square root of `Σ`).
     pub fn sample<U: UniformGenerator>(&self, rng: &mut U) -> Vec<f64> {
-        let z: Vec<f64> = (0..self.dim()).map(|_| standard_normal(rng)).collect();
-        (0..self.dim()).map(|i| self.mean[i] + (0..=i).map(|k| self.chol[i][k] * z[k]).sum::<f64>()).collect()
+        match &self.psd {
+            None => {
+                let z: Vec<f64> = (0..self.dim()).map(|_| standard_normal(rng)).collect();
+                (0..self.dim()).map(|i| self.mean[i] + (0..=i).map(|k| self.chol[i][k] * z[k]).sum::<f64>()).collect()
+            }
+            Some(p) => {
+                let z: Vec<f64> = (0..p.rank).map(|_| standard_normal(rng)).collect();
+                (0..self.dim()).map(|i| self.mean[i] + (0..p.rank).map(|k| p.root[i][k] * z[k]).sum::<f64>()).collect()
+            }
+        }
     }
 }
 // ANCHOR_END: mvn
@@ -484,5 +608,22 @@ mod tests {
         let total: f64 = (0..=4u64).flat_map(|a| (0..=4 - a).map(move |b| [a, b, 4 - a - b])).map(|x| m3.pmf(&x)).sum();
         assert!((total - 1.0).abs() < 1e-14);
         assert_eq!(m3.sample(&mut rng).iter().sum::<u64>(), 4);
+    }
+
+    #[test]
+    fn singular_covariance() {
+        // X = (Z, Z, W): rank 2.
+        let cov = vec![vec![1.0, 1.0, 0.0], vec![1.0, 1.0, 0.0], vec![0.0, 0.0, 4.0]];
+        let m = MultivariateNormal::new_allow_singular(vec![0.0; 3], cov).unwrap();
+        assert_eq!(m.rank(), 2);
+        // On the support the density is that of (√2 Z along (1,1)/√2, W): N(0,2) × N(0,4).
+        let x = [0.3, 0.3, -1.0];
+        let t = 0.3f64 * 2f64.sqrt();
+        let want = (-t * t / 4.0 - 1.0 / 8.0).exp() / (2.0 * PI * (2.0f64 * 4.0).sqrt());
+        assert!((m.pdf(&x) - want).abs() < 1e-14, "{} vs {want}", m.pdf(&x));
+        assert_eq!(m.pdf(&[0.3, 0.4, 0.0]), 0.0);
+        let mut rng = lib_jsl_random::uniform_generator::UniformRNG::from_seed(3);
+        let s = m.sample(&mut rng);
+        assert!((s[0] - s[1]).abs() < 1e-12);
     }
 }

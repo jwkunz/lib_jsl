@@ -22,3 +22,5 @@ pub mod multivariate;
 pub mod goodness_of_fit;
 pub mod posthoc;
 pub mod contingency;
+pub mod mvn_cdf;
+pub mod qmc_normal;

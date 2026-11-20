@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **646 algorithms and components in 23 crates**:
+The library implements **648 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 166 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 168 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 69 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 103 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 204 |
@@ -170,7 +170,7 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 
 Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 35 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 37 items
 
 - [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
@@ -189,6 +189,8 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [trust-constr (Byrd-Omojokun SQP with an interior-point barrier)](optimization/constrained.md#cobyla-and-trust-constr)
 - [trust-krylov (GLTR Lanczos trust-region subproblems)](optimization/constrained.md#large-problems-trust-krylov-and-lsmr)
 - [Least squares with an LSMR trust-region solver (sparse or matrix-free Jacobians)](optimization/constrained.md#large-problems-trust-krylov-and-lsmr)
+- [Simplicial homology global optimisation (`shgo`, Sobol sampling)](optimization/shgo-qap.md#minimisers-on-a-triangulation)
+- [Quadratic assignment (Fast Approximate QAP, 2-opt)](optimization/shgo-qap.md#fast-approximate-qap)
 - [L-BFGS-B](optimization/bounded.md#l-bfgs-b)
 - [Bounded nonlinear least squares (trust-region reflective) with robust losses](optimization/bounded.md#trust-region-reflective-least-squares)
 - [Bounded linear least squares (BVLS) and non-negative least squares (NNLS)](optimization/bounded.md#linear-least-squares-with-bounds)

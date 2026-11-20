@@ -30,3 +30,5 @@ pub mod milp;
 pub mod tnc;
 pub mod cobyla;
 pub mod trust_constr;
+pub mod qap;
+pub mod shgo;

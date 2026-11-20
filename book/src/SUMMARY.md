@@ -59,6 +59,7 @@
     - [Assignment, trust regions and global optimisation](optimization/assignment-trust-global.md)
     - [Brute force, isotonic regression and gradient checks](optimization/brute-isotonic.md)
     - [Levenberg-Marquardt for systems, mixed-integer programming and truncated Newton](optimization/milp-tnc.md)
+    - [Global and combinatorial optimisation: shgo and quadratic assignment](optimization/shgo-qap.md)
 - [Special functions](special_functions/index.md)
     - [The gamma function and related functions](special_functions/gamma.md)
     - [Incomplete gamma and beta functions and the error function](special_functions/incomplete.md)

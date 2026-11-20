@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.18.0] - 2026-11-20
+
+### Added
+
+- `optimization::shgo`: simplicial homology global optimisation with Sobol sampling (SciPy's
+  `shgo(sampling_method='sobol')`), returning the global minimum and all resolved local minima,
+  with inequality and equality constraints.
+- `optimization::qap`: `quadratic_assignment` by Fast Approximate QAP and 2-opt, with SciPy's
+  permutations; `qap_score`.
+- `optimization` now depends on `lib_jsl_geometry` (for the n-D Delaunay triangulation).
+- Book: a new entry, "Global and combinatorial optimisation: shgo and quadratic assignment".
+
 ## [2.17.0] - 2026-11-20
 
 ### Added
@@ -717,7 +729,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.17.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.18.0...HEAD
+[2.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.18.0
 [2.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.17.0
 [2.16.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.16.0
 [2.15.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.15.0

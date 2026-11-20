@@ -19,7 +19,8 @@
 #![allow(clippy::needless_range_loop)]
 
 use lib_jsl_core::ErrorsJSL;
-use lib_jsl_linalg::{Inverse, LeastSquaresSvd, SVD};
+use lib_jsl_linalg::sparse::{LinearOperator, LsmrOptions, lsmr};
+use lib_jsl_linalg::{EigVals, Inverse, LeastSquaresSvd, SVD};
 use ndarray::{Array1, Array2, Axis, s};
 
 fn dot(a: &[f64], b: &[f64]) -> f64 {
@@ -520,22 +521,22 @@ fn next_toward(a: f64, b: f64) -> f64 {
 }
 
 /// `½ ‖J s‖² + ½ sᵀ diag s + gᵀ s`.
-fn evaluate_quadratic(j: &Array2<f64>, g: &[f64], s: &[f64], diag: &[f64]) -> f64 {
-    let js = j.dot(&Array1::from(s.to_vec()));
-    0.5 * (js.dot(&js) + s.iter().zip(diag).map(|(a, d)| a * a * d).sum::<f64>()) + dot(s, g)
+fn evaluate_quadratic(j: &dyn LinearOperator, g: &[f64], s: &[f64], diag: &[f64]) -> f64 {
+    let js = j.matvec(s);
+    0.5 * (dot(&js, &js) + s.iter().zip(diag).map(|(a, d)| a * a * d).sum::<f64>()) + dot(s, g)
 }
 
 /// The coefficients of the quadratic `a t² + b t + c` along `s0 + t s` (SciPy's
 /// `build_quadratic_1d`).
-fn build_quadratic_1d(j: &Array2<f64>, g: &[f64], s: &[f64], diag: &[f64], s0: Option<&[f64]>) -> (f64, f64, f64) {
-    let v = j.dot(&Array1::from(s.to_vec()));
-    let a = 0.5 * (v.dot(&v) + s.iter().zip(diag).map(|(a, d)| a * a * d).sum::<f64>());
+fn build_quadratic_1d(j: &dyn LinearOperator, g: &[f64], s: &[f64], diag: &[f64], s0: Option<&[f64]>) -> (f64, f64, f64) {
+    let v = j.matvec(s);
+    let a = 0.5 * (dot(&v, &v) + s.iter().zip(diag).map(|(a, d)| a * a * d).sum::<f64>());
     let mut b = dot(g, s);
     let mut c = 0.0;
     if let Some(s0) = s0 {
-        let u = j.dot(&Array1::from(s0.to_vec()));
-        b += u.dot(&v) + s0.iter().zip(diag).zip(s).map(|((a, d), b)| a * d * b).sum::<f64>();
-        c = 0.5 * u.dot(&u) + dot(g, s0) + 0.5 * s0.iter().zip(diag).map(|(a, d)| a * a * d).sum::<f64>();
+        let u = j.matvec(s0);
+        b += dot(&u, &v) + s0.iter().zip(diag).zip(s).map(|((a, d), b)| a * d * b).sum::<f64>();
+        c = 0.5 * dot(&u, &u) + dot(g, s0) + 0.5 * s0.iter().zip(diag).map(|(a, d)| a * a * d).sum::<f64>();
     }
     (a, b, c)
 }
@@ -621,7 +622,7 @@ fn solve_lsq_trust_region(n: usize, m: usize, uf: &[f64], s: &[f64], v: &Array2<
 /// Chooses among the trust-region step (reflected or truncated at a bound) and the scaled
 /// gradient step, the one with the lowest model value (SciPy's `select_step`).
 #[allow(clippy::too_many_arguments)]
-fn select_step(x: &[f64], j_h: &Array2<f64>, diag_h: &[f64], g_h: &[f64], p: &[f64], p_h: &[f64], d: &[f64], delta: f64, lb: &[f64], ub: &[f64], theta: f64) -> (Vec<f64>, Vec<f64>, f64) {
+fn select_step(x: &[f64], j_h: &dyn LinearOperator, diag_h: &[f64], g_h: &[f64], p: &[f64], p_h: &[f64], d: &[f64], delta: f64, lb: &[f64], ub: &[f64], theta: f64) -> (Vec<f64>, Vec<f64>, f64) {
     let n = x.len();
     let xp: Vec<f64> = x.iter().zip(p).map(|(a, b)| a + b).collect();
     if in_bounds(&xp, lb, ub) {
@@ -830,6 +831,284 @@ pub fn least_squares_bounded(
     Ok(BoundedLeastSquaresResult { x, cost, fun: f_true, grad: g, optimality, active, nfev, njev, status: status.unwrap_or(0) })
 }
 // ANCHOR_END: trf
+
+/// `diag(rows) · A · diag(cols)` without forming it.
+struct Scaled<'a> {
+    inner: &'a dyn LinearOperator,
+    rows: &'a [f64],
+    cols: &'a [f64],
+}
+
+impl LinearOperator for Scaled<'_> {
+    fn shape(&self) -> (usize, usize) {
+        self.inner.shape()
+    }
+    fn matvec(&self, x: &[f64]) -> Vec<f64> {
+        let xs: Vec<f64> = x.iter().zip(self.cols).map(|(a, b)| a * b).collect();
+        self.inner.matvec(&xs).iter().zip(self.rows).map(|(a, b)| a * b).collect()
+    }
+    fn rmatvec(&self, y: &[f64]) -> Vec<f64> {
+        let ys: Vec<f64> = y.iter().zip(self.rows).map(|(a, b)| a * b).collect();
+        self.inner.rmatvec(&ys).iter().zip(self.cols).map(|(a, b)| a * b).collect()
+    }
+}
+
+/// `[A; diag(d)]` (SciPy's `regularized_lsq_operator`).
+struct Regularized<'a> {
+    inner: &'a dyn LinearOperator,
+    diag: &'a [f64],
+}
+
+impl LinearOperator for Regularized<'_> {
+    fn shape(&self) -> (usize, usize) {
+        let (m, n) = self.inner.shape();
+        (m + n, n)
+    }
+    fn matvec(&self, x: &[f64]) -> Vec<f64> {
+        let mut y = self.inner.matvec(x);
+        y.extend(x.iter().zip(self.diag).map(|(a, b)| a * b));
+        y
+    }
+    fn rmatvec(&self, y: &[f64]) -> Vec<f64> {
+        let m = self.inner.shape().0;
+        let mut x = self.inner.rmatvec(&y[..m]);
+        x.iter_mut().zip(&y[m..]).zip(self.diag).for_each(|((a, b), d)| *a += b * d);
+        x
+    }
+}
+
+/// The trust-region problem `min ½ pᵀBp + gᵀp`, `‖p‖ ≤ Δ`, in two dimensions (SciPy's
+/// `solve_trust_region_2d`): the Newton step if it is inside, otherwise the best boundary point,
+/// from the real roots of a quartic in `t = tan(φ/2)`.
+fn solve_trust_region_2d(b: [[f64; 2]; 2], g: [f64; 2], delta: f64) -> [f64; 2] {
+    let det = b[0][0] * b[1][1] - b[0][1] * b[1][0];
+    if b[0][0] > 0.0 && det > 0.0 {
+        let p = [-(b[1][1] * g[0] - b[0][1] * g[1]) / det, -(b[0][0] * g[1] - b[1][0] * g[0]) / det];
+        if p[0] * p[0] + p[1] * p[1] <= delta * delta {
+            return p;
+        }
+    }
+    let (a, bb, c) = (b[0][0] * delta * delta, b[0][1] * delta * delta, b[1][1] * delta * delta);
+    let (d, f) = (g[0] * delta, g[1] * delta);
+    let coeffs = [-bb + d, 2.0 * (a - c + f), 6.0 * bb, 2.0 * (-a + c + f), -bb - d];
+    // Real roots of the quartic from its companion matrix (lower degree if leading terms vanish).
+    let lead = coeffs.iter().position(|v| *v != 0.0).unwrap_or(4);
+    let poly = &coeffs[lead..];
+    let deg = poly.len() - 1;
+    let mut ts = Vec::new();
+    if deg >= 1 {
+        let mut comp = Array2::<f64>::zeros((deg, deg));
+        for j in 0..deg {
+            comp[(0, j)] = -poly[j + 1] / poly[0];
+        }
+        for i in 1..deg {
+            comp[(i, i - 1)] = 1.0;
+        }
+        if let Ok(ev) = comp.eigvals() {
+            ts.extend(ev.iter().filter(|z| z.im.abs() <= 1e-12 * z.re.abs().max(1.0)).map(|z| z.re));
+        }
+    }
+    let value = |p: [f64; 2]| 0.5 * (p[0] * (b[0][0] * p[0] + b[0][1] * p[1]) + p[1] * (b[1][0] * p[0] + b[1][1] * p[1])) + g[0] * p[0] + g[1] * p[1];
+    // t = ±∞ is φ = π, the point (0, −Δ), which the substitution cannot reach.
+    let mut best = [0.0, -delta];
+    let mut best_v = if lead > 0 { value(best) } else { f64::INFINITY };
+    for t in ts {
+        let p = [delta * 2.0 * t / (1.0 + t * t), delta * (1.0 - t * t) / (1.0 + t * t)];
+        let v = value(p);
+        if v < best_v {
+            (best, best_v) = (p, v);
+        }
+    }
+    best
+}
+
+// ANCHOR: trf_lsmr
+/// The trust-region reflective method with an iterative trust-region solver, for large or
+/// sparse problems (SciPy's `least_squares(method='trf', tr_solver='lsmr')`). The Jacobian is
+/// any [`LinearOperator`] (a sparse [`CsrMatrix`](lib_jsl_linalg::sparse::CsrMatrix), a dense
+/// matrix, or products supplied by closures), used only through products with vectors.
+///
+/// Each iteration solves the regularised Gauss-Newton problem `min ‖[J_h; D] p + [f; 0]‖`
+/// approximately with [`lsmr`], and then solves the trust-region problem exactly in the
+/// two-dimensional subspace spanned by that step and the scaled gradient. As in SciPy, `D` adds
+/// to the Coleman-Li term a regularisation `−(m(Δ ĝ)) / Δ²` from the best gradient step, which
+/// keeps LSMR's step inside the trust region's scale. The bounds, step selection and stopping
+/// rules are those of [`least_squares_bounded`].
+pub fn least_squares_lsmr<J: LinearOperator>(
+    fun: impl Fn(&[f64]) -> Vec<f64>,
+    jac: impl Fn(&[f64]) -> J,
+    x0: &[f64],
+    lb: &[f64],
+    ub: &[f64],
+    options: LeastSquaresOptions,
+) -> Result<BoundedLeastSquaresResult, ErrorsJSL> {
+    check_bounds(x0, lb, ub)?;
+    if !in_bounds(x0, lb, ub) {
+        return Err(ErrorsJSL::InvalidInputRange("the initial guess is outside the bounds"));
+    }
+    let n = x0.len();
+    let mut x = make_strictly_feasible(x0, lb, ub, 1e-10);
+    let mut f = fun(&x);
+    let m = f.len();
+    let mut j = jac(&x);
+    if j.shape() != (m, n) {
+        return Err(ErrorsJSL::IncompatibleArraySizes((j.shape().0, m)));
+    }
+    let (mut nfev, mut njev) = (1, 1);
+    let max_nfev = options.max_nfev.unwrap_or(100 * n);
+    let fs = options.f_scale;
+    let loss_cost = |f: &[f64]| 0.5 * fs * fs * f.iter().map(|v| options.loss.rho((v / fs).powi(2))[0]).sum::<f64>();
+    // The robust loss scales the residuals and the rows of the Jacobian.
+    let row_scale = |f: &mut Vec<f64>| -> Vec<f64> {
+        if options.loss == Loss::Linear {
+            return vec![1.0; f.len()];
+        }
+        (0..f.len())
+            .map(|i| {
+                let r = options.loss.rho((f[i] / fs).powi(2));
+                let (r1, r2) = (r[1], r[2] / (fs * fs));
+                let js = (r1 + 2.0 * r2 * f[i] * f[i]).max(f64::EPSILON).sqrt();
+                f[i] *= r1 / js;
+                js
+            })
+            .collect()
+    };
+    let ones = vec![1.0; n];
+    let mut f_true = f.clone();
+    let mut cost = loss_cost(&f);
+    let mut rows = row_scale(&mut f);
+    let grad = |j: &J, rows: &[f64], f: &[f64]| -> Vec<f64> { Scaled { inner: j, rows, cols: &ones }.rmatvec(f) };
+    let mut g = grad(&j, &rows, &f);
+    let (v0, _) = cl_scaling(&x, &g, lb, ub);
+    let mut delta = norm(&x.iter().zip(&v0).map(|(a, b)| a / b.sqrt()).collect::<Vec<_>>());
+    if delta == 0.0 {
+        delta = 1.0;
+    }
+    let mut status = None;
+    loop {
+        let (v, dv) = cl_scaling(&x, &g, lb, ub);
+        let g_norm = g.iter().zip(&v).map(|(a, b)| (a * b).abs()).fold(0.0, f64::max);
+        if g_norm < options.gtol {
+            status = Some(1);
+        }
+        if status.is_some() || nfev == max_nfev {
+            break;
+        }
+        let d: Vec<f64> = v.iter().map(|vi| vi.sqrt()).collect();
+        let diag_h: Vec<f64> = g.iter().zip(&dv).map(|(a, b)| a * b).collect();
+        let g_h: Vec<f64> = d.iter().zip(&g).map(|(a, b)| a * b).collect();
+        let j_h = Scaled { inner: &j, rows: &rows, cols: &d };
+        // Regularisation from the best step along −ĝ inside the trust region.
+        let neg_g: Vec<f64> = g_h.iter().map(|v| -v).collect();
+        let (qa, qb, _) = build_quadratic_1d(&j_h, &g_h, &neg_g, &diag_h, None);
+        let (_, ag_value) = minimize_quadratic_1d(qa, qb, 0.0, delta / norm(&g_h), 0.0);
+        let reg_term = -ag_value / (delta * delta);
+        let reg_diag: Vec<f64> = diag_h.iter().map(|v| (v + reg_term).max(0.0).sqrt()).collect();
+        let mut f_aug = f.clone();
+        f_aug.extend(std::iter::repeat_n(0.0, n));
+        let gn_h = lsmr(&Regularized { inner: &j_h, diag: &reg_diag }, &f_aug, LsmrOptions::default()).map_err(|_| ErrorsJSL::RuntimeError("least_squares: LSMR failed"))?.x;
+        // Orthonormal basis of span{ĝ, gn} (Gram-Schmidt; one vector if they are parallel).
+        let mut basis: Vec<Vec<f64>> = Vec::new();
+        for w in [&g_h, &gn_h] {
+            let mut u = w.clone();
+            for q in &basis {
+                let c = dot(q, &u);
+                u.iter_mut().zip(q).for_each(|(a, b)| *a -= c * b);
+            }
+            let un = norm(&u);
+            if un > 1e-12 * norm(w).max(f64::MIN_POSITIVE) {
+                basis.push(u.iter().map(|a| a / un).collect());
+            }
+        }
+        if basis.is_empty() {
+            status = Some(1);
+            break;
+        }
+        let js: Vec<Vec<f64>> = basis.iter().map(|q| j_h.matvec(q)).collect();
+        let k = basis.len();
+        let mut b_s = [[0.0; 2]; 2];
+        let mut g_s = [0.0; 2];
+        for a in 0..k {
+            g_s[a] = dot(&basis[a], &g_h);
+            for c in 0..k {
+                b_s[a][c] = dot(&js[a], &js[c]) + basis[a].iter().zip(&basis[c]).zip(&diag_h).map(|((p, q), w)| p * q * w).sum::<f64>();
+            }
+        }
+        if k == 1 {
+            // A one-dimensional subspace: pad with an inert second direction.
+            b_s[1][1] = 1.0;
+        }
+        let theta = 0.995f64.max(1.0 - g_norm);
+        let mut actual_reduction = -1.0;
+        let (mut x_new, mut f_new, mut cost_new) = (x.clone(), f.clone(), cost);
+        while actual_reduction <= 0.0 && nfev < max_nfev {
+            let p_s = solve_trust_region_2d(b_s, g_s, delta);
+            let mut p_h = vec![0.0; n];
+            for a in 0..k {
+                p_h.iter_mut().zip(&basis[a]).for_each(|(p, q)| *p += p_s[a] * q);
+            }
+            let p: Vec<f64> = d.iter().zip(&p_h).map(|(a, b)| a * b).collect();
+            let (step, step_h, predicted) = select_step(&x, &j_h, &diag_h, &g_h, &p, &p_h, &d, delta, lb, ub, theta);
+            x_new = make_strictly_feasible(&x.iter().zip(&step).map(|(a, b)| a + b).collect::<Vec<_>>(), lb, ub, 0.0);
+            f_new = fun(&x_new);
+            nfev += 1;
+            let step_h_norm = norm(&step_h);
+            if f_new.iter().any(|v| !v.is_finite()) {
+                delta = 0.25 * step_h_norm;
+                continue;
+            }
+            cost_new = loss_cost(&f_new);
+            actual_reduction = cost - cost_new;
+            let ratio = if predicted > 0.0 {
+                actual_reduction / predicted
+            } else if predicted == 0.0 && actual_reduction == 0.0 {
+                1.0
+            } else {
+                0.0
+            };
+            let delta_new = if ratio < 0.25 {
+                0.25 * step_h_norm
+            } else if ratio > 0.75 && step_h_norm > 0.95 * delta {
+                2.0 * delta
+            } else {
+                delta
+            };
+            let step_norm = norm(&step);
+            let ftol_ok = actual_reduction < options.ftol * cost && ratio > 0.25;
+            let xtol_ok = step_norm < options.xtol * (options.xtol + norm(&x));
+            status = match (ftol_ok, xtol_ok) {
+                (true, true) => Some(4),
+                (true, false) => Some(2),
+                (false, true) => Some(3),
+                _ => None,
+            };
+            if status.is_some() {
+                break;
+            }
+            delta = delta_new;
+        }
+        if actual_reduction > 0.0 {
+            x = x_new;
+            f = f_new;
+            f_true = f.clone();
+            cost = cost_new;
+            j = jac(&x);
+            njev += 1;
+            rows = row_scale(&mut f);
+            g = grad(&j, &rows, &f);
+        }
+    }
+    let (v, _) = cl_scaling(&x, &g, lb, ub);
+    let optimality = g.iter().zip(&v).map(|(a, b)| (a * b).abs()).fold(0.0, f64::max);
+    let active = (0..n)
+        .map(|i| {
+            let tol = 1e-10 * lb[i].abs().max(ub[i].abs()).max(1.0);
+            if x[i] - lb[i] <= tol { -1 } else if ub[i] - x[i] <= tol { 1 } else { 0 }
+        })
+        .collect();
+    Ok(BoundedLeastSquaresResult { x, cost, fun: f_true, grad: g, optimality, active, nfev, njev, status: status.unwrap_or(0) })
+}
+// ANCHOR_END: trf_lsmr
 
 // ANCHOR: dogbox
 /// Bounded nonlinear least squares by the dogbox method (SciPy's `least_squares(method="dogbox")`),
@@ -1297,5 +1576,37 @@ mod tests {
         let bounded = least_squares_bounded(fun, jac, &[1.0, 0.1], &[0.0, 0.0], &[10.0, 0.5], LeastSquaresOptions::default()).unwrap();
         assert_eq!(bounded.active[1], 1);
         assert!(bounded.optimality < 1e-6, "{}", bounded.optimality);
+    }
+
+    #[test]
+    fn trf_lsmr_matches_the_exact_solver() {
+        let t: Vec<f64> = (0..20).map(|i| i as f64 * 0.25).collect();
+        let y: Vec<f64> = t.iter().map(|&ti| 2.0 * (-0.7 * ti).exp() + 0.01 * (3.0 * ti).sin()).collect();
+        let fun = |p: &[f64]| t.iter().zip(&y).map(|(&ti, &yi)| p[0] * (-p[1] * ti).exp() - yi).collect::<Vec<_>>();
+        let jac = |p: &[f64]| Array2::from_shape_fn((t.len(), 2), |(i, k)| if k == 0 { (-p[1] * t[i]).exp() } else { -p[0] * t[i] * (-p[1] * t[i]).exp() });
+        for (ub, loss) in [(5.0, Loss::Linear), (0.5, Loss::Linear), (5.0, Loss::SoftL1)] {
+            let o = LeastSquaresOptions { loss, ..Default::default() };
+            let exact = least_squares_bounded(fun, jac, &[1.0, 0.1], &[0.0, 0.0], &[10.0, ub], o).unwrap();
+            let it = least_squares_lsmr(fun, jac, &[1.0, 0.1], &[0.0, 0.0], &[10.0, ub], o).unwrap();
+            assert!(it.status > 0 && (it.x[0] - exact.x[0]).abs() < 1e-6 && (it.x[1] - exact.x[1]).abs() < 1e-6, "{:?} {:?}", it.x, exact.x);
+        }
+        // Unbounded, with a sparse Jacobian: the Broyden tridiagonal system.
+        let n = 50;
+        let f = |x: &[f64]| (0..n).map(|i| (3.0 - 2.0 * x[i]) * x[i] - if i > 0 { x[i - 1] } else { 0.0 } - 2.0 * if i + 1 < n { x[i + 1] } else { 0.0 } + 1.0).collect::<Vec<_>>();
+        let j = |x: &[f64]| {
+            let mut coo = lib_jsl_linalg::sparse::CooMatrix::new(n, n);
+            for i in 0..n {
+                coo.push(i, i, 3.0 - 4.0 * x[i]);
+                if i > 0 {
+                    coo.push(i, i - 1, -1.0);
+                }
+                if i + 1 < n {
+                    coo.push(i, i + 1, -2.0);
+                }
+            }
+            coo.to_csr().unwrap()
+        };
+        let r = least_squares_lsmr(f, j, &vec![-1.0; n], &vec![f64::NEG_INFINITY; n], &vec![f64::INFINITY; n], LeastSquaresOptions::default()).unwrap();
+        assert!(r.cost < 1e-12, "{}", r.cost);
     }
 }

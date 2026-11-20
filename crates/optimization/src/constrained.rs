@@ -118,7 +118,7 @@ fn dot(a: &[f64], b: &[f64]) -> f64 {
 }
 
 /// Solves `A x = b` by Gaussian elimination with partial pivoting.
-fn solve_dense(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
+pub(crate) fn solve_dense(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
     let n = b.len();
     for k in 0..n {
         let p = (k..n).max_by(|&i, &j| a[i][k].abs().total_cmp(&a[j][k].abs()))?;
@@ -143,7 +143,7 @@ fn solve_dense(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
 
 /// Minimises `½ yᵀMy + qᵀy` subject to `y_i ≥ 0` for `i ≥ first_bounded` (a convex,
 /// bound-constrained QP: the dual of the SQP subproblem) by a primal active-set method.
-fn bound_constrained_qp(m: &[Vec<f64>], q: &[f64], first_bounded: usize) -> Option<Vec<f64>> {
+pub(crate) fn bound_constrained_qp(m: &[Vec<f64>], q: &[f64], first_bounded: usize) -> Option<Vec<f64>> {
     let n = q.len();
     let trace: f64 = (0..n).map(|i| m[i][i]).sum::<f64>().max(1.0);
     let regularisation = 1e-12 * trace; // tolerates redundant (linearly dependent) constraints

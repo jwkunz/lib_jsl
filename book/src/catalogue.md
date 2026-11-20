@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **635 algorithms and components in 23 crates**:
+The library implements **640 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 161 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 68 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 165 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 69 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 103 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 204 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
@@ -169,7 +169,7 @@ Crate `lib_jsl_root_finding`: [API reference](../api/lib_jsl_root_finding/index.
 
 Optimisation algorithms including gradient-based, gradient-free, and stochastic methods.
 
-Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 31 items
+Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.html) · [book chapter](optimization/index.md) · 35 items
 
 - [Optimisation traits](optimization/index.md#in-the-library)
 - [Golden section search](optimization/one-dimensional.md#golden-section-search)
@@ -184,6 +184,10 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 - [Quasi-Newton methods (BFGS, L-BFGS)](optimization/newton-quasi-newton.md#bfgs)
 - [Nonlinear conjugate gradient](optimization/gradient-methods.md#nonlinear-conjugate-gradients)
 - [Constrained optimisation (SQP, augmented Lagrangian)](optimization/constrained.md)
+- [COBYLA (derivative-free, linear approximations)](optimization/constrained.md#cobyla-and-trust-constr)
+- [trust-constr (Byrd-Omojokun SQP with an interior-point barrier)](optimization/constrained.md#cobyla-and-trust-constr)
+- [trust-krylov (GLTR Lanczos trust-region subproblems)](optimization/constrained.md#large-problems-trust-krylov-and-lsmr)
+- [Least squares with an LSMR trust-region solver (sparse or matrix-free Jacobians)](optimization/constrained.md#large-problems-trust-krylov-and-lsmr)
 - [L-BFGS-B](optimization/bounded.md#l-bfgs-b)
 - [Bounded nonlinear least squares (trust-region reflective) with robust losses](optimization/bounded.md#trust-region-reflective-least-squares)
 - [Bounded linear least squares (BVLS) and non-negative least squares (NNLS)](optimization/bounded.md#linear-least-squares-with-bounds)
@@ -254,7 +258,7 @@ Dense and sparse matrix factorisations, solvers and eigenproblems, Fourier trans
 
 Linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices, and sparse matrices with direct and Krylov solvers.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 39 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 40 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
@@ -287,6 +291,7 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [Reverse Cuthill-McKee bandwidth-reducing ordering](linear_algebra/sparse.md#ordering-and-fill-in)
 - [Sparse LU with partial pivoting (Gilbert-Peierls) and `spsolve`](linear_algebra/sparse.md#algorithm)
 - [Krylov solvers: CG, MINRES, GMRES, BiCGSTAB and LSQR with preconditioning](linear_algebra/sparse.md#krylov-subspaces-and-conjugate-gradients)
+- [LSMR for damped sparse least squares](optimization/constrained.md#large-problems-trust-krylov-and-lsmr)
 - [Minimum-degree fill-reducing ordering](linear_algebra/sparse.md#ordering-and-fill-in)
 - [Incomplete LU preconditioners: ILU(0) and ILUT](linear_algebra/sparse.md#incomplete-lu-preconditioning)
 - [The action of the matrix exponential (`expm_multiply`)](linear_algebra/sparse.md#the-action-of-the-matrix-exponential)

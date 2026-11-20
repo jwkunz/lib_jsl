@@ -449,6 +449,124 @@ pub fn minimize_trust_region(
 }
 // ANCHOR_END: trust_region
 
+// ANCHOR: trust_krylov
+/// The trust-region subproblem `min gᵀp + ½ pᵀHp`, `‖p‖ ≤ Δ`, on growing Krylov subspaces
+/// `span{g, Hg, H²g, …}` (Gould, Lucidi, Roma and Toint's GLTR, as in SciPy's `trust-krylov`).
+/// The Lanczos process gives an orthonormal basis `Q` in which `H` is tridiagonal, `QᵀHQ = T`;
+/// the small problem `min ‖g‖ e₁ᵀy + ½ yᵀTy`, `‖y‖ ≤ Δ` is solved exactly (Moré-Sorensen),
+/// and the subspace grows until `‖(H + λI)p + g‖ = β_{k+1} |y_k|` is small. Unlike Steihaug's
+/// truncated CG it keeps improving the step after reaching the boundary, so it also handles
+/// negative curvature well. Returns the step, whether it is on the boundary, and the number of
+/// Hessian-vector products.
+fn krylov_step(g: &[f64], mut hessp: impl FnMut(&[f64]) -> Vec<f64>, radius: f64) -> (Vec<f64>, bool, usize) {
+    let n = g.len();
+    let gnorm = norm(g);
+    let tol = gnorm * 0.5f64.min(gnorm.sqrt());
+    let mut q: Vec<Vec<f64>> = vec![g.iter().map(|v| v / gnorm).collect()];
+    let (mut alpha, mut beta): (Vec<f64>, Vec<f64>) = (Vec::new(), Vec::new());
+    let mut products = 0;
+    loop {
+        let k = q.len() - 1;
+        let mut w = hessp(&q[k]);
+        products += 1;
+        let a = dot(&w, &q[k]);
+        alpha.push(a);
+        // Full reorthogonalisation keeps Q orthonormal for the modest sizes this targets.
+        for _ in 0..2 {
+            for qi in &q {
+                let c = dot(&w, qi);
+                w.iter_mut().zip(qi).for_each(|(x, y)| *x -= c * y);
+            }
+        }
+        let b = norm(&w);
+        // The projected problem.
+        let dim = k + 1;
+        let t = Array2::from_shape_fn((dim, dim), |(i, j)| {
+            if i == j {
+                alpha[i]
+            } else if i + 1 == j || j + 1 == i {
+                beta[i.min(j)]
+            } else {
+                0.0
+            }
+        });
+        let mut e1 = vec![0.0; dim];
+        e1[0] = gnorm;
+        let mut small = Model { fun: 0.0, jac: e1, hess: t, jac_mag: gnorm, lambda_lb: 0.0, previous_radius: -1.0 };
+        let (y, hits) = small.solve_exact(radius);
+        let done = dim == n || b <= 1e-12 * gnorm.max(1.0) || b * y[k].abs() <= tol;
+        if done {
+            let mut p = vec![0.0; n];
+            for (qi, yi) in q.iter().zip(&y) {
+                p.iter_mut().zip(qi).for_each(|(x, v)| *x += yi * v);
+            }
+            return (p, hits, products);
+        }
+        beta.push(b);
+        q.push(w.iter().map(|v| v / b).collect());
+    }
+}
+
+/// Minimises `f` by a trust-region Newton method whose subproblems are solved on Krylov
+/// subspaces with Hessian-vector products only (SciPy's `minimize(method='trust-krylov')`).
+/// The outer iteration is that of [`minimize_trust_region`]; `nhev` counts Hessian-vector
+/// products.
+pub fn minimize_trust_krylov(
+    mut f: impl FnMut(&[f64]) -> f64,
+    mut grad: impl FnMut(&[f64]) -> Vec<f64>,
+    mut hessp: impl FnMut(&[f64], &[f64]) -> Vec<f64>,
+    x0: &[f64],
+    options: TrustRegionOptions,
+) -> Result<TrustRegionResult, ErrorsJSL> {
+    let o = options;
+    if !(0.0..0.25).contains(&o.eta) || o.max_trust_radius <= 0.0 || o.initial_trust_radius <= 0.0 || o.initial_trust_radius >= o.max_trust_radius {
+        return Err(ErrorsJSL::InvalidInputRange("need 0 ≤ η < ¼ and 0 < initial radius < maximum radius"));
+    }
+    let max_it = o.max_iterations.unwrap_or(200 * x0.len());
+    let mut x = x0.to_vec();
+    let (mut fx, mut gx) = (f(&x), grad(&x));
+    let (mut nfev, mut njev, mut nhev) = (1, 1, 0);
+    let mut radius = o.initial_trust_radius;
+    let (mut k, mut status) = (0, 0);
+    while norm(&gx) >= o.gtol {
+        let (p, hits, used) = krylov_step(&gx, |v| hessp(&x, v), radius);
+        let hp = hessp(&x, &p);
+        nhev += used + 1;
+        let predicted = fx + dot(&gx, &p) + 0.5 * dot(&p, &hp);
+        let xp: Vec<f64> = x.iter().zip(&p).map(|(a, b)| a + b).collect();
+        let fp = f(&xp);
+        nfev += 1;
+        let actual_reduction = fx - fp;
+        let predicted_reduction = fx - predicted;
+        if predicted_reduction <= 0.0 {
+            status = 2;
+            break;
+        }
+        let rho = actual_reduction / predicted_reduction;
+        if rho < 0.25 {
+            radius *= 0.25;
+        } else if rho > 0.75 && hits {
+            radius = (2.0 * radius).min(o.max_trust_radius);
+        }
+        if rho > o.eta {
+            x = xp;
+            fx = fp;
+            gx = grad(&x);
+            njev += 1;
+        }
+        k += 1;
+        if norm(&gx) < o.gtol {
+            break;
+        }
+        if k >= max_it {
+            status = 1;
+            break;
+        }
+    }
+    Ok(TrustRegionResult { x, fun: fx, jac: gx, iterations: k, nfev, njev, nhev, status })
+}
+// ANCHOR_END: trust_krylov
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -494,6 +612,25 @@ mod tests {
         assert_eq!((r.status, r.iterations), (3, 0));
         let r = minimize_trust_region(rosen, rosen_grad, rosen_hess, &[1.2, 1.3, 1.1, 1.0], TrustRegionMethod::Dogleg, o).unwrap();
         assert!(r.status == 0 && r.x.iter().all(|v| (v - 1.0).abs() < 1e-8), "{:?}", r.x);
+    }
+
+    #[test]
+    fn trust_krylov_finds_the_minimum() {
+        let hessp = |x: &[f64], v: &[f64]| rosen_hess(x).dot(&Array1::from_vec(v.to_vec())).to_vec();
+        let o = TrustRegionOptions { gtol: 1e-8, ..Default::default() };
+        let r = minimize_trust_krylov(rosen, rosen_grad, hessp, &[-1.2, 1.0, -0.5, 0.8], o).unwrap();
+        assert_eq!(r.status, 0);
+        assert!(norm(&rosen_grad(&r.x)) < 1e-8 && rosen(&r.x) < 4.0, "{:?}", r.x);
+        // 30-D Rosenbrock from SciPy's tutorial start.
+        let x0: Vec<f64> = (0..30).map(|i| if i % 2 == 0 { -1.2 } else { 1.0 }).collect();
+        let r = minimize_trust_krylov(rosen, rosen_grad, hessp, &x0, o).unwrap();
+        assert!(r.status == 0 && norm(&rosen_grad(&r.x)) < 1e-8, "{:?}", r.x);
+        // The saddle start: Krylov steps follow negative curvature.
+        let f = |v: &[f64]| v[0].powi(4) - 2.0 * v[0] * v[0] + v[1] * v[1];
+        let g = |v: &[f64]| vec![4.0 * v[0].powi(3) - 4.0 * v[0], 2.0 * v[1]];
+        let h = |x: &[f64], v: &[f64]| vec![(12.0 * x[0] * x[0] - 4.0) * v[0], 2.0 * v[1]];
+        let r = minimize_trust_krylov(f, g, h, &[0.01, 0.5], TrustRegionOptions { gtol: 1e-10, ..Default::default() }).unwrap();
+        assert!((r.x[0].abs() - 1.0).abs() < 1e-8 && r.x[1].abs() < 1e-8, "{:?}", r.x);
     }
 
     #[test]

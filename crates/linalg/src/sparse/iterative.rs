@@ -446,3 +446,207 @@ pub fn lsqr(a: &dyn LinearOperator, b: &[f64], options: IterativeOptions) -> Res
     Ok(IterativeResult { x, iterations: it, converged, residual_history: history })
 }
 // ANCHOR_END: lsqr
+
+/// Options for [`lsmr`], with SciPy's defaults.
+#[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
+pub struct LsmrOptions {
+    /// The damping `λ` in `min ‖A x − b‖² + λ² ‖x‖²`.
+    pub damp: f64,
+    /// Relative error in `A`: stop when `‖Aᵀr‖ ≤ atol ‖A‖ ‖r‖`.
+    pub atol: f64,
+    /// Relative error in `b`: stop when `‖r‖ ≤ btol ‖b‖ + atol ‖A‖ ‖x‖`.
+    pub btol: f64,
+    /// Stop when the condition estimate exceeds this.
+    pub conlim: f64,
+    /// Default `min(m, n)`.
+    pub max_iterations: Option<usize>,
+}
+
+impl Default for LsmrOptions {
+    fn default() -> Self {
+        LsmrOptions { damp: 0.0, atol: 1e-6, btol: 1e-6, conlim: 1e8, max_iterations: None }
+    }
+}
+
+impl LsmrOptions {
+    /// The defaults with damping `λ`.
+    pub fn with_damp(damp: f64) -> Self {
+        LsmrOptions { damp, ..Default::default() }
+    }
+}
+
+/// The result of [`lsmr`] (SciPy's `x, istop, itn, normr, normar, norma, conda, normx`).
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub struct LsmrResult {
+    pub x: Vec<f64>,
+    /// SciPy's `istop`: 0 `x = 0` is the solution, 1 `Ax = b` to `btol`, 2 least squares to
+    /// `atol`, 3 the condition limit, 4–6 the same at machine precision, 7 the iteration limit.
+    pub istop: i32,
+    pub iterations: usize,
+    /// `‖b − A x‖` (with the damping term included when `λ > 0`).
+    pub normr: f64,
+    /// `‖Aᵀ(b − A x) − λ² x‖`.
+    pub normar: f64,
+    /// Estimates of `‖A‖` (of `[A; λI]`) and its condition number.
+    pub norma: f64,
+    pub conda: f64,
+    pub normx: f64,
+}
+
+/// SciPy's `_sym_ortho`: a stable Givens rotation `(c, s, r)` with `[c s; −s c] [a; b] = [r; 0]`.
+fn sym_ortho(a: f64, b: f64) -> (f64, f64, f64) {
+    if b == 0.0 {
+        (if a == 0.0 { 0.0 } else { a.signum() }, 0.0, a.abs())
+    } else if a == 0.0 {
+        (0.0, b.signum(), b.abs())
+    } else if b.abs() > a.abs() {
+        let tau = a / b;
+        let s = b.signum() / (1.0 + tau * tau).sqrt();
+        (s * tau, s, b / s)
+    } else {
+        let tau = b / a;
+        let c = a.signum() / (1.0 + tau * tau).sqrt();
+        (c, c * tau, a / c)
+    }
+}
+
+// ANCHOR: lsmr
+/// LSMR for `min ‖A x − b‖² + λ² ‖x‖²` (Fong and Saunders; SciPy's `lsmr`). Like LSQR it
+/// builds the Golub-Kahan bidiagonalisation of `A`, but it minimises `‖Aᵀr‖` over the Krylov
+/// subspace rather than `‖r‖`, so `‖Aᵀr‖` decreases monotonically and the iteration can be
+/// stopped safely early: the property that makes it the inner solver of large least-squares
+/// trust-region methods.
+pub fn lsmr(a: &dyn LinearOperator, b: &[f64], options: LsmrOptions) -> Result<LsmrResult> {
+    let (m, n) = a.shape();
+    if b.len() != m {
+        return Err(LinalgError::Shape(format!("operator {m} × {n} with right-hand side of length {}", b.len())));
+    }
+    let LsmrOptions { damp, atol, btol, conlim, max_iterations } = options;
+    let maxiter = max_iterations.unwrap_or(m.min(n));
+    let mut u = b.to_vec();
+    let normb = norm(&u);
+    let mut x = vec![0.0; n];
+    let mut beta = normb;
+    let (mut v, mut alpha) = if beta > 0.0 {
+        u.iter_mut().for_each(|t| *t /= beta);
+        let v = a.rmatvec(&u);
+        let alpha = norm(&v);
+        (v, alpha)
+    } else {
+        (vec![0.0; n], 0.0)
+    };
+    if alpha > 0.0 {
+        v.iter_mut().for_each(|t| *t /= alpha);
+    }
+    let mut zetabar = alpha * beta;
+    let mut alphabar = alpha;
+    let (mut rho, mut rhobar, mut cbar, mut sbar) = (1.0, 1.0, 1.0, 0.0);
+    let mut h = v.clone();
+    let mut hbar = vec![0.0; n];
+    let (mut betadd, mut betad, mut rhodold, mut tautildeold, mut thetatilde, mut zeta, mut d) = (beta, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+    let mut norma2 = alpha * alpha;
+    let (mut maxrbar, mut minrbar) = (0.0f64, 1e100f64);
+    let mut norma = norma2.sqrt();
+    let mut conda = 1.0;
+    let mut normx = 0.0;
+    let ctol = if conlim > 0.0 { 1.0 / conlim } else { 0.0 };
+    let mut normr = beta;
+    let mut normar = alpha * beta;
+    let mut istop = 0;
+    let mut itn = 0;
+    if normar == 0.0 {
+        return Ok(LsmrResult { x, istop, iterations: 0, normr, normar, norma, conda, normx });
+    }
+    while itn < maxiter {
+        itn += 1;
+        let av = a.matvec(&v);
+        u = av.iter().zip(&u).map(|(p, q)| p - alpha * q).collect();
+        beta = norm(&u);
+        if beta > 0.0 {
+            u.iter_mut().for_each(|t| *t /= beta);
+            let atu = a.rmatvec(&u);
+            v = atu.iter().zip(&v).map(|(p, q)| p - beta * q).collect();
+            alpha = norm(&v);
+            if alpha > 0.0 {
+                v.iter_mut().for_each(|t| *t /= alpha);
+            }
+        }
+        let (chat, shat, alphahat) = sym_ortho(alphabar, damp);
+        let rhoold = rho;
+        let (c, s, r) = sym_ortho(alphahat, beta);
+        rho = r;
+        let thetanew = s * alpha;
+        alphabar = c * alpha;
+        let rhobarold = rhobar;
+        let zetaold = zeta;
+        let thetabar = sbar * rho;
+        let rhotemp = cbar * rho;
+        let (cb, sb, rb) = sym_ortho(cbar * rho, thetanew);
+        (cbar, sbar, rhobar) = (cb, sb, rb);
+        zeta = cbar * zetabar;
+        zetabar *= -sbar;
+        let fh = thetabar * rho / (rhoold * rhobarold);
+        hbar = h.iter().zip(&hbar).map(|(p, q)| p - fh * q).collect();
+        axpy(&mut x, zeta / (rho * rhobar), &hbar);
+        let fv = thetanew / rho;
+        h = v.iter().zip(&h).map(|(p, q)| p - fv * q).collect();
+        // The residual norm estimate.
+        let betaacute = chat * betadd;
+        let betacheck = -shat * betadd;
+        let betahat = c * betaacute;
+        betadd = -s * betaacute;
+        let thetatildeold = thetatilde;
+        let (ctildeold, stildeold, rhotildeold) = sym_ortho(rhodold, thetabar);
+        thetatilde = stildeold * rhobar;
+        rhodold = ctildeold * rhobar;
+        betad = -stildeold * betad + ctildeold * betahat;
+        tautildeold = (zetaold - thetatildeold * tautildeold) / rhotildeold;
+        let taud = (zeta - thetatilde * tautildeold) / rhodold;
+        d += betacheck * betacheck;
+        normr = (d + (betad - taud).powi(2) + betadd * betadd).sqrt();
+        // ‖A‖ and cond(A).
+        norma2 += beta * beta;
+        norma = norma2.sqrt();
+        norma2 += alpha * alpha;
+        maxrbar = maxrbar.max(rhobarold);
+        if itn > 1 {
+            minrbar = minrbar.min(rhobarold);
+        }
+        conda = maxrbar.max(rhotemp) / minrbar.min(rhotemp);
+        normar = zetabar.abs();
+        normx = norm(&x);
+        let test1 = normr / normb;
+        let test2 = if norma * normr != 0.0 { normar / (norma * normr) } else { f64::INFINITY };
+        let test3 = 1.0 / conda;
+        let t1 = test1 / (1.0 + norma * normx / normb);
+        let rtol = btol + atol * norma * normx / normb;
+        if itn >= maxiter {
+            istop = 7;
+        }
+        if 1.0 + test3 <= 1.0 {
+            istop = 6;
+        }
+        if 1.0 + test2 <= 1.0 {
+            istop = 5;
+        }
+        if 1.0 + t1 <= 1.0 {
+            istop = 4;
+        }
+        if test3 <= ctol {
+            istop = 3;
+        }
+        if test2 <= atol {
+            istop = 2;
+        }
+        if test1 <= rtol {
+            istop = 1;
+        }
+        if istop > 0 {
+            break;
+        }
+    }
+    Ok(LsmrResult { x, istop, iterations: itn, normr, normar, norma, conda, normx })
+}
+// ANCHOR_END: lsmr

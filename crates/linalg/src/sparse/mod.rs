@@ -24,7 +24,7 @@ pub use expm::expm_multiply;
 pub use ilu::Ilu;
 pub use formats::{CooMatrix, CscMatrix, CsrMatrix};
 pub use lgmres::{LgmresSolver, lgmres};
-pub use iterative::{FnOperator, IterativeOptions, IterativeResult, Jacobi, LinearOperator, bicgstab, cg, gmres, lsqr, minres};
+pub use iterative::{FnOperator, IterativeOptions, IterativeResult, Jacobi, LinearOperator, LsmrOptions, LsmrResult, bicgstab, cg, gmres, lsmr, lsqr, minres};
 
 #[cfg(test)]
 mod tests {
@@ -118,6 +118,26 @@ mod tests {
         }
         let gram = vecs.t().dot(&vecs);
         assert!(gram.indexed_iter().all(|((i, j), g)| (g - if i == j { 1.0 } else { 0.0 }).abs() < 1e-10));
+    }
+
+    #[test]
+    fn lsmr_solves_damped_least_squares() {
+        let mut coo = CooMatrix::new(30, 8);
+        for i in 0..30 {
+            coo.push(i, i % 8, 1.0 + 0.1 * i as f64);
+            coo.push(i, (3 * i + 1) % 8, -0.5 + 0.03 * i as f64);
+        }
+        let a = coo.to_csr().unwrap();
+        let b: Vec<f64> = (0..30).map(|i| (0.3 * i as f64).sin()).collect();
+        for damp in [0.0, 0.7] {
+            let r = lsmr(&a, &b, LsmrOptions { atol: 1e-14, btol: 1e-14, max_iterations: Some(100), ..LsmrOptions::with_damp(damp) }).unwrap();
+            assert!((1..=2).contains(&r.istop) || r.istop == 4 || r.istop == 5, "{}", r.istop);
+            // Aᵀ(b − A x) − λ² x = 0.
+            let res: Vec<f64> = a.matvec(&r.x).iter().zip(&b).map(|(p, q)| q - p).collect();
+            let g: Vec<f64> = a.rmatvec(&res).iter().zip(&r.x).map(|(p, x)| p - damp * damp * x).collect();
+            assert!(g.iter().all(|v| v.abs() < 1e-10), "{g:?}");
+            assert!((r.normar - g.iter().map(|v| v * v).sum::<f64>().sqrt()).abs() < 1e-8);
+        }
     }
 
     #[test]

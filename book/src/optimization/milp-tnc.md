@@ -83,17 +83,17 @@ Variables on a bound whose gradient points outwards are held fixed, and a projec
 
 The references are from SciPy 1.17.1, written by `book/generator/data/make_opt211_refs.py`:
 
-<p class="caption" id="tab-5-15"><strong>Table 5.15.</strong> Dogbox and MINPACK's Levenberg-Marquardt against SciPy: the solutions, evaluation counts and termination codes.</p>
+<p class="caption" id="tab-5-17"><strong>Table 5.17.</strong> Dogbox and MINPACK's Levenberg-Marquardt against SciPy: the solutions, evaluation counts and termination codes.</p>
 
 {{#include ../generated/optimization/opt211_lsq.md}}
 
 The MINPACK and dogbox ports take the same steps as SciPy's, with identical evaluation counts and termination codes. The solutions differ by at most $4 \times 10^{-9}$ relative, on the ill-conditioned exponential fit, where sums are rounded in a different order. SciPy's `root(method="lm")` reports two more evaluations than `leastsq` for the same iterations, from its wrapper.
 
-<p class="caption" id="tab-5-16"><strong>Table 5.16.</strong> Mixed-integer programs against SciPy's `milp` (HiGHS), with `mip_rel_gap = 0` except in the first.</p>
+<p class="caption" id="tab-5-18"><strong>Table 5.18.</strong> Mixed-integer programs against SciPy's `milp` (HiGHS), with `mip_rel_gap = 0` except in the first.</p>
 
 {{#include ../generated/optimization/opt211_milp.md}}
 
-<p class="caption" id="tab-5-17"><strong>Table 5.17.</strong> Truncated Newton against SciPy's TNC on the Rosenbrock function from $x_i = -1.2$, with SciPy's default options; errors against the true minimiser.</p>
+<p class="caption" id="tab-5-19"><strong>Table 5.19.</strong> Truncated Newton against SciPy's TNC on the Rosenbrock function from $x_i = -1.2$, with SciPy's default options; errors against the true minimiser.</p>
 
 {{#include ../generated/optimization/opt211_tnc.md}}
 
@@ -101,7 +101,7 @@ SciPy's TNC stops when successive function values agree, which on Rosenbrock's n
 
 ![The feasible region of a two-variable integer program, its integer points, the LP optimum and the integer optimum](../generated/optimization/milp_lattice.svg)
 
-<p class="caption" id="fig-5-14"><strong>Figure 5.14.</strong> SciPy's example: maximise $x_2$ over the integer points under three constraints. The LP relaxation peaks at the vertex $(1.8, 2.8)$. Branching on $x_2 \le 2$ or $x_2 \ge 3$ finds the integer optimum $x_2 = 2$, attained at both $(1, 2)$ and $(2, 2)$.</p>
+<p class="caption" id="fig-5-15"><strong>Figure 5.15.</strong> SciPy's example: maximise $x_2$ over the integer points under three constraints. The LP relaxation peaks at the vertex $(1.8, 2.8)$. Branching on $x_2 \le 2$ or $x_2 \ge 3$ finds the integer optimum $x_2 = 2$, attained at both $(1, 2)$ and $(2, 2)$.</p>
 
 **Strengths**
 

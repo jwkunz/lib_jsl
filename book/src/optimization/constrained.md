@@ -9,7 +9,7 @@
 | **Accuracy** | To the tolerance on the constraint violation and the optimality conditions; SQP converges superlinearly, the augmented Lagrangian method linearly in its outer iterations |
 | **Cost** | SQP: per iteration, gradients of $f$ and all constraints, a dense quadratic program and an $O(n^3)$ factorisation. Augmented Lagrangian: an unconstrained minimisation (L-BFGS) per outer iteration |
 | **Read first** | [Background: what a minimum looks like](index.md#background-what-a-minimum-looks-like), [Newton and quasi-Newton methods: Newton, BFGS and L-BFGS](newton-quasi-newton.md) |
-| **API** | [`sqp`](../../api/lib_jsl_optimization/constrained/fn.sqp.html), [`augmented_lagrangian`](../../api/lib_jsl_optimization/constrained/fn.augmented_lagrangian.html), [`ConstrainedProblem`](../../api/lib_jsl_optimization/constrained/trait.ConstrainedProblem.html), [`ConstrainedResult`](../../api/lib_jsl_optimization/constrained/struct.ConstrainedResult.html) |
+| **API** | [`sqp`](../../api/lib_jsl_optimization/constrained/fn.sqp.html), [`augmented_lagrangian`](../../api/lib_jsl_optimization/constrained/fn.augmented_lagrangian.html), [`ConstrainedProblem`](../../api/lib_jsl_optimization/constrained/trait.ConstrainedProblem.html), [`ConstrainedResult`](../../api/lib_jsl_optimization/constrained/struct.ConstrainedResult.html); [`cobyla`](../../api/lib_jsl_optimization/cobyla/fn.cobyla.html), [`trust_constr`](../../api/lib_jsl_optimization/trust_constr/fn.trust_constr.html), [`minimize_trust_krylov`](../../api/lib_jsl_optimization/trust_region/fn.minimize_trust_krylov.html), [`least_squares_lsmr`](../../api/lib_jsl_optimization/bounded/fn.least_squares_lsmr.html), [`lsmr`](../../api/lib_jsl_linalg/sparse/fn.lsmr.html) |
 
 </div>
 
@@ -286,6 +286,58 @@ The augmented Lagrangian outer iteration:
 {{#include ../../../crates/optimization/examples/optimization_constrained.rs}}
 ```
 
+### COBYLA and trust-constr
+
+SciPy offers two further constrained methods, and the library now has both.
+
+**COBYLA** (Powell, 1994) needs no derivatives. It keeps a simplex of $n + 1$ points and the linear functions that interpolate the objective and each constraint on it. Each step minimises the linear objective subject to the linear constraints within a ball of radius $\rho$. If the linearised constraints cannot all be met in the ball, it first minimises their largest violation. Points are compared by the merit $f + \mu \max_i(-c_i)_+$, with $\mu$ raised whenever a step would not reduce it. Geometry steps keep the simplex well shaped, and $\rho$ halves when steps stop paying off, down to `rhoend`.
+
+The library solves the linear ball-constrained subproblem as the limit of the strictly convex QP $\min g^\top d + \tfrac{\mu_q}{2}\|d\|^2$, with $\mu_q$ found by bisection so that $\|d\| = \rho$. Powell instead uses a purpose-built active-set method.
+
+**trust-constr** (Byrd, Hribar and Nocedal, 1999) is an interior-point method.
+- Inequalities get slacks, $g(x) + s = 0$, and the barrier problem $\min f - \mu \sum \ln s_i$ is solved for $\mu = 0.1, 0.02, \dots$.
+- Each barrier problem is solved by Byrd and Omojokun's trust-region SQP, which splits every step in two. A normal step reduces the linearised constraint violation within $0.8\Delta$. A tangential step then improves the quadratic model inside the null space of the constraint Jacobian, by projected conjugate gradients.
+- The slacks are scaled and kept a fraction 0.995 from zero. The Hessian is a damped BFGS approximation, as SciPy's `hess=BFGS()`.
+
+```rust,ignore
+{{#include ../../../crates/optimization/src/cobyla.rs:cobyla}}
+```
+
+```rust,ignore
+{{#include ../../../crates/optimization/src/trust_constr.rs:trust_constr}}
+```
+
+The references are from SciPy 1.17.1, written by `book/generator/data/make_opt216_refs.py`. The optima come from SLSQP at tolerance $10^{-14}$; for the first problem the minimum is known exactly:
+
+<p class="caption" id="tab-5-8"><strong>Table 5.8.</strong> COBYLA and trust-constr against SciPy.</p>
+
+{{#include ../generated/optimization/opt216_constrained.md}}
+
+- On the first problem, from $(1, 1)$, SciPy's COBYLA stops at $(0.34, 0)$ with $f = 0$. That point lies on the constraint $x_1 \ge 0$ but is not the minimum, $f = -\tfrac12$ at $(-1/\sqrt2, 1/\sqrt2)$, which the library's COBYLA finds.
+- On the Rosenbrock problem, both COBYLAs use up SciPy's default budget of 1000 evaluations before converging. With more room, SciPy's needs 1304 evaluations and the library's 4905. The difference comes from Powell's more careful choice of which vertex to replace and of when to lower $\mu$, which the library simplifies.
+- trust-constr reaches the optima to $10^{-6}$ or better in both libraries.
+
+![Points at which COBYLA and trust-constr evaluate the Rosenbrock function](../generated/optimization/constrained_paths.svg)
+
+<p class="caption" id="fig-5-9"><strong>Figure 5.9.</strong> Where COBYLA and trust-constr evaluate the objective on the Rosenbrock problem in a disc. Both creep along the curved valley toward the boundary, where the minimum lies.</p>
+
+### Large problems: trust-krylov and LSMR
+
+Two further methods suit problems too large for dense factorisations.
+
+- **`minimize_trust_krylov`** (SciPy's `trust-krylov`) solves each trust-region subproblem on a growing Krylov subspace $\operatorname{span}\{g, Hg, H^2 g, \dots\}$, the GLTR method of Gould, Lucidi, Roma and Toint. The Lanczos process makes $H$ tridiagonal on the subspace, and the small problem is solved exactly. It needs only Hessian-vector products. Unlike Steihaug's truncated conjugate gradients, it keeps improving the step after reaching the boundary.
+- **`least_squares_lsmr`** (SciPy's `least_squares(tr_solver='lsmr')`) takes the Jacobian as any linear operator, such as a sparse matrix. It finds an approximate regularised Gauss-Newton step with **`lsmr`** (Fong and Saunders' variant of LSQR, now in `linalg::sparse`) and solves the trust-region problem exactly in the plane of that step and the gradient.
+
+```rust,ignore
+{{#include ../../../crates/optimization/src/trust_region.rs:trust_krylov}}
+```
+
+<p class="caption" id="tab-5-9"><strong>Table 5.9.</strong> trust-krylov, least squares with LSMR, and LSMR against SciPy.</p>
+
+{{#include ../generated/optimization/opt216_other.md}}
+
+LSMR and the LSMR trust-region solver repeat SciPy's iterations, with the same counts and the same solutions to rounding. trust-krylov reaches the same minima. Its subproblems are solved to a slightly different accuracy from SciPy's `trlib`, so it takes a few more iterations and Hessian-vector products.
+
 **Strengths**
 
 - SQP: superlinear convergence, few evaluations, starts from infeasible points.
@@ -331,3 +383,7 @@ The augmented Lagrangian outer iteration:
 - W. Hock and K. Schittkowski, *Test Examples for Nonlinear Programming Codes*, Lecture Notes in
   Economics and Mathematical Systems 187, Springer, 1981.
 - H. W. Kuhn, "Nonlinear programming: a historical view", *SIAM-AMS Proceedings* 9 (1976) 1–26.
+- M. J. D. Powell, "A direct search optimization method that models the objective and constraint functions by linear interpolation", in *Advances in Optimization and Numerical Analysis*, Kluwer, 1994, 51–67.
+- R. H. Byrd, M. E. Hribar and J. Nocedal, "An interior point algorithm for large-scale nonlinear programming", *SIAM Journal on Optimization* 9 (1999) 877–900.
+- N. I. M. Gould, S. Lucidi, M. Roma and Ph. L. Toint, "Solving the trust-region subproblem using the Lanczos method", *SIAM Journal on Optimization* 9 (1999) 504–525.
+- D. C.-L. Fong and M. A. Saunders, "LSMR: an iterative algorithm for sparse least-squares problems", *SIAM Journal on Scientific Computing* 33 (2011) 2950–2971.

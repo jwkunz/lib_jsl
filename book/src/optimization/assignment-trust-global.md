@@ -113,7 +113,7 @@ the domain densely.
 
 ![The centres DIRECT evaluates on the six-hump camel function, dense around the two global minima](../generated/optimization/direct_samples.svg)
 
-<p class="caption" id="fig-5-12"><strong>Figure 5.12.</strong> The 600 centres DIRECT-L evaluates on the six-hump camel function. A coarse grid covers the domain, and the subdivision concentrates around the two global minima.</p>
+<p class="caption" id="fig-5-13"><strong>Figure 5.13.</strong> The 600 centres DIRECT-L evaluates on the six-hump camel function. A coarse grid covers the domain, and the subdivision concentrates around the two global minima.</p>
 
 ## Algorithm
 
@@ -164,7 +164,7 @@ the domain densely.
 Every result is compared with SciPy 1.17.1 (references from `book/generator/data/make_optim2_refs.py`). Assignments, with random costs and with
 heavily tied integer costs, are identical:
 
-<p class="caption" id="tab-5-11"><strong>Table 5.11.</strong> `linear_sum_assignment` against SciPy.</p>
+<p class="caption" id="tab-5-13"><strong>Table 5.13.</strong> `linear_sum_assignment` against SciPy.</p>
 
 {{#include ../generated/optimization/assignment_scipy.md}}
 
@@ -172,13 +172,13 @@ The trust-region methods take the same steps as SciPy. The iteration and evaluat
 4-D Rosenbrock function from $(-1.2, 1, -0.5, 0.8)$, `trust-ncg` reaches the global minimum, while `trust-exact` (here and in SciPy) converges to the
 function's second local minimum near $(-0.776, 0.613, 0.382, 0.146)$. Dogleg stops at once on the indefinite Hessian:
 
-<p class="caption" id="tab-5-12"><strong>Table 5.12.</strong> Trust-region methods against SciPy, gtol = 10⁻⁸.</p>
+<p class="caption" id="tab-5-14"><strong>Table 5.14.</strong> Trust-region methods against SciPy, gtol = 10⁻⁸.</p>
 
 {{#include ../generated/optimization/trust_region_scipy.md}}
 
 The global optimisers were run on six standard test functions. A run succeeds if it comes within $10^{-4}\max(1, |f^*|)$ of the global minimum:
 
-<p class="caption" id="tab-5-13"><strong>Table 5.13.</strong> Global optimisers against SciPy on test functions.</p>
+<p class="caption" id="tab-5-15"><strong>Table 5.15.</strong> Global optimisers against SciPy on test functions.</p>
 
 {{#include ../generated/optimization/global_scipy.md}}
 

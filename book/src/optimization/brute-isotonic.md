@@ -57,7 +57,7 @@ has a solution that is constant on blocks of consecutive indices, each block tak
 
 The references are from SciPy 1.17.1, written by `book/generator/data/make_calc28_refs.py`:
 
-<p class="caption" id="tab-5-14"><strong>Table 5.14.</strong> Brute force, isotonic regression and finite-difference gradients against `scipy.optimize`.</p>
+<p class="caption" id="tab-5-16"><strong>Table 5.16.</strong> Brute force, isotonic regression and finite-difference gradients against `scipy.optimize`.</p>
 
 {{#include ../generated/optimization/calc28_optim.md}}
 
@@ -65,7 +65,7 @@ The isotonic fits have the same blocks as SciPy's, with values equal to rounding
 
 ![A noisy upward random walk and its non-decreasing isotonic fit, a staircase](../generated/optimization/isotonic.svg)
 
-<p class="caption" id="fig-5-13"><strong>Figure 5.13.</strong> Weighted isotonic regression of 60 points. The fit is a staircase of 14 blocks, each at the weighted mean of its data; the long last step pools the points that fall back after index 30.</p>
+<p class="caption" id="fig-5-14"><strong>Figure 5.14.</strong> Weighted isotonic regression of 60 points. The fit is a staircase of 14 blocks, each at the weighted mean of its data; the long last step pools the points that fall back after index 30.</p>
 
 **Strengths**
 

@@ -28,3 +28,5 @@ pub mod finite_differences;
 pub mod brute;
 pub mod milp;
 pub mod tnc;
+pub mod cobyla;
+pub mod trust_constr;

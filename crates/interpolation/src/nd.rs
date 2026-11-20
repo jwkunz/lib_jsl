@@ -44,3 +44,4 @@ pub mod grid_data;
 pub mod nearest;
 pub mod cubic_basis;
 pub mod rbf;
+pub mod linear_nd;

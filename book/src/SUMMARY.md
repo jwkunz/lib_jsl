@@ -218,6 +218,7 @@
     - [Triangle meshes: smoothing, decimation and slicing](geometry/meshes.md)
     - [Space-time: four-vectors, Lorentz boosts and Christoffel symbols](geometry/spacetime.md)
     - [Rotation fitting, Procrustes analysis and Hausdorff distance](geometry/alignment.md)
+    - [Geometry in any dimension: hulls, Delaunay, Voronoi and half-spaces](geometry/hulls-nd.md)
 - [Sorting and selection](sorting/index.md)
     - [Comparison sorting: quicksort, heapsort and Shell's method](sorting/comparison-sorts.md)
     - [Selection and equivalence classes](sorting/selection.md)

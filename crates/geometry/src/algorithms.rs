@@ -17,6 +17,7 @@ pub mod polygon_boolean;
 pub(crate) mod small_svd;
 pub mod alignment;
 pub mod hausdorff;
+pub mod hull_nd;
 
 pub use delaunay_triangulation::{Triangulation, delaunay_triangulation};
 pub use convex_hull::{Hull3D, convex_hull_2d, convex_hull_3d, convex_polygon_contains_2d, polygon_area_2d};

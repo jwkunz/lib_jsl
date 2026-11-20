@@ -13,15 +13,15 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **640 algorithms and components in 23 crates**:
+The library implements **646 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 165 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 166 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 69 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 103 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 204 |
-| [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
+| [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 81 |
 | [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 23 |
 
 ## Calculus and analysis
@@ -81,7 +81,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions.
 
-Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 49 items
+Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 50 items
 
 - [Interpolation trait](interpolation/index.md#in-the-library)
 
@@ -123,6 +123,7 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [Fourier 2D](interpolation/grids.md#accuracy)
 - [Tensor-product interpolating splines (`RectBivariateSpline`)](interpolation/piecewise-scattered.md#tensor-product-splines)
 - [Piecewise linear on a Delaunay triangulation](interpolation/piecewise-scattered.md#scattered-data-on-a-triangulation)
+- [Piecewise linear interpolation of scattered data in any dimension (`LinearNdInterpolator`)](geometry/hulls-nd.md#implementation)
 - [Clough-Tocher C¹ interpolation with global gradient estimation](interpolation/piecewise-scattered.md#scattered-data-on-a-triangulation)
 - [Nearest neighbour for scattered points; `griddata`](interpolation/piecewise-scattered.md#scattered-data-on-a-triangulation)
 
@@ -890,7 +891,7 @@ Crate `lib_jsl_graph`: [API reference](../api/lib_jsl_graph/index.html) · book 
 
 Geometry: 1D to 4D types, Delaunay and Voronoi, convex hulls, spatial trees, intersections and mesh processing.
 
-Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) · book chapter: [computational geometry](geometry/index.md) · 55 items
+Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) · book chapter: [computational geometry](geometry/index.md) · 60 items
 
 - [Common](geometry/types.md#keyed-tables-and-the-registry)
 - [Concrete types](geometry/types.md#points-and-vectors)
@@ -956,6 +957,11 @@ Crate `lib_jsl_geometry`: [API reference](../api/lib_jsl_geometry/index.html) ·
 - [Octrees](geometry/spatial-trees.md#quadtrees-and-octrees)
 - [Quadtrees](geometry/spatial-trees.md#quadtrees-and-octrees)
 - [Voronoi diagrams](geometry/delaunay-voronoi.md#voronoi-diagrams)
+- [Convex hulls in any dimension (n-D Quickhull)](geometry/hulls-nd.md#quickhull)
+- [Delaunay triangulations in any dimension, with point location](geometry/hulls-nd.md#delaunay-triangulations-by-lifting)
+- [Voronoi diagrams in any dimension](geometry/hulls-nd.md#voronoi-diagrams-and-point-location)
+- [Half-space intersection](geometry/hulls-nd.md#half-spaces-and-spheres)
+- [Spherical Voronoi diagrams with region areas](geometry/hulls-nd.md#half-spaces-and-spheres)
 - [Mesh smoothing and decimation](geometry/meshes.md#laplacian-and-taubin-smoothing)
 - [Polygon boolean operations](geometry/hulls-booleans.md#the-greinerhormann-algorithm)
 - [Rotation fitting (`align_vectors`, Kabsch/Wahba)](geometry/alignment.md#wahbas-problem-and-kabschs-algorithm)

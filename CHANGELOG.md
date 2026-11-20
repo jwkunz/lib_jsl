@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.17.0] - 2026-11-20
+
+### Added
+
+- `geometry::algorithms::hull_nd`: an n-dimensional Quickhull and, built on it, `ConvexHullNd`,
+  `DelaunayNd` (with `find_simplex` and `barycentric`), `VoronoiNd`, `HalfspaceIntersection` and
+  `SphericalVoronoi` (with `calculate_areas`), SciPy's `scipy.spatial` Qhull wrappers.
+- `interpolation::nd::linear_nd`: `LinearNdInterpolator`, SciPy's `LinearNDInterpolator` in any
+  dimension.
+- Book: a new entry, "Geometry in any dimension: hulls, Delaunay, Voronoi and half-spaces", with
+  comparisons against SciPy.
+
 ## [2.16.0] - 2026-11-20
 
 ### Added
@@ -705,7 +717,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.16.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.17.0...HEAD
+[2.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.17.0
 [2.16.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.16.0
 [2.15.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.15.0
 [2.14.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.14.0

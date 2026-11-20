@@ -50,6 +50,7 @@ pub mod radial_basis_functions;
 pub mod fourier_2d;
 pub mod rect_bivariate_spline;
 pub mod scattered;
+pub mod smooth_bivariate;
 
 /// Start and spacing of a uniformly spaced axis (relative tolerance 1e-9).
 pub(crate) fn uniform_axis(axis: VR1D) -> Result<(f64, f64), ErrorsJSL> {

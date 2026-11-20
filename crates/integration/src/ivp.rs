@@ -23,6 +23,7 @@
 use lib_jsl_core::ErrorsJSL;
 use lib_jsl_linalg::Factorize;
 use lib_jsl_linalg::LuFactorization;
+use lib_jsl_linalg::sparse::{CooMatrix, CsrMatrix, Ordering, SparseLu};
 use ndarray::{Array1, Array2};
 use num_complex::Complex;
 
@@ -155,9 +156,155 @@ fn rms(v: &[f64], scale: &[f64]) -> f64 {
 }
 
 /// Counts evaluations of `f` and its Jacobian.
+/// A boxed function returning a sparse Jacobian.
+pub type SparseJacobianFn<'a> = Box<dyn Fn(f64, &[f64]) -> CsrMatrix + 'a>;
+
+/// A dense Jacobian function (the unused type of [`solve_ivp_sparse`]'s dense slot).
+type DenseJacFn = fn(f64, &[f64]) -> Vec<Vec<f64>>;
+
+/// A sparse Jacobian for [`solve_ivp_sparse`]: a function returning `∂f/∂y` as a sparse
+/// matrix, or the sparsity pattern of `∂f/∂y` for grouped finite differences (SciPy's
+/// `jac_sparsity`).
+pub enum SparseJacobian<'a> {
+    Analytic(SparseJacobianFn<'a>),
+    /// The pattern: the stored entries mark where `∂fᵢ/∂yⱼ` may be non-zero (values ignored).
+    Pattern(CsrMatrix),
+}
+
+/// A Jacobian, dense rows or sparse.
+enum JacMatrix {
+    Dense(Vec<Vec<f64>>),
+    Sparse(CsrMatrix),
+}
+
+enum RealLu {
+    Dense(LuFactorization<f64>),
+    Sparse(SparseLu),
+}
+
+impl RealLu {
+    fn solve(&self, b: &Array1<f64>) -> Result<Array1<f64>, ErrorsJSL> {
+        match self {
+            RealLu::Dense(lu) => lu.solve(b).map_err(|_| ErrorsJSL::RuntimeError("linear solve failed")),
+            RealLu::Sparse(lu) => lu.solve(b.as_slice().expect("contiguous")).map(Array1::from).map_err(|_| ErrorsJSL::RuntimeError("linear solve failed")),
+        }
+    }
+}
+
+/// A complex system `(α + iβ) I − J`; sparse ones are solved as the real system
+/// `[[αI − J, −βI], [βI, αI − J]]` of twice the size.
+enum ComplexLu {
+    Dense(LuFactorization<C>),
+    Sparse(SparseLu),
+}
+
+impl ComplexLu {
+    fn solve(&self, b: &Array1<C>) -> Result<Array1<C>, ErrorsJSL> {
+        match self {
+            ComplexLu::Dense(lu) => lu.solve(b).map_err(|_| ErrorsJSL::RuntimeError("linear solve failed")),
+            ComplexLu::Sparse(lu) => {
+                let n = b.len();
+                let rhs: Vec<f64> = b.iter().map(|z| z.re).chain(b.iter().map(|z| z.im)).collect();
+                let x = lu.solve(&rhs).map_err(|_| ErrorsJSL::RuntimeError("linear solve failed"))?;
+                Ok((0..n).map(|i| C::new(x[i], x[n + i])).collect())
+            }
+        }
+    }
+}
+
+impl JacMatrix {
+    /// The LU factors of `a I − s J`.
+    fn factor_real(&self, a: f64, s: f64) -> Result<RealLu, ErrorsJSL> {
+        let fail = |_| ErrorsJSL::RuntimeError("singular Newton matrix");
+        match self {
+            JacMatrix::Dense(j) => {
+                let n = j.len();
+                let m = Array2::from_shape_fn((n, n), |(r, c)| if r == c { a } else { 0.0 } - s * j[r][c]);
+                m.factorize().map(RealLu::Dense).map_err(fail)
+            }
+            JacMatrix::Sparse(j) => {
+                let n = j.nrows;
+                let mut coo = CooMatrix::new(n, n);
+                for r in 0..n {
+                    coo.push(r, r, a);
+                    for p in j.indptr[r]..j.indptr[r + 1] {
+                        coo.push(r, j.indices[p], -s * j.data[p]);
+                    }
+                }
+                let m = coo.to_csr().map_err(fail)?;
+                SparseLu::factor(&m, Ordering::MinimumDegree).map(RealLu::Sparse).map_err(fail)
+            }
+        }
+    }
+
+    /// The LU factors of `a I − J` for complex `a`.
+    fn factor_complex(&self, a: C) -> Result<ComplexLu, ErrorsJSL> {
+        let fail = |_| ErrorsJSL::RuntimeError("singular Newton matrix");
+        match self {
+            JacMatrix::Dense(j) => {
+                let n = j.len();
+                let m = Array2::from_shape_fn((n, n), |(r, c)| if r == c { a } else { C::new(0.0, 0.0) } - j[r][c]);
+                m.factorize().map(ComplexLu::Dense).map_err(fail)
+            }
+            JacMatrix::Sparse(j) => {
+                let n = j.nrows;
+                let mut coo = CooMatrix::new(2 * n, 2 * n);
+                for r in 0..n {
+                    coo.push(r, r, a.re);
+                    coo.push(n + r, n + r, a.re);
+                    coo.push(r, n + r, -a.im);
+                    coo.push(n + r, r, a.im);
+                    for p in j.indptr[r]..j.indptr[r + 1] {
+                        coo.push(r, j.indices[p], -j.data[p]);
+                        coo.push(n + r, n + j.indices[p], -j.data[p]);
+                    }
+                }
+                let m = coo.to_csr().map_err(fail)?;
+                SparseLu::factor(&m, Ordering::MinimumDegree).map(ComplexLu::Sparse).map_err(fail)
+            }
+        }
+    }
+
+    /// `maxᵢ Σⱼ |Jᵢⱼ| wⱼ / wᵢ`.
+    fn weighted_norm(&self, w: &[f64]) -> f64 {
+        match self {
+            JacMatrix::Dense(j) => j.iter().enumerate().map(|(i, row)| row.iter().zip(w).map(|(a, e)| a.abs() * e).sum::<f64>() / w[i]).fold(0.0, f64::max),
+            JacMatrix::Sparse(j) => (0..j.nrows).map(|i| (j.indptr[i]..j.indptr[i + 1]).map(|p| j.data[p].abs() * w[j.indices[p]]).sum::<f64>() / w[i]).fold(0.0, f64::max),
+        }
+    }
+}
+
+/// Groups of columns with no row in common (greedy, as Curtis, Powell and Reid), so that one
+/// evaluation of `f` gives a finite difference for every column of a group.
+fn column_groups(pattern: &CsrMatrix) -> Vec<Vec<usize>> {
+    let n = pattern.ncols;
+    let mut rows_of: Vec<Vec<usize>> = vec![Vec::new(); n];
+    for r in 0..pattern.nrows {
+        for p in pattern.indptr[r]..pattern.indptr[r + 1] {
+            rows_of[pattern.indices[p]].push(r);
+        }
+    }
+    let mut groups: Vec<(Vec<usize>, Vec<bool>)> = Vec::new();
+    for c in 0..n {
+        match groups.iter_mut().find(|(_, used)| rows_of[c].iter().all(|&r| !used[r])) {
+            Some((g, used)) => {
+                g.push(c);
+                rows_of[c].iter().for_each(|&r| used[r] = true);
+            }
+            None => {
+                let mut used = vec![false; pattern.nrows];
+                rows_of[c].iter().for_each(|&r| used[r] = true);
+                groups.push((vec![c], used));
+            }
+        }
+    }
+    groups.into_iter().map(|(g, _)| g).collect()
+}
+
 struct Counter<'a, F, J> {
     f: &'a F,
     jac: Option<&'a J>,
+    sparse: Option<&'a SparseJacobian<'a>>,
     nfev: usize,
     njev: usize,
     nlu: usize,
@@ -174,10 +321,39 @@ where
     }
 
     /// The Jacobian, analytic or by forward differences.
-    fn jacobian(&mut self, t: f64, y: &[f64], fy: &[f64]) -> Vec<Vec<f64>> {
+    fn jacobian(&mut self, t: f64, y: &[f64], fy: &[f64]) -> JacMatrix {
         self.njev += 1;
+        match self.sparse {
+            Some(SparseJacobian::Analytic(j)) => return JacMatrix::Sparse(j(t, y)),
+            Some(SparseJacobian::Pattern(pattern)) => {
+                let mut data = vec![0.0; pattern.data.len()];
+                let mut z = y.to_vec();
+                for group in column_groups(pattern) {
+                    let hs: Vec<f64> = group.iter().map(|&c| f64::EPSILON.sqrt() * y[c].abs().max(1e-5)).collect();
+                    for (&c, h) in group.iter().zip(&hs) {
+                        z[c] = y[c] + h;
+                    }
+                    let fz = self.f(t, &z);
+                    let mut h_of = vec![0.0; y.len()];
+                    for (&c, h) in group.iter().zip(&hs) {
+                        z[c] = y[c];
+                        h_of[c] = *h;
+                    }
+                    for r in 0..pattern.nrows {
+                        for p in pattern.indptr[r]..pattern.indptr[r + 1] {
+                            let c = pattern.indices[p];
+                            if h_of[c] != 0.0 {
+                                data[p] = (fz[r] - fy[r]) / h_of[c];
+                            }
+                        }
+                    }
+                }
+                return JacMatrix::Sparse(CsrMatrix { nrows: pattern.nrows, ncols: pattern.ncols, indptr: pattern.indptr.clone(), indices: pattern.indices.clone(), data });
+            }
+            None => {}
+        }
         if let Some(j) = self.jac {
-            return j(t, y);
+            return JacMatrix::Dense(j(t, y));
         }
         let n = y.len();
         let mut jac = vec![vec![0.0; n]; n];
@@ -191,7 +367,7 @@ where
                 jac[i][k] = (fz[i] - fy[i]) / h;
             }
         }
-        jac
+        JacMatrix::Dense(jac)
     }
 }
 
@@ -342,9 +518,9 @@ struct Radau<'a, F, J> {
     h_abs: f64,
     h_abs_old: Option<f64>,
     error_norm_old: Option<f64>,
-    jac: Vec<Vec<f64>>,
-    lu_real: Option<LuFactorization<f64>>,
-    lu_complex: Option<LuFactorization<C>>,
+    jac: JacMatrix,
+    lu_real: Option<RealLu>,
+    lu_complex: Option<ComplexLu>,
     current_jac: bool,
     sol: Option<Segment>,
     newton_tol: f64,
@@ -393,18 +569,14 @@ where
         }
     }
 
-    fn factor_real(&mut self, h: f64) -> Result<LuFactorization<f64>, ErrorsJSL> {
-        let n = self.y.len();
+    fn factor_real(&mut self, h: f64) -> Result<RealLu, ErrorsJSL> {
         self.sys.nlu += 1;
-        let m = Array2::from_shape_fn((n, n), |(i, j)| if i == j { self.k.mu_real / h } else { 0.0 } - self.jac[i][j]);
-        m.factorize().map_err(|_| ErrorsJSL::RuntimeError("singular Newton matrix in Radau"))
+        self.jac.factor_real(self.k.mu_real / h, 1.0)
     }
 
-    fn factor_complex(&mut self, h: f64) -> Result<LuFactorization<C>, ErrorsJSL> {
-        let n = self.y.len();
+    fn factor_complex(&mut self, h: f64) -> Result<ComplexLu, ErrorsJSL> {
         self.sys.nlu += 1;
-        let m = Array2::from_shape_fn((n, n), |(i, j)| if i == j { self.k.mu_complex / h } else { C::new(0.0, 0.0) } - self.jac[i][j]);
-        m.factorize().map_err(|_| ErrorsJSL::RuntimeError("singular Newton matrix in Radau"))
+        self.jac.factor_complex(self.k.mu_complex / h)
     }
 
     // ANCHOR: collocation
@@ -696,9 +868,9 @@ struct Lsoda<'a, F, J> {
     /// Steps until the next order/step-size decision.
     countdown: usize,
     acor_saved: Option<Vec<f64>>,
-    jac: Option<Vec<Vec<f64>>>,
+    jac: Option<JacMatrix>,
     jac_age: usize,
-    lu: Option<(LuFactorization<f64>, f64)>,
+    lu: Option<(RealLu, f64)>,
     lipschitz: f64,
     steps: usize,
     last_switch: usize,
@@ -781,9 +953,9 @@ where
     }
 
     /// The weighted row norm of the Jacobian, LSODA's estimate of ‖J‖ in stiff mode.
-    fn jacobian_norm(&self, jac: &[Vec<f64>]) -> f64 {
+    fn jacobian_norm(&self, jac: &JacMatrix) -> f64 {
         let ewt: Vec<f64> = self.z[0].iter().map(|y| self.o.rtol * y.abs() + self.o.atol).collect();
-        jac.iter().enumerate().map(|(i, row)| row.iter().zip(&ewt).map(|(a, e)| a.abs() * e).sum::<f64>() / ewt[i]).fold(0.0, f64::max)
+        jac.weighted_norm(&ewt)
     }
 }
 
@@ -842,9 +1014,8 @@ where
                 let hl0 = self.h * el[0];
                 if self.lu.as_ref().is_none_or(|(_, v)| (hl0 / v - 1.0).abs() > 0.3) {
                     let jac = self.jac.as_ref().expect("evaluated");
-                    let m = Array2::from_shape_fn((n, n), |(i, j)| if i == j { 1.0 } else { 0.0 } - hl0 * jac[i][j]);
                     self.sys.nlu += 1;
-                    let lu = m.factorize().map_err(|_| ErrorsJSL::RuntimeError("LSODA: singular iteration matrix"))?;
+                    let lu = jac.factor_real(1.0, hl0).map_err(|_| ErrorsJSL::RuntimeError("LSODA: singular iteration matrix"))?;
                     self.lu = Some((lu, hl0));
                 }
             }
@@ -1145,7 +1316,7 @@ where
     if !(options.rtol > 0.0) || !(options.atol > 0.0) {
         return Err(ErrorsJSL::InvalidInputRange("tolerances must be positive"));
     }
-    let sys = Counter { f: &f, jac: jac.as_ref(), nfev: 0, njev: 0, nlu: 0 };
+    let sys = Counter { f: &f, jac: jac.as_ref(), sparse: None, nfev: 0, njev: 0, nlu: 0 };
     let mut stepper: Box<dyn Stepper + '_> = match method {
         IvpMethod::Radau => Box::new(Radau::new(sys, t0, y0, t1, options)),
         IvpMethod::Lsoda => Box::new(Lsoda::new(sys, t0, y0, t1, options)),
@@ -1157,11 +1328,87 @@ where
 }
 // ANCHOR_END: solve_ivp
 
+// ANCHOR: solve_ivp_sparse
+/// [`solve_ivp`] for large stiff systems with sparse Jacobians (SciPy's `solve_ivp` with a sparse
+/// `jac` or with `jac_sparsity`). The Newton matrices of Radau (`μ/h · I − J`, real and complex)
+/// and of LSODA's BDF corrector (`I − h l₀ J`) are factorised by the sparse LU
+/// ([`SparseLu`], minimum-degree ordering); Radau's complex system is solved in its real form
+/// of twice the size. With [`SparseJacobian::Pattern`], the Jacobian is estimated by grouped
+/// forward differences: columns sharing no row are perturbed together (Curtis, Powell and Reid),
+/// so a banded `n × n` Jacobian costs a few evaluations of `f` instead of `n`.
+pub fn solve_ivp_sparse<F>(f: F, jac: SparseJacobian, t_span: (f64, f64), y0: &[f64], method: IvpMethod, options: IvpOptions, events: &[Event]) -> Result<IvpSolution, ErrorsJSL>
+where
+    F: Fn(f64, &[f64]) -> Vec<f64>,
+{
+    let (t0, t1) = t_span;
+    if y0.is_empty() || !(t1 > t0) || !t0.is_finite() || !t1.is_finite() {
+        return Err(ErrorsJSL::InvalidInputRange("need a non-empty state and finite t0 < t1"));
+    }
+    if !(options.rtol > 0.0) || !(options.atol > 0.0) {
+        return Err(ErrorsJSL::InvalidInputRange("tolerances must be positive"));
+    }
+    if let SparseJacobian::Pattern(p) = &jac
+        && (p.nrows != y0.len() || p.ncols != y0.len())
+    {
+        return Err(ErrorsJSL::IncompatibleArraySizes((p.nrows, y0.len())));
+    }
+    let sys: Counter<'_, F, DenseJacFn> = Counter { f: &f, jac: None, sparse: Some(&jac), nfev: 0, njev: 0, nlu: 0 };
+    let mut stepper: Box<dyn Stepper + '_> = match method {
+        IvpMethod::Radau => Box::new(Radau::new(sys, t0, y0, t1, options)),
+        IvpMethod::Lsoda => Box::new(Lsoda::new(sys, t0, y0, t1, options)),
+    };
+    let (ts, ys, status, t_events, y_events, dense) = drive(stepper.as_mut(), t0, t1, y0, events, options.max_steps)?;
+    let (nfev, njev, nlu, rejected_steps) = stepper.counts();
+    let switches = stepper.switches();
+    Ok(IvpSolution { t: ts, y: ys, status, t_events, y_events, dense, nfev, njev, nlu, rejected_steps, switches })
+}
+// ANCHOR_END: solve_ivp_sparse
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     type Jac = fn(f64, &[f64]) -> Vec<Vec<f64>>;
+
+    #[test]
+    fn sparse_jacobians_match_the_dense_solver() {
+        // A stiff reaction-diffusion chain: y_i' = D (y_{i−1} − 2 y_i + y_{i+1}) − y_i³.
+        let n = 40;
+        let d = 400.0;
+        let f = move |_t: f64, y: &[f64]| (0..n).map(|i| d * ((if i > 0 { y[i - 1] } else { 0.0 }) - 2.0 * y[i] + (if i + 1 < n { y[i + 1] } else { 0.0 })) - y[i].powi(3)).collect::<Vec<_>>();
+        let y0: Vec<f64> = (0..n).map(|i| (std::f64::consts::PI * (i + 1) as f64 / (n + 1) as f64).sin()).collect();
+        let mut coo = CooMatrix::new(n, n);
+        for i in 0..n {
+            for j in i.saturating_sub(1)..(i + 2).min(n) {
+                coo.push(i, j, 1.0);
+            }
+        }
+        let pattern = coo.to_csr().unwrap();
+        let o = IvpOptions { rtol: 1e-8, atol: 1e-10, ..Default::default() };
+        for method in [IvpMethod::Radau, IvpMethod::Lsoda] {
+            let dense = solve_ivp(f, None::<Jac>, (0.0, 0.5), &y0, method, o, &[]).unwrap();
+            let sp = solve_ivp_sparse(f, SparseJacobian::Pattern(pattern.clone()), (0.0, 0.5), &y0, method, o, &[]).unwrap();
+            let (a, b) = (dense.y.last().unwrap(), sp.y.last().unwrap());
+            assert!(a.iter().zip(b).all(|(p, q)| (p - q).abs() < 1e-9), "{method:?}");
+            // Three groups of columns instead of n (LSODA may not need a Jacobian at all).
+            assert!(sp.nfev < dense.nfev || (method == IvpMethod::Lsoda && sp.nfev == dense.nfev && sp.njev == 0), "{method:?} {} {}", sp.nfev, dense.nfev);
+            let analytic = SparseJacobian::Analytic(Box::new(move |_t: f64, y: &[f64]| {
+                let mut c = CooMatrix::new(n, n);
+                for i in 0..n {
+                    c.push(i, i, -2.0 * d - 3.0 * y[i] * y[i]);
+                    if i > 0 {
+                        c.push(i, i - 1, d);
+                    }
+                    if i + 1 < n {
+                        c.push(i, i + 1, d);
+                    }
+                }
+                c.to_csr().unwrap()
+            }));
+            let an = solve_ivp_sparse(f, analytic, (0.0, 0.5), &y0, method, o, &[]).unwrap();
+            assert!(an.y.last().unwrap().iter().zip(a).all(|(p, q)| (p - q).abs() < 1e-8), "{method:?}");
+        }
+    }
 
     #[test]
     fn cfode_matches_the_known_coefficients() {

@@ -75,7 +75,7 @@ initial slope changes $y(1)$ by about $\delta\,e^\lambda/\lambda$, so the bounda
 more sensitive than the solution itself. Once $e^\lambda$ approaches $1/\varepsilon_{\text{mach}} \approx 10^{16}$,
 no initial slope in floating point reproduces the boundary condition:
 
-<p class="caption" id="tab-2-24"><strong>Table 2.24.</strong> Shooting against collocation as the problem becomes unstable.</p>
+<p class="caption" id="tab-2-25"><strong>Table 2.25.</strong> Shooting against collocation as the problem becomes unstable.</p>
 
 {{#include ../generated/integration/bvp_shooting_vs_collocation.md}}
 

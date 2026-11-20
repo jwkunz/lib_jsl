@@ -9,7 +9,7 @@
 | **Accuracy** | Radau IIA: order 5, L-stable, dense output of order 3. LSODA: Adams orders 1–12, BDF orders 1–5. Radau matches SciPy step for step; events to machine precision on the interpolant |
 | **Cost** | Radau: per step, 1–7 Newton iterations of 3 function evaluations, with one real and one complex $n \times n$ LU when the step changes. LSODA: 1–3 evaluations per step, plus an LU in BDF mode |
 | **Read first** | [Runge-Kutta methods](runge-kutta.md), [Stiff ODE solvers](stiff-ode.md) |
-| **API** | [`solve_ivp`](../../api/lib_jsl_integration/ivp/fn.solve_ivp.html), [`IvpMethod`](../../api/lib_jsl_integration/ivp/enum.IvpMethod.html), [`IvpOptions`](../../api/lib_jsl_integration/ivp/struct.IvpOptions.html), [`Event`](../../api/lib_jsl_integration/ivp/struct.Event.html), [`IvpSolution`](../../api/lib_jsl_integration/ivp/struct.IvpSolution.html), [`DenseOutput`](../../api/lib_jsl_integration/ivp/struct.DenseOutput.html), [`solve_ivp_explicit`](../../api/lib_jsl_integration/ivp/fn.solve_ivp_explicit.html), [`ExplicitMethod`](../../api/lib_jsl_integration/ivp/enum.ExplicitMethod.html), [`ExplicitOptions`](../../api/lib_jsl_integration/ivp/struct.ExplicitOptions.html) |
+| **API** | [`solve_ivp`](../../api/lib_jsl_integration/ivp/fn.solve_ivp.html), [`IvpMethod`](../../api/lib_jsl_integration/ivp/enum.IvpMethod.html), [`IvpOptions`](../../api/lib_jsl_integration/ivp/struct.IvpOptions.html), [`Event`](../../api/lib_jsl_integration/ivp/struct.Event.html), [`IvpSolution`](../../api/lib_jsl_integration/ivp/struct.IvpSolution.html), [`DenseOutput`](../../api/lib_jsl_integration/ivp/struct.DenseOutput.html), [`solve_ivp_explicit`](../../api/lib_jsl_integration/ivp/fn.solve_ivp_explicit.html), [`ExplicitMethod`](../../api/lib_jsl_integration/ivp/enum.ExplicitMethod.html), [`ExplicitOptions`](../../api/lib_jsl_integration/ivp/struct.ExplicitOptions.html); [`solve_ivp_sparse`](../../api/lib_jsl_integration/ivp/fn.solve_ivp_sparse.html), [`SparseJacobian`](../../api/lib_jsl_integration/ivp/enum.SparseJacobian.html) |
 
 </div>
 
@@ -217,6 +217,23 @@ The landing time agrees to $10^{-13}$. The library's count is higher because it 
 
 <p class="caption" id="fig-2-25"><strong>Figure 2.25.</strong> Work and precision on a Kepler orbit with eccentricity 0.6, over one period, for tolerances from 10⁻³ to 10⁻¹². SciPy's results (markers) fall on the library's (lines). For more than about 300 evaluations, DOP853 is 20 to 200 times more accurate than RK45 at the same cost.</p>
 
+### Sparse Jacobians
+
+Large stiff systems, such as discretised partial differential equations, have sparse Jacobians. `solve_ivp_sparse` takes either a function returning $\partial f/\partial y$ as a sparse matrix, or only its sparsity pattern (SciPy's `jac_sparsity`).
+- **Finite differences from a pattern.** Columns are grouped so that no two columns in a group share a row (Curtis, Powell and Reid, 1974). One evaluation of $f$ then differences every column of a group, so a tridiagonal Jacobian costs three evaluations instead of $n$.
+- **Sparse factorisations.** The Newton matrices are factorised by the library's sparse LU with a minimum-degree ordering. Radau's complex matrix $(\alpha + i\beta)I - J$ becomes the real matrix $\begin{pmatrix}\alpha I - J & -\beta I\\ \beta I & \alpha I - J\end{pmatrix}$, which is just as sparse.
+
+```rust,ignore
+{{#include ../../../crates/integration/src/ivp.rs:solve_ivp_sparse}}
+```
+
+<p class="caption" id="tab-2-24"><strong>Table 2.24.</strong> A stiff reaction-diffusion chain with 200 unknowns and a tridiagonal Jacobian, against SciPy.</p>
+
+{{#include ../generated/integration/spl219_ode.md}}
+
+- **Radau** repeats SciPy's run exactly: the same steps, Jacobians and factorisations, with the final state to rounding. The grouped differences cut the evaluations of $f$ from 856 to 265. SciPy does not count its finite-difference evaluations in `nfev`, so its count is not shown.
+- **LSODA:** SciPy's ignores `jac_sparsity`. The library's LSODA, unlike ODEPACK's, stays with Adams steps for most of this run, needing ten times more steps but only one Jacobian.
+
 **Strengths**
 
 - Radau: L-stable, order 5, efficient at tight tolerances on stiff problems and on problems with eigenvalues near the imaginary axis.
@@ -225,10 +242,9 @@ The landing time agrees to $10^{-13}$. The library's count is higher because it 
 
 **Weaknesses**
 
-- Radau's step costs grow quickly with $n$ (two LUs per step change, one of them complex). For large sparse systems, BDF with a sparse
-  solver is better.
+- Radau's step costs grow quickly with $n$ when the Jacobian is dense (two LUs per step change, one of them complex); for sparse systems use `solve_ivp_sparse`.
 - The library's LSODA is not ODEPACK. On some problems its step and order heuristics are less economical or less accurate.
-- Backward integration and vector tolerances only with the explicit methods; no mass matrices or sparse Jacobians.
+- Backward integration and vector tolerances only with the explicit methods; no mass matrices.
 
 ## Exercises
 

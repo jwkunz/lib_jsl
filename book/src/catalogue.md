@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **648 algorithms and components in 23 crates**:
+The library implements **652 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 168 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 172 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 69 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 103 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 204 |
@@ -42,7 +42,7 @@ Crate `lib_jsl_derivatives`: [API reference](../api/lib_jsl_derivatives/index.ht
 
 Numerical integration: quadrature, cubature, quasi-Monte Carlo, ODE solvers, boundary value problems and PDEs.
 
-Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 29 items
+Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.html) · [book chapter](integration/index.md) · 30 items
 
 - [Integrator trait (1D)](integration/index.md#in-the-library)
 - [Adaptive Gauss-Kronrod (G7-K15)](integration/gauss-kronrod.md)
@@ -69,6 +69,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 - [LSODA: Adams/BDF with automatic stiffness switching](integration/radau-lsoda.md#switching-on-stiffness)
 - [Dense output and event location](integration/radau-lsoda.md#dense-output-and-events)
 - [Explicit RK45 and DOP853 with backward integration and per-component tolerances](integration/radau-lsoda.md#explicit-methods-rk45-and-dop853)
+- [Sparse Jacobians for stiff systems (grouped finite differences, sparse LU)](integration/radau-lsoda.md#sparse-jacobians)
 - [Boundary value problems (shooting, collocation)](integration/boundary-value-problems.md)
 
 #### Partial differential equations
@@ -81,7 +82,7 @@ Crate `lib_jsl_integration`: [API reference](../api/lib_jsl_integration/index.ht
 
 Interpolation in one to N dimensions: splines, rational, Chebyshev, Fourier and radial basis functions.
 
-Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 50 items
+Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/index.html) · [book chapter](interpolation/index.md) · 53 items
 
 - [Interpolation trait](interpolation/index.md#in-the-library)
 
@@ -143,6 +144,9 @@ Crate `lib_jsl_interpolation`: [API reference](../api/lib_jsl_interpolation/inde
 - [Cubic basis](interpolation/grids.md#cubic-methods)
 - [Radial basis functions in any dimension, with polynomial tails and smoothing](interpolation/piecewise-scattered.md#radial-basis-functions-in-any-dimension)
 - [Smoothing splines with automatic knots (FITPACK's `curfit`: `make_splrep`, `generate_knots`)](interpolation/fitpack.md#placing-the-knots)
+- [Periodic smoothing splines (FITPACK's `percur`)](interpolation/fitpack.md#periodic-splines-and-smoothing-surfaces)
+- [Smoothing spline surfaces for scattered data (`bisplrep`)](interpolation/fitpack.md#periodic-splines-and-smoothing-surfaces)
+- [Least-squares spline surfaces on given knots (`LSQBivariateSpline`)](interpolation/fitpack.md#periodic-splines-and-smoothing-surfaces)
 - [Smoothing parametric spline curves (FITPACK's `parcur`: `make_splprep`)](interpolation/fitpack.md)
 - [Bernstein-basis piecewise polynomials (`BPoly`, `from_derivatives`)](interpolation/fitpack.md#the-bernstein-basis)
 

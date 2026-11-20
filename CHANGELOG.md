@@ -6,6 +6,20 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.19.0] - 2026-11-20
+
+### Added
+
+- `interpolation::one_d::fitpack`: `make_splrep_periodic`, periodic smoothing splines (SciPy's
+  `make_splrep(bc_type='periodic')`), with SciPy's knots.
+- `interpolation::two_d::smooth_bivariate`: `bisplrep` (smoothing surfaces for scattered data),
+  `bisplrep_lsq` (least-squares surfaces on given knots, SciPy's `task=-1`) and
+  `SmoothBivariateSpline` with `evaluate` and `evaluate_grid`.
+- `integration::ivp`: `solve_ivp_sparse` with `SparseJacobian` (an analytic sparse Jacobian or a
+  sparsity pattern for grouped finite differences), factorising the Newton matrices of Radau and
+  LSODA with the sparse LU.
+- Book: new sections on periodic splines and smoothing surfaces, and on sparse Jacobians.
+
 ## [2.18.0] - 2026-11-20
 
 ### Added
@@ -729,7 +743,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.18.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.19.0...HEAD
+[2.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.19.0
 [2.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.18.0
 [2.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.17.0
 [2.16.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.16.0

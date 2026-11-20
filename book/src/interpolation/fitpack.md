@@ -9,7 +9,7 @@
 | **Accuracy** | The residual within $10^{-3}s$ of $s$, as FITPACK; the same knots as SciPy's `make_splrep` and coefficients to $10^{-14}$ |
 | **Cost** | Each least-squares fit is a banded QR by Givens rotations, $O(mk^2)$ for $m$ points; the knot search tries $O(\log n)$ to $O(n)$ knot sets for $n$ knots, and the smoothing parameter takes up to 20 more banded solves |
 | **Read first** | [B-splines and smoothing splines](b-splines.md), [Piecewise polynomials, Hermite data and scattered interpolation](piecewise-scattered.md) |
-| **API** | [`fitpack`](../../api/lib_jsl_interpolation/one_d/fitpack/index.html) ([`make_splrep`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.make_splrep.html), [`make_splprep`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.make_splprep.html), [`generate_knots`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.generate_knots.html), [`SplrepOptions`](../../api/lib_jsl_interpolation/one_d/fitpack/struct.SplrepOptions.html)); [`BPoly`](../../api/lib_jsl_interpolation/one_d/bpoly/struct.BPoly.html) |
+| **API** | [`fitpack`](../../api/lib_jsl_interpolation/one_d/fitpack/index.html) ([`make_splrep`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.make_splrep.html), [`make_splprep`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.make_splprep.html), [`generate_knots`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.generate_knots.html), [`SplrepOptions`](../../api/lib_jsl_interpolation/one_d/fitpack/struct.SplrepOptions.html), [`make_splrep_periodic`](../../api/lib_jsl_interpolation/one_d/fitpack/fn.make_splrep_periodic.html)); [`bisplrep`](../../api/lib_jsl_interpolation/two_d/smooth_bivariate/fn.bisplrep.html), [`bisplrep_lsq`](../../api/lib_jsl_interpolation/two_d/smooth_bivariate/fn.bisplrep_lsq.html), [`SmoothBivariateSpline`](../../api/lib_jsl_interpolation/two_d/smooth_bivariate/struct.SmoothBivariateSpline.html); [`BPoly`](../../api/lib_jsl_interpolation/one_d/bpoly/struct.BPoly.html) |
 
 </div>
 
@@ -99,7 +99,7 @@ On $[x_j, x_{j+1}]$ with $s = (x - x_j)/h$, $p(x) = \sum_a c_a b_{a,k}(s)$, and:
 ```
 
 - `make_splrep` returns the spline and a `SplrepInfo` with $f_p$ and whether the tolerance was met. SciPy warns instead.
-- Periodic smoothing splines (`bc_type="periodic"`, FITPACK's `percur`) are not implemented. Neither are surfaces (`bisplrep`, `RectBivariateSpline` with $s > 0$).
+- Periodic smoothing splines and smoothing surfaces were added in 2.19.0; see the section below.
 - `BPoly` covers one-dimensional values. `extend` and `BPoly` with vector values are not implemented.
 
 ## In practice
@@ -126,6 +126,45 @@ FITPACK's Fortran `splrep` often places different knots. In the cubic case with 
 
 {{#include ../generated/interpolation/fitpack_bpoly.md}}
 
+### Periodic splines and smoothing surfaces
+
+**Periodic splines.** `make_splrep_periodic` is SciPy's `make_splrep(bc_type='periodic')`, FITPACK's `percur`, for data that repeat with the period $x_e - x_b$:
+- the last point stands for the first one shifted by a period;
+- the boundary knots repeat the interior spacing across the ends;
+- the last $k$ coefficients repeat the first $k$, which makes the spline and its first $k - 1$ derivatives continuous around the circle.
+
+Knot placement and the iteration on $p$ are those of the non-periodic fit. Because the wrapped coefficients break the band structure, the library solves the small least-squares problems densely rather than with FITPACK's two-part Givens factorisation.
+
+```rust,ignore
+{{#include ../../../crates/interpolation/src/one_d/fitpack.rs:periodic}}
+```
+
+<p class="caption" id="tab-3-15"><strong>Table 3.15.</strong> Periodic smoothing splines against SciPy's.</p>
+
+{{#include ../generated/interpolation/spl219_periodic.md}}
+
+The knots are SciPy's, and so are the values to $10^{-13}$.
+
+![A periodic smoothing spline over two periods](../generated/interpolation/periodic_spline.svg)
+
+<p class="caption" id="fig-3-17"><strong>Figure 3.17.</strong> The periodic smoothing spline of noisy samples of a periodic function, drawn over two periods: it joins itself smoothly at $2\pi$.</p>
+
+**Smoothing surfaces.** `bisplrep` fits scattered data $(x_i, y_i, z_i)$ with a tensor-product spline. Of the surfaces with $\sum (w_i(z_i - s(x_i, y_i)))^2 \le s$, it returns the one whose $k_x$-th $x$-derivatives and $k_y$-th $y$-derivatives jump least across the knots.
+- Knots are added at the middle of the panel with the largest residual sum, in the direction with fewer knots so far. This keeps FITPACK's `surfit` strategy but not its exact rules.
+- The penalty weight is found by the same rational iteration as for curves.
+
+`bisplrep_lsq` is the least-squares surface on given knots: SciPy's `bisplrep(task=-1)` and `LSQBivariateSpline`. As in FITPACK, the boundary knots are moved to the data's range and points outside it are clamped.
+
+```rust,ignore
+{{#include ../../../crates/interpolation/src/two_d/smooth_bivariate.rs:bisplrep}}
+```
+
+<p class="caption" id="tab-3-16"><strong>Table 3.16.</strong> Smoothing surfaces against SciPy's bisplrep.</p>
+
+{{#include ../generated/interpolation/spl219_surface.md}}
+
+The least-squares surface is SciPy's to rounding. The smoothing surface meets the same target $s$ with a different set of knots. It differs from SciPy's by up to $0.08$ (the noise is $\sigma = 0.05$) and is slightly closer to the true function on this example.
+
 **Strengths**
 
 - The knots follow the data, so a smooth fit needs far fewer coefficients than an interpolating or penalised spline on all the data points.
@@ -137,7 +176,7 @@ FITPACK's Fortran `splrep` often places different knots. In the cubic case with 
 
 - Knots are restricted to data points, and the greedy placement is not optimal. Free-knot splines can do better with fewer knots at much greater cost.
 - A small $s$ with even degree can make the search for $p$ fail; `converged` then reports it.
-- No periodic or surface smoothing.
+- Smoothing surfaces place knots by the library's own rule, not FITPACK's `surfit`, so their knots differ from SciPy's.
 
 ## Exercises
 

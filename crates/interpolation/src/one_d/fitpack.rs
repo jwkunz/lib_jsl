@@ -266,7 +266,7 @@ fn knot_sequence(data: &Data, nest: Option<usize>) -> Result<Vec<Vec<f64>>, Erro
 /// FITPACK's `fpdisc`: the jumps of the `k`-th derivatives of the B-splines at the interior
 /// knots `t[k+1], …, t[n−k−2]`, row `j` holding `k + 2` entries from column `j`, scaled by
 /// `(Δ/nrint)^k` with `Δ` the base interval and `nrint` its number of knot intervals.
-fn discontinuity_jumps(t: &[f64], k: usize) -> Vec<Vec<f64>> {
+pub(crate) fn discontinuity_jumps(t: &[f64], k: usize) -> Vec<Vec<f64>> {
     let n = t.len();
     let nrint = n - 2 * k - 1;
     let scale = ((t[n - k - 1] - t[k]) / nrint as f64).powi(k as i32);
@@ -305,7 +305,7 @@ fn smoothing_for_p(data: &Data, t: &[f64], base: &Banded, jumps: &[Vec<f64>], p:
 
 /// FITPACK's `fprati`: the zero of the rational function `(u p + v)/(p + w)` through three points
 /// (`p₃` may be infinite).
-fn fprati(p1: f64, f1: f64, p2: f64, f2: f64, p3: f64, f3: f64) -> f64 {
+pub(crate) fn fprati(p1: f64, f1: f64, p2: f64, f2: f64, p3: f64, f3: f64) -> f64 {
     let h1 = f1 * (f2 - f3);
     let h2 = f2 * (f3 - f1);
     let h3 = f3 * (f1 - f2);
@@ -524,6 +524,249 @@ pub fn make_splprep(points: &[Vec<f64>], u: Option<&[f64]>, t: Option<&[f64]>, o
     let info = SplrepInfo { fp: fit.fp, converged: fit.converged };
     Ok((u, splines, info))
 }
+
+/// Least squares `min ‖A c − b‖` by Householder QR (dense); returns `c` and `|diag R|`.
+fn dense_lsq(mut a: Vec<Vec<f64>>, mut b: Vec<f64>, nc: usize) -> (Vec<f64>, Vec<f64>) {
+    let m = a.len();
+    for j in 0..nc.min(m) {
+        let norm: f64 = (j..m).map(|i| a[i][j] * a[i][j]).sum::<f64>().sqrt();
+        if norm == 0.0 {
+            continue;
+        }
+        let alpha = if a[j][j] > 0.0 { -norm } else { norm };
+        let mut v: Vec<f64> = (j..m).map(|i| a[i][j]).collect();
+        v[0] -= alpha;
+        let vn: f64 = v.iter().map(|x| x * x).sum();
+        if vn == 0.0 {
+            continue;
+        }
+        for col in j..nc {
+            let s: f64 = (j..m).map(|i| v[i - j] * a[i][col]).sum::<f64>() * 2.0 / vn;
+            for i in j..m {
+                a[i][col] -= s * v[i - j];
+            }
+        }
+        let s: f64 = (j..m).map(|i| v[i - j] * b[i]).sum::<f64>() * 2.0 / vn;
+        for i in j..m {
+            b[i] -= s * v[i - j];
+        }
+    }
+    let mut c = vec![0.0; nc];
+    for i in (0..nc).rev() {
+        let s: f64 = (i + 1..nc).map(|j| a[i][j] * c[j]).sum();
+        c[i] = if a[i][i] != 0.0 { (b[i] - s) / a[i][i] } else { 0.0 };
+    }
+    (c, (0..nc).map(|i| a[i][i].abs()).collect())
+}
+
+/// The periodic spline's free coefficients: `n − 2k − 1` of them, the last `k` of the full
+/// vector repeating the first `k`.
+fn periodic_full(c: &[f64], k: usize) -> Vec<f64> {
+    (0..c.len() + k).map(|j| c[j % c.len()]).collect()
+}
+
+/// The periodic least-squares (`p = ∞`) or smoothing fit on knots `t`, using the first `m − 1`
+/// points (the last repeats the first): the free coefficients, `|diag R|`, `fp` over those
+/// points, and the residuals of all `m` points (FITPACK's `fpperi`).
+fn periodic_fit(data: &Data, t: &[f64], p: Option<f64>) -> (Vec<f64>, Vec<f64>, f64, Vec<f64>) {
+    let k = data.k;
+    let n = t.len();
+    let n7 = n - 2 * k - 1;
+    let m = data.m();
+    let ls = intervals(data.x, t, k);
+    let mut rows = Vec::new();
+    let mut rhs = Vec::new();
+    for i in 0..m - 1 {
+        let l = ls[i];
+        let mut row = vec![0.0; n7];
+        for (r, v) in nonzero_basis(t, k, l, data.x[i]).into_iter().enumerate() {
+            row[(l - k + r) % n7] += v * data.w[i];
+        }
+        rows.push(row);
+        rhs.push(data.w[i] * data.y[i][0]);
+    }
+    if let Some(p) = p {
+        for (j, jump) in discontinuity_jumps(t, k).iter().enumerate() {
+            let mut row = vec![0.0; n7];
+            for (r, v) in jump.iter().enumerate() {
+                row[(j + r) % n7] += v / p;
+            }
+            rows.push(row);
+            rhs.push(0.0);
+        }
+    }
+    let (c, diag) = dense_lsq(rows, rhs, n7);
+    let full: Vec<Vec<f64>> = periodic_full(&c, k).into_iter().map(|v| vec![v]).collect();
+    let (res, _) = residuals(data, t, &full);
+    let fp = res[..m - 1].iter().sum();
+    (c, diag, fp, res)
+}
+
+/// FITPACK's knot sequence for periodic smoothing (`percur`), SciPy's `generate_knots` with
+/// `bc_type='periodic'`.
+fn periodic_knot_sequence(data: &Data, nest: Option<usize>) -> Result<Vec<Vec<f64>>, ErrorsJSL> {
+    let (k, s, m) = (data.k, data.s, data.m());
+    let acc = s * TOL;
+    let nest = nest.unwrap_or((m + 2 * k).max(2 * k + 3));
+    let (nmin, nmax) = (2 * (k + 1), m + 2 * k);
+    let per = data.xe - data.xb;
+    let mut out = Vec::new();
+    let mut t: Vec<f64> = (0..=k).map(|i| data.x[0] - (k - i) as f64 * per).chain((0..=k).map(|i| data.x[m - 1] + i as f64 * per)).collect();
+    let (_, _, mut fp, _) = periodic_fit(data, &t, None);
+    if fp - s < acc || nmax == nmin {
+        out.push(t);
+        return Ok(out);
+    }
+    t = vec![0.0; 2 * k + 3];
+    t[k + 1] = data.x[m.div_ceil(2) - 1];
+    let mut nplus: usize = 1;
+    for _ in 0..m {
+        let n = t.len();
+        t[k] = data.xb;
+        t[n - k - 1] = data.xe;
+        for j in 1..=k {
+            t[k - j] = t[n - k - j - 1] - per;
+            t[n - k + j - 1] = t[k + j] + per;
+        }
+        out.push(t.clone());
+        let fpold = fp;
+        let (_, _, f, mut res) = periodic_fit(data, &t, None);
+        fp = f;
+        let fpms = fp - s;
+        if fpms.abs() < acc || fpms < 0.0 {
+            return Ok(out);
+        }
+        if n == nmin {
+            nplus = 1;
+        } else {
+            let delta = fpold - fp;
+            let npl1 = if delta > acc { (nplus as f64 * fpms / delta) as usize } else { nplus * 2 };
+            nplus = (nplus * 2).min(npl1.max(nplus / 2).max(1));
+        }
+        for j in 0..nplus {
+            t = add_knot(data.x, &t, k, &res)?;
+            let n = t.len();
+            if n >= nmax {
+                out.push(periodic_interp_knots(data.x, k));
+                return Ok(out);
+            }
+            if n >= nest {
+                out.push(t);
+                return Ok(out);
+            }
+            if j + 1 < nplus {
+                res = periodic_fit(data, &t, None).3;
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// SciPy's `_periodic_knots`: the knots of the periodic interpolating spline.
+fn periodic_interp_knots(x: &[f64], k: usize) -> Vec<f64> {
+    let n = x.len();
+    let mut xc = x.to_vec();
+    if k.is_multiple_of(2) {
+        let dx: Vec<f64> = x.windows(2).map(|w| w[1] - w[0]).collect();
+        for i in 1..n - 1 {
+            xc[i] -= dx[i - 1] / 2.0;
+        }
+    }
+    let dx: Vec<f64> = xc.windows(2).map(|w| w[1] - w[0]).collect();
+    let mut t = vec![0.0; n + 2 * k];
+    t[k..k + n].copy_from_slice(&xc);
+    for i in 0..k {
+        t[k - i - 1] = t[k - i] - dx[n - 2 - (i % (n - 1))];
+        let e = t.len() - k + i;
+        t[e] = t[e - 1] + dx[i % (n - 1)];
+    }
+    t
+}
+
+// ANCHOR: periodic
+/// The periodic smoothing spline with automatically placed knots (SciPy's
+/// `make_splrep(..., bc_type='periodic')`, FITPACK's `percur`): the spline and its first `k − 1`
+/// derivatives match at `xb` and `xe = xb + period`, the last data point stands for the first
+/// one shifted by a period, and otherwise the criterion is [`make_splrep`]'s. The free
+/// coefficients are the first `n − 2k − 1`; the last `k` repeat them.
+pub fn make_splrep_periodic(x: &[f64], y: &[f64], t: Option<&[f64]>, options: &SplrepOptions) -> Result<(BSpline, SplrepInfo), ErrorsJSL> {
+    let data = validate(x, y.iter().map(|&v| vec![v]).collect(), options)?;
+    let (k, s) = (data.k, data.s);
+    if x.len() < 2 * k.max(2) {
+        return Err(ErrorsJSL::InvalidInputRange("make_splrep_periodic: too few points for the degree"));
+    }
+    if s == 0.0 && t.is_none() {
+        let t = periodic_interp_knots(x, k);
+        let (c, _, fp, _) = periodic_fit(&data, &t, None);
+        return Ok((BSpline::new(t, periodic_full(&c, k), k)?, SplrepInfo { fp, converged: true }));
+    }
+    let acc = s * TOL;
+    let t: Vec<f64> = match t {
+        Some(t) => t.to_vec(),
+        None => periodic_knot_sequence(&data, options.nest)?.pop().expect("at least one knot vector"),
+    };
+    let (c0, diag, fpinf, _) = periodic_fit(&data, &t, None);
+    if t.len() == 2 * (k + 1) || fpinf - s >= -acc {
+        return Ok((BSpline::new(t.clone(), periodic_full(&c0, k), k)?, SplrepInfo { fp: fpinf, converged: fpinf <= s + acc }));
+    }
+    let n7 = t.len() - 2 * k - 1;
+    let per = data.xe - data.xb;
+    let m = data.m();
+    let tc: Vec<f64> = (0..=k).map(|i| x[0] - (k - i) as f64 * per).chain((0..=k).map(|i| x[m - 1] + i as f64 * per)).collect();
+    let (mut p1, mut f1) = (0.0, periodic_fit(&data, &tc, None).2 - s);
+    let (mut p3, mut f3) = (f64::INFINITY, fpinf - s);
+    let mut p = n7 as f64 / diag.iter().sum::<f64>();
+    let (con1, con4, con9) = (0.1, 0.04, 0.9);
+    let (mut ich1, mut ich3) = (false, false);
+    let mut last = (c0, fpinf);
+    let mut converged = false;
+    for _ in 0..MAXIT {
+        let (c, _, fp, _) = periodic_fit(&data, &t, Some(p));
+        let (p2, f2) = (p, fp - s);
+        last = (c, fp);
+        if f2.abs() < acc {
+            converged = true;
+            break;
+        }
+        if !ich3 {
+            if f2 - f3 <= acc {
+                (p3, f3) = (p2, f2);
+                p *= con4;
+                if p <= p1 {
+                    p = p1 * con9 + p2 * con1;
+                }
+                continue;
+            }
+            if f2 < 0.0 {
+                ich3 = true;
+            }
+        }
+        if !ich1 {
+            if f1 - f2 <= acc {
+                (p1, f1) = (p2, f2);
+                p /= con4;
+                if p3.is_finite() && p <= p3 {
+                    p = p2 * con1 + p3 * con9;
+                }
+                continue;
+            }
+            if f2 > 0.0 {
+                ich1 = true;
+            }
+        }
+        if f1 <= f2 || f2 <= f3 {
+            break;
+        }
+        p = fprati(p1, f1, p2, f2, p3, f3);
+        if f2 < 0.0 {
+            (p3, f3) = (p2, f2);
+        } else {
+            (p1, f1) = (p2, f2);
+        }
+    }
+    Ok((BSpline::new(t, periodic_full(&last.0, k), k)?, SplrepInfo { fp: last.1, converged }))
+}
+// ANCHOR_END: periodic
 
 #[cfg(test)]
 mod tests {

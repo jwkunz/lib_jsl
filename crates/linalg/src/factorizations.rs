@@ -353,6 +353,11 @@ fn lanv2(mut a: f64, mut b: f64, mut c: f64, mut d: f64) -> (f64, f64, f64, f64,
 }
 // ANCHOR_END: lanv2
 
+/// [`lanv2`] for the reordering module.
+pub(crate) fn lanv2_pub(a: f64, b: f64, c: f64, d: f64) -> (f64, f64, f64, f64, f64, f64) {
+    lanv2(a, b, c, d)
+}
+
 // ANCHOR: schur_real
 /// The real Schur form `A = Z T Zᵀ` of a real matrix (SciPy's `schur(a, output='real')`): `Z`
 /// orthogonal and `T` quasi upper triangular, with 1 × 1 blocks for real eigenvalues and 2 × 2

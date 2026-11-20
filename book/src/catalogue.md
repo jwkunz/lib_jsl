@@ -13,12 +13,12 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **620 algorithms and components in 23 crates**:
+The library implements **625 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 161 |
-| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 63 |
+| [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 68 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 95 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
@@ -254,7 +254,7 @@ Dense and sparse matrix factorisations, solvers and eigenproblems, Fourier trans
 
 Linear algebra in pure Rust: LU, Cholesky, eigensolvers, the SVD and least squares for real and complex matrices, and sparse matrices with direct and Krylov solvers.
 
-Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 36 items
+Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [book chapter](linear_algebra/index.md) · 39 items
 
 - [LU factorisation: solves, inverse, determinant](linear_algebra/lu.md#lu-factorisation)
 - [Cholesky factorisation and triangular solves](linear_algebra/cholesky.md)
@@ -279,6 +279,9 @@ Crate `lib_jsl_linalg`: [API reference](../api/lib_jsl_linalg/index.html) · [bo
 - [Toeplitz systems by Levinson recursion](linear_algebra/generalized-structured.md#toeplitz-systems-levinson-recursion)
 - [Circulant systems by the FFT](linear_algebra/generalized-structured.md#circulant-systems-the-fft)
 - [Banded LU and banded Cholesky solvers](linear_algebra/generalized-structured.md#banded-systems)
+- [Real QZ algorithm (real generalised Schur form)](linear_algebra/qz-reordering.md#the-real-qz-algorithm)
+- [Reordered Schur forms (`schur(sort=...)`)](linear_algebra/qz-reordering.md#swapping-diagonal-blocks)
+- [Reordered generalised Schur forms (`ordqz`)](linear_algebra/qz-reordering.md#swapping-diagonal-blocks)
 - [Least squares (pivoted QR, SVD for rank-deficient systems)](linear_algebra/least-squares.md)
 - [Sparse storage: COO, CSR and CSC matrices, products and conversions](linear_algebra/sparse.md#storage)
 - [Reverse Cuthill-McKee bandwidth-reducing ordering](linear_algebra/sparse.md#ordering-and-fill-in)
@@ -314,7 +317,7 @@ Crate `lib_jsl_linalg_reference`: [API reference](../api/lib_jsl_linalg_referenc
 
 Fast Fourier transform engines and related spectral transforms.
 
-Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book chapter](fft/index.md) · 13 items
+Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book chapter](fft/index.md) · 15 items
 
 - [FFT (default engine: picks the algorithm by size)](fft/fft.md#the-production-engines)
 - [Best FFT](fft/fft.md#the-production-engines)
@@ -328,6 +331,8 @@ Crate `lib_jsl_ffts`: [API reference](../api/lib_jsl_ffts/index.html) · [book c
 - [Frequency grids and shifts (`fftfreq`, `rfftfreq`, `ifftshift`)](fft/real-multidimensional.md#helpers-frequencies-fast-lengths-and-n-d-transforms)
 - [Fast transform lengths (`next_fast_len`)](fft/real-multidimensional.md#helpers-frequencies-fast-lengths-and-n-d-transforms)
 - [N-dimensional real FFTs and DCTs/DSTs (`rfftn`, `dctn`, `dstn`)](fft/real-multidimensional.md#helpers-frequencies-fast-lengths-and-n-d-transforms)
+- [FFTs of Hermitian signals (`hfft`, `ihfft`)](linear_algebra/qz-reordering.md#overview)
+- [Fast Hankel transform (FFTLog: `fht`, `ifht`, `fhtoffset`)](linear_algebra/qz-reordering.md#fftlog)
 - [Size-sweep benchmark](fft/index.md#two-crates)
 
 ### FFT reference

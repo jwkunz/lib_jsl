@@ -48,10 +48,12 @@ mod qr;
 mod reflectors;
 mod scalar;
 pub mod sparse;
+mod reorder;
 mod subspaces;
 mod svd;
 
 pub use structured::{ConvolutionMode, DftScale, PascalKind, block_diag, circulant, companion, convolution_matrix, dft, fiedler, hadamard, hankel, hilbert, invhilbert, invpascal, leslie, pascal, solve_banded, solve_circulant, solve_toeplitz, solveh_banded, toeplitz};
+pub use reorder::{EigenSort, OrdQz, OrdQzComplex, RealQzFactors, ordqz, ordqz_complex, qz_real, schur_sorted, schur_sorted_complex};
 pub use generalized::{GeneralizedEigen, QzFactors, eig_generalized, eigh_generalized, qz};
 pub use factorizations::{LdlFactors, QrFactors, QrMode, funm, hessenberg, ldl, polar, qr, rq, schur_real, subspace_angles};
 pub use error::{Diag, LinalgError, Result, UPLO};

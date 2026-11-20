@@ -57,6 +57,7 @@ mod fitpack29;
 mod geograph210;
 mod opt211;
 mod io212;
+mod qz213;
 mod optim2;
 mod signal2;
 mod quadode;
@@ -88,7 +89,7 @@ fn main() {
     // `GEN_ONLY=name` (a comma-separated list) regenerates only the named chapters.
     let only = std::env::var("GEN_ONLY").ok();
     let wanted = |name: &str| only.as_deref().is_none_or(|list| list.split(',').any(|n| n == name));
-    let chapters: [(&str, fn()); 55] = [
+    let chapters: [(&str, fn()); 56] = [
         ("derivatives", derivatives::generate),
         ("interpolation", interpolation::generate),
         ("b_splines", b_splines::generate),
@@ -120,6 +121,7 @@ fn main() {
         ("geograph210", geograph210::generate),
         ("opt211", opt211::generate),
         ("io212", io212::generate),
+        ("qz213", qz213::generate),
         ("fft", fft::generate),
         ("random", random::generate),
         ("statistics", statistics::generate),

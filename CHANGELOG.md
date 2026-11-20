@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.13.0] - 2026-11-20
+
+### Added
+
+- `linalg`: the real QZ algorithm (`qz_real`, SciPy's `qz(output='real')`); reordered Schur
+  forms (`schur_sorted`, `schur_sorted_complex`, SciPy's `schur(sort=...)`) and generalised
+  Schur forms (`ordqz`, `ordqz_complex`), with `EigenSort` for SciPy's `'lhp'`, `'rhp'`,
+  `'iuc'`, `'ouc'` or any predicate.
+- `ffts::fftlog`: `hfft` and `ihfft`, and the fast Hankel transform `fht`, `ifht` and
+  `fhtoffset` (FFTLog), with a complex log-gamma function.
+- Book: a new entry, "Real QZ, reordering and Hankel transforms", with comparisons against SciPy.
+
 ## [2.12.0] - 2026-11-19
 
 ### Added
@@ -638,7 +650,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.13.0...HEAD
+[2.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.13.0
 [2.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.12.0
 [2.11.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.11.0
 [2.10.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.10.0

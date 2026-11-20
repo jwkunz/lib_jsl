@@ -88,6 +88,7 @@
     - [Further factorisations: pivoted QR, RQ, Hessenberg, real Schur, LDLᵀ and polar](linear_algebra/factorizations.md)
     - [Generalised eigenproblems and structured matrices](linear_algebra/generalized-structured.md)
     - [Sparse matrices and iterative solvers](linear_algebra/sparse.md)
+    - [Real QZ, reordering and Hankel transforms](linear_algebra/qz-reordering.md)
 - [Fast Fourier transforms](fft/index.md)
     - [The fast Fourier transform](fft/fft.md)
     - [Bluestein's algorithm and the fractional Fourier transform](fft/bluestein-fractional.md)

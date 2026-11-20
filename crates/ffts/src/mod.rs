@@ -45,6 +45,8 @@ pub mod multidimensional_fft;
 pub mod real_fft;
 pub mod simd_fft;
 
+pub mod fftlog;
+pub use fftlog::{fht, fhtoffset, hfft, ifht, ihfft, ln_gamma_complex};
 pub use best_fft::BestFft;
 pub use bluestein_fft::BluesteinFft;
 pub use dct::{TrigNormalization, TrigTransformType, dct, dst, idct, idst};

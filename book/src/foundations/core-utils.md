@@ -9,7 +9,7 @@
 | **Accuracy** | 88 constants checked: mathematical ones to within $3 \times 10^{-16}$ of mpmath; physical ones within CODATA's uncertainties; unit factors exact or to double precision (tables below) |
 | **Cost** | Constants are compile-time values; conversions and spacing helpers $O(1)$; a plot $O(\text{points} + \text{cells})$ |
 | **Read first** | [Preliminaries: floating-point arithmetic](../preliminaries.md#floating-point-arithmetic-and-the-three-kinds-of-error) |
-| **API** | [`ErrorsJSL`](../../api/lib_jsl_core/types/enum.ErrorsJSL.html), [`IsLinearOperatable`](../../api/lib_jsl_core/traits/trait.IsLinearOperatable.html), [`IsAnalytic`](../../api/lib_jsl_core/traits/trait.IsAnalytic.html), [`constants`](../../api/lib_jsl_core/constants/index.html) (`math`, `physics`, `em`, `dsp`, `ml`, `units`), [`ulp`](../../api/lib_jsl_utils/machine_epsilon/fn.ulp.html), [`ulps_between`](../../api/lib_jsl_utils/machine_epsilon/fn.ulps_between.html), [`approx_eq_ulps`](../../api/lib_jsl_utils/machine_epsilon/fn.approx_eq_ulps.html), [`machine_epsilon`](../../api/lib_jsl_utils/machine_epsilon/fn.machine_epsilon.html), [`unit_conversion`](../../api/lib_jsl_utils/unit_conversion/fn.unit_conversion.html), [`render_terminal_plot`](../../api/lib_jsl_utils/terminal_plot/fn.render_terminal_plot.html), [`render_polar_plot`](../../api/lib_jsl_utils/terminal_plot/fn.render_polar_plot.html) |
+| **API** | [`ErrorsJSL`](../../api/lib_jsl_core/types/enum.ErrorsJSL.html), [`IsLinearOperatable`](../../api/lib_jsl_core/traits/trait.IsLinearOperatable.html), [`IsAnalytic`](../../api/lib_jsl_core/traits/trait.IsAnalytic.html), [`constants`](../../api/lib_jsl_core/constants/index.html) (`math`, `physics`, `em`, `dsp`, `ml`, `units`), [`codata`](../../api/lib_jsl_core/codata/index.html) (`physical_constant`, `value`, `unit`, `precision`, `find`), [`ulp`](../../api/lib_jsl_utils/machine_epsilon/fn.ulp.html), [`ulps_between`](../../api/lib_jsl_utils/machine_epsilon/fn.ulps_between.html), [`approx_eq_ulps`](../../api/lib_jsl_utils/machine_epsilon/fn.approx_eq_ulps.html), [`machine_epsilon`](../../api/lib_jsl_utils/machine_epsilon/fn.machine_epsilon.html), [`unit_conversion`](../../api/lib_jsl_utils/unit_conversion/fn.unit_conversion.html), [`render_terminal_plot`](../../api/lib_jsl_utils/terminal_plot/fn.render_terminal_plot.html), [`render_polar_plot`](../../api/lib_jsl_utils/terminal_plot/fn.render_polar_plot.html) |
 
 </div>
 
@@ -46,6 +46,27 @@ The constants are grouped by field. Physical ones follow CODATA 2022. Exact ones
 
 The physical differences are those between constants derived from the exact definitions and CODATA's separately adjusted values, well inside CODATA's uncertainties (the Bohr radius, for example, is known to $1.6 \times 10^{-10}$).
 
+### CODATA constants by name
+
+The `codata` module is SciPy's `scipy.constants.physical_constants` table. It holds every recommended value of the CODATA 2022 adjustment with its unit and standard uncertainty, looked up by its official name:
+- `physical_constant("electron mass")` returns a `PhysicalConstant` with value $9.1093837139\times10^{-31}$, unit `kg` and uncertainty $2.8\times10^{-40}$;
+- `value`, `unit` and `precision` (the relative uncertainty) return one field;
+- `find("magnetic moment")` lists the matching names.
+
+Like SciPy's, the table also keeps 90 names from earlier adjustments, such as `"mag. constant"` for what CODATA now calls the vacuum magnetic permeability. These are marked `obsolete` and left out of `find`.
+
+The table is generated from SciPy's by `book/generator/data/make_codata.py`, and the comparison doubles as an audit of the hand-written constants above:
+
+```rust,ignore
+{{#include ../../../crates/core/src/codata.rs:codata}}
+```
+
+<p class="caption" id="tab-26-2"><strong>Table 26.2.</strong> The CODATA table and the hand-written constants against SciPy.</p>
+
+{{#include ../generated/foundations/sys215_codata.md}}
+
+The audit found two hand-written constants outside their uncertainty. The Rydberg constant and the Hartree energy had been computed from $\alpha^2 m_e c/2h$ with the rounded $\alpha$ and $m_e$, which put them about $10^{-11}$ off, ten times CODATA's uncertainty for $R_\infty$. Since 2.15.0 both are CODATA's values. The largest remaining difference, $2\times10^{-11}$ for the classical electron radius, is well inside its uncertainty of $4.7\times10^{-10}$.
+
 ### Machine epsilon and ULPs
 
 A double-precision number has a 53-bit significand. Its neighbours are therefore $\operatorname{ulp}(x) = 2^{e - 52}$ apart, where $2^e \le |x| < 2^{e+1}$: the **unit in the last place**. The relative spacing $\operatorname{ulp}(x)/x$ lies between $2^{-53}$ and $2^{-52}$, the **machine epsilon**, whatever the magnitude:
@@ -66,7 +87,7 @@ Comparing results by the number of representable numbers between them, rather th
 
 Each unit has a dimension, a scale to its SI base unit and, for temperatures, an offset. Converting goes through the base unit, $v_{\text{to}} = (v\, s_{\text{from}} + o_{\text{from}} - o_{\text{to}}) / s_{\text{to}}$, and units of different dimensions are refused. Symbols are matched exactly first and then, if that is unambiguous, ignoring case. Ignoring case blindly would make `mW` a megawatt and `kb` a kilobyte, so ambiguous spellings such as `mw` are refused.
 
-<p class="caption" id="tab-26-2"><strong>Table 26.2.</strong> Unit conversions against exact values.</p>
+<p class="caption" id="tab-26-3"><strong>Table 26.3.</strong> Unit conversions against exact values.</p>
 
 {{#include ../generated/foundations/units.md}}
 

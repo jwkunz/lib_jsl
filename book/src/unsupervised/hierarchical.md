@@ -5,11 +5,11 @@
 | | |
 |---|---|
 | **Problem** | Build a tree of nested clusters by repeatedly merging the two closest groups; reconstruct evolutionary trees from distances between species |
-| **Devised by** | Peter Sneath (1957), single linkage; Thorvald Sørensen (1948), complete linkage; Robert Sokal and Charles Michener (1958), average linkage (UPGMA); Joe Ward (1963), minimum variance; Godfrey Lance and William Williams (1967), the unified update; Naruya Saitou and Masatoshi Nei (1987), neighbour joining |
+| **Devised by** | Peter Sneath (1957), single linkage; Thorvald Sørensen (1948), complete linkage; Robert Sokal and Charles Michener (1958), average linkage (UPGMA); Joe Ward (1963), minimum variance; Godfrey Lance and William Williams (1967), the unified update; Naruya Saitou and Masatoshi Nei (1987), neighbour joining; Ziv Bar-Joseph, David Gifford and Tommi Jaakkola (2001), optimal leaf ordering |
 | **Accuracy** | Exact for the stated criteria. UPGMA recovers a tree exactly from ultrametric distances, neighbour joining from additive ones |
 | **Cost** | $O(n^3)$ time and $O(n^2)$ memory, from a distance matrix |
 | **Read first** | [k-means and k-medoids](k-means.md) |
-| **API** | [`agglomerate`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/fn.agglomerate.html), [`Linkage`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/enum.Linkage.html), [`Dendrogram`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/struct.Dendrogram.html) (`cut_clusters`, `cut_distance`, `cophenetic_distances`), [`HierarchicalClustering`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/struct.HierarchicalClustering.html); [`upgma`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/fn.upgma.html), [`neighbor_joining`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/fn.neighbor_joining.html), [`PhylogeneticTree`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/struct.PhylogeneticTree.html) |
+| **API** | [`agglomerate`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/fn.agglomerate.html), [`Linkage`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/enum.Linkage.html), [`Dendrogram`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/struct.Dendrogram.html) (`cut_clusters`, `cut_distance`, `cophenetic_distances`, `inconsistent`, `optimal_leaf_ordering`, `leaves`, `to_linkage_matrix`, `from_linkage_matrix`), [`whiten`](../../api/lib_jsl_machine_learning/unsupervised/clustering/dendrogram_tools/fn.whiten.html), [`HierarchicalClustering`](../../api/lib_jsl_machine_learning/unsupervised/clustering/hierarchical/struct.HierarchicalClustering.html); [`upgma`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/fn.upgma.html), [`neighbor_joining`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/fn.neighbor_joining.html), [`PhylogeneticTree`](../../api/lib_jsl_machine_learning/supervised/classification/phylogenetic_trees/struct.PhylogeneticTree.html) |
 
 </div>
 
@@ -190,6 +190,40 @@ largest path-length error: NJ 0.0e0, UPGMA 0.67
 Neighbour joining recovers the true tree, with A and B as neighbours, from its additive distances. UPGMA groups A with the
 slowly evolving C and D, because A is closer to them (7 and 8) than to its true sister B (9).
 
+### Inconsistency and leaf order
+
+Three tools from `scipy.cluster` work on a finished tree.
+
+- **Whitening.** `whiten` divides each feature by its standard deviation before distances are computed, so that a feature measured on a larger scale does not dominate them.
+- **The inconsistency coefficient.** For each merge, `inconsistent(depth)` collects the heights of the merges at most `depth − 1` levels below it, itself included. It reports their mean $\bar h$, standard deviation $s$ and number, and the coefficient $(h - \bar h)/s$. A merge much higher than those beneath it joins two well-separated groups, so a large coefficient suggests where to cut (Jain and Dubes, 1988).
+- **Optimal leaf ordering.** A tree on $n$ leaves can be drawn in $2^{n-1}$ ways, one for each choice of which child goes left at every merge. `optimal_leaf_ordering` picks the drawing whose leaf sequence has the smallest total distance between neighbours, so that similar points sit together and a heat map of the reordered data shows its blocks.
+
+The search over all drawings is a dynamic programme (Bar-Joseph, Gifford and Jaakkola, 2001). For a merge $v$ with children $l$ and $r$, let $M(v, u, w)$ be the shortest path through the leaves of $v$ that starts at leaf $u$ of $l$ and ends at leaf $w$ of $r$. It is
+$$M(v, u, w) = \min_{m,\,k} \big[M(l, u, m) + D_{mk} + M(r, k, w)\big],$$
+where $m$ runs over the leaves of $l$ that can end a path starting at $u$, and $k$ over the leaves of $r$ that can start one ending at $w$. Minimising first over $m$ for each pair $(u, k)$ brings the whole computation to $O(n^3)$.
+
+```rust,ignore
+{{#include ../../../crates/machine_learning/src/unsupervised/clustering/dendrogram_tools.rs:inconsistent}}
+```
+
+```rust,ignore
+{{#include ../../../crates/machine_learning/src/unsupervised/clustering/dendrogram_tools.rs:optimal_leaf_ordering}}
+```
+
+The references are from SciPy 1.17.1, written by `book/generator/data/make_sys215_refs.py`. The trees are those of 36 points in three groups, with the second feature on a ten times larger scale:
+
+<p class="caption" id="tab-12-8"><strong>Table 12.8.</strong> Whitening, inconsistency coefficients, leaf order and optimal leaf ordering against SciPy.</p>
+
+{{#include ../generated/unsupervised/sys215_cluster.md}}
+
+The trees, the inconsistency statistics and the leaf order agree with SciPy's to rounding. The optimal leaf orderings do not: the library's leaf paths are 1–2 % shorter than SciPy's for every linkage.
+
+The library's result is the true optimum. Its unit tests compare it with an exhaustive search over all $2^{n-1}$ drawings of 44 trees, and an independent Python implementation of the recurrence gives the same lengths here. SciPy's `optimal_leaf_ordering` returned a longer ordering than the exhaustive search for 131 of 200 random 9-point trees, so it does not always find the optimum.
+
+![A dendrogram as built and in optimal leaf order](../generated/unsupervised/olo_dendrogram.svg)
+
+<p class="caption" id="fig-12-2"><strong>Figure 12.2.</strong> The average-linkage tree of the 36 points, drawn upward as built and downward in optimal leaf order. Both are the same tree; reordering shortens the path through the leaves from 110 to 65.</p>
+
 **Strengths**
 
 - One fit gives clusterings at every scale, and the dendrogram shows how clear the grouping is.
@@ -230,3 +264,5 @@ slowly evolving C and D, because A is closer to them (7 and 8) than to its true 
 - N. Saitou and M. Nei, "The neighbor-joining method: a new method for reconstructing phylogenetic trees", *Molecular Biology and Evolution* 4 (1987) 406–425.
 - J. Felsenstein, *Inferring Phylogenies*, Sinauer, 2004, chapter 11.
 - D. Müllner, "Modern hierarchical, agglomerative clustering algorithms", arXiv:1109.2378, 2011.
+- Z. Bar-Joseph, D. K. Gifford and T. S. Jaakkola, "Fast optimal leaf ordering for hierarchical clustering", *Bioinformatics* 17 (2001) S22–S29.
+- A. K. Jain and R. C. Dubes, *Algorithms for Clustering Data*, Prentice Hall (1988), for the inconsistency coefficient.

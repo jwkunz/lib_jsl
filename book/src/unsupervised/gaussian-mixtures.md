@@ -102,7 +102,7 @@ climbs steadily to a local maximum. Progress can be slow, though:
 
 ![Log-likelihood by iteration](../generated/unsupervised/gmm_loglik.svg)
 
-<p class="caption" id="fig-12-4"><strong>Figure 12.4.</strong> Log-likelihood by iteration.</p>
+<p class="caption" id="fig-12-5"><strong>Figure 12.5.</strong> Log-likelihood by iteration.</p>
 
 Starting from k-means, which split the two overlapping elongated clusters across rather than along their length, EM creeps along
 a plateau for about 25 iterations while the components slowly rotate, then climbs quickly to the better maximum.
@@ -117,7 +117,7 @@ The three clusters are stretched and tilted, two of them almost touching. k-mean
 cuts the clusters across. The mixture's full covariances follow the clusters' shapes and recover them; the remaining errors are in
 the region where the two lower clusters overlap. The fitted parameters match the sample statistics of the generating clusters:
 
-<p class="caption" id="tab-12-9"><strong>Table 12.9.</strong> Gaussian mixture fit: means and weights against the truth.</p>
+<p class="caption" id="tab-12-10"><strong>Table 12.10.</strong> Gaussian mixture fit: means and weights against the truth.</p>
 
 {{#include ../generated/unsupervised/gmm_parameters.md}}
 
@@ -137,7 +137,7 @@ with $m = k(p + p(p + 1)/2) + k - 1$ for full covariances. Lower is better.
 
 ![BIC against k](../generated/unsupervised/gmm_bic.svg)
 
-<p class="caption" id="fig-12-5"><strong>Figure 12.5.</strong> BIC against k.</p>
+<p class="caption" id="fig-12-6"><strong>Figure 12.6.</strong> BIC against k.</p>
 
 With full covariances the BIC is smallest at the true $k = 3$. With diagonal covariances it keeps falling: several axis-aligned
 components are needed to approximate each tilted ellipse, so the criterion chooses a different $k$ for a different model. BIC penalises

@@ -55,7 +55,7 @@ Two elongated classes lie side by side, offset across their long axis:
 
 ![PCA and LDA directions](../generated/unsupervised/lda_directions.svg)
 
-<p class="caption" id="fig-12-10"><strong>Figure 12.10.</strong> PCA and LDA directions.</p>
+<p class="caption" id="fig-12-11"><strong>Figure 12.11.</strong> PCA and LDA directions.</p>
 
 | | |
 |:---:|:---:|
@@ -93,7 +93,7 @@ adjustment. The library classifies this way, using the directions it keeps. On t
 |:---:|:---:|
 | ![LDA projection](../generated/unsupervised/lda_projection.svg) | ![PCA projection](../generated/unsupervised/lda_pca_projection.svg) |
 
-<p class="caption" id="tab-12-12"><strong>Table 12.12.</strong> LDA as a classifier against other classifiers.</p>
+<p class="caption" id="tab-12-13"><strong>Table 12.13.</strong> LDA as a classifier against other classifiers.</p>
 
 {{#include ../generated/unsupervised/lda_accuracy.md}}
 

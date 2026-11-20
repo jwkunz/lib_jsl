@@ -80,7 +80,7 @@ uncorrelated, because in the eigenvector basis the covariance matrix is diagonal
 
 ![Principal axes](../generated/unsupervised/pca_axes.svg)
 
-<p class="caption" id="fig-12-7"><strong>Figure 12.7.</strong> Principal axes.</p>
+<p class="caption" id="fig-12-8"><strong>Figure 12.8.</strong> Principal axes.</p>
 
 ### Best low-rank reconstruction
 
@@ -103,7 +103,7 @@ The error is exactly the variance in the directions thrown away: the mean square
 error equals the sum of the discarded eigenvalues (times $(n - 1)/n$, and divided by $p$ for a
 per-feature mean):
 
-<p class="caption" id="tab-12-11"><strong>Table 12.11.</strong> Variance explained and reconstruction error of PCA.</p>
+<p class="caption" id="tab-12-12"><strong>Table 12.12.</strong> Variance explained and reconstruction error of PCA.</p>
 
 {{#include ../generated/unsupervised/pca_reconstruction.md}}
 
@@ -116,7 +116,7 @@ dimensions plus noise:
 
 ![Scree plot](../generated/unsupervised/pca_scree.svg)
 
-<p class="caption" id="fig-12-8"><strong>Figure 12.8.</strong> Scree plot.</p>
+<p class="caption" id="fig-12-9"><strong>Figure 12.9.</strong> Scree plot.</p>
 
 The first three components carry 98.8% of the variance, and the remaining nine share the noise equally. A **scree plot** like this,
 or a target fraction such as 95%, is the usual way to choose $q$. PCA depends on the units: a feature measured in millimetres
@@ -150,7 +150,7 @@ pair, like a sine and a cosine), and the third separates the inner ring from the
 
 ![Kernel PCA eigenvalues](../generated/unsupervised/kpca_eigenvalues.svg)
 
-<p class="caption" id="fig-12-9"><strong>Figure 12.9.</strong> Kernel PCA eigenvalues.</p>
+<p class="caption" id="fig-12-10"><strong>Figure 12.10.</strong> Kernel PCA eigenvalues.</p>
 
 The centred Gram matrix always has the eigenvalue zero (the constant vector) and, for smooth kernels, many tiny ones.
 

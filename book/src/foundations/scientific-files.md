@@ -88,7 +88,7 @@ A Fortran unformatted sequential write frames each record with its byte count, b
 
 The files were written by SciPy 1.17.1 with `book/generator/data/make_io_refs.py`, read by the library, written again by the library, and read back by SciPy:
 
-<p class="caption" id="tab-26-10"><strong>Table 26.10.</strong> File exchange with `scipy.io` in both directions.</p>
+<p class="caption" id="tab-26-11"><strong>Table 26.11.</strong> File exchange with `scipy.io` in both directions.</p>
 
 {{#include ../generated/foundations/io_formats.md}}
 

@@ -69,7 +69,7 @@ Clusters that are almost disconnected give $k$ eigenvalues near zero and a jump,
 
 ![Laplacian eigenvalues](../generated/unsupervised/spectral_eigengap.svg)
 
-<p class="caption" id="fig-12-6"><strong>Figure 12.6.</strong> Laplacian eigenvalues.</p>
+<p class="caption" id="fig-12-7"><strong>Figure 12.7.</strong> Laplacian eigenvalues.</p>
 
 With three blobs, three eigenvalues are zero and the fourth jumps to 0.09; with five blobs the jump comes after the fifth. The
 eigengap is a natural guide to the number of clusters.
@@ -100,7 +100,7 @@ them perfectly.
 
 Everything depends on building a graph whose components are the clusters:
 
-<p class="caption" id="tab-12-10"><strong>Table 12.10.</strong> Spectral clustering with different similarity graphs.</p>
+<p class="caption" id="tab-12-11"><strong>Table 12.11.</strong> Spectral clustering with different similarity graphs.</p>
 
 {{#include ../generated/unsupervised/spectral_graphs.md}}
 

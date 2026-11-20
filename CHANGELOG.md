@@ -6,6 +6,28 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.15.0] - 2026-11-20
+
+### Added
+
+- `machine_learning::unsupervised::clustering`: `Dendrogram::inconsistent` (SciPy's
+  `inconsistent`), `Dendrogram::optimal_leaf_ordering` and `leaf_path_length` (Bar-Joseph,
+  Gifford and Jaakkola's exact dynamic programme), `Dendrogram::leaves` (`leaves_list`),
+  `to_linkage_matrix` and `from_linkage_matrix` (SciPy's linkage format), and `whiten`.
+- `dsp::continuous::zpk`: `ZerosPolesGain`, a continuous- or discrete-time system in factored
+  form, with `freqresp` and `bode` evaluated factor by factor, `lsim`, `step`, `impulse`,
+  `dlsim`, `dstep`, `dimpulse`, `to_tf`, `to_ss` and `to_discrete`.
+- `core::codata`: SciPy's CODATA 2022 table of 445 named constants with units and
+  uncertainties (`physical_constant`, `value`, `unit`, `precision`, `find`).
+- Book: new sections on inconsistency and leaf order, `ZerosPolesGain`, and CODATA look-up, with
+  comparisons against SciPy.
+
+### Fixed
+
+- `constants::physics::RYDBERG` and `HARTREE` are now CODATA's values; computed from rounded
+  α and mₑ they were off by about 1e-11 relative, ten times R∞'s uncertainty. `RYDBERG_ENERGY`
+  follows `HARTREE`.
+
 ## [2.14.0] - 2026-11-20
 
 ### Added
@@ -666,7 +688,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.15.0...HEAD
+[2.15.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.15.0
 [2.14.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.14.0
 [2.13.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.13.0
 [2.12.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.12.0

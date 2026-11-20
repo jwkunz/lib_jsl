@@ -9,7 +9,7 @@
 | **Accuracy** | Simulation is exact for inputs held constant or linear between samples; agrees with `scipy.signal` to $10^{-13}$ or better |
 | **Cost** | Simulation: one matrix exponential of size $n + 2m$, then $O(n^2 + nm)$ per step. Frequency response: one $n \times n$ solve per frequency. Pole placement: $O(n^3)$ per sweep |
 | **Read first** | [Control: state-space models, PID controllers and the Kalman filter](controls.md), [Matrix functions and matrix equations](../linear_algebra/matrix-equations.md) |
-| **API** | [`ContinuousStateSpace`](../../api/lib_jsl_dsp/continuous/lti/struct.ContinuousStateSpace.html) (`lsim`, `step`, `impulse`, `freqresp`, `bode`, `discretize`, `poles`), [`tf2ss`](../../api/lib_jsl_dsp/continuous/lti/fn.tf2ss.html), [`ss2tf`](../../api/lib_jsl_dsp/continuous/lti/fn.ss2tf.html), [`place_poles`](../../api/lib_jsl_dsp/continuous/lti/fn.place_poles.html), [`Discretization`](../../api/lib_jsl_dsp/continuous/lti/enum.Discretization.html), [`InputHold`](../../api/lib_jsl_dsp/continuous/lti/enum.InputHold.html) |
+| **API** | [`ContinuousStateSpace`](../../api/lib_jsl_dsp/continuous/lti/struct.ContinuousStateSpace.html) (`lsim`, `step`, `impulse`, `freqresp`, `bode`, `discretize`, `poles`), [`tf2ss`](../../api/lib_jsl_dsp/continuous/lti/fn.tf2ss.html), [`ss2tf`](../../api/lib_jsl_dsp/continuous/lti/fn.ss2tf.html), [`place_poles`](../../api/lib_jsl_dsp/continuous/lti/fn.place_poles.html), [`Discretization`](../../api/lib_jsl_dsp/continuous/lti/enum.Discretization.html), [`InputHold`](../../api/lib_jsl_dsp/continuous/lti/enum.InputHold.html); [`ZerosPolesGain`](../../api/lib_jsl_dsp/continuous/zpk/struct.ZerosPolesGain.html) |
 
 </div>
 
@@ -184,6 +184,33 @@ third-order transfer function and a system with 3 states, 2 inputs and 2 outputs
 
 {{#include ../generated/comms/lti_place_facts.md}}
 
+### Zeros, poles and gain as a system
+
+`ZerosPolesGain` holds a single-input, single-output system in factored form,
+$$H(x) = k\,\frac{\prod_i (x - z_i)}{\prod_j (x - p_j)},$$
+with $x = s$ in continuous time or $x = z$ in discrete time with a sample time `dt`. It is SciPy's `ZerosPolesGain` (`lti(z, p, k)` and `dlti(z, p, k, dt=...)`).
+
+Filter design produces this form, and it is the accurate one to evaluate. `freqresp` and `bode` multiply the factors $(i\omega - z_i)$ and divide by $(i\omega - p_j)$ one at a time, so each factor contributes a relative error of order $\varepsilon$. Expanding the factors into polynomial coefficients first gives coefficients of very different sizes, and evaluating the polynomials near the passband edge cancels them. Figure 16.21 shows the cost for Butterworth filters: the expanded form loses one digit for every few orders.
+
+Time responses and discretisation go through the state-space form, as in SciPy:
+- `lsim`, `step` and `impulse` for continuous-time systems;
+- `dlsim`, `dstep` and `dimpulse` for discrete-time ones;
+- `to_discrete` for converting one to the other.
+
+```rust,ignore
+{{#include ../../../crates/dsp/src/continuous/zpk.rs:zpk}}
+```
+
+<p class="caption" id="tab-16-7"><strong>Table 16.7.</strong> ZerosPolesGain against SciPy.</p>
+
+{{#include ../generated/comms/sys215_zpk.md}}
+
+Responses agree to $10^{-10}$ or better. The zeros of the discretised systems differ by up to $3\times10^{-2}$, because both libraries compute them as roots of the numerator polynomial. The bilinear transform maps all six zeros at infinity of the Butterworth filter to $z = -1$, and a six-fold root moves by about $\varepsilon^{1/6} \approx 10^{-2.6}$ under rounding. Both libraries are off by a few hundredths, while the responses, which depend on the polynomial and not on its roots, agree.
+
+![Relative error of the Butterworth magnitude from factored and expanded forms](../generated/comms/zpk_vs_tf.svg)
+
+<p class="caption" id="fig-16-21"><strong>Figure 16.21.</strong> The largest relative error of $|H(i\omega)|$ for Butterworth filters of order $N$, against the exact $1/\sqrt{1 + \omega^{2N}}$. Factor by factor the error stays near $10^{-14}$; from expanded coefficients it grows to about $5\times10^{-6}$ at order 40.</p>
+
 **Strengths**
 
 - Simulation is exact for held or linearly interpolated inputs, with no step-size error to control. Stiff systems cost the same as
@@ -195,7 +222,7 @@ third-order transfer function and a system with 3 states, 2 inputs and 2 outputs
 
 - Time steps must be equal; for irregular sampling, call `lsim` piecewise.
 - `tf2ss` and `ss2tf` go through polynomial coefficients and eigenvalues, which lose accuracy for high orders. Prefer state space throughout.
-- No zero-pole-gain type, no time delays, and no automatic choice of time grid for `step` and `impulse`.
+- Time delays only through Padé approximants (`pade_delay`).
 
 ## Exercises
 

@@ -229,10 +229,11 @@ pub mod physics {
     /// Thomson scattering cross-section σ_T = (8π/3)·r_e², m²
     pub const THOMSON_CROSS_SECTION: f64 =
         (8.0 * PI / 3.0) * CLASSICAL_ELECTRON_RADIUS * CLASSICAL_ELECTRON_RADIUS;
-    /// Rydberg constant R∞ = α²·m_e·c/(2h), 1/m
-    pub const RYDBERG: f64 = ALPHA * ALPHA * M_E * C / (2.0 * H);
-    /// Hartree energy E_h = m_e·c²·α², J
-    pub const HARTREE: f64 = M_E * C * C * ALPHA * ALPHA;
+    /// Rydberg constant R∞ = α²·m_e·c/(2h), 1/m (CODATA 2022 value: the formula with the
+    /// rounded α and m_e is off by ten times R∞'s uncertainty)
+    pub const RYDBERG: f64 = 10_973_731.568_157;
+    /// Hartree energy E_h = m_e·c²·α² = 2hc·R∞, J (CODATA 2022)
+    pub const HARTREE: f64 = 4.359_744_722_206e-18;
     /// Rydberg energy = E_h / 2, J
     pub const RYDBERG_ENERGY: f64 = HARTREE / 2.0;
     /// Electron rest energy m_e·c², J

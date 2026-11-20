@@ -13,16 +13,16 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **630 algorithms and components in 23 crates**:
+The library implements **635 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
 | [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 161 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 68 |
-| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 100 |
-| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 203 |
+| [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 103 |
+| [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 204 |
 | [Discrete mathematics and geometry](#discrete-mathematics-and-geometry) | Number theory, Graph, Geometry | 76 |
-| [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 22 |
+| [Foundations and input/output](#foundations-and-inputoutput) | Core, Utils, Sorting and selection, File IO | 23 |
 
 ## Calculus and analysis
 
@@ -434,7 +434,7 @@ Crate `lib_jsl_statistics`: [API reference](../api/lib_jsl_statistics/index.html
 
 Machine learning: regression, classification, clustering, dimensionality reduction, neural networks and boosting.
 
-Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · book chapters: [regression and classification](machine_learning/index.md), [clustering and dimensionality reduction](unsupervised/index.md), [neural networks, ensembles, model selection and sequence models](learning/index.md) · 37 items
+Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learning/index.html) · book chapters: [regression and classification](machine_learning/index.md), [clustering and dimensionality reduction](unsupervised/index.md), [neural networks, ensembles, model selection and sequence models](learning/index.md) · 40 items
 
 #### Foundations
 
@@ -471,6 +471,9 @@ Crate `lib_jsl_machine_learning`: [API reference](../api/lib_jsl_machine_learnin
 - [k-means](unsupervised/k-means.md#lloyds-algorithm) ([k-means++](unsupervised/k-means.md#k-means-seeding-and-restarts))
 - [k-medoids](unsupervised/k-means.md#k-medoids)
 - [Hierarchical clustering](unsupervised/hierarchical.md#linkage-criteria)
+- [Inconsistency coefficients and SciPy linkage matrices](unsupervised/hierarchical.md#inconsistency-and-leaf-order)
+- [Optimal leaf ordering (Bar-Joseph-Gifford-Jaakkola)](unsupervised/hierarchical.md#inconsistency-and-leaf-order)
+- [Whitening (`whiten`)](unsupervised/hierarchical.md#inconsistency-and-leaf-order)
 - [DBSCAN](unsupervised/density.md#dbscan-core-border-and-noise-points)
 - [HDBSCAN](unsupervised/density.md#hdbscan-every-density-at-once)
 - [Gaussian mixture models](unsupervised/gaussian-mixtures.md#expectation-maximisation)
@@ -512,7 +515,7 @@ Signal processing, information theory and coding, and electromagnetics.
 
 Digital signal processing routines including filters, transforms, resampling, and controls.
 
-Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 145 items
+Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chapters: [filter design, FIR and IIR filters, adaptive filters](filters/index.md), [spectral estimation, windows, resampling and multirate processing](spectral/index.md), [synchronisation, communications, radar and controls](comms/index.md), [image processing](image/index.md) · 146 items
 
 #### Continuous
 
@@ -577,6 +580,7 @@ Crate `lib_jsl_dsp`: [API reference](../api/lib_jsl_dsp/index.html) · book chap
 - [Frequency response and Bode diagrams](comms/continuous-time.md#frequency-response)
 - [Discretisation: zero- and first-order hold, impulse invariance, bilinear and Euler](comms/continuous-time.md#discretisation)
 - [Pole placement by state feedback (Kautsky-Nichols-Van Dooren)](comms/continuous-time.md#pole-placement)
+- [Zeros-poles-gain systems in continuous and discrete time (`ZerosPolesGain`)](comms/continuous-time.md#zeros-poles-and-gain-as-a-system)
 
 ##### Sources
 
@@ -965,10 +969,11 @@ Shared types, utilities, sorting and file formats.
 
 Shared foundation types, aliases, and traits for the lib_jsl workspace.
 
-Crate `lib_jsl_core`: [API reference](../api/lib_jsl_core/index.html) · book chapter: [foundations](foundations/index.md) · 2 items
+Crate `lib_jsl_core`: [API reference](../api/lib_jsl_core/index.html) · book chapter: [foundations](foundations/index.md) · 3 items
 
 - [Data types and traits](foundations/core-utils.md#errors-and-numeric-traits)
 - [Constants](foundations/core-utils.md#constants)
+- [CODATA 2022 constants by name, with units and uncertainties](foundations/core-utils.md#codata-constants-by-name)
 
 ### Utils
 

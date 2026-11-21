@@ -73,6 +73,7 @@
     - [Statistical distribution functions](special_functions/statistical.md)
     - [Log-domain functions and inverse incomplete integrals](special_functions/log-domain.md)
     - [Faddeeva, Struve, Kelvin and Hankel functions](special_functions/faddeeva-struve-kelvin.md)
+    - [Mathieu, parabolic cylinder and spheroidal wave functions](special_functions/wave-functions.md)
 
 # Linear algebra and transforms
 

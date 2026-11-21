@@ -13,11 +13,11 @@ parameters, follow the API reference link under each crate.
 
 <div class="catalogue">
 
-The library implements **652 algorithms and components in 23 crates**:
+The library implements **655 algorithms and components in 23 crates**:
 
 | Subject | Crates | Items |
 |---|---|---:|
-| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 172 |
+| [Calculus and analysis](#calculus-and-analysis) | Derivatives, Integration, Interpolation, Root finding, Optimisation, Special functions | 175 |
 | [Linear algebra and transforms](#linear-algebra-and-transforms) | Linear algebra, Linear algebra reference, FFTs, FFT reference | 69 |
 | [Probability, statistics and learning](#probability-statistics-and-learning) | Random, Statistics, Machine learning | 103 |
 | [Signals, information and fields](#signals-information-and-fields) | DSP, Information, Electromagnetics | 204 |
@@ -218,7 +218,7 @@ Crate `lib_jsl_optimization`: [API reference](../api/lib_jsl_optimization/index.
 
 Special functions: gamma, beta, error, Bessel, Airy, elliptic, hypergeometric and zeta functions, orthogonal polynomials.
 
-Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 36 items
+Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functions/index.html) · [book chapter](special_functions/index.md) · 39 items
 
 - [Gamma](special_functions/gamma.md#the-gamma-function)
 - [Beta](special_functions/gamma.md#the-beta-function)
@@ -254,6 +254,9 @@ Crate `lib_jsl_special_functions`: [API reference](../api/lib_jsl_special_functi
 - [Faddeeva function and Voigt profile](special_functions/faddeeva-struve-kelvin.md#the-faddeeva-function)
 - [Struve functions](special_functions/faddeeva-struve-kelvin.md#struve-functions)
 - [Kelvin functions](special_functions/faddeeva-struve-kelvin.md#kelvin-functions)
+- [Mathieu functions and characteristic values (periodic and modified, both kinds)](special_functions/wave-functions.md#characteristic-values-as-eigenvalues)
+- [Parabolic cylinder functions D_v, V_v and W(a, x)](special_functions/wave-functions.md#parabolic-cylinder-functions-without-cancellation)
+- [Spheroidal wave functions: characteristic values, angular and radial functions of the first kind](special_functions/wave-functions.md#characteristic-values-as-eigenvalues)
 - [Hankel functions](special_functions/faddeeva-struve-kelvin.md#hankel-functions-and-bessel-zeros)
 - [Zeros of Bessel functions](special_functions/faddeeva-struve-kelvin.md#hankel-functions-and-bessel-zeros)
 

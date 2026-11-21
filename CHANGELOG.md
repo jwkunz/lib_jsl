@@ -6,6 +6,18 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.20.0] - 2026-11-21
+
+### Added
+
+- `special_functions::mathieu`: `mathieu_a`, `mathieu_b`, `mathieu_cem`, `mathieu_sem` and the
+  modified functions `mathieu_modcem1`, `mathieu_modcem2`, `mathieu_modsem1`, `mathieu_modsem2`.
+- `special_functions::parabolic_cylinder`: `pbdv`, `pbvv` and `pbwa`; `D_v` by an integral
+  representation and recurrence, accurate where SciPy's series cancels.
+- `special_functions::spheroidal`: `pro_cv`, `obl_cv`, `pro_ang1`, `obl_ang1`, `pro_rad1`,
+  `obl_rad1` (Flammer's normalisation, as SciPy).
+- Book: a new entry, "Mathieu, parabolic cylinder and spheroidal wave functions".
+
 ## [2.19.0] - 2026-11-20
 
 ### Added
@@ -743,7 +755,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.19.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.20.0...HEAD
+[2.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.20.0
 [2.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.19.0
 [2.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.18.0
 [2.17.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.17.0

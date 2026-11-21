@@ -34,6 +34,10 @@ pub mod orthogonal_polynomials;
 pub mod spherical_harmonics;
 pub mod log_functions;
 pub mod polygamma;
+pub(crate) mod tridiagonal;
+pub mod mathieu;
+pub mod parabolic_cylinder;
+pub mod spheroidal;
 pub mod inverse_incomplete;
 
 pub use gamma::{

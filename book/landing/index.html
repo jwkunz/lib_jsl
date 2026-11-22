@@ -3,30 +3,122 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>lib_jsl documentation</title>
+<title>lib_jsl: scientific computing in pure Rust</title>
+<meta name="description" content="lib_jsl is Jake's Scientific Library: pure-Rust algorithms for numerical integration, linear algebra, optimisation, special functions, signal processing, statistics and more. API reference and technical documentation.">
 <style>
-  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 46rem; margin: 3rem auto; padding: 0 1.2rem; color: #222; line-height: 1.55; }
-  h1 { margin-bottom: 0.2rem; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; margin-top: 2rem; }
-  a.card { display: block; border: 1px solid #ccd; border-radius: 8px; padding: 1rem 1.2rem; text-decoration: none; color: inherit; }
-  a.card:hover { border-color: #0072B2; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
-  a.card h2 { margin: 0 0 0.4rem 0; font-size: 1.2rem; color: #0072B2; }
-  @media (prefers-color-scheme: dark) { body { background: #1d1f21; color: #ddd; } a.card { border-color: #445; } }
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --line: #d1d9e0; --card: #f6f8fa;
+    --accent: #0969da; --accent-bg: #ddf4ff; --code-bg: #eff2f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --fg: #e6edf3; --muted: #9198a1; --line: #30363d; --card: #151b23;
+      --accent: #4493f8; --accent-bg: #0c2d6b; --code-bg: #212830;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); line-height: 1.55;
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 56rem; margin: 0 auto; padding: 3rem 1rem 4rem; }
+  h1 { font-size: 2.4rem; margin: 0 0 0.3rem; letter-spacing: -0.02em; }
+  h2 { font-size: 1.15rem; margin: 2.6rem 0 0.8rem; }
+  .tag { font-size: 1.15rem; color: var(--muted); margin: 0 0 0.9rem; max-width: 40rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+  .badge { font-size: 0.85rem; border: 1px solid var(--line); border-radius: 2rem; padding: 0.15rem 0.7rem;
+           color: var(--muted); text-decoration: none; }
+  a.badge:hover { border-color: var(--accent); color: var(--accent); }
+  .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem; }
+  a.door { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px;
+           background: var(--card); padding: 1.3rem 1.4rem; text-decoration: none; color: inherit; }
+  a.door:hover, a.door:focus-visible { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-bg); }
+  .door .kind { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .door h3 { margin: 0.2rem 0 0.5rem; font-size: 1.5rem; color: var(--accent); }
+  .door p { margin: 0 0 1rem; }
+  .door .go { margin-top: auto; font-weight: 600; color: var(--accent); }
+  .sub { margin: 0.7rem 0 0; font-size: 0.92rem; color: var(--muted); }
+  .sub a { color: var(--accent); }
+  pre { background: var(--code-bg); border-radius: 8px; padding: 0.8rem 1rem; overflow-x: auto; margin: 0.6rem 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+  .crates { list-style: none; padding: 0; margin: 0; display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.6rem; }
+  .crates a { display: block; border: 1px solid var(--line); border-radius: 8px; padding: 0.55rem 0.8rem;
+              text-decoration: none; color: inherit; height: 100%; }
+  .crates a:hover { border-color: var(--accent); }
+  .crates b { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9rem; }
+  .crates span { display: block; font-size: 0.86rem; color: var(--muted); }
+  footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--line); font-size: 0.92rem; color: var(--muted); }
+  footer a { color: var(--accent); }
 </style>
 </head>
 <body>
+<main>
 <h1>lib_jsl</h1>
-<p>Jake's Scientific Library: algorithms for scientific computing in Rust.</p>
-<div class="cards">
-  <a class="card" href="book/index.html">
-    <h2>The book</h2>
-    <p>An encyclopedia of the algorithms: what they do, where they came from, why they work, and how they are implemented.</p>
+<p class="tag">Jake's Scientific Library: algorithms for scientific computing in pure Rust, implemented from first principles and checked against SciPy and other references.</p>
+<div class="badges">
+  <span class="badge">version {{VERSION}}</span>
+  <a class="badge" href="https://crates.io/crates/lib_jsl">crates.io</a>
+  <a class="badge" href="https://docs.rs/lib_jsl">docs.rs</a>
+  <a class="badge" href="https://github.com/jwkunz/lib_jsl">GitHub</a>
+  <a class="badge" href="https://github.com/jwkunz/lib_jsl/blob/main/CHANGELOG.md">Changelog</a>
+  <span class="badge">MIT licence</span>
+</div>
+
+<div class="doors">
+  <a class="door" href="api/lib_jsl/index.html">
+    <span class="kind">For using the library</span>
+    <h3>API reference</h3>
+    <p>Every crate, module, type and function with its signature and documentation, generated by rustdoc from the code of this release.</p>
+    <span class="go">Open the API reference &rarr;</span>
   </a>
-  <a class="card" href="api/lib_jsl/index.html">
-    <h2>API reference</h2>
-    <p>Every crate, type and function, generated by rustdoc.</p>
+  <a class="door" href="book/index.html">
+    <span class="kind">For understanding the algorithms</span>
+    <h3>Technical documentation</h3>
+    <p><em>Numerical Algorithms with lib_jsl</em>: the idea, history, algorithm and implementation of each method, with measured accuracy and speed against SciPy, figures and exercises.</p>
+    <span class="go">Open the book &rarr;</span>
   </a>
 </div>
-<p style="margin-top: 2rem"><a href="https://github.com/jwkunz/lib_jsl">Source code on GitHub</a></p>
+<p class="sub">Looking for something specific? The book's <a href="book/catalogue.html">catalogue of algorithms</a> lists everything the library implements, with a link to the entry that explains each one.</p>
+
+<h2>Get started</h2>
+<pre><code>cargo add lib_jsl            # everything, re-exported by domain
+cargo add lib_jsl_linalg     # or a single domain crate</code></pre>
+<pre><code>use lib_jsl::integration::gaussian_quadrature::GaussLegendreEngine;</code></pre>
+<p class="sub">Each domain crate also works on its own. The book's <a href="book/foundations/api-conventions.html">API conventions</a> entry describes the shared error type, result types and the stability policy.</p>
+
+<h2>API reference by crate</h2>
+<ul class="crates">
+  <li><a href="api/lib_jsl/index.html"><b>lib_jsl</b><span>The umbrella crate: re-exports every domain below</span></a></li>
+  <li><a href="api/lib_jsl_core/index.html"><b>lib_jsl_core</b><span>Shared types, traits, errors, constants and CODATA</span></a></li>
+  <li><a href="api/lib_jsl_linalg/index.html"><b>lib_jsl_linalg</b><span>Dense and sparse linear algebra, eigensolvers, SVD</span></a></li>
+  <li><a href="api/lib_jsl_integration/index.html"><b>lib_jsl_integration</b><span>Quadrature, ODE solvers, boundary value problems, PDEs</span></a></li>
+  <li><a href="api/lib_jsl_optimization/index.html"><b>lib_jsl_optimization</b><span>Local, constrained and global optimisation</span></a></li>
+  <li><a href="api/lib_jsl_root_finding/index.html"><b>lib_jsl_root_finding</b><span>Scalar roots, polynomials, nonlinear systems</span></a></li>
+  <li><a href="api/lib_jsl_special_functions/index.html"><b>lib_jsl_special_functions</b><span>Gamma, Bessel, elliptic, hypergeometric, Mathieu and more</span></a></li>
+  <li><a href="api/lib_jsl_interpolation/index.html"><b>lib_jsl_interpolation</b><span>Splines, scattered data, radial basis functions</span></a></li>
+  <li><a href="api/lib_jsl_derivatives/index.html"><b>lib_jsl_derivatives</b><span>Numerical differentiation</span></a></li>
+  <li><a href="api/lib_jsl_ffts/index.html"><b>lib_jsl_ffts</b><span>FFTs, DCT/DST, fractional FFT, FFTLog</span></a></li>
+  <li><a href="api/lib_jsl_dsp/index.html"><b>lib_jsl_dsp</b><span>Filters, spectral estimation, communications, controls, images</span></a></li>
+  <li><a href="api/lib_jsl_electromagnetics/index.html"><b>lib_jsl_electromagnetics</b><span>Fields, antennas, arrays, propagation</span></a></li>
+  <li><a href="api/lib_jsl_statistics/index.html"><b>lib_jsl_statistics</b><span>Distributions, hypothesis tests, regression, bootstrap</span></a></li>
+  <li><a href="api/lib_jsl_random/index.html"><b>lib_jsl_random</b><span>Generators, quasi-random sequences, MCMC</span></a></li>
+  <li><a href="api/lib_jsl_machine_learning/index.html"><b>lib_jsl_machine_learning</b><span>Regression, classification, clustering, neural networks</span></a></li>
+  <li><a href="api/lib_jsl_graph/index.html"><b>lib_jsl_graph</b><span>Shortest paths, flows, matchings, orderings</span></a></li>
+  <li><a href="api/lib_jsl_geometry/index.html"><b>lib_jsl_geometry</b><span>Geometry, hulls and triangulations in any dimension</span></a></li>
+  <li><a href="api/lib_jsl_number_theory/index.html"><b>lib_jsl_number_theory</b><span>Modular arithmetic, primes, factorisation</span></a></li>
+  <li><a href="api/lib_jsl_information/index.html"><b>lib_jsl_information</b><span>Source and error-correcting codes, CRC, SHA-256</span></a></li>
+  <li><a href="api/lib_jsl_file_io/index.html"><b>lib_jsl_file_io</b><span>WAV, JPEG, PNG, CSV, NumPy, MATLAB, NetCDF and more</span></a></li>
+  <li><a href="api/lib_jsl_sorting/index.html"><b>lib_jsl_sorting</b><span>Sorting and selection</span></a></li>
+  <li><a href="api/lib_jsl_utils/index.html"><b>lib_jsl_utils</b><span>Terminal plots, unit conversion, numerical helpers</span></a></li>
+  <li><a href="api/lib_jsl_linalg_reference/index.html"><b>lib_jsl_linalg_reference</b><span>Readable textbook linear algebra, for study</span></a></li>
+  <li><a href="api/lib_jsl_ffts_reference/index.html"><b>lib_jsl_ffts_reference</b><span>Readable reference FFTs, for study</span></a></li>
+</ul>
+
+<footer>
+  lib_jsl {{VERSION}} &middot; MIT licence &middot;
+  <a href="https://github.com/jwkunz/lib_jsl">Source on GitHub</a> &middot;
+  <a href="https://github.com/jwkunz/lib_jsl/issues">Issues</a> &middot;
+  <a href="https://crates.io/crates/lib_jsl">crates.io</a>
+</footer>
+</main>
 </body>
 </html>

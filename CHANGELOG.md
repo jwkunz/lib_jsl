@@ -6,6 +6,16 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.21.1] - 2026-11-22
+
+### Changed
+
+- Every crate's `homepage` is now the project home page, <https://jwkunz.github.io/lib_jsl/>,
+  which leads to the API reference and the technical documentation (the book); it was the book's
+  address. The home page itself is redesigned: two clear entry points, installation, and the API
+  reference by crate.
+- The umbrella crate packages only its source, README, licence and changelog.
+
 ## [2.21.0] - 2026-11-22
 
 ### Changed
@@ -770,7 +780,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.21.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.21.1...HEAD
+[2.21.1]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.21.1
 [2.21.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.21.0
 [2.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.20.0
 [2.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.19.0

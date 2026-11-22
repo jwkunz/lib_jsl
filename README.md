@@ -7,9 +7,11 @@ and more. Everything is implemented from first principles, tested against analyt
 independent references, and documented for people who want to understand how the algorithms
 work as well as use them.
 
-- **Book:** <https://jwkunz.github.io/lib_jsl/book/>, an encyclopedia of the algorithms (what
-  they do, who devised them, why they work, how they are implemented), written for advanced
-  undergraduates.
+- **Home page:** <https://jwkunz.github.io/lib_jsl/>, which leads to the API reference and the
+  technical documentation below.
+- **Technical documentation (the book):** <https://jwkunz.github.io/lib_jsl/book/>, an
+  encyclopedia of the algorithms (what they do, who devised them, why they work, how they are
+  implemented), written for advanced undergraduates.
 - **API reference:** <https://jwkunz.github.io/lib_jsl/api/>
 - **Catalogue:** the book's [catalogue of algorithms](https://jwkunz.github.io/lib_jsl/book/catalogue.html) lists everything the library
   implements (655 items), grouped by subject, and what it deliberately does not cover.
@@ -18,7 +20,7 @@ work as well as use them.
 
 | | |
 |---|---|
-| Version | 2.21.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
+| Version | 2.21.1 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
 | Algorithms | 655 algorithms and components across 23 library crates |
 | Tests | 1,510 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |

@@ -24,7 +24,7 @@ work as well as use them.
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
 | Documentation | API reference for every crate; a book of 171 entries covering every subject of the catalogue, each with its idea, algorithm, measured results and exercises |
 | Stability | From 2.0.0 the API follows semantic versioning strictly: one error type, `#[non_exhaustive]` results and errors; see [API conventions](https://jwkunz.github.io/lib_jsl/book/foundations/api-conventions.html) |
-| Publishing | Every crate packages and verifies for crates.io (`cargo package --workspace`); not yet published, so use a git dependency for now |
+| Publishing | On [crates.io](https://crates.io/crates/lib_jsl) as `lib_jsl` and one `lib_jsl_*` crate per domain; API reference also on [docs.rs](https://docs.rs/lib_jsl) |
 
 ## Crates
 
@@ -61,9 +61,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v2.21.0" }
+lib_jsl = "2.21"
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v2.21.0" }
+lib_jsl_integration = "2.21"
 ```
 
 ```rust
@@ -166,7 +166,6 @@ Planned work is tracked in [GitHub issues](https://github.com/jwkunz/lib_jsl/iss
   Carlo, more distributions), signals ([#16](https://github.com/jwkunz/lib_jsl/issues/16)),
   geometry and graphs ([#17](https://github.com/jwkunz/lib_jsl/issues/17)) and file formats
   ([#18](https://github.com/jwkunz/lib_jsl/issues/18)).
-- **Publishing** the crates to crates.io ([#8](https://github.com/jwkunz/lib_jsl/issues/8)).
 - **Linear algebra performance**: multishift QR for large general eigenproblems
   ([#9](https://github.com/jwkunz/lib_jsl/issues/9)) and LU and small Cholesky
   ([#10](https://github.com/jwkunz/lib_jsl/issues/10)).

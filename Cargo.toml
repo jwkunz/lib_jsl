@@ -87,6 +87,8 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 description = "Jake's Scientific Library: pure-Rust algorithms for scientific computing, re-exporting the lib_jsl domain crates."
+# The book, its generator and the CI files stay in the repository.
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE", "CHANGELOG.md"]
 
 [lib]
 path = "src/mod.rs"

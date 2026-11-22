@@ -23,6 +23,19 @@ every number you see is one the code actually computes.
 
 Entries link to the exact API items they describe, and the API documentation links back here.
 
+## Getting the library
+
+The crates are published on [crates.io](https://crates.io/search?q=lib_jsl): the umbrella crate
+[`lib_jsl`](https://crates.io/crates/lib_jsl), which re-exports everything by domain, and one `lib_jsl_*` crate per domain
+(`lib_jsl_linalg`, `lib_jsl_integration`, ...), which can each be used on its own.
+
+```console
+cargo add lib_jsl
+```
+
+Each crate's API reference is also on [docs.rs](https://docs.rs/lib_jsl). The project [home page](https://jwkunz.github.io/lib_jsl/) leads to
+this book and to the API reference, and every crates.io listing links to it.
+
 ## Prerequisites
 
 Calculus, linear algebra and some familiarity with Taylor series are assumed throughout. Four further topics are used

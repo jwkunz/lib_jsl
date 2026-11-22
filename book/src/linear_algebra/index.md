@@ -51,8 +51,7 @@ with SciPy's names (`expm`, `solve_sylvester`, `solve_discrete_are`, ...). The
 factorisations are organised, as in LAPACK, so that most of their arithmetic is done by a fast
 matrix-multiply kernel (from the `matrixmultiply` crate). Against OpenBLAS on one core, most
 operations take between 0.4 and 1.6 times as long (the README's benchmark table); the open issues
-[#9](https://github.com/jwkunz/lib_jsl/issues/9), [#10](https://github.com/jwkunz/lib_jsl/issues/10) and
-[#11](https://github.com/jwkunz/lib_jsl/issues/11) track the remaining gaps.
+[#9](https://github.com/jwkunz/lib_jsl/issues/9) and [#10](https://github.com/jwkunz/lib_jsl/issues/10) track the remaining gaps.
 
 ### The reference crate
 

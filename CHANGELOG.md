@@ -6,6 +6,12 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation: the README lists and links the crates.io listings, gives the release procedure and a current
+  roadmap (issues #32–#38); the book's introduction has a "Getting the library" section; stale figures and
+  references to closed issues are corrected.
+
 ## [2.21.1] - 2026-11-22
 
 ### Changed

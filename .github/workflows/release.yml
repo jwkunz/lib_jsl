@@ -1,0 +1,52 @@
+name: Release
+
+# Creates the GitHub Release for a version tag, with the release notes taken from CHANGELOG.md:
+#   - push a tag `vX.Y.Z`, or
+#   - run this workflow by hand with the name of an existing tag.
+# For a patch release (X.Y.Z with Z > 0) the notes include the section of X.Y.0 as well.
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "An existing tag, for example v2.21.1"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+      - name: Release notes from the changelog
+        run: |
+          v="${TAG#v}"
+          minor="${v%.*}.0"
+          awk -v from="## [$v]" -v to="## [$minor]" '
+            /^\[[^]]*\]: / { next }
+            /^## \[/ {
+              if (seen) exit
+              if (index($0, from) == 1) on = 1
+              if (on && index($0, to) == 1) seen = 1
+            }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then echo "No changelog section for $v" >&2; exit 1; fi
+          {
+            echo
+            echo "---"
+            echo "Crates: <https://crates.io/crates/lib_jsl> · Documentation: <https://jwkunz.github.io/lib_jsl/>"
+          } >> notes.md
+          cat notes.md
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$TAG" --verify-tag --title "lib_jsl ${TAG#v}" --notes-file notes.md --latest

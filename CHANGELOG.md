@@ -6,6 +6,21 @@ All crates in the workspace share one version. The format follows
 
 ## [Unreleased]
 
+## [2.21.0] - 2026-11-22
+
+### Changed
+
+- `linalg`: the general eigenproblem (`eig`, `eigvals`, `schur_real` and everything built on the
+  real Schur form) uses aggressive early deflation on active blocks of order 75 and more, with
+  the window's undeflated eigenvalues as shifts; about 1.4–1.5 times faster at n = 256–512.
+- `linalg`: small Cholesky factorisations (n ≤ 64) skip blocking.
+
+### Fixed
+
+- `linalg`: swaps of diagonal blocks in Schur-form reordering (`schur_sorted`, `ordqz`) are
+  rejected, as in LAPACK's `dlaexc`, when they would not be accurate, instead of forcing the
+  off-diagonal block to zero.
+
 ## [2.20.0] - 2026-11-21
 
 ### Added
@@ -755,7 +770,8 @@ in the book's [catalogue](https://jwkunz.github.io/lib_jsl/book/catalogue.html))
 - The Simpson's 1/3 engine had its 4 and 2 weights swapped; it now also uses a 3/8 tail for an
   even number of points.
 
-[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.20.0...HEAD
+[Unreleased]: https://github.com/jwkunz/lib_jsl/compare/v2.21.0...HEAD
+[2.21.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.21.0
 [2.20.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.20.0
 [2.19.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.19.0
 [2.18.0]: https://github.com/jwkunz/lib_jsl/releases/tag/v2.18.0

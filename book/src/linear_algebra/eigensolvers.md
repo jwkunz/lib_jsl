@@ -141,9 +141,27 @@ meaningful than the eigenvalues themselves.
 <p class="caption" id="fig-7-6"><strong>Figure 7.6.</strong> Eigensolver speed.</p>
 
 The reduction to tridiagonal form makes the production symmetric solver roughly two orders of magnitude faster than the
-reference QR algorithm on the full matrix at $n = 128$. Against OpenBLAS's LAPACK, the symmetric solver is about as fast, and the general
-solver is as fast for small matrices but 2.5 times slower at $n = 256$, for want of multishift QR with aggressive early
-deflation ([issue #9](https://github.com/jwkunz/lib_jsl/issues/9)).
+reference QR algorithm on the full matrix at $n = 128$. Against OpenBLAS's LAPACK, the symmetric solver is about as fast. The general
+solver is as fast for small matrices and slower for large ones, where LAPACK's blocked multishift QR pays off
+([issue #9](https://github.com/jwkunz/lib_jsl/issues/9)).
+
+### Aggressive early deflation
+
+Since 2.21.0, active blocks of order 75 or more use *aggressive early deflation* (Braman, Byers and Mathias, 2002; LAPACK's `dlaqr2`).
+1. The trailing window of order $n_w$ (10 to 64, by LAPACK's defaults) is reduced to real Schur form, $T = V^\top W V$.
+2. Its coupling to the rest of the matrix becomes a single column, the *spike* $s\,V^\top e_1$, where $s$ is the sub-diagonal entry above the window.
+3. An eigenvalue at the bottom of $T$ whose spike entries are below $\varepsilon$ times its size has converged and is deflated at once, often long before the sub-diagonal entries of ordinary deflation become small.
+4. Undeflatable eigenvalues are moved to the top of the window by block swaps, the window is returned to Hessenberg form, and $V$ is applied to the rest of the matrix and to the Schur vectors.
+
+The undeflated eigenvalues then serve as shifts for several double-shift sweeps.
+
+```rust,ignore
+{{#include ../../../crates/linalg/src/eig.rs:aed}}
+```
+
+One subtlety: the double-shift sweeps leave stale bulge entries below the sub-diagonal, which EISPACK's algorithm never reads again, so the window must be read as a Hessenberg matrix.
+
+On this book's build machine, against OpenBLAS (single-threaded), the change took the general eigenproblem with eigenvectors at $n = 512$ from 3.3 to 2.3 times LAPACK's time, and at $n = 256$ from 2.3 to about 1.5 times; timings there vary by up to 20 % between runs. The remaining gap is LAPACK's small-bulge multishift sweep (`dlaqr5`). It chases many bulges together through a window and applies the accumulated transformation to the rest of the matrix by matrix multiplication, where the library chases them one after another.
 
 ## Algorithm
 
@@ -209,7 +227,7 @@ Balancing:
 
 **Weaknesses**
 
-- The general solver lacks multishift QR and aggressive early deflation, and falls behind LAPACK for large matrices.
+- The general solver has aggressive early deflation but not LAPACK's blocked multishift sweeps, and falls behind LAPACK for large matrices.
 - No generalised eigenproblem ($A\mathbf v = \lambda B\mathbf v$; for symmetric positive definite $B$, reduce with the Cholesky factor of $B$), and no
   iterative methods for a few eigenvalues of large sparse matrices.
 - Eigenvalues of non-normal matrices may be inaccurate, as for any method.

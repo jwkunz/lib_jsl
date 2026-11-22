@@ -18,7 +18,7 @@ work as well as use them.
 
 | | |
 |---|---|
-| Version | 2.20.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
+| Version | 2.21.0 (all crates share the workspace version); see the [changelog](CHANGELOG.md) |
 | Algorithms | 655 algorithms and components across 23 library crates |
 | Tests | 1,510 unit tests, doctests and example builds; `cargo clippy` clean |
 | Dependencies | Pure Rust; no system libraries. Runtime dependencies: `ndarray`, `num-complex`, `num-traits` (and `matrixmultiply`, which ndarray already uses) |
@@ -61,9 +61,9 @@ The umbrella crate `lib_jsl` re-exports the domain crates (`lib_jsl::integration
 
 ```toml
 [dependencies]
-lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v2.20.0" }
+lib_jsl = { git = "https://github.com/jwkunz/lib_jsl", tag = "v2.21.0" }
 # or a single domain:
-lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v2.20.0" }
+lib_jsl_integration = { git = "https://github.com/jwkunz/lib_jsl", tag = "v2.21.0" }
 ```
 
 ```rust
@@ -100,8 +100,9 @@ meaning faster):
 | Least squares (2n × n) | 35.7 µs vs 62.9 µs (0.6×) | 668 µs vs 1.00 ms (0.7×) | 23.5 ms vs 16.5 ms (1.4×) |
 
 Most operations are within a factor of 1.6 of OpenBLAS, and several are faster. The general
-eigenproblem is the exception at larger sizes: LAPACK's multishift QR with aggressive early
-deflation is not implemented here. OpenBLAS's default multithreading is slower than its
+eigenproblem is the exception at larger sizes. Since 2.21.0 it uses aggressive early deflation,
+which on a later test machine brought it from 3.3 to 2.3 times LAPACK's time at n = 512, but
+LAPACK's blocked multishift sweeps are not implemented here. OpenBLAS's default multithreading is slower than its
 single-threaded mode at these sizes; the optional `threading` feature enables
 `matrixmultiply`'s threads, which pay off from a few hundred rows (see the `large_sizes`
 example in `crates/linalg_bench`). Reproduce with

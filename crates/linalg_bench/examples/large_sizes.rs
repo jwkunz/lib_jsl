@@ -29,11 +29,12 @@ fn main() {
         let b = random_vector(n, 2);
         let spd = positive_definite(n, 3);
         let s = symmetric(n, 4);
-        let rows: [Row; 4] = [
+        let rows: [Row; 5] = [
             ("solve", Box::new(|| drop(black_box(ours::solve(&a, &b)))), Box::new(|| drop(black_box(lapack::solve(&a, &b))))),
             ("inverse", Box::new(|| drop(black_box(ours::inverse(&a)))), Box::new(|| drop(black_box(lapack::inverse(&a))))),
             ("cholesky", Box::new(|| drop(black_box(ours::cholesky(&spd)))), Box::new(|| drop(black_box(lapack::cholesky(&spd))))),
             ("eigh", Box::new(|| drop(black_box(ours::eigh(&s)))), Box::new(|| drop(black_box(lapack::eigh(&s))))),
+            ("eig", Box::new(|| drop(black_box(ours::eig(&a)))), Box::new(|| drop(black_box(lapack::eig(&a))))),
         ];
         for (name, ours_f, lapack_f) in rows.iter() {
             let (o, l) = (time(ours_f), time(lapack_f));

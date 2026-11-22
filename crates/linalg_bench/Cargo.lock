@@ -455,9 +455,29 @@ dependencies = [
 ]
 
 [[package]]
-name = "lib_jsl_linalg"
-version = "1.0.0"
+name = "lib_jsl_core"
+version = "2.20.0"
 dependencies = [
+ "ndarray",
+ "num-complex",
+ "num-traits",
+]
+
+[[package]]
+name = "lib_jsl_ffts"
+version = "2.20.0"
+dependencies = [
+ "lib_jsl_core",
+ "ndarray",
+ "num-complex",
+]
+
+[[package]]
+name = "lib_jsl_linalg"
+version = "2.20.0"
+dependencies = [
+ "lib_jsl_core",
+ "lib_jsl_ffts",
  "matrixmultiply",
  "ndarray",
  "num-complex",

@@ -67,7 +67,7 @@ impl EigenSort<'_> {
 // ------------------------------------------------------------------------------ small kernels
 
 /// A Householder reflector `I − β u uᵀ` with `u₀ = 1` taking `x` to `±‖x‖ e₁`.
-fn house(x: &[f64]) -> (Vec<f64>, f64) {
+pub(crate) fn house(x: &[f64]) -> (Vec<f64>, f64) {
     let n = x.len();
     let alpha = x[0];
     let sigma: f64 = x[1..].iter().map(|v| v * v).sum();
@@ -86,7 +86,7 @@ fn house(x: &[f64]) -> (Vec<f64>, f64) {
 }
 
 /// `M[rows, cols] ← (I − β u uᵀ) M[rows, cols]` with the reflector acting on rows `r0..r0+len`.
-fn reflect_rows(m: &mut Array2<f64>, u: &[f64], beta: f64, r0: usize) {
+pub(crate) fn reflect_rows(m: &mut Array2<f64>, u: &[f64], beta: f64, r0: usize) {
     if beta == 0.0 {
         return;
     }
@@ -99,7 +99,7 @@ fn reflect_rows(m: &mut Array2<f64>, u: &[f64], beta: f64, r0: usize) {
 }
 
 /// `M ← M (I − β u uᵀ)` on columns `c0..c0+len`.
-fn reflect_cols(m: &mut Array2<f64>, u: &[f64], beta: f64, c0: usize) {
+pub(crate) fn reflect_cols(m: &mut Array2<f64>, u: &[f64], beta: f64, c0: usize) {
     if beta == 0.0 {
         return;
     }
@@ -211,7 +211,7 @@ fn standardize_schur_block(t: &mut Array2<f64>, z: &mut Array2<f64>, k: usize) {
 
 /// Swaps the adjacent diagonal blocks at `k` (size `p1`) and `k + p1` (size `p2`) of the real
 /// Schur form `T`, accumulating into `Z`.
-fn swap_schur(t: &mut Array2<f64>, z: &mut Array2<f64>, k: usize, p1: usize, p2: usize) -> bool {
+pub(crate) fn swap_schur(t: &mut Array2<f64>, z: &mut Array2<f64>, k: usize, p1: usize, p2: usize) -> bool {
     let m = p1 + p2;
     // A₁₁ X − X A₂₂ = −A₁₂ by Kronecker products: (I ⊗ A₁₁ − A₂₂ᵀ ⊗ I) vec X = −vec A₁₂.
     let a11 = |i: usize, j: usize| t[(k + i, k + j)];
@@ -241,6 +241,19 @@ fn swap_schur(t: &mut Array2<f64>, z: &mut Array2<f64>, k: usize, p1: usize, p2:
     }
     let q = orthonormal_completion(&xi);
     let n = t.nrows();
+    // Reject the swap if the transformed block is not block triangular to working accuracy
+    // (LAPACK's dlaexc test): forcing the off-diagonal block to zero would then not be a
+    // similarity.
+    let dnorm = (0..m).flat_map(|i| (0..m).map(move |j| (i, j))).map(|(i, j)| t[(k + i, k + j)].abs()).fold(0.0f64, f64::max);
+    let thresh = (10.0 * f64::EPSILON * dnorm).max(f64::MIN_POSITIVE);
+    for i in p2..m {
+        for j in 0..p2 {
+            let v: f64 = (0..m).map(|r| q[(r, i)] * (0..m).map(|c| t[(k + r, k + c)] * q[(c, j)]).sum::<f64>()).sum();
+            if v.abs() > thresh {
+                return false;
+            }
+        }
+    }
     // T ← Qᵀ T Q on rows/columns k..k+m.
     let mut rows = Array2::<f64>::zeros((m, n));
     for i in 0..m {
@@ -290,7 +303,7 @@ fn swap_schur(t: &mut Array2<f64>, z: &mut Array2<f64>, k: usize, p1: usize, p2:
 }
 
 /// The eigenvalue(s) of the block at `k` of size `s`.
-fn block_eigs(t: &Array2<f64>, k: usize, s: usize) -> Vec<C> {
+pub(crate) fn block_eigs(t: &Array2<f64>, k: usize, s: usize) -> Vec<C> {
     if s == 1 {
         return vec![C::new(t[(k, k)], 0.0)];
     }

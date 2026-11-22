@@ -282,11 +282,18 @@ fn real_schur_path_stress() {
         let gap = real_path.iter().zip(&complex_path).fold(0.0f64, |m, (x, y)| m.max((x - y).norm()));
         assert!(gap < 1e-8 * scale, "{label}: real and complex paths differ by {gap:e}");
     };
-    for n in [3, 4, 64, 150] {
+    // Sizes above 75 go through aggressive early deflation and multi-shift sweeps.
+    for n in [3, 4, 64, 150, 300] {
         check(&rng.real(n, n), "random");
     }
     let s = rng.real(40, 40);
     check(&(&s + &s.t()), "symmetric");
+    let s = rng.real(200, 200);
+    check(&(&s + &s.t()), "symmetric, n = 200");
+    // A matrix already in upper Hessenberg form.
+    let r = rng.real(120, 120);
+    let g = Array2::from_shape_fn((120, 120), |(i, j)| if i <= j + 1 { r[[i, j]] } else { 0.0 });
+    check(&g, "Hessenberg");
     check(&Array2::<f64>::eye(7), "identity");
     check(&Array2::<f64>::zeros((5, 5)), "zero");
     // A cyclic permutation: eigenvalues are the 12th roots of unity, all of equal modulus.

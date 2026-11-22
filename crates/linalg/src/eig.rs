@@ -190,6 +190,7 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
     let mut shift_total = 0.0;
     let mut hi = n; // the active matrix is rows/columns 0..hi
     let mut its = 0;
+    let mut aed_sweeps = 0;
     // Without Z only the active block need be kept up to date (EISPACK's hqr rather than hqr2):
     // entries outside it are never read again.
     let full = zt.is_some();
@@ -261,6 +262,35 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
             its = 0;
             continue;
         }
+        // Large active blocks: aggressive early deflation, then several double-shift sweeps
+        // with the window's undeflated eigenvalues as shifts.
+        if nn + 1 - l >= AED_MIN {
+            aed_sweeps += 1;
+            if aed_sweeps > 30 * n {
+                return Err(LinalgError::NoConvergence("the Francis QR iteration"));
+            }
+            let (ns, nw) = aed_parameters(nn + 1 - l);
+            let (nd, mut shifts) = aed(a, zt.as_deref_mut(), l, hi, nw, full, &mut pair, shift_total)?;
+            hi -= nd;
+            if nd > 0 && 100 * nd > 14 * nw {
+                continue;
+            }
+            if shifts.len() > ns / 2 {
+                shifts.drain(..shifts.len() - ns / 2);
+            }
+            let bottom = hi - 1;
+            if !shifts.is_empty() && bottom >= l + 2 {
+                for &(sum, prod) in shifts.iter().rev() {
+                    let half = 0.5 * sum;
+                    sweep(a, zt.as_deref_mut(), l, bottom, half, half, half * half - prod, full);
+                }
+                continue;
+            }
+            // After a deflation the bottom of the active block has moved: start over.
+            if nd > 0 {
+                continue;
+            }
+        }
         if its == 60 {
             return Err(LinalgError::NoConvergence("the Francis QR iteration"));
         }
@@ -276,99 +306,7 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
             w = -0.4375 * s * s;
         }
         its += 1;
-        // Look for two consecutive small sub-diagonal entries to start the bulge lower.
-        let mut m = nn - 2;
-        let (mut p, mut q, mut r);
-        loop {
-            let z = at!(m, m);
-            let rr = x - z;
-            let s = y - z;
-            p = (rr * s - w) / at!(m + 1, m) + at!(m, m + 1);
-            q = at!(m + 1, m + 1) - z - rr - s;
-            r = at!(m + 2, m + 1);
-            let s = p.abs() + q.abs() + r.abs();
-            p /= s;
-            q /= s;
-            r /= s;
-            if m == l {
-                break;
-            }
-            let u = at!(m, m - 1).abs() * (q.abs() + r.abs());
-            let v = p.abs() * (at!(m - 1, m - 1).abs() + z.abs() + at!(m + 1, m + 1).abs());
-            if u <= f64::EPSILON * v {
-                break;
-            }
-            m -= 1;
-        }
-        for i in m..nn - 1 {
-            at!(i + 2, i) = 0.0;
-            if i != m {
-                at!(i + 2, i - 1) = 0.0;
-            }
-        }
-        // Chase the bulge with 3 × 3 Householder reflections.
-        for k in m..nn {
-            let last = k + 1 == nn;
-            if k != m {
-                p = at!(k, k - 1);
-                q = at!(k + 1, k - 1);
-                r = if last { 0.0 } else { at!(k + 2, k - 1) };
-                x = p.abs() + q.abs() + r.abs();
-                if x != 0.0 {
-                    p /= x;
-                    q /= x;
-                    r /= x;
-                }
-            }
-            let s = (p * p + q * q + r * r).sqrt().copysign(p);
-            if s == 0.0 {
-                continue;
-            }
-            if k == m {
-                if l != m {
-                    at!(k, k - 1) = -at!(k, k - 1);
-                }
-            } else {
-                at!(k, k - 1) = -s * x;
-            }
-            p += s;
-            let (hx, hy, hz) = (p / s, q / s, r / s);
-            q /= p;
-            r /= p;
-            for j in k..col_end(nn) {
-                let mut t = at!(k, j) + q * at!(k + 1, j);
-                if !last {
-                    t += r * at!(k + 2, j);
-                    at!(k + 2, j) -= t * hz;
-                }
-                at!(k + 1, j) -= t * hy;
-                at!(k, j) -= t * hx;
-            }
-            for i in row_start(l)..=nn.min(k + 3) {
-                let mut t = hx * at!(i, k) + hy * at!(i, k + 1);
-                if !last {
-                    t += hz * at!(i, k + 2);
-                    at!(i, k + 2) -= t * r;
-                }
-                at!(i, k + 1) -= t * q;
-                at!(i, k) -= t;
-            }
-            if let Some(zt) = zt.as_deref_mut() {
-                let rows = if last { 2 } else { 3 };
-                let block = &mut zt.data[k * n..(k + rows) * n];
-                let (r0, rest) = block.split_at_mut(n);
-                let (r1, r2) = rest.split_at_mut(n);
-                for i in 0..n {
-                    let mut t = hx * r0[i] + hy * r1[i];
-                    if !last {
-                        t += hz * r2[i];
-                        r2[i] -= t * r;
-                    }
-                    r1[i] -= t * q;
-                    r0[i] -= t;
-                }
-            }
-        }
+        sweep(a, zt.as_deref_mut(), l, nn, x, y, w, full);
     }
     // Clear everything below the sub-diagonal, and the sub-diagonal outside 2 × 2 blocks.
     for i in 1..n {
@@ -380,6 +318,306 @@ fn real_schur(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>) -> Result<Vec<boo
     }
     Ok(pair)
 }
+
+/// Active blocks at least this large use aggressive early deflation (LAPACK's `nmin`).
+const AED_MIN: usize = 75;
+
+/// The number of shifts per sweep and the deflation window for an active block of size `nh`
+/// (LAPACK's `iparmq` defaults).
+fn aed_parameters(nh: usize) -> (usize, usize) {
+    let ns = if nh < 150 {
+        10
+    } else if nh < 590 {
+        (nh as f64 / (nh as f64).log2().round()) as usize
+    } else if nh < 3000 {
+        64
+    } else {
+        128
+    };
+    let ns = (ns.max(2) / 2) * 2;
+    let nw = if nh <= 500 { ns } else { 3 * ns / 2 };
+    (ns, nw.min(nh - 1))
+}
+
+// ANCHOR: aed
+/// Aggressive early deflation (Braman, Byers and Mathias, 2002; LAPACK's `dlaqr2`) on the
+/// trailing `nw × nw` window of the active block `l..hi`. The window is reduced to real Schur
+/// form `T = Vᵀ W V`; the coupling to the rest is then the *spike* `s Vᵀ e₁`, `s` the sub-diagonal
+/// entry above the window. Eigenvalues at the bottom of `T` whose spike entries are negligible
+/// have converged and are deflated; the others are moved to the top by block swaps. The window is
+/// returned to Hessenberg form and `V` applied to the rest of `H` and to `Z`. Returns the number
+/// of deflated eigenvalues and the undeflated ones as shift pairs `(sum, product)`.
+#[allow(clippy::too_many_arguments)]
+fn aed(a: &mut Mat<f64>, zt: Option<&mut Mat<f64>>, l: usize, hi: usize, nw: usize, full: bool, pair: &mut [bool], shift_total: f64) -> Result<(usize, Vec<(f64, f64)>)> {
+    use crate::reorder::{block_eigs, house, reflect_cols, reflect_rows, swap_schur};
+    use ndarray::Array2;
+    let n = a.rows;
+    let kw = l.max(hi - nw);
+    let jw = hi - kw;
+    let spike_scale = if kw > l { a.data[kw * n + kw - 1] } else { 0.0 };
+    let mut win = Mat::<f64>::zeros(jw, jw);
+    for i in 0..jw {
+        for j in 0..jw {
+            // Entries below the sub-diagonal are the sweeps' scratch space (as in EISPACK's
+            // hqr), not part of the matrix.
+            *win.at_mut(i, j) = if i > j + 1 { 0.0 } else { a.data[(kw + i) * n + kw + j] };
+        }
+    }
+    let (tm, vm, _) = real_schur_unbalanced(&win)?;
+    let mut t = Array2::from_shape_fn((jw, jw), |(i, j)| tm.at(i, j));
+    let mut v = Array2::from_shape_fn((jw, jw), |(i, j)| vm.at(i, j));
+    // Deflation check from the bottom; undeflatable blocks move to position `ilst`.
+    let eps = f64::EPSILON;
+    let small = f64::MIN_POSITIVE * (n as f64 / eps);
+    let mut ns = jw;
+    let mut ilst = 0;
+    while ilst < ns {
+        let two = ns >= 2 && t[(ns - 1, ns - 2)] != 0.0;
+        let size = if two { 2 } else { 1 };
+        let top = ns - size;
+        let deflatable = if two {
+            let size_scale = t[(ns - 1, ns - 1)].abs() + t[(ns - 1, ns - 2)].abs().sqrt() * t[(ns - 2, ns - 1)].abs().sqrt();
+            let size_scale = if size_scale == 0.0 { spike_scale.abs() } else { size_scale };
+            (spike_scale * v[(0, ns - 1)]).abs().max((spike_scale * v[(0, ns - 2)]).abs()) <= small.max(eps * size_scale)
+        } else {
+            let size_scale = if t[(ns - 1, ns - 1)] == 0.0 { spike_scale.abs() } else { t[(ns - 1, ns - 1)].abs() };
+            (spike_scale * v[(0, ns - 1)]).abs() <= small.max(eps * size_scale)
+        };
+        if deflatable {
+            ns -= size;
+            continue;
+        }
+        // Move the block at `top` up to `ilst` by adjacent swaps.
+        let mut k = top;
+        let mut moved = true;
+        while k > ilst {
+            let above = if k >= 2 && t[(k - 1, k - 2)] != 0.0 { 2 } else { 1 };
+            if !swap_schur(&mut t, &mut v, k - above, above, size) {
+                moved = false;
+                break;
+            }
+            k -= above;
+        }
+        if !moved {
+            break;
+        }
+        ilst += size;
+    }
+    let nd = jw - ns;
+    // The undeflated eigenvalues, as shift pairs.
+    let mut shifts = Vec::new();
+    let mut reals = Vec::new();
+    let mut k = 0;
+    while k < ns {
+        let two = k + 1 < ns && t[(k + 1, k)] != 0.0;
+        let ev = block_eigs(&t, k, if two { 2 } else { 1 });
+        if two && ev[0].im != 0.0 {
+            shifts.push((2.0 * ev[0].re, ev[0].norm_sqr()));
+        } else {
+            reals.extend(ev.iter().map(|z| z.re));
+        }
+        k += if two { 2 } else { 1 };
+    }
+    for p in reals.chunks(2) {
+        if p.len() == 2 {
+            shifts.push((p[0] + p[1], p[0] * p[1]));
+        }
+    }
+    if nd == 0 && spike_scale != 0.0 {
+        return Ok((0, shifts));
+    }
+    // The spike, with the deflated part zero; return the undeflated part to Hessenberg form.
+    let mut spike: Vec<f64> = (0..jw).map(|i| if i < ns { spike_scale * v[(0, i)] } else { 0.0 }).collect();
+    if ns > 1 && spike_scale != 0.0 {
+        let (u, beta) = house(&spike[..ns]);
+        reflect_rows(&mut t, &u, beta, 0);
+        reflect_cols(&mut t, &u, beta, 0);
+        reflect_cols(&mut v, &u, beta, 0);
+        let s0: f64 = u.iter().zip(&spike).map(|(a, b)| a * b).sum();
+        spike[0] -= beta * s0;
+        for item in spike.iter_mut().take(ns).skip(1) {
+            *item = 0.0;
+        }
+        for c in 0..ns.saturating_sub(2) {
+            let x: Vec<f64> = (c + 1..ns).map(|i| t[(i, c)]).collect();
+            let (u, beta) = house(&x);
+            reflect_rows(&mut t, &u, beta, c + 1);
+            reflect_cols(&mut t, &u, beta, c + 1);
+            reflect_cols(&mut v, &u, beta, c + 1);
+            for i in c + 2..ns {
+                t[(i, c)] = 0.0;
+            }
+        }
+    }
+    // Write the window back and apply V to the rest of H and to Z.
+    for i in 0..jw {
+        for j in 0..jw {
+            a.data[(kw + i) * n + kw + j] = if j + 1 < i { 0.0 } else { t[(i, j)] };
+        }
+    }
+    if kw > l {
+        for i in 0..jw {
+            a.data[(kw + i) * n + kw - 1] = if i == 0 { spike[0] } else { 0.0 };
+        }
+    }
+    let r0 = if full { 0 } else { l };
+    let mut tmp = vec![0.0; jw];
+    for r in r0..kw {
+        let row = &a.data[r * n + kw..r * n + hi];
+        for (j, out) in tmp.iter_mut().enumerate() {
+            *out = (0..jw).map(|k| row[k] * v[(k, j)]).sum();
+        }
+        a.data[r * n + kw..r * n + hi].copy_from_slice(&tmp);
+    }
+    let c1 = if full { n } else { hi };
+    if c1 > hi {
+        let mut block = vec![0.0; jw * (c1 - hi)];
+        for i in 0..jw {
+            for c in hi..c1 {
+                block[i * (c1 - hi) + c - hi] = (0..jw).map(|k| v[(k, i)] * a.data[(kw + k) * n + c]).sum();
+            }
+        }
+        for i in 0..jw {
+            a.data[(kw + i) * n + hi..(kw + i) * n + c1].copy_from_slice(&block[i * (c1 - hi)..(i + 1) * (c1 - hi)]);
+        }
+    }
+    if let Some(zt) = zt {
+        let m = zt.cols;
+        let mut block = vec![0.0; jw * m];
+        for i in 0..jw {
+            for c in 0..m {
+                block[i * m + c] = (0..jw).map(|k| v[(k, i)] * zt.data[(kw + k) * m + c]).sum();
+            }
+        }
+        zt.data[kw * m..hi * m].copy_from_slice(&block);
+    }
+    // The deflated eigenvalues are final: mark complex pairs and undo the accumulated shift.
+    let mut k = kw + ns;
+    while k < hi {
+        if k + 1 < hi && a.data[(k + 1) * n + k] != 0.0 {
+            pair[k] = true;
+            a.data[k * n + k] += shift_total;
+            a.data[(k + 1) * n + k + 1] += shift_total;
+            k += 2;
+        } else {
+            a.data[k * n + k] += shift_total;
+            k += 1;
+        }
+    }
+    Ok((nd, shifts))
+}
+// ANCHOR_END: aed
+
+// ANCHOR: sweep
+/// One implicit double-shift QR sweep on the active block `l..=nn` (EISPACK's `hqr2` step):
+/// the shifts are the roots of `λ² − (x + y)λ + (xy − w)`, i.e. those of the trailing 2 × 2 block
+/// when `x`, `y`, `w` are its diagonal and off-diagonal product, or any pair passed by aggressive
+/// early deflation. The bulge starts below two consecutive small sub-diagonal entries if possible.
+#[allow(clippy::too_many_arguments)]
+fn sweep(a: &mut Mat<f64>, mut zt: Option<&mut Mat<f64>>, l: usize, nn: usize, mut x: f64, y: f64, w: f64, full: bool) {
+    let n = a.rows;
+    let col_end = |nn: usize| if full { n } else { nn + 1 };
+    let row_start = |l: usize| if full { 0 } else { l };
+    macro_rules! at {
+        ($i:expr, $j:expr) => {
+            a.data[($i) * n + ($j)]
+        };
+    }
+    // Look for two consecutive small sub-diagonal entries to start the bulge lower.
+    let mut m = nn - 2;
+    let (mut p, mut q, mut r);
+    loop {
+        let z = at!(m, m);
+        let rr = x - z;
+        let s = y - z;
+        p = (rr * s - w) / at!(m + 1, m) + at!(m, m + 1);
+        q = at!(m + 1, m + 1) - z - rr - s;
+        r = at!(m + 2, m + 1);
+        let s = p.abs() + q.abs() + r.abs();
+        p /= s;
+        q /= s;
+        r /= s;
+        if m == l {
+            break;
+        }
+        let u = at!(m, m - 1).abs() * (q.abs() + r.abs());
+        let v = p.abs() * (at!(m - 1, m - 1).abs() + z.abs() + at!(m + 1, m + 1).abs());
+        if u <= f64::EPSILON * v {
+            break;
+        }
+        m -= 1;
+    }
+    for i in m..nn - 1 {
+        at!(i + 2, i) = 0.0;
+        if i != m {
+            at!(i + 2, i - 1) = 0.0;
+        }
+    }
+    // Chase the bulge with 3 × 3 Householder reflections.
+    for k in m..nn {
+        let last = k + 1 == nn;
+        if k != m {
+            p = at!(k, k - 1);
+            q = at!(k + 1, k - 1);
+            r = if last { 0.0 } else { at!(k + 2, k - 1) };
+            x = p.abs() + q.abs() + r.abs();
+            if x != 0.0 {
+                p /= x;
+                q /= x;
+                r /= x;
+            }
+        }
+        let s = (p * p + q * q + r * r).sqrt().copysign(p);
+        if s == 0.0 {
+            continue;
+        }
+        if k == m {
+            if l != m {
+                at!(k, k - 1) = -at!(k, k - 1);
+            }
+        } else {
+            at!(k, k - 1) = -s * x;
+        }
+        p += s;
+        let (hx, hy, hz) = (p / s, q / s, r / s);
+        q /= p;
+        r /= p;
+        for j in k..col_end(nn) {
+            let mut t = at!(k, j) + q * at!(k + 1, j);
+            if !last {
+                t += r * at!(k + 2, j);
+                at!(k + 2, j) -= t * hz;
+            }
+            at!(k + 1, j) -= t * hy;
+            at!(k, j) -= t * hx;
+        }
+        for i in row_start(l)..=nn.min(k + 3) {
+            let mut t = hx * at!(i, k) + hy * at!(i, k + 1);
+            if !last {
+                t += hz * at!(i, k + 2);
+                at!(i, k + 2) -= t * r;
+            }
+            at!(i, k + 1) -= t * q;
+            at!(i, k) -= t;
+        }
+        if let Some(zt) = zt.as_deref_mut() {
+            let rows = if last { 2 } else { 3 };
+            let block = &mut zt.data[k * n..(k + rows) * n];
+            let (r0, rest) = block.split_at_mut(n);
+            let (r1, r2) = rest.split_at_mut(n);
+            for i in 0..n {
+                let mut t = hx * r0[i] + hy * r1[i];
+                if !last {
+                    t += hz * r2[i];
+                    r2[i] -= t * r;
+                }
+                r1[i] -= t * q;
+                r0[i] -= t;
+            }
+        }
+    }
+}
+// ANCHOR_END: sweep
 
 /// Triangularises each complex-conjugate 2 × 2 block of a real Schur form with one unitary
 /// rotation `G = [x, x^⊥]`, `x` the unit eigenvector of the block, turning it into the complex
@@ -579,3 +817,4 @@ pub(crate) fn eig<T: Scalar>(a: &Mat<T>) -> Result<(Vec<C>, Mat<C>)> {
     }
     Ok((values, vectors))
 }
+
